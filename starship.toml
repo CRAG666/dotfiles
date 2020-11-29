@@ -1,0 +1,24 @@
+[character]
+success_symbol = "[](bold fg:84)"
+error_symbol = "[✗](bold red)"
+
+[python]
+symbol = "  "
+scan_for_pyfiles = false
+
+[rust]
+symbol = " "
+
+[dart]
+format = "via [ $version](bold fg:#00b4aa) "
+
+[directory.substitutions]
+"~/Escritorio" = "\uF6C3 "
+"~/Descargas" = "\uf019 "
+"~/Documentos" = "\uf719 "
+"~/Imágenes" = "\ue244 "
+"~/Música" = "\ufc58 "
+"~/Vídeos" = "\uf191 "
+"~/Git" = "\uf7a1 "
+"/run/media/crag" = "\ufa52"
+

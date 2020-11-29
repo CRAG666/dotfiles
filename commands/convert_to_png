@@ -1,0 +1,105 @@
+#! /usr/bin/python3
+import os
+from base64 import b64encode
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+
+
+class convert_ui(Gtk.Window):
+    selected_images = []
+
+    def __init__(self):
+        Gtk.Window.__init__(self)
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        glade = os.path.join(BASE_DIR, "convert_ui.glade")
+        self.builder = Gtk.Builder()
+        self.builder.add_from_file(glade)
+        self.builder.connect_signals(self)
+        self.window = self.builder.get_object("convert_ui")
+        self.selectImagesButton = self.builder.get_object("multifile")
+        self.height = self.builder.get_object("height")
+        self.width = self.builder.get_object("width")
+        self.image_only = self.builder.get_object("image_only")
+        self.window.connect('destroy', Gtk.main_quit)
+        self.window.show_all()
+
+    def init(self):
+        Gtk.main()
+
+    def on_select_file(self, source):
+        open_dialog = Gtk.FileChooserDialog(
+            title="Pick a file",
+            parent=self,
+            action=Gtk.FileChooserAction.OPEN)
+        open_dialog.add_buttons(
+            Gtk.STOCK_CANCEL,
+            Gtk.ResponseType.CANCEL,
+            Gtk.STOCK_OPEN,
+            Gtk.ResponseType.ACCEPT)
+        open_dialog.add_filter(self.image_only)
+        open_dialog.set_local_only(True)
+        open_dialog.set_modal(True)
+        open_dialog.set_select_multiple(True)
+        open_dialog.connect("response", self.open_response_cb)
+        open_dialog.show()
+
+    def open_response_cb(self, dialog, response_id):
+        open_dialog = dialog
+        # if response is "ACCEPT" (the button "Open" has been clicked)
+        if response_id == Gtk.ResponseType.ACCEPT:
+            # self.file is the file that we get from the FileChooserDialog
+            self.selected_images = open_dialog.get_files()
+            self.selectImagesButton.set_label(f"{len(self.selected_images)} Selected images")
+        dialog.destroy()
+
+    def on_convert(self, source):
+        if self.selected_images and self.height.get_text() and self.width.get_text():
+            for image in self.selected_images:
+                startSvgTag = f"""<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+                <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+                "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+                <svg version="1.1"
+                xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                width="{self.width.get_text()}px" height="{self.height.get_text()}px" viewBox="0 0 {self.width.get_text()} {self.height.get_text()}">"""
+                endSvgTag = """</svg>"""
+                file = image.get_path()
+                with open(file, 'rb') as pngFile:
+                    base64data = b64encode(pngFile.read()).decode('utf-8')
+                base64String = f'<image xlink:href="data:image/png;base64,{base64data}" width="{self.width.get_text()}" height="{self.height.get_text()}" x="0" y="0" />'
+                with open(f'{os.path.splitext(file)[0]}.svg', 'w') as f:
+                    f.write(startSvgTag + base64String + endSvgTag)
+            Convertsusses = Gtk.MessageDialog(
+                title="Convert",
+                parent=self,
+                modal=True,
+                destroy_with_parent=True,
+                message_type=Gtk.MessageType.INFO,
+                text=f'Converted {",".join([i.get_path() for i in self.selected_images])} to SVG',
+                buttons=Gtk.ButtonsType.CLOSE)
+            Convertsusses.connect("response", self.dialog_response)
+            Convertsusses.show()
+        else:
+            Error = Gtk.MessageDialog(
+                title="Error",
+                parent=self,
+                modal=True,
+                destroy_with_parent=True,
+                message_type=Gtk.MessageType.INFO,
+                text='All fields are required',
+                buttons=Gtk.ButtonsType.CLOSE)
+            Error.connect("response", self.dialog_response)
+            Error.show()
+
+    def dialog_response(self, widget, response_id):
+        if response_id == Gtk.ResponseType.CLOSE:
+            widget.destroy()
+
+    def on_window_destroy(self, *args):
+        Gtk.main_quit()
+
+
+if __name__ == "__main__":
+    app = convert_ui()
+    app.init()

@@ -1,0 +1,3 @@
+#! /usr/bin/zsh
+xdotool getactivewindow windowminimize
+xdotool getactivewindow windowfocus

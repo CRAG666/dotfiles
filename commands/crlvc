@@ -1,0 +1,51 @@
+#! /usr/bin/python3
+"""Code Runner Like VsCode CLI
+Usage:
+    crlvc
+    crlvc <file>
+    crlvc -h|--help
+    crlvc -v|--version
+Options:
+    <file>  Optional name argument.
+    -h --help  Show this screen.
+    -v --version  Show version.
+"""
+
+from docopt import docopt
+from pathlib import Path
+from json import loads
+from subprocess import check_call, CalledProcessError
+from os import system
+
+config_path = Path('~/.config/crlvc.json').expanduser()
+with open(config_path, 'r') as myfile:
+    config=myfile.read()
+commands = loads(config)
+
+def run_code(file):
+    filePath = Path(file)
+    fileName = filePath.name
+    fileNameWithoutExt = filePath.stem
+    file_extension = fileName.replace(fileNameWithoutExt,'')
+    dir = str(filePath.parent.absolute()) + '/'
+    command_for_file = commands.get(
+        file_extension[1:],
+        "echo '{fileName} did not run. {file_extension} extension is not supported, if you want to support the extension modify ~/.config/crlvc.json'")
+    command = eval(f'f"""{command_for_file}"""')
+    try:
+        check_call(command, shell=True)
+    except CalledProcessError:
+        print ('Extension not supported')
+    except OSError:
+        print('Executable not found')
+    finally:
+        system("xdotool key i")
+    return(f"Thanks for use!")
+
+
+if __name__ == '__main__':
+    arguments = docopt(__doc__, version='DEMO 1.0')
+    if arguments['<file>']:
+        print(run_code(arguments['<file>']))
+    else:
+        print(arguments)

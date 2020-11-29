@@ -1,0 +1,2 @@
+#! /usr/bin/zsh
+wmctrl -ir $(xdotool getactivewindow) -b toggle,maximized_vert,maximized_horz

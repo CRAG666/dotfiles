@@ -1,0 +1,10 @@
+#!/bin/bash
+conky2=`wmctrl -l | grep "conky (crag-pc)" | awk '{print $1}'`
+for item in $(wmctrl -l | grep \ 0 | awk '{print $1}'); do
+    if [[ $item != $conky2 ]]; then
+        xdotool windowminimize $item 
+    fi   
+done
+#wmctrl -a "Escritorio"
+#wmctrl -k on
+xdotool search --name Escritorio windowfocus

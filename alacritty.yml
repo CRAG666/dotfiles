@@ -1,0 +1,135 @@
+env:
+  # TERM variable
+  #
+  # This value is used to set the `$TERM` environment variable for
+  # each instance of Alacritty. If it is not present, alacritty will
+  # check the local terminfo database and use `alacritty` if it is
+  # available, otherwise `xterm-256color` is used.
+  TERM: xterm-256color
+# Window Customization
+shell:
+  program: /bin/zsh
+  args:
+    - -l
+    - -c
+    - "tmux"
+window:
+  dimensions:
+    columns: 100
+    lines: 20
+  padding:
+    x: 3
+    y: 3
+  position:
+    x: 130
+    y: 70
+  decorations: none
+  dynamic_title: true
+class:
+  gtk_theme_variant: dark
+scrolling:
+  history: 10000
+  multiplier: 3
+background_opacity: 1
+# Font Customization
+font:
+  normal:
+    family: JetBrainsMono Nerd Font
+    style: Regular
+  bold:
+    family: JetBrainsMono Nerd Font
+    style: Italic
+  italic:
+    family: BlexMono Nerd Font
+    style: Italic
+  size: 14
+  offset:
+    x: 0
+    y: 0
+  glyph_offset:
+    x: 0
+    y: 0
+  use_thin_strokes: false
+  debug:
+    persistent_logging: false
+draw_bold_text_with_bright_colors: true
+
+#+begin_theme
+ # Color Settings (Monokai crag)
+colors:
+
+  primary:
+    background: "#181B1E"
+    foreground: "#e6e6e6"
+
+  normal:
+    black: "#444444"
+    red: "#f6819a"
+    green: "#87af87"
+    yellow: "#d9bb80"
+    blue: "#e39b7b"
+    magenta: "#d3a0bc"
+    cyan: "#89beba"
+    white: "#d8caac"
+
+  # Bright colors
+  bright:
+    black: "#5b5b5b"
+    red: "#e68183"
+    green: "#87c095"
+    yellow: "#fee074"
+    blue: "#e49c7a"
+    magenta: "#d3a0ce"
+    cyan: "#89bfbc"
+    white: "#c8cccc"
+
+  dim:
+    black: "#292a2b"
+    red: "#f681ac"
+    green: "#7ad88e"
+    yellow: "#FFD866"
+    blue: "#eC9867"
+    magenta: "#bb98eb"
+    cyan: "#8accfe"
+    white: "#f2f2f2"
+  ###########################################
+#+end_theme
+  selection:
+    text: "0xffffff"
+    background: "0xF34F4D"
+    white: "0xffffff"
+
+cursor:
+  style: Block
+  unfocused_hollow: true
+
+key_bindings:
+  # Create a horizontal space
+  - { key: Down, mods: Control | Command, chars: "\x01\x22"  }
+  # Create a vertical space
+  - { key: Right, mods: Control | Command, chars: "\x01\x25"  }
+  # Close Space
+  - { key: K, mods: Command, chars: "\x01\x78"  }
+  # Move between spaces
+  - { key: Right, mods: Command, chars: "\x0c"  }
+  - { key: Left, mods: Command, chars: "\x08"  }
+  - { key: Down, mods: Command, chars: "\x0a"  }
+  - { key: Up, mods: Command, chars: "\x0b"  }
+  # Move between Window
+  - { key: PageDown, mods: Control, chars: "\x01\x6e"  }
+  - { key: PageUp, mods: Control, chars: "\x01\x70"  }
+  # Move between session
+  - { key: PageUp, mods: Control | Command, chars: "\x01\x28"  }
+  - { key: PageDown, mods: Control | Command, chars: "\x01\x29"  }
+  # New Windows
+  - { key: T, mods: Command, chars: "\x01\x63"  }
+  # Tab Windows
+  - { key: Tab, mods: Control, chars: "\x01\x77"  }
+  # Close current session of tmux
+  - { key: K, mods: Command | Alt, chars: "tmux kill-session -t $(tmux display-message -p \"#S\")\n"  }
+  - { key: K, mods: Control | Command, chars: "tmux list-sessions | awk 'BEGIN{FS=\":\"}{print $1}' | xargs -n 1 tmux kill-session -t\n"  }
+  # Save nvim Archive
+  - { key: G, mods: Command, chars: "\x1b\x3a\x77\n"  }
+  # Run Current code in vim
+  #- { key: Q, mods: Command, chars: "\x1b\x3a\x71\n" }
+  #- { key: N, mods: Control, action: SpawnNewInstance }

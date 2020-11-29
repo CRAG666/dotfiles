@@ -1,0 +1,11 @@
+#!/bin/bash
+#dtop=`xdotool get_desktop`
+#visible=`xdotool search --onlyvisible "" 2> /dev/null`
+#c=0
+#xdotool search --name Escritorio windowactivate
+for item in $(wmctrl -l | grep \ 0 | awk '{print $1}'); do
+    wmctrl -ia $item    
+done
+#wmctrl -a "Escritorio"
+#wmctrl -k on
+xdotool search --name Escritorio windowactivate

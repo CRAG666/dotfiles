@@ -1,0 +1,59 @@
+// Coloque sus atajos de teclado en este archivo para sobreescribir los valores predeterminadosauto[]
+[
+  {
+    "key": "ctrl+meta+t",
+    "command": "workbench.action.terminal.toggleTerminal"
+  },
+  {
+    "key": "meta+e",
+    "command": "workbench.view.explorer"
+  },
+  {
+    "key": "ctrl+shift+e",
+    "command": "-workbench.view.explorer"
+  },
+  {
+    "key": "ctrl+meta+s",
+    "command": "codesnap.start"
+  },
+  {
+    "key": "ctrl+b",
+    "command": "workbench.action.toggleSidebarVisibility"
+  },
+  {
+    "key": "ctrl+b",
+    "command": "-workbench.action.toggleSidebarVisibility"
+  },
+  {
+    "key": "meta+j",
+    "command": "editor.action.joinLines"
+  },
+  {
+    "key": "meta+r",
+    "command": "code-runner.run"
+  },
+  {
+    "key": "ctrl+alt+n",
+    "command": "-code-runner.run"
+  },
+  {
+    "key": "meta+left",
+    "command": "workbench.action.splitEditorLeft"
+  },
+  {
+    "key": "meta+down",
+    "command": "workbench.action.splitEditorDown"
+  },
+  {
+    "key": "meta+up",
+    "command": "workbench.action.splitEditorUp"
+  },
+  {
+    "key": "meta+right",
+    "command": "workbench.action.splitEditorRight"
+  },
+  {
+    "key": "shift+alt+s",
+    "command": "workbench.action.toggleStatusbarVisibility"
+  }
+]

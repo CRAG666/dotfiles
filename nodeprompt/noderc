@@ -1,0 +1,3 @@
+var clc = require("cli-color");
+const repl = require('repl');
+var replServer = repl.start({prompt: clc.xterm(48)('\ue718 \u21D2 ')});

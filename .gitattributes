@@ -1,0 +1,2 @@
+config.json filter=git-crypt diff=git-crypt
+.zsh_history filter=git-crypt diff=git-crypt

@@ -1,0 +1,1102 @@
+@include-when-export url(https://fonts.loli.net/css?family=Merriweather:900,900italic,300,300italic&subset=latin-ext);
+@include-when-export url(https://fonts.loli.net/css?family=Lato:900,300&subset=latin-ext);
+@import "night/mermaid.dark.css";
+@import "night/codeblock.dark.css";
+@import "night/sourcemode.dark.css";
+
+:root {
+  --bg-color: #242424;
+  /* change background */
+  --text-color: #dddddd;
+  /* change text color */
+  --md-char-color: #5b5b5b;
+  /* change color of meta characetrs like `*` in markdown */
+  --meta-content-color: #757575;
+  /* change color of meta contents like image text or link address in markdown */
+  --link-color: #6bcafb;
+  /* change color of hyperlinks */
+
+  --primary-color: #428bca;
+  /* primary color */
+  --primary-btn-border-color: #285e8e;
+  /* primary color for buttons */
+  --primary-btn-text-color: #fff;
+  /* primary text color for buttons */
+  --accent-color: #3c3c3c;
+  /* background accent color */
+
+  --window-border: 1px solid #16161a;
+  /* border for sidebar, etc*/
+
+  --active-file-bg-color: #16161a;
+  /* background color if list item in file tree or file list*/
+  --active-file-text-color: inherit;
+  /* text color for selected file */
+  --active-file-border-color: #777;
+  /* border color for selected file */
+  --active-search-item-bg-color: #212121;
+  /* background color for active search item */
+
+  --side-bar-bg-color: #3e3e3e;
+  /* change background of sidebar*/
+  --item-hover-bg-color: var(--bg-color);
+  /* background of control items when hover, like menu in sidebar*/
+  --item-hover-text-color: white;
+  /* text color upon hovering over menu items */
+  --search-hit-bg-color: #428bca40;
+  --search-select-text-color: var(--text-color);
+  /* Text color for selected searched text */
+  --search-select-bg-color: #428bca90;
+  /* Background color for selected searched text */
+  --rawblock-edit-panel-bd: var(--accent-color);
+  /* Background color for inline HTML "edit panel" blocks */
+  --monospace: "Cousine";
+  /* monospace font for codes, fences */
+
+  --megamenu-bg-color: var(--side-bar-bg-color);
+  /* background color for unibody megamenu */
+  --megamenu-sidebar-bg-color: var(--bg-color);
+  /* background color for megamenu sidebar */
+  --megamenu-sidebar-hover-bg-color: #161819;
+  /* background color for hovering megamenu sidebar items */
+  --megamenu-sidebar-active-bg-color: #101010;
+  /* background color for active megamenu sidebar items */
+  --megamenu-button-border-color: #9292928f;
+  /* background color for megamenu buttons */
+  --megamenu-item-hover-bg-color: var(--bg-color);
+  /* background color for hovering megamenu items */
+  --megamenu-item-hover-text-color: white;
+  /* text color for hovering megamenu items */
+}
+
+/**
+ * forked from pixyll.com
+ * MIT license
+ */
+
+@font-face {
+  font-family: "Merriweather";
+  font-style: normal;
+  font-weight: normal;
+  src: local("Merriweather Light"), local("Merriweather-Light"),
+    url("./pixyll/merriweather-v19-latin-300.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Merriweather";
+  font-style: normal;
+  font-weight: bold;
+  src: local("Merriweather Heavy"), local("Merriweather-Heavy"),
+    url("./pixyll/merriweather-v19-latin-700.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Merriweather";
+  font-style: italic;
+  font-weight: normal;
+  src: local("Merriweather Light Italic"), local("Merriweather-LightItalic"),
+    url("./pixyll/merriweather-v19-latin-300italic.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Merriweather";
+  font-style: italic;
+  font-weight: bold;
+  src: local("Merriweather Heavy Italic"), local("Merriweather-HeavyItalic"),
+    url("./pixyll/merriweather-v19-latin-700italic.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Lato";
+  font-style: normal;
+  font-weight: normal;
+  src: local("Lato Light"), local("Lato-Light"),
+    url("./pixyll/lato-v14-latin-300.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Lato";
+  font-style: normal;
+  font-weight: bold;
+  src: local("Lato Black"), local("Lato-Blcak"),
+    url("./pixyll/lato-v14-latin-900.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Lato";
+  font-style: italic;
+  font-weight: normal;
+  src: local("Lato LightItalic"), local("Lato-LightItalic"),
+    url("./pixyll/lato-v14-latin-300italic.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Lato";
+  font-style: italic;
+  font-weight: bold;
+  src: local("Lato BlackItalic"), local("Lato-BlackItalic"),
+    url("./pixyll/lato-v14-latin-900italic.woff") format("woff");
+}
+
+h1,
+.h1,
+.f1 {
+  font-size: 2rem;
+  line-height: 2.5rem;
+}
+
+h2,
+.h2,
+.f2 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+h3,
+.h3,
+.f3 {
+  font-size: 1.25rem;
+  line-height: 1.5rem;
+}
+
+p,
+.p,
+.f4,
+h4,
+h5,
+h6,
+dl,
+ol,
+ul,
+pre[cid],
+div[cid],
+#typora-source {
+  font-size: 1.125rem;
+  line-height: 1.5rem;
+}
+
+h4 {
+  font-size: 1.13rem;
+}
+
+/*
+ Pixyll
+ A simple, beautiful theme for Jekyll that emphasizes content rather than aesthetic fluff.
+ Best served with BASSCSS (http://jxnblk.github.io/basscss)
+ Crafted with <3 by John Otander (@4lpine) - ©2015 John Otander MIT License http://opensource.org/licenses/MIT
+
+*/
+
+body {
+  font-family: "Merriweather", "PT Serif", Georgia, "Times New Roman", "STSong",
+    Serif;
+  line-height: 1.5rem;
+  font-weight: 400;
+}
+
+#write {
+  max-width: 914px;
+  color: white;
+}
+
+img {
+  width: auto;
+  max-width: 100%;
+}
+
+body {
+  font-size: 1.5rem;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+
+.ty-table-edit {
+  background: #3e3e3e;
+}
+
+table {
+  border: 1px solid var(--md-char-color);
+  margin: 1rem 0;
+  font-size: 1.25rem;
+}
+
+thead {
+  background: #4d4d4d;
+}
+
+table tr:nth-child(2n) {
+  background: var(--accent-color);
+}
+
+td,
+th {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--md-char-color);
+}
+
+/* Table toolbar */
+.md-table-edit {
+  border-top: 1px solid var(--meta-content-color);
+  margin-top: -29px !important;
+  padding: 3px 0;
+}
+
+/* Table drag areas */
+.typora-table-drag-area::after {
+  content: "";
+  position: absolute;
+  border: 2px solid var(--text-color);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+#typora-table-row-tracker,
+.typora-table-drag-area::after {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 100%;
+}
+
+#typora-table-col-tracker .typora-table-drag-area::after {
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 0;
+}
+
+#typora-table-row-tracker,
+.typora-table-drag-area:hover::after,
+#typora-table-col-tracker .typora-table-drag-area:hover::after {
+  opacity: 1;
+}
+
+/* Table of contents */
+.md-toc-tooltip {
+  z-index: 10;
+}
+
+span.md-toc-item {
+  font-size: 1.1rem;
+  color: var(--primary-btn-border-color);
+}
+
+span.md-toc-h1 {
+  font-family: "Vazir-Bold";
+  font-size: 1.3rem;
+}
+
+span.md-toc-h2 {
+  font-size: 1.2rem;
+}
+
+/* Footnote */
+sup.md-footnote {
+  font-family: "Vazir-Bold";
+  font-size: 0.8rem;
+  padding: 0 4px;
+}
+
+span.md-def-split {
+  min-width: 1ch;
+}
+
+.md-def-name::before,
+.md-def-name::after {
+  color: var(--meta-content-color);
+}
+
+p {
+  font-weight: 300;
+  line-height: 1.5;
+}
+
+abbr {
+  border-bottom: 1px black dotted;
+  cursor: help;
+}
+
+pre,
+code {
+  font-family: Menlo, Monaco, "Courier New", monospace;
+  border: 1px solid var(--accent-color);
+  border-radius: 0.25rem;
+  padding: 0 0.125rem;
+}
+
+#fences-auto-suggest .active {
+  background: var(--accent-color);
+}
+
+code,
+.md-fences {
+  color: #7a7a7a;
+}
+
+hr {
+  border-color: var(--md-char-color);
+}
+
+.md-fences {
+  padding: 1.125em;
+  margin-bottom: 0.88em;
+  font-size: 1rem;
+  border: 1px solid #7a7a7a;
+  padding-bottom: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+blockquote {
+  padding: 1.33em;
+  font-style: italic;
+  border-left: 5px solid #7a7a7a;
+  color: #555;
+}
+
+blockquote p::before {
+  content: "";
+  position: absolute;
+  right: -2rem;
+  height: 100%;
+  width: 0.25rem;
+  background: var(--primary-color);
+}
+
+blockquote p:not(:last-child):before {
+  height: calc(100% + 1rem);
+}
+
+blockquote em {
+  color: #000;
+}
+
+blockquote footer {
+  font-size: 0.85rem;
+  font-style: normal;
+  background-color: #fff;
+  color: #7a7a7a;
+  border-color: transparent;
+}
+
+h1,
+.h1,
+h2,
+.h2,
+h3,
+.h3,
+h4,
+.h4,
+h5,
+.h5,
+h6,
+.h6 {
+  font-family: "Lato", "Helvetica Neue", Helvetica, sans-serif;
+  font-weight: bold;
+  line-height: 1.2;
+  margin: 1em 0 0.5em;
+}
+
+@media screen and (min-width: 48em) {
+
+  .h1,
+  h1 {
+    font-size: 3.25rem;
+  }
+
+  .h2,
+  h2 {
+    font-size: 2.298rem;
+  }
+
+  .h3,
+  h3 {
+    font-size: 1.625rem;
+  }
+
+  .h4,
+  h4 {
+    font-size: 1.3rem;
+  }
+
+  #write>h4.md-focus:before,
+  #write>h5.md-focus:before,
+  #write>h6.md-focus:before {
+    top: 1px;
+  }
+
+  .p,
+  p,
+  li {
+    font-size: 1.25rem;
+    line-height: 1.8;
+  }
+}
+
+@media (max-width: 48em) {
+  blockquote {
+    margin-left: 1rem;
+    margin-right: 0;
+    padding: 0.5em;
+  }
+
+  .h1,
+  h1 {
+    font-size: 2.827rem;
+  }
+
+  .h2,
+  h2 {
+    font-size: 1.999rem;
+  }
+
+  .h3,
+  h3 {
+    font-size: 1.413rem;
+  }
+
+  .h4,
+  h4 {
+    font-size: 1.3rem;
+  }
+}
+
+@media screen and (min-width: 64em) {
+
+  .h1,
+  h1 {
+    font-size: 4.498rem;
+  }
+
+  .h2,
+  h2 {
+    font-size: 2.29rem;
+  }
+
+  .h3,
+  h3 {
+    font-size: 1.9rem;
+  }
+
+  .h4,
+  h4 {
+    font-size: 1.591rem;
+  }
+
+  #write>h4.md-focus:before {
+    top: 4px;
+  }
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: underline;
+}
+
+del {
+  color: var(--md-char-color);
+}
+
+mark {
+  padding: 2px 1px;
+  background: #fee405;
+}
+
+#write {
+  padding-top: 2rem;
+}
+
+#write h1,
+#write h2,
+#write h3,
+#write h4,
+#write h5,
+#write h6,
+#write p,
+#write pre {
+  width: auto;
+}
+
+#write h3.md-focus::before,
+#write h4.md-focus::before,
+#write h5.md-focus::before,
+#write h6.md-focus::before {
+  border: none;
+  border-radius: 0;
+  left: auto;
+  float: none;
+  padding: 0;
+  vertical-align: baseline;
+  line-height: 20px;
+}
+
+#write h1::before,
+#write h2::before,
+#write h3::before,
+#write h4::before,
+#write h5::before,
+#write h6::before {
+  position: absolute;
+  top: 0;
+  right: calc(100% + 10px);
+  color: var(--md-char-color);
+  font-size: 1rem;
+  font-weight: bold;
+  font-variant: "small-caps";
+}
+
+#write h1::before {
+  content: "H1";
+  top: 0.7rem;
+}
+
+#write h2::before {
+  content: "H2";
+  top: 0.37rem;
+}
+
+#write h3::before {
+  content: "H3";
+  top: 0.15rem;
+}
+
+#write h4::before {
+  content: "H4";
+}
+
+#write h5::before {
+  content: "H5";
+}
+
+#write h6::before {
+  content: "H6";
+}
+
+#write .md-image>.md-meta {
+  color: var(--meta-content-color);
+}
+
+.md-rawblock-tooltip {
+  top: -1.5rem;
+  height: 1.5rem;
+  padding: 0.25rem;
+}
+
+.md-search-hit {
+  background: var(--search-hit-bg-color);
+  border-radius: 0.125em;
+}
+
+.md-search-select {
+  background: var(--search-select-bg-color);
+  border: 1px solid var(--megamenu-button-border-color);
+  padding: 0 1px;
+}
+
+.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) *,
+.on-focus-mode pre.md-end-block:not(.md-focus):not(.md-focus-container) {
+  color: var(--md-char-color) !important;
+}
+
+.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) img,
+.on-focus-mode blockquote .md-end-block:not(.md-focus):not(.md-focus-container)::before,
+.on-focus-mode li:not(.md-focus-container)::before {
+  opacity: 0.5;
+}
+
+.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) mark {
+  background: var(--accent-color);
+}
+
+#write pre.md-meta-block {
+  min-height: 35px;
+  padding: 0.5em 1em;
+  white-space: pre;
+  border: 0px;
+
+  border-left: 30px #f8f8f8 solid;
+  border-right: 30px #f8f8f8 solid;
+  width: 100vw;
+  max-width: calc(100% + 60px);
+
+  margin-left: -30px;
+  margin-bottom: 2em;
+  margin-top: -2010px;
+  padding-top: 2000px;
+  padding-bottom: 10px;
+  line-height: 1.5em;
+  color: #7a7a7a;
+  background-color: #fafafa;
+  font-family: "Lato", "Helvetica Neue", Helvetica, sans-serif;
+  font-weight: 300;
+  clear: both;
+  padding-left: 0;
+  font-size: 1.125rem;
+}
+
+#write ul {
+  list-style-type: disc;
+}
+
+#write ol>li,
+#write ul>li {
+  color: var(--primary-color);
+  padding-left: 0.25em;
+}
+
+#write ol li>*,
+#write ul li>* {
+  color: var(--text-color);
+}
+
+#write .md-task-list-item {
+  transition: all 0.3s;
+}
+
+#write .md-task-list-item>input {
+  -webkit-appearance: initial;
+  display: block;
+  position: absolute;
+  border: 1px solid var(--md-char-color);
+  border-radius: 0.25rem;
+  margin-top: 0.1rem;
+  margin-right: -1.8rem;
+  height: 1.2rem;
+  width: 1.2rem;
+  transition: background 0.4s;
+  right: 0;
+}
+
+#write .md-task-list-item>input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+#write .md-task-list-item>input:hover {
+  background: var(--accent-color);
+}
+
+#write .md-task-list-item.task-list-done>p {
+  color: var(--md-char-color);
+  text-decoration: line-through;
+}
+
+#write .md-task-list-item>input[checked]::before {
+  content: "";
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  height: 60%;
+  width: 2px;
+  transform: rotate(40deg);
+  background: var(--text-color);
+}
+
+#write .md-task-list-item>input[checked]::after {
+  content: "";
+  position: absolute;
+  top: 46%;
+  left: 25%;
+  height: 30%;
+  width: 2px;
+  transform: rotate(-40deg);
+  background: var(--text-color);
+}
+
+.md-image>.md-meta {
+  color: #463f5c;
+}
+
+.footnotes {
+  font-size: 1.1rem;
+}
+
+.md-tag {
+  font-family: "Lato", "Helvetica Neue", Helvetica, sans-serif;
+}
+
+.code-tooltip {
+  background: #3e3e3e;
+  color: white;
+}
+
+.code-tooltip-content {
+  font-size: 1.1rem;
+}
+
+.task-list {
+  padding-left: 0;
+}
+
+.md-task-list-item {
+  padding-left: 34px;
+}
+
+.md-task-list-item>input {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: block;
+  -webkit-appearance: initial;
+  top: -0.2rem;
+  margin-left: -1.6em;
+  margin-top: calc(1rem - 7px);
+  border: none;
+}
+
+.md-task-list-item>input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.md-task-list-item>input:before {
+  border: 1px solid #555;
+  border-radius: 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: #fff;
+  content: " ";
+  transition: background-color 200ms ease-in-out;
+  display: block;
+}
+
+.md-task-list-item>input:checked:before,
+.md-task-list-item>input[checked]:before {
+  background: #333;
+  border-width: 2px;
+  display: inline-block;
+  transition: background-color 200ms ease-in-out;
+}
+
+.md-task-list-item>input:checked:after,
+.md-task-list-item>input[checked]:after {
+  opacity: 1;
+}
+
+.md-task-list-item>input:after {
+  opacity: 1;
+  -webkit-transition: opacity 0.05s ease-in-out;
+  -moz-transition: opacity 0.05s ease-in-out;
+  transition: opacity 0.05s ease-in-out;
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+  position: absolute;
+  top: 0.4375rem;
+  left: 0.28125rem;
+  width: 0.9375rem;
+  height: 0.5rem;
+  border: 3px solid #fff;
+  border-top: 0;
+  border-right: 0;
+  content: " ";
+  opacity: 0;
+}
+
+.md-tag {
+  color: inherit;
+}
+
+.md-toc:focus .md-toc-content {
+  margin-top: 19px;
+}
+
+#typora-sidebar {
+  font-size: 1rem !important;
+  border-right: 1px solid #19191c;
+}
+
+.sidebar-tabs {
+  font-family: "Vazir-Bold";
+  border-bottom: 1px solid black;
+}
+
+.file-list-item-file-name {
+  font-family: "Vazir-Bold";
+  font-size: 1.2rem;
+}
+
+.html-for-mac #typora-sidebar {
+  background-color: white;
+}
+
+.outline-content li,
+.outline-content ul {
+  font-size: 1rem !important;
+}
+
+.outline-title {
+  line-height: inherit;
+  margin-top: 10px;
+}
+
+.outline-expander {
+  width: 18px;
+}
+
+.outline-expander:before {
+  content: "+";
+  font-family: inherit;
+  color: rgb(108, 108, 108);
+  font-size: 1.5rem;
+  top: 0.1rem;
+}
+
+.outline-expander:hover:before {
+  content: "+";
+}
+
+.outline-item-open>.outline-item>.outline-expander:before {
+  content: "-";
+}
+
+/** source code mode */
+#typora-source {
+  font-family: Courier, monospace;
+  color: #6a6a6a;
+}
+
+.os-windows #typora-source {
+  font-family: inherit;
+}
+
+.cm-s-typora-default .cm-header,
+.cm-s-typora-default .cm-property,
+.CodeMirror.cm-s-typora-default div.CodeMirror-cursor {
+  color: #428bca;
+}
+
+.cm-s-typora-default .cm-atom,
+.cm-s-typora-default .cm-number {
+  color: #777777;
+}
+
+.md-diagram-panel {
+  margin-top: 24px;
+  margin-left: -1.2em;
+}
+
+input.file-list-item-file-name,
+input.file-tree-rename-input {
+  background: var(--side-bar-bg-color);
+}
+
+#file-library-search .file-list-item-file-name {
+  font-size: 1.1rem;
+}
+
+#file-library-search .ty-search-item.active {
+  background: var(--active-search-item-bg-color);
+}
+
+#file-library-search-input {
+  background: var(--side-bar-bg-color);
+}
+
+.md-mathjax-midline {
+  background: #fafafa;
+}
+
+.file-list-item-summary,
+.ty-search-item-line {
+  font-family: "Vazir", "Lato", sans-serif;
+}
+
+#outline-content .outline-h1>.outline-item {
+  font-family: "Vazir-Bold";
+}
+
+.ty-file-search-match-text,
+.ty-outline-hit {
+  font-weight: bold;
+  background: transparent;
+}
+
+#outline-content {
+  line-height: 1.4em;
+}
+
+.file-library-node,
+.file-library-node .file-node-background {
+  transition: background 0.4s;
+}
+
+.file-tree-node.file-library-file-node:not(.active):hover .file-node-background,
+.file-list-item.file-library-node:not(.active):hover {
+  background: var(--item-hover-bg-color);
+}
+
+.file-tree-node.file-library-file-node.active .file-node-background,
+.file-list-item.file-library-file-node.active {
+  border-left: 5px solid var(--primary-color);
+}
+
+.blink-area {
+  animation: none;
+}
+
+#ty-sidebar-footer {
+  border-top: 1px solid black;
+}
+
+.sidebar-footer-item {
+  transition: background 0.3s;
+}
+
+.outline-title-wrapper,
+.outline-item-wrapper.outline-h1>.outline-item {
+  font-family: "Vazir-Bold";
+  font-weight: bold;
+}
+
+ul.dropdown-menu li.active a,
+ul.dropdown-menu li.has-extra-menu.active a,
+ul.dropdown-menu li.has-btn-submenu a.menu-style-btn.active,
+#footer-word-count-info .ty-footer-word-count-all tr:hover,
+#ty-spell-check-dict-missing-menu li:hover,
+.ty-spell-check-panel-item.ty-active,
+.ty-spell-check-panel-item:hover {
+  background: var(--text-color) !important;
+  color: var(--bg-color) !important;
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 2px var(--primary-color);
+}
+
+footer.ty-footer {
+  border-top: 0;
+}
+
+.footer-item:hover {
+  background: var(--text-color) !important;
+  color: var(--bg-color) !important;
+}
+
+.enable-diagrams pre.md-fences[lang="sequence"] .code-tooltip,
+.enable-diagrams pre.md-fences[lang="flow"] .code-tooltip,
+.enable-diagrams pre.md-fences[lang="mermaid"] .code-tooltip {
+  bottom: -3.4em;
+}
+
+.megamenu-opened header {
+  background-image: none;
+}
+
+#megamenu-content {
+  padding-top: 28px;
+  background: var(--megamenu-bg-color);
+  color: var(--text-color);
+}
+
+.megamenu-menu-panel:not(:first-of-type) {
+  margin-top: 48px;
+}
+
+#megamenu-content .long-btn {
+  border-color: var(--megamenu-button-border-color);
+  transition: all 0.4s;
+}
+
+#megamenu-content .long-btn:hover {
+  border-color: var(--primary-color);
+  background: var(--megamenu-item-hover-bg-color);
+  color: var(--megamenu-item-hover-text-color) !important;
+}
+
+#recent-file-panel-action-btn {
+  background: inherit;
+  border-color: var(--megamenu-button-border-color);
+  transition: all 0.4s;
+}
+
+#recent-file-panel-action-btn:hover {
+  border-color: var(--primary-color);
+  background: var(--megamenu-item-hover-bg-color);
+  color: var(--megamenu-item-hover-text-color);
+}
+
+#recent-document-table {
+  border: 1px solid var(--accent-color);
+}
+
+#recent-file-panel tbody tr:nth-child(2n-1) {
+  background-color: inherit;
+}
+
+#recent-file-panel tbody tr:hover {
+  background-color: var(--megamenu-item-hover-bg-color) !important;
+}
+
+#recent-file-panel tbody tr:hover td:nth-child(1) {
+  color: var(--megamenu-item-hover-text-color);
+}
+
+/* Windows Unibody sidebar */
+#megamenu-menu-sidebar {
+  background: var(--megamenu-sidebar-bg-color);
+  color: var(--text-color);
+}
+
+.dropdown-menu .divider {
+  border-color: #e5e5e5;
+}
+
+.megamenu-menu-header,
+.megamenu-menu-list li:not(.saved) a {
+  transition: all 0.4s;
+}
+
+.megamenu-menu-header {
+  border-bottom: var(--window-border);
+}
+
+.megamenu-menu-header:hover,
+.megamenu-menu-list li:not(.saved) a:not(.active):hover {
+  background: var(--megamenu-sidebar-hover-bg-color);
+}
+
+.megamenu-menu-list li a.active {
+  background: var(--megamenu-sidebar-active-bg-color) !important;
+}
+
+#m-saved {
+  background: inherit;
+  color: inherit;
+}
+
+.theme-preview-div {
+  transition: all 0.4s;
+}
+
+.theme-preview-div:hover {
+  border: 4px solid var(--primary-btn-border-color);
+}
+
+.theme-preview-div.active,
+.theme-preview-div.active:hover {
+  border: 4px solid var(--primary-color);
+}
+
+.theme-preview-div.active i {
+  color: var(--primary-color);
+}
+
+@media print {
+
+  #write ol>li,
+  #write ul>li {
+    color: var(--text-color);
+  }
+
+  #write h1::before,
+  #write h2::before,
+  #write h3::before,
+  #write h4::before,
+  #write h5::before,
+  #write h6::before {
+    display: none;
+  }
+}
