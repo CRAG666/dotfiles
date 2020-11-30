@@ -5,7 +5,9 @@ cli-tools: ## Add cli tools
 	sudo ln -sf ${PWD}/commands/* /usr/local/bin/
 
 init: ## Initial deploy dotfiles
-	mkdir -p ${HOME}/.config/{nvim, nvim/plugged,alacritty}
+	mkdir -p ${HOME}/.config/nvim
+	mkdir -p ${HOME}/.config/nvim/plugged
+	mkdir -p ${HOME}/.config/alacritty
 	ln -vsf ${PWD}/.zshrc ${HOME}/.zshrc
 	ln -vsf ${PWD}/.zsh_history ${HOME}/.zsh_history
 	ln -vsf ${PWD}/.myclirc ${HOME}/.myclirc
@@ -42,15 +44,15 @@ install: ## Install arch linux packages using yay
 npm-cli-tools: ## Install fx and speedtest-net
 	sudo npm install -g fx speedtest-net
 
-vscode: ## Install and configure VScode
-	yay -S --needed --noconfirm visual-studio-code
-	sudo npm install -g vsce
-	vsce package ${PWD}/vscode/miramare/
-	code --install-extension miramare-0.0.2.vsix
+code: ## Install and configure VScode
+	yay -S --needed --noconfirm visual-studio-code-bin
 	cat ${PWD}/vscode/vscode-extensions.list | xargs -L 1 code --install-extension
 	ln -vsf ${PWD}/vscode/settings.json ${HOME}/.config/Code/User/settings.json
 	ln -vsf ${PWD}/vscode/snippets ${HOME}/.config/Code/User/
 	ln -vsf ${PWD}/vscode/keybindings.json ${HOME}/.config/Code/User/keybindings.json
+	sudo npm install -g vsce
+	cd ${PWD}/vscode/miramare/ && vsce package .
+	code --install-extension ${PWD}/vscode/miramare/miramare-0.0.2.vsix
 
 android-studio: ## Install and configure Android Studio
 	yay -S --noconfirm android-studio
@@ -107,7 +109,7 @@ nextinstall: rustinstall maria-db mongodb docker docker-compose
 
 intellij: pycharm android-studio intellij-idea
 
-ideinstall: vscode intellij
+ideinstall: code intellij
 
 .PHONY: allinstall nextinstall ideinstall
 

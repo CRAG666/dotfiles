@@ -16,14 +16,14 @@ shell:
 window:
   dimensions:
     columns: 100
-    lines: 20
+    lines: 50
   padding:
     x: 3
     y: 3
   position:
     x: 130
     y: 70
-  decorations: none
+  decorations: full
   dynamic_title: true
 class:
   gtk_theme_variant: dark

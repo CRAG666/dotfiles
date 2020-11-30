@@ -116,7 +116,6 @@ function ds(){
 
 # -< Source files or scripts >-
 source $ZSH/oh-my-zsh.sh
-source ~/.config/alacritty/acy.sh
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -167,7 +166,6 @@ export LANGUAGE=es_MX.UTF-8
 export PYTHONSTARTUP=~/.pyrc
 export TERM="xterm-256color"
 export PATH="/opt/brew/bin:$PATH"
-source ~/.passmaria.zsh
 export EDITOR='nvim'
 export BAT_THEME="gruvbox"
 

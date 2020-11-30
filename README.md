@@ -15,7 +15,7 @@ make init
 
 ### Vscode costomize
 ```` bash
-make vscode
+make code
 ````
 ### Install all
 
