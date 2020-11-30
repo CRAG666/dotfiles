@@ -1,8 +1,3 @@
-zsh
-zh-autosuggestions
-zsh-completions
-zsh-history-substring-search
-zsh-sintax-highlighting
 libinput-gestures
 gestures
 lsd
@@ -15,7 +10,6 @@ sqlitebrowser
 kdenlive
 progress
 inkscape
-oh-my-zsh-git
 starship
 neovim-nightly-git
 android-sdk
@@ -23,7 +17,7 @@ flutter
 mailspring
 typora
 fkill
-alacritty-ligatures
+alacritty-ligatures-git
 insomnia-git
 genymotion
 audacity-git

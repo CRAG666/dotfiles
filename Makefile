@@ -23,7 +23,10 @@ text-editors-config: ## config noty and typora
 	ln -vsf ${PWD}/typora-theme/* ${HOME}/.config/Typora/themes/
 	ln -vsf ${PWD}/config.json ${HOME}/.config/Noty/
 
-zsh: ## change sh
+zsh: ## install oh my zsh
+	yay -S --needed --noconfirm oh-my-zsh-git zh-autosuggestions \
+		zsh-completions zsh-history-substring-search \
+		zsh-sintax-highlighting
 	chsh -s $(which zsh)
 
 vim-plug: ## Install vim plug
@@ -33,13 +36,14 @@ yay: ## Install yay
 	sudo pacman -S --needed --noconfirm yay
 
 install: ## Install arch linux packages using yay
-	yay -S --needed --noconfirm $(< pkglist.txt)
+	cat ${PWD}/pkglist.txt | xargs -L 1 yay -S --needed --noconfirm
+
 
 npm-cli-tools: ## Install fx and speedtest-net
 	sudo npm install -g fx speedtest-net
 
 vscode: ## Install and configure VScode
-	yay -S --noconfirm visual-studio-code
+	yay -S --needed --noconfirm visual-studio-code
 	sudo npm install -g vsce
 	vsce package ${PWD}/vscode/miramare/
 	code --install-extension miramare-0.0.2.vsix

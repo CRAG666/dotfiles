@@ -1,7 +1,7 @@
 {
   "code-runner.runInTerminal": true,
   "code-runner.saveFileBeforeRun": true,
-  "window.zoomLevel": -1,
+  "window.zoomLevel": 0,
   "editor.wordWrap": "on",
   "code-runner.executorMap": {
     "javascript": "node",
@@ -252,5 +252,5 @@
   "pyside2-vsc.uic.compile.addOptions": "-g python -o",
   "pyside2-vsc.designer-creator.path": "designer",
   "autoDocstring.docstringFormat": "sphinx",
-  "workbench.statusBar.visible": false
+  "workbench.statusBar.visible": true
 }

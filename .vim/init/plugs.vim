@@ -27,6 +27,7 @@ Plug 'christoomey/vim-tmux-navigator'
 Plug 'liuchengxu/vim-clap', { 'do': ':Clap install-binary' }
 Plug 'voldikss/vim-floaterm'
 Plug 'junegunn/fzf.vim'
+Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  }
 " Themes
 Plug 'ghifarit53/tokyonight-vim'
 Plug 'sainnhe/sonokai'
