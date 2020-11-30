@@ -166,6 +166,7 @@ export LANGUAGE=es_MX.UTF-8
 export PYTHONSTARTUP=~/.pyrc
 export TERM="xterm-256color"
 export PATH="/opt/brew/bin:$PATH"
+source ~/.passmaria.zsh
 export EDITOR='nvim'
 export BAT_THEME="gruvbox"
 

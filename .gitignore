@@ -541,5 +541,6 @@ dmypy.json
 # Ignore all local history of files
 .history
 .ionide
-
+.nvimlog
+miramare-0.0.2.vsix
 # End of https://www.toptal.com/developers/gitignore/api/node,python,intellij+all,intellij+iml,intellij,pycharm,visualstudiocode
