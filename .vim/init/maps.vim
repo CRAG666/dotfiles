@@ -78,6 +78,11 @@ set pastetoggle=<F2>
 " prettier
 vmap <A-f>  <Plug>(coc-format-selected)
 nmap <A-f>  <Plug>(coc-format-selected)
+
+"Markdown Preview
+nmap <leader>mp <Plug>MarkdownPreview
+nmap <leader>ms <Plug>MarkdownPreviewStop
+nmap <leader>mt <Plug>MarkdownPreviewToggle
 "nnoremap <silent> <Space> @=(foldlevel('.')?'za':"\<Space>")<CR>
 "vnoremap <Space> zf
 "nnoremap <space> za

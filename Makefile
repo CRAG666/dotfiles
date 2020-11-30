@@ -13,7 +13,7 @@ init: ## Initial deploy dotfiles
 	ln -vsf ${PWD}/.gitconfig ${HOME}/.gitconfig
 	ln -vsf ${PWD}/.pyrc ${HOME}/.pyrc
 	ln -vsf ${PWD}/nodeprompt/noderc ${HOME}/.noderc
-	ln -vsf ${PWD}/.vim/init ${HOME}/.config/nvim/init
+	ln -vsf ${PWD}/.vim/init ${HOME}/.config/nvim/
 	ln -vsf ${PWD}/.vim/init.vim ${HOME}/.config/nvim/init.vim
 	ln -vsf ${PWD}/.vim/coc-settings.json ${HOME}/.config/nvim/coc-settings.json
 	ln -vsf ${PWD}/starship.toml ${HOME}/.config/starship.toml
