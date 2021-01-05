@@ -1,7 +1,7 @@
 {
   "code-runner.runInTerminal": true,
   "code-runner.saveFileBeforeRun": true,
-  "window.zoomLevel": 0,
+  "window.zoomLevel": -1,
   "editor.wordWrap": "on",
   "code-runner.executorMap": {
     "javascript": "node",
@@ -47,7 +47,7 @@
     "matlab": "cd $dir && matlab -nodesktop -r $fileNameWithoutExt"
   },
   "window.menuBarVisibility": "toggle",
-  "editor.fontFamily": "BlexMono Nerd Font, JetBrainsMono Nerd Font, Victor Mono, FiraCode Nerd Font",
+  "editor.fontFamily": "mononoki Nerd Font, JetBrainsMono Nerd Font, Victor Mono, FiraCode Nerd Font",
   "editor.fontLigatures": true,
   "java.errors.incompleteClasspath.severity": "ignore",
   "editor.suggestSelection": "first",
@@ -252,5 +252,6 @@
   "pyside2-vsc.uic.compile.addOptions": "-g python -o",
   "pyside2-vsc.designer-creator.path": "designer",
   "autoDocstring.docstringFormat": "sphinx",
-  "workbench.statusBar.visible": true
+  "workbench.statusBar.visible": true,
+  "python.analysis.typeCheckingMode": "strict"
 }

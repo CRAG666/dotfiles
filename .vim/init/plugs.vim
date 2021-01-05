@@ -8,7 +8,7 @@ Plug 'airblade/vim-gitgutter'
 Plug 'itchyny/lightline.vim'
 Plug 'maximbaz/lightline-ale'
 Plug 'frazrepo/vim-rainbow'
-Plug 'nvim-treesitter/nvim-treesitter'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'norcalli/nvim-colorizer.lua'
 " Text edition
 Plug 'tpope/vim-surround'
@@ -34,4 +34,5 @@ Plug 'sainnhe/sonokai'
 Plug 'co1ncidence/monokai-pro.vim'
 Plug 'sainnhe/gruvbox-material'
 Plug 'franbach/miramare'
+Plug 'branwright1/salvation-vim'
 call plug#end()

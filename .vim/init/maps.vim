@@ -3,7 +3,7 @@
 let g:VM_maps = {}
 let g:VM_maps["Select All"] = 'æ'
 "Fuzzy finder configuration to use the ripgrep tool
-let g:fzf_layout = {'up':'~90%', 'window': { 'width': 0.9, 'height': 0.9,'yoffset':0.5,'xoffset': 0.5, 'highlight': 'Todo', 'border': 'sharp' } }
+let g:fzf_layout = {'up':'~90%', 'window': { 'width': 0.8, 'height': 0.5,'yoffset':0.5,'xoffset': 0.5, 'highlight': 'Todo', 'border': 'sharp' } }
 let g:fzf_tags_command = 'ctags -R'
 "let $FZF_DEFAULT_COMMAND = 'rg --files --hidden'
 let $FZF_DEFAULT_COMMAND = 'rg --files'
@@ -13,7 +13,7 @@ map þ :Clap files<CR>
 map <leader>g :Clap grep<CR>
 map <leader>f :Clap filer<CR>
 " AltGr f
-map đ :Files<CR>
+map đ :GFiles<CR>
 " AltGr g
 map ŋ :Rg<CR>
 

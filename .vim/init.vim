@@ -37,7 +37,7 @@ set smartindent
 
 " Uncomment below to set the max textwidth. Use a value corresponding to the width of your screen.
 
-"set textwidth=72
+set textwidth=88
 set formatoptions=tcqrn1
 set tabstop=2
 set shiftwidth=2

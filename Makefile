@@ -21,6 +21,9 @@ init: ## Initial deploy dotfiles
 	ln -vsf ${PWD}/starship.toml ${HOME}/.config/starship.toml
 	ln -vsf ${PWD}/alacritty.yml ${HOME}/.config/alacritty/alacritty.yml
 
+i3: ## config i3
+	ln -vsf ${PWD}/i3config/* ${HOME}/.config/
+
 text-editors-config: ## config noty and typora
 	ln -vsf ${PWD}/typora-theme/* ${HOME}/.config/Typora/themes/
 	ln -vsf ${PWD}/config.json ${HOME}/.config/Noty/

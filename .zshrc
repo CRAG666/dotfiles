@@ -1,7 +1,7 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 # Path to your oh-my-zsh installation.
-ZSH=/usr/share/oh-my-zsh/
+ZSH=/usr/share/oh-my-zsh
 . /usr/share/z/z.sh
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -58,9 +58,10 @@ ENABLE_CORRECTION="true"
 #dotenv
 plugins=(
   git
-  ruby
   python
   history
+  ripgrep
+  fd
   npm
   colored-man-pages
   extract
@@ -71,11 +72,26 @@ plugins=(
   dircycle
   docker
   themes
-  zsh-256color
   colors
   virtualenv
   systemd
+  zsh-256color
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+  fzf
+  fzf-tab
 )
+#zstyle ':fzf-tab:complete:cd:*' fzf-preview 'lsd $realpath'
+zstyle ':fzf-tab:complete:*:*' fzf-preview '\
+  if [[ -d $word ]]; then\
+    lsd $realpath
+  elif [[ -f $word ]]; then\
+    bat --style=numbers --color=always $word
+  elif [[ -e $word && $(file --mime $word) =~ binary ]]; then\
+    echo "Binary file"
+  else\
+    xdotool key F2
+  fi'
 
 # User configuration
 
@@ -114,11 +130,42 @@ function ds(){
   sudo systemctl $1 docker
 }
 
+fapp() {
+	selected="$(ls /usr/share/applications | fzf -e)"
+	nohup `grep '^Exec' "/usr/share/applications/$selected" | tail -1 | sed 's/^Exec=//' | sed 's/%.//'` >/dev/null 2>&1&
+}
+
+fkill() {
+  local pid
+
+  pid="$(
+    pgrep . -l \
+      | fzf -m \
+      | awk '{print $1}'
+  )" || return
+  if [ $pid ];then
+    kill -"${1:-9}" "$pid"
+  fi
+}
+
+tmuxkillf () {
+    local sessions
+    sessions="$(tmux ls|fzf --exit-0 --multi)"  || return $?
+    local i
+    for i in "${(f@)sessions}"
+    do
+        [[ $i =~ '([^:]*):.*' ]] && {
+            echo "Killing $match[1]"
+            tmux kill-session -t "$match[1]"
+        }
+    done
+}
+
 # -< Source files or scripts >-
 source $ZSH/oh-my-zsh.sh
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+#source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+#source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # -> Config <-
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
@@ -127,20 +174,15 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 # -< Aliases >-
 alias starshipconfig="vim ~/.config/starship.toml"
 alias alacriconfig="vim ~/.config/alacritty/alacritty.yml"
+alias i3config="vim ~/.config/i3/config"
+alias i3barconfig="~/.config/i3status/config"
 alias dnsconfig="sudoedit /etc/resolv.conf"
-alias js="node ~/.noderc"
-alias sys="watch -ct -n0 sys.sh"
-alias cerrar_todo="sh ~/.scripts/cerrar_todo.sh"
-alias cerrar="sh ~/.scripts/cerrar_ventana"
 alias zshconfig="vim ~/.zshrc"
+alias tmuxc="vim ~/.tmux.conf"
 alias firefoxconfig="vim ~/.mozilla/firefox/profiles.ini"
-alias usb="cd /run/media/crag"
-alias ll="lsd -l"
-alias ls="lsd"
-alias tree="lsd --tree"
-alias vi="nvim"
-alias vim="nvim"
-alias vimconfig='vim ~/.config/nvim/init.vim'
+alias vimc='vim ~/.config/nvim/init.vim'
+alias vimp='vim ~/.config/nvim/init/plugs.vim'
+alias vimm='vim ~/.config/nvim/init/maps.vim'
 alias applications="nautilus /usr/share/applications"
 alias Escritorio="cd /$HOME/Escritorio"
 alias Descargas="cd /$HOME/Descargas"
@@ -149,8 +191,22 @@ alias Imágenes="cd /$HOME/Imágenes"
 alias Música="cd /$HOME/Música"
 alias Vídeos="cd /$HOME/Vídeos"
 alias Git="cd /$HOME/Git"
-alias dgcs="cp -r ~/Plantillas/.vscode $PWD"
+alias usb="cd /run/media/crag"
+alias sys="watch -ct -n0 sys.sh"
 alias ping="prettyping"
+alias cerrar="sh ~/.scripts/cerrar_ventana"
+alias cerrar_todo="sh ~/.scripts/cerrar_todo.sh"
+alias js="node ~/.noderc"
+alias ll="lsd -l"
+alias ls="lsd"
+alias tree="lsd --tree"
+alias vi="nvim"
+alias vim="nvim"
+# fzf alias
+#alias fkill="pgrep . -l | fzf --reverse -m | awk '{ print $1 }' | xargs -I% -r kill -9 '%'"
+alias fpm="pacman -Slq | fzf --multi --preview 'pacman -Si {1}' | xargs -ro sudo pacman -S"
+alias fpmr="pacman -Qq | fzf --multi --preview 'pacman -Qi {1}' | xargs -ro sudo pacman -Rns"
+alias fyay="yay -Slq | fzf --multi --preview 'yay -Si {1}' | xargs -ro yay -S"
 
 # -< Environ variable >-
 export _JAVA_OPTIONS="${_JAVA_OPTIONS}"
@@ -167,9 +223,10 @@ export PYTHONSTARTUP=~/.pyrc
 export TERM="xterm-256color"
 export PATH="/opt/brew/bin:$PATH"
 source ~/.passmaria.zsh
-export EDITOR='nvim'
+export VISUAL=nvim
+export EDITOR="$VISUAL"
 export BAT_THEME="gruvbox"
-
+export FZF_DEFAULT_OPTS="--height 40% --reverse --bind='F2:toggle-preview'"
 # -< Evals >-
 eval $(thefuck --alias)
 eval "$(starship init zsh)"

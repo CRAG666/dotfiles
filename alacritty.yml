@@ -23,7 +23,7 @@ window:
   position:
     x: 130
     y: 70
-  decorations: none
+  decorations: full
   dynamic_title: true
 class:
   gtk_theme_variant: dark
@@ -34,15 +34,15 @@ background_opacity: 1
 # Font Customization
 font:
   normal:
-    family: JetBrainsMono Nerd Font
+    family: BlexMono Nerd Font
     style: Regular
   bold:
-    family: JetBrainsMono Nerd Font
-    style: Italic
-  italic:
     family: BlexMono Nerd Font
+    style: Bold
+  italic:
+    family: FuraCode Nerd Font
     style: Italic
-  size: 14
+  size: 12
   offset:
     x: 0
     y: 0
@@ -59,7 +59,8 @@ draw_bold_text_with_bright_colors: true
 colors:
 
   primary:
-    background: "#181B1E"
+    #background: "#cfe8cc"
+    background: "#111416"
     foreground: "#e6e6e6"
 
   normal:
@@ -108,26 +109,27 @@ key_bindings:
   - { key: Down, mods: Control | Command, chars: "\x01\x22"  }
   # Create a vertical space
   - { key: Right, mods: Control | Command, chars: "\x01\x25"  }
-  # Close Space
-  - { key: K, mods: Command, chars: "\x01\x78"  }
   # Move between spaces
-  - { key: Right, mods: Command, chars: "\x0c"  }
-  - { key: Left, mods: Command, chars: "\x08"  }
-  - { key: Down, mods: Command, chars: "\x0a"  }
-  - { key: Up, mods: Command, chars: "\x0b"  }
+  - { key: Right, mods: Control | Alt, chars: "\x0c"  }
+  - { key: Left, mods: Control | Alt, chars: "\x08"  }
+  - { key: Down, mods: Control | Alt, chars: "\x0a"  }
+  - { key: Up, mods: Control | Alt, chars: "\x0b"  }
   # Move between Window
   - { key: PageDown, mods: Control, chars: "\x01\x6e"  }
   - { key: PageUp, mods: Control, chars: "\x01\x70"  }
   # Move between session
-  - { key: PageUp, mods: Control | Command, chars: "\x01\x28"  }
-  - { key: PageDown, mods: Control | Command, chars: "\x01\x29"  }
+  - { key: PageUp, mods: Alt, chars: "\x01\x28"  }
+  - { key: PageDown, mods: Alt, chars: "\x01\x29"  }
   # New Windows
   - { key: T, mods: Command, chars: "\x01\x63"  }
   # Tab Windows
   - { key: Tab, mods: Control, chars: "\x01\x77"  }
   # Close current session of tmux
+  - { key: K, mods: Command, chars: "\x01\x78"  }
   - { key: K, mods: Command | Alt, chars: "tmux kill-session -t $(tmux display-message -p \"#S\")\n"  }
   - { key: K, mods: Control | Command, chars: "tmux list-sessions | awk 'BEGIN{FS=\":\"}{print $1}' | xargs -n 1 tmux kill-session -t\n"  }
+  # tmux zoom
+  - { key: Z, mods: Command, chars: "\x01\x7a"  }
   # Save nvim Archive
   - { key: G, mods: Command, chars: "\x1b\x3a\x77\n"  }
   # Run Current code in vim
