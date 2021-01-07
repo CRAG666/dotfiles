@@ -22,10 +22,12 @@ exec --no-startup-id /usr/bin/i3wsr
 bindsym $super+Return exec i3-sensible-terminal
 
 # start rofi (a program launcher)
-bindsym $super+a exec rofi -lines 12 -padding 18 -width 60 -location 0 -show drun -sidebar-mode -columns 3 -font 'Lucida Mac 15' -show-icons
-
-bindsym $alt+space exec rofi -modi "clipboard:greenclip print" -show clipboard -run-command '{cmd}'
-
+#bindsym $super+a exec rofi -lines 12 -padding 18 -width 60 -location 0 -show drun -sidebar-mode -columns 3 -font 'Lucida Mac 15' -show-icons
+bindsym $super+a exec ~/.config/rofi/bin/launcher_misc
+bindsym $alt+space exec ~/.config/rofi/bin/clipboard
+bindsym $super+n exec ~/.config/rofi/bin/applet_network
+bindsym $super+x exec ~/.config/rofi/bin/menu_apps
+#bindsym $alt+space exec rofi -modi "clipboard:greenclip print" -show clipboard -run-command '{cmd}'
 
 # keybinds replaces
 bindsym $alt+Control+d exec ~/.config/i3/Delete.sh
@@ -108,21 +110,28 @@ bindsym $super+Shift+6 move container to workspace 6
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $super+Shift+r restart
 
-# exit i3
-set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
-mode "$mode_system" {
-    bindsym l exec --no-startup-id i3exit lock, mode "default"
-    bindsym e exec --no-startup-id i3exit logout, mode "default"
-    bindsym s exec --no-startup-id i3exit suspend, mode "default"
-    bindsym h exec --no-startup-id i3exit hibernate, mode "default"
-    bindsym r exec --no-startup-id i3exit reboot, mode "default"
-    bindsym Shift+s exec --no-startup-id i3exit shutdown, mode "default"
-
-    # back to normal: Enter or Escape
-    bindsym Return mode "default"
-    bindsym Escape mode "default"
+#CapsLock indicator
+mode "CAPSLOCK" {
+    bindsym Caps_Lock mode "default"
 }
-bindsym $super+q mode "$mode_system"
+
+bindsym Caps_Lock mode "CAPSLOCK"
+# exit i3
+bindsym $super+q exec ~/.config/rofi/bin/menu_powermenu
+#set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
+#mode "$mode_system" {
+    #bindsym l exec --no-startup-id i3exit lock, mode "default"
+    #bindsym e exec --no-startup-id i3exit logout, mode "default"
+    #bindsym s exec --no-startup-id i3exit suspend, mode "default"
+    #bindsym h exec --no-startup-id i3exit hibernate, mode "default"
+    #bindsym r exec --no-startup-id i3exit reboot, mode "default"
+    #bindsym Shift+s exec --no-startup-id i3exit shutdown, mode "default"
+
+    #back to normal: Enter or Escape
+    #bindsym Return mode "default"
+    #bindsym Escape mode "default"
+#}
+#bindsym $super+q mode "$mode_system"
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
@@ -152,11 +161,11 @@ bar {
 
 # window rules, you can find the window class using xprop
 for_window [class=".*"] border pixel 0
-assign [class=Firefox|Transmission-gtk|Code] 2
-assign [class=Thunar|File-roller] 3
-assign [class=Geany|Evince|Gucharmap|Soffice|libreoffice*] 4
-assign [class=Audacity|Vlc|mpv|Ghb|Xfburn|Gimp*|Inkscape] 5
-assign [class=Lxappearance|System-config-printer.py|Lxtask|GParted|Pavucontrol|Exo-helper*|Lxrandr|Arandr] 6
+assign [class=Firefox|Transmission-gtk|Code] number 2
+assign [class=Thunar|File-roller] number 3
+assign [class=Geany|Evince|Gucharmap|Soffice|libreoffice*] number 4
+assign [class=Audacity|Vlc|mpv|Ghb|Xfburn|Gimp*|Inkscape] number 5
+assign [class=Lxappearance|System-config-printer.py|Lxtask|GParted|Pavucontrol|Exo-helper*|Lxrandr|Arandr] number 6
 for_window [class=feh|Audacious|File-roller|Lxappearance|Lxtask|Pavucontrol|Color-picker] floating enable
 for_window [class=Firefox|Geany|Evince|Soffice|libreoffice*|mpv|Ghb|Xfburn|Gimp*|Inkscape|Vlc|Lxappearance|Audacity] focus
 for_window [class=Xfburn|GParted|System-config-printer.py|Lxtask|Pavucontrol|Exo-helper*|Lxrandr|Arandr] focus

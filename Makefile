@@ -1,6 +1,12 @@
 export PATH := ${HOME}/.cargo/bin:/bin:/usr/local/bin:/usr/local/sbin:${HOME}/.config/nvim:${HOME}.config/Typora/themes
 export GOPATH := ${HOME}
 
+yay: ## Install yay
+	sudo pacman -S --needed --noconfirm yay
+
+install: ## Install arch linux packages using yay
+	cat ${PWD}/pkglist.txt | xargs -L 1 yay -S --needed --noconfirm
+
 cli-tools: ## Add cli tools
 	sudo ln -sf ${PWD}/commands/* /usr/local/bin/
 
@@ -24,6 +30,9 @@ init: ## Initial deploy dotfiles
 i3: ## config i3
 	ln -vsf ${PWD}/i3config/* ${HOME}/.config/
 
+rofi: ## rofi applets
+	ln -vsf ${PWD}/rofi ${HOME}/.config/
+
 text-editors-config: ## config noty and typora
 	ln -vsf ${PWD}/typora-theme/* ${HOME}/.config/Typora/themes/
 	ln -vsf ${PWD}/config.json ${HOME}/.config/Noty/
@@ -36,13 +45,6 @@ zsh: ## install oh my zsh
 
 vim-plug: ## Install vim plug
 	curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-
-yay: ## Install yay
-	sudo pacman -S --needed --noconfirm yay
-
-install: ## Install arch linux packages using yay
-	cat ${PWD}/pkglist.txt | xargs -L 1 yay -S --needed --noconfirm
-
 
 npm-cli-tools: ## Install fx and speedtest-net
 	sudo npm install -g fx speedtest-net
@@ -75,6 +77,9 @@ docker: ## Docker initial setup
 	sudo pacman -S docker
 	sudo usermod -aG docker ${USER}
 
+docker-compose: ## Set up docker-compose
+	sudo pacman -S docker-compose
+
 maria-db: ## Mariadb initial setup
 	sudo ln -vsf ${PWD}/etc/sysctl.d/40-max-user-watches.conf /etc/sysctl.d/40-max-user-watches.conf
 	sudo pacman -S --noconfirm mariadb mariadb-clients mycli
@@ -87,9 +92,6 @@ maria-db: ## Mariadb initial setup
 
 mongodb: ## Mongodb initial setup
 	sudo pacman -S mongodb mongodb-tools
-
-docker-compose: ## Set up docker-compose
-	sudo pacman -S docker-compose
 
 spotify: ## Install spotify
 	gpg --keyserver hkp://keyserver.ubuntu.com --receive-keys 931FF8E79F0876134EDDBDCCA87FF9DF48BF1C90
@@ -106,7 +108,7 @@ testpath: ## Echo PATH
 	GOPATH=$$GOPATH
 	@echo $$GOPATH
 
-allinstall: cli-tools yay install init text-editors-config zsh vim-plug npm-cli-tools screenkey spotify
+allinstall: yay install init cli-tools i3 rofi text-editors-config zsh vim-plug npm-cli-tools screenkey spotify
 
 nextinstall: rustinstall maria-db mongodb docker docker-compose
 
