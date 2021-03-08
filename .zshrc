@@ -74,6 +74,7 @@ plugins=(
   themes
   colors
   virtualenv
+  poetry
   systemd
   zsh-256color
   zsh-autosuggestions
@@ -82,16 +83,7 @@ plugins=(
   fzf-tab
 )
 #zstyle ':fzf-tab:complete:cd:*' fzf-preview 'lsd $realpath'
-zstyle ':fzf-tab:complete:*:*' fzf-preview '\
-  if [[ -d $word ]]; then\
-    lsd $realpath
-  elif [[ -f $word ]]; then\
-    bat --style=numbers --color=always $word
-  elif [[ -e $word && $(file --mime $word) =~ binary ]]; then\
-    echo "Binary file"
-  else\
-    xdotool key F2
-  fi'
+zstyle ':fzf-tab:complete:*:*' fzf-preview '([[ -f $realpath ]] && (bat --style=numbers --color=always $realpath || cat $realpath)) || ([[ -d $realpath ]] && (tree -C $realpath | less)) || echo $realpath 2> /dev/null | head -200'
 
 # User configuration
 
@@ -116,6 +108,8 @@ if [[ ! -d $ZSH_CACHE_DIR ]]; then
   mkdir $ZSH_CACHE_DIR
 fi
 
+
+# Util funtions
 function acp() {
   git add .
   git commit -m "$1"
@@ -128,6 +122,11 @@ function mss(){
 
 function ds(){
   sudo systemctl $1 docker
+}
+
+function smb(){
+  sudo systemctl $1 smb
+  sudo systemctl $1 nmb
 }
 
 fapp() {
@@ -172,6 +171,7 @@ ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 
 # -< Aliases >-
+# Config alias
 alias starshipconfig="vim ~/.config/starship.toml"
 alias alacriconfig="vim ~/.config/alacritty/alacritty.yml"
 alias i3config="vim ~/.config/i3/config"
@@ -183,7 +183,8 @@ alias firefoxconfig="vim ~/.mozilla/firefox/profiles.ini"
 alias vimc='vim ~/.config/nvim/init.vim'
 alias vimp='vim ~/.config/nvim/init/plugs.vim'
 alias vimm='vim ~/.config/nvim/init/maps.vim'
-alias applications="nautilus /usr/share/applications"
+# Jump alias
+alias applications="thunar /usr/share/applications"
 alias Escritorio="cd /$HOME/Escritorio"
 alias Descargas="cd /$HOME/Descargas"
 alias Documentos="cd /$HOME/Documentos"
@@ -192,18 +193,19 @@ alias Música="cd /$HOME/Música"
 alias Vídeos="cd /$HOME/Vídeos"
 alias Git="cd /$HOME/Git"
 alias usb="cd /run/media/crag"
+# command alternatives
 alias sys="watch -ct -n0 sys.sh"
 alias ping="prettyping"
 alias cerrar="sh ~/.scripts/cerrar_ventana"
 alias cerrar_todo="sh ~/.scripts/cerrar_todo.sh"
 alias js="node ~/.noderc"
-alias ll="lsd -l"
-alias ls="lsd"
-alias tree="lsd --tree"
+alias ll="logo-ls -l"
+alias ls="logo-ls"
+alias cp="rsync -P"
+alias tree="logo-ls -R"
 alias vi="nvim"
 alias vim="nvim"
 # fzf alias
-#alias fkill="pgrep . -l | fzf --reverse -m | awk '{ print $1 }' | xargs -I% -r kill -9 '%'"
 alias fpm="pacman -Slq | fzf --multi --preview 'pacman -Si {1}' | xargs -ro sudo pacman -S"
 alias fpmr="pacman -Qq | fzf --multi --preview 'pacman -Qi {1}' | xargs -ro sudo pacman -Rns"
 alias fyay="yay -Slq | fzf --multi --preview 'yay -Si {1}' | xargs -ro yay -S"
@@ -222,11 +224,13 @@ export LANGUAGE=es_MX.UTF-8
 export PYTHONSTARTUP=~/.pyrc
 export TERM="xterm-256color"
 export PATH="/opt/brew/bin:$PATH"
+export PATH="$HOME/.poetry/bin:$PATH"
 source ~/.passmaria.zsh
 export VISUAL=nvim
 export EDITOR="$VISUAL"
 export BAT_THEME="gruvbox"
-export FZF_DEFAULT_OPTS="--height 40% --reverse --bind='F2:toggle-preview'"
-# -< Evals >-
+export FZF_DEFAULT_OPTS="--height 40% --reverse --bind='?:toggle-preview'"
+#-< Evals >-
 eval $(thefuck --alias)
 eval "$(starship init zsh)"
+

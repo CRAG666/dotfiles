@@ -14,7 +14,6 @@ let mapleader = " "
 source <sfile>:h/init/plugs.vim
 
 " -< Set compatibility to Vim only. >-
-set nocompatible
 set noswapfile
 set nobackup
 set nowritebackup
@@ -56,20 +55,15 @@ set wrap
 set splitbelow
 set splitright
 
-" Display 5 lines above/below the cursor when scrolling with a mouse.
-set scrolloff=5
-" Fixes common backspace problems
-set backspace=indent,eol,start
 " Speed up scrolling in Vim
 set ttyfast
+" Display 5 lines above/below the cursor when scrolling with a mouse.
+set scrolloff=5
 " Status bar
 set laststatus=2
 " Display options
 set showmode
 set showcmd
-
-" Change directory for currend dir for file
-"set autochdir
 
 " Highlight matching pairs of brackets. Use the '%' character to jump between them.
 set matchpairs+=<:>
@@ -78,12 +72,12 @@ set matchpairs+=<:>
 set list
 set listchars=tab:›\ ,trail:•,extends:#,nbsp:.
 
+" Fixes common backspace problems
+set backspace=indent,eol,start
+
 " Show line numbers
 set number relativenumber
 "set signcolumn=number
-
-" Set status line display
-"set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [POS=%l,%v][%p%%]\ [BUFFER=%n]\ %{strftime('%c')}
 
 " Encoding
 set encoding=utf-8
@@ -111,6 +105,9 @@ set noshowmode
 "Enable clipboard
 set clipboard=unnamedplus
 
+set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
+set grepformat=%f:%l:%c:%m
+
 " Files to ignore
 source <sfile>:h/init/ignore.vim
 
@@ -136,11 +133,6 @@ let g:gitgutter_sign_removed_first_line = '✖'
 let g:gitgutter_sign_modified_removed = '✖'
 
 let g:pydocstring_formatter = 'google'
-" NERDTree Config
-"source <sfile>:h/init/Nerdtree.vim
-
-" -< Maps   >-
-source <sfile>:h/init/maps.vim
 
 " Automatically save and load folds
 "autocmd BufWinLeave *.* mkview
@@ -152,3 +144,8 @@ autocmd BufWritePre * %s/\s\+$//e
 autocmd CursorHold * silent call CocActionAsync('highlight')
 autocmd BufEnter * silent! lcd %:p:h
 command! -nargs=0 Prettier :CocCommand prettier.formatFile
+
+source <sfile>:h/init/func.vim
+
+" -< Maps   >-
+source <sfile>:h/init/maps.vim

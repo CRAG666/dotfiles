@@ -1,0 +1,35 @@
+[icons]
+# font awesome
+TelegramDesktop = ""
+firefox = ""
+Pamac-manager = ""
+Alacritty = ""
+Termite = ""
+Thunderbird = ""
+Gpick = ""
+Code=""
+Spotify = ""
+Google-chrome = ""
+Insomnia = "ﬥ"
+jetbrains-idea-ce = ""
+electron-mail = ""
+Mailspring = ""
+Genymotion = ""
+"Genymotion Player" = ""
+Zathura = ""
+Thunar = ""
+# smile emoji
+MyNiceProgram = "😛"
+
+[aliases]
+TelegramDesktop = "Telegram"
+"Org.gnome.Nautilus" = "Nautilus"
+
+[general]
+separator = " ┃ "
+default_icon = ""
+
+[options]
+remove_duplicates = true
+use_instance = true
+no_names = true

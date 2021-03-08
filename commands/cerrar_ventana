@@ -1,8 +1,0 @@
-#! /usr/bin/zsh
-Esc=`xdotool search --name Escritorio getwindowpid`
-doc=`xdotool search --name plank getwindowpid`
-pid=`xdotool getactivewindow getwindowpid`
-if [ $pid != $Esc ] && [ $pid != $doc ]; then
-	wmctrl -i -c $(xdotool getactivewindow)
-fi
-xdotool windowfocus $(xdotool getactivewindow)

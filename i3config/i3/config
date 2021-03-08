@@ -3,12 +3,13 @@ set $super Mod4
 set $alt Mod1
 
 # set font
-font pango: Lucida Mac 8
+font pango: Lucida Mac 10
 
 # Use Mouse+$super to drag floating windows to their wanted position
 floating_modifier $super
 
 #autostart
+exec --no-startup-id polkit-dumb-agent
 exec --no-startup-id hsetroot -fill ~/.wallpaper.jpg
 exec --no-startup-id xsettingsd &
 exec --no-startup-id compton -b
@@ -16,7 +17,7 @@ exec --no-startup-id nm-applet --sm-disable
 exec --no-startup-id xrandr --output eDP1 --brightness 0.5
 exec --no-startup-id libinput-gestures
 exec --no-startup-id Mount_GDrive
-exec --no-startup-id /usr/bin/i3wsr
+exec --no-startup-id i3wsr --config ~/.config/i3/bar_config.toml
 
 # start a terminal
 bindsym $super+Return exec i3-sensible-terminal
@@ -33,10 +34,11 @@ bindsym $super+x exec ~/.config/rofi/bin/menu_apps
 bindsym $alt+Control+d exec ~/.config/i3/Delete.sh
 
 # common apps keybinds
-bindsym Print exec deepin-screenshot
+bindsym Print exec flameshot gui
 bindsym $super+$alt+Control+p exec color-picker
 bindsym $super+Shift+i exec firefox
 bindsym $super+Shift+f exec thunar;workspace 3;focus
+bindsym Control+space exec i3bartoggle
 
 #change volume
 bindsym XF86AudioRaiseVolume exec amixer -q set Master 5%+
@@ -100,12 +102,12 @@ bindsym $super+5 workspace number 5
 bindsym $super+6 workspace number 6
 
 # move focused container to workspace
-bindsym $super+Shift+1 move container to workspace 1
-bindsym $super+Shift+2 move container to workspace 2
-bindsym $super+Shift+3 move container to workspace 3
-bindsym $super+Shift+4 move container to workspace 4
-bindsym $super+Shift+5 move container to workspace 5
-bindsym $super+Shift+6 move container to workspace 6
+bindsym $super+Shift+1 move container to workspace number 1
+bindsym $super+Shift+2 move container to workspace number 2
+bindsym $super+Shift+3 move container to workspace number 3
+bindsym $super+Shift+4 move container to workspace number 4
+bindsym $super+Shift+5 move container to workspace number 5
+bindsym $super+Shift+6 move container to workspace number 6
 
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $super+Shift+r restart
@@ -161,13 +163,13 @@ bar {
 
 # window rules, you can find the window class using xprop
 for_window [class=".*"] border pixel 0
-assign [class=Firefox|Transmission-gtk|Code] number 2
-assign [class=Thunar|File-roller] number 3
-assign [class=Geany|Evince|Gucharmap|Soffice|libreoffice*] number 4
+assign [class=Thunar|File-roller] number 2
+assign [class=Transmission-gtk|Code|org.pwmt.zathura] number 3
+assign [class=Geany|Evince|Gucharmap|Soffice|libreoffice*|Insomnia] number 4
 assign [class=Audacity|Vlc|mpv|Ghb|Xfburn|Gimp*|Inkscape] number 5
-assign [class=Lxappearance|System-config-printer.py|Lxtask|GParted|Pavucontrol|Exo-helper*|Lxrandr|Arandr] number 6
+assign [class=Lxappearance|System-config-printer.py|Lxtask|GParted|Pavucontrol|Exo-helper*|Lxrandr|Arandr|Spotify] number 6
 for_window [class=feh|Audacious|File-roller|Lxappearance|Lxtask|Pavucontrol|Color-picker] floating enable
-for_window [class=Firefox|Geany|Evince|Soffice|libreoffice*|mpv|Ghb|Xfburn|Gimp*|Inkscape|Vlc|Lxappearance|Audacity] focus
+for_window [class=Colour-picker|Firefox|Geany|Evince|Soffice|libreoffice*|mpv|Ghb|Xfburn|Gimp*|Inkscape|Vlc|Lxappearance|Audacity] focus
 for_window [class=Xfburn|GParted|System-config-printer.py|Lxtask|Pavucontrol|Exo-helper*|Lxrandr|Arandr] focus
 
 # colour of border, background, text, indicator, and child_border

@@ -8,14 +8,19 @@ let g:fzf_tags_command = 'ctags -R'
 "let $FZF_DEFAULT_COMMAND = 'rg --files --hidden'
 let $FZF_DEFAULT_COMMAND = 'rg --files'
 " Clap map
+let g:clap_open_action = { 'ctrl-t': 'tab split', 'ctrl-x': 'split', 'ctrl-v': 'vsplit' }
+let g:clap_provider_grep_opts = '--hidden -g "!.git/" "!__pycache__/"'
 " AltGr p
 map þ :Clap files<CR>
-map <leader>g :Clap grep<CR>
+map <leader>g :Rg<CR>
 map <leader>f :Clap filer<CR>
-" AltGr f
-map đ :GFiles<CR>
-" AltGr g
-map ŋ :Rg<CR>
+" AltGr l
+map ł :Clap blines<CR>
+map <leader>b :Clap buffers<CR>
+map · :Clap command<CR>
+map <leader>gf :Clap gfiles<CR>
+map <leader>h :Clap history<CR>
+map <leader>y :Clap yanks<CR>
 
 "Refactor rename
 nmap <leader>rn <Plug>(coc-rename)
@@ -83,6 +88,8 @@ nmap <A-f>  <Plug>(coc-format-selected)
 nmap <leader>mp <Plug>MarkdownPreview
 nmap <leader>ms <Plug>MarkdownPreviewStop
 nmap <leader>mt <Plug>MarkdownPreviewToggle
+nnoremap gX :silent :execute
+            \ "!xdg-open" expand('%:p:h') . "/" . expand("<cfile>") " &"<cr>
 "nnoremap <silent> <Space> @=(foldlevel('.')?'za':"\<Space>")<CR>
 "vnoremap <Space> zf
 "nnoremap <space> za
@@ -91,3 +98,4 @@ nmap <leader>mt <Plug>MarkdownPreviewToggle
 "if exists("g:loaded_webdevicons")
   "call webdevicons#refresh()
 "endif
+

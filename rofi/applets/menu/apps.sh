@@ -88,8 +88,8 @@ case $chosen in
 		fi
         ;;
     $settings)
-		if [[ -f /usr/bin/xfce4-settings-manager ]]; then
-			xfce4-settings-manager &
+		if [[ -f /usr/bin/alacritty ]]; then
+			alacritty -e sh -c "nvim ~/.config/i3/config"
 		else
 			msg "No suitable settings manager found!"
 		fi

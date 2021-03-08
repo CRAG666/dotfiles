@@ -32,12 +32,6 @@ let g:clap_theme = 'miramare'
 "let g:tokyonight_transparent_background = 1
 "colorscheme tokyonight
 
-"let g:salvation_italic = 1
-"let g:salvation_disable_italic_comment = 1
-"let g:salvation_transparent_background = 1
-"colorscheme salvation
-
-
 lua <<EOF
 local treesitter = require'nvim-treesitter.configs'
 treesitter.setup {
@@ -49,3 +43,4 @@ treesitter.setup {
 EOF
 
 lua require'colorizer'.setup()
+

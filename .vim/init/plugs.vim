@@ -1,8 +1,8 @@
 call plug#begin('~/.config/nvim/plugged')
-" Ui
-"Plug 'preservim/nerdtree'
-"Plug 'Xuyuanp/nerdtree-git-plugin'
-"Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+" Lenguajes
+Plug 'elixir-editors/vim-elixir'
+"UI
+Plug 'kyazdani42/nvim-web-devicons'
 Plug 'ryanoasis/vim-devicons'
 Plug 'airblade/vim-gitgutter'
 Plug 'itchyny/lightline.vim'
@@ -11,6 +11,7 @@ Plug 'frazrepo/vim-rainbow'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'norcalli/nvim-colorizer.lua'
 " Text edition
+Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-surround'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'AndrewRadev/tagalong.vim'
@@ -34,5 +35,4 @@ Plug 'sainnhe/sonokai'
 Plug 'co1ncidence/monokai-pro.vim'
 Plug 'sainnhe/gruvbox-material'
 Plug 'franbach/miramare'
-Plug 'branwright1/salvation-vim'
 call plug#end()

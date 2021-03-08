@@ -1,4 +1,6 @@
 {
   "python.jediEnabled": false,
-  "diagnostic.displayByAle": true
+  "diagnostic.displayByAle": true,
+  "elixirLS.mixEnv": "dev",
+  "elixirLS.mixTarget": "test"
 }

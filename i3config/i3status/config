@@ -24,9 +24,9 @@ cpu_temperature 0 {
 }
 
 memory {
-        format = "<span background='#e39b7b'> 﫭 %used Usage </span>"
+        format = "<span background='#e39b7b'> ⛁ %used Usage </span>"
         threshold_degraded = "10%"
-        format_degraded = "MEMORY: %free"
+        format_degraded = "<span background='#da516a'> ⛁ %used Usage </span>"
 }
 
 disk "/" {
@@ -43,7 +43,7 @@ ethernet enp0s25 {
 }
 
 wireless wlp4s0 {
-        format_up = "<span background='#b48ead'>   %essid </span>"
+        format_up = "<span background='#b48ead'>   %quality %essid</span>"
         format_down = "<span background='#b48ead'> 睊 Disconnected </span>"
 }
 
@@ -58,11 +58,11 @@ volume master {
 battery 0 {
 	last_full_capacity = true
         format = "<span background='#a3be8c'> %status %percentage </span>"
-        format_down = " No Battery"
-        status_chr = " Charging"
-        status_bat = " Battery"
-        status_unk = " Unknown"
-        status_full = " Charged"
+        format_down = ""
+        status_chr = ""
+        status_bat = ""
+        status_unk = ""
+        status_full = ""
         path = "/sys/class/power_supply/BAT%d/uevent"
         low_threshold = 10
 }
