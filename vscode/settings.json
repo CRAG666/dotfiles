@@ -191,13 +191,13 @@
       "name": "scm",
       "codicon": "source-control"
     },*/
+    // {
+    //   "name": "extensions",
+    //   "codicon": "extensions"
+    // },
     {
       "name": "debug",
       "codicon": "debug"
-    },
-    {
-      "name": "extensions",
-      "codicon": "extensions"
     },
     {
       "name": "extension.liveshare",

@@ -1,0 +1,69 @@
+icons_format = " <span font_family='JetBrainsMono Nerd Font'>{icon}</span> "
+
+[theme]
+name = "modern"
+[theme.overrides]
+idle_bg = "#111416"
+[icons]
+name = "awesome"
+[icons.overrides]
+music = "  "
+volume_empty = "  "
+volume_full = " 奔 "
+volume_half = " ﱝ "
+volume_muted = " 婢 "
+
+[[block]]
+block = "cpu"
+interval = 1
+format = "{barchart} {utilization}"
+
+[[block]]
+block = "disk_space"
+path = "/"
+alias = "/"
+info_type = "used"
+unit = "GiB"
+format = "{icon} {available} {unit} free"
+
+[[block]]
+block = "memory"
+format_mem = "Ram {Mup}%"
+format_swap = "Swap {SUp}%"
+display_type = "memory"
+icons = true
+clickable = true
+interval = 5
+warning_mem = 80
+warning_swap = 80
+critical_mem = 95
+critical_swap = 95
+
+
+[[block]]
+block = "music"
+player = "spotify"
+buttons = ["prev", "play", "next"]
+
+[[block]]
+block = "net"
+device = "wlp4s0"
+format = "{ssid} {signal_strength}"
+interval = 5
+use_bits = false
+
+[[block]]
+block = "sound"
+step_width = 3
+
+[[block]]
+block = "battery"
+interval = 10
+format = "{percentage}% {time}"
+
+[[block]]
+block = "time"
+format = "%a %d/%m %R"
+timezone = "America/Monterrey"
+interval = 60
+locale = "es_MX"

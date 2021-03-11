@@ -125,7 +125,7 @@ key_bindings:
   # Tab Windows
   - { key: Tab, mods: Control, chars: "\x01\x77"  }
   # Close tmux
-  - { key: W, mods: Command, chars: "\x01\x78"  }
+  - { key: Q, mods: Control, chars: "\x01\x78"  }
   - { key: W, mods: Command | Alt, chars: "tmux kill-session -t $(tmux display-message -p \"#S\")\n"  }
   - { key: W, mods: Control | Command, chars: "tmux list-sessions | awk 'BEGIN{FS=\":\"}{print $1}' | xargs -n 1 tmux kill-session -t\n"  }
   # tmux zoom

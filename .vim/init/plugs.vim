@@ -19,6 +19,7 @@ Plug 'scrooloose/nerdcommenter'
 Plug 'heavenshell/vim-pydocstring', { 'do': 'make install' }
 Plug 'KabbAmine/vCoolor.vim'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'AndrewRadev/splitjoin.vim'
 " Utils
 Plug 'tpope/vim-fugitive'
 Plug 'godlygeek/tabular'

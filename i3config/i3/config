@@ -158,7 +158,7 @@ bar {
         inactive_workspace      #111416 #111416 #d8dee8
         urgent_workspacei       #111416 #ebcb8b #111416
     }
-        status_command i3status
+        status_command i3status-rs ~/.config/i3status/config.toml
 }
 
 # window rules, you can find the window class using xprop

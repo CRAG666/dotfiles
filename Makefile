@@ -1,4 +1,4 @@
-export PATH := ${HOME}/.cargo/bin:/bin:/usr/local/bin:/usr/local/sbin:${HOME}/.config/nvim:${HOME}.config/Typora/themes
+export PATH := ${HOME}/.cargo/bin:/bin:/usr/local/bin:/usr/local/sbin
 export GOPATH := ${HOME}
 
 yay: ## Install yay
@@ -7,8 +7,8 @@ yay: ## Install yay
 install: ## Install arch linux packages using yay
 	cat ${PWD}/pkglist.txt | xargs -L 1 yay -S --needed --noconfirm
 
-cli-tools: ## Add cli tools
-	sudo ln -sf ${PWD}/commands/* /usr/local/bin/
+cli-tools: ## Add cli tools to local bin
+	sudo ln -vsf ${PWD}/commands/* /usr/local/bin/
 
 init: ## Initial deploy dotfiles
 	mkdir -p ${HOME}/.config/nvim
@@ -51,7 +51,7 @@ npm-cli-tools: ## Install fx and speedtest-net
 
 code: ## Install and configure VScode
 	yay -S --needed --noconfirm visual-studio-code-bin
-	cat ${PWD}/vscode/vscode-extensions.list | xargs -L 1 code --install-extension
+	bash my_vscode_extensions.sh
 	ln -vsf ${PWD}/vscode/settings.json ${HOME}/.config/Code/User/settings.json
 	ln -vsf ${PWD}/vscode/snippets ${HOME}/.config/Code/User/
 	ln -vsf ${PWD}/vscode/keybindings.json ${HOME}/.config/Code/User/keybindings.json
@@ -61,9 +61,6 @@ code: ## Install and configure VScode
 
 android-studio: ## Install and configure Android Studio
 	yay -S --noconfirm android-studio
-
-pycharm: ## Install and configure pycharm
-	sudo pacman -S --noconfirm pycharm-community-edition
 
 intellij-idea: ## Install and configure IDEA
 	sudo pacman -S --noconfirm intellij-idea-community-edition
@@ -112,7 +109,7 @@ allinstall: yay install init cli-tools i3 rofi text-editors-config zsh vim-plug 
 
 nextinstall: rustinstall maria-db mongodb docker docker-compose
 
-intellij: pycharm android-studio intellij-idea
+intellij: android-studio intellij-idea
 
 ideinstall: code intellij
 

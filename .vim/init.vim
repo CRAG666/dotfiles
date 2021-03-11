@@ -13,7 +13,7 @@ let mapleader = " "
 " -< Pluggins ﮣ >-
 source <sfile>:h/init/plugs.vim
 
-" -< Set compatibility to Vim only. >-
+" -< No swap and cache >-
 set noswapfile
 set nobackup
 set nowritebackup
@@ -35,7 +35,6 @@ set mouse=a
 set smartindent
 
 " Uncomment below to set the max textwidth. Use a value corresponding to the width of your screen.
-
 set textwidth=88
 set formatoptions=tcqrn1
 set tabstop=2
@@ -99,12 +98,15 @@ set viminfo='100,<9999,s100
 set noshowmode
 
 " Enable folding
-"set foldmethod=indent
-"set foldlevel=99
+set foldmethod=indent
+set foldlevel=99
+"Foldin for especially filetype
+"autocmd FileType vim setlocal foldmethod=marker
 
-"Enable clipboard
+" Enable clipboard
 set clipboard=unnamedplus
 
+" Config grep command
 set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
 set grepformat=%f:%l:%c:%m
 
@@ -117,12 +119,6 @@ source <sfile>:h/init/themes.vim
 " Ale config
 let g:ale_set_highlights = 0
 
-" Rainbow
-source <sfile>:h/init/rainbow.vim
-
-" lightline
-source <sfile>:h/init/lightline.vim
-
 " Vim
 let g:indentLine_color_term = 7
 let g:coc_node_path = '/usr/local/bin/node'
@@ -134,9 +130,6 @@ let g:gitgutter_sign_modified_removed = '✖'
 
 let g:pydocstring_formatter = 'google'
 
-" Automatically save and load folds
-"autocmd BufWinLeave *.* mkview
-"autocmd BufWinEnter *.* silent loadview
 
 " Clean end spaces
 autocmd BufEnter * :let @/=""
@@ -146,6 +139,12 @@ autocmd BufEnter * silent! lcd %:p:h
 command! -nargs=0 Prettier :CocCommand prettier.formatFile
 
 source <sfile>:h/init/func.vim
+
+" lightline
+source <sfile>:h/init/lightline.vim
+
+" Rainbow
+source <sfile>:h/init/rainbow.vim
 
 " -< Maps   >-
 source <sfile>:h/init/maps.vim
