@@ -228,7 +228,7 @@ export PATH="$HOME/.poetry/bin:$PATH"
 source ~/.passmaria.zsh
 export VISUAL=nvim
 export EDITOR="$VISUAL"
-export BAT_THEME="gruvbox"
+export BAT_THEME="gruvbox-dark"
 export FZF_DEFAULT_OPTS="--height 40% --reverse --bind='?:toggle-preview'"
 #-< Evals >-
 eval $(thefuck --alias)

@@ -16,7 +16,21 @@ volume_muted = " 婢 "
 [[block]]
 block = "cpu"
 interval = 1
-format = "{barchart} {utilization}"
+#format = "{barchart} {utilization}"
+format = "{utilization}"
+
+[[block]]
+block = "memory"
+format_mem = "R:{Mup}%"
+format_swap = "S:{SUp}%"
+display_type = "memory"
+icons = true
+clickable = true
+interval = 5
+warning_mem = 80
+warning_swap = 80
+critical_mem = 95
+critical_swap = 95
 
 [[block]]
 block = "disk_space"
@@ -27,23 +41,10 @@ unit = "GiB"
 format = "{icon} {available} {unit} free"
 
 [[block]]
-block = "memory"
-format_mem = "Ram {Mup}%"
-format_swap = "Swap {SUp}%"
-display_type = "memory"
-icons = true
-clickable = true
-interval = 5
-warning_mem = 80
-warning_swap = 80
-critical_mem = 95
-critical_swap = 95
-
-
-[[block]]
 block = "music"
 player = "spotify"
 buttons = ["prev", "play", "next"]
+hide_when_empty = true
 
 [[block]]
 block = "net"
@@ -63,7 +64,7 @@ format = "{percentage}% {time}"
 
 [[block]]
 block = "time"
-format = "%a %d/%m %R"
+format = "%a %d/%m %l:%M %P"
 timezone = "America/Monterrey"
 interval = 60
 locale = "es_MX"

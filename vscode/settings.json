@@ -264,5 +264,11 @@
     "**/node_modules/**": true,
     "**/__pycache__/**": true,
 //Add in your other glob patterns
-}
+},
+"workbench.editorAssociations": [
+  {
+    "viewType": "jupyter.notebook.ipynb",
+    "filenamePattern": "*.ipynb"
+  }
+]
 }

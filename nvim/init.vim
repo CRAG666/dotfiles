@@ -5,8 +5,6 @@ syntax on
 " For plug-ins to load correctly.
 filetype plugin indent on
 
-let g:ale_disable_lsp = 1
-
 " Remap leader key
 let mapleader = " "
 
@@ -20,10 +18,7 @@ set nowritebackup
 set nowb
 set hidden
 
-"set re=0
-
 " -> Better Colors <-
-"set t_Co=256
 let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
 let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 set termguicolors
@@ -110,41 +105,34 @@ set clipboard=unnamedplus
 set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
 set grepformat=%f:%l:%c:%m
 
-" Files to ignore
-source <sfile>:h/init/ignore.vim
-
-" -< Themes Config >-
-source <sfile>:h/init/themes.vim
-
-" Ale config
-let g:ale_set_highlights = 0
-
-" Vim
-let g:indentLine_color_term = 7
-let g:coc_node_path = '/usr/local/bin/node'
+" gitgutter icons
 let g:gitgutter_sign_added = '✚'
 let g:gitgutter_sign_modified = '✹'
 let g:gitgutter_sign_removed = '✖'
 let g:gitgutter_sign_removed_first_line = '✖'
 let g:gitgutter_sign_modified_removed = '✖'
-
+" Python documentation
 let g:pydocstring_formatter = 'google'
-
 
 " Clean end spaces
 autocmd BufEnter * :let @/=""
 autocmd BufWritePre * %s/\s\+$//e
-autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" Current path file
 autocmd BufEnter * silent! lcd %:p:h
-command! -nargs=0 Prettier :CocCommand prettier.formatFile
 
-source <sfile>:h/init/func.vim
+" -< Status line config >-
+function! ConfigStatusLine()
+  lua require('plugins.statusline')
+endfunction
 
-" lightline
-source <sfile>:h/init/lightline.vim
+augroup status_line_init
+  autocmd!
+  autocmd VimEnter * call ConfigStatusLine()
+augroup END
 
-" Rainbow
-source <sfile>:h/init/rainbow.vim
-
-" -< Maps   >-
+source <sfile>:h/init/themes.vim
 source <sfile>:h/init/maps.vim
+source <sfile>:h/init/func.vim
+source <sfile>:h/init/ignore.vim
+source <sfile>:h/init/lsp.vim

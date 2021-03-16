@@ -28,7 +28,6 @@ bindsym $super+a exec ~/.config/rofi/bin/launcher_misc
 bindsym $alt+space exec ~/.config/rofi/bin/clipboard
 bindsym $super+n exec ~/.config/rofi/bin/applet_network
 bindsym $super+x exec ~/.config/rofi/bin/menu_apps
-#bindsym $alt+space exec rofi -modi "clipboard:greenclip print" -show clipboard -run-command '{cmd}'
 
 # keybinds replaces
 bindsym $alt+Control+d exec ~/.config/i3/Delete.sh
@@ -36,8 +35,6 @@ bindsym $alt+Control+d exec ~/.config/i3/Delete.sh
 # common apps keybinds
 bindsym Print exec flameshot gui
 bindsym $super+$alt+Control+p exec color-picker
-bindsym $super+Shift+i exec firefox
-bindsym $super+Shift+f exec thunar;workspace 3;focus
 bindsym Control+space exec i3bartoggle
 
 #change volume
@@ -118,22 +115,9 @@ mode "CAPSLOCK" {
 }
 
 bindsym Caps_Lock mode "CAPSLOCK"
+
 # exit i3
 bindsym $super+q exec ~/.config/rofi/bin/menu_powermenu
-#set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
-#mode "$mode_system" {
-    #bindsym l exec --no-startup-id i3exit lock, mode "default"
-    #bindsym e exec --no-startup-id i3exit logout, mode "default"
-    #bindsym s exec --no-startup-id i3exit suspend, mode "default"
-    #bindsym h exec --no-startup-id i3exit hibernate, mode "default"
-    #bindsym r exec --no-startup-id i3exit reboot, mode "default"
-    #bindsym Shift+s exec --no-startup-id i3exit shutdown, mode "default"
-
-    #back to normal: Enter or Escape
-    #bindsym Return mode "default"
-    #bindsym Escape mode "default"
-#}
-#bindsym $super+q mode "$mode_system"
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
@@ -169,7 +153,7 @@ assign [class=Geany|Evince|Gucharmap|Soffice|libreoffice*|Insomnia] number 4
 assign [class=Audacity|Vlc|mpv|Ghb|Xfburn|Gimp*|Inkscape] number 5
 assign [class=Lxappearance|System-config-printer.py|Lxtask|GParted|Pavucontrol|Exo-helper*|Lxrandr|Arandr|Spotify] number 6
 for_window [class=feh|Audacious|File-roller|Lxappearance|Lxtask|Pavucontrol|Color-picker] floating enable
-for_window [class=Colour-picker|Firefox|Geany|Evince|Soffice|libreoffice*|mpv|Ghb|Xfburn|Gimp*|Inkscape|Vlc|Lxappearance|Audacity] focus
+for_window [class=Color-picker|Firefox|Geany|Evince|Soffice|libreoffice*|mpv|Ghb|Xfburn|Gimp*|Inkscape|Vlc|Lxappearance|Audacity] focus
 for_window [class=Xfburn|GParted|System-config-printer.py|Lxtask|Pavucontrol|Exo-helper*|Lxrandr|Arandr] focus
 
 # colour of border, background, text, indicator, and child_border

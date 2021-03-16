@@ -2,13 +2,12 @@ call plug#begin('~/.config/nvim/plugged')
 " Lenguajes
 Plug 'elixir-editors/vim-elixir'
 "UI
+Plug 'glepnir/galaxyline.nvim' , {'branch': 'main'}
 Plug 'kyazdani42/nvim-web-devicons'
 Plug 'ryanoasis/vim-devicons'
 Plug 'airblade/vim-gitgutter'
-Plug 'itchyny/lightline.vim'
-Plug 'maximbaz/lightline-ale'
-Plug 'frazrepo/vim-rainbow'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'p00f/nvim-ts-rainbow'
 Plug 'norcalli/nvim-colorizer.lua'
 " Text edition
 Plug 'tpope/vim-endwise'
@@ -18,22 +17,26 @@ Plug 'AndrewRadev/tagalong.vim'
 Plug 'scrooloose/nerdcommenter'
 Plug 'heavenshell/vim-pydocstring', { 'do': 'make install' }
 Plug 'KabbAmine/vCoolor.vim'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'AndrewRadev/splitjoin.vim'
+" LSP
+Plug 'neovim/nvim-lspconfig'
+Plug 'glepnir/lspsaga.nvim'
+Plug 'onsails/lspkind-nvim'
+Plug 'nvim-lua/completion-nvim'
+Plug 'aca/completion-tabnine', { 'do': './install.sh' }
+Plug 'steelsojka/completion-buffers'
+Plug 'nvim-treesitter/completion-treesitter'
 " Utils
 Plug 'tpope/vim-fugitive'
 Plug 'godlygeek/tabular'
-Plug 'dense-analysis/ale'
 Plug 'Vimjas/vim-python-pep8-indent'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'liuchengxu/vim-clap', { 'do': ':Clap install-binary' }
-Plug 'voldikss/vim-floaterm'
 Plug 'junegunn/fzf.vim'
 Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  }
+Plug 'szw/vim-maximizer'
 " Themes
-Plug 'ghifarit53/tokyonight-vim'
-Plug 'sainnhe/sonokai'
-Plug 'co1ncidence/monokai-pro.vim'
-Plug 'sainnhe/gruvbox-material'
+Plug 'rktjmp/lush.nvim'
+Plug 'npxbr/gruvbox.nvim'
 Plug 'franbach/miramare'
 call plug#end()
