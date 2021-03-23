@@ -11,15 +11,16 @@ let $FZF_DEFAULT_COMMAND = 'rg --files'
 let g:clap_open_action = { 'ctrl-t': 'tab split', 'ctrl-x': 'split', 'ctrl-v': 'vsplit' }
 let g:clap_provider_grep_opts = '--hidden -g "!.git/" "!__pycache__/"'
 " AltGr p
-map þ :Clap files<CR>
-map <leader>g :Clap grep2<CR>
-map <leader>f :Clap filer<CR>
+map þ :Clap filer<CR>
 " AltGr l
 map ł :Clap blines<CR>
-map <leader>b :Clap buffers<CR>
+" AltGr .
 map · :Clap command<CR>
-map <leader>gf :Clap gfiles<CR>
+map <leader>f :Clap files<CR>
+map <leader>fg :Clap gfiles<CR>
+map <leader>g :Clap grep2<CR>
 map <leader>h :Clap history<CR>
+map <leader>b :Clap buffers<CR>
 map <leader>y :Clap yanks<CR>
 
 " Python Docstring
@@ -29,13 +30,21 @@ nnoremap tn :tabnew<CR>
 nnoremap to :tabonly<CR>
 nnoremap td :tabclose<CR>
 nnoremap tm :tabmove<CR>
-map <silent> <Leader><PageDown> :tabnext<cr>
-map <silent> <Leader><PageUp> :tabprevious<cr>
-nnoremap <leader>1 1gt
-nnoremap <leader>2 2gt
-nnoremap <leader>3 3gt
-nnoremap <leader>4 4gt
-nnoremap <leader>5 5gt
+"map <silent> <Leader><PageDown> :tabnext<cr>
+"map <silent> <Leader><PageUp> :tabprevious<cr>
+"nnoremap <leader>1 1gt
+"nnoremap <leader>2 2gt
+"nnoremap <leader>3 3gt
+"nnoremap <leader>4 4gt
+"nnoremap <leader>5 5gt
+map <silent> <Leader><PageDown> :BufferLineCycleNext<CR>
+map <silent> <Leader><PageUP> :BufferLineCyclePrev<CR>
+map <silent> <A-w> :bd<CR>
+nnoremap <leader>1 :lua require"bufferline".go_to_buffer(1)<CR>
+nnoremap <leader>2 :lua require"bufferline".go_to_buffer(2)<CR>
+nnoremap <leader>3 :lua require"bufferline".go_to_buffer(3)<CR>
+nnoremap <leader>4 :lua require"bufferline".go_to_buffer(4)<CR>
+nnoremap <leader>5 :lua require"bufferline".go_to_buffer(5)<CR>
 " code runner
 nmap <silent> <leader>R :belowright 8split term://crlvc %<CR>
 "nmap  <silent> <leader>R :Lspsaga open_floaterm crlvc %<CR>
@@ -73,8 +82,7 @@ nnoremap <silent> <Space> @=(foldlevel('.')?'za':"\<Space>")<CR>
 vnoremap <Space> zf
 nnoremap <space> za
 
- "devicons fix bug
+"devicons fix bug
 if exists("g:loaded_webdevicons")
   call webdevicons#refresh()
 endif
-

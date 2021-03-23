@@ -131,6 +131,7 @@ augroup status_line_init
   autocmd VimEnter * call ConfigStatusLine()
 augroup END
 
+lua require'bufferline'.setup{}
 source <sfile>:h/init/themes.vim
 source <sfile>:h/init/maps.vim
 source <sfile>:h/init/func.vim

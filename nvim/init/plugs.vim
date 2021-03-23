@@ -2,10 +2,12 @@ call plug#begin('~/.config/nvim/plugged')
 " Lenguajes
 Plug 'elixir-editors/vim-elixir'
 "UI
-Plug 'glepnir/galaxyline.nvim' , {'branch': 'main'}
 Plug 'kyazdani42/nvim-web-devicons'
 Plug 'ryanoasis/vim-devicons'
+Plug 'glepnir/galaxyline.nvim' , {'branch': 'main'}
+Plug 'akinsho/nvim-bufferline.lua'
 Plug 'airblade/vim-gitgutter'
+Plug 'sheerun/vim-polyglot'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'p00f/nvim-ts-rainbow'
 Plug 'norcalli/nvim-colorizer.lua'
