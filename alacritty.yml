@@ -59,7 +59,6 @@ draw_bold_text_with_bright_colors: true
 colors:
 
   primary:
-    #background: "#cfe8cc"
     background: "#111416"
     foreground: "#e6e6e6"
 
