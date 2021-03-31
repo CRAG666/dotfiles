@@ -1,11 +1,15 @@
-icons_format = " <span font_family='JetBrainsMono Nerd Font'>{icon}</span> "
+#icons_format = " <span font_family='JetBrainsMono Nerd Font'>{icon}</span> "
 
 [theme]
 name = "modern"
+
 [theme.overrides]
 idle_bg = "#111416"
+separator = " "
+
 [icons]
 name = "awesome"
+
 [icons.overrides]
 music = "  "
 volume_empty = "  "
@@ -34,8 +38,8 @@ critical_swap = 95
 
 [[block]]
 block = "disk_space"
-path = "/"
-alias = "/"
+path = "/home"
+alias = "/home"
 info_type = "used"
 unit = "GiB"
 format = "{icon} {available} {unit} free"
@@ -48,7 +52,7 @@ hide_when_empty = true
 
 [[block]]
 block = "net"
-device = "wlp4s0"
+device = "wlan0"
 format = "{ssid} {signal_strength}"
 interval = 5
 use_bits = false
@@ -60,7 +64,7 @@ step_width = 3
 [[block]]
 block = "battery"
 interval = 10
-format = "{percentage}% {time}"
+format = " {percentage}% {time}"
 
 [[block]]
 block = "time"

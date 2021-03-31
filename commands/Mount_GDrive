@@ -3,6 +3,6 @@ sleep 10
 wget -q --spider http://google.com
 if [ $? -eq 0 ]; then
     google-drive-ocamlfuse ~/Clouds/Drive
-    rclone mount mega:/ /home/crag/Clouds/Mega &
-    rclone mount pcloud:/ /home/crag/Clouds/Pcloud &
+    rclone mount Mega:/ /home/crag/Clouds/Mega &
+    #rclone mount pcloud:/ /home/crag/Clouds/Pcloud &
 fi

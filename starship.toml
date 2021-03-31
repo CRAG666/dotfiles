@@ -2,15 +2,15 @@
 success_symbol = "[](bold fg:84)"
 error_symbol = "[✗](bold red)"
 
-[python]
-symbol = "  "
-scan_for_pyfiles = false
+#[python]
+#symbol = "  "
+#scan_for_pyfiles = false
 
-[rust]
-symbol = " "
+#[rust]
+#symbol = " "
 
-[dart]
-format = "via [ $version](bold fg:#00b4aa) "
+#[dart]
+#format = "via [ $version](bold fg:#00b4aa) "
 
 [directory.substitutions]
 "~/Escritorio" = "\uF6C3 "

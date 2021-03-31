@@ -39,7 +39,7 @@ nnoremap tm :tabmove<CR>
 "nnoremap <leader>5 5gt
 map <silent> <Leader><PageDown> :BufferLineCycleNext<CR>
 map <silent> <Leader><PageUP> :BufferLineCyclePrev<CR>
-map <silent> <A-w> :bd<CR>
+map <silent> <A-c> :bd<CR>
 nnoremap <leader>1 :lua require"bufferline".go_to_buffer(1)<CR>
 nnoremap <leader>2 :lua require"bufferline".go_to_buffer(2)<CR>
 nnoremap <leader>3 :lua require"bufferline".go_to_buffer(3)<CR>

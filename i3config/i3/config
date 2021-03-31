@@ -3,21 +3,22 @@ set $super Mod4
 set $alt Mod1
 
 # set font
-font pango: Lucida Mac 10
+font pango: JetBrainsMono Nerd Font 9
 
 # Use Mouse+$super to drag floating windows to their wanted position
 floating_modifier $super
 
 #autostart
-exec --no-startup-id polkit-dumb-agent
-exec --no-startup-id hsetroot -fill ~/.wallpaper.jpg
+exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id xsettingsd &
-exec --no-startup-id compton -b
 exec --no-startup-id nm-applet --sm-disable
 exec --no-startup-id xrandr --output eDP1 --brightness 0.5
-exec --no-startup-id libinput-gestures
-exec --no-startup-id Mount_GDrive
+exec --no-startup-id feh --bg-scale '.wallpaper.jpg'
 exec --no-startup-id i3wsr --config ~/.config/i3/bar_config.toml
+exec --no-startup-id picom --config ~/.config/compton.conf --experimental-backends
+exec --no-startup-id greenclip daemon
+exec --no-startup-id Mount_GDrive
+exec --no-startup-id libinput-gestures-setup start
 
 # start a terminal
 bindsym $super+Return exec i3-sensible-terminal
@@ -34,7 +35,7 @@ bindsym $alt+Control+d exec ~/.config/i3/Delete.sh
 
 # common apps keybinds
 bindsym Print exec flameshot gui
-bindsym $super+$alt+Control+p exec color-picker
+#bindsym $super+$alt+Control+p exec color-picker
 bindsym Control+space exec i3bartoggle
 
 #change volume
@@ -49,14 +50,14 @@ bindsym XF86MonBrightnessUp exec --no-startup-id bash -c 'b=$(xrandr --verbose |
 bindsym XF86MonBrightnessDown exec --no-startup-id bash -c 'b=$(xrandr --verbose | grep -i brightness | head -n 1 | cut -d" " -f2) && b2=$(echo -e "import math\nf = lambda x: (1 - 1/(1+math.exp(4*x-2)))\nprint(\\\"%.2f\\\" % f(-0.1+$b))" | python) && xrandr --output eDP1 --brightness $b2'
 
 # music control
-bindsym XF86AudioNext exec mpc next
-bindsym XF86AudioPrev exec mpc prev
-bindsym XF86AudioPlay exec mpc toggle
-bindsym XF86AudioStop exec mpc stop
+#bindsym XF86AudioNext exec mpc next
+#bindsym XF86AudioPrev exec mpc prev
+#bindsym XF86AudioPlay exec mpc toggle
+#bindsym XF86AudioStop exec mpc stop
 
 # kill focused window
-bindsym $super+c kill
-bindsym $alt+F4 kill
+bindsym $super+c exec ~/.config/i3/close_win.sh
+bindsym $alt+F4 exec ~/.config/i3/close_win.sh
 
 # change focus
 bindsym $super+Left focus left
@@ -70,17 +71,20 @@ bindsym $super+Shift+Down move down
 bindsym $super+Shift+Up move up
 bindsym $super+Shift+Right move right
 
-# split in horizontal orientation
-bindsym $super+h split h
+# tab or default view
+bindsym $super+w layout tabbed
+bindsym $super+e layout default
 
-# split in vertical orientation
-bindsym $super+v split v
+# split orientation
+bindsym $super+v layout splitv
+bindsym $super+h layout splith
+
+# change container layout split
+bindsym $super+s layout toggle split
 
 # enter fullscreen mode for the focused container
 bindsym $super+f fullscreen toggle
 
-# change container layout split
-bindsym $super+s layout toggle split
 
 # toggle tiling / floating
 bindsym $super+space floating toggle
@@ -147,13 +151,13 @@ bar {
 
 # window rules, you can find the window class using xprop
 for_window [class=".*"] border pixel 0
-assign [class=Thunar|File-roller] number 2
-assign [class=Transmission-gtk|Code|org.pwmt.zathura] number 3
-assign [class=Geany|Evince|Gucharmap|Soffice|libreoffice*|Insomnia] number 4
-assign [class=Audacity|Vlc|mpv|Ghb|Xfburn|Gimp*|Inkscape] number 5
-assign [class=Lxappearance|System-config-printer.py|Lxtask|GParted|Pavucontrol|Exo-helper*|Lxrandr|Arandr|Spotify] number 6
+assign [class=Transmission-gtk|Code|jetbrains*] number 2
+assign [class=Thunar|File-roller|Insomnia|DB*|Genymotion*] number 3
+assign [class=Geany|Evince|org.pwmt.zathura|Gucharmap|Soffice|libreoffice*|Wps|Et|Wpp|Typora] number 4
+assign [class=Audacity|vlc|mpv|Ghb|Xfburn|Gimp*|Inkscape|Spotify*|bluejeans*] number 5
+assign [class=Lxappearance|System-config-printer.py|Lxtask|GParted|Pavucontrol|Exo-helper*|Lxrandr|Arandr|Gestures] number 6
 for_window [class=feh|Audacious|File-roller|Lxappearance|Lxtask|Pavucontrol|Color-picker] floating enable
-for_window [class=Color-picker|Firefox|Geany|Evince|Soffice|libreoffice*|mpv|Ghb|Xfburn|Gimp*|Inkscape|Vlc|Lxappearance|Audacity] focus
+for_window [class=Color-picker|Firefox|Geany|Evince|Soffice|libreoffice*|mpv|Ghb|Xfburn|Gimp*|Inkscape|vlc|Lxappearance|Audacity] focus
 for_window [class=Xfburn|GParted|System-config-printer.py|Lxtask|Pavucontrol|Exo-helper*|Lxrandr|Arandr] focus
 
 # colour of border, background, text, indicator, and child_border

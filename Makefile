@@ -45,11 +45,11 @@ vim-plug: ## Install vim plug
 	curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 npm-cli-tools: ## Install fx and speedtest-net
-	sudo npm install -g fx speedtest-net
+	sudo npm install -g speedtest-net
 
 code: ## Install and configure VScode
 	yay -S --needed --noconfirm visual-studio-code-bin
-	bash my_vscode_extensions.sh
+	bash ${PWD}/vscode/my_vscode_extensions.sh
 	ln -vsf ${PWD}/vscode/settings.json ${HOME}/.config/Code/User/settings.json
 	ln -vsf ${PWD}/vscode/snippets ${HOME}/.config/Code/User/
 	ln -vsf ${PWD}/vscode/keybindings.json ${HOME}/.config/Code/User/keybindings.json

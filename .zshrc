@@ -72,18 +72,11 @@ plugins=(
   dircycle
   docker
   themes
-  colors
   virtualenv
-  poetry
   systemd
-  zsh-256color
-  zsh-autosuggestions
-  zsh-syntax-highlighting
   fzf
   fzf-tab
 )
-#zstyle ':fzf-tab:complete:cd:*' fzf-preview 'lsd $realpath'
-zstyle ':fzf-tab:complete:*:*' fzf-preview '([[ -f $realpath ]] && (bat --style=numbers --color=always $realpath || cat $realpath)) || ([[ -d $realpath ]] && (tree -C $realpath | less)) || echo $realpath 2> /dev/null | head -200'
 
 # User configuration
 
@@ -163,12 +156,15 @@ tmuxkillf () {
 # -< Source files or scripts >-
 source $ZSH/oh-my-zsh.sh
 source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
-#source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-#source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+#source ~/.zshplugins/poetry/_poetry
 
 # -> Config <-
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+#zstyle ':fzf-tab:complete:cd:*' fzf-preview 'lsd $realpath'
+zstyle ':fzf-tab:complete:*:*' fzf-preview '([[ -f $realpath ]] && (bat --style=numbers --color=always $realpath || cat $realpath)) || ([[ -d $realpath ]] && (tree -C $realpath | less)) || echo $realpath 2> /dev/null | head -200'
 
 # -< Aliases >-
 # Config alias

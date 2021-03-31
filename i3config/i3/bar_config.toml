@@ -1,7 +1,7 @@
 [icons]
 # font awesome
 TelegramDesktop = ""
-firefox = ""
+firefox = ""
 Pamac-manager = ""
 Alacritty = ""
 Termite = ""
@@ -12,6 +12,7 @@ Spotify = ""
 Google-chrome = ""
 Insomnia = "ﬥ"
 jetbrains-idea-ce = ""
+jetbrains-pycharm-ce = ""
 electron-mail = ""
 Mailspring = ""
 Genymotion = ""

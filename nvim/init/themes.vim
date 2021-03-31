@@ -1,4 +1,5 @@
 " -< Gruvbox >-
+"let g:gruvbox_transparent_bg = 1
 "colorscheme gruvbox
 
 "-> Miramare <-
