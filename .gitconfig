@@ -2,6 +2,6 @@
 	email = ogeidca49@gmail.com
 	name = Crag
 [credential]
-	helper = store
+	helper = cache
 [help]
 	autocorrect = 1
