@@ -10,7 +10,7 @@ EOF
 
 let g:completion_chain_complete_list = {
       \ 'default': [
-      \    {'complete_items': ['lsp', 'snippet', 'tabnine', 'buffers', 'ts']},
+      \    {'complete_items': ['lsp', 'ts', 'snippet', 'tabnine', 'buffers']},
       \    {'mode': '<c-p>'},
       \    {'mode': '<c-n>'}
       \]
@@ -21,6 +21,7 @@ fun! EnableCompletion()
     if &ft =~ 'clap_input'
         return
     endif
+    let g:completion_enable_auto_popup = 1
     lua require'completion'.on_attach()
 endfun
 
@@ -48,7 +49,7 @@ nnoremap <silent> <C-f> <cmd>lua require('lspsaga.action').smart_scroll_with_sag
 nnoremap <silent> <C-b> <cmd>lua require('lspsaga.action').smart_scroll_with_saga(-1)<CR>
 nnoremap <silent> gs <cmd>lua require('lspsaga.signaturehelp').signature_help()<CR>
 nnoremap <silent>gr <cmd>lua require('lspsaga.rename').rename()<CR>
-nnoremap <silent> gd <cmd>lua require'lspsaga.provider'.preview_definition()<CR>
+nnoremap <silent> gD <cmd>lua require'lspsaga.provider'.preview_definition()<CR>
 nnoremap <silent><leader>cd <cmd>lua require'lspsaga.diagnostic'.show_line_diagnostics()<CR>
 nnoremap <silent> [e <cmd>lua require'lspsaga.diagnostic'.lsp_jump_diagnostic_prev()<CR>
 nnoremap <silent> ]e <cmd>lua require'lspsaga.diagnostic'.lsp_jump_diagnostic_next()<CR>

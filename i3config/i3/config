@@ -24,7 +24,6 @@ exec --no-startup-id libinput-gestures-setup start
 bindsym $super+Return exec i3-sensible-terminal
 
 # start rofi (a program launcher)
-#bindsym $super+a exec rofi -lines 12 -padding 18 -width 60 -location 0 -show drun -sidebar-mode -columns 3 -font 'Lucida Mac 15' -show-icons
 bindsym $super+a exec ~/.config/rofi/bin/launcher_misc
 bindsym $alt+space exec ~/.config/rofi/bin/clipboard
 bindsym $super+n exec ~/.config/rofi/bin/applet_network
@@ -45,9 +44,8 @@ bindsym XF86AudioMute exec amixer set Master toggle
 
 
 # change brightness
-bindsym XF86MonBrightnessUp exec --no-startup-id bash -c 'b=$(xrandr --verbose | grep -i brightness | head -n 1 | cut -d" " -f2) && b2=$(echo -e "import math\nf = lambda x: (1 - 1/(1+math.exp(4*x-2)))\nprint(\\\"%.2f\\\" % f(0.1+$b))" | python) && xrandr --output eDP1 --brightness $b2'
-
-bindsym XF86MonBrightnessDown exec --no-startup-id bash -c 'b=$(xrandr --verbose | grep -i brightness | head -n 1 | cut -d" " -f2) && b2=$(echo -e "import math\nf = lambda x: (1 - 1/(1+math.exp(4*x-2)))\nprint(\\\"%.2f\\\" % f(-0.1+$b))" | python) && xrandr --output eDP1 --brightness $b2'
+bindsym XF86MonBrightnessUp exec xbacklight -inc 5
+bindsym XF86MonBrightnessDown exec xbacklight -dec 5
 
 # music control
 #bindsym XF86AudioNext exec mpc next

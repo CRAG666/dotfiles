@@ -39,29 +39,10 @@ ENABLE_CORRECTION="true"
 # much, much faster.
 # DISABLE_UNTRACKED_FILES_DIRTY="true"
 
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# You can set one of the optional three formats:
-# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# or set a custom format using the strftime function format specifications,
-# see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Which plugins would you like to load?
-# Standard plugins can be found in ~/.oh-my-zsh/plugins/*
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-#dotenv
 plugins=(
   git
   python
   history
-  ripgrep
-  fd
   npm
   colored-man-pages
   extract
@@ -71,7 +52,6 @@ plugins=(
   cargo
   dircycle
   docker
-  themes
   virtualenv
   systemd
   fzf
@@ -195,10 +175,10 @@ alias ping="prettyping"
 alias cerrar="sh ~/.scripts/cerrar_ventana"
 alias cerrar_todo="sh ~/.scripts/cerrar_todo.sh"
 alias js="node ~/.noderc"
-alias ll="logo-ls -l"
-alias ls="logo-ls"
+alias ll="ls-icons -l"
+alias ls="ls-icons"
 alias cp="rsync -P"
-alias tree="logo-ls -R"
+alias tree="ls-icons -R"
 alias vi="nvim"
 alias vim="nvim"
 # fzf alias
@@ -207,9 +187,6 @@ alias fpmr="pacman -Qq | fzf --multi --preview 'pacman -Qi {1}' | xargs -ro sudo
 alias fyay="yay -Slq | fzf --multi --preview 'yay -Si {1}' | xargs -ro yay -S"
 
 # -< Environ variable >-
-export _JAVA_OPTIONS="${_JAVA_OPTIONS}"
-#export JAYATANA_FORCE=1
-#export ANDROID_SDK_ROOT=/opt/android-sdk
 export ANDROID_HOME=/opt/android-sdk
 export PATH=$PATH:$ANDROID_HOME/tools
 export PATH=$PATH:$ANDROID_HOME/platform-tools
@@ -219,14 +196,13 @@ export LANG=es_MX.UTF-8
 export LANGUAGE=es_MX.UTF-8
 export PYTHONSTARTUP=~/.pyrc
 export TERM="xterm-256color"
-export PATH="/opt/brew/bin:$PATH"
 export PATH="$HOME/.poetry/bin:$PATH"
-source ~/.passmaria.zsh
 export VISUAL=nvim
 export EDITOR="$VISUAL"
 export BAT_THEME="gruvbox-dark"
 export FZF_DEFAULT_OPTS="--height 40% --reverse --bind='?:toggle-preview'"
+source ~/.passmaria.zsh
+
 #-< Evals >-
 eval $(thefuck --alias)
 eval "$(starship init zsh)"
-

@@ -132,7 +132,30 @@ augroup status_line_init
   autocmd VimEnter * call ConfigStatusLine()
 augroup END
 
-lua require'bufferline'.setup{}
+"lua require'bufferline'.setup{}
+lua <<EOF
+require("buftabline").setup {
+    modifier = ":t",
+    index_format = "%d: ",
+    padding = 1,
+    icons = true,
+    start_hidden = true,
+    disable_commands = false,
+    go_to_maps = true,
+    kill_maps = false,
+    custom_command = nil,
+    custom_map_prefix = nil,
+    hlgroup_current = "TabLineSel",
+    hlgroup_normal = "TabLineFill",}
+
+require'nvim-treesitter.configs'.setup {
+  autotag = {
+    enable = true,
+  }
+}
+
+require('nvim-autopairs').setup()
+EOF
 source <sfile>:h/init/themes.vim
 source <sfile>:h/init/maps.vim
 source <sfile>:h/init/func.vim

@@ -5,18 +5,18 @@ Plug 'elixir-editors/vim-elixir'
 Plug 'kyazdani42/nvim-web-devicons'
 Plug 'ryanoasis/vim-devicons'
 Plug 'glepnir/galaxyline.nvim' , {'branch': 'main'}
-Plug 'akinsho/nvim-bufferline.lua'
+"Plug 'akinsho/nvim-bufferline.lua'
+Plug 'jose-elias-alvarez/buftabline.nvim'
 Plug 'airblade/vim-gitgutter'
-Plug 'sheerun/vim-polyglot'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'p00f/nvim-ts-rainbow'
 Plug 'norcalli/nvim-colorizer.lua'
 " Text edition
 Plug 'tpope/vim-endwise'
-Plug 'tpope/vim-surround'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
-Plug 'AndrewRadev/tagalong.vim'
-Plug 'scrooloose/nerdcommenter'
+Plug 'windwp/nvim-ts-autotag'
+Plug 'gennaro-tedesco/nvim-commaround'
+Plug 'windwp/nvim-autopairs'
 Plug 'heavenshell/vim-pydocstring', { 'do': 'make install' }
 Plug 'KabbAmine/vCoolor.vim'
 Plug 'AndrewRadev/splitjoin.vim'
@@ -35,10 +35,8 @@ Plug 'Vimjas/vim-python-pep8-indent'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'liuchengxu/vim-clap', { 'do': ':Clap install-binary' }
 Plug 'junegunn/fzf.vim'
-Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  }
-Plug 'szw/vim-maximizer'
 " Themes
-Plug 'rktjmp/lush.nvim'
-Plug 'npxbr/gruvbox.nvim'
 Plug 'franbach/miramare'
+Plug 'norcalli/nvim-base16.lua'
+Plug 'miyakogi/seiya.vim'
 call plug#end()

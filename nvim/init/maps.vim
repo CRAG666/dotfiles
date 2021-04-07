@@ -30,6 +30,13 @@ nnoremap tn :tabnew<CR>
 nnoremap to :tabonly<CR>
 nnoremap td :tabclose<CR>
 nnoremap tm :tabmove<CR>
+" Map BuftabLine
+map <silent> <Leader><PageDown> :tabnext<cr>
+map <silent> <Leader><PageUp> :tabprevious<cr>
+map <silent> <c-]> :BufNext<cr>
+map <silent> <c-[> :BufPrev<cr>
+map <silent> <a-c> :bd<CR>
+map <silent> <leader>t :ToggleBuftabline<cr>
 "map <silent> <Leader><PageDown> :tabnext<cr>
 "map <silent> <Leader><PageUp> :tabprevious<cr>
 "nnoremap <leader>1 1gt
@@ -37,20 +44,20 @@ nnoremap tm :tabmove<CR>
 "nnoremap <leader>3 3gt
 "nnoremap <leader>4 4gt
 "nnoremap <leader>5 5gt
-map <silent> <Leader><PageDown> :BufferLineCycleNext<CR>
-map <silent> <Leader><PageUP> :BufferLineCyclePrev<CR>
-map <silent> <A-c> :bd<CR>
-nnoremap <leader>1 :lua require"bufferline".go_to_buffer(1)<CR>
-nnoremap <leader>2 :lua require"bufferline".go_to_buffer(2)<CR>
-nnoremap <leader>3 :lua require"bufferline".go_to_buffer(3)<CR>
-nnoremap <leader>4 :lua require"bufferline".go_to_buffer(4)<CR>
-nnoremap <leader>5 :lua require"bufferline".go_to_buffer(5)<CR>
+"map <silent> <Leader><PageDown> :BufferLineCycleNext<CR>
+"map <silent> <Leader><PageUP> :BufferLineCyclePrev<CR>
+"map <silent> <c-p> :BufferLinePick<CR>
+"nnoremap <leader>1 :lua require"bufferline".go_to_buffer(1)<CR>
+"nnoremap <leader>2 :lua require"bufferline".go_to_buffer(2)<CR>
+"nnoremap <leader>3 :lua require"bufferline".go_to_buffer(3)<CR>
+"nnoremap <leader>4 :lua require"bufferline".go_to_buffer(4)<CR>
+"nnoremap <leader>5 :lua require"bufferline".go_to_buffer(5)<CR>
 " code runner
 nmap <silent> <leader>R :belowright 8split term://crlvc %<CR>
 "nmap  <silent> <leader>R :Lspsaga open_floaterm crlvc %<CR>
 
 "Terminal open
-nmap <silent> <leader>t :split<CR>:ter<CR>:resize 8<CR>
+"nmap <silent> <leader>t :split<CR>:ter<CR>:resize 8<CR>
 "Resize pane
 nnoremap <silent> <leader><Right> :vertical resize +5<CR>
 nnoremap <silent> <leader><Left> :vertical resize -5<CR>
@@ -69,18 +76,15 @@ inoremap <A-Up> <Esc>:m .-2<CR>==gi
 vnoremap <A-Down> :m '>+1<CR>gv=gv
 vnoremap <A-Up> :m '<-2<CR>gv=gv
 " Delete search result
-noremap <silent> <leader>c :let @/=""<cr>
+noremap <silent> <leader>v :let @/=""<cr>
 " Esc in insert mode
 inoremap jk <Esc>
-"Markdown Preview
-nmap <leader>mp <Plug>MarkdownPreview
-nmap <leader>ms <Plug>MarkdownPreviewStop
-nmap <leader>mt <Plug>MarkdownPreviewToggle
 nnoremap gX :silent :execute
             \ "!xdg-open" expand('%:p:h') . "/" . expand("<cfile>") " &"<cr>
-nnoremap <silent> <Space> @=(foldlevel('.')?'za':"\<Space>")<CR>
-vnoremap <Space> zf
-nnoremap <space> za
+"nnoremap <silent> <Space> @=(foldlevel('.')?'za':"\<Space>")<CR>
+" noremap <Space> zf
+" noremap <space> za
+nmap <silent><leader>c V :'<,'>lua require('nvim-commaround').toggle_comment()<CR>
 
 "devicons fix bug
 if exists("g:loaded_webdevicons")

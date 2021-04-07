@@ -23,7 +23,7 @@ window:
   position:
     x: 130
     y: 70
-  decorations: full
+  decorations: none
   dynamic_title: true
 class:
   gtk_theme_variant: dark
@@ -37,12 +37,12 @@ font:
     family: JetBrainsMono Nerd Font
     style: Regular
   bold:
-    family: CaskaydiaCove Nerd Font
+    family: mononoki Nerd Font
     style: Bold
   italic:
     family: FuraCode Nerd Font
     style: Italic
-  size: 12
+  size: 13
   offset:
     x: 0
     y: 0
@@ -120,7 +120,7 @@ key_bindings:
   - { key: PageUp, mods: Alt, chars: "\x01\x28"  }
   - { key: PageDown, mods: Alt, chars: "\x01\x29"  }
   # New Windows
-  - { key: T, mods: Control, chars: "\x01\x63"  }
+  - { key: T, mods: Command, chars: "\x01\x63"  }
   # Tab Windows
   - { key: Tab, mods: Control, chars: "\x01\x77"  }
   # Close tmux
