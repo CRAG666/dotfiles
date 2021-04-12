@@ -1,25 +1,22 @@
-"-> Miramare <-
-let g:miramare_enable_italic = 1
-let g:miramare_disable_italic_comment = 1
-let g:miramare_transparent_background = 1
-colorscheme miramare
+-- -> Miramare <-
+local utils = require('utils')
+local cmd = vim.cmd
 
-" let g:seiya_target_groups = has('nvim') ? ['guibg'] : ['ctermbg']
-" let g:seiya_auto_enable=1
+if vim.fn.has("termguicolors") == 1 then
+  vim.o.t_8f = "[[38;2;%lu;%lu;%lum"
+  vim.o.t_8b = "[[48;2;%lu;%lu;%lum"
+  utils.opt('o', 'termguicolors', true)
+end
 
-let g:clap_theme = 'miramare'
+vim.g.miramare_enable_italic = 1
+vim.g.miramare_disable_italic_comment = 1
+vim.g.miramare_transparent_background = 1
+cmd 'colorscheme miramare'
 
-lua << EOF
-local treesitter = require'nvim-treesitter.configs'
-treesitter.setup {
-    ensure_installed = "maintained",
-    highlight = {
-      enable = true
-  },
-    rainbow = {
-      enable = true
-  }
-}
+-- vim.g.seiya_target_groups = has('nvim') ? ['guibg'] : ['ctermbg']
+-- vim.g.seiya_auto_enable=1
+
+vim.g.clap_theme = 'miramare'
 
 -- Themes
 -- material-palenight, atelier-estuary, onedark, tomorrow-night, black-metal-dark-funeral
@@ -43,8 +40,8 @@ treesitter.setup {
 -- brushtrees-dark, atelier-savanna-light, oceanicnext, cupertino, atelier-heath-light,
 -- papercolor-dark, brushtrees, harmonic-light, rebecca, seti, black-metal-bathory, bright, monokai
 
---local base16 = require 'base16'
---base16(base16.themes["ia-dark"], true)
+-- local base16 = require 'base16'
+-- base16(base16.themes["gruvbox-dark-hard"], true)
 
 --local theme_names = base16.theme_names()
 --base16_position = 1
@@ -52,14 +49,17 @@ treesitter.setup {
 --  base16_position = (base16_position % #theme_names) + 1
 --  base16(base16.themes[theme_names[base16_position]], true)
 --end
-require'colorizer'.setup()
-EOF
 
-" hi Normal guibg=NONE ctermbg=NONE
-" hi Terminal guibg=NONE ctermbg=NONE
-" hi EndOfBuffer guibg=NONE ctermbg=NONE
-" hi FoldColumn guibg=NONE ctermbg=NONE
-" hi Folded guibg=NONE ctermbg=NONE
-" hi SignColumn guibg=NONE ctermbg=NONE
-" hi LineNr guibg=NONE ctermbg=NONE
-" hi CursorLineNR guibg=NONE
+-- vim.api.nvim_exec([[
+-- " Make background transparent for many things
+-- hi! Normal ctermbg=NONE guibg=NONE
+-- hi! NonText ctermbg=NONE guibg=NONE
+-- hi! LineNr ctermfg=NONE guibg=NONE
+-- hi! SignColumn ctermfg=NONE guibg=NONE
+-- hi! StatusLine guifg=NONE guibg=NONE
+-- hi! StatusLineNC guifg=NONE guibg=NONE
+-- " Try to hide vertical split and end of buffer symbol
+-- hi! VertSplit gui=NONE guifg=NONE guibg=NONE cterm=NONE
+-- hi! EndOfBuffer ctermbg=NONE ctermfg=NONE guibg=NONE guifg=NONE
+-- hi CursorLine cterm=NONE ctermbg=NONE ctermfg=NONE guibg=NONE guifg=NONE
+-- ]], true)

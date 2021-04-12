@@ -1,0 +1,8 @@
+require('config.colorscheme')
+require('config.treesitter')
+require('config.autopairs')
+require('config.colorizer')
+require('config.devicon')
+require('config.bufferline')
+require('config.completion')
+require('config.gitstatussigns')

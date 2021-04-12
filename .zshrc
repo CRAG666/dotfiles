@@ -133,6 +133,14 @@ tmuxkillf () {
     done
 }
 
+function gitignore() {
+    if [ $# = 1 ]; then
+      curl -L -s https://www.gitignore.io/api/$@ > .gitignore
+    else
+      echo 'usage: gitignore django'
+    fi
+}
+
 # -< Source files or scripts >-
 source $ZSH/oh-my-zsh.sh
 source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
@@ -156,9 +164,9 @@ alias dnsconfig="sudoedit /etc/resolv.conf"
 alias zshconfig="vim ~/.zshrc"
 alias tmuxc="vim ~/.tmux.conf"
 alias firefoxconfig="vim ~/.mozilla/firefox/profiles.ini"
-alias vimc='vim ~/.config/nvim/init.vim'
-alias vimp='vim ~/.config/nvim/init/plugs.vim'
-alias vimm='vim ~/.config/nvim/init/maps.vim'
+alias vimc='vim ~/.config/nvim/init.lua'
+alias vimp='vim ~/.config/nvim/lua/plugs.lua'
+alias vimm='vim ~/.config/nvim/lua/keymappings.lua'
 # Jump alias
 alias applications="thunar /usr/share/applications"
 alias Escritorio="cd /$HOME/Escritorio"

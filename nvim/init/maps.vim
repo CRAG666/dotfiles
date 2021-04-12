@@ -84,7 +84,7 @@ nnoremap gX :silent :execute
 "nnoremap <silent> <Space> @=(foldlevel('.')?'za':"\<Space>")<CR>
 " noremap <Space> zf
 " noremap <space> za
-nmap <silent><leader>c V :'<,'>lua require('nvim-commaround').toggle_comment()<CR>
+" nmap <silent><leader>c V :'<,'>lua require('nvim-commaround').toggle_comment()<CR>
 
 "devicons fix bug
 if exists("g:loaded_webdevicons")

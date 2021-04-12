@@ -11,11 +11,12 @@ Plug 'airblade/vim-gitgutter'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'p00f/nvim-ts-rainbow'
 Plug 'norcalli/nvim-colorizer.lua'
+Plug 'rohit-px2/nvim-ts-highlightparams'
 " Text edition
 Plug 'tpope/vim-endwise'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'windwp/nvim-ts-autotag'
-Plug 'gennaro-tedesco/nvim-commaround'
+Plug 'b3nj5m1n/kommentary'
 Plug 'windwp/nvim-autopairs'
 Plug 'heavenshell/vim-pydocstring', { 'do': 'make install' }
 Plug 'KabbAmine/vCoolor.vim'
@@ -34,7 +35,6 @@ Plug 'godlygeek/tabular'
 Plug 'Vimjas/vim-python-pep8-indent'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'liuchengxu/vim-clap', { 'do': ':Clap install-binary' }
-Plug 'junegunn/fzf.vim'
 " Themes
 Plug 'franbach/miramare'
 Plug 'norcalli/nvim-base16.lua'
