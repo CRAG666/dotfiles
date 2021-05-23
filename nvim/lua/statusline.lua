@@ -5,7 +5,7 @@ local gls = gl.section
 gl.short_line_list = {'defx', 'packager', 'vista', 'NvimTree'}
 
 local colors = {
-    bg = '#282c34',
+    bg = '#111416',
     fg = '#aab2bf',
     section_bg = '#38393f',
     blue = '#61afef',
@@ -195,7 +195,7 @@ gls.right[1] = {
     DiffAdd = {
         provider = 'DiffAdd',
         condition = checkwidth,
-        icon = '+',
+        icon = '✚ ',
         highlight = {colors.green, colors.bg}
     }
 }
@@ -203,7 +203,7 @@ gls.right[2] = {
     DiffModified = {
         provider = 'DiffModified',
         condition = checkwidth,
-        icon = '~',
+        icon = '✹ ',
         highlight = {colors.orange, colors.bg}
     }
 }
@@ -211,7 +211,7 @@ gls.right[3] = {
     DiffRemove = {
         provider = 'DiffRemove',
         condition = checkwidth,
-        icon = '-',
+        icon = '✖ ',
         highlight = {colors.red1, colors.bg}
     }
 }

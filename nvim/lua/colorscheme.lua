@@ -8,6 +8,9 @@ if vim.fn.has("termguicolors") == 1 then
   vim.o.termguicolors = true
 end
 
+--[[ vim.g.tokyonight_transparent = true
+cmd 'colorscheme tokyonight' ]]
+
 --[[ vim.g.miramare_cursor = 'purple'
 vim.g.miramare_enable_italic = 1
 vim.g.miramare_enable_italic_string = 0
@@ -22,11 +25,6 @@ vim.g.sonokai_cursor = 'green'
 vim.g.sonokai_transparent_background = 1
 vim.g.sonokai_current_word = 'bold'
 cmd 'colorscheme sonokai'
-
--- cmd 'colorscheme kikwis'
-
--- vim.g.clap_theme = 'miramare'
-
 
 --[[ vim.api.nvim_exec([[
 " Make background transparent for many things

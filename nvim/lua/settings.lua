@@ -30,6 +30,7 @@ vim.o.completeopt = 'menu,menuone,noselect'
 vim.o.clipboard = 'unnamedplus'
 vim.cmd [[set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case]]
 vim.o.grepformat = '%f:%l:%c:%m'
+vim.o.wildignore = '*.pyc,*.pyo,*/__pycache__/**.beam,*.swp,~*,*.zip,*.tar'
 -- From buffer
 vim.o.fileformat = vim.bo.fileformat
 vim.o.tabstop = vim.bo.tabstop
@@ -56,7 +57,7 @@ vim.bo.fileformat = 'unix'
 vim.bo.tabstop = 2
 vim.bo.expandtab = true
 vim.bo.shiftwidth=2
-vim.bo.spelllang = 'it'
+vim.bo.spelllang = 'es'
 vim.bo.softtabstop = 2
 vim.bo.swapfile = false
 vim.bo.undofile = false

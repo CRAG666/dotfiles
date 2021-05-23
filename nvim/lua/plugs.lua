@@ -1,4 +1,3 @@
-
 -- vim.cmd [[packadd packer.nvim]]
 local execute = vim.api.nvim_command
 local fn = vim.fn
@@ -21,7 +20,6 @@ return require('packer').startup(function(use)
 
   -- Autocomplete
   use 'windwp/nvim-autopairs'
-  use 'AndrewRadev/tagalong.vim'
 
   -- LSP
   use 'neovim/nvim-lspconfig'
@@ -35,7 +33,6 @@ return require('packer').startup(function(use)
   -- Treesitter
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
   use 'p00f/nvim-ts-rainbow'
-  -- use { 'lukas-reineke/indent-blankline.nvim', branch = 'lua' }
   use 'romgrk/nvim-treesitter-context'
   use 'rohit-px2/nvim-ts-highlightparams'
   use 'windwp/nvim-ts-autotag'
@@ -45,9 +42,11 @@ return require('packer').startup(function(use)
   use 'editorconfig/editorconfig-vim'
   use 'elixir-editors/vim-elixir'
 
-
   -- Icons
-  use 'kyazdani42/nvim-web-devicons'
+  use {
+      'yamatsum/nvim-web-nonicons',
+      requires = {'kyazdani42/nvim-web-devicons'}
+    }
   use 'ryanoasis/vim-devicons'
 
   -- Status Line and Bufferline
@@ -58,15 +57,18 @@ return require('packer').startup(function(use)
 
   -- Git
   use {
-  'lewis6991/gitsigns.nvim',
-  requires = {
-    'nvim-lua/plenary.nvim'
-  },
-  config = function()
-    require('gitsigns').setup()
-  end
-}
-  use 'kdheepak/lazygit.nvim'
+    'lewis6991/gitsigns.nvim',
+    requires = {
+      'nvim-lua/plenary.nvim'
+    }
+  }
+
+  -- Telescope
+  use {
+  'nvim-telescope/telescope.nvim',
+  requires = {{'nvim-lua/popup.nvim'}, {'nvim-lua/plenary.nvim'}}
+  }
+  use 'nvim-telescope/telescope-media-files.nvim'
 
   -- Flutter
   -- use 'akinsho/flutter-tools.nvim'
@@ -76,19 +78,25 @@ return require('packer').startup(function(use)
   use 'tpope/vim-endwise'
   use 'tpope/vim-fugitive'
 
-  -- Tmux
-  use 'tmux-plugins/vim-tmux-focus-events'
-  use 'christoomey/vim-tmux-navigator'
-
   -- General Plugins
   use 'jeffkreeftmeijer/vim-numbertoggle'
   use 'psliwka/vim-smoothie'
-  use 'npxbr/glow.nvim'
 
   --UI
   -- use 'akinsho/nvim-bufferline.lua'
-  use 'jose-elias-alvarez/buftabline.nvim'
-  -- use 'airblade/vim-gitgutter'
+  -- use 'jose-elias-alvarez/buftabline.nvim'
+  use {'seblj/nvim-tabline',
+    requires = {'kyazdani42/nvim-web-devicons'}
+  }
+  use {
+  "folke/todo-comments.nvim",
+  requires = "nvim-lua/plenary.nvim",
+  }
+  use {
+  "folke/trouble.nvim",
+  requires = "kyazdani42/nvim-web-devicons",
+  }
+  use 'folke/lsp-colors.nvim'
 
   -- Text edition
   use {'mg979/vim-visual-multi', branch = 'master'}
@@ -100,9 +108,11 @@ return require('packer').startup(function(use)
   --Utils
   use 'godlygeek/tabular'
   use 'Vimjas/vim-python-pep8-indent'
-  use {'liuchengxu/vim-clap',  run = ':Clap install-binary' }
+  use 'numtostr/FTerm.nvim'
+  use 'CRAG666/code_runner.nvim'
 
   -- Themes
   use 'franbach/miramare'
-  use 'norcalli/nvim-base16.lua'
+  use 'sainnhe/sonokai'
+  use 'folke/tokyonight.nvim'
 end)

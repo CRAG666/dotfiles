@@ -12,10 +12,10 @@ function utils.has_width_gt(cols)
   return vim.fn.winwidth(0) / 2 > cols
 end
 
-function utils.opt(scope, key, value)
+--[[ function utils.opt(scope, key, value)
     scopes[scope][key] = value
     if scope ~= 'o' then scopes['o'][key] = value end
-end
+end ]]
 
 function utils.map(mode, lhs, rhs, opts)
   local options = {noremap = true}

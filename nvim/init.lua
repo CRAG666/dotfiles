@@ -1,11 +1,14 @@
 -- Map leader to space
 vim.g.mapleader = ' '
+vim.g.netrw_liststyle = 3
+vim.g.netrw_banner = 0
+vim.g.netrw_browse_split = 3
+vim.g.netrw_winsize = 25
 require('plugs')
 require('settings')
+require('colorscheme')
 -- Python documentation
 vim.g.pydocstring_formatter = 'google'
-require('config')
 require('keymappings')
-require('plugins.statusline')
--- source <sfile>:h/init/func.vim
--- source <sfile>:h/init/ignore.vim
+require('statusline')
+require('config')

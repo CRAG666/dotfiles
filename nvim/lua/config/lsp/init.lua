@@ -1,0 +1,5 @@
+require 'config.lsp.supports'
+require 'config.lsp.completion'
+require 'config.lsp.saga'
+require 'config.lsp.diagnostics'
+require 'config.lsp.diagnostics-colors'
