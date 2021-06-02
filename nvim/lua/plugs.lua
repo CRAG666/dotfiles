@@ -1,4 +1,3 @@
--- vim.cmd [[packadd packer.nvim]]
 local execute = vim.api.nvim_command
 local fn = vim.fn
 
@@ -20,24 +19,25 @@ return require('packer').startup(function(use)
 
   -- Autocomplete
   use 'windwp/nvim-autopairs'
+  use 'hrsh7th/vim-vsnip'
+  use 'hrsh7th/vim-vsnip-integ'
 
   -- LSP
   use 'neovim/nvim-lspconfig'
+  use 'folke/lsp-colors.nvim'
   use 'glepnir/lspsaga.nvim'
   use 'onsails/lspkind-nvim'
-  use 'nvim-lua/completion-nvim'
-  use {'aca/completion-tabnine', run = './install.sh' }
-  use 'steelsojka/completion-buffers'
-  use 'nvim-treesitter/completion-treesitter'
+  use 'hrsh7th/nvim-compe'
+  use {'tzachar/compe-tabnine', run='./install.sh', requires = 'hrsh7th/nvim-compe'}
 
   -- Treesitter
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
   use 'p00f/nvim-ts-rainbow'
   use 'romgrk/nvim-treesitter-context'
-  use 'rohit-px2/nvim-ts-highlightparams'
   use 'windwp/nvim-ts-autotag'
 
   -- Syntax
+  use 'sheerun/vim-polyglot'
   use 'zinit-zsh/zplugin-vim-syntax'
   use 'editorconfig/editorconfig-vim'
   use 'elixir-editors/vim-elixir'
@@ -48,9 +48,6 @@ return require('packer').startup(function(use)
       requires = {'kyazdani42/nvim-web-devicons'}
     }
   use 'ryanoasis/vim-devicons'
-
-  -- Status Line and Bufferline
-  use {'glepnir/galaxyline.nvim', branch = 'main'}
 
   -- Color
   use 'norcalli/nvim-colorizer.lua'
@@ -80,14 +77,15 @@ return require('packer').startup(function(use)
 
   -- General Plugins
   use 'jeffkreeftmeijer/vim-numbertoggle'
-  use 'psliwka/vim-smoothie'
 
   --UI
+  use {'glepnir/galaxyline.nvim', branch = 'main'}
   -- use 'akinsho/nvim-bufferline.lua'
   -- use 'jose-elias-alvarez/buftabline.nvim'
   use {'seblj/nvim-tabline',
     requires = {'kyazdani42/nvim-web-devicons'}
   }
+  use 'karb94/neoscroll.nvim'
   use {
   "folke/todo-comments.nvim",
   requires = "nvim-lua/plenary.nvim",
@@ -96,7 +94,6 @@ return require('packer').startup(function(use)
   "folke/trouble.nvim",
   requires = "kyazdani42/nvim-web-devicons",
   }
-  use 'folke/lsp-colors.nvim'
 
   -- Text edition
   use {'mg979/vim-visual-multi', branch = 'master'}
@@ -106,8 +103,6 @@ return require('packer').startup(function(use)
   use 'AndrewRadev/splitjoin.vim'
 
   --Utils
-  use 'godlygeek/tabular'
-  use 'Vimjas/vim-python-pep8-indent'
   use 'numtostr/FTerm.nvim'
   use 'CRAG666/code_runner.nvim'
 
@@ -115,4 +110,7 @@ return require('packer').startup(function(use)
   use 'franbach/miramare'
   use 'sainnhe/sonokai'
   use 'folke/tokyonight.nvim'
+  use 'Matt-Gleich/blackbird.vim'
+  use 'lmburns/kimbox'
+  use 'eddyekofo94/gruvbox-flat.nvim'
 end)

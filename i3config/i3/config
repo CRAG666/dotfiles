@@ -11,12 +11,12 @@ floating_modifier $super
 #autostart
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id xsettingsd &
+exec --no-startup-id greenclip daemon
 exec --no-startup-id nm-applet --sm-disable
 exec --no-startup-id xrandr --output eDP1 --brightness 0.5
 exec --no-startup-id feh --bg-scale '.wallpaper.jpg'
 exec --no-startup-id i3wsr --config ~/.config/i3/bar_config.toml
 exec --no-startup-id picom --config ~/.config/compton.conf --experimental-backends
-exec --no-startup-id greenclip daemon
 exec --no-startup-id Mount_GDrive
 exec --no-startup-id libinput-gestures-setup start
 
@@ -150,8 +150,8 @@ bar {
 # window rules, you can find the window class using xprop
 for_window [class=".*"] border pixel 0
 assign [class=Transmission-gtk|Code|jetbrains*] number 2
-assign [class=Thunar|File-roller|Insomnia|DB*|Genymotion*] number 3
-assign [class=Geany|Evince|org.pwmt.zathura|Gucharmap|Soffice|libreoffice*|Wps|Et|Wpp|Typora] number 4
+assign [class=Thunar|Pcmanfm|File-roller|Insomnia|DB*|Genymotion*] number 3
+assign [class=Geany|Evince|org.pwmt.zathura|Zathura|Gucharmap|Soffice|libreoffice*|Wps|Et|Wpp|Typora] number 4
 assign [class=Audacity|vlc|mpv|Ghb|Xfburn|Gimp*|Inkscape|Spotify*|bluejeans*] number 5
 assign [class=Lxappearance|System-config-printer.py|Lxtask|GParted|Pavucontrol|Exo-helper*|Lxrandr|Arandr|Gestures] number 6
 for_window [class=feh|Audacious|File-roller|Lxappearance|Lxtask|Pavucontrol|Color-picker] floating enable

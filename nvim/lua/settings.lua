@@ -26,10 +26,11 @@ vim.o.title = true
 vim.o.lazyredraw = true
 vim.o.listchars = 'tab:▸ ,trail:·,precedes:←,extends:→,eol:↲,nbsp:␣'
 vim.o.encoding = 'UTF-8'
-vim.o.completeopt = 'menu,menuone,noselect'
+-- vim.o.completeopt = 'menu,menuone,noselect'
+vim.o.completeopt = "menuone,noselect"
 vim.o.clipboard = 'unnamedplus'
-vim.cmd [[set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case]]
 vim.o.grepformat = '%f:%l:%c:%m'
+vim.o.grepprg = 'rg --vimgrep --no-heading --smart-case'
 vim.o.wildignore = '*.pyc,*.pyo,*/__pycache__/**.beam,*.swp,~*,*.zip,*.tar'
 -- From buffer
 vim.o.fileformat = vim.bo.fileformat
@@ -40,7 +41,7 @@ vim.o.swapfile = vim.bo.swapfile
 vim.o.undofile = vim.bo.undofile
 -- From window
 vim.o.number = vim.wo.number
-vim.o.colorcolumn = vim.wo.colorcolumn
+-- vim.o.colorcolumn = vim.wo.colorcolumn
 vim.o.foldmethod = vim.wo.foldmethod
 vim.o.foldlevel = vim.wo.foldlevel
 vim.o.foldnestmax = vim.wo.foldnestmax
@@ -52,7 +53,7 @@ vim.o.cursorline = vim.wo.cursorline
 vim.o.formatoptions = 'tcqrn1'
 vim.o.shiftround = true
 -- Buffer
-vim.bo.textwidth = 88
+vim.bo.textwidth = 79
 vim.bo.fileformat = 'unix'
 vim.bo.tabstop = 2
 vim.bo.expandtab = true
@@ -63,7 +64,7 @@ vim.bo.swapfile = false
 vim.bo.undofile = false
 -- Window
 vim.wo.number = true
-vim.wo.colorcolumn = vim.wo.colorcolumn .. '+' .. 1
+-- vim.wo.colorcolumn = vim.wo.colorcolumn .. '+' .. 1
 vim.wo.foldmethod = 'indent'
 vim.wo.foldlevel = 1
 vim.wo.foldnestmax = 10
@@ -81,8 +82,9 @@ function goto_last_pos()
   end
 end
 
-vim.cmd[[autocmd Filetype python setlocal tabstop=4 shiftwidth=4 softtabstop=4 expandtab]]
+vim.cmd [[autocmd Filetype python setlocal tabstop=4 shiftwidth=4 softtabstop=4 expandtab]]
 vim.cmd 'au TextYankPost * silent! lua vim.highlight.on_yank()'
+vim.cmd[[au BufWritePre *.py lua vim.lsp.buf.formatting_sync(nil, 100)]]
 vim.cmd[[au BufEnter * :let @/=""]]
 vim.cmd[[au BufWritePre * :%s/\s\+$//e]]
 vim.cmd[[au BufEnter * silent! lcd %:p:h]]

@@ -2,7 +2,7 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 # Path to your oh-my-zsh installation.
 ZSH=/usr/share/oh-my-zsh
-. /usr/share/z/z.sh
+
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
@@ -155,7 +155,7 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 zstyle ':fzf-tab:complete:*:*' fzf-preview '([[ -f $realpath ]] && (bat --style=numbers --color=always $realpath || cat $realpath)) || ([[ -d $realpath ]] && (tree -C $realpath | less)) || echo $realpath 2> /dev/null | head -200'
 
 # -< Aliases >-
-# Config alias
+# TODO: Config alias
 alias starshipconfig="vim ~/.config/starship.toml"
 alias alacriconfig="vim ~/.config/alacritty/alacritty.yml"
 alias i3config="vim ~/.config/i3/config"
@@ -164,10 +164,14 @@ alias dnsconfig="sudoedit /etc/resolv.conf"
 alias zshconfig="vim ~/.zshrc"
 alias tmuxc="vim ~/.tmux.conf"
 alias firefoxconfig="vim ~/.mozilla/firefox/profiles.ini"
+alias kittyc="vim ~/.config/kitty/kitty.conf"
+# HACK: Config Nvim Aliases
 alias vimc='vim ~/.config/nvim/init.lua'
 alias vimp='vim ~/.config/nvim/lua/plugs.lua'
 alias vimm='vim ~/.config/nvim/lua/keymappings.lua'
-# Jump alias
+alias vimt='vim ~/.config/nvim/lua/colorscheme.lua'
+alias vimcp='vim ~/.config/nvim/lua/config'
+# HACK: Jump alias
 alias applications="thunar /usr/share/applications"
 alias Escritorio="cd /$HOME/Escritorio"
 alias Descargas="cd /$HOME/Descargas"
@@ -177,7 +181,7 @@ alias Música="cd /$HOME/Música"
 alias Vídeos="cd /$HOME/Vídeos"
 alias Git="cd /$HOME/Git"
 alias usb="cd /run/media/crag"
-# command alternatives
+# HACK: Command alternatives
 alias sys="watch -ct -n0 sys.sh"
 alias ping="prettyping"
 alias cerrar="sh ~/.scripts/cerrar_ventana"
@@ -189,7 +193,7 @@ alias cp="rsync -P"
 alias tree="ls-icons -R"
 alias vi="nvim"
 alias vim="nvim"
-# fzf alias
+# HACK: HACK: fzf alias
 alias fpm="pacman -Slq | fzf --multi --preview 'pacman -Si {1}' | xargs -ro sudo pacman -S"
 alias fpmr="pacman -Qq | fzf --multi --preview 'pacman -Qi {1}' | xargs -ro sudo pacman -Rns"
 alias fyay="yay -Slq | fzf --multi --preview 'yay -Si {1}' | xargs -ro yay -S"
@@ -212,5 +216,6 @@ export FZF_DEFAULT_OPTS="--height 40% --reverse --bind='?:toggle-preview'"
 source ~/.passmaria.zsh
 
 #-< Evals >-
+eval "$(zoxide init zsh)"
 eval $(thefuck --alias)
 eval "$(starship init zsh)"

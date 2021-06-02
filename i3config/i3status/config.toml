@@ -1,5 +1,3 @@
-#icons_format = " <span font_family='JetBrainsMono Nerd Font'>{icon}</span> "
-
 [theme]
 name = "modern"
 
@@ -25,8 +23,8 @@ format = "{utilization}"
 
 [[block]]
 block = "memory"
-format_mem = "R:{Mup}%"
-format_swap = "S:{SUp}%"
+format_mem = "{mem_used} ({mem_used_percents})"
+format_swap = "{swap_used} ({swap_used_percents})"
 display_type = "memory"
 icons = true
 clickable = true
@@ -39,10 +37,12 @@ critical_swap = 95
 [[block]]
 block = "disk_space"
 path = "/home"
-alias = "/home"
 info_type = "used"
-unit = "GiB"
-format = "{icon} {available} {unit} free"
+format = "{icon} {available} free"
+alert_absolute = true
+unit = "GB"
+alert = 50
+warning = 40
 
 [[block]]
 block = "music"
@@ -53,9 +53,8 @@ hide_when_empty = true
 [[block]]
 block = "net"
 device = "wlan0"
-format = "{ssid} {signal_strength}"
+format = " {ssid} {signal_strength}"
 interval = 5
-use_bits = false
 
 [[block]]
 block = "sound"

@@ -1,18 +1,13 @@
 env:
-  # TERM variable
-  #
-  # This value is used to set the `$TERM` environment variable for
-  # each instance of Alacritty. If it is not present, alacritty will
-  # check the local terminfo database and use `alacritty` if it is
-  # available, otherwise `xterm-256color` is used.
   TERM: xterm-256color
-# Window Customization
+
 shell:
   program: /bin/zsh
   args:
     - -l
     - -c
     - "tmux"
+
 window:
   dimensions:
     columns: 100
@@ -25,22 +20,25 @@ window:
     y: 70
   decorations: none
   dynamic_title: true
+
 class:
   gtk_theme_variant: dark
+
 scrolling:
   history: 10000
   multiplier: 3
+
 background_opacity: 1
-# Font Customization
+
 font:
   normal:
     family: JetBrainsMono Nerd Font
-    style: Regular
+    style: Italic
   bold:
     family: mononoki Nerd Font
     style: Bold
   italic:
-    family: FuraCode Nerd Font
+    family: VictorMono Nerd Font
     style: Italic
   size: 13
   offset:
@@ -50,14 +48,10 @@ font:
     x: 0
     y: 0
   use_thin_strokes: false
-  debug:
-    persistent_logging: false
+
 draw_bold_text_with_bright_colors: true
 
-#+begin_theme
- # Color Settings (Monokai crag)
 colors:
-
   primary:
     background: "#111416"
     foreground: "#e6e6e6"
@@ -72,7 +66,6 @@ colors:
     cyan: "#89beba"
     white: "#d8caac"
 
-  # Bright colors
   bright:
     black: "#5b5b5b"
     red: "#e68183"
@@ -92,16 +85,29 @@ colors:
     magenta: "#bb98eb"
     cyan: "#8accfe"
     white: "#f2f2f2"
-  ###########################################
-#+end_theme
-  selection:
-    text: "0xffffff"
-    background: "0xF34F4D"
-    white: "0xffffff"
+
+mouse:
+  hide_when_typing: false
+
+selection:
+  text: "0xffffff"
+  background: "0xF34F4D"
+  white: "0xffffff"
+  semantic_escape_chars: ",│`|:\"' ()[]{}<>\t"
+  save_to_clipboard: true
 
 cursor:
   style: Block
   unfocused_hollow: true
+
+alt_send_esc: true
+
+debug:
+  render_timer: false
+  persistent_logging: false
+  log_level: Warn
+  print_events: false
+  ref_test: false
 
 key_bindings:
   # Create a horizontal space

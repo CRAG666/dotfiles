@@ -38,8 +38,6 @@ def run_code(file):
         print ('Extension not supported')
     except OSError:
         print('Executable not found')
-    finally:
-        system("xdotool key i")
     return(f"Thanks for use!")
 
 

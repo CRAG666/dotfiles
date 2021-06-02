@@ -8,34 +8,28 @@ if vim.fn.has("termguicolors") == 1 then
   vim.o.termguicolors = true
 end
 
+-- cmd 'colorscheme blackbird'
+
 --[[ vim.g.tokyonight_transparent = true
 cmd 'colorscheme tokyonight' ]]
 
---[[ vim.g.miramare_cursor = 'purple'
+--[[ vim.g.kimbox_transparent_background = 1
+cmd 'colorscheme kimbox' ]]
+
+--[[ vim.g.gruvbox_transparent = true
+cmd 'colorscheme gruvbox-flat' ]]
+
+vim.g.miramare_cursor = 'purple'
 vim.g.miramare_enable_italic = 1
 vim.g.miramare_enable_italic_string = 0
 vim.g.miramare_disable_italic_comment = 1
 vim.g.miramare_transparent_background = 1
-cmd 'colorscheme miramare' ]]
+cmd 'colorscheme miramare'
 
-vim.g.sonokai_style = 'atlantis'
+--[[ vim.g.sonokai_style = 'atlantis'
 vim.g.sonokai_enable_italic = 1
 vim.g.sonokai_disable_italic_comment = 1
 vim.g.sonokai_cursor = 'green'
 vim.g.sonokai_transparent_background = 1
 vim.g.sonokai_current_word = 'bold'
-cmd 'colorscheme sonokai'
-
---[[ vim.api.nvim_exec([[
-" Make background transparent for many things
-hi! Normal ctermbg=NONE guibg=NONE
-hi! NonText ctermbg=NONE guibg=NONE
-hi! LineNr ctermfg=NONE guibg=NONE
-hi! SignColumn ctermfg=NONE guibg=NONE
-hi! StatusLine guifg=NONE guibg=NONE
-hi! StatusLineNC guifg=NONE guibg=NONE
-" Try to hide vertical split and end of buffer symbol
-hi! VertSplit gui=NONE guifg=NONE guibg=NONE cterm=NONE
-hi! EndOfBuffer ctermbg=NONE ctermfg=NONE guibg=NONE guifg=NONE
-hi CursorLine cterm=NONE ctermbg=NONE ctermfg=NONE guibg=NONE guifg=NONE ]]
--- ]], true)
+cmd 'colorscheme sonokai' ]]
