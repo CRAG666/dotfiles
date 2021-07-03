@@ -27,7 +27,7 @@ i3wm: ## config i3
 swaywm: ## config sway
 	ln -vsf ${PWD}/swaywm/* ${HOME}/.config/
 	yay -S --needed --noconfirm sworkstyle \
-		nwg-dock waybar eww-git
+		nwg-dock waybar eww-git clipman
 
 zsh: ## install oh my zsh
 	yay -S --needed --noconfirm oh-my-zsh-git zh-autosuggestions \

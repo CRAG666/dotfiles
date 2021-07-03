@@ -1,0 +1,23 @@
+/* Confirm Dialog */
+
+@import "styles/colors.rasi"
+
+* {
+    background-color:       @bg;
+    text-color:             @fg;
+    font:		    "Comfortaa 12";
+}
+
+window {
+    padding:    			25px;
+    border:					0px;
+    border-radius:          0px;
+    border-color:           @ac;
+    location:               center;
+    y-offset:               -20px;
+}
+
+entry {
+    expand: 				true;
+    text-color:				@ac;
+}

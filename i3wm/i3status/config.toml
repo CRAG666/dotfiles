@@ -1,0 +1,73 @@
+[theme]
+name = "modern"
+
+[theme.overrides]
+idle_bg = "#111416"
+separator = " "
+
+[icons]
+name = "awesome"
+
+[icons.overrides]
+music = "  "
+volume_empty = "  "
+volume_full = " 奔 "
+volume_half = " ﱝ "
+volume_muted = " 婢 "
+
+[[block]]
+block = "cpu"
+interval = 1
+#format = "{barchart} {utilization}"
+format = "{utilization}"
+
+[[block]]
+block = "memory"
+format_mem = "{mem_used} ({mem_used_percents})"
+format_swap = "{swap_used} ({swap_used_percents})"
+display_type = "memory"
+icons = true
+clickable = true
+interval = 5
+warning_mem = 80
+warning_swap = 80
+critical_mem = 95
+critical_swap = 95
+
+[[block]]
+block = "disk_space"
+path = "/home"
+info_type = "used"
+format = "{icon} {available} free"
+alert_absolute = true
+unit = "GB"
+alert = 50
+warning = 40
+
+[[block]]
+block = "music"
+player = "spotify"
+buttons = ["prev", "play", "next"]
+hide_when_empty = true
+
+[[block]]
+block = "net"
+device = "wlan0"
+format = " {ssid} {signal_strength}"
+interval = 5
+
+[[block]]
+block = "sound"
+step_width = 3
+
+[[block]]
+block = "battery"
+interval = 10
+format = " {percentage}% {time}"
+
+[[block]]
+block = "time"
+format = "%a %d/%m %l:%M %P"
+timezone = "America/Monterrey"
+interval = 60
+locale = "es_MX"

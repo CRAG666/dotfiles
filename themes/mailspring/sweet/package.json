@@ -1,0 +1,12 @@
+{
+  "name": "sweet",
+  "displayName": "sweet",
+  "theme": "ui",
+  "version": "0.1.0",
+  "description": "The Ubuntu theme for N1.",
+  "license": "Proprietary",
+  "engines": {
+    "mailspring": "*"
+  },
+  "private": true
+}

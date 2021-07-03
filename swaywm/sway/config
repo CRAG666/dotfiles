@@ -35,6 +35,9 @@ exec Mount_GDrive
 exec libinput-gestures-setup start
 exec wl-paste -t text --watch clipman store
 exec nwg-dock -d -i 32 -p "left" -nows
+exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
+exec hash dbus-update-activation-environment 2>/dev/null && \
+     dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
 
 # User theme
 exec_always {

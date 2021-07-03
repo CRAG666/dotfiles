@@ -1,0 +1,138 @@
+env:
+  TERM: xterm-256color
+
+#  shell:
+  #  program: /bin/zsh
+  #  args:
+    #  - -l
+    #  - -c
+    #  - "tmux"
+
+window:
+  dimensions:
+    columns: 100
+    lines: 30
+  padding:
+    x: 3
+    y: 3
+  position:
+    x: 130
+    y: 70
+  decorations: none
+  dynamic_title: true
+
+class:
+  gtk_theme_variant: dark
+
+scrolling:
+  history: 10000
+  multiplier: 3
+
+background_opacity: 1
+
+font:
+  normal:
+    family: JetBrainsMono Nerd Font
+    style: Italic
+  bold:
+    family: mononoki Nerd Font
+    style: Bold
+  italic:
+    family: VictorMono Nerd Font
+    style: Italic
+  size: 13
+  offset:
+    x: 0
+    y: 0
+  glyph_offset:
+    x: 0
+    y: 0
+  use_thin_strokes: false
+
+draw_bold_text_with_bright_colors: true
+
+colors:
+  primary:
+    background: "#111416"
+    foreground: "#e6e6e6"
+
+  normal:
+    black: "#444444"
+    red: "#f6819a"
+    green: "#87af87"
+    yellow: "#d9bb80"
+    blue: "#e39b7b"
+    magenta: "#d3a0bc"
+    cyan: "#89beba"
+    white: "#d8caac"
+
+  bright:
+    black: "#5b5b5b"
+    red: "#e68183"
+    green: "#87c095"
+    yellow: "#fee074"
+    blue: "#e49c7a"
+    magenta: "#d3a0ce"
+    cyan: "#89bfbc"
+    white: "#c8cccc"
+
+  dim:
+    black: "#292a2b"
+    red: "#f681ac"
+    green: "#7ad88e"
+    yellow: "#FFD866"
+    blue: "#eC9867"
+    magenta: "#bb98eb"
+    cyan: "#8accfe"
+    white: "#f2f2f2"
+
+mouse:
+  hide_when_typing: false
+
+selection:
+  text: "0xffffff"
+  background: "0xF34F4D"
+  white: "0xffffff"
+  semantic_escape_chars: ",│`|:\"' ()[]{}<>\t"
+  save_to_clipboard: true
+
+cursor:
+  style: Block
+  unfocused_hollow: true
+
+alt_send_esc: true
+
+debug:
+  render_timer: false
+  persistent_logging: false
+  log_level: Warn
+  print_events: false
+  ref_test: false
+
+key_bindings:
+  # Create a horizontal space
+  - { key: Down, mods: Command | Alt, chars: "\x01\x22"  }
+  # Create a vertical space
+  - { key: Right, mods: Command | Alt, chars: "\x01\x25"  }
+  # Move between spaces
+  - { key: Right, mods: Control, chars: "\x0c"  }
+  - { key: Left, mods: Control, chars: "\x08"  }
+  - { key: Down, mods: Control, chars: "\x0a"  }
+  - { key: Up, mods: Control, chars: "\x0b"  }
+  # Move between Window
+  - { key: PageDown, mods: Control, chars: "\x01\x6e"  }
+  - { key: PageUp, mods: Control, chars: "\x01\x70"  }
+  # Move between session
+  - { key: PageUp, mods: Alt, chars: "\x01\x28"  }
+  - { key: PageDown, mods: Alt, chars: "\x01\x29"  }
+  # New Windows
+  - { key: T, mods: Command, chars: "\x01\x63"  }
+  # Tab Windows
+  - { key: Tab, mods: Control, chars: "\x01\x77"  }
+  # Close tmux
+  - { key: W, mods: Alt, chars: "\x01\x78"  }
+  - { key: Q, mods: Control, chars: "tmux list-sessions | awk 'BEGIN{FS=\":\"}{print $1}' | xargs -n 1 tmux kill-session -t\n"  }
+  # tmux zoom
+  - { key: Z, mods: Command, chars: "\x01\x7a"  }
+  # Save nvim Archive
+  - { key: G, mods: Command, chars: "\x1b\x3a\x77\n"  }

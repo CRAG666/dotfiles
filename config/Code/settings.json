@@ -1,0 +1,274 @@
+{
+  "code-runner.runInTerminal": true,
+  "code-runner.saveFileBeforeRun": true,
+  "editor.wordWrap": "on",
+  "code-runner.executorMap": {
+    "javascript": "node",
+    "java": "cd $dir && javac $fileName && java $fileNameWithoutExt",
+    "kotlin": "cd $dir && kotlinc-native $fileName -o $fileNameWithoutExt && ./$fileNameWithoutExt.kexe",
+    "c": "cd $dir && gcc $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+    "cpp": "cd $dir && g++ $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+    "objective-c": "cd $dir && gcc -framework Cocoa $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+    "php": "php",
+    "python": "python -u",
+    "perl": "perl",
+    "perl6": "perl6",
+    "ruby": "ruby",
+    "go": "go run",
+    "lua": "lua",
+    "groovy": "groovy",
+    "powershell": "powershell -ExecutionPolicy ByPass -File",
+    "bat": "cmd /c",
+    "shellscript": "bash",
+    "fsharp": "fsi",
+    "csharp": "alacritty -e sh -c 'cd $dir && mcs $fileName && mono *.exe'",
+    "vbscript": "cscript //Nologo",
+    "typescript": "deno run",
+    "coffeescript": "coffee",
+    "scala": "scala",
+    "swift": "swift",
+    "julia": "julia",
+    "crystal": "crystal",
+    "ocaml": "ocaml",
+    "r": "Rscript",
+    "applescript": "osascript",
+    "clojure": "lein exec",
+    "haxe": "haxe --cwd $dirWithoutTrailingSlash --run $fileNameWithoutExt",
+    "rust": "cd $dir && rustc $fileName && $dir$fileNameWithoutExt",
+    "racket": "racket",
+    "ahk": "autohotkey",
+    "autoit": "autoit3",
+    "dart": "dart",
+    "pascal": "cd $dir && fpc $fileName && $dir$fileNameWithoutExt",
+    "d": "cd $dir && dmd $fileName && $dir$fileNameWithoutExt",
+    "haskell": "runhaskell",
+    "nim": "nim compile --verbosity:0 --hints:off --run",
+    "matlab": "cd $dir && matlab -nodesktop -r $fileNameWithoutExt"
+  },
+  "window.menuBarVisibility": "toggle",
+  "editor.fontFamily": "CaskaydiaCove Nerd Font, JetBrainsMono Nerd Font,VictorMono Nerd Font",
+  "editor.fontLigatures": true,
+  "java.errors.incompleteClasspath.severity": "ignore",
+  "editor.suggestSelection": "first",
+  "python.linting.pylintEnabled": false,
+  "python.linting.flake8Path": "/usr/bin/flake8",
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": true,
+  "python.linting.flake8Args": [
+      "--ignore = E203",
+      "--ignore = E266",
+      "--ignore = E501",
+      "--ignore = W503",
+      "--max-line-length = 90",
+      "--select = B,C,E,F,W,T4,B9",
+      "--max-complexity = 18"
+  ],
+  "python.pythonPath": "/usr/bin/python",
+  "python.formatting.blackPath": "/usr/bin/black",
+  "python.formatting.provider": "black",
+  "python.formatting.blackArgs": [
+  "--line-length",
+  "90"
+  ],
+  "[python]": {
+  "editor.rulers": [90],
+  "editor.formatOnSaveMode": "file"
+  },
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestPath": "/usr/bin/pytest",
+  "editor.formatOnSave": true,
+  // "[html]": {
+  //   "editor.defaultFormatter": "HookyQR.beautify"
+  // },
+  "liveServer.settings.donotShowInfoMsg": true,
+  "files.exclude": {
+    "**/.classpath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.factorypath": true
+  },
+  "pyqt-integration.qtdesigner.path": "designer",
+  "workbench.colorCustomizations": {
+    // "activityBar.background": "#f2f2f2",
+    // "activityBar.activeBackground": "#b3cdeb49",
+    // "activityBar.activeBorder": "#f34f4d",
+    // "activityBar.inactiveForeground": "#fff",
+    //   "button.background": "#1C2023",
+    //   "button.foreground": "#fff",
+    //   "button.hoverBackground": "#F67E7D",
+    // "editor.background": "#111416",
+    "statusBar.background": "#111416",
+    //   "editorGroupHeader.tabsBackground": "#181b1e",
+    //   "editorGroupHeader.tabsBorder": "#1C2124",
+    //   "editorGutter.background": "#1C2124",
+    //   "tab.activeBackground": "#181b1e",
+    //   "tab.inactiveBackground": "#181b1e",
+    //   "tab.hoverForeground": "#f34f4d",
+    //   "tab.activeBorder": "#f34f4d",
+    //   "tab.border": "#181b1e",
+    //   "terminal.background": "#181b1e",
+    //   "sideBar.background": "#111416",
+    "statusBarItem.remoteBackground": "#5a34a0",
+    "statusBarItem.remoteForeground": "#fff"
+  },
+  "workbench.editor.tabSizing": "shrink",
+  "csharp.suppressDotnetInstallWarning": true,
+  "C_Cpp.updateChannel": "Insiders",
+  "debug.console.fontFamily": "JetBrainsMono Nerd Font",
+  "dart.debugExternalLibraries": true,
+  "dart.debugSdkLibraries": false,
+  "editor.suggest.snippetsPreventQuickSuggestions": false,
+  //"enableTelemetry": true,
+  "git.autofetch": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "editor.minimap.renderCharacters": false,
+  "editor.minimap.maxColumn": 70,
+  "editor.minimap.showSlider": "always",
+  "window.title": "${dirty} ${activeEditorMedium}${separator}${rootName}",
+  "editor.smoothScrolling": true,
+  "editor.cursorBlinking": "phase",
+  "editor.cursorSmoothCaretAnimation": true,
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "telemetry.enableCrashReporter": false,
+  "telemetry.enableTelemetry": false,
+  "workbench.settings.enableNaturalLanguageSearch": false,
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": [
+          //following will be in italic (=FlottFlott)
+          "comment",
+          // * "entity.name.type.class", //class names
+          "keyword", //import, export, return…
+          "constant", //String, Number, Boolean…, this, super
+          "storage.modifier", //static keyword
+          "storage.type.class.js",
+          "storage",
+          "keyword.control", //class keyword
+          "entity.name.tag",
+          "entity.other.attribute-name",
+          "variable.language",
+          "support.type.property-name.json"
+        ],
+        "settings": {
+          "fontStyle": "italic"
+        }
+      },
+      {
+        "scope": [
+          //following will be excluded from italics (VSCode has some defaults for italics)
+          "invalid",
+          "keyword.operator",
+          "constant.numeric.css",
+          "keyword.other.unit.px.css",
+          "constant.numeric.decimal.js",
+          "constant.numeric.json"
+        ],
+        "settings": {
+          "fontStyle": "italic"
+        }
+      }
+    ]
+  },
+  "terminal.integrated.fontFamily": "mononoki Nerd Font",
+  "workbench.activityBar.visible": false,
+  "workbench.sideBar.location": "right",
+  "breadcrumbs.enabled": false,
+  "explorer.openEditors.visible": 0,
+  "editor.renderWhitespace": "all",
+  "activitusbar.views": [
+    // {
+    //   "name": "explorer",
+    //   "codicon": "files"
+    // },
+    // {
+    //   "name": "search",
+    //   "codicon": "search"
+    // },
+    /*{
+      "name": "scm",
+      "codicon": "source-control"
+    },*/
+    // {
+    //   "name": "extensions",
+    //   "codicon": "extensions"
+    // },
+    {
+      "name": "debug",
+      "codicon": "debug"
+    },
+    {
+      "name": "extension.liveshare",
+      "codicon": "live-share"
+    },
+    {
+      "name": "extension.gitlens",
+      "codicon": "git-commit"
+    },
+    {
+      "name": "extension.bookmarks",
+      "codicon": "bookmark"
+    },
+    {
+      "name": "extension.project-manager",
+      "codicon": "file-submodule"
+    }
+  ],
+  "editor.fontSize": 20,
+  "debug.console.fontSize": 16,
+  "markdown.preview.fontSize": 16,
+  "pythonPreview.codeFooterDocs.fontSize": 14,
+  "workbench.editor.showTabs": false,
+  "git.ignoreMissingGitWarning": true,
+  "liveServer.settings.donotVerifyTags": true,
+  "codesnap.transparentBackground": true,
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "projectManager.git.baseFolders": ["/home/crag/Git"],
+  "editor.fontWeight": "500",
+  "python.languageServer": "Pylance",
+  "terminal.integrated.fontSize": 18,
+  "workbench.colorTheme": "Karma",
+  "editor.formatOnSaveMode": "modifications",
+  "[dart]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "editor.rulers": [
+      80
+    ],
+    "editor.selectionHighlight": false,
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
+    "editor.suggestSelection": "first",
+    "editor.tabCompletion": "onlySnippets",
+    "editor.wordBasedSuggestions": false
+  },
+  "terminal.external.linuxExec": "alacritty",
+  "tabnine.experimentalAutoImports": true,
+  "python.analysis.completeFunctionParens": true,
+  "pyside2-vsc.uic.cmd": "uic",
+  "pyside2-vsc.uic.compile.addOptions": "-g python -o",
+  "pyside2-vsc.designer-creator.path": "designer",
+  "autoDocstring.docstringFormat": "sphinx",
+  "workbench.statusBar.visible": true,
+  "workbench.startupEditor": "none",
+  "files.restoreUndoStack": false,
+  "workbench.editor.restoreViewState": false,
+  "editor.codeLens": false,
+  "editor.linkedEditing": true,
+  "window.zoomLevel": -1,
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/node_modules/**": true,
+    "**/__pycache__/**": true,
+//Add in your other glob patterns
+},
+"workbench.editorAssociations": {
+  "*.ipynb": "jupyter.notebook.ipynb"
+},
+"workbench.iconTheme": "helium-icon-theme",
+"[json]": {
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
+}

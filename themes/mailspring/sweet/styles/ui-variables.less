@@ -1,0 +1,213 @@
+@import "base/ui-variables";
+
+@gray-base: #ffffff;
+@gray-darker: darken(@gray-base, 13.5%);
+@gray-dark: darken(@gray-base, 20%);
+@gray: darken(@gray-base, 33.5%);
+@gray-light: darken(@gray-base, 46.7%);
+@gray-lighter: darken(@gray-base, 92.5%);
+@white: #0a0a0a;
+@danger: #F7917B;
+@minimize: #DBD78C;
+@maximize: #9CBCB4;
+@sidebar-text: #ffffff;
+
+@accent-primary: #F67E7D;
+@accent-primary-dark: darken(@accent-primary, 10%);
+
+@background-primary: #1E2327;
+@background-off-primary: #1A1E21;
+@background-secondary: #121212;
+@background-tertiary: #6d7987;
+
+@border-color-primary: lighten(@background-primary, 10%);
+@border-color-secondary: lighten(@background-secondary, 10%);
+@border-color-tertiary: lighten(@background-tertiary, 10%);
+@border-color-divider: @border-color-secondary;
+
+@text-color: #eee;
+@text-color-subtle: fadeout(@text-color, 20%);
+@text-color-very-subtle: fadeout(@text-color, 40%);
+@text-color-inverse: white;
+@text-color-inverse-subtle: fadeout(@text-color-inverse, 20%);
+@text-color-inverse-very-subtle: fadeout(@text-color-inverse, 50%);
+@text-color-heading: #fff;
+
+@text-color-link: @accent-primary;
+@text-color-link-hover: @accent-primary-dark;
+@text-color-link-active: @accent-primary-dark;
+
+@btn-default-bg-color: lighten(@background-primary, 5%);
+@dropdown-default-bg-color: #1C2023;
+
+@input-bg: #1C2124;
+@input-border: @border-color-divider;
+
+@list-bg: #333;
+@list-border: #0E1016;
+@list-selected-color: @text-color-inverse;
+@list-focused-color: @text-color;
+@panel-background-color: #16191B;
+
+.sheet-toolbar {
+  border-bottom: 1px solid @border-color-divider;
+  box-shadow: none;
+}
+
+.thread-icon:not(.thread-icon-unread):not(.thread-icon-star) {
+  filter: invert(100%);
+}
+
+img.content-dark {
+  filter: invert(100%);
+}
+
+img.content-light {
+  filter: invert(100%);
+}
+
+.mail-label {
+  filter: contrast(110%) brightness(85%);
+}
+
+#message-list .message-item-wrap .message-item-white-wrap {
+  box-shadow: 0 0 0.5px rgba(255, 255, 255, 0.28),
+    0 1px 1.5px rgba(255, 255, 255, 0.08);
+}
+
+.thread-list .list-item:not(.unread):not(.selected):not(.focused) {
+  color: #aaa;
+}
+
+@toolbar-background-color: #181B1E;
+@light: rgb(246, 246, 246);
+
+.sheet-container {
+  .sheet-toolbar {
+    .btn-toolbar img.content-mask {
+      background-color: @light;
+    }
+
+    .sheet-toolbar-container {
+      background-color: @toolbar-background-color;
+      box-shadow: none;
+
+      .btn {
+        background: #1C2023;
+      }
+
+      .btn.btn-toolbar {
+        color: @light;
+      }
+
+      .toolbar-activity .activity-toolbar-icon {
+        background: @light;
+      }
+    }
+  }
+
+  .sheet-toolbar .item-back img.content-mask,
+  .sheet-toolbar .toolbar-menu-control img.content-mask {
+    background-color: @light;
+  }
+
+  .sheet-toolbar .item-back .item-back-title {
+    color: @light;
+  }
+
+  .sheet-toolbar .selection-bar {
+    .absolute {
+      border-color: lighten(@toolbar-background-color, 5%);
+      background-color: darken(@toolbar-background-color, 8%);
+
+      .inner {
+        .centered {
+          color: @light;
+        }
+      }
+    }
+  }
+}
+
+.toolbar-window-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 7px 7px 7px;
+  min-width: 66px;
+  width: 66px;
+}
+
+.toolbar-window-controls button {
+  background-color: @sidebar-text;
+  background-image: none !important;
+  float: none;
+  margin: 7px;
+  transform: scale(1, 1);
+  border-radius: 7px;
+  transition-duration: 150ms;
+  transition-property: border-radius, opacity, transform;
+}
+
+body.platform-linux .toolbar-window-controls button {
+  width: 13px;
+  height: 13px;
+}
+
+.toolbar-window-controls:hover button {
+  opacity: 1;
+  border-radius: 50%;
+  transform: scale(1, 1);
+}
+
+.toolbar-window-controls .close {
+  background-color: @danger;
+}
+
+.toolbar-window-controls .minimize {
+  background-color: @minimize;
+}
+
+.toolbar-window-controls .maximize {
+  background-color: @maximize;
+}
+
+.is-blurred {
+
+  .toolbar-window-controls .close,
+  .toolbar-window-controls .minimize,
+  .toolbar-window-controls .maximize {
+    background-color: fade(@sidebar-text, 50%);
+  }
+}
+
+// Compose Button Overrides
+.sheet-toolbar .btn.btn-toolbar.item-compose {
+  background: transparent;
+  box-shadow: none;
+  opacity: 0.5;
+  margin: 0;
+  height: 100%;
+  transition: opacity 200ms;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+// Compose button icon color
+.sheet-toolbar .btn.btn-toolbar.item-compose img.content-mask {
+  background-color: @sidebar-text;
+}
+
+// Activity List
+.toolbar-activity {
+  margin-right: 8px;
+}
+
+.activity-list-container {
+  .disclosure-triangle div {
+    margin-left: 4px;
+    margin-top: -2px;
+  }
+}

@@ -1,0 +1,169 @@
+# set modifier
+set $super Mod4
+set $alt Mod1
+
+# set font
+font pango: JetBrainsMono Nerd Font 9
+
+# Use Mouse+$super to drag floating windows to their wanted position
+floating_modifier $super
+
+#autostart
+exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+exec --no-startup-id xsettingsd &
+exec --no-startup-id greenclip daemon
+exec --no-startup-id nm-applet --sm-disable
+exec --no-startup-id xrandr --output eDP1 --brightness 0.5
+exec --no-startup-id feh --bg-scale '.wallpaper.jpg'
+exec --no-startup-id i3wsr --config ~/.config/i3/bar_config.toml
+exec --no-startup-id picom --config ~/.config/compton.conf --experimental-backends
+exec --no-startup-id Mount_GDrive
+exec --no-startup-id libinput-gestures-setup start
+
+input * xkb_layout "es"
+
+# start a terminal
+bindsym $super+Return exec i3-sensible-terminal
+
+# start rofi (a program launcher)
+bindsym $super+a exec ~/.config/rofi/bin/launcher_misc
+bindsym $alt+space exec ~/.config/rofi/bin/clipboard
+bindsym $super+n exec ~/.config/rofi/bin/applet_network
+bindsym $super+x exec ~/.config/rofi/bin/menu_apps
+
+# keybinds replaces
+bindsym $alt+Control+d exec ~/.config/i3/Delete.sh
+
+# common apps keybinds
+bindsym Print exec flameshot gui
+#bindsym $super+$alt+Control+p exec color-picker
+bindsym Control+space exec i3bartoggle
+
+#change volume
+bindsym XF86AudioRaiseVolume exec amixer -q set Master 5%+
+bindsym XF86AudioLowerVolume exec amixer -q set Master 5%-
+bindsym XF86AudioMute exec amixer set Master toggle
+
+
+# change brightness
+bindsym XF86MonBrightnessUp exec xbacklight -inc 5
+bindsym XF86MonBrightnessDown exec xbacklight -dec 5
+
+# music control
+#bindsym XF86AudioNext exec mpc next
+#bindsym XF86AudioPrev exec mpc prev
+#bindsym XF86AudioPlay exec mpc toggle
+#bindsym XF86AudioStop exec mpc stop
+
+# kill focused window
+bindsym $super+c exec ~/.config/i3/close_win.sh
+bindsym $alt+F4 exec ~/.config/i3/close_win.sh
+
+# change focus
+bindsym $super+Left focus left
+bindsym $super+Down focus down
+bindsym $super+Up focus up
+bindsym $super+Right focus right
+
+# move focused window
+bindsym $super+Shift+Left move left
+bindsym $super+Shift+Down move down
+bindsym $super+Shift+Up move up
+bindsym $super+Shift+Right move right
+
+# tab or default view
+bindsym $super+w layout tabbed
+bindsym $super+e layout default
+
+# split orientation
+bindsym $super+v layout splitv
+bindsym $super+h layout splith
+
+# change container layout split
+bindsym $super+s layout toggle split
+
+# enter fullscreen mode for the focused container
+bindsym $super+f fullscreen toggle
+
+
+# toggle tiling / floating
+bindsym $super+space floating toggle
+
+# change focus between tiling / floating windows
+bindsym $super+Shift+space focus mode_toggle
+
+# switch to workspace
+bindsym $super+Next workspace next
+bindsym $super+Prior workspace prev
+bindsym $super+1 workspace number 1
+bindsym $super+2 workspace number 2
+bindsym $super+3 workspace number 3
+bindsym $super+4 workspace number 4
+bindsym $super+5 workspace number 5
+bindsym $super+6 workspace number 6
+
+# move focused container to workspace
+bindsym $super+Shift+1 move container to workspace number 1
+bindsym $super+Shift+2 move container to workspace number 2
+bindsym $super+Shift+3 move container to workspace number 3
+bindsym $super+Shift+4 move container to workspace number 4
+bindsym $super+Shift+5 move container to workspace number 5
+bindsym $super+Shift+6 move container to workspace number 6
+
+# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
+bindsym $super+Shift+r restart
+
+#CapsLock indicator
+mode "CAPSLOCK" {
+    bindsym Caps_Lock mode "default"
+}
+
+bindsym Caps_Lock mode "CAPSLOCK"
+
+# exit i3
+bindsym $super+q exec ~/.config/rofi/bin/menu_powermenu
+
+# resize window (you can also use the mouse for that)
+mode "resize" {
+        bindsym Left resize shrink width 5 px or 5 ppt
+        bindsym Down resize grow height 5 px or 5 ppt
+        bindsym Up resize shrink height 5 px or 5 ppt
+        bindsym Right resize grow width 5 px or 5 ppt
+        bindsym Return mode "default"
+}
+bindsym $super+r mode "resize"
+
+# panel
+bar {
+        colors {
+        background #111416
+        statusline #111416
+        separator #4b5262
+
+        # colour of border, background, and text
+        focused_workspace       #111416 #bf616a #d8dee8
+        active_workspace        #111416 #111416 #d8dee8
+        inactive_workspace      #111416 #111416 #d8dee8
+        urgent_workspace       #111416 #ebcb8b #111416
+    }
+        status_command i3status-rs ~/.config/i3status/config.toml
+}
+
+# window rules, you can find the window class using xprop
+for_window [class=".*"] border pixel 0
+assign [class=Transmission-gtk|Code|jetbrains*] number 2
+assign [class=Thunar|Pcmanfm|File-roller|Insomnia|DB*|Genymotion*] number 3
+assign [class=Geany|Evince|org.pwmt.zathura|Zathura|Gucharmap|Soffice|libreoffice*|Wps|Et|Wpp|Typora] number 4
+assign [class=Audacity|vlc|mpv|Ghb|Xfburn|Gimp*|Inkscape|Spotify*|bluejeans*] number 5
+assign [class=Lxappearance|System-config-printer.py|Lxtask|GParted|Pavucontrol|Exo-helper*|Lxrandr|Arandr|Gestures] number 6
+for_window [class=feh|Audacious|File-roller|Lxappearance|Lxtask|Pavucontrol|Color-picker] floating enable
+for_window [class=Color-picker|Firefox|Geany|Evince|Soffice|libreoffice*|mpv|Ghb|Xfburn|Gimp*|Inkscape|vlc|Lxappearance|Audacity] focus
+for_window [class=Xfburn|GParted|System-config-printer.py|Lxtask|Pavucontrol|Exo-helper*|Lxrandr|Arandr] focus
+
+# colour of border, background, text, indicator, and child_border
+client.focused              #bf616a #111416 #d8dee8 #bf616a #d8dee8
+client.focused_inactive     #111416 #111416 #d8dee8 #111416 #111416
+client.unfocused            #111416 #111416 #d8dee8 #111416 #111416
+client.urgent               #111416 #111416 #d8dee8 #111416 #111416
+client.placeholder          #111416 #111416 #d8dee8 #111416 #111416
+client.background           #111416

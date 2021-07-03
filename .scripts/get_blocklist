@@ -1,0 +1,15 @@
+#!/usr/bin/bash
+
+log_file="/home/crag/.scripts/blocklist.log"
+output_blocklist="/etc/dnscrypt-proxy/blocked-names.txt"
+date_generate="$(awk 'NR==9' $output_blocklist | awk '{print $3}')"
+current_date=$(date +%d)
+
+if [[ ${date_generate:8:2} != $current_date ]]
+then
+  curl -o $output_blocklist https://dblw.oisd.nl/
+  echo "`date`: Block list crated" >> $log_file
+else
+  echo "`date`: Block list existed" >> $log_file
+fi
+
