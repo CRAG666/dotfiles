@@ -1,0 +1,207 @@
+<eww>
+  <definitions>
+  <def name="player">
+      <box orientation="v" space-evenly="false">
+        <box class="musicart" style="background-image: url('{{cover}}');">{{art}}</box>
+        <box class="musictitle">{{music3}}</box>
+        <box class="musicartist">{{music2}}</box>
+        <box orientation="h" halign="center" class="musicbtn" space-evenly="false">
+          <button onclick="playerctl previous"></button>
+          <button onclick="playerctl play-pause">{{musicstat}}</button>
+          <button onclick="playerctl next"></button>
+        </box>
+        <box orientation="h" class="volume" space-evenly="false" halign="center">
+          <scale min="0" max="101" value="{{volume}}" onchange="amixer -D pulse sset Master {}%"/>
+        </box>
+      </box>
+    </def>
+    <def name="player_side">
+      <box orientation="h"  space-evenly="false">
+        <box class="musicart-side" style="background-image: url('{{cover}}');">{{art}}</box>
+        <box class="musicstuff-side" orientation="v" space-evenly="false">
+          <box class="musicinfo-side">{{music3}}</box>
+          <box orientation="h" halign="center" class="musicbtn-side" space-evenly="false">
+            <button onclick="playerctl previous"></button>
+            <button class="pause-play-side" onclick="playerctl play-pause">{{musicstat}}</button>
+            <button onclick="playerctl next"></button>
+          </box>
+        </box>
+      </box>
+    </def>
+    <def name="time_side">
+      <box orientation="v" space-evenly="false">
+        <box orientation="h" class="time-side" space-evenly="true">
+          <box class="hour-side">{{hour}}</box>
+          <box class="minute-side">{{min}}</box>
+        </box>
+        <box class="day-side">{{day}}</box>
+      </box>
+    </def>
+    <def name="sliders_side">
+      <box orientation="v" space-evenly="false" class="sliders-side">
+        <box orientation="h" class="slider-vol-side" space-evenly="false">
+          <box class="label-vol-side"></box>
+          <scale min="0" max="101" value="{{volume}}" onchange="amixer -D pulse sset Master {}%"/>
+        </box>
+        <box orientation="h" class="slider-bright-side" space-evenly="false">
+          <box class="label-bright-side"></box>
+          <scale min="0" max="101" value="{{bright}}" onchange="brightnessctl s {}%"/>
+        </box>
+        <box orientation="h" class="slider-ram-side" space-evenly="false">
+          <box class="label-ram-side"></box>
+          <scale min="0" active="false" max="101" value="{{ram-used}}"/>
+        </box>
+        <box orientation="h" class="slider-battery-side" space-evenly="false">
+          <box class="label-battery-side">{{bat-icon}}</box>
+          <scale min="0" active="false" max="101" value="{{battery-remaining}}"/>
+        </box>
+      </box>
+    </def>
+    <def name="sys_side">
+      <box orientation="v" space-evenly="false">
+        <button class="search-side" onclick="~/bin/launcher.sh">  Search...</button>
+        <box orientation="h" halign="center" class="sysbtn" space-evenly="true">
+          <button class="shutdown-side" onclick="~/.config/eww/scripts/shutdown.sh"></button>
+          <button class="reboot-side" onclick="~/.config/eww/scripts/reboot.sh"></button>
+          <button class="lock-side" onclick="~/.config/eww/scripts/lockscreen.sh"></button>
+          <button class="suspend-side" onclick="~/.config/eww/scripts/suspend.sh"></button>
+          <button class="logout-side" onclick="~/.config/eww/scripts/logout.sh"></button>
+        </box>
+      </box>
+    </def>
+    <def name="profile">
+    <box orientation="v" space-evenly="false" class="profile">
+        <box orientation="h" space-evenly="false">
+          <box class="pfp"></box>
+        </box>
+        <box orientation="v" space-evenly="false">
+          <box class="pfptxt" valign="center">Crag</box>
+          <box class="subpfptxt" halign="center">Risco(dcrag@pe.me)</box>
+        </box>
+      </box>
+    </def>
+     <def name="home_dir">
+      <box orientation="v" space-evenly="true" class="home-dir">
+        <button class="l1" onclick="(thunar ~/{{l1}})">{{l1-processed}}</button>
+        <button class="l2" onclick="(thunar ~/{{l2}})">{{l2-processed}}</button>
+        <button class="l3" onclick="(thunar ~/{{l3}})">{{l3-processed}}</button>
+        <button class="l4" onclick="(thunar ~/{{l4}})">{{l4-processed}}</button>
+        <button class="l5" onclick="(thunar ~/{{l5}})">{{l5-processed}}</button>
+        <button class="l6" onclick="(thunar ~/{{l6}})">{{l6-processed}}</button>
+      </box>
+    </def>
+    <!-- <def name="powermenu">
+       <box orientation="h" halign="center" class="sysbtn" space-evenly="true">
+          <button class="shutdown-side" onclick="~/.config/eww/scripts/shutdown.sh"></button>
+          <button class="reboot-side" onclick="~/.config/eww/scripts/reboot.sh"></button>
+          <button class="lock-side" onclick="~/.config/eww/scripts/lockscreen.sh"></button>
+          <button class="suspend-side" onclick="~/.config/eww/scripts/suspend.sh"></button>
+          <button class="logout-side" onclick="~/.config/eww/scripts/logout.sh"></button>
+          <button class="lock-side" onclick="exec ~/bin/eww close powermenu"></button>
+        </box>
+    </def> -->
+
+  </definitions>
+
+  <variables>
+    <!-- Music vars -->
+    <script-var name="music" interval="5s">playerctl metadata --format '{{ artist }} - {{ title }}'</script-var>
+    <script-var name="music2" interval="5s">playerctl metadata --format '{{ artist }}'</script-var>
+    <script-var name="music3" interval="5s">~/.config/eww/scripts/gettitle</script-var>
+    <script-var name="art" interval="5s">~/.config/eww/scripts/getart</script-var>
+    <script-var name="volume" interval="3ms">~/.config/eww/scripts/getvol</script-var>
+    <script-var name="bright" interval="1ms">~/.config/eww/scripts/getbri</script-var>
+    <script-var name="musicstat" interval="1s">~/.config/eww/scripts/spotifystatus</script-var>
+    <script-var name="cover" interval="5s">~/.config/eww/scripts/echoart</script-var>
+
+    <!--Date vars-->
+    <script-var name="number_day" interval="5h">date "+%d"</script-var>
+    <script-var name="month" interval="10h">date "+%b"</script-var>
+    <script-var name="min" interval="10s">date "+%M"</script-var>
+    <script-var name="hour" interval="30m">date "+%H"</script-var>
+    <script-var name="day" interval="15h">~/.config/eww/scripts/getday</script-var>
+    <script-var name="month_full" interval="15h">date "+%B"</script-var>
+    <script-var name="year_full" interval="15h">date "+%Y"</script-var>
+
+    <!--Battery charge vars-->
+    <script-var name="battery-remaining" interval="2m">cat /sys/class/power_supply/BAT0/capacity</script-var>
+    <script-var name="bat-icon" interval="2m">~/.config/tint2/scripts/battery.sh</script-var>
+
+    <!-- Home-dir stuff -->
+    <script-var name="l1-processed" interval="20h">~/.config/eww/scripts/home-dir/l1-processed</script-var>
+    <script-var name="l2-processed" interval="20h">~/.config/eww/scripts/home-dir/l2-processed</script-var>
+    <script-var name="l3-processed" interval="20h">~/.config/eww/scripts/home-dir/l3-processed</script-var>
+    <script-var name="l4-processed" interval="20h">~/.config/eww/scripts/home-dir/l4-processed</script-var>
+    <script-var name="l5-processed" interval="20h">~/.config/eww/scripts/home-dir/l5-processed</script-var>
+    <script-var name="l6-processed" interval="20h">~/.config/eww/scripts/home-dir/l6-processed</script-var>
+
+    <script-var name="l1" interval="20h">~/.config/eww/scripts/home-dir/l1</script-var>
+    <script-var name="l2" interval="20h">~/.config/eww/scripts/home-dir/l2</script-var>
+    <script-var name="l3" interval="20h">~/.config/eww/scripts/home-dir/l3</script-var>
+    <script-var name="l4" interval="20h">~/.config/eww/scripts/home-dir/l4</script-var>
+    <script-var name="l5" interval="20h">~/.config/eww/scripts/home-dir/l5</script-var>
+    <script-var name="l6" interval="20h">~/.config/eww/scripts/home-dir/l6</script-var>
+
+  </variables>
+
+  <windows>
+    <!-- Sidebar stuff -->
+
+    <window name="player_side">
+      <geometry x="10px" y="270px" width="300px" height="110px"/>
+      <widget>
+        <player_side/>
+      </widget>
+    </window>
+    <window name="time_side">
+      <geometry x="10px" y="130px" width="300px" height="135px"/>
+      <widget>
+        <time_side/>
+      </widget>
+    </window>
+    <window name="sliders_side">
+      <geometry x="10px" y="385px" width="300px" height="205px"/>
+      <widget>
+        <sliders_side/>
+      </widget>
+    </window>
+    <window name="sys_side">
+      <geometry x="10px" y="595px" width="300px" height="153px"/>
+      <widget>
+        <sys_side/>
+      </widget>
+    </window>
+
+    <!-- Main Stuff -->
+    <!-- <window name="calendar_full">
+      <geometry x="505px" y="100px" width="690px" height="100px"/>
+      <widget>
+        <calendar_full/>
+      </widget>
+    </window> -->
+     <window name="player">
+      <geometry x="1056px" y="308px" width="300px" height="400px"/>
+      <widget>
+        <player/>
+      </widget>
+    </window>
+    <window name="profile">
+      <geometry x="173px" y="124px" width="300px" height="405px"/>
+      <widget>
+        <profile/>
+      </widget>
+    </window>
+     <window name="home_dir">
+      <geometry x="888px" y="229px" width="200px" height="415px"/>
+      <widget>
+        <home_dir/>
+      </widget>
+    </window>
+    <!-- <window name="powermenu" focusable="true">
+      <geometry x="35%" y="20%" width="30%" height="40%"/>
+      <widget>
+        <powermenu/>
+      </widget>
+    </window> -->
+  </windows>
+</eww>

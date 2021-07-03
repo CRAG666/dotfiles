@@ -1,0 +1,88 @@
+{
+    "layer": "bottom",
+    "position": "bottom",
+    "height": 10,
+    "modules-left": ["sway/workspaces", "sway/mode"],
+    "modules-center": ["custom/media"],
+    "modules-right": ["memory", "cpu", "temperature", "network", "pulseaudio", "backlight", "battery", "clock", "tray"],
+    "sway/mode": {
+        "format": " {}"
+    },
+    "sway/workspaces": {
+        "format": "{name}",
+        "disable-scroll-wraparound": true,
+        "enable-bar-scroll": true,
+        "smooth-scrolling-threshold": 30
+    },
+    "sway/window": {
+        "max-length": 80,
+        "tooltip": false
+    },
+    "tray": {
+        "icon-size": 16,
+        "spacing": 10
+    },
+    "clock": {
+        "tooltip-format": "{:%Y-%m-%d | %H:%M}",
+        "format-alt": "{:%Y-%m-%d}"
+    },
+    "cpu": {
+        "format": "{usage}% "
+    },
+    "memory": {
+        "format": "{}% ",
+        "on-click": "kitty htop"
+    },
+    "temperature": {
+        "critical-threshold": 80,
+        "format": "{temperatureC}°C "
+    },
+    "backlight": {
+        "format": "{percent}% {icon}",
+        "states": [0,50],
+        "format-icons": ["", ""]
+    },
+    "battery": {
+        "states": {
+            "good": 95,
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{capacity}% {icon}",
+        "format-icons": ["", "", "", "", ""]
+    },
+    "network": {
+        "format-wifi": "{essid} ({signalStrength}%) ",
+        "format-ethernet": "{ifname}: {ipaddr}/{cidr} ",
+        "format-disconnected": "Disconnected ⚠",
+        "interval" : 7,
+        "on-click": "kitty nmtui"
+
+    },
+    "pulseaudio": {
+        "format": "{volume}% {icon}",
+        "format-bluetooth": "{volume}% {icon}",
+        "format-muted": "",
+        "format-icons": {
+            "headphones": "",
+            "handsfree": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": ["", ""]
+        },
+        "on-click": "pavucontrol-qt"
+    },
+    "custom/media": {
+        "format": "{icon} {}",
+        "return-type": "json",
+        "max-length": 40,
+        "format-icons": {
+            "spotify": "",
+            "default": "🎜"
+        },
+        "escape": true,
+        "exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null" // Script in resources folder
+    }
+}

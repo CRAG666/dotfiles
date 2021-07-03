@@ -8,12 +8,9 @@ install: ## Install arch linux packages using yay
 	cat ${PWD}/pkglist.txt | xargs -L 1 yay -S --needed --noconfirm
 
 cli-tools: ## Add cli tools to local bin
-	sudo ln -vsf ${PWD}/commands/* /usr/local/bin/
+	ln -vsf ${PWD}/commands/* ${HOME}/local/bin/
 
 init: ## Initial deploy dotfiles
-	mkdir -p ${HOME}/.config/nvim
-	mkdir -p ${HOME}/.config/nvim/plugged
-	mkdir -p ${HOME}/.config/alacritty
 	ln -vsf ${PWD}/.zshrc ${HOME}/.zshrc
 	ln -vsf ${PWD}/.zsh_history ${HOME}/.zsh_history
 	ln -vsf ${PWD}/.myclirc ${HOME}/.myclirc
@@ -21,19 +18,16 @@ init: ## Initial deploy dotfiles
 	ln -vsf ${PWD}/.gitconfig ${HOME}/.gitconfig
 	ln -vsf ${PWD}/.pyrc ${HOME}/.pyrc
 	ln -vsf ${PWD}/nodeprompt/noderc ${HOME}/.noderc
-	ln -vsf ${PWD}/nvim/* ${HOME}/.config/nvim/
-	ln -vsf ${PWD}/starship.toml ${HOME}/.config/starship.toml
-	ln -vsf ${PWD}/alacritty.yml ${HOME}/.config/alacritty/alacritty.yml
 
-i3: ## config i3
-	ln -vsf ${PWD}/i3config/* ${HOME}/.config/
+i3wm: ## config i3
+	ln -vsf ${PWD}/i3wm/* ${HOME}/.config/
+	yay -S --needed --noconfirm corrupter-bin \
+		flameshot insomnia-git
 
-rofi: ## rofi applets
-	ln -vsf ${PWD}/rofi ${HOME}/.config/
-
-text-editors-config: ## config noty and typora
-	ln -vsf ${PWD}/typora-theme/* ${HOME}/.config/Typora/themes/
-	ln -vsf ${PWD}/config.json ${HOME}/.config/Noty/
+swaywm: ## config sway
+	ln -vsf ${PWD}/swaywm/* ${HOME}/.config/
+	yay -S --needed --noconfirm sworkstyle \
+		nwg-dock waybar eww-git
 
 zsh: ## install oh my zsh
 	yay -S --needed --noconfirm oh-my-zsh-git zh-autosuggestions \
@@ -41,21 +35,15 @@ zsh: ## install oh my zsh
 		zsh-sintax-highlighting
 	chsh -s $(which zsh)
 
-vim-plug: ## Install vim plug
-	curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-
 npm-cli-tools: ## Install fx and speedtest-net
 	sudo npm install -g speedtest-net
 
 code: ## Install and configure VScode
 	yay -S --needed --noconfirm visual-studio-code-bin
-	bash ${PWD}/vscode/my_vscode_extensions.sh
-	ln -vsf ${PWD}/vscode/settings.json ${HOME}/.config/Code/User/settings.json
-	ln -vsf ${PWD}/vscode/snippets ${HOME}/.config/Code/User/
-	ln -vsf ${PWD}/vscode/keybindings.json ${HOME}/.config/Code/User/keybindings.json
+	bash ${PWD}/config/Code/my_vscode_extensions.sh
 	sudo npm install -g vsce
-	cd ${PWD}/vscode/miramare/ && vsce package .
-	code --install-extension ${PWD}/vscode/miramare/miramare-0.0.2.vsix
+	cd ${PWD}/config/Code/miramare/ && vsce package .
+	code --install-extension ${PWD}/config/Code/miramare/miramare-0.0.2.vsix
 
 android-studio: ## Install and configure Android Studio
 	yay -S --noconfirm android-studio
@@ -88,22 +76,13 @@ maria-db: ## Mariadb initial setup
 mongodb: ## Mongodb initial setup
 	sudo pacman -S mongodb mongodb-tools
 
-spotify: ## Install spotify
-	gpg --keyserver hkp://keyserver.ubuntu.com --receive-keys 931FF8E79F0876134EDDBDCCA87FF9DF48BF1C90
-	yay -S --noconfirm spotify spotify-adblock-linux
-
-screenkey: ## Init screenkey
-	yay -S screenkey
-	mkdir -p ${HOME}/.config
-	ln -vsf ${PWD}/screenkey.json ${HOME}/.config/screenkey.json
-
 testpath: ## Echo PATH
 	PATH=$$PATH
 	@echo $$PATH
 	GOPATH=$$GOPATH
 	@echo $$GOPATH
 
-allinstall: yay install init cli-tools i3 rofi text-editors-config zsh vim-plug npm-cli-tools screenkey spotify
+allinstall: yay install init cli-tools i3wm zsh npm-cli-tools
 
 nextinstall: rustinstall maria-db mongodb docker docker-compose
 

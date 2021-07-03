@@ -1,0 +1,313 @@
+# Logo key. Use Mod4 for Super.
+set $super Mod4
+set $alt Mod1
+set $AltGr Mod5
+# Home row direction keys, like vim
+set $left h
+set $down j
+set $up k
+set $right l
+# Your preferred terminal emulator
+set $term kitty
+# Your preferred applications launcher
+set $menu ~/.config/rofi/bin/launcher_misc
+set $clipboard ~/.config/rofi/bin/clipboard
+set $network ~/.config/rofi/bin/applet_network
+set $favorites ~/.config/rofi/bin/menu_apps
+set $powermenu ~/.config/rofi/bin/menu_powermenu
+set $bookmarks ~/.config/rofi/bin/bookmarks
+# Gnome Settings
+set $gnome-schema org.gnome.desktop.interface
+# Font settings
+font pango: JetBrainsMono Nerd Font 9
+
+#  xwayland disabled
+
+default_border none
+default_floating_border none
+
+# AutoStart
+exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+exec_always --no-startup-id sworkstyle &> /tmp/sworkstyle.log
+exec nm-applet --indicator
+exec ydotoold
+exec Mount_GDrive
+exec libinput-gestures-setup start
+exec wl-paste -t text --watch clipman store
+exec nwg-dock -d -i 32 -p "left" -nows
+
+# User theme
+exec_always {
+    gsettings set $gnome-schema gtk-theme 'Sweet-mars'
+    gsettings set $gnome-schema icon-theme 'Macjaro-master'
+    gsettings set $gnome-schema cursor-theme 'Sweet-cursors'
+    gsettings set $gnome-schema font-name 'Lucida MAC 10'
+}
+
+### Output configuration
+#
+# Wallpaper
+output * bg ~/.wallpaper.jpg fill
+#
+# Example configuration:
+#
+#   output HDMI-A-1 resolution 1920x1080 position 1920,0
+#
+# You can get the names of your outputs by running: swaymsg -t get_outputs
+
+### Idle configuration
+#
+# Example configuration:
+#
+# exec swayidle -w \
+#          timeout 300 'swaylock -f -c 000000' \
+#          timeout 600 'swaymsg "output * dpms off"' resume 'swaymsg "output * dpms on"' \
+#          before-sleep 'swaylock -f -c 000000'
+#
+# This will lock your screen after 300 seconds of inactivity, then turn off
+# your displays after another 300 seconds, and turn your screens back on when
+# resumed. It will also lock your screen before your computer goes to sleep.
+
+### Input configuration
+#
+# Keyboard thinkpad l450 configuration:
+#
+    input "1:1:AT_Translated_Set_2_keyboard" {
+        xkb_layout latam
+        xkb_options caps:swapescape
+    }
+#
+# Tuchpad thinkpad l450 configuration:
+#
+    input "1739:0:Synaptics_TM3053-003" {
+        dwt enabled
+        tap enabled
+        natural_scroll enabled
+        middle_emulation enabled
+    }
+#
+# You can get the names of your inputs by running: swaymsg -t get_inputs
+# Read `man 5 sway-input` for more information about this section.
+
+### Key bindings
+#
+# Basics:
+#
+    # Toggle bar
+    # bindsym Control+space bar mode toggle
+
+    # Start a terminal
+    bindsym $super+Return exec $term
+
+    # Kill focused window
+    bindsym $super+c kill
+
+    # Start your launcher
+    bindsym $super+a exec $menu
+    bindsym $alt+space exec $clipboard
+    bindsym $super+n exec $network
+    bindsym $super+x exec $favorites
+    bindsym $super+q exec $powermenu
+    bindsym $AltGr+space exec $bookmarks
+
+    # keybinds replaces
+    bindsym $super+d exec sleep 0.4 && ydotool key delete
+
+    # Screenshot
+    bindsym Print exec grim ~/screen-"$(date +%s)".png
+    bindsym $super+Print exec grim -g "$(slurp)" ~/screen-"$(date +%s)".png
+
+    # Change volume
+    bindsym XF86AudioRaiseVolume exec amixer -q set Master 5%+
+    bindsym XF86AudioLowerVolume exec amixer -q set Master 5%-
+    bindsym XF86AudioMute exec amixer set Master toggle
+
+    # Change brightness
+    bindsym XF86MonBrightnessDown exec brightnessctl specific 3-
+    bindsym XF86MonBrightnessUp exec brightnessctl specific +3
+
+    # Drag floating windows by holding down $super and left mouse button.
+    # Resize them with right mouse button + $super.
+    # Despite the name, also works for non-floating windows.
+    # Change normal to inverse to use left mouse button for resizing and right
+    # mouse button for dragging.
+    #  floating_superifier $super normal
+
+    # Reload the configuration file
+    bindsym $super+Shift+r reload
+
+#
+# Moving around:
+#
+    # Move your focus around
+    bindsym $super+Next workspace next
+    bindsym $super+Prior workspace prev
+
+    bindsym $super+$left focus left
+    bindsym $super+$down focus down
+    bindsym $super+$up focus up
+    bindsym $super+$right focus right
+    # Or use $super+[up|down|left|right]
+    bindsym $super+Left focus left
+    bindsym $super+Down focus down
+    bindsym $super+Up focus up
+    bindsym $super+Right focus right
+
+    # Move the focused window with the same, but add Shift
+    bindsym $super+Shift+$left move left
+    bindsym $super+Shift+$down move down
+    bindsym $super+Shift+$up move up
+    bindsym $super+Shift+$right move right
+    # Ditto, with arrow keys
+    bindsym $super+Shift+Left move left
+    bindsym $super+Shift+Down move down
+    bindsym $super+Shift+Up move up
+    bindsym $super+Shift+Right move right
+#
+# Workspaces:
+#
+    # Switch to workspace
+    bindsym $super+1 workspace number 1
+    bindsym $super+2 workspace number 2
+    bindsym $super+3 workspace number 3
+    bindsym $super+4 workspace number 4
+    bindsym $super+5 workspace number 5
+    bindsym $super+6 workspace number 6
+    bindsym $super+7 workspace number 7
+    bindsym $super+8 workspace number 8
+    bindsym $super+9 workspace number 9
+    bindsym $super+0 workspace number 10
+    # Move focused container to workspace
+    bindsym $super+Shift+1 move container to workspace number 1
+    bindsym $super+Shift+2 move container to workspace number 2
+    bindsym $super+Shift+3 move container to workspace number 3
+    bindsym $super+Shift+4 move container to workspace number 4
+    bindsym $super+Shift+5 move container to workspace number 5
+    bindsym $super+Shift+6 move container to workspace number 6
+    bindsym $super+Shift+7 move container to workspace number 7
+    bindsym $super+Shift+8 move container to workspace number 8
+    bindsym $super+Shift+9 move container to workspace number 9
+    bindsym $super+Shift+0 move container to workspace number 10
+    # Note: workspaces can have any name you want, not just numbers.
+    # We just use 1-10 as the default.
+#
+# Layout stuff:
+#
+    # You can "split" the current object of your focus with
+    # $super+b or $super+v, for horizontal and vertical splits
+    # respectively.
+    bindsym $super+b splith
+    bindsym $super+v splitv
+
+    # Switch the current container between different layout styles
+    bindsym $super+s layout stacking
+    bindsym $super+w layout tabbed
+    bindsym $super+e layout toggle split
+
+    # Make the current focus fullscreen
+    bindsym $super+f fullscreen
+
+    # Toggle the current focus between tiling and floating mode
+    bindsym $super+Shift+space floating toggle
+
+    # Swap focus between the tiling area and the floating area
+    bindsym $super+space focus mode_toggle
+
+    # Move focus to the parent container
+    bindsym $super+p focus parent
+#
+# Scratchpad:
+#
+    # Sway has a "scratchpad", which is a bag of holding for windows.
+    # You can send windows there and get them back later.
+
+    # Move the currently focused window to the scratchpad
+    bindsym $super+Shift+minus move scratchpad
+
+    # Show the next scratchpad window or hide the focused scratchpad window.
+    # If there are multiple scratchpad windows, this command cycles through them.
+    bindsym $super+minus scratchpad show
+
+#
+# Login Mode:
+#
+set $goo sleep 0.4 && /home/crag/.scripts/passMan.sh -e google
+set $gmail sleep 0.4 && /home/crag/.scripts/passMan.sh -p gmail
+set $gitlab sleep 0.4 && /home/crag/.scripts/passMan.sh -p gitlab
+set $mediaf sleep 0.4 && /home/crag/.scripts/passMan.sh -p mediafire
+set $mega sleep 0.4 && /home/crag/.scripts/passMan.sh -p mega
+set $proton sleep 0.4 && /home/crag/.scripts/passMan.sh -e protonmail
+set $pmail sleep 0.4 && /home/crag/.scripts/passMan.sh -p protonmail
+
+mode "login" {
+    # for google account
+    bindsym $super+q exec $goo
+    bindsym $super+w exec $gmail
+    bindsym $super+e exec $gitlab
+    bindsym $super+r exec $mediaf
+    bindsym $super+t exec $mega
+    # for protonmail account
+    bindsym $super+a exec $proton
+    bindsym $super+s exec $pmail
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $AltGr+l mode "login"
+
+#
+# Resizing containers:
+#
+mode "resize" {
+    # left will shrink the containers width
+    # right will grow the containers width
+    # up will shrink the containers height
+    # down will grow the containers height
+    bindsym $left resize shrink width 10px
+    bindsym $down resize grow height 10px
+    bindsym $up resize shrink height 10px
+    bindsym $right resize grow width 10px
+
+    # Ditto, with arrow keys
+    bindsym Left resize shrink width 10px
+    bindsym Down resize grow height 10px
+    bindsym Up resize shrink height 10px
+    bindsym Right resize grow width 10px
+
+    # Return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $super+r mode "resize"
+
+mode "CAPSLOCK" {
+    bindsym Caps_Lock mode "default"
+}
+bindsym Caps_Lock mode "CAPSLOCK"
+
+#
+# Status Bar:
+#
+# Read `man 5 sway-bar` for more information about this section.
+bar {
+    swaybar_command waybar
+    workspace_buttons yes
+}
+include /etc/sway/config.d/*
+
+# window rules, you can find the window class using xprop
+for_window [class=".*"] border pixel 0
+assign [class=Transmission-gtk|Code|jetbrains*] number 2
+assign [class=Thunar|Pcmanfm|pcmanfm|File-roller|Insomnia|DB*|Genymotion*] number 3
+assign [class=Geany|Evince|org.pwmt.zathura|Zathura|Gucharmap|Soffice|libreoffice*|Wps|Et|Wpp|Typora] number 4
+assign [class=Audacity|vlc|mpv|Ghb|Xfburn|Gimp*|Inkscape|Spotify*|bluejeans*] number 5
+assign [class=Lxappearance|System-config-printer.py|Lxtask|GParted|Pavucontrol|Exo-helper*|Lxrandr|Arandr|Gestures] number 6
+for_window [class=feh|Audacious|File-roller|Lxappearance|Lxtask|Pavucontrol|Color-picker] floating enable
+for_window [class=Color-picker|Firefox|Geany|Evince|Soffice|libreoffice*|mpv|Ghb|Xfburn|Gimp*|Inkscape|vlc|Lxappearance|Audacity] focus
+for_window [class=Xfburn|GParted|System-config-printer.py|Lxtask|Pavucontrol|Exo-helper*|Lxrandr|Arandr] focus
+
+client.focused              #bf616a #111416 #d8dee8 #bf616a #d8dee8
+client.focused_inactive     #111416 #111416 #d8dee8 #111416 #111416
+client.unfocused            #111416 #111416 #d8dee8 #111416 #111416
+client.urgent               #111416 #111416 #d8dee8 #111416 #111416
+client.placeholder          #111416 #111416 #d8dee8 #111416 #111416
+client.background           #111416

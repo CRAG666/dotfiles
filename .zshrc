@@ -55,49 +55,37 @@ plugins=(
   virtualenv
   systemd
   fzf
-  fzf-tab
 )
 
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# ssh
-# export SSH_KEY_PATH="~/.ssh/rsa_id"
 ZSH_CACHE_DIR=$HOME/.cache/oh-my-zsh
 if [[ ! -d $ZSH_CACHE_DIR ]]; then
   mkdir $ZSH_CACHE_DIR
 fi
 
+encrypt(){
+  openssl enc -aes-256-cbc -md sha512 -pbkdf2 -iter 100000 -salt -in $1 -out $2
+}
+
+decrypt(){
+  openssl enc -d -aes-256-cbc -md sha512 -pbkdf2 -iter 100000 -salt -in $1 -out $2
+}
 
 # Util funtions
-function acp() {
+acp() {
   git add .
   git commit -m "$1"
   git push
 }
 
-function mss(){
+mss(){
   sudo systemctl $1 mysqld
 }
 
-function ds(){
+ds(){
   sudo systemctl $1 docker
 }
 
-function smb(){
+smb(){
   sudo systemctl $1 smb
   sudo systemctl $1 nmb
 }
@@ -133,7 +121,7 @@ tmuxkillf () {
     done
 }
 
-function gitignore() {
+gitignore() {
     if [ $# = 1 ]; then
       curl -L -s https://www.gitignore.io/api/$@ > .gitignore
     else
@@ -146,6 +134,7 @@ source $ZSH/oh-my-zsh.sh
 source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source ~/.zshplugins/fzf-tab/fzf-tab.plugin.zsh
 #source ~/.zshplugins/poetry/_poetry
 
 # -> Config <-
@@ -156,15 +145,17 @@ zstyle ':fzf-tab:complete:*:*' fzf-preview '([[ -f $realpath ]] && (bat --style=
 
 # -< Aliases >-
 # TODO: Config alias
-alias starshipconfig="vim ~/.config/starship.toml"
-alias alacriconfig="vim ~/.config/alacritty/alacritty.yml"
-alias i3config="vim ~/.config/i3/config"
-alias i3barconfig="~/.config/i3status/config"
-alias dnsconfig="sudoedit /etc/resolv.conf"
-alias zshconfig="vim ~/.zshrc"
+alias starshipc="vim ~/.config/starship.toml"
+alias alacric="vim ~/.config/alacritty/alacritty.yml"
+alias swayc="vim ~/.config/sway/config"
+alias i3c="vim ~/.config/i3/config"
+alias i3barc="~/.config/i3status/config"
+alias dnsc="sudoedit /etc/resolv.conf"
+alias zshc="vim ~/.zshrc"
 alias tmuxc="vim ~/.tmux.conf"
-alias firefoxconfig="vim ~/.mozilla/firefox/profiles.ini"
+alias firefoxc="vim ~/.mozilla/firefox/profiles.ini"
 alias kittyc="vim ~/.config/kitty/kitty.conf"
+alias nftc="sudoedit /etc/nftables.conf"
 # HACK: Config Nvim Aliases
 alias vimc='vim ~/.config/nvim/init.lua'
 alias vimp='vim ~/.config/nvim/lua/plugs.lua'
@@ -172,7 +163,7 @@ alias vimm='vim ~/.config/nvim/lua/keymappings.lua'
 alias vimt='vim ~/.config/nvim/lua/colorscheme.lua'
 alias vimcp='vim ~/.config/nvim/lua/config'
 # HACK: Jump alias
-alias applications="thunar /usr/share/applications"
+alias applications="cd /usr/share/applications"
 alias Escritorio="cd /$HOME/Escritorio"
 alias Descargas="cd /$HOME/Descargas"
 alias Documentos="cd /$HOME/Documentos"
@@ -210,9 +201,9 @@ export PYTHONSTARTUP=~/.pyrc
 export TERM="xterm-256color"
 export PATH="$HOME/.poetry/bin:$PATH"
 export VISUAL=nvim
-export EDITOR="$VISUAL"
+export EDITOR=$VISUAL
 export BAT_THEME="gruvbox-dark"
-export FZF_DEFAULT_OPTS="--height 40% --reverse --bind='?:toggle-preview'"
+export FZF_DEFAULT_OPTS="--height 40% --reverse --bind='?:toggle-preview' --pointer='⮞'"
 source ~/.passmaria.zsh
 
 #-< Evals >-

@@ -1,3 +1,0 @@
-#!/bin/bash
-for xid in $(wmctrl -l | grep \ 0 | awk '{print $1}'); do wmctrl -i -c $xid ; done
-
