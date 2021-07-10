@@ -17,7 +17,7 @@ init: ## Initial deploy dotfiles
 	ln -vsf ${PWD}/.tmux.conf ${HOME}/.tmux.conf
 	ln -vsf ${PWD}/.gitconfig ${HOME}/.gitconfig
 	ln -vsf ${PWD}/.pyrc ${HOME}/.pyrc
-	ln -vsf ${PWD}/nodeprompt/noderc ${HOME}/.noderc
+	ln -vsf ${PWD}/.noderc ${HOME}/.noderc
 
 i3wm: ## config i3
 	ln -vsf ${PWD}/i3wm/* ${HOME}/.config/
@@ -40,6 +40,8 @@ npm-cli-tools: ## Install fx and speedtest-net
 
 code: ## Install and configure VScode
 	yay -S --needed --noconfirm visual-studio-code-bin
+	mkdir ${HOME}/.config/Code
+	ln -vsf ${PWD}/Code/* ${HOME}/.config/Code/
 	bash ${PWD}/config/Code/my_vscode_extensions.sh
 	sudo npm install -g vsce
 	cd ${PWD}/config/Code/miramare/ && vsce package .

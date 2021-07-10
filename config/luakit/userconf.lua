@@ -15,14 +15,13 @@ local binds = require( 'binds' )
 local noscript = require( 'noscript' )  --  Toggle JS &/or plugins on a per-domain basis.
 local lousy = require( 'lousy' )  --  Library.Of.Useful.Stuff.You can use in luakit
 local widgets = require( 'lousy.widget' )
-
 local styles = require( 'styles' )
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 settings.application.prefer_dark_mode = true
-settings.window.home_page = 'https://start.duckduckgo.com/'
+settings.window.home_page = 'https://randsearch.daniel.priv.no/'
 -- settings.window.new_window_size  = '1000x600'
 settings.webview.default_charset = "utf-8"
 settings.webview.default_font_family = "Lucida MAC"
@@ -56,7 +55,7 @@ settings.webview.hardware_acceleration_policy = 'always'
 settings.webview.enable_accelerated_2d_canvas = false
 
 --  user-agents.net
-local UA  = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36'
+local UA  = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
 
 local alt_UA  = 'Mozilla/5.0 (X11; Linux x86_32) Gecko/20100101 Firefox/69.0 r/theyknew'
 
@@ -80,11 +79,6 @@ noscript.enable_plugins = true
 --  twitter is a bitch & cries about your browser type
 settings.on['twitter.com'].webview.user_agent = twitter_UA
 settings.on['mobile.twitter.com'].webview.user_agent = twitter_UA
-
---  appear mobile
-settings.on['youtube.com'].webview.user_agent = android_UA
-settings.on['m.youtube.com'].webview.user_agent = android_UA
-settings.on['www.youtube.com'].webview.user_agent = android_UA
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 --  :lua settings .on['love2d.org'] .webview .auto_load_images = true
@@ -117,19 +111,22 @@ end)
 local matches = { 'about:blank',  'luakit://newtab/',  'https://www1.watch-series.la/' }
 local begins  = { 'adblock-blocked:' }
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 webview.add_signal( 'init',  function( view )  --  during initialization of a new tab
-
     --  open certain schemes w/ other apps?  luakit.github.io/docs/pages/02-faq.html
     view:add_signal('navigation-request', function( v, uri, reason)
 
     --  return  false  to prevent requested navigation from taking place
         local low = uri:lower()
 
-        if low:match( 'youtube%.com/%?app=desktop' ) then
-            local str = 'mpv %q'
-            luakit.spawn( str:format( file ) )
-            return false  --  no redirects from mobile
+        if low:match( 'youtube%.com/watch%?v=' ) then
+            local video_cmd_fmt = "mpv --ytdl '%s'"
+            local str = string.gsub(uri or "", " ", "%%20")
+            print("Entre")
+            luakit.spawn(string.format(video_cmd_fmt, str))
+            return false
+
+        -- elseif low:match( 'youtube%.com/%?app=desktop' ) then
+            -- return false  --  no redirects from mobile
 
         elseif low:match( 'www%.reddit%.com/chat/minimize' ) then
             return false  --  skip reddit's slow-@ss chat
@@ -176,7 +173,7 @@ webview.add_signal( 'init',  function( view )  --  during initialization of a ne
             local second  = 1000  --  miliseconds
             local time  = timer{ interval = second *40 }
             --  moment to decide if you wish to do something with blank tab
-            time :add_signal( 'timeout',  function()
+            time:add_signal( 'timeout',  function()
                 if view .is_alive then
                     local certain = false  --  make sure tab is still blank
 

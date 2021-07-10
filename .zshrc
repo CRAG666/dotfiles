@@ -3,12 +3,9 @@
 # Path to your oh-my-zsh installation.
 ZSH=/usr/share/oh-my-zsh
 
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time oh-my-zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
 autoload -U compinit
 compinit
+
 # Uncomment the following line to use case-sensitive completion.
 #CASE_SENSITIVE="true"
 
@@ -156,6 +153,7 @@ alias tmuxc="vim ~/.tmux.conf"
 alias firefoxc="vim ~/.mozilla/firefox/profiles.ini"
 alias kittyc="vim ~/.config/kitty/kitty.conf"
 alias nftc="sudoedit /etc/nftables.conf"
+alias grubc="sudoedit /etc/default/grub"
 # HACK: Config Nvim Aliases
 alias vimc='vim ~/.config/nvim/init.lua'
 alias vimp='vim ~/.config/nvim/lua/plugs.lua'
@@ -177,7 +175,7 @@ alias sys="watch -ct -n0 sys.sh"
 alias ping="prettyping"
 alias cerrar="sh ~/.scripts/cerrar_ventana"
 alias cerrar_todo="sh ~/.scripts/cerrar_todo.sh"
-alias js="node ~/.noderc"
+alias node="/usr/bin/node ~/.noderc"
 alias ll="ls-icons -l"
 alias ls="ls-icons"
 alias cp="rsync -P"

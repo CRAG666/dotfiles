@@ -38,6 +38,7 @@ exec nwg-dock -d -i 32 -p "left" -nows
 exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
 exec hash dbus-update-activation-environment 2>/dev/null && \
      dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
+exec wlsunset -l 17.5565300 -L -93.3810400 -t 2500 -T 4500
 
 # User theme
 exec_always {

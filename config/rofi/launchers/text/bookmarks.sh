@@ -2,7 +2,7 @@ theme="style_2"
 dir="$HOME/.config/rofi/launchers/text"
 
 BOOKMARKS="$HOME/.config/rofi/launchers/text/bookmarks"
-BROWSER="librewolf"
+BROWSER="luakit"
 
 
 function get_bookmarks(){

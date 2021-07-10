@@ -11,8 +11,8 @@ end
 -- cmd 'colorscheme blackbird'
 -- cmd 'colorscheme oblivion-dark'
 
---[[ vim.g.tokyonight_transparent = true
-cmd 'colorscheme tokyonight' ]]
+-- vim.g.tokyonight_transparent = true
+-- cmd 'colorscheme tokyonight'
 
 -- vim.g.kimbox_transparent_background = 1
 -- cmd 'colorscheme kimbox'

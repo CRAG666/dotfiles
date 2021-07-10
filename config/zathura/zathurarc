@@ -2,43 +2,49 @@
 set selection-clipboard clipboard
 set smooth-scroll "true"
 set guioptions none
-set highlight-active-color "#C3AFF7"
 set font "JetBrainsMono Nerd Font Mono Bold 14"
 
-#colorscheme
+#  #colorscheme
+set notification-error-bg       "#111416" # bg
+set notification-error-fg       "#e68183" # bright:red
+set notification-warning-bg     "#111416" # bg
+set notification-warning-fg     "#fee074" # bright:yellow
+set notification-bg             "#111416" # bg
+set notification-fg             "#87af87" # bright:green
 
-set default-bg                  "#111416"
-set default-fg                  "#E6D6AC"
+set completion-bg               "#121212" # bg2
+set completion-fg               "#e6d6ac" # fg
+set completion-group-bg         "#3c3836" # bg1
+set completion-group-fg         "#928374" # gray
+set completion-highlight-bg     "#89beba" # bright:blue
+set completion-highlight-fg     "#121212" # bg2
 
-set statusbar-fg                "#a7bdfb"
-set statusbar-bg                "#272c38"
+# Define the color in index mode
+set index-bg                    "#121212" # bg2
+set index-fg                    "#e6d6ac" # fg
+set index-active-bg             "#89beba" # bright:blue
+set index-active-fg             "#121212" # bg2
 
-set inputbar-bg                 "#272c38"
-set inputbar-fg                 "#BF616A"
+set inputbar-bg                 "#111416" # bg
+set inputbar-fg                 "#e6d6ac" # fg
 
-set notification-warning-fg     "#EBCB8B"
-set notification-warning-bg     "#272c38"
+set statusbar-bg                "#121212" # bg2
+set statusbar-fg                "#e6d6ac" # fg
 
-set highlight-color             "#81A1C1"
-set highlight-active-color      "#81A1C1"
+set highlight-color             "#fabd2f" # bright:yellow
+set highlight-active-color      "#e39b7b" # bright:orange
 
-set completion-highlight-bg     "#272c38"
-set completion-highlight-fg     "#BF616A"
+set default-bg                  "#111416" # bg
+set default-fg                  "#e6d6ac" # fg
+set render-loading              true
+set render-loading-bg           "#111416" # bg
+set render-loading-fg           "#e6d6ac" # fg
 
-set completion-bg               "#E6D6AC"
-set completion-fg               "#20242d"
-
-set notification-bg             "#20242d"
-set notification-fg             "#E6D6AC"
-
-set recolor-darkcolor 			"#D8DEE9"
-set recolor-lightcolor          "#111416"
+# Recolor book content's color
+set recolor-lightcolor          "#111416" # bg
+set recolor-darkcolor           "#e6d6ac" # fg
 set recolor                     "true"
-
-# setting recolor-keep true will keep any color your pdf has.
-# if it is false, it'll just be black and white
-set recolor-keephue             "true"
-
+# set recolor-keephue             true      # keep original color
 set adjust-open "width"
 
 set window-title-home-tilde "true"
