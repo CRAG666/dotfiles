@@ -1,0 +1,166 @@
+#!/usr/bin/env python3
+from os import path
+import signal
+import gi
+import subprocess
+import threading
+import time
+import linecache
+gi.require_version('Gtk', '3.0')
+gi.require_version('AppIndicator3', '0.1')
+gi.require_version('Notify', '0.7')
+from gi.repository import (
+    Gtk, AppIndicator3,
+    GObject, GLib,
+    Notify, GdkPixbuf)
+
+
+class Indicator():
+    config_folder = path.expanduser('~/.config/clouds_applet_config/')
+    config = "".join([config_folder, 'arguments.txt'])
+    app, iconpath = 'rclone', "cloud"
+
+    def __init__(self):
+        self.arguments = "".join(
+            linecache.getline(self.config, i).replace("\n", " ")
+            for i in range(1, self.numLinesFile(self.config) + 1))
+        config = "".join([self.config_folder, 'clouds_config.txt'])
+        clouds = [
+            linecache.getline(config, i)
+            for i in range(1, self.numLinesFile(config) + 1)]
+
+        self.clouds, self.mounted_point = [], []
+        for i in clouds:
+            self.clouds.append(i[0:i.index(':')])
+            self.mounted_point.append(path.expanduser(i[i.index(':') + 1:i.index('\n')]))
+        self.menuitems, self.mounted = [], []
+        self.testindicator = AppIndicator3.Indicator.new(
+            self.app, self.iconpath,
+            AppIndicator3.IndicatorCategory.OTHER)
+        self.testindicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
+        self.testindicator.set_menu(self.create_menu())
+
+    def numLinesFile(self, rute):
+        numLines = -1
+        try:
+            archive = open(rute, 'r')
+            numLines = len(archive.readlines())
+            archive.close()
+        except FileNotFoundError:
+            print("the route no correct")
+        return numLines
+
+    def create_menu(self):
+        menu = Gtk.Menu()
+        for i in self.clouds:
+            items = Gtk.MenuItem(label=i)
+            items.connect('activate', self.mount)
+            self.menuitems.append(items)
+            menu.append(items)
+        menu_quit = Gtk.MenuItem(label='Quit')
+        menu_quit.connect('activate', self.stop)
+        menu.append(menu_quit)
+        menu.show_all()
+        return menu
+
+    def mount(self, souce):
+        item = self.clouds.index(souce.get_label())
+        exc = f'rclone mount {self.clouds[item]}:/ {self.mounted_point[item]} -v'
+        if any(self.arguments):
+            exc = " ".join([exc, self.arguments])
+        print(exc)
+        PID = subprocess.Popen(
+            exc, shell=True)
+        self.daemon_clouds(PID, item)
+
+    def daemon_clouds(self, pid, item):
+        for i in self.menuitems:
+            i.set_sensitive(False)
+        self.messages(f"Mounting {self.clouds[item]}", f"In {self.mounted_point[item]}")
+        self.testindicator.set_icon_full('rclone-browser', "mount")
+        thread = threading.Thread(target=self.mounted_cloud, args=(pid, item))
+        thread.daemon = True
+        thread.start()
+
+    def mounted_cloud(self, pid, item):
+        result = self.check_mount(item)
+        while result == 1:
+            time.sleep(3)
+            result = self.check_mount(item)
+        self.mounted.append(item)
+        self.messages(
+            f"Mounted {self.clouds[item]}",
+            f"Mount point {self.mounted_point[item]}")
+        if len(self.mounted) < len(self.clouds):
+            self.activate_items()
+        while pid.poll() is None:
+            time.sleep(5)
+        GLib.idle_add(self.unmount_cloud, item)
+
+    def activate_items(self):
+        for i in range(len(self.menuitems)):
+            if not(i in self.mounted):
+                self.menuitems[i].set_sensitive(True)
+
+    def unmount_cloud(self, item):
+        if self.check_mount(item) == 1:
+            subprocess.run(
+                f"fusermount -u {self.mounted_point[item]}",
+                shell=True)
+        self.mounted.remove(item)
+        self.messages(
+            f"Unmounted {self.clouds[item]}",
+            f"{self.mounted_point[item]} released")
+        self.menuitems[item].set_sensitive(True)
+        if not self.mounted:
+            self.testindicator.set_icon_full('cloud', "no mount")
+        return False
+
+    def check_mount(self, item):
+        result = subprocess.run(
+            f"cat /proc/mounts | grep '{self.clouds[item]}: {self.mounted_point[item]}'",
+            shell=True)
+        return result.returncode
+
+    def messages(self, title, message):
+        '''
+        Show a notification using libnotify/gobject
+
+        Positional arguments:
+        title - notification title
+        message - notification message
+
+        Raises:
+        RuntimeError - failed to show the notification
+
+        Note:
+        This function is designed to be called a few times in a row so
+        make sure to call Notify.uninit() afterwards
+        '''
+        if Notify.is_initted() is False:
+            Notify.init('docker')
+
+        if Notify.is_initted() is False:
+            raise RuntimeError('Failed to init notify')
+
+        notif = Notify.Notification.new(title, message, 'usbpendrive_unmount')
+
+        if not notif.show():
+            raise RuntimeError('Failed to show a notification')
+
+    def init(self):
+        Gtk.main()
+
+    def stop(self, source):
+        self.messages("Unmounted all Clouds", "All Mount point is released")
+        for i in self.mounted:
+            subprocess.run(
+                f"fusermount -u {self.mounted_point[i]}",
+                shell=True)
+        Gtk.main_quit()
+
+
+if __name__ == "__main__":
+    app = Indicator()
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    app.init()

@@ -1,0 +1,601 @@
+music_dir = ["/home/lvm/Música"]
+loop_mode = "Playlist"
+volume = 100
+speed = 10
+add_playlist_front = true
+gapless = true
+podcast_simultanious_download = 3
+podcast_max_retries = 3
+podcast_dir = "/home/think-crag/Música/podcast"
+seek_step = "Auto"
+remember_last_played_position = "Auto"
+enable_exit_confirmation = false
+playlist_display_symbol = true
+playlist_select_random_track_quantity = 20
+playlist_select_random_album_quantity = 1
+theme_selected = "crag"
+
+[album_photo_xywh]
+x_between_1_100 = 99
+y_between_1_100 = 1
+width_between_1_100 = 25
+align = "TopRight"
+
+[style_color_symbol]
+library_foreground = "Foreground"
+library_background = "Reset"
+library_border = "Magenta"
+library_highlight = "LightYellow"
+library_highlight_symbol = "🦄"
+playlist_foreground = "Foreground"
+playlist_background = "Reset"
+playlist_border = "Red"
+playlist_highlight = "LightRed"
+playlist_highlight_symbol = "🚀"
+progress_foreground = "LightBlue"
+progress_background = "Reset"
+progress_border = "Cyan"
+lyric_foreground = "Foreground"
+lyric_background = "Reset"
+lyric_border = "Green"
+
+[style_color_symbol.alacritty_theme]
+path = ""
+name = "crag"
+author = "Diego Aguilar"
+background = "#1e1e2e"
+foreground = "#cdd6f4"
+cursor = "#f5e0dc"
+text = "#45475a"
+black = "#585b70"
+red = "#f38ba8"
+green = "#a6e3a1"
+yellow = "#f9e2af"
+blue = "#89b4fa"
+magenta = "#cba6f7"
+cyan = "#94e2d5"
+white = "#cdd6f4 "
+light_black = "#45475a"
+light_red = "#eba0ac"
+light_green = "#89dceb"
+light_yellow = "#f2cdcd"
+light_blue = "#74c7ec"
+light_magenta = "#b4befe"
+light_cyan = "#f5c2e7"
+light_white = "#bac2de"
+
+[keys.global_esc.code]
+type = "Esc"
+
+[keys.global_esc.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.global_quit.code]
+type = "Char"
+args = "q"
+
+[keys.global_quit.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.global_left.code]
+type = "Char"
+args = "h"
+
+[keys.global_left.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.global_down.code]
+type = "Char"
+args = "j"
+
+[keys.global_down.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.global_up.code]
+type = "Char"
+args = "k"
+
+[keys.global_up.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.global_right.code]
+type = "Char"
+args = "l"
+
+[keys.global_right.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.global_goto_top.code]
+type = "Char"
+args = "g"
+
+[keys.global_goto_top.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.global_goto_bottom.code]
+type = "Char"
+args = "G"
+
+[keys.global_goto_bottom.modifier]
+type = "KeyModifiers"
+bits = 1
+
+[keys.global_player_toggle_pause.code]
+type = "Char"
+args = " "
+
+[keys.global_player_toggle_pause.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.global_player_next.code]
+type = "Char"
+args = "n"
+
+[keys.global_player_next.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.global_player_previous.code]
+type = "Char"
+args = "N"
+
+[keys.global_player_previous.modifier]
+type = "KeyModifiers"
+bits = 1
+
+[keys.global_player_volume_plus_1.code]
+type = "Char"
+args = "+"
+
+[keys.global_player_volume_plus_1.modifier]
+type = "KeyModifiers"
+bits = 1
+
+[keys.global_player_volume_plus_2.code]
+type = "Char"
+args = "="
+
+[keys.global_player_volume_plus_2.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.global_player_volume_minus_1.code]
+type = "Char"
+args = "_"
+
+[keys.global_player_volume_minus_1.modifier]
+type = "KeyModifiers"
+bits = 1
+
+[keys.global_player_volume_minus_2.code]
+type = "Char"
+args = "-"
+
+[keys.global_player_volume_minus_2.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.global_help.code]
+type = "Char"
+args = "h"
+
+[keys.global_help.modifier]
+type = "KeyModifiers"
+bits = 2
+
+[keys.global_player_seek_forward.code]
+type = "Char"
+args = "f"
+
+[keys.global_player_seek_forward.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.global_player_seek_backward.code]
+type = "Char"
+args = "b"
+
+[keys.global_player_seek_backward.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.global_lyric_adjust_forward.code]
+type = "Char"
+args = "F"
+
+[keys.global_lyric_adjust_forward.modifier]
+type = "KeyModifiers"
+bits = 1
+
+[keys.global_lyric_adjust_backward.code]
+type = "Char"
+args = "B"
+
+[keys.global_lyric_adjust_backward.modifier]
+type = "KeyModifiers"
+bits = 1
+
+[keys.global_player_speed_up.code]
+type = "Char"
+args = "f"
+
+[keys.global_player_speed_up.modifier]
+type = "KeyModifiers"
+bits = 2
+
+[keys.global_player_speed_down.code]
+type = "Char"
+args = "b"
+
+[keys.global_player_speed_down.modifier]
+type = "KeyModifiers"
+bits = 2
+
+[keys.global_lyric_cycle.code]
+type = "Char"
+args = "T"
+
+[keys.global_lyric_cycle.modifier]
+type = "KeyModifiers"
+bits = 1
+
+[keys.global_layout_treeview.code]
+type = "Char"
+args = "1"
+
+[keys.global_layout_treeview.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.global_layout_database.code]
+type = "Char"
+args = "2"
+
+[keys.global_layout_database.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.global_player_toggle_gapless.code]
+type = "Char"
+args = "g"
+
+[keys.global_player_toggle_gapless.modifier]
+type = "KeyModifiers"
+bits = 2
+
+[keys.global_config_open.code]
+type = "Char"
+args = "c"
+
+[keys.global_config_open.modifier]
+type = "KeyModifiers"
+bits = 2
+
+[keys.global_save_playlist.code]
+type = "Char"
+args = "s"
+
+[keys.global_save_playlist.modifier]
+type = "KeyModifiers"
+bits = 2
+
+[keys.global_layout_podcast.code]
+type = "Char"
+args = "3"
+
+[keys.global_layout_podcast.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.global_xywh_move_left.code]
+type = "Left"
+
+[keys.global_xywh_move_left.modifier]
+type = "KeyModifiers"
+bits = 3
+
+[keys.global_xywh_move_right.code]
+type = "Right"
+
+[keys.global_xywh_move_right.modifier]
+type = "KeyModifiers"
+bits = 3
+
+[keys.global_xywh_move_up.code]
+type = "Up"
+
+[keys.global_xywh_move_up.modifier]
+type = "KeyModifiers"
+bits = 3
+
+[keys.global_xywh_move_down.code]
+type = "Down"
+
+[keys.global_xywh_move_down.modifier]
+type = "KeyModifiers"
+bits = 3
+
+[keys.global_xywh_zoom_in.code]
+type = "PageUp"
+
+[keys.global_xywh_zoom_in.modifier]
+type = "KeyModifiers"
+bits = 3
+
+[keys.global_xywh_zoom_out.code]
+type = "PageDown"
+
+[keys.global_xywh_zoom_out.modifier]
+type = "KeyModifiers"
+bits = 3
+
+[keys.global_xywh_hide.code]
+type = "End"
+
+[keys.global_xywh_hide.modifier]
+type = "KeyModifiers"
+bits = 3
+
+[keys.library_load_dir.code]
+type = "Char"
+args = "L"
+
+[keys.library_load_dir.modifier]
+type = "KeyModifiers"
+bits = 1
+
+[keys.library_delete.code]
+type = "Char"
+args = "d"
+
+[keys.library_delete.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.library_yank.code]
+type = "Char"
+args = "y"
+
+[keys.library_yank.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.library_paste.code]
+type = "Char"
+args = "p"
+
+[keys.library_paste.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.library_search.code]
+type = "Char"
+args = "/"
+
+[keys.library_search.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.library_search_youtube.code]
+type = "Char"
+args = "s"
+
+[keys.library_search_youtube.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.library_tag_editor_open.code]
+type = "Char"
+args = "t"
+
+[keys.library_tag_editor_open.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.library_switch_root.code]
+type = "Char"
+args = "o"
+
+[keys.library_switch_root.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.library_add_root.code]
+type = "Char"
+args = "a"
+
+[keys.library_add_root.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.library_remove_root.code]
+type = "Char"
+args = "A"
+
+[keys.library_remove_root.modifier]
+type = "KeyModifiers"
+bits = 1
+
+[keys.playlist_delete.code]
+type = "Char"
+args = "d"
+
+[keys.playlist_delete.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.playlist_delete_all.code]
+type = "Char"
+args = "D"
+
+[keys.playlist_delete_all.modifier]
+type = "KeyModifiers"
+bits = 1
+
+[keys.playlist_shuffle.code]
+type = "Char"
+args = "r"
+
+[keys.playlist_shuffle.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.playlist_mode_cycle.code]
+type = "Char"
+args = "m"
+
+[keys.playlist_mode_cycle.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.playlist_play_selected.code]
+type = "Char"
+args = "l"
+
+[keys.playlist_play_selected.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.playlist_add_front.code]
+type = "Char"
+args = "a"
+
+[keys.playlist_add_front.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.playlist_search.code]
+type = "Char"
+args = "/"
+
+[keys.playlist_search.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.playlist_swap_down.code]
+type = "Char"
+args = "J"
+
+[keys.playlist_swap_down.modifier]
+type = "KeyModifiers"
+bits = 1
+
+[keys.playlist_swap_up.code]
+type = "Char"
+args = "K"
+
+[keys.playlist_swap_up.modifier]
+type = "KeyModifiers"
+bits = 1
+
+[keys.playlist_cmus_lqueue.code]
+type = "Char"
+args = "S"
+
+[keys.playlist_cmus_lqueue.modifier]
+type = "KeyModifiers"
+bits = 1
+
+[keys.playlist_cmus_tqueue.code]
+type = "Char"
+args = "s"
+
+[keys.playlist_cmus_tqueue.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.database_add_all.code]
+type = "Char"
+args = "L"
+
+[keys.database_add_all.modifier]
+type = "KeyModifiers"
+bits = 1
+
+[keys.config_save.code]
+type = "Char"
+args = "s"
+
+[keys.config_save.modifier]
+type = "KeyModifiers"
+bits = 2
+
+[keys.podcast_mark_played.code]
+type = "Char"
+args = "m"
+
+[keys.podcast_mark_played.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.podcast_mark_all_played.code]
+type = "Char"
+args = "M"
+
+[keys.podcast_mark_all_played.modifier]
+type = "KeyModifiers"
+bits = 1
+
+[keys.podcast_episode_download.code]
+type = "Char"
+args = "d"
+
+[keys.podcast_episode_download.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.podcast_episode_delete_file.code]
+type = "Char"
+args = "x"
+
+[keys.podcast_episode_delete_file.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.podcast_delete_feed.code]
+type = "Char"
+args = "d"
+
+[keys.podcast_delete_feed.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.podcast_delete_all_feeds.code]
+type = "Char"
+args = "D"
+
+[keys.podcast_delete_all_feeds.modifier]
+type = "KeyModifiers"
+bits = 1
+
+[keys.podcast_search_add_feed.code]
+type = "Char"
+args = "s"
+
+[keys.podcast_search_add_feed.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.podcast_refresh_feed.code]
+type = "Char"
+args = "r"
+
+[keys.podcast_refresh_feed.modifier]
+type = "KeyModifiers"
+bits = 0
+
+[keys.podcast_refresh_all_feeds.code]
+type = "Char"
+args = "R"
+
+[keys.podcast_refresh_all_feeds.modifier]
+type = "KeyModifiers"
+bits = 1

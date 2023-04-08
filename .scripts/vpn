@@ -1,0 +1,7 @@
+#!/bin/bash
+host="vpn.ecosur.mx:10443"
+cookie=$(~/.local/openfortivpn-webview-1.0.1.AppImage --enable-features=UseOzonePlatform --ozone-platform=wayland "$host" 2>/dev/null)
+# sudo openfortivpn vpn.ecosur.mx:10443 --cookie="$cookie" --realm=foo
+sudo openfortivpn "$host" --cookie="$cookie"
+# sudo openconnect --protocol=fortinet --cookie="$cookie" $host
+

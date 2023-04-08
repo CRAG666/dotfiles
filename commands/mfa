@@ -1,0 +1,753 @@
+#!/bin/bash
+make_pyfiles () {
+cat > .gitignore << EOF
+# Created by https://www.gitignore.io/v1/example,visualstudiocode,virtualenv
+# Edit at https://www.gitignore.io/?templates=python,visualstudiocode,virtualenv
+
+### Python ###
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# pyenv
+.python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+### VirtualEnv ###
+# Virtualenv
+# http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
+pyvenv.cfg
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+pip-selfcheck.json
+
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+
+# End of https://www.gitignore.io/v1/example,visualstudiocode,virtualenv
+#temporal archives
+*~
+#poetry
+poetry.lock
+#pyC
+*.pyc
+#coderuner
+tempCodeRunnerFile.py
+EOF
+
+cat > server.py << EOF
+from flask import Flask
+
+
+def create_app(config_class):
+    from routes.example_routes import example
+    app = Flask(__name__)
+    app.config.from_object(config_class)
+    register_errorhandlers(app)
+    register_blueprints(app, example)
+    register_extensions(app)
+    return app
+
+
+def register_blueprints(app: Flask, *args):
+    for blueprint in args:
+        app.register_blueprint(blueprint)
+
+
+def register_extensions(app: Flask):
+    from models import ma
+    from models import db, create_database
+    db.init_app(app)
+    ma.init_app(app)
+    with app.app_context():
+        create_database()
+        db.create_all()
+
+
+def register_errorhandlers(app: Flask):
+    from flask import jsonify
+    # * Error 404
+    @app.errorhandler(404)
+    def page_not_found(err):
+        return jsonify({"Message": "This page could not be found"}), 404
+
+    # * Error 405
+    @app.errorhandler(405)
+    def method_not_allowed(err):
+        return jsonify({"Message": "The method is not allowed for the requested URL"}), 405
+
+    # * Error 401
+    @app.errorhandler(401)
+    def method_not_unauthorized(err):
+        return jsonify({'Authenticate': 'Could not verify'}), 401
+EOF
+
+cat > run.py << EOF
+from server import create_app
+from config import DevelopmentConfig
+
+app = create_app(DevelopmentConfig)
+
+if __name__ == "__main__":
+    app.run()
+EOF
+
+cat > config/__init__.py << EOF
+from os import environ
+from models.table_example import TableExample
+
+
+class Config:
+    SECRET_KEY = "CRAG"
+
+
+class DevelopmentConfig(Config):
+    DEBUG = True
+    EGINE_URI = 'mysql://root:' + environ['passmaria'] + '@localhost'
+    # * EGINE_URI = 'mysql://root:@localhost'
+    DB_NAME = 'example_db'
+    SQLALCHEMY_DATABASE_URI = f'{EGINE_URI}/{DB_NAME}'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    TABLE_VALIDATE_TOKEN = TableExample
+EOF
+
+cat > models/__init__.py << EOF
+from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
+from sqlalchemy import exc
+from flask import abort, current_app as app
+db = SQLAlchemy()
+ma = Marshmallow()
+
+
+class DBUtils:
+    """ Utils for database"""
+    def save(self) -> bool:
+        db.session.add(self)
+        try:
+            db.session.commit()
+        except exc.SQLAlchemyError:
+            db.session.rollback()
+            return False
+        return True
+
+    @staticmethod
+    def get_by_id(table, id, *args):
+        return db.session.query(table).get_or_404(id)
+
+    @staticmethod
+    def all(table, *args):
+        list_records = db.session.query(table).all()
+        return list_records if list_records else abort(404)
+
+    @staticmethod
+    def paginate(table, page, per_page, *args):
+        paginar = db.session.query(table).paginate(page, per_page, False)
+        return paginar if paginar.items else abort(404)
+
+    def delete(self, *args) -> bool:
+        db.session.delete(self)
+        try:
+            db.session.commit()
+        except exc.SQLAlchemyError:
+            db.session.rollback()
+            return False
+        return True
+
+
+def create_database():
+    """Crate database"""
+    engine = db.create_engine(app.config['EGINE_URI'], {})
+    engine.execute(f"CREATE DATABASE IF NOT EXISTS {app.config['DB_NAME']}")
+
+
+from .table_example import TableExample
+EOF
+
+cat > routes/__init__.py << EOF
+from flask import Blueprint
+example = Blueprint('example', __name__)
+EOF
+
+cat > routes/api_template.py << EOF
+from flask import jsonify, request, abort
+from flask.views import MethodView
+import jwt
+from flask import current_app as app
+import datetime
+from helpers.validations import token_required, validate_json
+from models import ma, db
+from models.Login import LoginSchema
+
+
+class MethodsApi(MethodView):
+    """ Class for control to endpoints """
+    def __init__(self, table: db.Model, table_schema: ma.Schema, **kwargs):
+        """Contructor
+
+        Args:
+            table (db.Model): sqlalchemy model
+            table_schema (ma.Schema): marshmallow schema
+        Keyword Args:
+            schema (ma.Schema): marshmallow scheme to validate the login. Defaults to LoginSchema
+            field_search (str): field name to search in db
+            password_field_name (str): field name for password
+            key_encrypt (str): key to create jwt token. Default to app.config['SECRET_KEY']
+            post_action (tuple): Receive a tuple with two elements. The first is the function to be executed after the creation of the token, the second corresponds to the parameters received by the function in str. Default to False
+        """
+        self.customize_login = kwargs
+        self.Table = table
+        self.Result = table_schema()
+        self.Results = table_schema(many=True)
+        self.login = validate_json(
+            kwargs.get(
+                "schema",
+                LoginSchema)())(self.login)
+        self.put = validate_json(self.Result)(self.put)
+        self.add = validate_json(self.Result)(self.add)
+
+    @token_required()
+    def get(self, current_user, id=None):
+        """Method http GET
+
+        Args:
+            current_user (object): Contains the data of the logged in user
+            id (int, optional): ID registration. Defaults to None.
+
+        Returns:
+            json: many or one registry
+            http error: corresponding code http error
+        """
+        if id:
+            return self.get_by_id(current_user, id)
+
+        elif 'page' in request.args.keys():
+            page = int(request.args.get(
+                'page',
+                type=int,
+                default=1))
+            per_page = int(request.args.get(
+                'size',
+                type=int,
+                default=10))
+            return self.get_pagination(page, per_page, current_user)
+
+        return self.get_all(current_user)
+
+    def get_all(self, current_user: object):
+        registrys_list = self.Table.all(
+            self.Table,
+            current_user)
+        return jsonify({"results": self.Results.dump(registrys_list)})
+
+    def get_by_id(self, current_user: object, id: int):
+        one_registry = self.Table.get_by_id(self.Table, id, current_user)
+        return self.Result.jsonify(one_registry)
+
+    def get_pagination(self, page: int, per_page: int, current_user: object):
+        paginar = self.Table.paginate(self.Table, page, per_page, current_user)
+        return jsonify(
+            {"results": self.Results.dump(paginar.items),
+                "total-pages": paginar.pages})
+
+    def post(self):
+        """ Method http GET """
+        rute = str(request.url_rule)
+        if rute.find('login') != -1:
+            return self.login()
+        return self.add()
+
+    def login(self):
+        """Create new session and execute post action(optional)
+
+        Returns:
+            token (json): jwt
+        """
+        auth = request.json
+        search_field_name = self.customize_login.get(
+            'field_search',
+            "email")
+        search_field_value = auth[search_field_name]
+        search_dict = {search_field_name: search_field_value}
+
+        user = self.Table.query.filter_by(**search_dict).first()
+
+        if not user:
+            abort(401)
+
+        password_field_name = self.customize_login.get(
+            'password_field_name',
+            "password")
+
+        password = auth[password_field_name]
+
+        if user.compare_passwords(password):
+            token = jwt.encode({
+                'id': user.id,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30),
+            }, self.customize_login.get('key_encrypt', app.config['SECRET_KEY']))
+            action = self.customize_login.get('post_action', False)
+            if action:
+                exec(f'action[0]({action[1]})')
+            return jsonify({'token': token.decode('UTF-8')})
+        abort(401)
+
+    @token_required()
+    def add(self, current_user):
+        """ Add new record
+
+        Args:
+            current_user (object): Contains the data of the logged in user
+
+        Returns:
+            json: registry created
+        """
+        new_registry = self.Table(request.json, current_user)
+        insert_correct_data = new_registry.save()
+        if not insert_correct_data:
+            return self.databse_err()
+        return self.Result.jsonify(new_registry), 201
+
+    @token_required()
+    def put(self, current_user, id):
+        """ Edit record
+
+        Args:
+            current_user (object): Contains the data of the logged in user
+            id (int, optional): ID registration
+
+        Returns:
+            json: edited record
+        """
+        registry_update = self.Table.get_by_id(self.Table, id, current_user)
+        registry_update.changes(request.json, current_user)
+        update_correct_data = registry_update.save()
+        if not update_correct_data:
+            return self.databse_err("update")
+        return self.Result.jsonify(registry_update)
+
+    @token_required()
+    def delete(self, current_user, id):
+        """ Delete record
+
+        Args:
+            current_user (object): Contains the data of the logged in user
+            id (int, optional): ID registration
+
+        Returns:
+            json: deleted record
+        """
+        registry_delete = self.Table.get_by_id(self.Table, id, current_user)
+        deleted_data = registry_delete.delete(current_user)
+        if not deleted_data:
+            return self.databse_err("delete")
+        return self.Result.jsonify(registry_delete)
+
+    @staticmethod
+    def databse_err(action: str = "insert") -> jsonify:
+        return jsonify(
+            {"Err": f"Error trying to {action} data"}), 409
+EOF
+
+cat > routes/create_routesStandars.py <<EOF
+from routes.api_template import MethodsApi
+
+
+def create_routes(**kwargs):
+    """Create routes standars
+    Args:
+        **kwargs: Arbitrary keyword arguments.
+
+    Keyword Args:
+        blueprint (object): blueprint or object flask app
+        noun (str): noun to create endpoints and method view name.
+        table (db.Model): sqlalchemy model.
+        table_schema (ma.Schema): marshmallow schema.
+        login_endpoint (bool, optional): Create login endpoint. Defaullt to False.
+        customize_login (dict, optional): receives configuration parameters to login. Defaults to None.
+        endpoints (list, optional): List to endpoints ([['/url', ['GET']]]). Default generate endpoints with noun.
+    Examples:
+        basic usage:
+            create_routes(
+                table=SomeModel,
+                table_schema=SomeSchema,
+                blueprint=some_blueprint,
+                noun="v1/somenoun",
+                login_endpoint=True)
+
+        customize endpoints:
+            create_routes(
+                table=SomeModel,
+                table_schema=SomeSchema,
+                blueprint=some_blueprint,
+                noun="v1/somenoun",
+                endpoints=[['/api/v1/somenoun', ['GET','POST'])
+    """
+    customize_login = kwargs.get('customize_login', {})
+    view_func = MethodsApi.as_view(
+        f"{kwargs.get('noun')}_api",
+        kwargs.get('table'),
+        kwargs.get('table_schema'),
+        **customize_login
+    )
+
+    endpoints = kwargs.get(
+        'endpoints',
+        get_endpoints(
+            kwargs.get('noun'),
+            kwargs.get('login_endpoint', False)))
+
+    for i in endpoints:
+        kwargs.get('blueprint').add_url_rule(
+            i[0],
+            methods=i[1],
+            view_func=view_func)
+
+
+def get_endpoints(noun: str, login: bool) -> list:
+    endpoint_list = [
+        [f'/api/{noun}/', ['POST', 'GET']],
+        [f'/api/{noun}/<int:id>', ['GET', 'PUT', 'DELETE']]]
+    if login:
+        endpoint_list.insert(0, [f'/api/{noun}/login', ['POST']])
+    return endpoint_list
+EOF
+
+cat > requirements.txt << EOF
+flask
+flask_sqlalchemy
+flask_marshmallow
+marshmallow-sqlalchemy
+mysqlclient
+pyjwt
+EOF
+
+cat > helpers/validations.py << EOF
+from flask import current_app as app
+from flask import jsonify, request
+import jwt
+from functools import wraps
+from models import ma
+from marshmallow import ValidationError
+
+
+def token_required(**parameters):
+    """ Validate jwt token
+    Args:
+        **kwargs: Arbitrary keyword arguments.
+    Parameters Args:
+        table: Registered Users Lookup Table. Default to app.config['TABLE_VALIDATE_TOKEN']
+        key: key to decipher jwt token. Default to app.config['SECRET_KEY']
+    """
+    def inner_function(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            token: str = request.headers.get('x-access-token', None)
+
+            if not token:
+                return jsonify({'message': 'Token is missing!'}), 401
+
+            table = parameters.get('table', app.config['TABLE_VALIDATE_TOKEN'])
+            key = parameters.get('key', app.config['SECRET_KEY'])
+            print(key)
+            try:
+                data = jwt.decode(token, key)
+                current_user = table.query.filter_by(id=data['id']).first()
+            except (jwt.ExpiredSignature, jwt.InvalidSignatureError, jwt.DecodeError):
+                return jsonify({'message': 'Token is invalid!'}), 401
+            return f(*args, current_user, **kwargs)
+        return wrapper
+    return inner_function
+
+
+def validate_json(schema: ma.Schema):
+    """ Validate json sent
+
+    Args:
+        schema (ma.Schema): marshmallow Schema for validate json
+    """
+    def inner_function(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            try:
+                schema.load(request.json)
+            except ValidationError as err:
+                return err.messages
+            return f(*args, **kwargs)
+        return wrapper
+    return inner_function
+EOF
+
+cat > models/table_example.py << EOF
+from . import db, ma, DBUtils
+from werkzeug.security import generate_password_hash, check_password_hash
+from marshmallow import validate
+
+
+class TableExample(db.Model, DBUtils):
+    __tablename__ = 'TableExample'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+
+    def __init__(self, fields: dict):
+        self.changes(fields)
+
+    def changes(self, fields: dict):
+        self.name = fields.get('name')
+        self.password = self.__generate_password(fields.get('password'))
+        self.email = fields.get('email')
+
+    @staticmethod
+    def __generate_password(password: str) -> str:
+        return generate_password_hash(password)
+
+    def compare_passwords(self, password: str) -> bool:
+        return check_password_hash(self.password, password)
+
+
+class TableExample_Schema(ma.Schema):
+    name = ma.Str(validate=validate.Length(min=1), required=True)
+    email = ma.Email(required=True)
+    password = ma.Str(validate=validate.Length(min=4), load_only=True, required=True)
+
+    class Meta:
+        fields = ('id', 'name', 'email', 'password')
+EOF
+
+cat > models/Login.py << EOF
+from . import ma
+from marshmallow import validate
+
+
+class LoginSchema(ma.Schema):
+    email = ma.Email(required=True)
+    password = ma.Str(validate=validate.Length(min=8), required=True)
+EOF
+
+cat > routes/example_routes.py << EOF
+from . import example
+from models.table_example import TableExample, TableExample_Schema
+from routes.create_routesStandars import create_routes
+
+create_routes(
+    table=TableExample,
+    table_schema=TableExample_Schema,
+    blueprint=example,
+    noun="example",
+    login_endpoint=True)
+EOF
+}
+poetry_install () {
+  poetry init -n
+  poetry add -D pytest Black flake8
+  cat requirements.txt | xargs -L 1 poetry add
+  rm requirements.txt
+}
+install_dep (){
+    tempfile="/tmp/install_d.log"
+    echo -ne "\e[97m=>\e[0m \e[31m\uf8d5\e[0m Instalando dependencias\r"
+    poetry_install 2>/dev/null 1>>$tempfile &
+    while ps |grep $! &>/dev/null; do
+        echo -ne "\e[97m=>\e[0m \e[32m\uf8d6\e[0m Instalando dependencias\r"
+        sleep 1
+        echo -ne "\e[97m=>\e[0m \e[31m\uf8d5\e[0m Instalando dependencias\r"
+        sleep 1
+    done
+    echo -ne "\e[97m=>\e[0m \e[32m\uf8d6\e[0m Dependencias Instaladas\r"
+    rm $tempfile
+
+}
+make_dockerfile (){
+mkdir .devcontainer
+cd .devcontainer
+cat > devcontainer.json << EOF
+{
+  "name": "Docker python",
+  "dockerFile": "Dockerfile",
+  "appPort": 3000,
+  //"postCreateCommand": "mysqld &"
+  "postCreateCommand": "mysqld_safe --skip-grant-tables &"
+}
+EOF
+
+cat > Dockerfile << EOF
+FROM python:3.8-alpine
+RUN apk add --no-cache --purge -uU mysql mysql-client mariadb-dev mariadb-connector-c
+RUN apk add --no-cache --virtual build-deps gcc musl-dev
+RUN rm -rf /var/cache/apk/* /tmp/*
+RUN pip install flask flask_sqlalchemy flask_marshmallow marshmallow-sqlalchemy mysqlclient pyjwt flask-cors
+RUN apk del build-deps mariadb-dev
+EXPOSE 3306
+EOF
+echo -e "\n\e[91m=>\e[0m \e[36m\uf308\e[0m Dokerfile Creado"
+}
+make_project (){
+    echo -e "\e[34m=>\e[0m \e[96m\ue5fc\e[0m Folders Creados"
+    mkdir routes models helpers config
+    echo -e "\e[35m=>\e[0m \e[33m\ue235\e[0m Pyfiles Creados"
+    make_pyfiles
+}
+while getopts n:idp flag
+do
+    case "${flag}" in
+        n) projectname=${OPTARG};;
+        i) init=true;;
+        d) docker=true;;
+        p) poetry=true;;
+        *)
+            echo 'La vandera no existe' >&2
+            exit 1
+        ;;
+    esac
+done
+if [ $init ] && [ ! $projectname ];then
+    make_project
+    if [ $docker ] && [ $poetry ];then
+        make_dockerfile
+        install_dep
+    elif [ $poetry ];then
+        install_dep
+    elif [ $docker ];then
+        make_dockerfile
+    fi
+    echo -e "\e[96m=>\e[0m \e[92m\uf00c\e[0m Inicializado"
+elif [ ! $init ] && [ $projectname ];then
+    if [ -d $(pwd)/$projectname ];then
+        echo -e "\e[31m\ue009\e[0m\e[5m El proyecto ya exite en su sistema\e[0m"
+    else
+        echo -e "\e[93m=>\e[0m \e[30m\uf593\e[0m Creando API REST flask $projectname"
+        mkdir $projectname
+        cd $projectname
+        make_project
+        if [ $docker ] && [ $poetry ];then
+            make_dockerfile
+            install_dep
+        elif [ $poetry ];then
+            install_dep
+        elif [ $docker ];then
+            make_dockerfile
+        fi
+        echo -e "\e[96m=>\e[0m \e[92m\uf00c\e[0m $projectname Creado"
+    fi
+elif [ $docker ] && [ $poetry ] && [ ! $init ] && [ ! $projectname ];then
+    make_dockerfile
+    install_dep
+elif [ $docker ] && [ ! $init ] && [ ! $projectname ] && [ ! $poetry ];then
+    make_dockerfile
+elif [ $poetry ] && [ ! $init ] && [ ! $projectname ] && [ ! $docker ];then
+    install_dep
+else
+    echo -e "\e[31m\ue009\e[0m\e[5m Eror en la secuencia de vandera -n y -i no deben usarse juntas\e[0m" >&2
+    exit 1
+fi

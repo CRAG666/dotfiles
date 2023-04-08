@@ -1,0 +1,54 @@
+# vim:fileencoding=utf-8:ft=conf
+set selection-clipboard clipboard
+set smooth-scroll "true"
+set guioptions none
+set font "Lilex Nerd Font Bold 14"
+
+#  #colorscheme
+set notification-error-bg       "#111416" # bg
+set notification-error-fg       "#f67e7d" # bright:red
+set notification-warning-bg     "#111416" # bg
+set notification-warning-fg     "#fee074" # bright:yellow
+set notification-bg             "#111416" # bg
+set notification-fg             "#7ad88e" # bright:green
+
+set completion-bg               "#121212" # bg2
+set completion-fg               "#e6d6ac" # fg
+set completion-group-bg         "#3c3836" # bg1
+set completion-group-fg         "#928374" # gray
+set completion-highlight-bg     "#7cb7ff" # bright:blue
+set completion-highlight-fg     "#121212" # bg2
+
+# Define the color in index mode
+set index-bg                    "#121212" # bg2
+set index-fg                    "#e6d6ac" # fg
+set index-active-bg             "#7cb7ff" # bright:blue
+set index-active-fg             "#121212" # bg2
+
+set inputbar-bg                 "#111416" # bg
+set inputbar-fg                 "#e6d6ac" # fg
+
+set statusbar-bg                "#121212" # bg2
+set statusbar-fg                "#e6d6ac" # fg
+
+set highlight-color             "#ffd866" # bright:yellow
+set highlight-active-color      "#ec9867" # bright:orange
+
+set default-bg                  "#111416" # bg
+set default-fg                  "#e6d6ac" # fg
+set render-loading              true
+set render-loading-bg           "#111416" # bg
+set render-loading-fg           "#e6d6ac" # fg
+
+# Recolor book content's color
+set recolor-lightcolor          "#111416" # bg
+set recolor-darkcolor           "#e6d6ac" # fg
+set recolor                     "true"
+# set recolor-keephue             true      # keep original color
+set adjust-open "width"
+
+set window-title-home-tilde "true"
+set statusbar-basename "true"
+
+set window-height 760
+set window-width 794

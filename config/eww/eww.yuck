@@ -1,0 +1,303 @@
+; -*- mode: lisp -*-
+; TODO wlan calendar
+
+; Variables {{{
+(defvar eww "eww -c ~/.config/eww")
+(defvar revealvol false)
+(defvar revealbat false)
+(defvar revealram false)
+(defvar revealcpu false)
+(defvar revealdisk false)
+(defvar revealtime false)
+(defvar reveallight false)
+(defvar revealpower false)
+(defvar revealpowera false)
+(defvar revealpowerb false)
+(defvar revealpowerc false)
+; }}}
+
+(defwindow bar ; {{{
+  :monitor 0
+  :windowtype "dock"
+  :stacking "bg"
+  :wm-ignore false
+  :hexpand false
+  :vexpand false
+  :geometry (geometry :x "0%"
+                      :y "10px"
+                      :width "99%"
+                      :height "35px" ; NOTE Has to be odd for pixel-perfect vertical centering
+                      :anchor "top center")
+  :reserve (struts :side "top"
+                   :distance "45px")
+  (bar))
+; }}}
+
+(defwidget bar [] ; {{{
+  (centerbox :orientation "h"
+    (workspaces)
+    (info)
+    (modules)))
+; }}}
+
+; TODO Scroll to change ws
+(defwidget workspaces [] ; {{{
+  (bbox :halign "start"
+    (bbox ; TODO Return only a set of boxes without a container box?
+      (eventbox
+        (literal :class "container"
+                 :content workspaces))) ; :onscroll "modules/workspaces {}"
+    (delim)
+    (bbox
+      (bbutton :onclick "bspwm_rofi_layouts"
+        (label :text bsplayout)))))
+(deflisten workspaces
+  "modules/workspaces")
+(defpoll bsplayout :interval "5s"
+  "bspwm_rofi_layouts query")
+; }}}
+
+(defwidget info [] ; {{{
+  (bbox :class "info"
+        :halign "center"
+   {music != "" ? "🎵 ${music}" : "${title}"}))
+; }}}
+
+(defwidget modules [] ; {{{
+  (bbox :class "modules"
+        :halign "end"
+    (bbox :tooltip "Autorandr" ; {{{
+      (bbutton :onclick "rofi-autorandr" ; TODO Symlink rofi-autorandr into modules
+        ; TODO Middle-click autorandr --change
+        (label :text ""))) ; }}}
+    (delim)
+    (bbox :tooltip "Memory" ; {{{
+      (hover-left :var revealram
+                  :varname "revealram"
+        (bbox
+          (metric :value {EWW_RAM.used_mem_perc})
+          (label :text "${round(EWW_RAM.used_mem_perc, 0)}%"))
+        (bbutton :onclick "(sleep 1; ${eww} update revealram=true)"
+          (label :text ""
+                 :style "border: none;")))) ; }}}
+    (bbox :tooltip "CPU" ; {{{
+      (hover-left :var revealcpu
+                  :varname "revealcpu"
+        (bbox
+          (metric :value {EWW_CPU.avg})
+          (label :text "${round(EWW_CPU.avg, 0)}%"))
+        (bbutton :onclick "(sleep 1; ${eww} update revealcpu=true)"
+          (label :text "﬙"
+                 :style "border: none;")))) ; }}}
+    (bbox :tooltip "Disk" ; {{{
+      (hover-left :var revealdisk
+                  :varname "revealdisk"
+        (metric :value {round((1 - (EWW_DISK["/"].free / EWW_DISK["/"].total)) * 100, 0)})
+        (label :text "💿"))) ; }}}
+    (bbox :tooltip "Backlight" ; {{{
+      (hover-left :var reveallight
+                  :varname "reveallight"
+        (metric :value backlight
+                :onchange "xbacklight -set {}")
+        (label :text "盛"))) ; }}}
+    (bbox :tooltip "Battery" ; {{{
+      (hover-left :var revealbat
+                  :varname "revealbat"
+        (bbox
+          (metric :value battery)
+          (dlabel :text {battery <= 15 ? "${battery}%" : ""}))
+        (bbutton :onclick "power-man"
+          (label :text "")))) ; }}}
+    (bbox :tooltip "Volume" ; {{{
+      (hover-left :var revealvol
+                  :varname "revealvol"
+        (metric :value volume
+                :onchange "amixer -D pulse sset Master {}%")
+        (bbutton :onclick "amixer -D pulse set Master 1+ toggle"
+          (label :text mutestatus)))) ; }}}
+    (delim)
+    (bbox :tooltip "Power" ; {{{
+      (click-left :var revealpower
+                  :varname "revealpower"
+        (bbox :class "powermenu"
+          (hover-left :var revealpowerc
+                      :varname "revealpowerc"
+                      :class "sleep"
+            (button :onclick "notify-send '>_' 'Sleeping...'; systemctl suspend"
+              (label :text "<"))
+            (label :text "Sleep"))
+          (click-left :var revealpowerb
+                      :varname "revealpowerb"
+                      :class "reboot"
+            (button :onclick "notify-send '>_' 'Rebooting...'; reboot"
+              (label :text "<"))
+            (label :text "Reboot"))
+          (click-left :var revealpowera
+                      :varname "revealpowera"
+                      :class "shutdown"
+            (button :onclick "notify-send '>_' 'Shutting down...'; shutdown 0"
+              (label :text "<"))
+            (label :text "Shutdown")))
+        (label :text "⏻"))) ; }}}
+    (delim)
+    (bbox ; {{{
+      (hover-double :var revealtime
+                    :varname "revealtime"
+                    :class "condensed"
+        (label :text "${date}-")
+        (label :text ":${seconds}")
+        (label :text time))))) ; }}}
+; }}}
+
+(defwidget bbutton [?class ?onclick ?onmiddleclick ?onrightclick ?timeout] ; Based button with pointer-cursor {{{
+  (eventbox :cursor {"${onclick}${onmiddleclick}${onrightclick}" != "" ? "pointer" : "default"}
+    (button :onclick onclick
+            :onmiddleclick onmiddleclick
+            :onrightclick onrightclick
+            :class {"${onclick}${onmiddleclick}${onrightclick}" != "" ? "clickable ${class}" : class}
+      (children)))) ; }}}
+
+(defwidget dlabel [?class ?style ?text ?markup] ; A dynamic label {{{
+  (label :class class
+         :style {text != "" ? style : "padding: 0 0px; ${style}"}
+         :text text
+         :markup markup
+    (children))) ; }}}
+
+(defwidget bbox [?class ?style ?tooltip ?orientation ?space-evenly ?spacing ?halign ?valign] ; A based box {{{
+  (box :class class
+       :style style
+       :tooltip tooltip
+       :orientation {orientation ?: "h"}
+       :space-evenly {space-evenly ?: false}
+       :spacing {spacing ?: 0}
+       :halign {halign ?: "center"}
+       :valign {valign ?: "fill"}
+    (children))) ; }}}
+
+(defwidget metric [value ?class ?onchange ?min ?max] ; {{{
+  (eventbox :cursor {onchange != "" ? "col-resize" : "default"}
+    (scale :min {min ?: 0}
+           :max {max ?: 101}
+           :active {onchange != ""}
+           :value value
+           :onchange onchange
+           :class "metric ${class} ${onchange != "" ? 'modifiable' : ''}"
+      (children))))
+; }}}
+
+(defwidget hover-left [var varname ?class ?duration] ; {{{
+  (eventbox :onhover "${eww} update ${varname}=true"
+            :onhoverlost "${eww} update ${varname}=false"
+            :class "hover ${class}"
+    (box :orientation "h"
+         :space-evenly false
+      (revealer :reveal var
+                :transition "slideleft"
+                :duration {duration ?: "350ms"}
+        (box :class "child"
+             :space-evenly false
+          (children :nth 0)))
+      (box :class "main"
+           :space-evenly false
+        (children :nth 1)))))
+; }}}
+
+(defwidget hover-right [var varname ?class ?duration] ; {{{
+  (eventbox :onhover "${eww} update ${varname}=true"
+            :onhoverlost "${eww} update ${varname}=false"
+            :class "hover ${class}"
+    (box :orientation "h"
+         :space-evenly false
+      (revealer :reveal var
+                :transition "slideright"
+                :duration {duration ?: "350ms"}
+        (box :class "child"
+             :space-evenly false
+          (children :nth 0)))
+      (box :class "main"
+           :space-evenly false
+        (children :nth 1)))))
+; }}}
+
+(defwidget hover-double [var varname ?class ?duration] ; {{{
+  (eventbox :onhover "${eww} update ${varname}=true"
+            :onhoverlost "${eww} update ${varname}=false"
+            :class "${class} hover hover-double"
+    (box :orientation "h"
+         :space-evenly false
+      (box :class "child"
+           :space-evenly false
+        (revealer :reveal var
+                  :transition "slideleft"
+                  :duration {duration ?: "350ms"}
+          (children :nth 0)))
+      (box :class "main"
+           :space-evenly false
+        (children :nth 2))
+      (box :class "child"
+           :space-evenly false
+        (revealer :reveal var
+                :transition "slideright"
+                :duration {duration ?: "350ms"}
+          (children :nth 1))))))
+; }}}
+
+(defwidget click-left [var varname ?class ?duration] ; {{{
+  (eventbox :onhoverlost "${eww} update ${varname}=false"
+            :class "hover ${class}"
+            :cursor "pointer"
+    (box :orientation "h"
+         :space-evenly false
+      (revealer :reveal var
+                :transition "slideleft"
+                :duration {duration ?: "350ms"}
+        (box :class "child"
+             :space-evenly false
+          (children :nth 0)))
+      (button :class "main"
+              :onclick "${eww} update ${varname}=true"
+        (children :nth 1)))))
+; }}}
+
+(defwidget delim [] ; A module delimiter {{{
+  (box :style "margin: 0 5px; padding: 0;"
+       ;:tooltip tooltip
+       :orientation "h"
+       :space-evenly false
+       :spacing 0
+       :halign "center"
+       :valign "fill"
+    (children))) ; }}}
+
+; Listeners / pollers {{{
+(deflisten music :initial ""
+  "playerctl --follow metadata --format '{{ artist }} - {{ title }}' || true")
+
+  ; https://askubuntu.com/a/523899
+(defpoll title :initial ""
+               :interval "250ms"
+  "xdotool getactivewindow getwindowname | awk -v len=60 '{ if (length($0) > len) print substr($0, 1, len-1) \"…\"; else print; }'")
+
+(defpoll volume :interval "1s"
+  "amixer -D pulse sget Master | grep 'Left:' | awk -F'[][]' '{ print $2 }' | tr -d '%' | head -1")
+
+(defpoll date :interval "30m"
+  "date '+%a %b %d'")
+(defpoll time :interval "10s"
+  "date '+%H:%M'")
+(defpoll seconds :interval "1s"
+  "date '+%S'")
+
+(defpoll battery :interval "5m"
+  "power-man")
+
+(defpoll mutestatus :interval "5s"
+  "amixer get Master | tail -2 | grep -c '\\[on\\]' >/dev/null 2>&1 && printf  || printf  ")
+
+(defpoll backlight :interval "5s"
+  "xbacklight")
+
+;(defpoll ram :interval "25s"
+;  "printf "%.0f\n" $(free -m | grep Mem | awk '{print ($3/$2)*100}')")
+; }}}

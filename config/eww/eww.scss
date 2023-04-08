@@ -1,0 +1,180 @@
+// Variables {{{
+$background: #0d1117;
+$background-alt: #25293e;
+$foreground: #9da2ab;
+$foreground-alt: #757680;
+
+$white: #ffffff;
+$black: #000000;
+$gray: #aaaaaa;
+$gray-alt: #465059;
+$red: #e27878;
+$red-alt: #ff6565;
+$green: #a3be8c;
+$green-alt: #b8cc52;
+$yellow: #ebcb8b;
+$yellow-alt: #e6c446;
+$blue: #68729d;
+$blue-alt: #9aa9ce;
+//$blue-alt: #78a6e2;
+$magenta: #e278db;
+$cyan: #89b8c2;
+$purple: #a07acf;
+
+$font: "cozette";
+$font-alt: "rissole";
+$tray-size: 110px;
+// }}}
+
+* {
+  all: unset;
+}
+
+window {
+  background-color: transparent;
+  color: $foreground;
+}
+
+.bar {
+  font-family: $font;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid $background-alt;
+
+  // For trayer-srg
+  padding-right: $tray-size;
+
+  // & > * {
+  //   margin-top: 9px;
+  //   margin-bottom: 9px;
+  // }
+  & > * > * {
+    padding: 0 5px;
+  }
+}
+
+.hover label,
+button label {
+  padding: 0 9px;
+  margin: 4px 0;
+  border-radius: 3px;
+  background-color: $background-alt;
+}
+button label {
+  background-color: $background-alt;
+  border: 1px solid $gray-alt;
+}
+button:hover label {
+  background-color: $gray-alt;
+}
+.child label {
+  padding: 0 5px;
+  background-color: transparent;
+}
+.hover-double:hover .main label {
+  font-weight: bold;
+  // text-decoration: underline wavy;
+}
+.condensed .main label,
+.condensed .child label {
+  padding: 0;
+  background-color: transparent;
+}
+
+// .spaced {
+//   margin: 0 10px;
+// }
+
+.info {
+  font-family: $font-alt;
+  font-size: 0.9rem;
+}
+
+scale trough {
+  background-color: $background-alt;
+  border-radius: 5px;
+  min-height: 4px;
+  min-width: 45px;
+  margin: 0 5px;
+
+  highlight {
+    background-color: $foreground-alt;
+    border-radius: 5px;
+  }
+}
+scale.modifiable trough highlight {
+  background-color: $blue-alt;
+}
+
+.workspaces {
+  background-color: $background-alt;
+  border-radius: 3px;
+
+  // & > * {
+  //   padding: 0 3px;
+  // }
+
+  button {
+    &:hover label {
+      // background-color: $background;
+      border: 1px solid $gray-alt;
+      margin: 2px;
+      padding: 0 2px;
+    }
+    & label {
+      border: none;
+      border-radius: 3px;
+      background-color: transparent;
+      padding: 1px 5px;
+      margin: 3px;
+    }
+
+    &.occupied label {
+      color: $gray;
+    }
+    &:not(.occupied) label {
+      color: $gray-alt;
+    }
+    &.active label {
+      background-color: $blue;
+      color: $background;
+    }
+    &.urgent label {
+      color: $red;
+    }
+  }
+}
+
+.powermenu {
+  label {
+    border: none;
+    color: $background;
+    border-radius: 3px;
+    margin: 7px 3px 7px 0;
+  }
+
+  & .sleep {
+    & label {
+      background-color: $blue;
+    }
+    & button > label {
+      margin-right: 0;
+    }
+  }
+  & .reboot {
+    & label {
+      background-color: $yellow;
+    }
+    & button > label {
+      margin-right: 0;
+    }
+  }
+  & .shutdown {
+    & label {
+      background-color: $red;
+    }
+    & button > label {
+      margin-right: 0;
+    }
+  }
+}

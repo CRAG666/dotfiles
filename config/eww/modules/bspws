@@ -1,0 +1,53 @@
+#!/bin/sh
+
+# TODO Make wm-agnostic https://github.com/elkowar/dots-of-war/blob/master/eww-bar/.config/eww-bar/workspaces.sh
+
+# Checks if a list ($1) contains an element ($2)
+contains () {
+  for el in ${1}; do
+    test "${el}" -eq "${2}" && printf '%s\n' "1" && return
+  done
+  printf '%s\n' "0"
+}
+
+print_workspaces() {
+  buf=""
+  desktops=$(bspc query -D --names)
+  focused_desktop=$(bspc query -D -d focused --names)
+  occupied_desktops=$(bspc query -D -d .occupied --names)
+  urgent_desktops=$(bspc query -D -d .urgent --names)
+
+  for d in ${desktops}; do
+    if test "$(contains "${focused_desktop}" "${d}")" -eq "1"; then
+      ws=${d}
+      # icon=""
+      icon=${d}
+      class="focused"
+    elif test "$(contains "${occupied_desktops}" "${d}")" -eq "1"; then
+      ws=${d}
+      # icon=""
+      icon=${d}
+      class="occupied"
+    elif test "$(contains "${urgent_desktops}" "${d}")" -eq "1"; then
+      ws=${d}
+      # icon=""
+      icon=${d}
+      class="urgent"
+    else
+      ws=${d}
+      # icon=""
+      icon=${d}
+      class="empty"
+    fi
+
+    buf="${buf} (eventbox :cursor 'hand' (button :class '${class}' :onclick 'bspc desktop -f ${ws}' '${icon}'))"
+  done
+
+  printf '%s\n' "(box :class 'workspaces' :halign 'start' :valign 'center' :vexpand true :hexpand true ${buf})"
+}
+
+print_workspaces
+bspc subscribe desktop node_transfer | while read -r _ ; do
+  print_workspaces
+done
+

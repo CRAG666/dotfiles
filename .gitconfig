@@ -1,0 +1,14 @@
+[user]
+	email = ogeidca49@gmail.com
+	name = Crag
+[credential]
+	helper = store
+[help]
+	autocorrect = 1
+[color]
+	ui = true
+	editor = nvim -f
+[init]
+	defaultBranch = main
+[core]
+	autocrlf = input

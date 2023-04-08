@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+python3 /usr/local/bin/Config_clouds.py
+kill -9 $(ps -ef | grep /usr/local/bin/clouds_applet -m 1| awk '{print $2}')
+clouds_applet

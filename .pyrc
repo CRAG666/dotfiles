@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+import sys
+from colorama import Fore, Back, Style
+sys.ps1=Style.RESET_ALL+Fore.YELLOW+'\ue235 \uE27A  '+Style.RESET_ALL
+sys.ps2=Style.RESET_ALL+Fore.YELLOW+'...'+Style.RESET_ALL

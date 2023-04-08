@@ -1,0 +1,23 @@
+- keyboards: ["SEMICO   USB Gaming Keyboard "]
+
+  # keymap:
+  #   leftalt: fn
+  #   capslock: leftalt
+  #   sysrq: rightmeta
+  # Specify layered configurations (much similar to fn+F keys)
+  layers:
+    - modifiers: ["leftalt", "space"]
+      keymap:
+        k: up
+        j: down
+        h: left
+        l: right
+        s: pageup
+        d: pagedown
+        a: home
+        f: end
+    - modifiers: ["esc"]
+      keymap:
+        k: playpause
+        l: nextsong
+        j: previoussong

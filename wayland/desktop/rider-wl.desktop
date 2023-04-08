@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=2022.1.11.4
+Type=Application
+Name=Rider Wayland
+Icon=rider
+Exec=sh -c 'Xephyr :200 -resizeable -host-cursor & sleep 2 && DISPLAY=:200 /usr/share/rider/bin/rider.sh %f'
+Comment=A cross-platform .NET IDE by JetBrains.
+Categories=Development;IDE;
+Terminal=false
+StartupWMClass=jetbrains-rider

@@ -1,0 +1,13 @@
+* {
+  al:      #282a36ff;
+  bg:      #1e1f29ff;
+  se:      #f7f7f7ff;
+  fg:      #bd93f9ff;
+  ac:      #FDBB6Dff;
+  red:     #f34f4dff;
+  green:   #cae7b9ff;
+  yellow:  #e1dd8fff;
+  blue:    #7cb7ffff;
+  purple:  #fbc5c5ff;
+  cyan:    #00b1a0ff;
+}

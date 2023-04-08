@@ -1,0 +1,153 @@
+# Completions
+_dotnet_zsh_complete()
+{
+  local completions=("$(dotnet complete "$words")")
+
+  # If the completion list is empty, just continue with filename selection
+  if [ -z "$completions" ]
+  then
+    _arguments '*::arguments: _normal'
+    return
+  fi
+
+  # This is not a variable assignment, don't remove spaces!
+  _values = "${(ps:\n:)completions}"
+}
+
+compdef _dotnet_zsh_complete dotnet
+
+# User Functions
+sar(){
+  rg $1 -l | xargs sed -i -e "s/$1/$2/g"
+}
+
+atm(){
+  device="/run/media/$USER"
+  subcmd="unmount"
+  if [[ $1 != "-u" ]]; then
+    device=$(udisksctl status | rg -e "sd[^a]" | fzf --header='Select Divice' | awk '{print $(NF)}')
+    subcmd="mount"
+  fi
+  partition=$(lsblk | rg "$device" | sed 's/[├─└─]//g' | fzf --header='Select Partition' | awk '{print $1}')
+  if [ $partition ];then
+    mounted=$(grep -s '/dev/sdb' /proc/mounts)
+    if [ $mounted ] && [ "$subcmd" = "mount" ];then
+      echo "This partition is already mounted on the system"
+      return 1
+    fi
+    udisksctl $subcmd -b /dev/$partition
+  fi
+}
+
+encrypt(){
+  openssl enc -aes-256-cbc -md sha512 -pbkdf2 -iter 100000 -salt -in $1 -out $2
+}
+
+decrypt(){
+  openssl enc -d -aes-256-cbc -md sha512 -pbkdf2 -iter 100000 -salt -in $1 -out $2
+}
+
+acp() {
+  git add .
+  git commit -m "$1"
+  git push
+}
+
+dhg() {
+  git checkout --orphan latest_branch
+  git add -A
+  git commit -am "$1"
+  git branch -D main
+  git branch -m main
+  git push -f origin main
+}
+
+fapp() {
+	selected="$(/bin/ls /usr/share/applications | fzf -e)"
+	nohup `grep '^Exec' "/usr/share/applications/$selected" | tail -1 | sed 's/^Exec=//' | sed 's/%.//'` >/dev/null 2>&1&
+}
+
+fkill() {
+  local pid
+
+  pid="$(
+    pgrep . -l \
+      | fzf -m \
+      | awk '{print $1}'
+  )" || return
+  if [ $pid ];then
+    kill -"${1:-9}" "$pid"
+  fi
+}
+
+fktmux() {
+    local sessions
+    sessions="$(tmux ls|fzf --exit-0 --multi)"  || return $?
+    local i
+    for i in "${(f@)sessions}"
+    do
+        [[ $i =~ '([^:]*):.*' ]] && {
+            echo "Killing $match[1]"
+            tmux kill-session -t "$match[1]"
+        }
+    done
+}
+
+gitignore() {
+    if [ $# = 1 ]; then
+      curl -L -s https://www.gitignore.io/api/$@ > .gitignore
+    else
+      echo 'usage: gitignore django'
+    fi
+}
+
+vims(){
+	nvim -p $(rg $1 -l | xargs)
+}
+
+dirsum() {
+    if [ $# = 1 ]; then
+	find $1 -type f -print0 | xargs -0 shasum | awk '{print $1}' | sort | shasum
+    else
+	echo 'usage: dirsum [directory]'
+    fi
+}
+
+uuid() {
+  repeat ${1-1} python -c "import uuid; print(uuid.uuid4());"
+}
+
+gb() {
+  git for-each-ref --color=always --sort=-committerdate refs/heads/ --format=' %(color:green)%(committerdate:relative)%(color:reset)%09%(HEAD) %(color:yellow)%(refname:short)%(color:reset) %(color:magenta)%(authorname)%(color:reset) • %(contents:subject)'
+}
+
+gbs() {
+  gb | fzf --ansi --header='switch branch <choose branch>' --reverse | awk '{print $4}' | xargs -ro git switch
+}
+
+# Lazy loading
+
+lazy_load() {
+    echo "Lazy loading $1 ..."
+    local -a names
+    if [[ -n "$ZSH_VERSION" ]]; then
+        names=("${(@s: :)${1}}")
+    else
+        names=($1)
+    fi
+    unalias "${names[@]}"
+    . $2
+    shift 2
+    $*
+}
+
+group_lazy_load() {
+    local script
+    script=$1
+    shift 1
+    for cmd in "$@"; do
+        alias $cmd="lazy_load \"$*\" $script $cmd"
+    done
+}
+group_lazy_load node npm yarn
+unset -f group_lazy_load

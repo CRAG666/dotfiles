@@ -1,0 +1,16 @@
+#TabsToolbar {
+  visibility: collapse;
+}
+
+:root:not([customizing]) #navigator-toolbox:not(:hover):not(:focus-within) {
+  max-height: 1px;
+  min-height: calc(0px);
+  overflow: hidden;
+}
+
+statuspanel[type="overLink"],
+#statuspanel[type="overLink"] {
+  top: 2em;
+  z-index: 2;
+  display: inline;
+}

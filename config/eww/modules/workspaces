@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# Optional, only som wms provide monitor with wmctrl
+monitor="${1:-}${1:+_}"
+
+get_workspaces () {
+  # Get id, active status (*=active), and name
+  # Remove NSP-workpace
+  # Only get active monitor if defined
+  wmctrl -d \
+    | awk '{ print $1 " " $2 " " $NF }' \
+    | grep -v "NSP" \
+    | grep "${monitor:-}"
+}
+
+get_yuck () {
+  get_workspaces | while read -r id active name; do
+    # Get content after '_' (if monitor is defined)
+    name="$(printf '%s\n' "${name}" | cut -d '_' -f2)"
+    class=""
+
+    # Add class if workspace is active
+    test "${active}" = "*" && class="${class:-}${class:+ }active"
+
+    # Add class if workspace has any nodes
+    case "$(wmctrl -l | awk '{print "(" $2}' | tr '\n' ')')" in
+      *"(${id})"*) class="${class:-}${class:+ }occupied";;
+    esac
+
+    # Format workspace-box
+    printf '%s' "(button${class:+ :class '${class:-}'} :onclick 'wmctrl -s ${id}' '${name}')"
+  done
+}
+
+# bspwm: _NET_CURRENT_DESKTOP / _NET_ACTIVE_WINDOW
+# xmonad: _NET_ACTIVE_WINDOW
+xprop -spy -root _NET_CURRENT_DESKTOP | while read -r; do
+  # If wses get left behind or updated weirdly, add a small delay to allow
+  # the wm some wiggle room to manage desktops.
+  # Often required when using _NET_CURRENT_DESKTOP.
+  sleep .02
+
+  # When listening for changed on _NET_ACTIVE_WINDOW, this prevents the CPU from
+  # going ham when switching between windows frquently by only updating eww when
+  # the desktop changes. We use both ID ($1) and name ($NF) because neither are
+  # technically unique, and will break the check if there are multiple desktops
+  # with the same name or ID.
+  aws="$(wmctrl -d | awk '$2 == "*" { print $1 "-" $NF }')"
+
+  # Only update eww when the currently active workspace is different from the
+  # previously active workspace.
+  if test "${aws:-}" != "${paws:-}"; then
+    printf '%s\n' '(box :orientation "h" :class "workspaces" :space-evenly true :halign "start" :valign "center" :vexpand true '"$(get_yuck)"')'
+  fi
+
+  paws="${aws}"
+done
