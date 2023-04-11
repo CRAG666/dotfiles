@@ -5,6 +5,7 @@ export GOPATH := ${HOME}
 .DEFAULT_GOAL := help
 .PHONY: allinstall nextinstall
 
+
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 	| sort \
@@ -18,12 +19,7 @@ cli-tools: ## Add cli tools to local bin
 	ln -vsf ${PWD}/commands/* ${HOME}/.local/bin/
 
 init: ## Initial deploy dotfiles
-	for item in kitty mpv nvim ranger rofi starship.toml zathura; do
-		test -L ${HOME}/.config/$$item || rm -rf ${HOME}/.config/$$item
-		ln -vsf {${PWD}/config,${HOME}/.config}/$$item
-	done
-	chsh -s $(which zsh)
-	for item in gitconfig gtkrc-2 myclirc noderc profile pyrc tmux.conf tridactylrc Xresources zimrc zshrc zshfunc scripts; do
+	for item in gitconfig gtkrc-2 noderc pyrc tridactylrc zimrc zshrc zshfunc Xresources tmux.conf profile myclirc scripts; do
 		ln -vsf {${PWD},${HOME}}/.$$item
 	done
 

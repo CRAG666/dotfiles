@@ -148,6 +148,8 @@ function setup()
         TelescopeResultsTitle = { fg = C.base, bg = C.peach },
         TelescopeSelectionCaret = { fg = C.red },
         TelescopeMatching = { fg = C.green },
+        --- Lsp
+        LspLens = { fg = C.lavender },
         -- Cmp config
         CmpItemKindSnippet = { fg = C.base, bg = C.mauve },
         CmpItemKindKeyword = { fg = C.base, bg = C.red },

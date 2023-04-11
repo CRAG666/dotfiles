@@ -12,6 +12,15 @@ return {
   {
     url = "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
     config = true,
-    enabled = false
+    enabled = false,
+  },
+  {
+    "VidocqH/lsp-lens.nvim",
+    cmd = {
+      "LspLensOn",
+      "LspLensOff",
+      "LspLensToggle",
+    },
+    config = true,
   },
 }
