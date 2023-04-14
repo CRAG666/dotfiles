@@ -5,5 +5,6 @@ export _JAVA_OPTIONS="-Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Dswi
 # export QT_QPA_PLATFORMTHEME=qt6ct
 export QT_QPA_PLATFORMTHEME=qt5ct
 export GTK_THEME="$(gsettings get org.gnome.desktop.interface gtk-theme | tr -d \"\'\")"
+export XDG_SCREENSHOTS_DIR=$HOME/Screenshots
 # export RIDER_JDK=/usr/share/rider/jbr
 export DOTNET_CLI_TELEMETRY_OPTOUT=1

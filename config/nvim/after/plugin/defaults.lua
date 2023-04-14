@@ -102,7 +102,7 @@ set.listchars = {
 }
 set.list = false
 set.laststatus = 3
-set.cmdheight = 0
+set.cmdheight = 1
 
 -- Search
 set.hlsearch = true
@@ -141,7 +141,5 @@ set.backupcopy = "yes"
 -- vim.opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize" }
 -- vim.opt.spelllang = { "en" }
 
-if vim.fn.has "nvim-0.9.0" == 1 then
-  set.splitkeep = "screen"
-  vim.o.shortmess = "filnxtToOFWIcC"
-end
+set.splitkeep = "screen"
+vim.o.shortmess = "filnxtToOFWIcC"

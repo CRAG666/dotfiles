@@ -17,7 +17,7 @@ if [[ "$XDG_SESSION_DESKTOP" == "wlroots" ]]; then
 	#    pick -dmenu -i -theme \
 	#    $dir/'$theme' -lines 10"
 	cliphist list | rofi -p \
-		pick -dmenu -i -theme \
+		pick -dmenu -display-columns 2 -i -theme \
 		"$dir/$theme" -lines 10 | cliphist decode | wl-copy
 else
 	rofi -modi "clipboard:greenclip print" \

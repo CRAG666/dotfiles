@@ -9,5 +9,4 @@
 vim.keymap.set("", "<Space>", "<Nop>", { noremap = true, silent = true })
 vim.g.maplocalleader = " "
 vim.g.mapleader = " "
-vim.g.cmp_enable = true
 require("plugins").setup()

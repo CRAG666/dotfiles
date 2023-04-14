@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import os
 import logging
+import os
 
 from newm.helper import BacklightManager
 from newm.layout import Layout
@@ -19,7 +19,7 @@ def on_reconfigure():
     gnome_peripheral = "org.gnome.desktop.peripherals"
     gnome_preferences = "org.gnome.desktop.wm.preferences"
     # easyeffects = "com.github.wwmm.easyeffects"
-    theme = "Catppuccin-Mocha-Standard-Mauve-Dark"
+    theme = "Catppuccin-Mocha-Standard-Lavender-Dark"
     icons = "candy-icons"
     cursor = "Catppuccin-Mocha-Lavender-Cursors"
     font = "SF Pro 14"
@@ -156,8 +156,11 @@ def rules(view: View):
     #         # "opacity": 0.8,
     #         # "blur": {"radius": 5, "passes": 6},
     #     }
-    # elif view.title is not None and "compartir indicador" in view.title.lower():
-    #     return {"float": True, "float_size": (30, 20)}
+    elif (
+        view.title is not None
+        and "Firefox - Indicador de compartición" in view.title.lower()
+    ):
+        return {"float": True, "float_size": (30, 20)}
     elif view.app_id == "io.bassi.Amberol":
         app_rule = {"opacity": 0.7, "blur": {"radius": 5, "passes": 6}}
     elif view.app_id == "app.landrop.landrop" and view.title == "Transferring":
@@ -177,8 +180,8 @@ view = {
     "padding": 6,
     "fullscreen_padding": 0,
     "send_fullscreen": False,
-    "accept_fullscreen": False,
-    "sticky_fullscreen": False,
+    "accept_fullscreen": True,
+    "sticky_fullscreen": True,
     "floating_min_size": False,
     # "border_ws_switch": 3,
     "rules": rules,

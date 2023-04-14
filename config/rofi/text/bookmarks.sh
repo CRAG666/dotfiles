@@ -3,7 +3,7 @@ theme="style_2"
 dir="$HOME/.config/rofi/text"
 
 BOOKMARKS="$HOME/.config/rofi/text/bookmarks"
-BROWSER="firefox"
+BROWSER="firefox -P Privacy"
 
 function rofi_main_window() {
 	rofi -dmenu -i -l 10 -p $1 -theme $dir/"$theme"
@@ -19,7 +19,7 @@ function get_bookmarks() {
 }
 
 function get_categories() {
-	cat $BOOKMARKS | cut -d ':' -f 1 | grep -wo '[[:alnum:]]\+' | sort | uniq -cd
+	cat $BOOKMARKS | cut -d ':' -f 1 | grep -wo '[[:alnum:]]\+' | uniq -c | sort -r
 }
 
 function write_bookmark() {
@@ -39,7 +39,7 @@ function delete_bookmark() {
 	num_line=$(grep -n "$1" $BOOKMARKS | cut -d : -f 1)
 	del_line="${num_line}d"
 	option=$(rofi_sub_window "Delete ${1:0:30}: " -width 27)
-	if [[ option == "y" ]]; then
+	if [[ $option == "y" ]]; then
 		sed -i $del_line $BOOKMARKS
 	fi
 }
