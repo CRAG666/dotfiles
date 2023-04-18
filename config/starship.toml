@@ -19,7 +19,7 @@ disabled = false
 "~/Música" = " "
 "~/Vídeos" = " "
 "~/Git" = " "
-"/run/media/crag" = "禍"
+"/run/media/$USER" = "禍"
 
 [palettes.catppuccin_mocha]
 rosewater = "#f5e0dc"

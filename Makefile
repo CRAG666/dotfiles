@@ -3,12 +3,12 @@ export GOPATH := ${HOME}
 
 WAYLAND_PKGS	:= greetd-tuigreet xdg-desktop-portal xdg-desktop-portal-wlr hyprpicker-git shotman-git waybar fnott
 WAYLAND_PKGS	+= wl-screenrec-git wlrctl wtype avizo wlsunset wl-clipboard cliphist catapult rofi-lbonn-wayland slurp
+CONFPATH        := ${HOME}/.config
 
 SYSTEMD_ENABLE	:= sudo systemctl --now enable
 
 .DEFAULT_GOAL := help
 .PHONY: allinstall nextinstall
-
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -25,30 +25,42 @@ init: ## Initial deploy dotfiles
 	for item in gitconfig gtkrc-2 noderc pyrc tridactylrc zimrc zshrc zshfunc Xresources tmux.conf profile myclirc; do\
 		ln -vsf {${PWD},${HOME}}/.$$item;\
 	done
-	test -L ${HOME}/.scripts || rmdir ${HOME}/.scripts
-	ln -vsfn ${PWD}/.scripts ${HOME}/.scripts
+	for item in nvim btop ctpv lf mpv rofi starship.toml zathura; do\
+		ln -vsfn {${PWD}/config,${CONFPATH}}/$$item;\
+	done
+	ln -vsfn {${PWD},${HOME}}/.scripts
+
+etc: ## Add system settings
+	test -L /etc/keyd || rm -rf /etc/keyd
+	ln -vsfn ${PWD}/etc/keyd /etc
+	test -L /etc/nftables.conf|| rm -rf /etc/nftables.conf
+	ln -vsfn ${PWD}/etc/nftables.conf /etc
+	sudo cp ${PWD}/etc/makepkg.conf /etc
+	sudo cp ${PWD}/etc/sysctl.d/99-sysctl.conf /etc/sysctl.d
 	$(SYSTEMD_ENABLE) keyd nftables
 
 wayland: ## Wayland packages needs
+	for item in avizo fnott waybar $@; do\
+		ln -vsf {${PWD}/config,${CONFPATH}}/$$item;\
+	done
 	yay -S --needed --noconfirm $(WAYLAND_PKGS)
 
 
 newm: ## config for newm(wayland)
+	yay -S --needed --noconfirm python-pyfiglet python-pam python-thefuzz-git python-evdev newm-git
 	sudo cp ${PWD}/wayland/scripts/{newm-run.sh,wayland_enablement.sh,open-wl} /usr/local/bin/
 	sudo cp ${PWD}/etc/greetd /etc/
 	$(SYSTEMD_ENABLE) greetd
-	for item in avizo fnott waybar $@; do\
-		test -L ${HOME}/.config/$$item || rm -rf ${HOME}/.config/$$item;\
-		ln -vsf {${PWD}/config,${HOME}/.config}/$$item;\
-	done
 
-swaywm: ## config sway
+swaywm: ## config sway(it will not be maintained)
 	ln -vsf ${PWD}/$@/* ${HOME}/.config/
 	yay -S --needed --noconfirm sworkstyle \
 		waybar eww-git clipman gestures
 
 thinkpad: ## Config for thinkpad
 	yay -S --needed --noconfirm tpacpi-bat zcfan acpi_call
+	sudo cp ${PWD}/etc/zcfan.conf /etc/
+	sudo cp ${PWD}/etc/conf.d/tpacpi /etc/conf.d/
 	$(SYSTEMD_ENABLE) zcfan tpacpi-bat
 
 cli-tools: ## Add cli tools to local bin
