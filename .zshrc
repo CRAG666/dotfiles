@@ -145,15 +145,16 @@ eval "$(starship init zsh)"
 
 # -< Aliases >-
 # HACK: Command alternatives
-# alias ...="cd ../.."
+# alias cd="z"
 # alias vpn="~/.scripts/vpn"
 alias ping="prettyping"
 alias icat="kitty +kitten icat"
 alias js="/usr/bin/node ~/.noderc"
 alias ls="logo-ls"
 alias la="logo-ls -A"
-alias grep='grep --color=auto'
+# alias grep='grep --color=auto'
 # alias cp="rsync -Pvz"
+alias curl="xh --curl"
 alias cp='rsync --progress -avz --ignore-existing'
 alias tree="ls -R"
 alias vi="nvim"
