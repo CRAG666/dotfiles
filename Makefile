@@ -21,15 +21,6 @@ install: ## Install arch linux packages using yay
 	$(SYSTEMD_ENABLE) auto-cpufreq ananicy-cpp thermald
 	bob use nightly
 
-init: ## Initial deploy dotfiles
-	for item in gitconfig gtkrc-2 noderc pyrc tridactylrc zimrc zshrc zshfunc Xresources tmux.conf profile myclirc; do\
-		ln -vsf {${PWD},${HOME}}/.$$item;\
-	done
-	for item in nvim btop ctpv lf mpv rofi starship.toml zathura; do\
-		ln -vsfn {${PWD}/config,${CONFPATH}}/$$item;\
-	done
-	ln -vsfn {${PWD},${HOME}}/.scripts
-
 etc: ## Add system settings
 	test -L /etc/keyd || rm -rf /etc/keyd
 	ln -vsfn ${PWD}/etc/keyd /etc
@@ -39,32 +30,37 @@ etc: ## Add system settings
 	sudo cp ${PWD}/etc/sysctl.d/99-sysctl.conf /etc/sysctl.d
 	$(SYSTEMD_ENABLE) keyd nftables
 
+init: ## Initial deploy dotfiles
+	for item in gitconfig gtkrc-2 noderc pyrc tridactylrc zimrc zshrc zshfunc Xresources tmux.conf profile myclirc; do\
+		ln -vsf {${PWD},${HOME}}/.$$item;\
+	done
+	for item in nvim btop ctpv lf mpv rofi starship.toml zathura; do\
+		ln -vsfn {${PWD}/config,${CONFPATH}}/$$item;\
+	done
+	ln -vsfn {${PWD},${HOME}}/.scripts
+
 wayland: ## Wayland packages needs
 	for item in avizo fnott waybar $@; do\
 		ln -vsf {${PWD}/config,${CONFPATH}}/$$item;\
 	done
 	yay -S --needed --noconfirm $(WAYLAND_PKGS)
 
-
-newm: ## config for newm(wayland)
+newm: wayland ## config for newm(wayland)
 	yay -S --needed --noconfirm python-pyfiglet python-pam python-thefuzz-git python-evdev newm-git
 	sudo cp ${PWD}/wayland/scripts/{newm-run.sh,wayland_enablement.sh,open-wl} /usr/local/bin/
 	sudo cp ${PWD}/etc/greetd /etc/
 	$(SYSTEMD_ENABLE) greetd
 
-swaywm: ## config sway(it will not be maintained)
-	ln -vsf ${PWD}/$@/* ${HOME}/.config/
-	yay -S --needed --noconfirm sworkstyle \
-		waybar eww-git clipman gestures
+thinkpad: ## Config for thinkpad(power management, battery thresholds and fan control)
+	yay -S --needed --noconfirm tpacpi-bat zcfan acpi_call acpid
+	sudo cp ${PWD}/$@/etc/zcfan.conf /etc/
+	sudo cp ${PWD}/$@/etc/conf.d/tpacpi /etc/conf.d/
+	sudo cp ${PWD}/$@/etc/acpi/events/battery_event /etc/acpi/events
+	sudo cp ${PWD}/$@/etc/acpi/actions /etc/acpi/
+	$(SYSTEMD_ENABLE) zcfan tpacpi-bat acpid
 
-thinkpad: ## Config for thinkpad
-	yay -S --needed --noconfirm tpacpi-bat zcfan acpi_call
-	sudo cp ${PWD}/etc/zcfan.conf /etc/
-	sudo cp ${PWD}/etc/conf.d/tpacpi /etc/conf.d/
-	$(SYSTEMD_ENABLE) zcfan tpacpi-bat
-
-cli-tools: ## Add cli tools to local bin
-	ln -vsf ${PWD}/commands/* ${HOME}/.local/bin/
+self-tools: ## Add cli tools to local bin
+	ln -vsf ${PWD}/local/bin/* ${HOME}/.local/bin/
 
 Code: ## Install and configure VScode
 	mkdir -p ${HOME}/.config/$@/
@@ -76,22 +72,18 @@ Code: ## Install and configure VScode
 	code --install-extension ${PWD}/$@/miramare/miramare-0.0.2.vsix
 
 dnscrypt-proxy:
-	ln -vsf ${PWD}/etc/$@/* /etc/$@/
 	ln -vsf ${PWD}/etc/resolv.conf /etc/
 	yay -S --needed --noconfirm $@
+	ln -vsf ${PWD}/etc/$@/* /etc/$@/
 
-nftables:
-	ln -vsf ${PWD}/etc/$@.conf /etc/
-	# ln -vsf ${PWD}/etc/$@-docker.conf /etc/
-	yay -S --needed --noconfirm $@
-
-podman_image: podman
+podman_image:
 	podman build -t dotfiles ${PWD}
 
 test: podman_image ## Test this Makefile with docker without backup directory
-	podman run -it --name make$@ -d dotfiles:latest /bin/bash
-	for target in install init neomutt aur pipinstall goinstall nodeinstall; do
-		podman exec -it make$@ sh -c "cd ${PWD}; make $${target}"
+	# podman run -it --name make$@ -d dotfiles:latest /bin/bash
+	# for target in install etc init wayland newm thinkpad dnscrypt-proxy; do\
+	for target in thinkpad; do\
+		podman exec -it make$@ sh -c "cd ${PWD}; make $${target}";\
 	done
 
 testpath: ## Echo PATH
@@ -100,6 +92,7 @@ testpath: ## Echo PATH
 	GOPATH=$$GOPATH
 	@echo $$GOPATH
 
-allinstall: install init cli-tools
+newminstall: install etc init newm
+tnewminstall: install etc init newm thinkpad
 
 nextinstall: docker

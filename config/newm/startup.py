@@ -1,6 +1,5 @@
 import os
 
-
 SCRIPTS = "/home/think-crag/.scripts/"
 
 
@@ -29,6 +28,7 @@ def startup():
         "avizo-service",
         "wlsunset -l 16.0867 -L -93.7561 -t 2500 -T 6000",
         f"{SCRIPTS}/battery-status.sh",
+        "brightnessctl set 2%",
     )
 
     execute_iter(INIT_SERVICES)

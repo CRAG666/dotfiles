@@ -27,7 +27,7 @@
   "luasnip": { "branch": "master", "commit": "8d6c0a93dec34900577ba725e91c44b8d3ca1f45" },
   "markdown-preview.nvim": { "branch": "main", "commit": "cc05a30393e2bf9f12e2d59fc35a1aa928ed1727" },
   "marks": { "branch": "master", "commit": "76aca5069c5ce5c0099e30168649e6393e494f26" },
-  "mason.nvim": { "branch": "main", "commit": "f657fb6a4ba72ddb15724a45747839eaa39d7acb" },
+  "mason.nvim": { "branch": "main", "commit": "d3188d44efb0caf006492641f7b9189ae86e47be" },
   "mini.indentscope": { "branch": "main", "commit": "43f6761c9a3e397b7c12b3c72f678bcf61efcfcf" },
   "mini.move": { "branch": "main", "commit": "33c54f69a3d72aa3d22c73d1f6b11601d65caff4" },
   "mini.tabline": { "branch": "main", "commit": "0826a7431861d7f9dd470b9f3fbd417f7df7645f" },

@@ -9,7 +9,7 @@ while true; do
 			paplay /usr/share/sounds/freedesktop/stereo/suspend-error.oga
 		fi
 	else
-		if [ "$battery_level" -le 30 ]; then
+		if [ "$battery_level" -le 29 ]; then
 			notify-send --urgency=CRITICAL "Battery Low" "Level: $battery_level%"
 			paplay /usr/share/sounds/freedesktop/stereo/suspend-error.oga
 		fi
