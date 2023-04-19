@@ -1,6 +1,6 @@
 import os
 
-SCRIPTS = "/home/think-crag/.scripts/"
+SCRIPTS = os.path.expanduser("~/.scripts")
 
 
 def execute(cmd):

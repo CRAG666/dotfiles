@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
+from pathlib import Path
 
 from newm.helper import BacklightManager
 from newm.layout import Layout
@@ -94,17 +95,21 @@ pywm = {
     "renderer_mode": "pywm",
 }
 
+HOME = Path.home()
+
 background = {
-    "path": os.path.expanduser("~/Imágenes/wallpaperCicle/8.jpg"),
-    # "path": os.path.expanduser("~/Imágenes/wallpaperCicle/21.webp"),
-    # "path": os.path.expanduser("~/Imágenes/wallpaperCicle/11.jpg"),
-    # "path": os.path.expanduser("~/Imágenes/wallpaperCicle/25.jpg"),
-    # "path": os.path.expanduser("~/Imágenes/wallpaperCicle/17.jpg"),
-    # "path": os.path.expanduser("~/Imágenes/wallpaperCicle/20.jpg"),
-    # "path": os.path.expanduser("~/Imágenes/art/rombo.jpg"),
-    # "path": os.path.expanduser("~/Imágenes/cyberpunk/thefuture7.jpeg"),
-    # "path": os.path.expanduser("~/Imágenes/paisajes/4k-wallpaper-3.jpg"),
-    # "path": os.path.expanduser("~/Imágenes/art/rombo.jpg"),
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/8.jpg",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/18.png",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/19.jpeg",
+    "path": f"{HOME}/Imágenes/wallpaperCicle/tec/1.png",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/21.webp",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/11.jpg",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/25.jpg",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/17.jpg",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/20.jpg",
+    # "path": f"{HOME}/Imágenes/cyberpunk/thefuture7.jpeg",
+    # "path": f"{HOME}/Imágenes/paisajes/4k-wallpaper-3.jpg",
+    # "path": f"{HOME}/Imágenes/art/rombo.jpg",
     "time_scale": 0.11,
     "anim": True,
 }
@@ -221,7 +226,6 @@ mod = "L"  # or "A", "C", "1", "2", "3"
 altgr = "3-"
 ctrl = "C-"
 alt = "A-"
-HOME = "/home/think-crag"
 COPY_PASTE = f"{HOME}/.scripts/super_copy_paste.sh"
 ROFI = f"{HOME}/.config/rofi/scripts"
 
