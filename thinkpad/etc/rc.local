@@ -1,4 +1,0 @@
-#!/bin/sh -e
-
-/usr/local/bin/thinkpad-pm-event.sh
-exit 0
