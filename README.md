@@ -14,7 +14,7 @@ make help
 
 ### Newm
 
-Check out the full result in the following video.
+Click on the image below to see the full result.
 
 [![Newm workflow](https://i.ytimg.com/vi/mDw-hMW0b70/maxresdefault.jpg)](https://www.youtube.com/watch?v=mDw-hMW0b70)
 
@@ -28,10 +28,13 @@ Check out the full result in the following video.
 
 ### Terminal(kitty, starship, zimfw, rust tools)
 
-![terminal 1](https://i.ibb.co/p281LBD/term1.png)
-![terminal 2](https://i.ibb.co/JKnkppP/term2.png)
-![terminal 3](https://i.ibb.co/X8LbGvQ/term3.png)
-![terminal 4](https://i.ibb.co/VNGvGXp/term4.png)
+![Install](https://user-images.githubusercontent.com/34254373/233184334-044f40fa-4ad8-4529-883e-ed23b9e26c58.png)
+![Rust tool example](https://user-images.githubusercontent.com/34254373/233184339-253ae546-f0f3-4a33-abbf-563b775f8096.png)
+![Ping](https://user-images.githubusercontent.com/34254373/233184343-0837ebf1-2d59-431f-92db-ab9170614e69.png)
+![Python shell](https://user-images.githubusercontent.com/34254373/233184346-25fcabd4-1d32-4deb-a079-bdaf09b4dce0.png)
+![Htop](https://user-images.githubusercontent.com/34254373/233184348-a652c5dd-f8ac-41b4-8dd5-6dc4fd77cb9e.png)
+![Alias](https://user-images.githubusercontent.com/34254373/233184351-0036047e-4b02-4fc7-a0a8-6c0c1e073498.png)
+![Btop](https://user-images.githubusercontent.com/34254373/233184354-09ed786c-0eab-4aa3-8eab-44a9b95f81e4.png)
 
 ### Vscode
 
