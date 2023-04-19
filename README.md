@@ -1,44 +1,40 @@
 # Env Dev
 
 ## Quick start
-This repository is built with Makefile. This is intended to configure a minimal development environment in archlinux
+
+This repository is built with Makefile. It is an attempt to set up a minimal environment for development and entertainment on arch linux.
 
 ### List of commands
-```` bash
+
+```bash
 make help
-````
-
-### Links to only dotfile
-```` bash
-make init
-````
-
-### Vscode costomize
-```` bash
-make code
-````
-### Install all
-
-```` bash
-make allinstall
-````
+```
 
 ## Results
 
-### Vim(NeoVim)
-!["vim 1"](https://i.ibb.co/BrCSSfZ/Captura-de-pantalla-de-2020-11-28-09-55-24.png)
-!["vim 2"](https://i.ibb.co/JRRpkZS/Captura-de-pantalla-de-2020-11-28-09-55-39.png)
-!["vim 3"](https://i.ibb.co/TqTn8Xm/Captura-de-pantalla-de-2020-11-28-09-56-06.png)
-!["vim 4"](https://i.ibb.co/pJJgHn3/Captura-de-pantalla-de-2020-11-28-09-56-42.png)
-!["vim 5"](https://i.ibb.co/mbFzzvs/Captura-de-pantalla-de-2020-11-28-09-57-05.png)
+### Newm
 
-### Terminal(Alacritty, Tmux, starship, oh my zsh)
+Check out the full result in the following video.
+
+[![Newm workflow](https://i.ytimg.com/vi/mDw-hMW0b70/maxresdefault.jpg)](https://www.youtube.com/watch?v=mDw-hMW0b70)
+
+### Vim(NeoVim)
+
+![Command mode](https://user-images.githubusercontent.com/34254373/233180722-bd543a53-4ef4-49a5-bdb4-cd2d7b6b621a.png)
+![Plugins](https://user-images.githubusercontent.com/34254373/233180846-21a67d5a-de7b-43f2-8d69-a0432551eeaf.png)
+![Treesitter](https://user-images.githubusercontent.com/34254373/233180853-effc1a07-4c47-4510-af4f-642b55ea83e6.png)
+![Telescope](https://user-images.githubusercontent.com/34254373/233180860-65d1439a-345c-4070-bc98-96ef57ac3e54.png)
+![Completion](https://user-images.githubusercontent.com/34254373/233180862-76c3ae03-412c-430e-9556-b01d71483513.png)
+
+### Terminal(kitty, starship, zimfw, rust tools)
+
 ![terminal 1](https://i.ibb.co/p281LBD/term1.png)
 ![terminal 2](https://i.ibb.co/JKnkppP/term2.png)
 ![terminal 3](https://i.ibb.co/X8LbGvQ/term3.png)
 ![terminal 4](https://i.ibb.co/VNGvGXp/term4.png)
 
 ### Vscode
+
 ![Python](https://i.ibb.co/LJks4TR/vs1.png)
 ![Html](https://i.ibb.co/QKqr9gf/vs3.png)
 ![Javascript](https://i.ibb.co/sbbYC4S/vs4.png)

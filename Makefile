@@ -17,7 +17,7 @@ help:
 
 install: ## Install arch linux packages using yay
 	sudo pacman -S --needed --noconfirm yay
-	cat ${PWD}/pkglist.txt | xargs -L 1 yay -S --needed --noconfirm
+	cat ${PWD}/pkglist.txt | grep -v "^#" | grep -v "^$" | xargs -L 1 yay -S --needed --noconfirm
 	$(SYSTEMD_ENABLE) auto-cpufreq ananicy-cpp thermald
 	bob use nightly
 

@@ -1,60 +1,56 @@
+# System utilities
+acpi
+keyd
+auto-cpufreq
+ananicy-cpp
+thermald
+
+# Basic security
 nftables
 iptables-nft
-acpi
+firejail
+pass
+
+# Controls
+blueman
+brightnessctl
+playerctl
+nm-connection-editor
+
+# CLI tools
 ripgrep
 fd
-btop
-htop-vim
+jq
+git-delta
+topgrade
+ttyper
+rsync
+lemmy-help
+rm-improved
+glow
 logo-ls
 prettyping
 zoxide
 xh
-duf
-termusic
 bob
 cht.sh-git
-kitty
 fzf
 bat
-progress
 lf
 ctpv-git
 mmv-c-git
 dragon-drop
-keyd
-gnome-disk-utility
-kdenlive
-betterbird-es-bin
-inkscape
-transmission-gtk
-pavucontrol-compact-git
-audacity
 rclone
-zathura
-zathura-pdf-mupdf
-pdftricks
-pandoc-cli
-pandoc-plot
-texlive-core
-texlab
-bash-language-server
-pyright
-shfmt
-ccls
-stylua
-dockerfile-language-server
-lua-language-server
-typescript-language-server
-vscode-css-languageserver
-mpv
-imv
-pipe-viewer-git
-firefox
-firefox-i18n-es-mx
-firefox-tridactyl
-firefox-tridactyl-native
-arkenfox-user.js
-brave-bin
+
+# Monitoring
+btop
+htop-vim
+iotop-c
+neofetch
+duf
+progress
+
+# Audio
 pipewire
 pipewire-alsa
 pipewire-audio
@@ -62,22 +58,65 @@ pipewire-jack
 pipewire-pulse
 pipewire-zeroconf
 wireplumber
-libreoffice-fresh
-libreoffice-fresh-es
-telegram-desktop
-gimp-devel
+pavucontrol-compact-git
+
+# Disk Utilities
+gnome-disk-utility
+gpart
+
+# Fonts
 ttf-ibmplex-mono-nerd
 ttf-lilex-nerd
 ttf-mononoki-nerd
 noto-fonts-cjk-vf
 apple-fonts
-nm-connection-editor
-ruff
-prettierd
-eslint_d
-selene
-shellharden
+
+# Basic
+kitty
+
+# Text edition
+pandoc-cli
+pandoc-plot
+texlive-core
+groff
+libreoffice-fresh
+libreoffice-fresh-es
+pdftricks
+tree-sitter
+
+# Viewers
+imv
+zathura
+zathura-pdf-mupdf
+
+# Communication
+betterbird-es-bin
+telegram-desktop
+
+# Download
 nicotine+
+transmission-gtk
+
+# Edition
+kdenlive
+audacity
+inkscape
+gimp-devel
+
+# Players
+mpv
+termusic
+pipe-viewer-git
+
+# Web Browsers
+firefox
+firefox-i18n-es-mx
+firefox-tridactyl
+firefox-tridactyl-native
+arkenfox-user.js
+brave-bin
+
+# Gaming
 libretro-core-info
 libretro-fbneo-git
 libretro-overlays
@@ -86,27 +125,25 @@ retroarch
 retroarch-assets-glui
 retroarch-assets-ozone
 retroarch-assets-xmb
-auto-cpufreq
-ananicy-cpp
-thermald
+
+# Language servers
+marksman-bin
+texlab
+dockerfile-language-server
+lua-language-server
+typescript-language-server
+vscode-css-languageserver
+bash-language-server
+pyright
+ccls
+
+# Formatters and Linters
+prettierd
+ruff
+eslint_d
+selene
+shellharden
+shfmt
+stylua
 python-black
 python-isort
-blueman
-brightnessctl
-playerctl
-neofetch
-rm-improved
-firejail
-git-delta
-glow
-gpart
-groff
-jq
-topgrade
-tree-sitter
-ttyper
-rsync
-pass
-iotop-c
-lemmy-help
-marksman-bin
