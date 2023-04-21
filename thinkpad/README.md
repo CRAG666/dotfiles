@@ -7,7 +7,7 @@ This configuration is applicable for any thinkpad except for some exceptions(I w
 
 ### Basics
 
-Install auto-cpufreq, ananicy-cpp and thermald. Excecute this:
+Install [auto-cpufreq](https://github.com/AdnanHodzic/auto-cpufreq), [ananicy-cpp](https://gitlab.com/ananicy-cpp/ananicy-cpp)(optional) and thermald. Excecute this:
 
 ```bash
 sudo systemctl --now enable auto-cpufreq ananicy-cpp thermald
@@ -21,7 +21,7 @@ Note: If you see that the battery life is still the same, it may be due to the f
 
 If you are still not satisfied with the battery life, you can do some additional configurations:
 
-Install tpacpi-bat, acpi_call and acpid. Excecute this:
+Install [tpacpi-bat](https://github.com/teleshoes/tpacpi-bat), acpi_call and [acpid](https://wiki.archlinux.org/title/acpid). Excecute this:
 
 ```bash
 sudo systemctl --now enable tpacpi-bat acpid
@@ -115,9 +115,11 @@ Run this to apply the changes:
 ```bash
 sudo systemctl restart acpid
 ```
+
 Something that you didn't, was that the script doesn't start when turning on, maybe something didn't configure well, or it had something to do with the event that I used. Anyway I managed to solve it by defining a oneshot in systemd (If you know any other solution you can do a pr):
 
 Create this `/etc/systemd/system/battery-mode.service`
+
 ```
 
 [Unit]
@@ -144,14 +146,14 @@ sudo systemctl enable battery-mode.service
 
 ## Fan Control
 
-For a long time I used thinkfan, but for me it is very cumbersome to configure. So I prefer to use zcfan, a minimalist and easy to configure alternative.
+For a long time I used thinkfan, but for me it is very cumbersome to configure. So I prefer to use [zcfan](https://github.com/cdown/zcfan), a minimalist and easy to configure alternative.
 
-
-Instal zcfan and enable:
+Instal [zcfan](https://github.com/cdown/zcfan) and enable:
 
 ```bash
 sudo systemctl --now enable zcfan
-````
+```
 
 # Note
+
 If you have any suggestion, do not hesitate to do it, maybe you know some other trick that you want to share.
