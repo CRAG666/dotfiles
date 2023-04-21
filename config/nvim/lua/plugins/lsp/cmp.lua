@@ -8,6 +8,7 @@ local utils = require "utils"
 return {
   "hrsh7th/nvim-cmp",
   event = "InsertEnter",
+  -- lazy = true,
   dependencies = {
     "hrsh7th/cmp-buffer",
     "hrsh7th/cmp-path",
@@ -214,21 +215,19 @@ return {
       },
     }
 
-    -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
     cmp.setup.cmdline({ "/", "?" }, {
       mapping = cmp.mapping.preset.cmdline(),
-      sources = {
-        { name = "buffer" },
+      sources = cmp.config.sources {
+        { name = "buffer", option = { indexing_interval = 284 }, keyword_length = 1, priority = 1 },
       },
     })
 
-    -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
     cmp.setup.cmdline(":", {
       mapping = cmp.mapping.preset.cmdline(),
       sources = cmp.config.sources({
-        { name = "path" },
+        { name = "path", keyword_length = 1, priority = 2 },
       }, {
-        { name = "cmdline" },
+        { name = "cmdline", keyword_length = 1, priority = 1 },
       }),
     })
 

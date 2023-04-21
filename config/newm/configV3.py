@@ -100,8 +100,8 @@ HOME = Path.home()
 background = {
     # "path": f"{HOME}/Imágenes/wallpaperCicle/8.jpg",
     # "path": f"{HOME}/Imágenes/wallpaperCicle/18.png",
-    # "path": f"{HOME}/Imágenes/wallpaperCicle/19.jpeg",
-    "path": f"{HOME}/Imágenes/wallpaperCicle/tec/1.png",
+    "path": f"{HOME}/Imágenes/wallpaperCicle/19.jpeg",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/tec/1.png",
     # "path": f"{HOME}/Imágenes/wallpaperCicle/21.webp",
     # "path": f"{HOME}/Imágenes/wallpaperCicle/11.jpg",
     # "path": f"{HOME}/Imágenes/wallpaperCicle/25.jpg",
@@ -209,7 +209,7 @@ swipe_zoom = {
     "grid_ovr": 0.02,
 }
 
-backlight_manager = BacklightManager(anim_time=1.0)
+backlight_manager = BacklightManager(dim_factors=(0.2, 0.1), anim_time=1.0)
 # # Config for keyboard light
 # kbdlight_manager = BacklightManager(
 #     args="--device='*::kbd_backlight'", anim_time=1.0, bar_display=wob_runner
@@ -371,7 +371,7 @@ def key_bindings(layout: Layout):
         ("XF86Go", run(f"{ROFI}/wifi")),
         (
             "XF86Mail",
-            run("thunderbird"),
+            run("betterbird"),
         ),
         ("XF86Bluetooth", run("blueman-manager")),
         ("XF86AudioPreset", run("pavucontrol")),
