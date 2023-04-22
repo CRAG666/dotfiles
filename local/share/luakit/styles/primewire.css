@@ -1,0 +1,32 @@
+@-moz-document domain("primewire.li") {
+
+/*  comment out to disable  */
+
+/*  header  */
+
+div#messages  {  display: none !important  }
+div.get_a_vpn  {  display: none !important  }
+
+/*  main  */
+
+a[href='/schedule']  {  display: none !important  }
+a[href='/playlists']  {  display: none !important  }
+
+a[href='/forum']  {  display: none !important  }
+a[href='/top_users']  {  display: none !important  }
+
+a[href='/faq']  {  display: none !important  }
+
+a[href='/schedule/personal']  {  display: none !important  }
+a[href^='https://go.nordvpn.net/']  {  display: none !important  }
+
+*  {  box-shadow: none !important; border-radius: 0 !important  }
+
+/*  list  */
+
+a[href^='/links/sponsored/']  {  display: none !important  }
+
+div.mlink_plus  {  display: none !important  }
+ul#multi_drop  {  display: none !important  }
+
+}

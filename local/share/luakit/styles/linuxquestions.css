@@ -1,0 +1,13 @@
+@-moz-document domain("linuxquestions.org") {
+
+/*  comment out to disable  */
+
+/*  just show left td  */
+
+td.page:nth-of-type(2)  {  display: none !important  }
+
+/*  hide huge Notice paragraph  */
+
+table.tborder:nth-of-type(3)  {  display: none !important  }
+
+}

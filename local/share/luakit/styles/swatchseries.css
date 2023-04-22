@@ -1,0 +1,23 @@
+@-moz-document domain("www1.watch-series.la") {
+
+/*  comment out to disable  */
+
+div#top-band  {  display: none  !important  }
+div#toTop  {  display: none  !important  }
+
+div.notify  {  display: none  !important  }
+a.shd_button  {  display: none  !important  }
+
+a[title='Contact US']  {  display: none  !important  }
+
+div.show-buttons  {  display: none  !important  }
+div.episode-buttons  {  display: none  !important  }
+
+li.how-to-watch  {  display: none  !important  }
+tr.download_link_sponsored  {  display: none  !important  }
+
+a.freeEpisode  {  display: none  !important  }
+a.report-link  {  display: none  !important  }
+div.footer  {  display: none  !important  }
+
+}

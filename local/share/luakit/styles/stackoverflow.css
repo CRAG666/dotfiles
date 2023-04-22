@@ -1,0 +1,127 @@
+@-moz-document domain("stackoverflow.com"), domain("meta.stackexchange.com") {
+
+/*  comment out to disable  */
+
+:root {
+  --pro: #258;
+  --con: #512;
+  --lua_bg: #258;
+  --lua_fg: #FFF;
+  --bash_bg: #000;
+  --bash_fg: #0E0;
+  --python_bg: #258;
+  --python_fg: #FA0;
+}
+
+div.user-info  {  background:  #222  !important  }
+div.owner  {  background:  #000  !important  }
+
+div#left-sidebar  {  display: none  !important  }
+
+a.-marketing-link  {  display: none  !important  }
+
+div.s-sidebarwidget > ul  {  display: none  !important  }
+
+div#hot-network-questions  {  display: none  !important  }
+
+div.js-consent-banner  {  display: none  !important  }
+
+/*  pros  */
+
+a[href="/questions/tagged/2d"]  {  background:  var(--pro)  !important  }
+a[href="/questions/tagged/3d"]  {  background:  var(--pro)  !important  }
+a[href="/questions/tagged/cad"]  {  background:  var(--pro)  !important  }
+
+a[href="/questions/tagged/game-development"]  {  background:  var(--pro)  !important  }
+a[href="/questions/tagged/scripting"]  {  background:  var(--pro)  !important  }
+a[href="/questions/tagged/function"]  {  background:  var(--pro)  !important  }
+a[href="/questions/tagged/json"]  {  background:  var(--pro)  !important  }
+a[href="/questions/tagged/math"]  {  background:  var(--pro)  !important  }
+a[href="/questions/tagged/string"]  {  background:  var(--pro)  !important  }
+a[href="/questions/tagged/jquery"]  {  background:  var(--pro)  !important  }
+
+/*  bash  */
+
+a[href="/questions/tagged/sh"]  {  background: var(--bash_bg) !important; color: var(--bash_fg) !important  }
+a[href="/questions/tagged/bash"]  {  background: var(--bash_bg) !important; color: var(--bash_fg) !important  }
+a[href="/questions/tagged/curl"]  {  background: var(--bash_bg) !important; color: var(--bash_fg) !important  }
+a[href="/questions/tagged/unix"]  {  background: var(--bash_bg) !important; color: var(--bash_fg) !important  }
+a[href="/questions/tagged/shell"]  {  background: var(--bash_bg) !important; color: var(--bash_fg) !important  }
+a[href="/questions/tagged/linux"]  {  background: var(--bash_bg) !important; color: var(--bash_fg) !important  }
+a[href="/questions/tagged/debian"]  {  background: var(--bash_bg) !important; color: var(--bash_fg) !important  }
+a[href="/questions/tagged/youtube-dl"]  {  background: var(--bash_bg) !important; color: var(--bash_fg) !important  }
+a[href="/questions/tagged/raspberry-pi"]  {  background: var(--bash_bg) !important; color: var(--bash_fg) !important  }
+a[href="/questions/tagged/raspberry-pi3"]  {  background: var(--bash_bg) !important; color: var(--bash_fg) !important  }
+a[href="/questions/tagged/command-prompt"]  {  background: var(--bash_bg) !important; color: var(--bash_fg) !important  }
+
+/*  lua  */
+
+a[href="/questions/tagged/lua"]  { background: var(--lua_bg) !important; color: var(--lua_fg) !important  }
+a[href="/questions/tagged/lua-5.1"]  { background: var(--lua_bg) !important; color: var(--lua_fg) !important  }
+a[href="/questions/tagged/luajit"]  { background: var(--lua_bg) !important; color: var(--lua_fg) !important  }
+a[href="/questions/tagged/lua-patterns"]  { background: var(--lua_bg) !important; color: var(--lua_fg) !important  }
+a[href="/questions/tagged/pattern-matching"]  { background: var(--lua_bg) !important; color: var(--lua_fg) !important  }
+a[href="/questions/tagged/luarocks"]  { background: var(--lua_bg) !important; color: var(--lua_fg) !important  }
+a[href="/questions/tagged/luasocket"]  { background: var(--lua_bg) !important; color: var(--lua_fg) !important  }
+a[href="/questions/tagged/love2d"]  {  background: #83c0f0 !important; color: #e658a0 !important  }
+
+a[href="/questions/tagged/twitter"]  { background: var(--lua_bg) !important; color: var(--lua_fg) !important  }
+
+/*  python  */
+
+a[href="/questions/tagged/python"]  { background: var(--python_bg) !important; color: var(--python_fg) !important  }
+a[href="/questions/tagged/python-2"]  { background: var(--python_bg) !important; color: var(--python_fg) !important  }
+a[href="/questions/tagged/python-2.7"]  { background: var(--python_bg) !important; color: var(--python_fg) !important  }
+a[href="/questions/tagged/python-2.x"]  { background: var(--python_bg) !important; color: var(--python_fg) !important  }
+a[href="/questions/tagged/python-3"]  { background: var(--python_bg) !important; color: var(--python_fg) !important  }
+a[href="/questions/tagged/python-3.x"]  { background: var(--python_bg) !important; color: var(--python_fg) !important  }
+a[href="/questions/tagged/python-3.7"]  { background: var(--python_bg) !important; color: var(--python_fg) !important  }
+
+a[href="/questions/tagged/pip"]  { background: var(--python_bg) !important; color: var(--python_fg) !important  }
+a[href="/questions/tagged/pygame"]  { background: var(--python_bg) !important; color: var(--python_fg) !important  }
+a[href="/questions/tagged/numpy"]  { background: var(--python_bg) !important; color: var(--python_fg) !important  }
+a[href="/questions/tagged/pandas"]  { background: var(--python_bg) !important; color: var(--python_fg) !important  }
+a[href="/questions/tagged/python-turtle"]  { background: var(--python_bg) !important; color: var(--python_fg) !important  }
+a[href="/questions/tagged/beautifulsoup"]  { background: var(--python_bg) !important; color: var(--python_fg) !important  }
+a[href="/questions/tagged/tkinter"]  { background: var(--python_bg) !important; color: var(--python_fg) !important  }
+a[href="/questions/tagged/glib"]  { background: var(--python_bg) !important; color: var(--python_fg) !important  }
+a[href="/questions/tagged/lgi"]  { background: var(--python_bg) !important; color: var(--python_fg) !important  }
+
+/*  cons,  probably a dumb question that's not worth your time  */
+
+a[href="/questions/tagged/discord"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/macos"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/ubuntu"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/roblox"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/minecraft"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/computercraft"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/garrys-mod"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/unity3d"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/unity"]  {  background:  var(--con)  !important  }
+
+a[href="/questions/tagged/mouse"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/mouseevent"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/logitech"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/logitech-gaming-software"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/grand-theft-auto"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/world-of-warcraft"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/facebook"]  {  background:  var(--con)  !important  }
+
+a[href="/questions/tagged/wireshark"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/encryption"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/decompiling"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/disassembly"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/obfuscation"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/deobfuscation"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/reverse-engineering"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/cheat-engine"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/virtual-machine"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/visual-studio-code"]  {  background:  var(--con)  !important  }
+a[href="/questions/tagged/visual-studio"]  {  background:  var(--con)  !important  }
+
+a[href="/users/1234567890/person-that-sucks"]  {  background:  var(--con)  !important  }
+
+div.page-sizer  {  display: none  !important  }
+footer  {  display: none  !important  }
+
+}

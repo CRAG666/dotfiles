@@ -102,7 +102,7 @@ set.listchars = {
 }
 set.list = false
 set.laststatus = 3
-set.cmdheight = 1
+set.cmdheight = 0
 
 -- Search
 set.hlsearch = true

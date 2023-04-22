@@ -1,0 +1,7 @@
+@-moz-document domain("codeproject.com") {
+
+/*  comment out to disable  */
+
+div.cc-banner  {  display: none !important  }
+
+}

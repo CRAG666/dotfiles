@@ -1,0 +1,9 @@
+@-moz-document domain("gfycat.com") {
+
+/*  comment out to disable  */
+
+header  {  display: none  !important  }
+div.upnext-items  {  display: none  !important  }
+div.block-3  {  display: none  !important  }
+
+}

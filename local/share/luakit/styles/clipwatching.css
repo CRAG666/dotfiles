@@ -1,0 +1,19 @@
+@-moz-document domain("clipwatching.com") {
+
+/*  comment out to disable  */
+
+nav.navbar  {  display: none  !important  }
+
+body  {  background-color: #111  !important  }
+
+div#video-content div#vplayer  {  width: 640px  !important  }
+
+img[src='https://clipwatching.com/images/cancel.png']  {  display: none  !important  }
+
+div#showmac  {  display: none  !important  }
+
+div.section  {  display: none  !important  }
+
+footer  {  display: none  !important  }
+
+}

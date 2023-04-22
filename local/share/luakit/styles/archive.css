@@ -1,0 +1,11 @@
+@-moz-document domain("archive.org") {
+
+/*  comment out to disable  */
+
+header  {  display: none !important  }
+
+div.donate-content  {  display: none !important  }
+
+footer {  display: none !important  }
+
+}

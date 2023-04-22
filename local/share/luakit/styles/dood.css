@@ -1,0 +1,7 @@
+@-moz-document domain("dood.watch") {
+
+/*  comment out to disable  */
+
+div.player { width: 512px !important ; height: 380px !important ; display: block !important ; margin-left: auto !important ; margin-right: auto !important ; margin-top: 60px !important }
+
+}

@@ -1,0 +1,38 @@
+@-moz-document domain("reddit.com"), domain("www.reddit.com") {
+
+/*  comment out to disable  */
+
+body  {  background-color: #aaa  !important  }
+
+* { -webkit-border-radius: 0 !important ; border-radius: 0 !important }
+
+div.happening-now  {  display: none !important  }
+div.listing-chooser  {  display: none !important  }
+
+a[href$="/controversial/"]  {  display: none !important  }
+a[href$="/gilded/"]  {  display: none !important  }
+a[href$="/wiki/"]  {  display: none !important  }
+
+a.title  {  color: #078 !important  }
+a.subreddit  {  color: #d60 !important ; font-size: 15px !important  }
+span.domain  {  color: #000 !important ; font-size: 11px !important  }
+span.domain > a  {  color: #d60 !important ; font-size: 12px !important  }
+
+li.share  {  display: none !important  }
+li.save-button  {  display: none !important  }
+li.give-gold-button  {  display: none !important  }
+
+form.hide-button  {  display: none !important  }
+li.report-button  {  display: none !important  }
+li.crosspost-button  {  display: none !important  }
+
+a.thumbnail  {  width: 110px !important ; height: 110px !important  }
+a.thumbnail > img  {  width: 110px !important ; height: 110px !important  }
+
+span.rank  {  display: none !important  }
+span.awardings-bar  {  display: none !important  }
+p.debuginfo  {  display: none !important  }
+
+div.footer-parent  {  display: none !important  }
+
+}

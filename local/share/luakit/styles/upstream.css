@@ -1,0 +1,13 @@
+@-moz-document domain("upstream.to") {
+
+/*  comment out to disable  */
+
+header  {  display: none  !important  }
+div#headerinside  {  display: none  !important  }
+
+div#wrapper div.container div#content div#vplayer  {  width: 640px  !important  }
+div#wrapper div.container div#content div.section  {  display: none  !important  }
+
+footer  {  display: none  !important  }
+
+}

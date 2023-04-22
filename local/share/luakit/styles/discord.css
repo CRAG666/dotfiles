@@ -1,0 +1,37 @@
+@-moz-document domain("discord.com") {
+
+/*  comment out to disable  */
+
+/*  login  */
+
+canvas[class^='canvas-']  {  display: none  !important  }
+
+div[class^='rightSplit-']  {  display: none  !important  }
+
+div.qrLogin-1AOZMt  {  display: none  !important  }
+
+div[class^='marginTop4-']  {  display: none  !important  }
+
+/*  main page  */
+
+div[class^='notice-']  {  display: none  !important  }
+
+a[href='/store']  {  display: none  !important  }
+
+div[class^='sidebar-']  {  width: 180px  !important  }
+
+.avatar-3W3CeO { width: 64px !important ; height: 64px !important }
+
+* { -webkit-border-radius: 0 !important ; border-radius: 0 !important }
+
+img  {  border: none  !important  }
+div  {  border: none  !important  }
+svg  {  border: none  !important  }
+
+mask  {  display: none  !important  }
+path  {  display: none  !important  }
+foreignobject  {  display: none  !important  }
+
+div.uploadArea-3QgLtW  {  display: none  !important  }
+
+}

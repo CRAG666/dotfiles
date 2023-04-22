@@ -1,0 +1,20 @@
+@-moz-document domain("abcvideo.cc") {
+
+/*  comment out to disable  */
+
+div.header  {  display: none  !important  }
+div#headerinside  {  display: none  !important  }
+div#crazy_panel  {  display: none  !important  }
+div.menu  {  display: none  !important  }
+
+div.sufi-main  {  background-color: #111  !important  }
+
+div#video-content div#vplayer  {  width: 640px  !important  }
+
+input[value='Send Report']  {  display: none  !important  }
+
+div#crazy_btn  {  display: none  !important  }
+div.section  {  display: none  !important  }
+footer  {  display: none  !important  }
+
+}

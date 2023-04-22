@@ -1,0 +1,9 @@
+@-moz-document domain("unix.stackexchange.com") {
+
+/*  comment out to disable  */
+
+.js-consent-banner  {  display: none !important  }
+
+footer  {  display: none !important  }
+
+}

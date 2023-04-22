@@ -1,0 +1,40 @@
+@-moz-document domain('chaturbate.com') {
+
+/*  comment out to disable  */
+
+div#header  {  display: none !important  }
+
+div#entrance_terms_overlay > div#entrance_terms > div.header  {  display: none !important  }
+div#entrance_terms_overlay > div#entrance_terms > div.scroll  {  display: none !important  }
+div#entrance_terms_overlay > div#entrance_terms > p  {  display: none !important  }
+
+div.ad  {  display: none !important  }
+
+a[href='/male-cams/']  {  display: none !important  }
+a[href='/followed-cams/']  {  display: none !important  }
+
+div.thumbnail_label  {  display: none !important  }
+div#footer-holder  {  display: none !important  }
+
+/*  chatrooms  */
+
+a.reportAbuseLink  {  display: none !important  }
+div#users-tab-default  {  display: none !important  }
+div#pm-tab-default  {  display: none !important  }
+
+video  {  width: 512px !important ; height: 240px  !important }
+
+[rel='nofollow']  {  display: none !important  }
+
+span[style='width: 270px; height: 69px; display: inline-block; vertical-align: top; margin: 0px;']  {  display: none !important  }
+
+div#ChatTabContainer  {  display: none !important  }
+div.defaultColor  {  display: none !important  }
+div.hasDarkBackground  {  display: none !important  }
+div#satisfactionScore  {  display: none !important  }
+
+a[href^='/fanclub/']  {  display: none !important  }
+img[src^='https://ssl-ccstatic.']  {  display: none !important  }
+img[src^='.gif']  {  display: none !important  }
+
+}

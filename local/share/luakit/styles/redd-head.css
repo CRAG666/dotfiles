@@ -1,0 +1,18 @@
+@-moz-document domain("reddit.com") {
+
+/*  comment out to disable  */
+
+div#header > div#sr-header-area  {  display: none !important  } 
+
+div.side  {  display: none !important  }
+
+/*  div.commentarea  {  display: none !important  }  */
+
+a#chat  {  display: none !important  }
+a#chat-count  {  display: none !important  }
+
+iframe#chat-app  {  display: none !important  }
+
+a[href='https://www.reddit.com/chat/minimize']  {  display: none !important  }
+
+}

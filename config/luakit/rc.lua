@@ -55,6 +55,7 @@ local downloads = require( 'downloads' )  --  Add download capability
 local viewpdf   = require( 'viewpdf' )  --  Automatic PDF downloading & opening
 local image_css = require( 'image_css' )  --  Add a stylesheet when showing images
 
+local adblock  = require( 'adblock' )  --  Adblock filter support
 local userscripts  = require( 'userscripts' )  --  Greasemonkey-like JavaScript / Userscript support '.user.js'
 local styles  = require( 'styles' )  --  loader for user's local CSS styles
 local noscript  = require( 'noscript' )  --  Toggle JS &/or plugins on a per-domain basis.
@@ -101,8 +102,6 @@ require( 'userconf' )
 
 require( 'allowed' )  --  dedicated script to allow JS & images on trusted websites
 
-require_web_module("block_referers_wm")
-require("block_referers")
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 --  End various required & optional module imports.
 --  Generate pages to facilitate human-interaction:
@@ -112,6 +111,7 @@ local log_chrome  = require( 'log_chrome' )  --  Add  luakit://log/  page
 local help_chrome  = require( 'help_chrome' )  --  Add  luakit://help/  page
 local binds_chrome  = require( 'binds_chrome' )  --  Add  luakit://binds/  page
 local newtab_chrome  = require( 'newtab_chrome' )  --  Add  luakit://newtab/  page
+local adblock_chrome  = require( 'adblock_chrome' )  --  Add  luakit://adblock/  page
 local history_chrome  = require( 'history_chrome' )   --  Add  luakit://history/  page
 local settings_chrome  = require( 'settings_chrome' )  --  Add  luakit://settings/  page
 local bookmarks_chrome  = require( 'bookmarks_chrome' ) --  Add  luakit://bookmarks/  page

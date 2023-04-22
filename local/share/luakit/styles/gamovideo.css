@@ -1,0 +1,15 @@
+@-moz-document domain("gamovideo.com") {
+
+/*  comment out to disable  */
+
+div.navbar-inner  {  display: none  !important  }
+
+body  {  background-color: #111  !important  }
+
+div#container > div#main  {  background-color: #333 !important  }
+
+div#container > div#main > center div#vplayer  {  width: 640px  !important  }
+
+div#footer  {  display: none  !important  }
+
+}

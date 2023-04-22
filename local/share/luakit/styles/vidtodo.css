@@ -1,0 +1,15 @@
+@-moz-document domain("vidtod.com") {
+
+/*  comment out to disable  */
+
+div#header  {  display: none  !important  }
+
+body  {  background-color: #111  !important  }
+
+div#container > div#video-content > div#pdiv > div#play-limit-box {  width: 512px  !important  }
+div#container > div#video-content > div#pdiv > div#vplayer > img {  display: none  !important  }
+
+div#sidebar1  {  display: none  !important  }
+footer  {  display: none  !important  }
+
+}

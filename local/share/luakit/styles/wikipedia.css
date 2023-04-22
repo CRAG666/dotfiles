@@ -1,0 +1,13 @@
+@-moz-document domain("wikipedia.org") {
+
+/*  comment out to disable  */
+
+header  {  display: none !important  }
+
+div#siteNotice  {  display: none !important  }
+div#frb-nag  {  display: none !important  }
+div#mw-panel  {  display: none !important  }
+
+footer {  display: none !important  }
+
+}

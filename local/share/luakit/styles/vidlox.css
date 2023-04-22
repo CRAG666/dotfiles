@@ -1,0 +1,12 @@
+@-moz-document domain("vidlox.me") {
+
+/*  comment out to disable  */
+
+header#header  {  display: none  !important  }
+
+content > div.container div#video-content  {  width: 640px  !important  }
+content > div.container div.infopanel  {  display: none  !important  }
+
+footer  {  display: none  !important  }
+
+}

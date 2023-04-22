@@ -1,0 +1,9 @@
+@-moz-document domain("www.lowes.com") {
+
+/*  comment out to disable  */
+
+div.met-component-banner  {  display: none !important  }
+
+div#footerApp  {  display: none !important  }
+
+}

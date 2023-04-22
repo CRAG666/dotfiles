@@ -1,0 +1,8 @@
+@-moz-document domain("pjtrailers.com") {
+
+/*  comment out to disable  */
+
+div.fb_dialog_content  {  display: none !important  }
+div.fb-customerchat  {  display: none !important  }
+
+}

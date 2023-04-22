@@ -1,0 +1,22 @@
+@-moz-document domain("github.com") {
+
+/*  comment out to disable  */
+
+/*  header  */
+main > div:first-of-type  {  background-color: #999  !important  }
+
+/*  usually just side column, but sometimes full-page, such as wiki  */
+body  {  background-color: #BBB  !important  }
+
+button[aria-label^="Edit the file"]  {  background-color: #FF9955  !important  }
+button[aria-label^="Delete the file"]  {  background-color: #FF3366  !important  }
+
+/*  front page  */
+div#readme  {  background-color: #CCC  !important  }
+
+nav[aria-label='Repository'] a[data-tab-item='i5wiki-tab'] {  background: #CCC  !important  }
+
+/*  codeblocks  */
+table  {  background-color: #CCC  !important  }
+
+}

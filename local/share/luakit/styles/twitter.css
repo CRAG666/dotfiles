@@ -1,0 +1,68 @@
+@-moz-document domain("twitter.com") {
+
+/*  comment lines out to disable them  */
+
+div.errorContainer  {  display: none  !important  }
+
+div[role='group'] > div:nth-child(4)  {  display: none  !important  }
+div[role='group'] > div:nth-child(5) > div > div > img  {  background-color: rgb(0, 60, 90)  !important  }
+
+a[aria-label="Home"]  {  display: none  !important  }
+a[aria-label="Home (New unread Tweets)"]  {  display: none  !important  }
+a[aria-label="Search and explore"]  {  display: none  !important  }
+
+a[aria-label="Notifications"] {  background-color: rgb(11, 22, 33)  !important  }
+a[aria-label="Direct Messages"] {  background-color: rgb(11, 22, 33)  !important  }
+a[aria-label="Profile"] {  background-color: rgb(11, 22, 33)  !important  }
+
+a[aria-label="Hidden replies"] {  background-color: rgb(255, 102, 0)  !important  }
+
+div[data-testid='reply'] span {  background-color: rgb(60, 0, 30)  !important  }
+div[data-testid='SideNav_AccountSwitcher_Button']  {  display: none  !important  }
+
+a[data-testid="SideNav_NewTweet_Button"]  {  background-color: rgb(11, 22, 33)  !important  }
+
+div[data-suggestion-json='ActivityTweet']  {  display: none  !important  }
+
+a[aria-label='Twitter']  {  display: none  !important  }
+a[aria-label='Lists']  {  display: none  !important  }
+a[aria-label='Bookmarks']  {  display: none  !important  }
+
+aside[aria-label='Who to follow']  {  display: none  !important  }
+
+* {  box-shadow: none  !important  }
+* {  border-radius: 0  !important  }
+
+/*  .css-1dbjc4n  {  display: block  !important  }  */
+
+/*  .css-9paBcd  {  flex-basis: fit-content !important ;  }  */
+
+* {  transition-property: ''  !important  }
+* {  transition-duration: 0  !important  }
+
+/*  * {  -webkit-box-flex: ''  !important  }
+* {  flex-shrink: ''  !important  }
+* {  flex-grow: ''  !important  }  */
+
+/*  auto,  min-content,  max-content,  fit-content,  content  */
+
+* {  flex-basis: content  !important  }
+/*  * {  flex-direction: ''  !important  }  */
+
+/*  sidebar, What's Happening?  twitter.com/explore/tabs/for-you  */
+div.r-1uhd6vh  {  display: none  !important  }
+
+a[href="/explore/tabs/us-elections-2020"]  {  display: none  !important  }
+a[href="/explore/tabs/sports_unified"]  {  display: none  !important  }
+a[href="/explore/tabs/covid-19"]  {  display: none  !important  }
+
+nav[aria-label='Footer']  {  display: none  !important  }
+
+time  {  font-size: 10px  !important  }
+
+button#spam-btn.list-btn[value="spam"] {  background-color: #000  !important  }
+button#hashtag-btn.list-btn[name="spam_type"] {  background-color: rgb(255, 102, 0)  !important  }
+
+div[data-testid="DMDrawer"]  {  display: none  !important  }
+
+}
