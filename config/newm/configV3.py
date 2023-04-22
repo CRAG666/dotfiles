@@ -380,6 +380,7 @@ def key_bindings(layout: Layout):
         (super + "c", run("hyprpicker -a")),
         (super + "s", toggle_inhibit_idle),
         (super + "d", run("kitty --class lf-select -e lf")),
+        (super + "a", lambda: layout.move_workspace(2)),
     )
 
 

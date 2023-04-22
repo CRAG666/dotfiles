@@ -22,7 +22,7 @@ class TranslatorPlugin(Plugin):
 
     def __init__(self):
         super().__init__()
-        self.url = "/translate_a/single"
+        self.endpoint = "/translate_a/single"
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -30,7 +30,9 @@ class TranslatorPlugin(Plugin):
             "Referer": "https://translate.google.com/",
             "Origin": "https://translate.google.com",
         }
-        self.conn = http.client.HTTPSConnection("translate.googleapis.com")
+        self.url = "translate.googleapis.com"
+        self.conn = http.client.HTTPSConnection(self.url)
+        self.num_conn = 0
 
     def google_translate(self, text, source_language, target_language):
         self.cache_key = hashlib.md5(
@@ -49,7 +51,7 @@ class TranslatorPlugin(Plugin):
 
         data = urllib.parse.urlencode(params).encode("utf-8")
 
-        self.conn.request("POST", self.url, data, self.headers)
+        self.conn.request("POST", self.endpoint, data, self.headers)
 
         response = self.conn.getresponse()
 
@@ -64,6 +66,11 @@ class TranslatorPlugin(Plugin):
             result_text = ""
 
         cache[self.cache_key] = result_text
+        self.num_conn += 1
+        if self.num_conn == 10:
+            self.conn.close()
+            self.conn = http.client.HTTPSConnection(self.url)
+            self.num_conn += 1
         return result_text
 
     def launch(self, window, id):
