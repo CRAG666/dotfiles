@@ -12,9 +12,9 @@ if [ "$on_ac_power" -eq 1 ]; then
 	# 192 	balance_power
 	# 255 	power               *
 	# The numbers above are only suggestions, you can use the value that best suits your needs
-	# for i in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference ; do
-	#     echo "0" > ${i}
-	# done
+	for i in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference ; do
+	    echo "128" > ${i}
+	done
 
 	# The following line of code changes the value of the "laptop_mode" parameter to 0 in the /proc/sys/vm file,
 	# which means that the laptop mode that adjusts the system to save power and extend battery life is turned off.
@@ -61,9 +61,9 @@ else
 	# 192 	balance_power
 	# 255 	power
 	# The numbers above are only suggestions, you can use the value that best suits your needs
-	# for i in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference ; do
-	#     echo "255" > ${i}
-	# done
+	for i in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference ; do
+	    echo "255" > ${i}
+	done
 
 	# See https://github.com/fenrus75/powertop
 	/usr/bin/powertop --auto-tune
