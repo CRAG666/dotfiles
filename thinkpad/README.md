@@ -27,9 +27,9 @@ In the script I provide in the section [further-optimize-energy-management](#fur
 
 Note:
 
-    * See https://community.frame.work/t/guide-linux-battery-life-tuning/6665/203
+* See https://community.frame.work/t/guide-linux-battery-life-tuning/6665/203
 
-    * See https://www.kernel.org/doc/html/latest/admin-guide/pm/intel_pstate.html#energy-vs-performance-hints
+* See https://www.kernel.org/doc/html/latest/admin-guide/pm/intel_pstate.html#energy-vs-performance-hints
 
 ### Other things that may be useful
 
