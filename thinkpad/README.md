@@ -25,7 +25,10 @@ If your computer supports the intel_pstate module, you can use the following ins
 
 In the script I provide in the section [further-optimize-energy-management](#further-optimize-energy-management), uncomment the following for loops `for i in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference ; do`, remember to adjust according to your needs
 
-Note: See https://community.frame.work/t/guide-linux-battery-life-tuning/6665/203
+Note:
+
+    - See https://community.frame.work/t/guide-linux-battery-life-tuning/6665/203
+    - See https://www.kernel.org/doc/html/latest/admin-guide/pm/intel_pstate.html#energy-vs-performance-hints
 
 ### Other things that may be useful
 
