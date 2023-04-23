@@ -18,7 +18,7 @@ help:
 install: ## Install arch linux packages using yay
 	sudo pacman -S --needed --noconfirm yay
 	cat ${PWD}/pkglist.txt | grep -v "^#" | grep -v "^$" | xargs -L 1 yay -S --needed --noconfirm
-	$(SYSTEMD_ENABLE) auto-cpufreq ananicy-cpp thermald
+	$(SYSTEMD_ENABLE) ananicy-cpp
 	bob use nightly
 
 etc: ## Add system settings
@@ -52,12 +52,12 @@ newm: wayland ## config for newm(wayland)
 	$(SYSTEMD_ENABLE) greetd
 
 thinkpad: ## Config for thinkpad(power management, battery thresholds and fan control)
-	yay -S --needed --noconfirm tpacpi-bat zcfan acpi_call acpid
+	yay -S --needed --noconfirm tpacpi-bat zcfan acpi_call acpid throttled
 	sudo cp ${PWD}/$@/etc/zcfan.conf /etc/
 	sudo cp ${PWD}/$@/etc/conf.d/tpacpi /etc/conf.d/
 	sudo cp ${PWD}/$@/etc/acpi/events/battery_event /etc/acpi/events
 	sudo cp ${PWD}/$@/etc/acpi/actions /etc/acpi/
-	$(SYSTEMD_ENABLE) zcfan tpacpi-bat acpid
+	$(SYSTEMD_ENABLE) zcfan tpacpi-bat acpid throttled
 
 self-tools: ## Add cli tools to local bin
 	ln -vsf ${PWD}/local/bin/* ${HOME}/.local/bin/

@@ -15,6 +15,8 @@ if [ "$on_ac_power" -eq 1 ]; then
 	for i in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference ; do
 	    echo "128" > ${i}
 	done
+  # Enable Turbo
+  echo 0 > /sys/devices/system/cpu/intel_pstate/no_turbo
 
 	# The following line of code changes the value of the "laptop_mode" parameter to 0 in the /proc/sys/vm file,
 	# which means that the laptop mode that adjusts the system to save power and extend battery life is turned off.
@@ -64,6 +66,10 @@ else
 	for i in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference ; do
 	    echo "255" > ${i}
 	done
+
+  # Turbo will draw more power and reduce battery life while increasing CPU temperature.
+  # Disable Turbo
+  echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo
 
 	# See https://github.com/fenrus75/powertop
 	/usr/bin/powertop --auto-tune

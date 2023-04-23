@@ -1,9 +1,7 @@
 # System utilities
 acpi
 keyd
-auto-cpufreq
 ananicy-cpp
-thermald
 
 # Basic security
 nftables
@@ -49,6 +47,7 @@ iotop-c
 neofetch
 duf
 progress
+s-tui
 
 # Audio
 pipewire
