@@ -3,6 +3,7 @@
 on_ac_power=$(cat /sys/class/power_supply/AC/online)
 if [ "$on_ac_power" -eq 1 ]; then
 	echo "Power mode"
+
 	# cat /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_available_preferences
 	# The Energy Performance Preference (EPP)
 	# These 4 numbers when written translate like so:
@@ -15,8 +16,14 @@ if [ "$on_ac_power" -eq 1 ]; then
 	for i in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference ; do
 	    echo "128" > ${i}
 	done
-  # Enable Turbo
-  echo 0 > /sys/devices/system/cpu/intel_pstate/no_turbo
+
+  echo 80 > /sys/devices/system/cpu/intel_pstate/max_perf_pct
+  echo 20 > /sys/devices/system/cpu/intel_pstate/min_perf_pct
+  echo  0 > /sys/devices/system/cpu/intel_pstate/no_turbo
+
+  for i in {4..11}; do
+    echo 1 > /sys/devices/system/cpu/cpu$i/online
+  done
 
 	# The following line of code changes the value of the "laptop_mode" parameter to 0 in the /proc/sys/vm file,
 	# which means that the laptop mode that adjusts the system to save power and extend battery life is turned off.
@@ -55,6 +62,9 @@ if [ "$on_ac_power" -eq 1 ]; then
 else
 	echo "Battery mode"
 
+	# See https://github.com/fenrus75/powertop
+	/usr/bin/powertop --auto-tune
+
 	# The Energy Performance Preference (EPP)
 	# These 4 numbers when written translate like so:
 	# Number 	EPP
@@ -64,15 +74,16 @@ else
 	# 255 	power
 	# The numbers above are only suggestions, you can use the value that best suits your needs
 	for i in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference ; do
-	    echo "255" > ${i}
+	    echo "225" > ${i}
 	done
 
-  # Turbo will draw more power and reduce battery life while increasing CPU temperature.
-  # Disable Turbo
-  echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo
+  echo 20 > /sys/devices/system/cpu/intel_pstate/max_perf_pct
+  echo 20 > /sys/devices/system/cpu/intel_pstate/min_perf_pct
+  echo  1 > /sys/devices/system/cpu/intel_pstate/no_turbo
 
-	# See https://github.com/fenrus75/powertop
-	/usr/bin/powertop --auto-tune
+  for i in {4..11}; do
+    echo 0 > /sys/devices/system/cpu/cpu$i/online
+  done
 
 	# The following line of code changes the value of the "laptop_mode" parameter to 5 in the /proc/sys/vm file,
 	# which means that the system is set to balance power consumption and performance by reducing the number of disk
@@ -126,5 +137,9 @@ else
 	# The following line of code changes the value of the "policy" parameter to "powersave" in the /sys/module/pcie_aspm/parameters file,
 	# which means that the PCIe power management policy is set to power-saving.
 	echo powersave >/sys/module/pcie_aspm/parameters/policy
+
+  # Disable Bluetooth
+  rfkill block bluetooth
+
 fi
 exit 0

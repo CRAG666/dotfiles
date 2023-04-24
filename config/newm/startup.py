@@ -20,7 +20,6 @@ def startup():
         "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP",
         "dbus-update-activation-environment 2>/dev/null \
         && dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP",
-        "rfkill block bluetooth",
         "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1",
         "fnott",
         "nm-applet --indicator",
