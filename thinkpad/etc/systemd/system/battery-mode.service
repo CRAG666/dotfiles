@@ -1,14 +1,11 @@
 [Unit]
-Description=Set Battery or AC mode at startup
+Description=Configure CPU and power settings based on battery mode
 
 [Service]
 Type=oneshot
-ExecStart=/etc/acpi/actions/battery.sh
+ExecStart=/bin/bash /etc/acpi/actions/battery.sh
 # disable timeout logic
 TimeoutSec=0
-#StandardOutput=tty
-RemainAfterExit=yes
-SysVStartPriority=99
 
 [Install]
 WantedBy=multi-user.target
