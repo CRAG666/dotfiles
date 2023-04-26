@@ -1,6 +1,6 @@
 import os
 
-SCRIPTS = os.path.expanduser("~/.scripts")
+# SCRIPTS = os.path.expanduser("~/.scripts")
 
 
 def execute(cmd):
@@ -26,7 +26,7 @@ def startup():
         "wl-paste --watch cliphist store",
         "avizo-service",
         "wlsunset -l 16.0867 -L -93.7561 -t 2500 -T 6000",
-        f"{SCRIPTS}/battery-status.sh",
+        # f"{SCRIPTS}/battery-status.sh",
         "brightnessctl set 1",
     )
 

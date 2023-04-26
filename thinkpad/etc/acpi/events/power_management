@@ -1,2 +1,2 @@
 event=ac_adapter.*
-action=/usr/local/bin/thinkpad-pm-event.sh
+action=/etc/acpi/actions/battery.sh

@@ -81,7 +81,7 @@
       "active": "<span foreground='#b4befe'></span>",
       "inactive": "<span foreground='#cdd6f4'>󰒲</span>"
     },
-    "interval": 5,
+    "interval": 20,
     "exec": "~/.scripts/newm-cafeine",
   },
   "custom/playerctl": {
