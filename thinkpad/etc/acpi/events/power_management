@@ -1,2 +1,2 @@
 event=ac_adapter.*
-action=/etc/acpi/actions/battery.sh
+action=/etc/acpi/actions/power-mode.sh
