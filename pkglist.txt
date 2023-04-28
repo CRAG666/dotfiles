@@ -143,6 +143,7 @@ eslint_d
 selene
 shellharden
 shfmt
+shellcheck
 stylua
 python-black
 python-isort

@@ -40,6 +40,7 @@ local sources = {
   -- b.diagnostics.codespell,
   -- with_root_file(b.diagnostics.selene, "selene.toml"),
   -- with_diagnostics_code(b.diagnostics.shellcheck),
+  b.diagnostics.shellcheck,
   b.diagnostics.zsh,
   -- refurb,
   -- b.diagnostics.cspell.with {
@@ -48,6 +49,7 @@ local sources = {
   -- b.diagnostics.stylelint,
 
   -- code actions
+  b.code_actions.shellcheck,
   b.code_actions.gitsigns,
   b.code_actions.eslint_d,
   b.code_actions.gitrebase,

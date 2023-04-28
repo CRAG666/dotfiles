@@ -55,10 +55,10 @@ set.path:remove "/usr/include"
 set.path:append "**"
 
 -- Spaces & Tabsset
-vim.bo.expandtab = true
-vim.bo.tabstop = 2
-vim.bo.shiftwidth = 2
-vim.bo.softtabstop = -1
+set.expandtab = true
+set.tabstop = 2
+set.shiftwidth = 2
+set.softtabstop = -1
 set.smarttab = true
 
 -- Text line
