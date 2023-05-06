@@ -29,7 +29,6 @@ return {
       },
     },
   },
-  { "gpanders/editorconfig.nvim", event = "VeryLazy" },
   {
     "adalessa/markdown-preview.nvim",
     dependencies = {

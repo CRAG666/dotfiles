@@ -60,8 +60,8 @@ else
 	done
 	modprobe -r uvcvideo
 	turn_on_off_cpu 0
-	echo 20 >/sys/devices/system/cpu/intel_pstate/max_perf_pct
-	echo 20 >/sys/devices/system/cpu/intel_pstate/min_perf_pct
+	echo 30 >/sys/devices/system/cpu/intel_pstate/max_perf_pct
+	echo 30 >/sys/devices/system/cpu/intel_pstate/min_perf_pct
 	set_energy_preference 225
 	echo powersave >/sys/module/pcie_aspm/parameters/policy
 	iw dev wlan0 set power_save on

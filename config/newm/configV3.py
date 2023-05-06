@@ -98,18 +98,20 @@ pywm = {
 HOME = Path.home()
 
 background = {
-    # "path": f"{HOME}/Imágenes/wallpaperCicle/8.jpg",
-    # "path": f"{HOME}/Imágenes/wallpaperCicle/18.png",
-    "path": f"{HOME}/Imágenes/wallpaperCicle/19.jpeg",
-    # "path": f"{HOME}/Imágenes/wallpaperCicle/tec/1.png",
-    # "path": f"{HOME}/Imágenes/wallpaperCicle/21.webp",
-    # "path": f"{HOME}/Imágenes/wallpaperCicle/11.jpg",
-    # "path": f"{HOME}/Imágenes/wallpaperCicle/25.jpg",
-    # "path": f"{HOME}/Imágenes/wallpaperCicle/17.jpg",
-    # "path": f"{HOME}/Imágenes/wallpaperCicle/20.jpg",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/9.png",
+    # "path": f"{HOME}/Imágenes/art/rombo.jpg",
     # "path": f"{HOME}/Imágenes/cyberpunk/thefuture7.jpeg",
     # "path": f"{HOME}/Imágenes/paisajes/4k-wallpaper-3.jpg",
-    # "path": f"{HOME}/Imágenes/art/rombo.jpg",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/1.png",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/11.jpg",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/17.jpg",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/18.png",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/19.jpeg",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/20.jpg",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/21.webp",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/25.jpg",
+    "path": f"{HOME}/Imágenes/wallpaperCicle/8.jpg",
+    # "path": f"{HOME}/Imágenes/wallpaperCicle/tec/1.png",
     "time_scale": 0.11,
     "anim": True,
 }
@@ -118,27 +120,29 @@ anim_time = 0.2
 blend_time = 0.5
 corner_radius = 0
 
-common_rules = {
+float_rules = {
     # "opacity": 0.8,
     "float": True,
     "float_size": (750, 750),
     "float_pos": (0.5, 0.35),
 }
 
+blur_rules = {"blur": {"radius": 5, "passes": 6}}
+
 float_app_ids = (
     "albert",
     "pavucontrol",
+    "com.github.hluk.copyq",
     "blueman-manager",
     "app.landrop.landrop",
     "landrop",
-    "lf-select",
 )
 
-float_titles = ("Dialect",)
+float_titles = ("Dialect", "lf")
 
 term = "kitty"
 
-blur_apps = (term, "rofi", "Alacritty", "tenacity")
+blur_apps = (term, "rofi", "tenacity")
 
 
 def rules(view: View):
@@ -161,6 +165,8 @@ def rules(view: View):
     #         # "opacity": 0.8,
     #         # "blur": {"radius": 5, "passes": 6},
     #     }
+    elif view.app_id == "lf-select":
+        return float_rules | blur_rules
     elif (
         view.title is not None
         and "Firefox - Indicador de compartición" in view.title.lower()
@@ -175,9 +181,9 @@ def rules(view: View):
             "float_pos": (0.5, 0.15),
         }
     elif view.app_id in float_app_ids or view.title in float_titles:
-        app_rule = common_rules
+        app_rule = float_rules
     elif view.app_id in blur_apps:
-        app_rule = {"blur": {"radius": 5, "passes": 6}}
+        app_rule = blur_rules
     return app_rule
 
 
@@ -320,7 +326,7 @@ def key_bindings(layout: Layout):
         (super + "period", lambda: layout.basic_scale(-1)),
         (super + "f", layout.toggle_fullscreen),
         (super + "L", lambda: layout.ensure_locked(dim=True)),
-        (super + "P", layout.terminate),
+        (super + "T", layout.terminate),
         ("XF86Close", layout.close_focused_view),
         ("XF86Reload", layout.update_config),
         (
@@ -333,9 +339,10 @@ def key_bindings(layout: Layout):
         ("XF86AudioPlay", run("playerctl play-pause")),
         (super + "Return", run(term)),
         (altgr + "e", run(f"{ROFI}/powermenu")),
+        # ("XF86Open", run(f"{ROFI}/clipboard")),
+        ("XF86Open", run("copyq show")),
         ("XF86Paste", super_clipboard),
         ("XF86Copy", lambda: super_clipboard("c")),
-        ("XF86Open", run(f"{ROFI}/clipboard")),
         ("XF86Favorites", run(f"{ROFI}/bookmarks")),
         (super + "p", run(f"{ROFI}/passman --type")),
         ("XF86AudioMicMute", run("volumectl -m toggle-mute")),
@@ -379,7 +386,7 @@ def key_bindings(layout: Layout):
         ("XF86Documents", run("kitty lf")),
         (super + "c", run("hyprpicker -a")),
         (super + "s", toggle_inhibit_idle),
-        (super + "d", run("kitty --class lf-select -e lf")),
+        (super + "d", run(f"{term} --class lf-select lf")),
         (super + "a", lambda: layout.move_workspace(2)),
     )
 
@@ -387,8 +394,8 @@ def key_bindings(layout: Layout):
 gestures = {
     "lp_freq": 120.0,
     "lp_inertia": 0.4,
-    # "c": {"enabled": False},
-    # "pyevdev": {"enabled": True},
+    "c": {"enabled": True},
+    "pyevdev": {"enabled": True},
 }
 
 swipe = {"gesture_factor": 3}

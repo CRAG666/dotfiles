@@ -32,7 +32,7 @@ return {
     "rafamadriz/friendly-snippets",
     "honza/vim-snippets",
     "lukas-reineke/cmp-under-comparator",
-    -- { "tzachar/cmp-tabnine", build = "./install.sh", enabled = true },
+    { "tzachar/cmp-tabnine", build = "./install.sh", enabled = true },
   },
   config = function()
     local source_mapping = {
@@ -44,7 +44,7 @@ return {
       path = "[Path]",
       rg = "[Rg]",
       nvim_lsp_signature_help = "[Sig]",
-      -- cmp_tabnine = "[TNine]",
+      cmp_tabnine = "[TNine]",
     }
 
     local has_words_before = function()
@@ -86,16 +86,15 @@ return {
         end,
       },
       sources = {
-        { name = "nvim_lsp", max_item_count = 7 },
-        { name = "nvim_lsp_signature_help", max_item_count = 5 },
-        { name = "luasnip", max_item_count = 5 },
-        -- { name = "cmp_tabnine" },
-        { name = "treesitter", max_item_count = 5 },
-        { name = "rg", max_item_count = 5 },
-        { name = "buffer", max_item_count = 5 },
-        { name = "nvim_lua" },
-        { name = "path" },
-        { name = "crates" },
+        { name = "nvim_lsp_signature_help", group_index = 1 },
+        { name = "nvim_lsp", group_index = 1 },
+        { name = "cmp_tabnine", group_index = 1 },
+        { name = "luasnip", group_index = 1 },
+        { name = "buffer", group_index = 2 },
+        { name = "path", group_index = 2 },
+        { name = "treesitter", group_index = 2 },
+        { name = "rg", group_index = 2 },
+        { name = "nvim_lua", group_index = 2 },
         -- { name = "spell" },
         -- { name = "emoji" },
         -- { name = "calc" },
@@ -120,12 +119,12 @@ return {
           local strings = vim.split(kind.kind, "%s", { trimempty = true })
           kind.kind = " " .. strings[1] .. " "
           kind.menu = menu
-          -- if source == "cmp_tabnine" then
-          --   if entry.completion_item.data ~= nil and entry.completion_item.data.detail ~= nil then
-          --     menu = entry.completion_item.data.detail .. " " .. menu
-          --   end
-          --   kind.kind = "  "
-          -- end
+          if source == "cmp_tabnine" then
+            if entry.completion_item.data ~= nil and entry.completion_item.data.detail ~= nil then
+              menu = entry.completion_item.data.detail .. " " .. menu
+            end
+            kind.kind = "  "
+          end
           if source == "nvim_lsp" then
             kind.dup = 0
           end
@@ -234,5 +233,19 @@ return {
     -- Auto pairs
     local cmp_autopairs = require "nvim-autopairs.completion.cmp"
     cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done { map_char = { tex = "" } })
+
+    -- TabNine
+    local tabnine = require "cmp_tabnine.config"
+    tabnine:setup {
+      max_lines = 1000,
+      max_num_results = 20,
+      sort = true,
+      run_on_every_keystroke = true,
+      snippet_placeholder = "..",
+      ignored_file_types = { -- default is not to ignore
+        -- uncomment to ignore in lua:
+        -- lua = true
+      },
+    }
   end,
 }

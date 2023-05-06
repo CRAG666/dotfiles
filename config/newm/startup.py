@@ -20,10 +20,11 @@ def startup():
         "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP",
         "dbus-update-activation-environment 2>/dev/null \
         && dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP",
-        "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1",
+        "/usr/lib/polkit-kde-authentication-agent-1",
         "fnott",
         "nm-applet --indicator",
-        "wl-paste --watch cliphist store",
+        # "wl-paste --watch cliphist store",
+        "copyq --start-server",
         "avizo-service",
         "wlsunset -l 16.0867 -L -93.7561 -t 2500 -T 6000",
         # f"{SCRIPTS}/battery-status.sh",

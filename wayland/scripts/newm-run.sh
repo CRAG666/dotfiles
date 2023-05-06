@@ -20,7 +20,7 @@ else
   export MOZ_DRM_DEVICE=${DRM_DEVICE}129
 fi
 
-exec start-newm
+exec start-newm -d
 # WLR_DRM_DEVICES=/dev/dri/card0:/dev/dri/card1 start-newm -d
 # WLR_DRM_DEVICES="/dev/dri/card0" start-newm -d
 # dbus-run-session start-newm -d

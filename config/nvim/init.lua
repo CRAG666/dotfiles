@@ -5,7 +5,6 @@
 --                 |)    (|
 
 -- Define leader key
--- vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 vim.keymap.set("", "<Space>", "<Nop>", { noremap = true, silent = true })
 vim.g.maplocalleader = " "
 vim.g.mapleader = " "

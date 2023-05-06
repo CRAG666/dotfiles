@@ -1,5 +1,6 @@
 local utils = require "utils"
 return {
+  { 'tamton-aquib/flirt.nvim' },
   { "sitiom/nvim-numbertoggle", event = { "BufEnter", "WinEnter" } },
   {
     "echasnovski/mini.indentscope",
@@ -75,8 +76,8 @@ return {
   },
   {
     "gen740/SmoothCursor.nvim",
-    -- lazy = false,
+    lazy = false,
     opts = { fancy = { enable = true } },
-    enabled = false,
+    -- enabled = false,
   },
 }

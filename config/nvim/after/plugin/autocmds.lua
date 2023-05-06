@@ -6,6 +6,9 @@
 
 local api = vim.api
 local cmd = vim.cmd
+local function augroup(name)
+  return vim.api.nvim_create_augroup("mnv_" .. name, { clear = true })
+end
 
 -- See `:help vim.highlight.on_yank()`
 local highlight_group = vim.api.nvim_create_augroup("YankHighlight", { clear = true })
@@ -18,25 +21,27 @@ api.nvim_create_autocmd("TextYankPost", {
 })
 
 -- show cursor line only in active window
-local cursorGrp = api.nvim_create_augroup("CursorLine", { clear = true })
+cursorGrp = augroup "CursorLine"
 api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, { pattern = "*", command = "set cursorline", group = cursorGrp })
-api.nvim_create_autocmd(
-  { "InsertEnter", "WinLeave" },
-  { pattern = "*", command = "set nocursorline", group = cursorGrp }
-)
-
---
--- Autocmd
---
 
 -- go to last loc when opening a buffer
-vim.api.nvim_create_autocmd("BufReadPost", {
+api.nvim_create_autocmd("BufReadPost", {
   callback = function()
     local mark = vim.api.nvim_buf_get_mark(0, '"')
     local lcount = vim.api.nvim_buf_line_count(0)
     if mark[1] > 0 and mark[1] <= lcount then
       pcall(vim.api.nvim_win_set_cursor, 0, mark)
     end
+  end,
+})
+
+-- wrap and check for spell in text filetypes
+api.nvim_create_autocmd("FileType", {
+  group = augroup "wrap_spell",
+  pattern = { "gitcommit", "markdown" },
+  callback = function()
+    vim.opt_local.wrap = true
+    vim.opt_local.spell = true
   end,
 })
 
