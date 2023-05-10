@@ -126,7 +126,7 @@ vim.o.foldenable = true
 --   fold = "",
 --   foldopen = "",
 --   foldsep = "",
---   foldclose = ""
+--   foldclose = "",
 -- }
 
 -- Backup

@@ -7,6 +7,13 @@
 local utils = require "utils"
 local opts = { noremap = true, silent = false }
 
+vim.keymap.set("n", "i", function()
+  if #vim.fn.getline "." == 0 then
+    return [["_cc]]
+  else
+    return "i"
+  end
+end, { expr = true })
 utils.map("n", "#", "#N")
 utils.map("n", "*", "*N")
 utils.map("n", "Y", "yg$")

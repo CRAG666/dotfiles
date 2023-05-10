@@ -24,9 +24,11 @@ local pyright = {
   settings = {
     python = {
       analysis = {
+        autoImportCompletions = true,
+        typeCheckingMode = "off",
         autoSearchPaths = true,
-        diagnosticMode = "workspace",
         useLibraryCodeForTypes = true,
+        diagnosticMode = "workspace",
       },
     },
   },
