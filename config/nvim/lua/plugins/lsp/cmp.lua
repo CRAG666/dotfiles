@@ -45,6 +45,7 @@ return {
       rg = "[Rg]",
       nvim_lsp_signature_help = "[Sig]",
       cmp_tabnine = "[TNine]",
+      ["vim-dadbod-completion"] = "[DB]",
     }
 
     local has_words_before = function()
@@ -227,6 +228,14 @@ return {
         { name = "path", keyword_length = 1, priority = 2 },
       }, {
         { name = "cmdline", keyword_length = 1, priority = 1 },
+      }),
+    })
+
+    cmp.setup.filetype({ "sql", "mysql", "plsql" }, {
+      sources = cmp.config.sources({
+        { name = "vim-dadbod-completion" },
+      }, {
+        { name = "buffer" },
       }),
     })
 

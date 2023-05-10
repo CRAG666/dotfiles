@@ -123,7 +123,7 @@ end
 return {
   {
     "prichrd/netrw.nvim",
-    keys = { { "<leader><leader>", toggle_netrw, desc = "Show netrw file explorer" } },
+    keys = { { "<leader><leader>n", toggle_netrw, desc = "Show netrw file explorer" } },
     config = setup,
   },
 }
