@@ -23,12 +23,12 @@ def startup():
         "/usr/lib/polkit-kde-authentication-agent-1",
         "fnott",
         "nm-applet --indicator",
-        # "wl-paste --watch cliphist store",
-        "copyq --start-server",
         "avizo-service",
         "wlsunset -l 16.0867 -L -93.7561 -t 2500 -T 6000",
-        # f"{SCRIPTS}/battery-status.sh",
         "brightnessctl set 1",
+        # f"{SCRIPTS}/battery-status.sh",
+        # "wl-paste --watch cliphist store",
+        "copyq --start-server",
     )
 
     execute_iter(INIT_SERVICES)
