@@ -33,7 +33,7 @@ function setup()
     transparent_background = transparent_background,
     show_end_of_buffer = false, -- show the '~' characters after the end of buffers
     term_colors = true,
-    compile_path = vim.fn.stdpath "cache" .. "/catppuccin",
+    -- compile_path = vim.fn.stdpath "cache" .. "/catppuccin",
     styles = {
       comments = { "bold" },
       properties = { "italic" },

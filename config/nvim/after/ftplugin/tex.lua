@@ -1,6 +1,7 @@
 local texlab = {
   name = "texlab",
   cmd = { "texlab" },
+  filetypes = { "tex" },
   settings = {
     texlab = {
       auxDirectory = ".",
@@ -27,6 +28,5 @@ local texlab = {
     },
   },
   single_file_suppor = true,
-  -- root_dir = vim.fs.dirname(vim.fs.find({".git", ".marksman.toml"}, { upward = true })[1]),
 }
 require("config.lsp").setup(texlab)

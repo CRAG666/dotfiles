@@ -6,6 +6,6 @@
 
 -- Define leader key
 vim.keymap.set("", "<Space>", "<Nop>", { noremap = true, silent = true })
-vim.g.maplocalleader = " "
 vim.g.mapleader = " "
+vim.g.maplocalleader = " "
 require("plugins").setup()

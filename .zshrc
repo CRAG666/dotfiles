@@ -160,7 +160,7 @@ alias tree="ls -R"
 alias vi="nvim"
 alias vim="nvim"
 alias zt="/bin/zathura"
-alias lo="libreoffice"
+alias lo="/bin/libreoffice"
 alias music="termusic"
 alias rm='rm -i'
 alias du1='du -h -d 1'
@@ -191,11 +191,12 @@ alias nftc="nvim /etc/nftables.conf"
 alias starshipc="nvim ~/.config/starship.toml"
 # HACK: Config Nvim Aliases
 alias vimc='nvim ~/.config/nvim/init.lua'
-alias vimp='nvim ~/.config/nvim/lua/plugins.lua'
+alias vimp='nvim ~/.config/nvim/lua/plugins/init.lua'
 alias vimk='nvim ~/.config/nvim/after/plugin/keymappings.lua'
 alias vimd='nvim ~/.config/nvim/after/plugin/defaults.lua'
-alias vimt='nvim ~/.config/nvim/lua/colorscheme.lua'
+alias vima='nvim ~/.config/nvim/after/plugin/autocmds.lua'
 alias viml='nvim ~/.config/nvim/lua/config/lsp/init.lua'
+alias vo='nvim -c "Neorg workspace notes"'
 # HACK: Jump alias
 alias Applications="cd /usr/share/applications"
 alias Desktop="cd /$HOME/Escritorio"

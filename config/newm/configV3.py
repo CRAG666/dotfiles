@@ -127,7 +127,7 @@ float_rules = {
     "float_pos": (0.5, 0.35),
 }
 
-blur_rules = {"blur": {"radius": 5, "passes": 6}}
+blur_rules = {"blur": {"radius": 5, "passes": 4}}
 
 float_app_ids = (
     "albert",
@@ -268,17 +268,12 @@ def key_bindings(layout: Layout):
         current_view = layout.find_focused_view()
         if not current_view or current_view not in views:
             return
-        index = views.index(current_view) + steps
-        select_view(index, views)
-
-    def select_view(index: int, views: tuple[View]):
-        num_w = len(views)
-        index = (index + num_w) % num_w
+        index = (views.index(current_view) + steps) % len(views)
         layout.focus_view(views[index])
 
     return (
-        (alt + "Tab", cycle_views),
-        (alt + "S-Tab", lambda: cycle_views(-1)),
+        (super + "Tab", cycle_views),
+        (super + "S-Tab", lambda: cycle_views(-1)),
         # Goto title
         *((super + str(i), lambda i=i: goto_view(i)) for i in range(1, 11)),
         # Move like the star of the winds
