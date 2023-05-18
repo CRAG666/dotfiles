@@ -32,7 +32,8 @@ set.hidden = false
 set.encoding = "utf-8"
 set.fileformat = "unix"
 -- set.formatoptions = "tcqrn1"
-set.formatoptions = "jcroqlnt" -- tcqj
+-- set.formatoptions = "jcroqlnt" -- tcqj
+set.formatoptions = "jqlnt" -- tcqj
 set.errorformat:append "%f|%l col %c|%m"
 set.wildignore:append {
   ".git/**",
@@ -71,7 +72,6 @@ set.textwidth = 80
 set.syntax = "ON" -- str:  Allow syntax highlighting
 set.termguicolors = true
 set.conceallevel = 3 -- Hide * markup for bold and italic
-set.shortmess = set.shortmess - "S"
 set.showtabline = 0
 set.pumblend = 10 -- Popup blend
 set.pumheight = 10 -- Maximum number of entries in a popup
@@ -142,4 +142,4 @@ set.backupcopy = "yes"
 -- vim.opt.spelllang = { "en" }
 
 set.splitkeep = "screen"
-vim.o.shortmess = "filnxtToOFWIcC"
+set.shortmess:append { W = true, I = true, c = true, C = true }
