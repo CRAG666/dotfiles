@@ -111,7 +111,7 @@ local on_attach = function(client, bufnr)
   require("config.lsp.null-ls.formatters").setup(client, bufnr)
 
   -- winbar
-  vim.wo.winbar = require("lspsaga.symbolwinbar"):get_winbar()
+  -- vim.wo.winbar = require("lspsaga.symbolwinbar"):get_winbar()
 
   -- tagfunc
   if caps.definitionProvider then

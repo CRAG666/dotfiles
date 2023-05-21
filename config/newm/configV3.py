@@ -127,7 +127,7 @@ float_rules = {
     "float_pos": (0.5, 0.35),
 }
 
-blur_rules = {"blur": {"radius": 5, "passes": 4}}
+blur_rules = {"blur": {"radius": 5, "passes": 2}}
 
 float_app_ids = (
     "albert",

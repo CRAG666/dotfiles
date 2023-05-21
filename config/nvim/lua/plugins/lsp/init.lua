@@ -4,23 +4,22 @@ return {
     "williamboman/mason.nvim",
     config = true,
   },
-  "folke/neodev.nvim",
+  { "folke/neodev.nvim", ft = "lua" },
   "jose-elias-alvarez/null-ls.nvim",
   "Decodetalkers/csharpls-extended-lsp.nvim",
   "Hoffs/omnisharp-extended-lsp.nvim",
 
   {
     url = "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
-    config = true,
-    enabled = false,
+    event = "LspAttach",
+    -- config = true,
+    config = function()
+      require("lsp_lines").setup()
+    end,
+    -- enabled = false,
   },
   {
     "VidocqH/lsp-lens.nvim",
-    cmd = {
-      "LspLensOn",
-      "LspLensOff",
-      "LspLensToggle",
-    },
-    config = true,
+    event = "LspAttach",
   },
 }

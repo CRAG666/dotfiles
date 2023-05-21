@@ -1,0 +1,24 @@
+@document.meta
+title: Horario de clases
+description: llevar control del horario de clases y enlaces a actividades
+authors: Diego Crag
+categories: Schedule
+created: {{_date_}}
+version: 0.0.1
+@end
+
+* Lunes
+** 12:00 - 14:30
+   - {{_cursor_}}
+
+* Martes
+** 11:00 - 13:30
+
+* Miércoles
+** 12:00 - 14:30
+
+* Jueves
+** 11:00 - 13:30
+
+* Viernes
+** 11:00 - 13:30
