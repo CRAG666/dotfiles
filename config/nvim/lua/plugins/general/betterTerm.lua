@@ -1,17 +1,9 @@
-local utils = require "utils"
 local current = 2
 local modes = { "n", "t" }
 return {
   "CRAG666/betterTerm.nvim",
   dev = true,
   keys = {
-    {
-      "<leader>e",
-      function()
-        require("betterTerm").send(require("code_runner.commands").get_filetype_command(), 1)
-      end,
-      desc = "Run file",
-    },
     {
       mode = modes,
       "<C-;>",

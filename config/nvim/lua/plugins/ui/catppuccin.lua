@@ -100,7 +100,7 @@ function setup()
       symbols_outline = true,
       telekasten = false,
       telescope = true,
-      treesitter_context = false,
+      treesitter_context = true,
       ts_rainbow = true,
       vim_sneak = false,
       vimwiki = true,
