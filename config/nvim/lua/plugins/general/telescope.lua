@@ -1,6 +1,7 @@
 local utils = require "utils"
 local prefix_1 = "<leader>f"
 local prefix_2 = "<leader>g"
+local prefix_3 = ",l"
 local keys = {
   { ";e", desc = "File Browser" },
   { ";f", desc = "Frequent Files" },
@@ -9,7 +10,7 @@ local keys = {
   { ";t", desc = "TreeSitter Symbols" },
   { ";;", desc = "Project Files" },
   -- leader f prefix
-  { prefix_1 .. "t", desc = "Telescope Builtin" },
+  { prefix_1 .. "b", desc = "Telescope Builtin" },
   { prefix_1 .. ";", desc = "List Tabs" },
   { prefix_1 .. "m", desc = "Media Files" },
   { prefix_1 .. "g", desc = "Find Grep" },
@@ -19,12 +20,12 @@ local keys = {
   { prefix_1 .. "cs", desc = "Search Commands" },
   { prefix_1 .. "ch", desc = "Search Commands History" },
   { prefix_1 .. "k", desc = "Show All Keymaps" },
-  { prefix_1 .. "f", desc = "Select Filetype" },
-  { prefix_1 .. "b", desc = "Buffer Fuzzy Find" },
-  { prefix_1 .. "r", desc = "LSP References" },
-  { prefix_1 .. "s", desc = "LSP Symbols" },
-  { prefix_1 .. "i", desc = "LSP Implementations" },
-  { prefix_1 .. "d", desc = "LSP diagnostics" },
+  { prefix_1 .. "t", desc = "Select Filetype" },
+  { prefix_1 .. "f", desc = "Buffer Fuzzy Find" },
+  { prefix_3 .. "r", desc = "LSP References" },
+  { prefix_3 .. "s", desc = "LSP Symbols" },
+  { prefix_3 .. "i", desc = "LSP Implementations" },
+  { prefix_3 .. "d", desc = "LSP diagnostics" },
   -- Git builtin
   { prefix_2 .. "c", desc = "Git Buffer commits" },
   { prefix_2 .. "b", desc = "Git Branches" },

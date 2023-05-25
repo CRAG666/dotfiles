@@ -11,13 +11,15 @@ return {
   {
     "cshuaimin/ssr.nvim",
     name = "ssr",
-    keys = { {
-      mode = { "n", "x" },
-      ",r",
-      function()
-        require("ssr").open()
-      end,
-    } },
+    keys = {
+      {
+        mode = { "n", "x" },
+        ",r",
+        function()
+          require("ssr").open()
+        end,
+      },
+    },
     opts = {
       min_width = 50,
       min_height = 5,
@@ -28,13 +30,5 @@ return {
         replace_all = "<leader><cr>",
       },
     },
-  },
-  {
-    "adalessa/markdown-preview.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-    },
-    config = true,
-    ft = "markdown",
   },
 }

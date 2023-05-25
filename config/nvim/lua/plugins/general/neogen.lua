@@ -1,15 +1,37 @@
-local utils = require "utils"
 local prefix = "<leader>n"
-local keys = {
-  { prefix .. "c", desc = "Comment Class" },
-  { prefix .. "f", desc = "Comment Function" },
-  { prefix .. "i", desc = "Comment File" },
-  { prefix .. "t", desc = "Comment type" },
-}
-
-function setup()
-  local neogen = require "neogen"
-  neogen.setup {
+return {
+  "danymat/neogen",
+  keys = {
+    {
+      prefix .. "c",
+      function()
+        require("neogen").generate { type = "class" }
+      end,
+      desc = "Comment Class",
+    },
+    {
+      prefix .. "f",
+      function()
+        require("neogen").generate { type = "func" }
+      end,
+      desc = "Comment Function",
+    },
+    {
+      prefix .. "i",
+      function()
+        require("neogen").generate { type = "file" }
+      end,
+      desc = "Comment File",
+    },
+    {
+      prefix .. "t",
+      function()
+        require("neogen").generate { type = "type" }
+      end,
+      desc = "Comment type",
+    },
+  },
+  opts = {
     enabled = true,
     languages = {
       lua = {
@@ -33,26 +55,6 @@ function setup()
         },
       },
     },
-  }
-
-  local maps = {
-    "class",
-    "func",
-    "file",
-    "type",
-  }
-  for i, map in ipairs(M.maps) do
-    utils.map("n", map[1], function()
-      neogen.generate { type = maps[i] }
-    end)
-  end
-end
-
-return {
-  {
-    "danymat/neogen",
-    keys = keys,
-    config = setup,
-    dependencies = "nvim-treesitter/nvim-treesitter",
   },
+  dependencies = "nvim-treesitter/nvim-treesitter",
 }

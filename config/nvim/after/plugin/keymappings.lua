@@ -24,8 +24,6 @@ utils.map("n", "<C-u>", "<C-u>zz")
 utils.map("n", "n", "nzzzv")
 utils.map("n", "N", "Nzzzv")
 
--- Search in the current buffer
-utils.map("n", "<leader>s", "?", opts)
 -- Search and  replace in the current buffer
 utils.map({ "n", "v" }, "<leader>r", ":s/", opts)
 -- Set ; to end line

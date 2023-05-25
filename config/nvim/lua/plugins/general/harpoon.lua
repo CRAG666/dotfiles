@@ -1,7 +1,7 @@
 local utils = require "utils"
 local M = {}
 local keys = {
-  { "mm", desc = "Mark File" },
+  { ",mm", desc = "Mark File" },
   { ",ms", desc = "Show Files Marked" },
   { ",mw", desc = "Next File Marked" },
   { ",mb", desc = "Prev File Marked" },

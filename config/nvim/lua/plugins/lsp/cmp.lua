@@ -217,6 +217,7 @@ return {
   {
     "L3MON4D3/LuaSnip",
     dependencies = {
+      "evesdropper/luasnip-latex-snippets.nvim",
       {
         "rafamadriz/friendly-snippets",
         config = function()
@@ -261,6 +262,26 @@ return {
       vim.api.nvim_create_user_command("LuaSnipEdit", function()
         require("luasnip.loaders.from_lua").edit_snippet_files()
       end, {})
+    end,
+  },
+  {
+    "madskjeldgaard/cheeky-snippets.nvim",
+    dependencies = {
+      "L3MON4D3/LuaSnip",
+    },
+    config = function()
+      local cheeky = require "cheeky"
+      cheeky.setup {
+        langs = {
+          all = true,
+          lua = true,
+          cpp = true,
+          asm = true,
+          cmake = true,
+          markdown = true,
+          supercollider = true,
+        },
+      }
     end,
   },
 }

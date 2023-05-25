@@ -150,12 +150,12 @@ eval "$(starship init zsh)"
 alias ping="prettyping"
 alias icat="kitty +kitten icat"
 alias js="/usr/bin/node ~/.noderc"
-alias ls="cs"
-alias la="cs -la"
+alias ls="logo-ls"
+alias la="logo-ls -la"
 # alias grep='grep --color=auto'
 # alias cp="rsync -Pvz"
 alias curl="xh --curl"
-alias cp='rsync --progress -avz --ignore-existing'
+alias cp='rsync --progress -avz'
 alias tree="ls -R"
 alias vi="nvim"
 alias vim="nvim"
@@ -165,6 +165,7 @@ alias music="termusic"
 alias rm='rm -i'
 alias du1='du -h -d 1'
 alias rec="wl-screenrec --dri-device $MOZ_DRM_DEVICE -f $(date +'%s_grab.mp4')"
+alias neofetch='neofetch --ascii --source ~/.config/neofetch/thinkpad.txt --ascii_colors '7' '1''
 alias freq="watch -n1 'grep Hz /proc/cpuinfo'"
 alias bt="rfkill unblock bluetooth && sc-start bluetooth.service"
 # alias aid="swaymsg -t get_tree | grep "app_id""

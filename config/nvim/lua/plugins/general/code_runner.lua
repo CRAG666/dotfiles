@@ -8,7 +8,7 @@ return {
       function()
         require("code_runner").run_code()
       end,
-      desc = "Run file",
+      desc = "Execute Code",
     },
   },
   opts = {
@@ -17,6 +17,39 @@ return {
       number = 1,
     },
     filetype = {
+      tex = function(...)
+        require("code_runner.hooks.preview_pdf").run {
+          command = "pdflatex",
+          args = { "-output-directory", "/tmp", "$fileName" },
+          preview_cmd = "/bin/zathura --fork",
+          overwrite_output = "/tmp",
+        }
+      end,
+      markdown = function(...)
+        markdownCompileOptions = {
+          Normal = "pdf",
+          Presentation = "beamer",
+          Slides = "",
+        }
+        vim.ui.select(vim.tbl_keys(markdownCompileOptions), {
+          prompt = "Select preview mode:",
+        }, function(opt, _)
+          if opt then
+            if opt == "Slides" then
+              local filename = vim.fn.expand "%:p"
+              os.execute("kitty slides " .. filename .. " &> /dev/null &")
+              return
+            end
+            require("code_runner.hooks.preview_pdf").run {
+              command = "pandoc",
+              args = { "$fileName", "-o", "$tmpFile", "-t", markdownCompileOptions[opt] },
+              preview_cmd = "/bin/zathura --fork",
+            }
+          else
+            print "Not Preview"
+          end
+        end)
+      end,
       javascript = "node",
       java = "cd $dir && javac $fileName && java $fileNameWithoutExt",
       kotlin = "cd $dir && kotlinc-native $fileName -o $fileNameWithoutExt && ./$fileNameWithoutExt.kexe",
@@ -29,8 +62,8 @@ return {
       cpp = {
         "cd $dir &&",
         "g++ $fileName",
-        "-o $fileNameWithoutExt &&",
-        "$dir/$fileNameWithoutExt",
+        "-o /tmp/$fileNameWithoutExt &&",
+        "/tmp/$fileNameWithoutExt",
       },
       python = "python -u",
       sh = "bash",

@@ -1,11 +1,11 @@
 local current = 2
-local modes = { "n", "t" }
+local modes = { "n" }
 return {
   "CRAG666/betterTerm.nvim",
   dev = true,
   keys = {
     {
-      mode = modes,
+      mode = { "n", "t" },
       "<C-;>",
       function()
         require("betterTerm").open()

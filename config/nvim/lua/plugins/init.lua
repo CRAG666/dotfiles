@@ -18,6 +18,7 @@ function M.setup()
       { import = "plugins.general" },
       { import = "plugins.ui" },
       { import = "plugins.lsp" },
+      { import = "plugins.modes" },
     },
     -- install = { missing = true, colorscheme = { "catppuccin" } },
     dev = { path = "~/Git/" },
