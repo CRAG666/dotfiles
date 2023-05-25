@@ -11,7 +11,7 @@ local function augroup(name)
 end
 
 -- See `:help vim.highlight.on_yank()`
-local highlight_group = vim.api.nvim_create_augroup("YankHighlight", { clear = true })
+local highlight_group = augroup "YankHighlight"
 api.nvim_create_autocmd("TextYankPost", {
   callback = function()
     vim.highlight.on_yank { timeout = 100 }
@@ -38,18 +38,19 @@ api.nvim_create_autocmd("BufReadPost", {
 -- wrap and check for spell in text filetypes
 api.nvim_create_autocmd("FileType", {
   group = augroup "wrap_spell",
-  pattern = { "gitcommit", "markdown" },
+  pattern = { "gitcommit", "markdown", "tex" },
   callback = function()
+    vim.opt_local.spelllang = "es"
     vim.opt_local.wrap = true
     vim.opt_local.spell = true
   end,
 })
 
 -- Auto toggle hlsearch
--- local ns = api.nvim_create_namespace "toggle_hlsearch"
+-- local ns = vim.api.nvim_create_namespace "toggle_hlsearch"
 -- local function toggle_hlsearch(char)
 --   if vim.fn.mode() == "n" then
---     local keys = { "<CR>", "n", "N", "*", "#", "?", "/" }
+--     local keys = { "<CR>", "n", "N", "*", "#", "?", "/" , "nzzzv", "Nzzzv"}
 --     local new_hlsearch = vim.tbl_contains(keys, vim.fn.keytrans(char))
 --
 --     if vim.opt.hlsearch:get() ~= new_hlsearch then
@@ -76,21 +77,3 @@ api.nvim_create_autocmd("FileType", { pattern = "make", command = [[setlocal noe
 -- don't auto comment new line
 api.nvim_create_autocmd("BufEnter", { command = [[set formatoptions-=cro]] })
 api.nvim_create_autocmd("FileType", { pattern = "man", command = [[nnoremap <buffer><silent> q :quit<CR>]] })
-
--- Create an autocmd User PackerCompileDone to update it every time packer is compiled
--- vim.api.nvim_create_autocmd("User", {
--- 	pattern = "PackerCompileDone",
--- 	callback = function()
--- 		vim.cmd "CatppuccinCompile"
--- 		vim.defer_fn(function()
--- 			vim.cmd "colorscheme catppuccin"
--- 		end, 0) -- Defered for live reloading
--- 	end
--- })
--- Fix highlight issue
--- api.nvim_create_autocmd("BufEnter", { command = [[syntax enable]] })
-
--- au FileType python setlocal tabstop=4 shiftwidth=4 expandtab
--- au FileType typescript setlocal tabstop=2 shiftwidth=2 expandtab
--- au FileType lua setlocal tabstop=2 shiftwidth=2 expandtab
--- au BufEnter *.py set ai sw=4 ts=4 sta et fo=croq;
