@@ -65,8 +65,8 @@ local function setup()
       initial_mode = "normal",
       selection_strategy = "reset",
       sorting_strategy = "ascending",
-      -- layout_strategy = "bottom_pane",
-      layout_strategy = "horizontal",
+      layout_strategy = "bottom_pane",
+      -- layout_strategy = "horizontal",
       layout_config = {
         bottom_pane = {
           prompt_position = "top",
