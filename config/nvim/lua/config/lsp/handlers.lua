@@ -2,10 +2,10 @@ local M = {}
 
 function M.setup()
   local signs = {
-    { name = "DiagnosticSignError", text = "" },
-    { name = "DiagnosticSignWarn", text = "" },
-    { name = "DiagnosticSignHint", text = "" },
-    { name = "DiagnosticSignInfo", text = "" },
+    { name = "DiagnosticSignError", text = Icons.diagnostics.bold_error },
+    { name = "DiagnosticSignWarn", text = Icons.diagnostics.bold_warning },
+    { name = "DiagnosticSignHint", text = Icons.diagnostics.bold_hint },
+    { name = "DiagnosticSignInfo", text = Icons.diagnostics.bold_information },
   }
   for _, sign in ipairs(signs) do
     vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = sign.name })

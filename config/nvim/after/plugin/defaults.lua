@@ -119,10 +119,9 @@ set.grepprg = "rg --vimgrep --no-heading --smart-case"
 
 -- Folding
 
-vim.o.fillchars = [[eob: ,fold: ,foldopen:▼,foldsep: ,foldclose:⏵]]
 -- set.foldnestmax = 0
-vim.o.foldmethod = "expr"
 vim.o.foldexpr = "nvim_treesitter#foldexpr()"
+vim.o.foldmethod = "expr"
 vim.o.foldcolumn = "auto:1" -- '0' is not bad
 vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
 vim.o.foldlevelstart = 99

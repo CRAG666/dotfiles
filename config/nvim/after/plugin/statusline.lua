@@ -197,22 +197,23 @@ M.get_git_status = function(self, addh, changeh, removeh, headh)
     return is_head_empty and string.format("  %s ", signs.head or "") or ""
   end
 
-  return is_head_empty
-      and string.format(
-        " %%#%s#%s %s %%#%s#%s %s %%#%s#%s %s %%#Border#| %%#%s# %s ",
-        addh,
-        Icons.git.status_added,
-        signs.added,
-        changeh,
-        Icons.git.status_modified,
-        signs.changed,
-        removeh,
-        Icons.git.status_removed,
-        signs.removed,
-        headh,
-        signs.head
-      )
-    or ""
+  local format = "%%#%s#%s %s "
+  local git_status = {
+    "",
+    "",
+    "",
+    string.format("%%#Border#| %%#%s# %s ", headh, signs.head),
+  }
+  if signs.added > 0 then
+    git_status[1] = string.format(format, addh, Icons.git.status_added, signs.added)
+  end
+  if signs.changed > 0 then
+    git_status[2] = string.format(format, changeh, Icons.git.status_modified, signs.changed)
+  end
+  if signs.removed > 0 then
+    git_status[3] = string.format(format, removeh, Icons.git.status_removed, signs.removed)
+  end
+  return is_head_empty and table.concat(git_status) or ""
 end
 
 -- File name with read-only marker or identifier for unsaved changes
@@ -228,12 +229,12 @@ end
 M.get_file_type = function()
   local file_type = vim.bo.filetype
 
-  return file_type == "" and " [no ft] " or string.format("  %s", file_type)
+  return file_type == "" and " [no ft]" or string.format(" %s", file_type)
 end
 
 -- File line ending format Unix / Windows
 M.get_file_format = function()
-  return string.format("%s ", vim.o.fileformat)
+  return string.format("%s", vim.o.fileformat)
 end
 
 -- Character encoding of current file
@@ -360,21 +361,20 @@ M.set_active = function(self)
     self:get_lsp_status(),
     "%=", -- left / right separator
     "%<", -- Collapse point for smaller screen sizes
-    accent_color,
     self:highlight(palette.Fileinfo),
     self:selection(),
     self:get_file_indentation(),
     self:get_file_encoding(),
     self:get_file_format(),
-    self:highlight(palette.Inactive),
-    buffers.prev_bufs,
+    self:highlight(palette.Progress),
+    self:get_file_type(),
     accent_color,
     buffers.current,
     self:highlight(palette.Inactive),
+    buffers.prev_bufs,
+    self:highlight(palette.Inactive),
     buffers.next_bufs,
     accent_color,
-    self:get_file_type(),
-    self:highlight(palette.Progress),
     " %l:%c", -- position of cursor
     "(%1p%%)", -- Place in file as a percentage
   }

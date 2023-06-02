@@ -1,8 +1,8 @@
 return {
   {
     "folke/noice.nvim",
-    event = "UIEnter",
-    -- keys = ":",
+    -- event = "UIEnter",
+    keys = { ":", "/", "?" },
     opts = {
       cmdline = { view = "cmdline" },
       popupmenu = {

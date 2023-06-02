@@ -8,12 +8,12 @@ return {
     config = utils.setup "mini.indentscope",
   },
 
-  {
-    "echasnovski/mini.tabline",
-    -- Agregar keys
-    keys = { { "<leader>ts", [[:execute 'set showtabline=' . (&showtabline ==# 0 ? 2 : 0)<CR>]] } },
-    init = utils.setup "mini.tabline",
-  },
+  -- {
+  --   "echasnovski/mini.tabline",
+  --   -- Agregar keys
+  --   keys = { { "<leader>ts", [[:execute 'set showtabline=' . (&showtabline ==# 0 ? 2 : 0)<CR>]] } },
+  --   init = utils.setup "mini.tabline",
+  -- },
   {
     "stevearc/dressing.nvim",
     event = "VeryLazy",
