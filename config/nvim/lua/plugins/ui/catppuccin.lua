@@ -139,6 +139,8 @@ function setup()
     },
     custom_highlights = function(C)
       return {
+        -- StatusLine
+        StatusLine = { fg = "NONE", bg = C.base },
         -- Telescope
         TelescopePromptNormal = { fg = C.flamingo, bg = "NONE" },
         TelescopePromptPrefix = { fg = C.sapphire, bg = "NONE" },

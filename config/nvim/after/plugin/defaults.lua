@@ -2,8 +2,10 @@ local set = vim.opt
 
 --  Basic config
 set.autowrite = true -- enable auto write
-set.scrolloff = 999 -- Lines of context
+set.scrolloff = 8 -- Lines of context
 set.sidescrolloff = 8
+set.tags = "/tmp/tags"
+
 set.mouse = "a"
 -- clipboard
 set.clipboard:append "unnamedplus"
@@ -18,7 +20,8 @@ set.backspace = { "indent", "eol", "start", "nostop" } -- Better backspace.
 -- sow preview command
 set.inccommand = "split"
 set.matchtime = 2
-set.updatetime = 40
+-- set.updatetime = 40
+set.updatetime = 1000
 set.timeoutlen = 300
 set.joinspaces = false -- No double spaces with join after a dot
 
@@ -26,14 +29,16 @@ set.joinspaces = false -- No double spaces with join after a dot
 set.lazyredraw = false
 
 -- Tricks
-set.hidden = false
+set.hidden = true
+
+set.diffopt = "filler,vertical,hiddenoff,linematch:60,foldcolumn:0,algorithm:minimal"
 
 -- Format options
 set.encoding = "utf-8"
 set.fileformat = "unix"
 -- set.formatoptions = "tcqrn1"
 -- set.formatoptions = "jcroqlnt" -- tcqj
-set.formatoptions = "jqlnt" -- tcqj
+-- set.formatoptions = "jqlnt" -- tcqj
 set.errorformat:append "%f|%l col %c|%m"
 set.wildignore:append {
   ".git/**",
@@ -74,7 +79,7 @@ set.termguicolors = true
 set.conceallevel = 3 -- Hide * markup for bold and italic
 set.showtabline = 0
 set.pumblend = 10 -- Popup blend
-set.pumheight = 10 -- Maximum number of entries in a popup
+set.pumheight = 12 -- Maximum number of entries in a popup
 -- set.completeopt = "menuone,noselect"
 -- set.completeopt = "menuone,noselect,menu"
 set.pumheight = 12
@@ -95,7 +100,7 @@ set.listchars = {
   eol = "↲",
   space = "␣",
   tab = "▸ ",
-  trail = "·",
+  trail = "▒",
   precedes = "←",
   extends = "→",
   nbsp = "␣",
@@ -113,10 +118,11 @@ set.grepformat = "%f:%l:%c:%m"
 set.grepprg = "rg --vimgrep --no-heading --smart-case"
 
 -- Folding
+
 vim.o.fillchars = [[eob: ,fold: ,foldopen:▼,foldsep: ,foldclose:⏵]]
--- vim.o.statuscolumn =
---   '%=%l%s%#FoldColumn#%{foldlevel(v:lnum) > foldlevel(v:lnum - 1) ? (foldclosed(v:lnum) == -1 ? " " : " ") : "  " }%*'
 -- set.foldnestmax = 0
+vim.o.foldmethod = "expr"
+vim.o.foldexpr = "nvim_treesitter#foldexpr()"
 vim.o.foldcolumn = "auto:1" -- '0' is not bad
 vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
 vim.o.foldlevelstart = 99
@@ -143,3 +149,6 @@ set.backupcopy = "yes"
 
 set.splitkeep = "screen"
 set.shortmess:append { W = true, I = true, c = true, C = true }
+-- set.numberwidth = 3
+-- set.statuscolumn =
+vim.cmd "filetype plugin indent on"

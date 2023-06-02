@@ -47,6 +47,12 @@ utils.map("n", "<F3>", ":setlocal spell! spelllang=en_us<CR>")
 utils.map("n", "cn", [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]]) -- replace world and nexts word with .
 utils.map("n", "cN", [[?\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgN]]) -- replace world and prev word with .
 
+-- buffer movements
+utils.map("n", "[b", "<CMD>bprev<CR>")
+utils.map("n", "]b", "<CMD>bnext<CR>")
+utils.map("n", "[B", "<CMD>bfirst<CR>")
+utils.map("n", "]B", "<CMD>blast<CR>")
+
 -- sudo
 -- vim.cmd [[cmap w!! w !sudo tee > /dev/null %]]
 
@@ -63,6 +69,7 @@ for i = 9, 1, -1 do
     { desc = string.format("Tab Move to %d", i) }
   )
 end
+
 local maps = {
   {
     prefix = "<leader>t",
@@ -78,8 +85,6 @@ local maps = {
   {
     prefix = "<leader>",
     maps = {
-      { "w", vim.cmd.bnext, "Buffer Next" },
-      { "b", vim.cmd.bprev, "Buffer Prev" },
       -- Move between splits
       -- { "k", ":wincmd k<CR>", "Move Up" },
       -- { "l", ":wincmd l<CR>", "Move Right" },
@@ -102,10 +107,10 @@ local maps = {
 utils.maps(maps)
 
 -- Resize pane
-utils.map("n", "<A-Left>", ":vertical resize +5<CR>")
-utils.map("n", "<A-Right>", ":vertical resize -5<CR>")
-utils.map("n", "<A-Down>", ":resize +5<CR>")
-utils.map("n", "<A-Up>", ":resize -5<CR>")
+-- utils.map("n", "<A-Left>", ":vertical resize +5<CR>")
+-- utils.map("n", "<A-Right>", ":vertical resize -5<CR>")
+-- utils.map("n", "<A-Down>", ":resize +5<CR>")
+-- utils.map("n", "<A-Up>", ":resize -5<CR>")
 
 --Move line to up or down
 -- utils.map("n", "J", ":m .+1<CR>==", opts)

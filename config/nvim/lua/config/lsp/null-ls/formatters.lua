@@ -22,11 +22,11 @@ function M.format()
   if M.autoformat then
     local buf = vim.api.nvim_get_current_buf()
     local ft = vim.bo[buf].filetype
-    local have_nls = #require("null-ls.sources").get_available(ft, "NULL_LS_FORMATTING") > 0
+    local have_nls = package.loaded["null-ls"]
+      and (#require("null-ls.sources").get_available(ft, "NULL_LS_FORMATTING") > 0)
 
-    local view = vim.fn.winsaveview()
     vim.lsp.buf.format {
-      async = true,
+      bufnr = buf,
       filter = function(client)
         if have_nls then
           return client.name == "null-ls"
@@ -34,12 +34,11 @@ function M.format()
         return client.name ~= "null-ls"
       end,
     }
-    vim.fn.winrestview(view)
   end
 end
 
-function M.setup(client, bufnr)
-  local filetype = api.nvim_buf_get_option(bufnr, "filetype")
+function M.setup(client, buf)
+  local filetype = api.nvim_buf_get_option(buf, "filetype")
 
   local enable = false
   if M.has_formatter(filetype) then
@@ -55,13 +54,14 @@ function M.setup(client, bufnr)
   client.server_capabilities.documentFormattingProvder = enable
   client.server_capabilities.documentRangeFormattingProvider = enable
   if client.server_capabilities.documentFormattingProvider then
-    local lsp_format_grp = api.nvim_create_augroup("LspFormat", { clear = true })
-    api.nvim_create_autocmd("BufWritePre", {
+    vim.api.nvim_create_autocmd("BufWritePre", {
+      group = vim.api.nvim_create_augroup("LspFormat." .. buf, {}),
+      buffer = buf,
       callback = function()
-        vim.schedule(M.format)
+        if M.autoformat then
+          M.format()
+        end
       end,
-      group = lsp_format_grp,
-      buffer = bufnr,
     })
   end
 end

@@ -8,4 +8,5 @@
 vim.keymap.set("", "<Space>", "<Nop>", { noremap = true, silent = true })
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+require "config.icons"
 require("plugins").setup()

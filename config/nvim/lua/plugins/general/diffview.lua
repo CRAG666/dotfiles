@@ -6,7 +6,7 @@ function get_keys()
   }
   for i = 9, 1, -1 do
     keys[#keys + 1] = {
-      string.format("-d%d", i),
+      string.format(",d%d", i),
       string.format(":DiffviewOpen HEAD~%d<CR>", i),
       desc = string.format("Diff Open HEAD~%d<CR>", i),
     }

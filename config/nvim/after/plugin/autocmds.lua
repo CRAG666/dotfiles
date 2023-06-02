@@ -4,15 +4,15 @@
 --  \_/\_/ \/|_/|_/\_/ \__/ | | |_/\/|_/
 --
 
-local api = vim.api
 local cmd = vim.cmd
+local autocmd = vim.api.nvim_create_autocmd
 local function augroup(name)
   return vim.api.nvim_create_augroup("mnv_" .. name, { clear = true })
 end
 
 -- See `:help vim.highlight.on_yank()`
 local highlight_group = augroup "YankHighlight"
-api.nvim_create_autocmd("TextYankPost", {
+autocmd("TextYankPost", {
   callback = function()
     vim.highlight.on_yank { timeout = 100 }
   end,
@@ -22,10 +22,19 @@ api.nvim_create_autocmd("TextYankPost", {
 
 -- show cursor line only in active window
 cursorGrp = augroup "CursorLine"
-api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, { pattern = "*", command = "set cursorline", group = cursorGrp })
+autocmd({ "InsertLeave", "WinEnter" }, { pattern = "*", command = "set cursorline", group = cursorGrp })
+
+-- Use vertical splits for help windows
+local vertical_help = augroup "VerticalHelp"
+autocmd("FileType", {
+  desc = "make help split vertical",
+  pattern = "help",
+  command = "wincmd L",
+  group = vertical_help,
+})
 
 -- go to last loc when opening a buffer
-api.nvim_create_autocmd("BufReadPost", {
+autocmd("BufReadPost", {
   callback = function()
     local mark = vim.api.nvim_buf_get_mark(0, '"')
     local lcount = vim.api.nvim_buf_line_count(0)
@@ -36,7 +45,7 @@ api.nvim_create_autocmd("BufReadPost", {
 })
 
 -- wrap and check for spell in text filetypes
-api.nvim_create_autocmd("FileType", {
+autocmd("FileType", {
   group = augroup "wrap_spell",
   pattern = { "gitcommit", "markdown", "tex" },
   callback = function()
@@ -61,19 +70,20 @@ api.nvim_create_autocmd("FileType", {
 -- vim.on_key(toggle_hlsearch, ns)
 
 vim.api.nvim_set_hl(0, "TerminalCursorShape", { underline = true })
-vim.api.nvim_create_autocmd("TermEnter", {
+autocmd("TermEnter", {
   callback = function()
     vim.cmd [[setlocal winhighlight=TermCursor:TerminalCursorShape]]
   end,
 })
 
 -- Delete spaces
-api.nvim_create_autocmd("BufWritePre", { command = [[%s/\s\+$//e]] })
-api.nvim_create_autocmd("BufEnter", { command = [[let @/=""]] })
+autocmd("BufWritePre", { command = [[%s/\s\+$//e]] })
+autocmd("BufEnter", { command = [[let @/=""]] })
 -- Pwd in currente buffer
-api.nvim_create_autocmd("BufEnter", { command = "silent! lcd %:p:h" })
+autocmd("BufEnter", { command = "silent! lcd %:p:h" })
 -- Format options
-api.nvim_create_autocmd("FileType", { pattern = "make", command = [[setlocal noexpandtab]] })
+
 -- don't auto comment new line
-api.nvim_create_autocmd("BufEnter", { command = [[set formatoptions-=cro]] })
-api.nvim_create_autocmd("FileType", { pattern = "man", command = [[nnoremap <buffer><silent> q :quit<CR>]] })
+autocmd("BufEnter", { command = [[set formatoptions-=cro]] })
+
+autocmd("FileType", { pattern = "man", command = [[nnoremap <buffer><silent> q :quit<CR>]] })
