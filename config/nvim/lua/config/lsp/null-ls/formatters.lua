@@ -1,7 +1,6 @@
 local M = {}
 
 local utils = require "utils"
-local nls_utils = require "config.lsp.null-ls.utils"
 local nls_sources = require "null-ls.sources"
 local api = vim.api
 

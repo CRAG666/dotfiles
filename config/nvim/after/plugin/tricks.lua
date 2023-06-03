@@ -97,4 +97,4 @@ local zoom_maps = {
     opts,
   },
 }
-utils.pmaps("<leader>", zoom_maps)
+utils.pmaps("n", "<leader>", zoom_maps)
