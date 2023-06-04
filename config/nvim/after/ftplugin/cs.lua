@@ -3,10 +3,10 @@ set.shiftwidth = 4
 set.softtabstop = 4
 set.expandtab = true
 
-local util = require("lspconfig").util
+local util = require "null-ls.utils"
 local root_dir = function(file, _)
   if file:sub(-#".csx") == ".csx" then
-    return util.path.dirname(file)
+    return vim.fs.dirname(file)
   end
   return util.root_pattern "*.sln"(file) or util.root_pattern "*.csproj"(file)
 end
@@ -25,7 +25,8 @@ local pid = vim.fn.getpid()
 -- }
 -- require("config.lsp").setup(csharp_ls)
 
-local function on_attach(client, bufnr)
+local lsp_utils = require "config.lsp.utils"
+lsp_utils.on_attach(function(client, _)
   local caps = client.server_capabilities
   caps.semanticTokensProvider = {
     full = vim.empty_dict(),
@@ -101,7 +102,7 @@ local function on_attach(client, bufnr)
     },
     range = true,
   }
-end
+end)
 
 local omnisharp = {
   handlers = {
@@ -118,4 +119,4 @@ local omnisharp = {
   analyze_open_documents_only = true,
   root_dir = root_dir(vim.fn.expand "%"),
 }
-require("config.lsp").setup(omnisharp, on_attach)
+require("config.lsp").setup(omnisharp)

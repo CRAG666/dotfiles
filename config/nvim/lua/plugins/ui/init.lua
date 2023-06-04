@@ -72,10 +72,4 @@ return {
       sign_priority = { lower = 10, upper = 15, builtin = 8, bookmark = 20 },
     }),
   },
-  {
-    "gen740/SmoothCursor.nvim",
-    lazy = false,
-    opts = { fancy = { enable = true } },
-    -- enabled = false,
-  },
 }

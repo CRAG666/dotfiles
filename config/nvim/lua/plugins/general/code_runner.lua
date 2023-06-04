@@ -72,7 +72,7 @@ return {
       rust = "cd $dir && rustc $fileName && $dir$fileNameWithoutExt",
       dart = "dart",
       cs = function(...)
-        local root_dir = require("lspconfig").util.root_pattern "*.csproj"(vim.loop.cwd())
+        local root_dir = require("null-ls.utils").root_pattern "*.csproj"(vim.loop.cwd())
         return "cd " .. root_dir .. " && dotnet run$end"
       end,
     },

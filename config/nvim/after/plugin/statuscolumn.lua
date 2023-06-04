@@ -1,3 +1,6 @@
+local augroup = vim.api.nvim_create_augroup
+local autocmd = vim.api.nvim_create_autocmd
+
 if _G.StatusColumn then
   return
 end
@@ -32,8 +35,7 @@ local function git_sign()
   })[1].signs[1]
 end
 
-local function line_number()
-  local lnum = tostring(vim.v.lnum)
+local function line_number(lnum)
   if is_virtual_line() then
     return string.rep(" ", #lnum)
   elseif is_wrapped_line() then
@@ -75,8 +77,8 @@ local function border_highlight()
   end
 end
 
-local number = function()
-  return { " %=", line_number(), " " }
+local number = function(lnum)
+  return { "%=", line_number(tostring(lnum)), " " }
 end
 
 local fold = function()
@@ -96,7 +98,11 @@ local padding = function()
 end
 
 StatusColumn.build = function()
-  return table.concat(vim.tbl_flatten { number(), fold(), border(), padding() })
+  return table.concat(vim.tbl_flatten { number(vim.v.lnum), fold(), border(), padding() })
+end
+
+StatusColumn.rel = function()
+  return table.concat(vim.tbl_flatten { number(vim.v.relnum), fold(), border(), padding() })
 end
 
 StatusColumn.fold_click_handler = function()
@@ -116,4 +122,31 @@ StatusColumn.set_window = function(value, defer, win)
   end, defer or 1)
 end
 
-vim.opt.statuscolumn = "%{%v:lua.StatusColumn.build()%}"
+local ignore = {
+  "TelescopePrompt",
+  "lazy",
+  "better_term",
+}
+local numbertogglegroup = augroup("numbertoggle", { clear = true })
+autocmd({ "BufEnter", "FocusGained", "InsertLeave" }, {
+  pattern = "*",
+  callback = function()
+    if vim.list_contains(ignore, vim.bo.ft) then
+      vim.opt.statuscolumn = ""
+    else
+      vim.opt.statuscolumn = "%{%v:lua.StatusColumn.rel()%}"
+    end
+  end,
+  group = numbertogglegroup,
+})
+autocmd({ "BufLeave", "FocusLost", "InsertEnter" }, {
+  pattern = "*",
+  callback = function()
+    if vim.list_contains(ignore, vim.bo.ft) then
+      vim.opt.statuscolumn = ""
+    else
+      vim.opt.statuscolumn = "%{%v:lua.StatusColumn.build()%}"
+    end
+  end,
+  group = numbertogglegroup,
+})

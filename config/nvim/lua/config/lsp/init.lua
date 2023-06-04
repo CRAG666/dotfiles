@@ -1,52 +1,78 @@
--- local diagnostics_active = true
---
--- local function toggle_diagnostics()
---   diagnostics_active = not diagnostics_active
---   if diagnostics_active then
---     vim.diagnostic.show()
---   else
---     vim.diagnostic.hide()
---   end
--- end
-
--- Use an on_attach function to only map the following keys
-local on_attach = function(on_attach_client)
-  return function(client, bufnr)
-    on_attach_client = on_attach_client or function() end
-    on_attach_client(client, bufnr)
-    require("config.lsp.highlighter").setup(client, bufnr)
-    require("config.lsp.null-ls.formatters").setup(client, bufnr)
-  end
-end
-
+local utils = require "config.lsp.utils"
 local M = {}
 
-function M.capabilities()
-  local capabilities = vim.lsp.protocol.make_client_capabilities()
-  capabilities.textDocument.completion.completionItem.snippetSupport = true
-  capabilities.textDocument.foldingRange = {
-    dynamicRegistration = false,
-    lineFoldingOnly = true,
+local function lsp_init()
+  local signs = {
+    { name = "DiagnosticSignError", text = Icons.diagnostics.bold_error },
+    { name = "DiagnosticSignWarn", text = Icons.diagnostics.bold_warning },
+    { name = "DiagnosticSignHint", text = Icons.diagnostics.bold_hint },
+    { name = "DiagnosticSignInfo", text = Icons.diagnostics.bold_information },
   }
-  return require("cmp_nvim_lsp").default_capabilities(capabilities)
-end
+  for _, sign in ipairs(signs) do
+    vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = sign.name })
+  end
 
-function M.setup(server, on_attach_client)
-  require("config.lsp.handlers").setup()
-  local opts = {
-    flags = {
-      debounce_text_changes = 150,
+  -- LSP handlers configuration
+  local config = {
+    float = {
+      focusable = true,
+      style = "minimal",
+      border = "rounded",
+    },
+
+    diagnostic = {
+      -- virtual_text = false,
+      -- virtual_text = { spacing = 4, prefix = "●" },
+
+      virtual_text = false,
+      -- virtual_text = {
+      --   severity = {
+      --     min = vim.diagnostic.severity.ERROR,
+      --   },
+      -- },
+      signs = {
+        active = signs,
+      },
+      underline = false,
+      update_in_insert = false,
+      severity_sort = true,
+      float = {
+        focusable = true,
+        style = "minimal",
+        border = "rounded",
+        source = "always",
+        header = "",
+        prefix = "",
+      },
+      -- virtual_lines = true,
     },
   }
-  opts.capabilities = M.capabilities()
-  opts.on_attach = on_attach(on_attach_client)
+
+  -- Diagnostic configuration
+  vim.diagnostic.config(config.diagnostic)
+
+  -- Hover configuration
+  -- vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, config.float)
+
+  -- Signature help configuration
+  -- vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, config.float)
+end
+
+function M.setup(server)
+  utils.on_attach(function(client, bufnr)
+    require("config.lsp.highlighter").setup(client, bufnr)
+    require("config.lsp.format").on_attach(client, bufnr)
+    require("config.lsp.keymaps").on_attach(client, bufnr)
+  end)
+
+  lsp_init() -- diagnostics, handlers
+
+  server.capabilities = utils.capabilities()
   -- null-ls
-  require("config.lsp.null-ls").setup(opts)
-  local config = vim.tbl_deep_extend("force", opts, server or {})
   if server.name == "sumneko_lua" then
-    config.before_init = require("neodev.lsp").before_init
+    server.before_init = require("neodev.lsp").before_init
   end
-  vim.lsp.start(config)
+  vim.lsp.start(server)
 end
 
 function M.remove_unused_imports()

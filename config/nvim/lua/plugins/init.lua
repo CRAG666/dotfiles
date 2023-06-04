@@ -17,7 +17,8 @@ function M.setup()
     spec = {
       { import = "plugins.general" },
       { import = "plugins.ui" },
-      { import = "plugins.lsp" },
+      { import = "plugins.dev" },
+      { import = "plugins.dev.lang" },
       { import = "plugins.modes" },
     },
     -- install = { missing = true, colorscheme = { "catppuccin" } },
