@@ -4,33 +4,6 @@ return {
   build = ":Neorg sync-parsers",
   ft = "norg",
   cmd = "Neorg",
-  keys = {
-    {
-      "<leader><leader>o",
-      ":Neorg workspace notes<cr>",
-      desc = "Norg",
-    },
-    { neorg_leader .. "tu", desc = "Task undone" },
-
-    { neorg_leader .. "tp", desc = "Task pending" },
-
-    { neorg_leader .. "td", desc = "Task done" },
-
-    { neorg_leader .. "th", desc = "Task on_hold" },
-
-    { neorg_leader .. "tc", desc = "Task cancelled" },
-
-    { neorg_leader .. "tr", desc = "Task recurring" },
-
-    { neorg_leader .. "ti", desc = "Task important" },
-
-    { neorg_leader .. "ta", desc = "Task ambiguous" },
-    { neorg_leader .. "nn", desc = "New note" },
-
-    { neorg_leader .. "lt", desc = "Toggle list type" },
-    { neorg_leader .. "li", desc = "Invert list type" },
-    { neorg_leader .. "mn", desc = "OrgMode" },
-  },
   opts = {
     load = {
       ["core.defaults"] = {}, -- Loads default behaviour

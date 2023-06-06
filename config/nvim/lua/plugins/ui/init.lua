@@ -21,7 +21,7 @@ return {
   },
   {
     "folke/which-key.nvim",
-    event = "UIEnter",
+    event = "VeryLazy",
     opts = {
       -- window = { position = "top" },
       icons = {

@@ -15,7 +15,8 @@ local keys = {
   { prefix_1 .. "m", desc = "Media Files" },
   { prefix_1 .. "g", desc = "Find Grep" },
   { prefix_1 .. "l", desc = "Find Live Grep" },
-  { prefix_1 .. "h", desc = "Search History" },
+  { prefix_1 .. "h", desc = "Help tags" },
+  { prefix_1 .. "s", desc = "Search History" },
   { prefix_1 .. "cc", desc = "Select Colorscheme" },
   { prefix_1 .. "cs", desc = "Search Commands" },
   { prefix_1 .. "ch", desc = "Search Commands History" },
@@ -109,6 +110,19 @@ local function setup()
       },
     },
     extensions = {
+      ["zf-native"] = {
+        -- options for sorting file-like items
+        file = {
+          -- override default telescope file sorter
+          enable = true,
+
+          -- highlight matching text in results
+          highlight_results = true,
+
+          -- enable zf filename match priority
+          match_filename = true,
+        },
+      },
       media_files = {
         filetypes = { "png", "webp", "jpg", "jpeg" },
         find_cmd = "rg", -- find command (defaults to `fd`)
@@ -209,6 +223,7 @@ local function setup()
     function()
       builtin.live_grep(cwd_conf)
     end,
+    builtin.help_tags,
     builtin.search_history,
     builtin.colorscheme,
     builtin.commands,

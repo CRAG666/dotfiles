@@ -7,6 +7,10 @@ end
 
 _G.StatusColumn = {}
 
+local function get_vnum()
+  return vim.wo.relativenumber and vim.v.relnum or vim.v.lnum
+end
+
 local function is_virtual_line()
   return vim.v.virtnum < 0
 end
@@ -25,7 +29,7 @@ local function not_fold_start(line)
 end
 
 local function fold_opened(line)
-  return vim.fn.foldclosed(line or vim.v.lnum) == -1
+  return vim.fn.foldclosed(line or get_vnum()) == -1
 end
 
 local function git_sign()
@@ -35,13 +39,14 @@ local function git_sign()
   })[1].signs[1]
 end
 
-local function line_number(lnum)
+local function line_number()
+  local num = tostring(get_vnum())
   if is_virtual_line() then
-    return string.rep(" ", #lnum)
+    return string.rep(" ", #num)
   elseif is_wrapped_line() then
-    return " " .. string.rep(" ", #lnum)
+    return " " .. string.rep(" ", #num)
   else
-    return (#lnum == 1 and " " or "") .. lnum
+    return (#num == 1 and " " or "") .. num
   end
 end
 
@@ -70,7 +75,6 @@ local function border_highlight()
     if not highlights_cache[sign.name] then
       highlights_cache[sign.name] = vim.fn.sign_getdefined(sign.name)[1].texthl
     end
-
     return highlights_cache[sign.name]
   else
     return "StatusColumnBorder"
@@ -78,7 +82,7 @@ local function border_highlight()
 end
 
 local number = function(lnum)
-  return { "%=", line_number(tostring(lnum)), " " }
+  return { "%=", line_number(), " " }
 end
 
 local fold = function()
@@ -90,7 +94,7 @@ local border = function()
 end
 
 local padding = function()
-  if vim.v.lnum == vim.fn.getcurpos()[2] then
+  if get_vnum() == vim.fn.getcurpos()[2] then
     return { "%#StatusColumnBufferCursorLine#", " " }
   else
     return { "%#StatusColumnBuffer#", " " }
@@ -98,12 +102,12 @@ local padding = function()
 end
 
 StatusColumn.build = function()
-  return table.concat(vim.tbl_flatten { number(vim.v.lnum), fold(), border(), padding() })
+  return table.concat(vim.tbl_flatten { number(), fold(), border(), padding() })
 end
 
-StatusColumn.rel = function()
-  return table.concat(vim.tbl_flatten { number(vim.v.relnum), fold(), border(), padding() })
-end
+-- StatusColumn.rel = function()
+--   return table.concat(vim.tbl_flatten { number(vim.v.relnum), fold(), border(), padding() })
+-- end
 
 StatusColumn.fold_click_handler = function()
   local line = vim.fn.getmousepos().line
@@ -122,19 +126,12 @@ StatusColumn.set_window = function(value, defer, win)
   end, defer or 1)
 end
 
-local ignore = {
-  "TelescopePrompt",
-  "lazy",
-  "better_term",
-}
 local numbertogglegroup = augroup("numbertoggle", { clear = true })
 autocmd({ "BufEnter", "FocusGained", "InsertLeave" }, {
   pattern = "*",
   callback = function()
-    if vim.list_contains(ignore, vim.bo.ft) then
-      vim.opt.statuscolumn = ""
-    else
-      vim.opt.statuscolumn = "%{%v:lua.StatusColumn.rel()%}"
+    if vim.o.nu and vim.api.nvim_get_mode().mode ~= "i" then
+      vim.opt.relativenumber = true
     end
   end,
   group = numbertogglegroup,
@@ -142,11 +139,11 @@ autocmd({ "BufEnter", "FocusGained", "InsertLeave" }, {
 autocmd({ "BufLeave", "FocusLost", "InsertEnter" }, {
   pattern = "*",
   callback = function()
-    if vim.list_contains(ignore, vim.bo.ft) then
-      vim.opt.statuscolumn = ""
-    else
-      vim.opt.statuscolumn = "%{%v:lua.StatusColumn.build()%}"
+    if vim.o.nu then
+      vim.opt.relativenumber = false
     end
   end,
   group = numbertogglegroup,
 })
+
+vim.opt.statuscolumn = "%{%v:lua.StatusColumn.build()%}"

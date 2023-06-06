@@ -1,27 +1,8 @@
 return {
   "nvim-treesitter/nvim-treesitter",
   build = ":TSUpdate",
-  event = "BufReadPost",
+  event = { "BufReadPost", "BufNewFile" },
   config = function()
-    -- local theme = require("catppuccin.palettes").get_palette()
-    -- local colors = vim.tbl_values(theme)
-    -- local colors = {
-    --   theme.rosewater,
-    --   theme.flamingo,
-    --   theme.peach,
-    --   theme.maroon,
-    --   theme.mauve,
-    --   theme.yellow,
-    --   theme.pink,
-    --   theme.teal,
-    --   theme.sky,
-    --   theme.lavender,
-    --   theme.sapphire,
-    --   theme.blue,
-    --   theme.green,
-    --   theme.red,
-    -- }
-
     require("nvim-treesitter.configs").setup {
       ensure_installed = {
         "arduino",

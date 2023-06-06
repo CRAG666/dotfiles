@@ -4,6 +4,7 @@
 --  \___/\_/  | |_/|_/|/\/|/
 --                 |)    (|
 
+vim.loader.enable()
 -- Define leader key
 vim.keymap.set("", "<Space>", "<Nop>", { noremap = true, silent = true })
 vim.g.mapleader = " "

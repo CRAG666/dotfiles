@@ -150,9 +150,12 @@ return {
           TabLine = { fg = C.overlay0, bg = C.crust },
           TabLineSel = { fg = C.lavender, bg = C.base },
           Folded = { fg = C.yellow, bg = C.crust },
+          -- StatusColumn
+          -- StatusColumnBufferCursorLine = { bg = C.blue },
           -- Telescope
-          TelescopePromptNormal = { fg = C.flamingo, bg = "NONE" },
-          TelescopePromptPrefix = { fg = C.sapphire, bg = "NONE" },
+          TelescopePromptNormal = { fg = C.flamingo, bg = C.base },
+          TelescopePromptBorder = { bg = C.base },
+          TelescopePromptPrefix = { fg = C.sapphire, bg = C.base },
           TelescopePromptCounter = { fg = "white" },
           TelescopePromptTitle = { fg = C.base, bg = C.red },
           TelescopePreviewTitle = { fg = C.base, bg = C.teal },

@@ -30,5 +30,9 @@ return {
       desc = "Init new terminal",
     },
   },
-  config = true,
+  opts = {
+    position = "bot",
+    size = 15,
+  },
+  -- config = true,
 }
