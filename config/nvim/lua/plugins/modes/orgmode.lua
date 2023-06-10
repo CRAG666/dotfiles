@@ -12,14 +12,14 @@ return {
       neorg_leader .. "o",
       function()
         if neorg_enabled then
-          vim.cmd "Neorg return"
+          vim.cmd ":Neorg return"
           neorg_enabled = false
           return
         end
         vim.cmd "Neorg workspace notes"
         neorg_enabled = true
       end,
-      desc = "Toggle Org Mode",
+      desc = "Toggle org notes",
     },
     {
       neorg_leader .. "tt",
@@ -44,7 +44,6 @@ return {
             },
           },
         },
-        ["core.ui.calendar"] = {},
         ["core.dirman"] = { -- Manages Neorg workspaces
           config = {
             workspaces = {
@@ -53,7 +52,11 @@ return {
           },
         },
         ["core.export"] = {},
-        ["core.completion"] = { config = { engine = "nvim-cmp", name = "[Norg]" } },
+        ["core.completion"] = {
+          config = {
+            engine = "nvim-cmp",
+          },
+        },
         ["core.integrations.nvim-cmp"] = {},
         ["core.integrations.telescope"] = {},
         ["core.keybinds"] = {
@@ -62,6 +65,7 @@ return {
           },
         },
       },
+      ["core.ui.calendar"] = {},
     }
     local neorg_callbacks = require "neorg.callbacks"
     neorg_callbacks.on_event("core.keybinds.events.enable_keybinds", function(_, keybinds)

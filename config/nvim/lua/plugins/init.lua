@@ -28,32 +28,32 @@ function M.setup()
     change_detection = {
       notify = false,
     },
-    performance = {
-      rtp = {
-        disabled_plugins = {
-          "gzip",
-          "matchit",
-          "matchparen",
-          "tarPlugin",
-          "tohtml",
-          "tutor",
-          "zipPlugin",
-          "zip",
-          "tar",
-          "getscript",
-          "getscriptPlugin",
-          "vimball",
-          "vimballPlugin",
-          "2html_plugin",
-          "logipat",
-          "rrhelper",
-          "spellfile_plugin",
-          "tutor_mode_plugin",
-          "remote_plugins",
-          "shada_plugin",
-        },
-      },
-    },
+    -- performance = {
+    --   rtp = {
+    --     disabled_plugins = {
+    --       "gzip",
+    --       "matchit",
+    --       "matchparen",
+    --       "tarPlugin",
+    --       "tohtml",
+    --       "tutor",
+    --       "zipPlugin",
+    --       "zip",
+    --       "tar",
+    --       "getscript",
+    --       "getscriptPlugin",
+    --       "vimball",
+    --       "vimballPlugin",
+    --       "2html_plugin",
+    --       "logipat",
+    --       "rrhelper",
+    --       "spellfile_plugin",
+    --       "tutor_mode_plugin",
+    --       "remote_plugins",
+    --       "shada_plugin",
+    --     },
+    --   },
+    -- },
   }
 end
 
