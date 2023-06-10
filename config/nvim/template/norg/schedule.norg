@@ -22,3 +22,6 @@ version: 0.0.1
 
 * Viernes
 ** 11:00 - 13:30
+
+#comment
+vim:tw=100:ft=norg:norl:conceallevel=2:concealcursor=nv:

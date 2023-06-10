@@ -1,6 +1,5 @@
 local utils = require "utils"
 return {
-  { "tamton-aquib/flirt.nvim" },
   {
     "echasnovski/mini.indentscope",
     -- event = "CursorMoved",
@@ -34,7 +33,7 @@ return {
   },
   {
     "jinh0/eyeliner.nvim",
-    event = "UIEnter",
+    event = "VeryLazy",
     opts = {
       bold = true, -- Default: false
       underline = true, -- Default: false

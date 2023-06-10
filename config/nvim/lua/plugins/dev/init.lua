@@ -1,3 +1,4 @@
+local setup = require("utils").setup
 return {
   {
     "williamboman/mason.nvim",
@@ -12,14 +13,13 @@ return {
     url = "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
     event = "LspAttach",
     -- config = true,
-    config = function()
-      require("lsp_lines").setup()
-    end,
+    config = setup "lsp_lines",
     -- enabled = false,
   },
   {
     "VidocqH/lsp-lens.nvim",
     event = "LspAttach",
+    config = setup "lsp-lens",
   },
   {
     "jose-elias-alvarez/null-ls.nvim",
