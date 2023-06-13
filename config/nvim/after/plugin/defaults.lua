@@ -151,3 +151,4 @@ set.shortmess:append { W = true, I = true, c = true, C = true }
 -- set.numberwidth = 3
 -- set.statuscolumn =
 vim.cmd "filetype plugin indent on"
+vim.cmd.colorscheme "catppuccin"

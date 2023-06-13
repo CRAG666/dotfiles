@@ -1,5 +1,7 @@
 local neorg_leader = "<leader>o"
 local neorg_enabled = false
+-- vim.w.toc_open = false
+-- vim.w.win_toc = -1
 return {
   "nvim-neorg/neorg",
   version = false,
@@ -22,8 +24,23 @@ return {
       desc = "Toggle org notes",
     },
     {
-      neorg_leader .. "tt",
+      neorg_leader .. "th",
       ":Neorg toggle-concealer<CR>",
+      desc = "Toggle highlighting org",
+    },
+    {
+      neorg_leader .. "tt",
+      function()
+        -- if vim.w.toc_open then
+        --   vim.api.nvim_win_close(vim.w.win_toc, false)
+        --   vim.w.toc_open = false
+        --   return
+        -- end
+        vim.cmd "Neorg toc"
+        vim.cmd "vert resize 60"
+        -- vim.w.win_toc = vim.api.nvim_win_get_number(0)
+        -- vim.w.toc_open = true
+      end,
       desc = "Toggle highlighting org",
     },
   },
@@ -59,13 +76,13 @@ return {
         },
         ["core.integrations.nvim-cmp"] = {},
         ["core.integrations.telescope"] = {},
+        ["core.ui.calendar"] = {},
         ["core.keybinds"] = {
           config = {
             neorg_leader = neorg_leader,
           },
         },
       },
-      ["core.ui.calendar"] = {},
     }
     local neorg_callbacks = require "neorg.callbacks"
     neorg_callbacks.on_event("core.keybinds.events.enable_keybinds", function(_, keybinds)
