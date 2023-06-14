@@ -4,10 +4,8 @@ local neorg_enabled = false
 -- vim.w.win_toc = -1
 return {
   "nvim-neorg/neorg",
-  version = false,
   build = ":Neorg sync-parsers",
-  dependencies = { { "nvim-lua/plenary.nvim" }, { "nvim-neorg/neorg-telescope" } },
-  ft = "norg",
+  dependencies = { "nvim-lua/plenary.nvim", "nvim-neorg/neorg-telescope" },
   cmd = "Neorg",
   keys = {
     {
@@ -47,7 +45,7 @@ return {
   config = function()
     require("neorg").setup {
       load = {
-        ["core.defaults"] = {},
+        ["core.defaults"] = {}, -- Loads default behaviour
         ["core.concealer"] = {
           config = {
             icon_preset = "basic",
@@ -68,6 +66,12 @@ return {
             },
           },
         },
+        ["core.keybinds"] = {
+          config = {
+            neorg_leader = neorg_leader,
+          },
+        },
+        ["core.summary"] = {},
         ["core.export"] = {},
         ["core.completion"] = {
           config = {
@@ -77,20 +81,16 @@ return {
         ["core.integrations.nvim-cmp"] = {},
         ["core.integrations.telescope"] = {},
         ["core.ui.calendar"] = {},
-        ["core.keybinds"] = {
-          config = {
-            neorg_leader = neorg_leader,
-          },
-        },
       },
     }
+
     local neorg_callbacks = require "neorg.callbacks"
     neorg_callbacks.on_event("core.keybinds.events.enable_keybinds", function(_, keybinds)
       -- Map all the below keybinds only when the "norg" mode is active
       keybinds.map_event_to_mode("norg", {
         n = { -- Bind keys in normal mode
           { neorg_leader .. "lf", "core.integrations.telescope.find_linkable", opts = { desc = "Find linkable" } },
-          { neorg_leader .. "ll", "core.integrations.telescope.insert_link", opts = { desc = "Insert link" } },
+          { neorg_leader .. "il", "core.integrations.telescope.insert_link", opts = { desc = "Insert link" } },
           { "]l", "core.integrations.treesitter.next.link", opts = { desc = "Next link" } },
           { "[l", "core.integrations.treesitter.previous.link", opts = { desc = "Previous link" } },
         },

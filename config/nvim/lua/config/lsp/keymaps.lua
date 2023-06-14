@@ -5,13 +5,17 @@ function M.on_attach(_, buffer)
   local bufopt = { buffer = buffer }
 
   vim.bo[buffer].omnifunc = "v:lua.vim.lsp.omnifunc"
+  local d = vim.diagnostic
 
   utils.map("n", ";dd", function()
-    vim.diagnostic.setloclist { open = false } -- don't open and focus
+    d.setloclist { open = false } -- don't open and focus
     local window = vim.api.nvim_get_current_win()
     vim.cmd.lwindow() -- open+focus loclist if has entries, else close -- this is the magic toggle command
     vim.api.nvim_set_current_win(window)
   end, vim.tbl_extend("force", bufopt, { desc = "Open diagnostic loclist" }))
+
+  utils.map("n", "]d", d.goto_next, vim.tbl_extend("force", bufopt, { desc = "Next diagnostic" }))
+  utils.map("n", "[d", d.goto_prev, vim.tbl_extend("force", bufopt, { desc = "Prev diagnostic" }))
 
   -- vim.keymap.set("n", ";df", vim.diagnostic.open_float)
 

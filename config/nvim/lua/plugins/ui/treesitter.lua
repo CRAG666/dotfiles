@@ -89,7 +89,6 @@ return {
       -- matchup = {
       --   enable = true,
       -- },
-      -- nvim-treesitter-textobjects
       textobjects = {
         select = {
           enable = true,
@@ -98,7 +97,8 @@ return {
             ["af"] = "@function.outer",
             ["if"] = "@function.inner",
             ["ac"] = "@class.outer",
-            ["ic"] = "@class.inner",
+            ["ic"] = { query = "@class.inner", desc = "Select inner part of a class region" },
+            ["as"] = { query = "@scope", query_group = "locals", desc = "Select language scope" },
           },
         },
         move = {
@@ -106,7 +106,10 @@ return {
           set_jumps = true, -- whether to set jumps in the jumplist
           goto_next_start = {
             ["]m"] = "@function.outer",
-            ["]]"] = "@class.outer",
+            ["]]"] = { query = "@class.outer", desc = "Next class start" },
+            ["]z"] = { query = "@fold", query_group = "folds", desc = "Next fold" },
+            ["]o"] = "@loop.outer",
+            ["]c"] = "@conditional.outer",
           },
           goto_next_end = {
             ["]M"] = "@function.outer",
@@ -115,6 +118,9 @@ return {
           goto_previous_start = {
             ["[m"] = "@function.outer",
             ["[["] = "@class.outer",
+            ["[z"] = { query = "@fold", query_group = "folds", desc = "Prev fold" },
+            ["[o"] = "@loop.outer",
+            ["[c"] = "@conditional.outer",
           },
           goto_previous_end = {
             ["[M"] = "@function.outer",
@@ -126,11 +132,9 @@ return {
       endwise = {
         enable = true,
       },
-      -- autotag
       autotag = {
         enable = true,
       },
-      -- context_commentstring
       context_commentstring = {
         enable = true,
         enable_autocmd = false,

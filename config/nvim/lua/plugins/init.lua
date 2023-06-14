@@ -34,6 +34,10 @@ function M.setup()
       },
       rtp = {
         disabled_plugins = {
+          "netrw",
+          "netrwPlugin",
+          "netrwSettings",
+          "netrwFileHandlers",
           "gzip",
           "matchit",
           "matchparen",
