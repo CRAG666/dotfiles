@@ -99,6 +99,7 @@ local maps = {
     maps = {
       -- { "s", "/", "Search", opts },
       { "r", ":%s/", "Search and Replace", opts },
+      { "p", [[:%s/\(.*\)/\1]], "Search and Replace", opts },
       { "cw", [[:%s/\<<C-r><C-w>\>/]], "Replace Word", opts },
       -- { "d", ":bd<CR>", "Buffer Delete" },
     },

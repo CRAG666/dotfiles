@@ -23,7 +23,7 @@ def on_reconfigure():
     theme = "Catppuccin-Mocha-Standard-Lavender-Dark"
     icons = "candy-icons"
     cursor = "Catppuccin-Mocha-Lavender-Cursors"
-    font = "SF Pro 14"
+    font = "SF Pro 15"
     gtk2 = "~/.gtkrc-2.0"
 
     GSETTINGS = (
@@ -77,7 +77,7 @@ outputs = [
 ]
 
 pywm = {
-    "enable_xwayland": False,
+    "enable_xwayland": True,
     # "xkb_model": "PLACEHOLDER_xkb_model",
     # "xkb_layout": "es",
     # "xkb_layout": "latam",
@@ -321,7 +321,7 @@ def key_bindings(layout: Layout):
         (super + "period", lambda: layout.basic_scale(-1)),
         (super + "f", layout.toggle_fullscreen),
         (super + "L", lambda: layout.ensure_locked(dim=True)),
-        (super + "T", layout.terminate),
+        # (super + "T", layout.terminate),
         ("XF86Close", layout.close_focused_view),
         ("XF86Reload", layout.update_config),
         (

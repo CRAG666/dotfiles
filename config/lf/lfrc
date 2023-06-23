@@ -28,10 +28,10 @@ cmd paste &{{
 cmd trash ${{
     set -f
     if gio trash --list 2>/dev/null; then
-        gio trash $fx
+        gio trash "$fx"
     else
         mkdir -p ~/.trash
-        mv -- $fx ~/.trash
+        mv -- "$fx" ~/.trash
     fi
 }}
 

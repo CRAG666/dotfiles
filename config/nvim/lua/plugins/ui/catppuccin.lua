@@ -152,7 +152,7 @@ return {
           ["@neorg.links.location.heading.1.norg"] = { fg = C.pink },
           ["@neorg.headings.2.title.norg"] = { fg = C.yellow },
           ["@neorg.links.location.heading.2.norg"] = { fg = C.yellow },
-          ["@neorg.links.description.norg"] = { fg = C.teal, style = { "underline" } },
+          -- ["@neorg.links.description.norg"] = { fg = C.teal, style = { "underline" } },
           -- StatusLine
           StatusLine = { fg = "NONE", bg = C.base },
           TabLineFill = { bg = C.crust },
@@ -172,7 +172,7 @@ return {
           TelescopeSelectionCaret = { fg = C.red },
           TelescopeMatching = { fg = C.green },
           --- Lsp
-          LspLens = { fg = C.lavender },
+          LspLens = { fg = C.subtext0 },
           -- Cmp config
           CmpItemKindSnippet = { fg = C.base, bg = C.mauve },
           CmpItemKindKeyword = { fg = C.base, bg = C.red },

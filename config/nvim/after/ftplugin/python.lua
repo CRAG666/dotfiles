@@ -25,14 +25,27 @@ local pyright = {
     python = {
       analysis = {
         autoImportCompletions = true,
-        typeCheckingMode = "off",
+        typeCheckingMode = "on",
         autoSearchPaths = true,
         useLibraryCodeForTypes = true,
-        diagnosticMode = "workspace",
+        diagnosticMode = "openFilesOnly", -- "openFilesOnly" or "openFilesOnly"
+        stubPath = vim.fn.stdpath "data" .. "/lazy/python-type-stubs/stubs",
       },
     },
   },
   single_file_support = true,
 }
 
+local ruff_lsp = {
+  name = "ruff-lsp",
+  cmd = { "ruff-lsp" },
+  single_file_support = true,
+  root_dir = vim.fs.dirname(vim.fs.find(root_files, { upward = true })[1]),
+  init_options = {
+    settings = {
+      args = { "--max-line-length=180" },
+    },
+  },
+}
 require("config.lsp").setup(pyright)
+require("config.lsp").setup(ruff_lsp)

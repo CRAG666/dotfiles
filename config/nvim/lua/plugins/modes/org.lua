@@ -7,6 +7,7 @@ return {
   build = ":Neorg sync-parsers",
   dependencies = { "nvim-lua/plenary.nvim", "nvim-neorg/neorg-telescope" },
   cmd = "Neorg",
+  ft = "norg",
   keys = {
     {
       neorg_leader .. "o",

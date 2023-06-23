@@ -13,15 +13,16 @@ version: 0.0.1
 
 * Martes
 ** 11:00 - 13:30
+  -
 
 * Miércoles
 ** 12:00 - 14:30
+  -
 
 * Jueves
 ** 11:00 - 13:30
+  -
 
 * Viernes
 ** 11:00 - 13:30
-
-#comment
-vim:tw=100:ft=norg:norl:conceallevel=2:concealcursor=nv:
+  -
