@@ -28,17 +28,17 @@ return {
         separator = "➜",
         group = "…",
       },
-      spelling = { enabled = true, suggestions = 20 },
+      spelling = { enabled = false, suggestions = 20 },
     },
   },
-  {
-    "jinh0/eyeliner.nvim",
-    event = "VeryLazy",
-    opts = {
-      bold = true, -- Default: false
-      underline = true, -- Default: false
-    },
-  },
+  -- {
+  --   "jinh0/eyeliner.nvim",
+  --   event = "VeryLazy",
+  --   opts = {
+  --     bold = true, -- Default: false
+  --     underline = true, -- Default: false
+  --   },
+  -- },
   {
     "brenoprata10/nvim-highlight-colors",
     event = "BufReadPost",

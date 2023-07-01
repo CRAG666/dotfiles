@@ -1,29 +1,30 @@
 local texlab = {
   name = "texlab",
   cmd = { "texlab" },
-  filetypes = { "tex" },
   settings = {
     texlab = {
       auxDirectory = ".",
       bibtexFormatter = "texlab",
       build = {
-        args = { "-pdf", "-interaction=nonstopmode", "-synctex=1", "%f" },
-        executable = "latexmk",
+        -- args = { "-pdf", "-interaction=nonstopmode", "-synctex=1", "%f" },
+        args = { "%f" },
+        -- executable = "latexmk",
+        executable = "pdftex",
         forwardSearchAfter = false,
         onSave = false,
       },
       chktex = {
-        onEdit = false,
-        onOpenAndSave = false,
+        onEdit = true,
+        onOpenAndSave = true,
       },
-      diagnosticsDelay = 300,
+      diagnosticsDelay = 100,
       formatterLineLength = 80,
       forwardSearch = {
         args = {},
       },
-      latexFormatter = "latexindent",
+      latexFormatter = "texlab",
       latexindent = {
-        modifyLineBreaks = false,
+        modifyLineBreaks = true,
       },
     },
   },

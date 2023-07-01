@@ -147,31 +147,12 @@ blur_apps = (term, "rofi", "tenacity")
 
 def rules(view: View):
     app_rule = None
-    # NOTE: Show view info
-    # os.system(
-    #     f"echo '{view.app_id}, {view.title}, {view.role}, {view.pid}, {view.panel}' >> ~/.config/newm/apps"
-    # )
-    # Set float common rules
-    # if view.up_state.is_floating and view.app_id != "albert":
-    #     app_rule = common_rules
+    if view.title is None or view.app_id is None:
+        return
     if view.app_id == "catapult":
         app_rule = {"float": True, "float_pos": (0.5, 0.1)}
-    # elif view.app_id == "albert" and view.title == "Albert":
-    #     app_rule = {
-    #         "float": True,
-    #         "float_size": (640, 440),
-    #         # "float_size": (900, 900),
-    #         "float_pos": (0.5, 0.22),
-    #         # "opacity": 0.8,
-    #         # "blur": {"radius": 5, "passes": 6},
-    #     }
     elif view.app_id == "lf-select":
         return float_rules | blur_rules
-    elif (
-        view.title is not None
-        and "Firefox - Indicador de compartición" in view.title.lower()
-    ):
-        return {"float": True, "float_size": (30, 20)}
     elif view.app_id == "io.bassi.Amberol":
         app_rule = {"opacity": 0.7, "blur": {"radius": 5, "passes": 6}}
     elif view.app_id == "app.landrop.landrop" and view.title == "Transferring":
@@ -180,10 +161,12 @@ def rules(view: View):
             "float_size": (600, 100),
             "float_pos": (0.5, 0.15),
         }
-    elif view.app_id in float_app_ids or view.title in float_titles:
-        app_rule = float_rules
     elif view.app_id in blur_apps:
         app_rule = blur_rules
+    elif view.app_id in float_app_ids or view.title in float_titles:
+        app_rule = float_rules
+    elif "Firefox - Indicador de compartición".lower() in view.title.lower():
+        return {"float": True, "float_pos": (0.02, 0.03)}
     return app_rule
 
 

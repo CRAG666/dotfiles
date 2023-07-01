@@ -6,15 +6,13 @@ return {
   },
   { "folke/neodev.nvim", ft = "lua" },
   { "b0o/SchemaStore.nvim", ft = "json" },
-  "Decodetalkers/csharpls-extended-lsp.nvim",
-  "Hoffs/omnisharp-extended-lsp.nvim",
+  { "Decodetalkers/csharpls-extended-lsp.nvim", ft = "cs" },
+  { "Hoffs/omnisharp-extended-lsp.nvim", ft = "cs" },
 
   {
     url = "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
     event = "LspAttach",
-    -- config = true,
     config = setup "lsp_lines",
-    -- enabled = false,
   },
   {
     "VidocqH/lsp-lens.nvim",

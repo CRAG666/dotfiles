@@ -26,7 +26,7 @@ local function setup()
     custom_dynamic_variables = {},
     yank_dry_run = true,
   }
-  utils.map("n", ",,r", rest.run, { desc = "Run Endpoint" })
+  utils.map("n", "<leader><leader>r", rest.run, { desc = "Run Endpoint" })
 end
 return {
   {

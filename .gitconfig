@@ -15,14 +15,18 @@
   pager = delta
 
 [interactive]
-    diffFilter = delta --color-only
+  diffFilter = delta --color-only
 
 [delta]
-    navigate = true    # use n and N to move between diff sections
-    light = false      # set to true if you're in a terminal w/ a light background color (e.g. the default macOS terminal)
+  navigate = true  # use n and N to move between diff sections
+  light = false
+  side-by-side = true
+[alias]
+  tree = log --graph --full-history --pretty=format:'%C(red)%h%C(reset) -%C(yellow)%d%C(reset) %s %C(green)(%cr) %C(bold blue)[%an]%C(reset)'
 
 [merge]
-    conflictstyle = diff3
+    conflictstyle = zdiff3
 
 [diff]
     colorMoved = default
+

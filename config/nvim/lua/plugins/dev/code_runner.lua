@@ -1,3 +1,4 @@
+local preview_cmd = "/bin/zathura --fork"
 return {
   "CRAG666/code_runner.nvim",
   -- name = "code_runner",
@@ -21,7 +22,7 @@ return {
         require("code_runner.hooks.preview_pdf").run {
           command = "pdflatex",
           args = { "-output-directory", "/tmp", "$fileName" },
-          preview_cmd = "/bin/zathura --fork",
+          preview_cmd = preview_cmd,
           overwrite_output = "/tmp",
         }
       end,
@@ -29,8 +30,10 @@ return {
         markdownCompileOptions = {
           Normal = "pdf",
           Presentation = "beamer",
+          Eisvogel = "",
           Slides = "",
         }
+        local hook = require "code_runner.hooks.preview_pdf"
         vim.ui.select(vim.tbl_keys(markdownCompileOptions), {
           prompt = "Select preview mode:",
         }, function(opt, _)
@@ -38,15 +41,23 @@ return {
             if opt == "Slides" then
               local filename = vim.fn.expand "%:p"
               os.execute("kitty slides " .. filename .. " &> /dev/null &")
-              return
+            elseif opt == "Eisvogel" then
+              hook.run {
+                command = "bash",
+                args = { "./build.sh" },
+                preview_cmd = preview_cmd,
+                overwrite_output = ".",
+              }
+            else
+              hook.run {
+                command = "pandoc",
+                args = { "$fileName", "-o", "$tmpFile", "-t", markdownCompileOptions[opt] },
+                preview_cmd = preview_cmd,
+              }
             end
-            require("code_runner.hooks.preview_pdf").run {
-              command = "pandoc",
-              args = { "$fileName", "-o", "$tmpFile", "-t", markdownCompileOptions[opt] },
-              preview_cmd = "/bin/zathura --fork",
-            }
           else
-            print "Not Preview"
+            local warn = require("utils").warn
+            warn("Not Preview", "Preview")
           end
         end)
       end,
@@ -65,7 +76,7 @@ return {
         "-o /tmp/$fileNameWithoutExt &&",
         "/tmp/$fileNameWithoutExt",
       },
-      python = "python -u",
+      python = "python -u '$dir/$fileName'",
       sh = "bash",
       typescript = "deno run",
       typescriptreact = "yarn dev$end",

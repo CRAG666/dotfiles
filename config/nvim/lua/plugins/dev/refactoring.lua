@@ -19,7 +19,7 @@ end
 return {
   {
     "ThePrimeagen/refactoring.nvim",
-    -- keys = [[<leader>re]],
+    keys = [[<leader>fr]],
     config = setup,
   },
 }

@@ -85,11 +85,6 @@ local maps = {
   {
     prefix = "<leader>",
     maps = {
-      -- Move between splits
-      -- { "k", ":wincmd k<CR>", "Move Up" },
-      -- { "l", ":wincmd l<CR>", "Move Right" },
-      -- { "j", ":wincmd j<CR>", "Move Down" },
-      -- { "h", ":wincmd h<CR>", "Move Left" },
       --Delete search result
       { "c", ':let @/=""<cr>' },
     },

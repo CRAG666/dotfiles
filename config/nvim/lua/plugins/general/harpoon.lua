@@ -1,12 +1,12 @@
 local utils = require "utils"
 local M = {}
 local keys = {
-  { ",mm", desc = "Mark File" },
-  { ",ms", desc = "Show Files Marked" },
-  { ",mw", desc = "Next File Marked" },
-  { ",mb", desc = "Prev File Marked" },
-  { ",.", desc = "CodeRunner in Harpoon Term" },
-  { ", ", desc = "Goto Buffer Term" },
+  { "<leader>hm", desc = "[h]arpoon [m]ark" },
+  { "<leader>hh", desc = "[h]arpoon [h]istory" },
+  { "<leader>hw", desc = "[h]arpoon next" },
+  { "<leader>hb", desc = "[h]arpoon prev" },
+  { "<leader>hr", desc = "[h]arpoon [r]un" },
+  { "<leader>ht", desc = "[h]arpoon [t]erm" },
 }
 
 local function setup()
@@ -26,7 +26,7 @@ local function setup()
     ui.nav_prev,
     function()
       term.sendCommand(10, vim.api.nvim_replace_termcodes("<C-c> <C-l>", true, true, true))
-      vim.loop.sleep(150)
+      vim.uv.sleep(150)
       term.sendCommand(10, require("code_runner.commands").get_filetype_command() .. "\n")
     end,
     function()

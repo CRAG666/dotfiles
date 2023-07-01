@@ -18,66 +18,81 @@ local utils = require "utils"
 --     return k .. v .. '<Left>'
 --   end, { expr = true, noremap = true })
 -- end
--- zoom over split
--- local zoom = false
-local equal_split_keym = [[<C-w>=]]
-local zoom_split_keym = [[<C-w>_<C-w>|]]
+local function resize()
+  vim.api.nvim_win_set_width(0, 135)
+  vim.api.nvim_win_set_height(0, 40)
+end
 
-local function toggle_zoom_split()
+local function feedkeys(keys, mode)
+  if mode == nil then
+    mode = "in"
+  end
+  return vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(keys, true, true, true), mode, true)
+end
+
+local function focus_split()
   local win_amount = #vim.api.nvim_tabpage_list_wins(0)
   if win_amount > 1 then
     if vim.t.zoom then
       vim.t.zoom = false
-      return equal_split_keym
+      feedkeys "<C-w>="
+      return
     end
     vim.t.zoom = true
-    return zoom_split_keym
+    resize()
   end
-  return ""
 end
 
-local function move_zoom_split(pos)
-  local move_pos = [[<C-w>]] .. pos
+local function move_zoom_split(mov)
+  vim.cmd.wincmd(mov)
   if vim.t.zoom then
-    return move_pos .. zoom_split_keym
+    resize()
   end
-  return move_pos
 end
 
-local opts = { expr = true, noremap = true }
+vim.api.nvim_create_autocmd("WinNew", {
+  callback = function()
+    if vim.t.zoom then
+      resize()
+    end
+  end,
+})
+
 local zoom_maps = {
-  { "z", toggle_zoom_split, "Zoom Current Split", opts },
+  {
+    "f",
+    function()
+      focus_split()
+    end,
+    "[f]ocus split",
+  },
   {
     "j",
     function()
-      return move_zoom_split "j"
+      move_zoom_split "j"
     end,
     "Move down split",
-    opts,
   },
   {
     "k",
     function()
-      return move_zoom_split "k"
+      move_zoom_split "k"
     end,
     "Move up split",
-    opts,
   },
   {
     "h",
     function()
-      return move_zoom_split "h"
+      move_zoom_split "h"
     end,
     "Move left split",
-    opts,
   },
   {
     "l",
     function()
-      return move_zoom_split "l"
+      move_zoom_split "l"
     end,
     "Move right split",
-    opts,
   },
 }
-utils.pmaps("n", "<leader>", zoom_maps)
+utils.pmaps("n", "<C-w>", zoom_maps)

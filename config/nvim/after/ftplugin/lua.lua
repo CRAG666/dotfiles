@@ -5,13 +5,26 @@ vim.bo.textwidth = 120
 vim.bo.expandtab = true
 vim.bo.autoindent = true
 
+local utils = require "utils"
+
 -- lua lsp server
+local util = require "null-ls.utils"
 local runtime_path = vim.split(package.path, ";")
 table.insert(runtime_path, "lua/?.lua")
 table.insert(runtime_path, "lua/?/init.lua")
-local sumneko_lua = {
-  name = "sumneko_lua",
+local lua_ls = {
+  name = "lua_ls",
   cmd = { "lua-language-server" },
+  root_dir = utils.get_root_dir {
+    ".luarc.json",
+    ".luarc.jsonc",
+    ".luacheckrc",
+    ".stylua.toml",
+    "stylua.toml",
+    "selene.toml",
+    "selene.yml",
+    ".git",
+  },
   settings = {
     Lua = {
       runtime = {
@@ -22,7 +35,7 @@ local sumneko_lua = {
       },
       diagnostics = {
         -- Get the language server to recognize the `vim` global
-        globals = { "vim", "PLUGINS", "describe", "it", "before_each", "after_each", "packer_plugins" },
+        globals = { "vim", "PLUGINS", "describe", "it", "before_each", "after_each" },
         disable = { "lowercase-global", "undefined-global", "unused-local", "unused-vararg", "trailing-space" },
       },
       workspace = {
@@ -42,4 +55,4 @@ local sumneko_lua = {
     },
   },
 }
-require("config.lsp").setup(sumneko_lua)
+require("config.lsp").setup(lua_ls)

@@ -125,4 +125,15 @@ function M.bind(func)
   end
 end
 
+--- get root dir from files name
+---@param names string | table
+---@return string
+function M.get_root_dir(names)
+  return vim.fs.dirname(vim.fs.find(names, {
+    upward = true,
+    stop = vim.uv.os_homedir(),
+    path = vim.fs.dirname(vim.api.nvim_buf_get_name(0)),
+  })[1])
+end
+
 return M

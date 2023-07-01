@@ -7,7 +7,7 @@ vim.bo.autoindent = true
 vim.bo.smartindent = true
 
 --LSP
-
+local utils = require "utils"
 local root_files = {
   "pyproject.toml",
   "setup.py",
@@ -20,7 +20,7 @@ local root_files = {
 local pyright = {
   name = "pyright",
   cmd = { "pyright-langserver", "--stdio" },
-  root_dir = vim.fs.dirname(vim.fs.find(root_files, { upward = true })[1]),
+  root_dir = utils.get_root_dir(root_files),
   settings = {
     python = {
       analysis = {
@@ -40,7 +40,7 @@ local ruff_lsp = {
   name = "ruff-lsp",
   cmd = { "ruff-lsp" },
   single_file_support = true,
-  root_dir = vim.fs.dirname(vim.fs.find(root_files, { upward = true })[1]),
+  root_dir = utils.get_root_dir(root_files),
   init_options = {
     settings = {
       args = { "--max-line-length=180" },

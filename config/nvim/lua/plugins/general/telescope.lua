@@ -1,40 +1,38 @@
 local utils = require "utils"
 local prefix_1 = "<leader>f"
 local prefix_2 = "<leader>g"
-local prefix_3 = ",l"
+local prefix_3 = "<leader>l"
 local keys = {
-  { ";e", desc = "File Browser" },
-  { ";f", desc = "Frequent Files" },
-  { ";b", desc = "List Buffers" },
-  { ";o", desc = "Old Files" },
-  { ";t", desc = "TreeSitter Symbols" },
+  { ";e", desc = "[e]xplorer" },
+  { ";f", desc = "[f]requent Files" },
+  { ";b", desc = "[b]uffers" },
+  { ";o", desc = "[o]ld Files" },
+  { ";t", desc = "[t]reeSitter Symbols" },
   { ";;", desc = "Project Files" },
   -- leader f prefix
-  { prefix_1 .. "b", desc = "Telescope Builtin" },
   { prefix_1 .. ";", desc = "List Tabs" },
-  { prefix_1 .. "m", desc = "Media Files" },
-  { prefix_1 .. "g", desc = "Find Grep" },
-  { prefix_1 .. "l", desc = "Find Live Grep" },
-  { prefix_1 .. "h", desc = "Help tags" },
-  { prefix_1 .. "s", desc = "Search History" },
-  { prefix_1 .. "cc", desc = "Select Colorscheme" },
-  { prefix_1 .. "cs", desc = "Search Commands" },
-  { prefix_1 .. "ch", desc = "Search Commands History" },
-  { prefix_1 .. "k", desc = "Show All Keymaps" },
-  { prefix_1 .. "t", desc = "Select Filetype" },
-  { prefix_1 .. "f", desc = "Buffer Fuzzy Find" },
-  { prefix_3 .. "r", desc = "LSP References" },
-  { prefix_3 .. "s", desc = "LSP Symbols" },
-  { prefix_3 .. "i", desc = "LSP Implementations" },
-  { prefix_3 .. "d", desc = "LSP diagnostics" },
+  { prefix_1 .. "b", desc = "[f]ind [b]uiltin" },
+  { prefix_1 .. "w", desc = "[f]ind [w]ord" },
+  { prefix_1 .. "l", desc = "[f]ind [l]ive Grep" },
+  { prefix_1 .. "h", desc = "[f]ind [h]elp tags" },
+  { prefix_1 .. "s", desc = "[f]ind [s]earch History" },
+  { prefix_1 .. "cs", desc = "[f]ind [c]olor[s]cheme" },
+  { prefix_1 .. "cc", desc = "[f]ind [c]ommands" },
+  { prefix_1 .. "ch", desc = "[f]ind [c]ommands [h]istory" },
+  { prefix_1 .. "k", desc = "[f]ind [k]eymaps" },
+  { prefix_1 .. "t", desc = "[f]ile[t]ype" },
+  { prefix_1 .. "f", desc = "[f]uzzy [f]ind" },
+  { prefix_1 .. "m", desc = "[f]ind [m]ars" },
+  { prefix_3 .. "r", desc = "[l]SP [r]eferences" },
+  { prefix_3 .. "s", desc = "[l]SP [s]ymbols" },
+  { prefix_3 .. "i", desc = "[l]SP [i]mplementations" },
+  { prefix_3 .. "d", desc = "[l]SP [d]iagnostics" },
   -- Git builtin
-  { prefix_2 .. "c", desc = "Git Buffer commits" },
-  { prefix_2 .. "b", desc = "Git Branches" },
-  { prefix_2 .. "s", desc = "Git Status" },
-  { prefix_2 .. "t", desc = "Git Stash" },
-  -- {"<Leader>ft", require('telescope.builtin').help_tags)
-  { "<leader>m", desc = "Show Marks" },
-  { "<leader>ss", desc = "Spell Suggest" },
+  { prefix_2 .. "c", desc = "[g]it Buffer [c]ommits" },
+  { prefix_2 .. "b", desc = "[g]it [b]ranches" },
+  { prefix_2 .. "s", desc = "[g]it [s]tatus" },
+  { prefix_2 .. "t", desc = "[g]it S[t]ash" },
+  { "<leader>ss", desc = "[s]pell [s]uggest" },
 }
 
 local function setup()
@@ -73,10 +71,10 @@ local function setup()
           prompt_position = "top",
           preview_cutoff = 0,
         },
-        horizontal = {
-          prompt_position = "top",
-          preview_cutoff = 0,
-        },
+        -- horizontal = {
+        --   prompt_position = "top",
+        --   preview_cutoff = 0,
+        -- },
       },
       -- file_sorter = require("telescope.sorters").get_fuzzy_file,
       -- file_sorter = require("telescope.sorters").get_fzy_file,
@@ -86,6 +84,11 @@ local function setup()
       border = {},
       -- borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
       borderchars = { " ", " ", " ", " ", " ", " ", " ", " " },
+      -- borderchars = {
+      --   prompt = { "▀", "▐", "▄", "▌", "▛", "▜", "▟", "▙" },
+      --   results = { " ", "▐", "▄", "▌", "▌", "▐", "▟", "▙" },
+      --   preview = { "▀", "▐", "▄", "▌", "▛", "▜", "▟", "▙" },
+      -- },
       results_title = "Results",
       color_devicons = true,
       use_less = true,
@@ -123,10 +126,6 @@ local function setup()
           match_filename = true,
         },
       },
-      media_files = {
-        filetypes = { "png", "webp", "jpg", "jpeg" },
-        find_cmd = "rg", -- find command (defaults to `fd`)
-      },
       file_browser = {
         -- hijack_netrw = true,
         mappings = mappings,
@@ -142,10 +141,12 @@ local function setup()
     },
   }
 
-  local extensions = { "frecency", "zf-native", "media_files", "file_browser" }
+  local extensions = { "zf-native", "frecency", "file_browser" }
   for _, extension in ipairs(extensions) do
     require("telescope").load_extension(extension)
   end
+
+  require("telescope-all-recent").setup {}
 
   local builtin = require "telescope.builtin"
   local ext = require("telescope").extensions
@@ -186,7 +187,7 @@ local function setup()
     end,
   }
 
-  git_commits = function(opts)
+  Delta_git_commits = function(opts)
     opts = opts or {}
     opts.previewer = {
       delta,
@@ -196,7 +197,7 @@ local function setup()
     builtin.git_commits(opts)
   end
 
-  git_bcommits = function(opts)
+  Delta_git_bcommits = function(opts)
     opts = opts or {}
     opts.previewer = {
       delta_bcommits,
@@ -214,9 +215,8 @@ local function setup()
     builtin.treesitter,
     project_files,
     -- leader f prefix
-    builtin.builtin,
     require("telescope-tabs").list_tabs,
-    ext.media_files.media_files,
+    builtin.builtin,
     function()
       builtin.grep_string(cwd_conf)
     end,
@@ -231,18 +231,17 @@ local function setup()
     builtin.keymaps,
     builtin.filetypes,
     builtin.current_buffer_fuzzy_find,
+    builtin.marks,
     builtin.lsp_references,
     builtin.lsp_document_symbols,
     builtin.lsp_implementations,
     builtin.diagnostics,
     -- leader g prefix
     -- builtin.git_bcommits,
-    git_bcommits,
+    Delta_git_bcommits,
     builtin.git_branches,
     builtin.git_status,
     builtin.git_stash,
-    -- require('telescope.builtin').help_tags)
-    builtin.marks,
     builtin.spell_suggest,
     -- utils.map('n', '<leader>bt', builtin.current_buffer_tags, { desc = "Buffer Tags" })
 
@@ -266,14 +265,13 @@ return {
     dependencies = {
       "nvim-lua/popup.nvim",
       "nvim-lua/plenary.nvim",
-      -- "nvim-telescope/telescope-dap.nvim",
       "natecraddock/telescope-zf-native.nvim",
+      "prochri/telescope-all-recent.nvim",
       {
         "nvim-telescope/telescope-frecency.nvim",
-        dependencies = { "tami5/sqlite.lua" },
+        dependencies = { "kkharji/sqlite.lua" },
       },
       "nvim-telescope/telescope-file-browser.nvim",
-      "nvim-telescope/telescope-media-files.nvim",
     },
   },
   {

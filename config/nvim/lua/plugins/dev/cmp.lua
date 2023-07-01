@@ -8,25 +8,20 @@ return {
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-path",
       "hrsh7th/cmp-nvim-lua",
-      "hrsh7th/cmp-cmdline",
       "hrsh7th/cmp-nvim-lsp-signature-help",
       "ray-x/cmp-treesitter",
       "lukas-reineke/cmp-rg",
-      -- "davidsierradz/cmp-conventionalcommits",
       "lukas-reineke/cmp-under-comparator",
       { "tzachar/cmp-tabnine", build = "./install.sh", enabled = true },
       "saadparwaiz1/cmp_luasnip",
       "onsails/lspkind-nvim",
-      -- "hrsh7th/cmp-calc",
-      -- "f3fora/cmp-spell",
-      -- "hrsh7th/cmp-emoji",
     },
-    config = function()
+    opts = function()
       vim.opt.completeopt = { "menuone", "noselect", "noinsert", "preview" }
       vim.opt.shortmess = vim.opt.shortmess + { c = true }
       local cmp = require "cmp"
       local luasnip = require "luasnip"
-      -- local neogen = require "neogen"
+      local neogen = require "neogen"
       local compare = require "cmp.config.compare"
       local types = require "cmp.types"
       local lspkind = require "lspkind"
@@ -57,18 +52,17 @@ return {
 
       local select_opts = { behavior = cmp.SelectBehavior.Select }
 
-      cmp.setup {
+      return {
         completion = { completeopt = "menu,menuone,noinsert", keyword_length = 1 },
         performance = { debounce = 40, throttle = 40, fetching_timeout = 300 },
         sorting = {
           priority_weight = 2,
           comparators = {
-            -- require "cmp_tabnine.compare",
             compare.score,
-            compare.recently_used,
             compare.offset,
             compare.exact,
             require("cmp-under-comparator").under,
+            compare.recently_used,
             compare.kind,
             compare.sort_text,
             compare.length,
@@ -81,27 +75,26 @@ return {
           end,
         },
         mapping = {
-          ["<Up>"] = cmp.mapping.select_prev_item(select_opts),
-          ["<Down>"] = cmp.mapping.select_next_item(select_opts),
           ["<C-u>"] = cmp.mapping.scroll_docs(-4),
           ["<C-f>"] = cmp.mapping.scroll_docs(5),
           ["<C-e>"] = cmp.mapping.abort(),
-          -- ["<CR>"] = cmp.mapping.confirm { select = false },
           ["<CR>"] = cmp.mapping {
             i = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Replace, select = false },
-            -- c = function(fallback)
-            --   if cmp.visible() then
-            --     cmp.confirm { behavior = cmp.ConfirmBehavior.Replace, select = false }
-            --   else
-            --     fallback()
-            --   end
-            -- end,
+            c = function(fallback)
+              if cmp.visible() then
+                cmp.confirm { behavior = cmp.ConfirmBehavior.Replace, select = false }
+              else
+                fallback()
+              end
+            end,
           },
           ["<Tab>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
-              cmp.select_next_item(select_opts)
+              cmp.select_next_item()
             elseif luasnip.expand_or_jumpable() then
               luasnip.expand_or_jump()
+            elseif neogen.jumpable() then
+              neogen.jump_next()
             elseif has_words_before() then
               cmp.complete()
             else
@@ -111,9 +104,11 @@ return {
 
           ["<S-Tab>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
-              cmp.select_prev_item(select_opts)
+              cmp.select_prev_item()
             elseif luasnip.jumpable(-1) then
               luasnip.jump(-1)
+            elseif neogen.jumpable(true) then
+              neogen.jump_prev()
             else
               fallback()
             end
@@ -123,16 +118,13 @@ return {
           { name = "nvim_lsp", group_index = 1 },
           { name = "nvim_lsp_signature_help", group_index = 1 },
           { name = "luasnip", group_index = 1 },
+          { name = "treesitter", group_index = 1 },
           { name = "cmp_tabnine", group_index = 1 },
           { name = "buffer", group_index = 2 },
           { name = "path", group_index = 2 },
-          { name = "treesitter", group_index = 2 },
           { name = "rg", group_index = 2 },
           { name = "nvim_lua", group_index = 2 },
           { name = "neorg", group_index = 2 },
-          -- { name = "spell" },
-          -- { name = "emoji" },
-          -- { name = "calc" },
         },
         formatting = {
           fields = { "kind", "abbr", "menu" },
@@ -170,23 +162,10 @@ return {
           },
         },
       }
-
-      cmp.setup.cmdline({ "/", "?" }, {
-        mapping = cmp.mapping.preset.cmdline(),
-        sources = cmp.config.sources {
-          { name = "buffer", option = { indexing_interval = 284 }, keyword_length = 1, priority = 1 },
-        },
-      })
-
-      cmp.setup.cmdline(":", {
-        mapping = cmp.mapping.preset.cmdline(),
-        sources = cmp.config.sources({
-          { name = "path", keyword_length = 1, priority = 2 },
-        }, {
-          { name = "cmdline", keyword_length = 1, priority = 1 },
-        }),
-      })
-
+    end,
+    config = function(_, opts)
+      local cmp = require "cmp"
+      cmp.setup(opts)
       cmp.setup.filetype({ "sql", "mysql", "plsql" }, {
         sources = cmp.config.sources({
           { name = "vim-dadbod-completion" },
@@ -194,10 +173,6 @@ return {
           { name = "buffer" },
         }),
       })
-
-      -- Auto pairs
-      local cmp_autopairs = require "nvim-autopairs.completion.cmp"
-      cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done { map_char = { tex = "" } })
 
       -- TabNine
       local tabnine = require "cmp_tabnine.config"
@@ -212,12 +187,16 @@ return {
           -- lua = true
         },
       }
+
+      -- Auto pairs
+      local cmp_autopairs = require "nvim-autopairs.completion.cmp"
+      cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done { map_char = { tex = "" } })
     end,
   },
   {
     "L3MON4D3/LuaSnip",
     dependencies = {
-      "evesdropper/luasnip-latex-snippets.nvim",
+      -- "evesdropper/luasnip-latex-snippets.nvim",
       {
         "rafamadriz/friendly-snippets",
         config = function()
