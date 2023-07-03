@@ -36,6 +36,6 @@ cmd trash ${{
 }}
 
 cmd dragon %dragon-drop -a -x $fx
-map DR dragon
+map Dr dragon
 map . set hidden!
-map DD trash
+map Dd trash

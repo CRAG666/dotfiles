@@ -2,11 +2,11 @@ return {
   {
     "hrsh7th/nvim-cmp",
     event = "InsertEnter",
-    -- lazy = true,
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-path",
+      "hrsh7th/cmp-cmdline",
       "hrsh7th/cmp-nvim-lua",
       "hrsh7th/cmp-nvim-lsp-signature-help",
       "ray-x/cmp-treesitter",
@@ -17,7 +17,8 @@ return {
       "onsails/lspkind-nvim",
     },
     opts = function()
-      vim.opt.completeopt = { "menuone", "noselect", "noinsert", "preview" }
+      -- vim.opt.completeopt = { "menuone", "noselect", "noinsert", "preview" }
+      vim.opt.completeopt = { "menu", "menuone", "noselect" }
       vim.opt.shortmess = vim.opt.shortmess + { c = true }
       local cmp = require "cmp"
       local luasnip = require "luasnip"
@@ -26,16 +27,16 @@ return {
       local types = require "cmp.types"
       local lspkind = require "lspkind"
       local source_mapping = {
-        nvim_lsp = "[Lsp]",
-        luasnip = "[Snip]",
-        buffer = "[Buffer]",
-        nvim_lua = "[Lua]",
-        treesitter = "[Tree]",
-        path = "[Path]",
-        rg = "[Rg]",
-        nvim_lsp_signature_help = "[Sig]",
-        cmp_tabnine = "[TNine]",
-        ["vim-dadbod-completion"] = "[DB]",
+        nvim_lsp = "(Lsp)",
+        luasnip = "(Snip)",
+        buffer = "(Buffer)",
+        nvim_lua = "(Lua)",
+        treesitter = "(Tree)",
+        path = "(Path)",
+        rg = "(Rg)",
+        nvim_lsp_signature_help = "(Sig)",
+        cmp_tabnine = "(TNine)",
+        ["vim-dadbod-completion"] = "(DB)",
       }
 
       local duplicates = {
@@ -53,7 +54,6 @@ return {
       local select_opts = { behavior = cmp.SelectBehavior.Select }
 
       return {
-        completion = { completeopt = "menu,menuone,noinsert", keyword_length = 1 },
         performance = { debounce = 40, throttle = 40, fetching_timeout = 300 },
         sorting = {
           priority_weight = 2,
@@ -75,22 +75,27 @@ return {
           end,
         },
         mapping = {
+          ["<Up>"] = cmp.mapping.select_prev_item(select_opts),
+          ["<Down>"] = cmp.mapping.select_next_item(select_opts),
+          ["<C-p>"] = cmp.mapping.select_prev_item(select_opts),
+          ["<C-n>"] = cmp.mapping.select_next_item(select_opts),
           ["<C-u>"] = cmp.mapping.scroll_docs(-4),
-          ["<C-f>"] = cmp.mapping.scroll_docs(5),
+          ["<C-d>"] = cmp.mapping.scroll_docs(4),
           ["<C-e>"] = cmp.mapping.abort(),
-          ["<CR>"] = cmp.mapping {
-            i = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Replace, select = false },
-            c = function(fallback)
-              if cmp.visible() then
-                cmp.confirm { behavior = cmp.ConfirmBehavior.Replace, select = false }
-              else
-                fallback()
-              end
-            end,
-          },
+          -- ["<CR>"] = cmp.mapping {
+          --   i = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Replace, select = false },
+          --   c = function(fallback)
+          --     if cmp.visible() then
+          --       cmp.confirm { behavior = cmp.ConfirmBehavior.Replace, select = false }
+          --     else
+          --       fallback()
+          --     end
+          --   end,
+          -- },
+          ["<CR>"] = cmp.mapping.confirm { select = false },
           ["<Tab>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
-              cmp.select_next_item()
+              cmp.select_next_item(select_opts)
             elseif luasnip.expand_or_jumpable() then
               luasnip.expand_or_jump()
             elseif neogen.jumpable() then
@@ -104,7 +109,7 @@ return {
 
           ["<S-Tab>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
-              cmp.select_prev_item()
+              cmp.select_prev_item(select_opts)
             elseif luasnip.jumpable(-1) then
               luasnip.jump(-1)
             elseif neogen.jumpable(true) then
@@ -115,16 +120,16 @@ return {
           end, { "i", "s", "c" }),
         },
         sources = {
-          { name = "nvim_lsp", group_index = 1 },
-          { name = "nvim_lsp_signature_help", group_index = 1 },
-          { name = "luasnip", group_index = 1 },
-          { name = "treesitter", group_index = 1 },
-          { name = "cmp_tabnine", group_index = 1 },
-          { name = "buffer", group_index = 2 },
-          { name = "path", group_index = 2 },
-          { name = "rg", group_index = 2 },
-          { name = "nvim_lua", group_index = 2 },
-          { name = "neorg", group_index = 2 },
+          { name = "nvim_lsp", group_index = 1, keyword_length = 1 },
+          { name = "luasnip", group_index = 1, keyword_length = 2 },
+          { name = "cmp_tabnine", group_index = 1, keyword_length = 3 },
+          { name = "treesitter", group_index = 1, keyword_length = 3 },
+          { name = "buffer", group_index = 2, keyword_length = 3 },
+          { name = "rg", group_index = 2, keyword_length = 3 },
+          { name = "path", group_index = 3 },
+          { name = "nvim_lua", group_index = 3 },
+          { name = "neorg", group_index = 3 },
+          { name = "nvim_lsp_signature_help" },
         },
         formatting = {
           fields = { "kind", "abbr", "menu" },
@@ -141,6 +146,9 @@ return {
                 menu = entry.completion_item.data.detail .. " " .. menu
               end
               kind.kind = "  "
+            end
+            if source == "treesitter" then
+              kind.kind = " 󰐅 "
             end
             local max_width = 80
             if max_width ~= 0 and #kind.abbr > max_width then
@@ -166,6 +174,24 @@ return {
     config = function(_, opts)
       local cmp = require "cmp"
       cmp.setup(opts)
+      -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
+      cmp.setup.cmdline({ "/", "?" }, {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = {
+          { name = "buffer" },
+        },
+      })
+
+      -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+      cmp.setup.cmdline(":", {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = cmp.config.sources({
+          { name = "path" },
+        }, {
+          { name = "cmdline" },
+        }),
+      })
+
       cmp.setup.filetype({ "sql", "mysql", "plsql" }, {
         sources = cmp.config.sources({
           { name = "vim-dadbod-completion" },
