@@ -20,7 +20,7 @@ def on_reconfigure():
     gnome_peripheral = "org.gnome.desktop.peripherals"
     gnome_preferences = "org.gnome.desktop.wm.preferences"
     # easyeffects = "com.github.wwmm.easyeffects"
-    theme = "Catppuccin-Mocha-Standard-Lavender-Dark"
+    theme = "Catppuccin-Mocha-Standard-Lavender-dark"
     icons = "candy-icons"
     cursor = "Catppuccin-Mocha-Lavender-Cursors"
     font = "SF Pro 15"
@@ -77,7 +77,7 @@ outputs = [
 ]
 
 pywm = {
-    "enable_xwayland": True,
+    "enable_xwayland": False,
     # "xkb_model": "PLACEHOLDER_xkb_model",
     # "xkb_layout": "es",
     # "xkb_layout": "latam",
@@ -304,7 +304,7 @@ def key_bindings(layout: Layout):
         (super + "period", lambda: layout.basic_scale(-1)),
         (super + "f", layout.toggle_fullscreen),
         (super + "L", lambda: layout.ensure_locked(dim=True)),
-        # (super + "T", layout.terminate),
+        (super + "T", layout.terminate),
         ("XF86Close", layout.close_focused_view),
         ("XF86Reload", layout.update_config),
         (

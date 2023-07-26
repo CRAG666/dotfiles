@@ -66,9 +66,10 @@ return {
       kotlin = "cd $dir && kotlinc-native $fileName -o $fileNameWithoutExt && ./$fileNameWithoutExt.kexe",
       c = {
         "cd $dir &&",
-        "gcc $fileName",
-        "-o $fileNameWithoutExt &&",
-        "$dir/$fileNameWithoutExt",
+        "gcc $fileName -o",
+        "/tmp/$fileNameWithoutExt &&",
+        "/tmp/$fileNameWithoutExt &&",
+        "rm /tmp/$fileNameWithoutExt",
       },
       cpp = {
         "cd $dir &&",

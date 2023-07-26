@@ -138,4 +138,19 @@ window#waybar.solo #workspaces button {
   background-color: @bg;
 }
 
+#workspaces {
+  margin: 5px;
+  padding-left: 10px;
+  padding-right: 5px;
+  border-radius: 7px;
+  background-color: @bg;
+}
+
+#workspaces button {
+  color: @lavender;
+}
+
+#workspaces button.active {
+  color: @red;
+}
 /* bottom waybar */

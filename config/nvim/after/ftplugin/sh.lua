@@ -1,7 +1,7 @@
 local bashls = {
   name = "bashls",
   cmd = { "bash-language-server", "start" },
-  filetypes = { "bash", "sh", "zsh" },
+  filetypes = { "sh" },
   settings = {
     bashIde = {
       globPattern = "*@(.sh|.inc|.bash|.command)",

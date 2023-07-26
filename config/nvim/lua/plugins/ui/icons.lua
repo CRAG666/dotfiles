@@ -7,3 +7,12 @@ return {
     }
   end,
 }
+
+-- override = {
+--     norg = {
+--       icon = "",
+--       color = "#428850",
+--       cterm_color = "65",
+--       name = "Norg"
+--     }
+-- };

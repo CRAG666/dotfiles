@@ -1,25 +1,28 @@
 music_dir = ["/home/lvm/Música"]
-loop_mode = "Playlist"
-volume = 100
-speed = 10
-add_playlist_front = true
-gapless = true
+player_port = 50101
+player_loop_mode = "Random"
+player_volume = 100
+player_speed = 10
+player_gapless = true
 podcast_simultanious_download = 3
 podcast_max_retries = 3
 podcast_dir = "/home/think-crag/Música/podcast"
-seek_step = "Auto"
-remember_last_played_position = "Auto"
+player_seek_step = "Auto"
+player_remember_last_played_position = "Auto"
 enable_exit_confirmation = false
 playlist_display_symbol = true
 playlist_select_random_track_quantity = 20
 playlist_select_random_album_quantity = 1
 theme_selected = "crag"
+kill_daemon_when_quit = true
+player_use_mpris = true
+player_use_discord = false
 
 [album_photo_xywh]
 x_between_1_100 = 99
-y_between_1_100 = 1
-width_between_1_100 = 25
-align = "TopRight"
+y_between_1_100 = 79
+width_between_1_100 = 20
+align = "BottomRight"
 
 [style_color_symbol]
 library_foreground = "Foreground"
@@ -461,14 +464,6 @@ type = "Char"
 args = "l"
 
 [keys.playlist_play_selected.modifier]
-type = "KeyModifiers"
-bits = 0
-
-[keys.playlist_add_front.code]
-type = "Char"
-args = "a"
-
-[keys.playlist_add_front.modifier]
 type = "KeyModifiers"
 bits = 0
 

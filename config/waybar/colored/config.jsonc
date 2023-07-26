@@ -3,6 +3,7 @@
   "position": "top",
   "modules-left": [
     "custom/arch-pill",
+    "hyprland/workspaces",
     "cpu",
     "memory",
     "temperature",
@@ -16,6 +17,15 @@
     "format": "",
     "on-click": "~/.config/rofi/scripts/launcher",
     "tooltip": false
+  },
+  "hyprland/workspaces": {
+      "format": "{id}: {icon} ",
+      "format-icons": {
+        "active": "",
+        "default": ""
+      }
+      // "on-scroll-up": "hyprctl dispatch workspace e+1",
+      // "on-scroll-down": "hyprctl dispatch workspace e-1"
   },
   "clock": {
     "format": "<span foreground='#cba6f7'> </span><span>{:%I:%M %p %a %d}</span>",
@@ -74,16 +84,16 @@
     },
     "on-click-right": "pavucontrol"
   },
-  "custom/cafeine": {
-    "format": "{icon}",
-    "return-type": "json",
-    "format-icons": {
-      "active": "<span foreground='#b4befe'></span>",
-      "inactive": "<span foreground='#cdd6f4'>󰒲</span>"
-    },
-    "interval": 20,
-    "exec": "~/.scripts/newm-cafeine",
-  },
+  // "custom/cafeine": {
+  //   "format": "{icon}",
+  //   "return-type": "json",
+  //   "format-icons": {
+  //     "active": "<span foreground='#b4befe'></span>",
+  //     "inactive": "<span foreground='#cdd6f4'>󰒲</span>"
+  //   },
+  //   "interval": 20,
+  //   "exec": "~/.scripts/newm-cafeine",
+  // },
   "custom/playerctl": {
     "format": "{icon}  <span>{}</span>",
     "return-type": "json",
