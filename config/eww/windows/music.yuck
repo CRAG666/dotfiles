@@ -1,0 +1,73 @@
+(defwidget music []
+  (box
+    :class "music-window"
+    :space-evenly false
+    ; force background position/size, otherwise it is overridden
+    :style "
+      background-image: url('${music.background}');
+      background-position: center;
+      background-size: cover;
+      /*border: 1px solid ${music.border};*/
+    "
+    (box ; cover art, first child
+      :class "music-cover-art"
+      :style "background-image: url('${music.cover}');")
+    (box ; music info, second child
+      :orientation "v"
+      :space-evenly false
+      :class "music-box"
+      (scroll
+        :hscroll true
+        :vscroll false
+        (label ; title
+          :class "music-title text"
+          :style "color: ${music.foreground};"
+          :justify "center"
+          :text {music.title}))
+      (scroll
+        :hscroll true
+        :vscroll false
+        (label ; artist
+          :class "music-artist text"
+          :style "color: ${music.foreground};"
+          :justify "center"
+          :text {music.artist}))
+      (centerbox ; buttons
+        :halign "center"
+        :class "music-button-box icon text"
+        (button :class "music-button" :style "color: ${music.foreground};" :onclick "playerctl previous" "")
+        (button :class "music-button" :style "color: ${music.foreground};" :onclick "playerctl play-pause" {music.status == "Playing" ? "" : ""})
+        (button :class "music-button" :style "color: ${music.foreground};" :onclick "playerctl next" ""))
+      (box ; time info
+        :orientation "v"
+        (box
+          :class "text"
+          (label
+            :xalign 0
+            :class "music-time"
+            :style "color: ${music.foreground};"
+            :text {music_time.position})
+          (label
+            :xalign 1
+            :class "music-time"
+            :style "color: ${music.foreground};"
+            :text {music.duration}))
+        (box ; clickable progress bar
+          :class "music-bar"
+          (scale
+            ; transform scale position percentage into song position
+            :onchange "playerctl position `awk -v len=$(playerctl metadata mpris:length) 'BEGIN{print {} * len / 1000000 / 100}'`"
+            :globalstyle ".top { background: ${music.foreground}; }"
+            :value {music_time.position_percent}))))))
+
+(defwindow music
+  :stacking "fg"
+  :focusable false
+  :monitor 0
+  :geometry (geometry
+    :x "0%"
+    :y "0%"
+    :width "0%"
+    :height "0%"
+    :anchor "top center")
+  (music))

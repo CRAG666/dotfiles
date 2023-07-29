@@ -1,0 +1,8 @@
+(defwidget net []
+  (button
+    :class "module icon"
+    ; forcefully open gnome-control-center in a non-GNOME environment
+    :onclick "sleep 0.1 &&  ~/.config/rofi/scripts/wifi" ; open rofi wifi
+    :tooltip {net.name}
+    :style "color: ${net.color};"
+    {net.icon}))

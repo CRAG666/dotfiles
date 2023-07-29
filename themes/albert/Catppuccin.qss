@@ -1,0 +1,109 @@
+/*
+ * author: Diego Aguilar <https://github.com/CRAG666>
+ *
+ * Check http://doc.qt.io/qt-5/stylesheet-syntax.html especially the subtopics:
+ * The Style Sheet Syntax (http://doc.qt.io/qt-5/stylesheet-syntax.html)
+ * Qt Style Sheets Reference (http://doc.qt.io/qt-5/stylesheet-reference.html)
+ */
+
+* {
+  	border: none;
+	color : #cdd6f4;
+	background-color: #181825;
+
+}
+
+#frame {
+	padding: 10px;
+	border-radius: 4px;
+	background-color: #181825;
+	min-width:640px;
+	max-width:640px;
+}
+
+#inputLine {
+	padding: 0px;
+	font-size: 25px;
+	selection-color: #cdd6f4;
+	selection-background-color: #45475a;
+	background-color: #181825;
+	color: #cdd6f4;
+}
+
+#settingsButton {
+	color : #cdd6f4;
+	background-color: #181825;
+  	padding: 4px;
+
+  /* Respect the frame border */
+  margin: 12px 6px 0px 0px;
+  border-top-right-radius: 6px;
+  border-bottom-left-radius: 10px;
+
+  /* Workaround for Qt to get fixed size button*/
+	min-width:13px;
+	min-height:13px;
+	max-width:13px;
+	max-height:13px;
+}
+
+/********** ListViews **********/
+
+QListView {
+    	selection-color: #331;
+	background-color: #181825;
+}
+
+QListView::item {
+	background-color: #181825;
+	padding:6px;
+}
+
+QListView::item:selected {
+	border-radius: 4px;
+	background-color: #f5c2e7;
+}
+
+QListView QScrollBar:vertical  {
+	width: 5px;
+	background: transparent;
+}
+
+QListView QScrollBar::handle:vertical  {
+	background: #cdd6f4;
+	min-height: 24px;
+}
+
+QListView QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical,
+QListView QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical,
+QListView QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+	border: 0px;
+	width: 0px;
+	height: 0px;
+	background: #181825;
+}
+
+/********** actionList **********/
+
+QListView#actionList {
+	font-size: 15px;
+	color: black;
+}
+
+QListView#actionList::item{
+	height:28px;
+}
+
+/********** resultsList **********/
+
+QListView#resultsList {
+	icon-size: 35px;
+	font-size: 20px;
+	color: #cdd6f4;
+	font-family: "SF Pro";
+	font-weight: 400;
+}
+
+QListView#resultsList::item{
+	height:48px;
+}

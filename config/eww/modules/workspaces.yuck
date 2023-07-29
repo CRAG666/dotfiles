@@ -1,0 +1,15 @@
+(defwidget workspaces []
+  (eventbox
+		; scroll to change workspace
+		:onscroll "echo {} | sed -e \"s/up/-1/g\" -e \"s/down/+1/g\" | xargs hyprctl dispatch workspace"
+		(box
+			:class "module workspaces"
+		  (for ws in {hyprland.workspaces}
+		    (button
+					:onclick "hyprctl dispatch workspace ${ws.number}"
+					:class "ws icon"
+					:style "background-color: ${ws.color};"
+					; :tooltip {ws.tooltip}
+					(box
+						:class `${ws.focused ? "focused" : ""}`
+						:height 3))))))
