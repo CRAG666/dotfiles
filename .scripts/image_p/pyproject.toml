@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "image-p"
+version = "0.1.0"
+description = ""
+authors = ["Crag <ogeidca49@gmail.com>"]
+readme = "README.md"
+packages = [{include = "image_p"}]
+
+[tool.poetry.dependencies]
+# python = "^3.11"
+python = ">=3.8, <3.12"
+pixellib = "^0.7.1"
+tensorflow = "^2.13.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

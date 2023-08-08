@@ -1,5 +1,7 @@
 #!/bin/bash
 
+~/.config/rofi/text/ramdom_color.sh
+
 theme="style_2"
 dir="$HOME/.config/rofi/text"
 
@@ -19,7 +21,7 @@ password_files=("${password_files[@]#"$prefix"/}")
 password_files=("${password_files[@]%.gpg}")
 
 # shows a list of all password files and saved the selected one in a variable
-password=$(printf '%s\n' "${password_files[@]}" | rofi -dmenu "$@" -l 10 -p Password -theme $dir/"$theme")
+password=$(printf '%s\n' "${password_files[@]}" | rofi -dmenu "$@" -l 10 -p Password -theme "$dir/$theme")
 [[ -n $password ]] || exit
 
 # pass -c copied the password in clipboard. The additional output from pass is piped in to /dev/null
@@ -31,12 +33,12 @@ else
 	# The password has to be on the first line,
 	# because if you using `pass -i` the first line will be replaced with a new password
 
-	passw=$(pass show $password | head -n1)
+	passw=$(pass show "$password" | head -n1)
 	# uname=$(pass show $password | tail -n1)
 	# # xdotool types the username on the active spot (cli or inputfield from a browser)
 	# wtype $uname
 	# # type a TAB (for moving forward in browser input fields)
 	# wtype -p tab
 	# type the password in the active input
-	wtype $passw
+	wtype "$passw"
 fi

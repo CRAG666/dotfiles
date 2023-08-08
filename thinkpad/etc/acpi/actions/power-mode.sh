@@ -29,6 +29,7 @@ set_energy_preference() {
 on_ac_power=$(cat /sys/class/power_supply/AC/online)
 if [ "$on_ac_power" -eq 1 ]; then
 	echo "Power mode"
+	sysctl -p /etc/acpi/actions/99-performance.conf
 	echo 0 >/proc/sys/vm/laptop_mode
 	echo 10 >/proc/sys/vm/dirty_ratio
 	echo 5 >/proc/sys/vm/dirty_background_ratio
@@ -38,15 +39,16 @@ if [ "$on_ac_power" -eq 1 ]; then
 	done
 	modprobe uvcvideo
 	turn_on_off_cpu 1
-	echo 80 >/sys/devices/system/cpu/intel_pstate/max_perf_pct
+	echo 85 >/sys/devices/system/cpu/intel_pstate/max_perf_pct
 	echo 20 >/sys/devices/system/cpu/intel_pstate/min_perf_pct
-	set_energy_preference 128
+	set_energy_preference 115
 	echo default >/sys/module/pcie_aspm/parameters/policy
 	iw dev wlan0 set power_save off
 	btmgmt power on
 	ethtool -s enp0s31f6 wol g
 else
 	echo "Battery mode"
+	sysctl -p /etc/acpi/actions/98-power-saving.conf
 	/usr/bin/powertop --auto-tune
 	echo 5 >/proc/sys/vm/laptop_mode
 	echo 15 >/proc/sys/vm/dirty_ratio

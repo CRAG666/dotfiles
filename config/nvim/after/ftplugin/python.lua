@@ -15,6 +15,7 @@ local root_files = {
   "requirements.txt",
   "Pipfile",
   "pyrightconfig.json",
+  ".git",
 }
 
 local pyright = {

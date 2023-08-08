@@ -71,4 +71,9 @@ return {
       sign_priority = { lower = 10, upper = 15, builtin = 8, bookmark = 20 },
     }),
   },
+  {
+    "ashfinal/qfview.nvim",
+    event = "VeryLazy",
+    config = utils.setup "qfview",
+  },
 }

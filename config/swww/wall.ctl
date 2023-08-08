@@ -1,1 +1,1 @@
-1|Catppuccin-Mocha|/home/lvm/Imágenes/wallpaperCicle/9.png
+1|Catppuccin-Mocha|/home/lvm/Imágenes/wallpaperCicle/33.png

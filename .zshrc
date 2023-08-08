@@ -145,7 +145,6 @@ eval "$(starship init zsh)"
 
 # -< Aliases >-
 # HACK: Command alternatives
-# alias cd="z"
 # alias vpn="~/.scripts/vpn"
 alias ping="prettyping"
 alias icat="kitty +kitten icat"
@@ -154,12 +153,11 @@ alias ls="logo-ls"
 alias la="logo-ls -la"
 # alias grep='grep --color=auto'
 # alias cp="rsync -Pvz"
-alias curl="xh --curl"
 alias cp='rsync --progress -avz'
 alias tree="ls -R"
 alias vi="nvim"
 alias vim="nvim"
-alias zt="/bin/zathura"
+alias zt="/bin/zathura --fork"
 alias lo="/bin/libreoffice"
 alias music="termusic"
 alias rm='rm -i'
@@ -176,9 +174,9 @@ alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 # alias doff='sudo systemctl stop docker.service docker.socket && sudo nft -f /etc/nftables.conf && sudo ip l d docker0'
 # alias dor='doff && don'
 # HACK: Config alias
-alias grubc="sudoedit /etc/default/grub"
-alias alacric="nvim ~/.config/alacritty/alacritty.yml"
-alias swayc="nvim ~/.config/sway/config"
+alias grubc="sudo -e /etc/default/grub"
+# alias alacric="nvim ~/.config/alacritty/alacritty.yml"
+# alias swayc="nvim ~/.config/sway/config"
 # alias newmc="nvim ~/.config/newm/config.py"
 alias hyprc="nvim ~/.config/hypr/hyprland.conf"
 alias keydc="nvim ~/Git/dotfiles/etc/keyd/default.conf"
