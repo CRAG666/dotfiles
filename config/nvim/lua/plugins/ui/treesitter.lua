@@ -138,6 +138,9 @@ return {
       context_commentstring = {
         enable = true,
       },
+      tree_setter = {
+        enable = true,
+      },
     }
   end,
   dependencies = {
@@ -146,5 +149,6 @@ return {
     "RRethy/nvim-treesitter-endwise",
     "yioneko/nvim-yati",
     "windwp/nvim-ts-autotag",
+    "filNaj/tree-setter",
   },
 }
