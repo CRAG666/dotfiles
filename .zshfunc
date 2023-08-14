@@ -21,22 +21,64 @@ sar(){
   rg "$1" -l | xargs sed -i -e "s/$1/$2/g"
 }
 
-atm(){
-  device="/run/media/$USER"
+atm() {
   subcmd="unmount"
-  if [[ $1 != "-u" ]]; then
-    device=$(udisksctl status | rg -e "sd[^a]" | fzf --header='Select Divice' | awk '{print $(NF)}')
+
+  # Verificar si hay dispositivos disponibles
+  devices=$(udisksctl status | rg -e "sd[^a]")
+  if [ -z "$devices" ]; then
+    echo "No se encontraron dispositivos disponibles."
+    return 1
+  fi
+
+  device=$(echo "$devices" | fzf --header='Select Device' | awk '{print $(NF)}')
+  if [ -z "$device" ]; then
+    echo "No se seleccionó ningún dispositivo."
+    return 1
+  fi
+
+  if [ "$1" != "-u" ]; then
     subcmd="mount"
   fi
-  partition=$(lsblk | rg "$device" | sed 's/[├─└─]//g' | fzf --header='Select Partition' | awk '{print $1}')
-  if [ "$partition" ];then
-    mounted=$(grep -s '/dev/sdb' /proc/mounts)
-    if [ "$mounted" ] && [ "$subcmd" = "mount" ];then
-      echo "This partition is already mounted on the system"
-      return 1
-    fi
-    udisksctl "$subcmd" -b /dev/"$partition"
+
+  # Verificar si el dispositivo seleccionado tiene particiones
+  partitions=$(lsblk | rg -i "$device.*part")
+  if [ -z "$partitions" ]; then
+    echo "El dispositivo seleccionado no tiene particiones."
+    return 1
   fi
+
+  partition_count=$(echo "$partitions" | wc -l)
+  if [ "$partition_count" -eq 1 ]; then
+    # Solo hay una partición, montar o desmontar automáticamente
+    partition=$(echo "$partitions" | sed 's/[├─└─]//g' | awk '{print $1}')
+  else
+    # Mostrar el menú de selección de partición
+    if [ "$subcmd" = "unmount" ]; then
+      # Filtrar particiones montadas solamente si se va a desmontar
+      mounted_partitions=$(grep -s "/dev/$device" /proc/mounts | awk '{print $1}' | awk -F '/' '{print $NF}')
+      if [ -z "$mounted_partitions" ]; then
+        echo "No hay particiones montadas en este dispositivo."
+        return 1
+      fi
+      partition=$(echo "$partitions" | grep -i -e "$mounted_partitions" | sed 's/[├─└─]//g' | fzf --header='Select Partition' | awk '{print $1}')
+    else
+      partition=$(echo "$partitions" | sed 's/[├─└─]//g' | fzf --header='Select Partition' | awk '{print $1}')
+    fi
+  fi
+
+  if [ -z "$partition" ]; then
+    echo "No se seleccionó ninguna partición."
+    return 1
+  fi
+
+  mounted=$(grep -s "/dev/$partition" /proc/mounts)
+  if [ "$mounted" ] && [ "$subcmd" = "mount" ]; then
+    echo "Esta partición ya está montada en el sistema."
+    return 1
+  fi
+
+  udisksctl "$subcmd" -b "/dev/$partition"
 }
 
 encrypt(){

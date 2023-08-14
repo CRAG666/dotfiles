@@ -33,7 +33,7 @@ function gen_wifi() {
 	icon=${icons[$level]}
 	color="#cba6f7"
 	class="net-connected"
-	name=$(echo "$nm" | jaq -r 'select(.type == "wifi") .connection')
+	name=$(echo "$nm" | jaq -r 'select(.type == "wifi" and .connection != null) .connection' | head -n 1)
 }
 
 function gen_ethernet() {
@@ -46,7 +46,8 @@ function gen_ethernet() {
 function make_content() {
 	local ethernet wifi
 	ethernet=$(echo "$nm" | jaq -r 'select(.type == "ethernet") .state')
-	wifi=$(echo "$nm" | jaq -r 'select(.type == "wifi") .state')
+	# wifi=$(echo "$nm" | jaq -r 'select(.type == "wifi") .state')
+	wifi=$(echo "$nm" | jaq -r 'select(.type == "wifi") .state' | grep -m 1 "conectado")
 
 	# test ethernet first
 	if [[ $ethernet == "conectado" ]]; then
