@@ -45,6 +45,6 @@ return {
       "MunifTanjim/nui.nvim",
       "rcarriga/nvim-notify",
     },
-    enabled = false,
+    -- enabled = false,
   },
 }

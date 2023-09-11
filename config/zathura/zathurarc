@@ -1,5 +1,7 @@
 # vim:fileencoding=utf-8:ft=conf
 set guioptions none
+set synctex true
+set synctex-editor-command "code -g %{input}:%{line}"
 set selection-clipboard "clipboard"
 set window-title-home-tilde "true"
 set window-title-basename "true"
