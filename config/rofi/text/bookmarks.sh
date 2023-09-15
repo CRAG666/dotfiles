@@ -6,7 +6,7 @@ theme="style_2"
 dir="$HOME/.config/rofi/text"
 
 BOOKMARKS="$HOME/.config/rofi/text/bookmarks"
-BROWSER="wl-copy"
+BROWSER="firefox -P Privacy"
 
 function rofi_main_window() {
 	rofi -dmenu -i -l 10 -p "$1" -theme "$dir/$theme"
@@ -58,9 +58,9 @@ elif [[ $name == "-" ]]; then
 elif [[ $name == "*" ]]; then
 	category=$(get_categories | rofi_main_window "Bookmarks" | awk '{print $2}')
 	[[ -n $category ]] || exit
-	grep "$category" "$BOOKMARKS" | cut -d '|' -f 2 | xargs "$BROWSER"
+	grep "$category" "$BOOKMARKS" | cut -d '|' -f 2 | xargs -I{} firefox -P Privacy {}
 else
 	[[ -n $name ]] || exit
 	url=$(grep "$name" "$BOOKMARKS" | cut -d '|' -f 2)
-	"$BROWSER" "$url"
+	firefox -P Privacy "$url"
 fi

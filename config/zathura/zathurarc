@@ -1,4 +1,8 @@
 # vim:fileencoding=utf-8:ft=conf
+set sandbox none
+set statusbar-h-padding 0
+set statusbar-v-padding 0
+set page-padding 1
 set guioptions none
 set synctex true
 set synctex-editor-command "code -g %{input}:%{line}"
