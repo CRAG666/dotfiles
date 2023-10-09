@@ -13,6 +13,10 @@ source "$(dirname "$0")"/utils
 nm="$(nmcli d | jc --nmcli | jaq -r '.[] | select(.type | test("^(wifi|ethernet)$", "ix"))')"
 icons=("" "" "" "" "")
 
+function sanitize() {
+	echo "${1//\"/\\\"}"
+}
+
 function toggle() {
 	status=$(rfkill -J | jaq -r '.rfkilldevices[] | select(.type == "wlan") | .soft' | head -1)
 
@@ -31,42 +35,33 @@ function gen_wifi() {
 	fi
 
 	icon=${icons[$level]}
-	color="#cba6f7"
-	class="net-connected"
-	name=$(echo "$nm" | jaq -r 'select(.type == "wifi" and .connection != null) .connection' | head -n 1)
+	text=$(echo "$nm" | jaq -r 'select(.type == "wifi") .connection')
 }
 
 function gen_ethernet() {
 	icon=""
-	class="net-connected"
-	color="#cba6f7"
-	name=$(echo "$nm" | jaq -r 'select(.type == "ethernet") .connection')
+	text=$(echo "$nm" | jaq -r 'select(.type == "ethernet") .connection')
 }
 
 function make_content() {
 	local ethernet wifi
 	ethernet=$(echo "$nm" | jaq -r 'select(.type == "ethernet") .state')
-	# wifi=$(echo "$nm" | jaq -r 'select(.type == "wifi") .state')
-	wifi=$(echo "$nm" | jaq -r 'select(.type == "wifi") .state' | grep -m 1 "conectado")
+	wifi=$(echo "$nm" | jaq -r 'select(.type == "wifi") .state')
 
 	# test ethernet first
 	if [[ $ethernet == "conectado" ]]; then
 		gen_ethernet
+		state="enabled"
 	elif [[ $wifi == "conectado" ]]; then
 		gen_wifi
+		state="enabled"
 	else
 		icon=""
-		color="#988ba2"
-		class="net-disconnected"
-		name="Disconnected"
+		text="Disconnected"
+		state="disabled"
 	fi
 
-	jaq --null-input -r -c \
-		--arg icon "$icon" \
-		--arg name "$name" \
-		--arg color "$color" \
-		--arg class "$class" \
-		'{"icon": $icon, "name": $name, "color": $color, "class": $class}'
+	echo '{"icon": "'"$icon"'", "text": "'"$(sanitize "$text")"'", "state": "'"$state"'"}'
 }
 
 # first run

@@ -72,7 +72,6 @@ bind ;C composite hint focus; !s wtype -P Menu -p Menu
 " Quickmarks
 "
 quickmark c https://chat.openai.com/chat
-quickmark d https://discord.com/channels/@me
 quickmark f https://relay.firefox.com/accounts/profile/
 quickmark g https://github.com/
 quickmark l http://localhost/

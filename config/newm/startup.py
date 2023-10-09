@@ -23,7 +23,7 @@ def startup():
         "/usr/lib/polkit-kde-authentication-agent-1",
         "fnott",
         "nm-applet --indicator",
-        "avizo-service",
+        # "avizo-service",
         "wlsunset -l 16.0867 -L -93.7561 -t 2500 -T 6000",
         "brightnessctl set 1",
         # f"{SCRIPTS}/battery-status.sh",

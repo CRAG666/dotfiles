@@ -1,2 +1,0 @@
-event=battery.*
-action=/etc/acpi/actions/battery.sh

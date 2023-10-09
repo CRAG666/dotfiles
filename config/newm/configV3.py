@@ -386,7 +386,8 @@ panels = {
         "corner_radius": 50,
     },
     "bar": {
-        "cmd": "waybar",
+        # "cmd": "waybar",
+        "cmd": "eww open bar",
         "visible_normal": False,
         "visible_fullscreen": False,
     },
