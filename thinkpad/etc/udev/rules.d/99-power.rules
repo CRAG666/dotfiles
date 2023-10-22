@@ -1,0 +1,5 @@
+# Cuando se conecta el cargador
+SUBSYSTEM=="power_supply", ATTR{online}=="1", RUN+="/home/think-crag/Git/dotfiles/thinkpad/scripts/power-mode.sh ac"
+
+# Cuando se desconecta el cargador
+SUBSYSTEM=="power_supply", ATTR{online}=="0", RUN+="/home/think-crag/Git/dotfiles/thinkpad/scripts/power-mode.sh battery"
