@@ -6,9 +6,9 @@ if [ "$1" == "battery" ]; then
 	# Ajustes de energía en modo batería
 	/usr/bin/powertop --auto-tune
 	echo 5 >/proc/sys/vm/laptop_mode
-	echo 15 >/proc/sys/vm/dirty_ratio
-	echo 5 >/proc/sys/vm/dirty_background_ratio
-	echo 6000 >/proc/sys/vm/dirty_writeback_centisecs
+	echo 10 >/proc/sys/vm/dirty_ratio
+	echo 3 >/proc/sys/vm/dirty_background_ratio
+	echo 15000 >/proc/sys/vm/dirty_writeback_centisecs
 
 	echo enabled | tee /sys/bus/usb/devices/{usb1,usb2}/power/wakeup
 	echo powersave >/sys/module/pcie_aspm/parameters/policy
@@ -17,7 +17,9 @@ if [ "$1" == "battery" ]; then
 
 	echo auto | tee /sys/bus/i2c/devices/{i2c-0,i2c-1,i2c-2}/device/power/control
 
-	echo min_power | tee /sys/class/scsi_host/*/link_power_management_policy
+	echo med_power_with_dipm | tee /sys/class/scsi_host/*/link_power_management_policy
+
+	echo auto | tee /sys/bus/pci/devices/0000:00:17.0/{ata1,ata2,ata3}/power/control
 
 	modprobe -r uvcvideo
 
@@ -35,9 +37,9 @@ elif [ "$1" == "ac" ]; then
 
 	# Ajustes de energía en modo AC
 	echo 0 >/proc/sys/vm/laptop_mode
-	echo 10 >/proc/sys/vm/dirty_ratio
+	echo 50 >/proc/sys/vm/dirty_ratio
 	echo 5 >/proc/sys/vm/dirty_background_ratio
-	echo 60000 >/proc/sys/vm/dirty_writeback_centisecs
+	echo 5000 >/proc/sys/vm/dirty_writeback_centisecs
 
 	echo disabled | tee /sys/bus/usb/devices/{usb1,usb2}/power/wakeup
 	echo performance >/sys/module/pcie_aspm/parameters/policy
@@ -47,6 +49,8 @@ elif [ "$1" == "ac" ]; then
 	echo on | tee /sys/bus/i2c/devices/{i2c-0,i2c-1,i2c-2}/device/power/control
 
 	echo max_performance | tee /sys/class/scsi_host/*/link_power_management_policy
+
+	echo on | tee /sys/bus/pci/devices/0000:00:17.0/{ata1,ata2,ata3}/power/control
 
 	modprobe uvcvideo
 
