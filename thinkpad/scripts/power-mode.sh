@@ -6,9 +6,9 @@ if [ "$1" == "battery" ]; then
 	# Ajustes de energía en modo batería
 	/usr/bin/powertop --auto-tune
 	echo 5 >/proc/sys/vm/laptop_mode
+	echo 1500 >/proc/sys/vm/dirty_writeback_centisecs
+	echo 5 >/proc/sys/vm/dirty_background_ratio
 	echo 10 >/proc/sys/vm/dirty_ratio
-	echo 3 >/proc/sys/vm/dirty_background_ratio
-	echo 15000 >/proc/sys/vm/dirty_writeback_centisecs
 
 	echo enabled | tee /sys/bus/usb/devices/{usb1,usb2}/power/wakeup
 	echo powersave >/sys/module/pcie_aspm/parameters/policy
@@ -32,14 +32,16 @@ if [ "$1" == "battery" ]; then
 	sysctl -p /home/think-crag/Git/dotfiles/thinkpad/scripts/98-power-saving.conf
 
 	echo auto | tee /sys/bus/pci/devices/{0000:00:00.0,0000:00:12.0,0000:00:14.0,0000:00:14.2,0000:00:17.0,0000:00:1f.0,0000:00:1f.5,0000:00:1f.6,0000:01:00.0,0000:02:00.0,0000:52:00.0}/power/control
+
+	echo power | tee /sys/devices/system/cpu/cpufreq/policy*/energy_performance_preference
 elif [ "$1" == "ac" ]; then
 	logger "La computadora está en modo AC (corriente alterna)."
 
 	# Ajustes de energía en modo AC
 	echo 0 >/proc/sys/vm/laptop_mode
-	echo 50 >/proc/sys/vm/dirty_ratio
+	echo 500 >/proc/sys/vm/dirty_writeback_centisecs
 	echo 5 >/proc/sys/vm/dirty_background_ratio
-	echo 5000 >/proc/sys/vm/dirty_writeback_centisecs
+	echo 50 >/proc/sys/vm/dirty_ratio
 
 	echo disabled | tee /sys/bus/usb/devices/{usb1,usb2}/power/wakeup
 	echo performance >/sys/module/pcie_aspm/parameters/policy
@@ -63,6 +65,8 @@ elif [ "$1" == "ac" ]; then
 	sysctl -p /home/think-crag/Git/dotfiles/thinkpad/scripts/99-performance.conf
 
 	echo on | tee /sys/bus/pci/devices/{0000:00:00.0,0000:00:12.0,0000:00:14.0,0000:00:14.2,0000:00:17.0,0000:00:1f.0,0000:00:1f.5,0000:00:1f.6,0000:01:00.0,0000:02:00.0,0000:52:00.0}/power/control
+
+	echo performance | tee /sys/devices/system/cpu/cpufreq/policy*/energy_performance_preference
 else
 	logger "Estado de alimentación desconocido: $1"
 fi
