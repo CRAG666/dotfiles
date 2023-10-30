@@ -11,8 +11,9 @@ return {
 
   {
     url = "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
-    event = "LspAttach",
-    config = setup "lsp_lines",
+    -- event = "LspAttach",
+    -- config = setup "lsp_lines",
+    disabled = true,
   },
   {
     "VidocqH/lsp-lens.nvim",
@@ -20,7 +21,7 @@ return {
     config = setup "lsp-lens",
   },
   {
-    "jose-elias-alvarez/null-ls.nvim",
+    "nvimtools/none-ls.nvim",
     event = "BufReadPre",
     opts = function()
       local nls = require "null-ls"
