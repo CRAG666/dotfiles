@@ -120,7 +120,7 @@ set.grepprg = "rg --vimgrep --no-heading --smart-case"
 
 -- set.foldnestmax = 0
 vim.o.foldmethod = "expr"
-vim.opt.fillchars = {
+set.fillchars = {
   -- foldclose = "",
   foldclose = "",
   -- foldopen = "",
@@ -133,8 +133,8 @@ vim.opt.fillchars = {
 --   foldsep = "",
 --   foldclose = "",
 -- }
-vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-vim.opt.foldtext = "v:lua.vim.treesitter.foldtext()"
+set.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+set.foldtext = "v:lua.vim.treesitter.foldtext()"
 vim.o.foldcolumn = "auto:1" -- '0' is not bad
 vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
 vim.o.foldlevelstart = 99

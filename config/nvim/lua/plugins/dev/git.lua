@@ -15,8 +15,20 @@ function get_keys()
 end
 
 return {
-  "sindrets/diffview.nvim",
-  keys = get_keys(),
-  dependencies = "nvim-lua/plenary.nvim",
-  config = true,
+  {
+    "sindrets/diffview.nvim",
+    keys = get_keys(),
+    dependencies = "nvim-lua/plenary.nvim",
+    config = true,
+  },
+  {
+    "NeogitOrg/neogit",
+    cmd = "Neogit",
+    dependencies = {
+      "nvim-lua/plenary.nvim", -- required
+      "nvim-telescope/telescope.nvim", -- optional
+      "sindrets/diffview.nvim", -- optional
+    },
+    config = true,
+  },
 }
