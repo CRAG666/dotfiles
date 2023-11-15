@@ -1,15 +1,20 @@
+local utils = require "utils"
+
+local root_files = {
+  "Tectonic.toml",
+  ".git",
+}
 local texlab = {
   name = "texlab",
   cmd = { "texlab" },
+  root_dir = utils.get_root_dir(root_files),
   settings = {
     texlab = {
       auxDirectory = ".",
       bibtexFormatter = "texlab",
       build = {
-        -- args = { "-pdf", "-interaction=nonstopmode", "-synctex=1", "%f" },
-        args = { "%f" },
-        -- executable = "latexmk",
-        executable = "pdftex",
+        executable = "tectonic",
+        args = { "%f", "--synctex", "--keep-logs", "--keep-intermediates" },
         forwardSearchAfter = false,
         onSave = false,
       },

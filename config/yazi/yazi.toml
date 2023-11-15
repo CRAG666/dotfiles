@@ -41,7 +41,7 @@ play = [
 	{ exec = '''mediainfo "$1"; echo "Press enter to exit"; read''', block = true, desc = "Show media info", for = "unix" },
 ]
 pdf = [
-	{ exec = 'zathura "$@"', orphan = true, for = "unix" },
+	{ exec = '/bin/zathura "$@"', orphan = true, for = "unix" },
 ]
 image = [
 	{ exec = '/bin/imv "$@"', orphan = true, for = "unix" },

@@ -26,7 +26,6 @@ if [ "$1" == "battery" ]; then
 	echo powersave >/sys/module/pcie_aspm/parameters/policy
 	iw dev wlan0 set power_save on
 	ethtool -s enp0s31f6 wol d
-	rfkill block bluetooth
 
 	# Aplicar configuraciones
 	sysctl -p /home/think-crag/Git/dotfiles/thinkpad/scripts/98-power-saving.conf

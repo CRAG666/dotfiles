@@ -19,12 +19,36 @@ return {
     },
     filetype = {
       tex = function(...)
-        require("code_runner.hooks.preview_pdf").run {
-          command = "pdflatex",
-          args = { "-output-directory", "/tmp", "$fileName" },
-          preview_cmd = preview_cmd,
-          overwrite_output = "/tmp",
+        latexCompileOptions = {
+          "Single",
+          "Project",
         }
+        local preview = require "code_runner.hooks.preview_pdf"
+        local au_preview = require "code_runner.hooks.autocmd_preview"
+        vim.ui.select(latexCompileOptions, {
+          prompt = "Select compile mode:",
+        }, function(opt, _)
+          if opt then
+            if opt == "Single" then
+              preview.run {
+                command = "tectonic",
+                args = { "$fileName", "--keep-logs", "-o", "/tmp" },
+                preview_cmd = preview_cmd,
+                overwrite_output = "/tmp",
+              }
+            elseif opt == "Project" then
+              au_preview.stop_au_preview()
+              os.execute "tectonic -X build --keep-logs --open &> /dev/null &"
+              local fn = function()
+                os.execute "tectonic -X build --keep-logs &> /dev/null &"
+              end
+              au_preview.create_au_preview(fn)
+            end
+          else
+            local warn = require("utils").warn
+            warn("Not Preview", "Preview")
+          end
+        end)
       end,
       markdown = function(...)
         markdownCompileOptions = {

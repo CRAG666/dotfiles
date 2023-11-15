@@ -1,6 +1,7 @@
 [manager]
 
 keymap = [
+  { on = [ "<C-p>" ], exec = '''shell 'ripdrag -x "$@"' --confirm''', desc = "Drag and Drop" },
 	{ on = [ "<Esc>" ], exec = "escape",             desc = "Exit visual mode, clear selected, or cancel search" },
 	{ on = [ "q" ],     exec = "quit",               desc = "Exit the process" },
 	{ on = [ "Q" ],     exec = "quit --no-cwd-file", desc = "Exit the process without writing cwd-file" },

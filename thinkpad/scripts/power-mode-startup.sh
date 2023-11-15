@@ -3,6 +3,7 @@
 if [ -d "/sys/class/power_supply/AC" ]; then
 	status=$(cat /sys/class/power_supply/AC/online)
 
+	rfkill block bluetooth
 	if [ "$status" -eq 1 ]; then
 		/home/think-crag/Git/dotfiles/thinkpad/scripts/power-mode.sh ac
 	else
