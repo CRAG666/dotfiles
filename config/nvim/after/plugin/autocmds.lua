@@ -89,3 +89,17 @@ autocmd("BufEnter", { command = [[set formatoptions-=cro]] })
 autocmd("FileType", { pattern = "man", command = [[nnoremap <buffer><silent> q :quit<CR>]] })
 
 autocmd({ "BufRead", "BufEnter" }, { pattern = "*.tex", command = [[set filetype=tex]] })
+autocmd("CursorHold", {
+  buffer = bufnr,
+  callback = function()
+    local opts = {
+      focusable = false,
+      close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
+      border = "rounded",
+      source = "always",
+      prefix = " ",
+      scope = "cursor",
+    }
+    vim.diagnostic.open_float(nil, opts)
+  end,
+})

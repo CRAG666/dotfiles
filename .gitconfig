@@ -30,3 +30,6 @@
 [diff]
     colorMoved = default
 
+[safe]
+	directory = /tmp/makepkg/auto-cpufreq/src/opt/auto-cpufreq/
+	directory = /tmp/makepkg/auto-cpufreq/src/opt/auto-cpufreq/

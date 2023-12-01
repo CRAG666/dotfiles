@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 import sys
-from colorama import Fore, Back, Style
-sys.ps1=Style.RESET_ALL+Fore.YELLOW+'\ue235 \uE27A  '+Style.RESET_ALL
-sys.ps2=Style.RESET_ALL+Fore.YELLOW+'...'+Style.RESET_ALL
+
+# ANSI escape sequences
+YELLOW = "\033[93m"
+RESET = "\033[0m"
+PROMPT = "\ue235 \uE27A  "
+
+sys.ps1 = f"{RESET}{YELLOW}{PROMPT}{RESET}"
+sys.ps2 = f"{RESET}{YELLOW}...{RESET}"

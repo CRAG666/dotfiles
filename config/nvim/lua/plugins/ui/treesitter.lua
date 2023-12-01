@@ -1,7 +1,10 @@
 return {
   "nvim-treesitter/nvim-treesitter",
   build = ":TSUpdate",
-  event = { "BufReadPost", "BufNewFile" },
+  event = {
+    "BufReadPre",
+    "BufNewFile",
+  },
   config = function()
     require("nvim-treesitter.configs").setup {
       ensure_installed = {
@@ -133,9 +136,6 @@ return {
         enable = true,
       },
       autotag = {
-        enable = true,
-      },
-      context_commentstring = {
         enable = true,
       },
       tree_setter = {

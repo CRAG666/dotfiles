@@ -1,7 +1,7 @@
 return {
   {
     "hrsh7th/nvim-cmp",
-    event = "InsertEnter",
+    event = { "LspAttach", "InsertCharPre" },
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-buffer",
@@ -18,6 +18,7 @@ return {
     },
     opts = function()
       -- vim.opt.completeopt = { "menuone", "noselect", "noinsert", "preview" }
+      vim.api.nvim_set_hl(0, "CmpGhostText", { link = "Comment", default = true })
       vim.opt.completeopt = { "menu", "menuone", "noselect" }
       vim.opt.shortmess = vim.opt.shortmess + { c = true }
       local cmp = require "cmp"
@@ -51,7 +52,11 @@ return {
         return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match "%s" == nil
       end
 
-      local select_opts = { behavior = cmp.SelectBehavior.Select }
+      local check_backspace = function()
+        local col = vim.fn.col "." - 1
+        return col == 0 or vim.fn.getline("."):sub(col, col):match "%s"
+      end
+      -- local select_opts = { behavior = cmp.SelectBehavior.Select }
 
       return {
         performance = { debounce = 40, throttle = 40, fetching_timeout = 300 },
@@ -75,49 +80,47 @@ return {
           end,
         },
         mapping = {
-          ["<Up>"] = cmp.mapping.select_prev_item(select_opts),
-          ["<Down>"] = cmp.mapping.select_next_item(select_opts),
-          ["<C-p>"] = cmp.mapping.select_prev_item(select_opts),
-          ["<C-n>"] = cmp.mapping.select_next_item(select_opts),
-          ["<C-u>"] = cmp.mapping.scroll_docs(-4),
-          ["<C-d>"] = cmp.mapping.scroll_docs(4),
+          ["<C-b>"] = cmp.mapping.scroll_docs(-4),
+          ["<C-f>"] = cmp.mapping.scroll_docs(4),
+          ["<C-Space>"] = cmp.mapping.complete(),
           ["<C-e>"] = cmp.mapping.abort(),
-          -- ["<CR>"] = cmp.mapping {
-          --   i = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Replace, select = false },
-          --   c = function(fallback)
-          --     if cmp.visible() then
-          --       cmp.confirm { behavior = cmp.ConfirmBehavior.Replace, select = false }
-          --     else
-          --       fallback()
-          --     end
-          --   end,
-          -- },
-          ["<CR>"] = cmp.mapping.confirm { select = false },
+          ["<CR>"] = cmp.mapping.confirm { select = true }, -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+          ["<S-CR>"] = cmp.mapping.confirm {
+            behavior = cmp.ConfirmBehavior.Replace,
+            select = true,
+          }, -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+          ["<C-CR>"] = function(fallback)
+            cmp.abort()
+            fallback()
+          end,
           ["<Tab>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
-              cmp.select_next_item(select_opts)
+              cmp.select_next_item()
+            elseif luasnip.expandable() then
+              luasnip.expand()
             elseif luasnip.expand_or_jumpable() then
               luasnip.expand_or_jump()
-            elseif neogen.jumpable() then
-              neogen.jump_next()
-            elseif has_words_before() then
-              cmp.complete()
+            elseif check_backspace() then
+              fallback()
             else
               fallback()
             end
-          end, { "i", "s", "c" }),
-
+          end, {
+            "i",
+            "s",
+          }),
           ["<S-Tab>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
-              cmp.select_prev_item(select_opts)
+              cmp.select_prev_item()
             elseif luasnip.jumpable(-1) then
               luasnip.jump(-1)
-            elseif neogen.jumpable(true) then
-              neogen.jump_prev()
             else
               fallback()
             end
-          end, { "i", "s", "c" }),
+          end, {
+            "i",
+            "s",
+          }),
         },
         sources = {
           { name = "nvim_lsp", group_index = 1, keyword_length = 1 },
@@ -157,6 +160,11 @@ return {
             kind.dup = duplicates[entry.source.name] or duplicates_default
             return kind
           end,
+        },
+        experimental = {
+          ghost_text = {
+            hl_group = "CmpGhostText",
+          },
         },
         window = {
           completion = cmp.config.window.bordered {
@@ -219,10 +227,13 @@ return {
       cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done { map_char = { tex = "" } })
     end,
   },
+  -- snippets
   {
     "L3MON4D3/LuaSnip",
+    build = (not jit.os:find "Windows")
+        and "echo 'NOTE: jsregexp is optional, so not a big deal if it fails to build'; make install_jsregexp"
+      or nil,
     dependencies = {
-      -- "evesdropper/luasnip-latex-snippets.nvim",
       {
         "rafamadriz/friendly-snippets",
         config = function()
@@ -230,63 +241,31 @@ return {
         end,
       },
       {
-        "honza/vim-snippets",
+        "iurimateus/luasnip-latex-snippets.nvim",
+        ft = { "tex", "bib" },
         config = function()
-          require("luasnip.loaders.from_snipmate").lazy_load()
-
-          -- One peculiarity of honza/vim-snippets is that the file with the global snippets is _.snippets, so global snippets
-          -- are stored in `ls.snippets._`.
-          -- We need to tell luasnip that "_" contains global snippets:
-          require("luasnip").filetype_extend("all", { "_" })
+          require("luasnip-latex-snippets").setup { use_treesitter = true }
         end,
       },
     },
-    build = "make install_jsregexp",
     opts = {
       history = true,
-      delete_check_events = "TextChanged",
+      -- delete_check_events = "TextChanged",
+      enable_autosnippets = true,
+      region_check_events = "InsertEnter",
+      delete_check_events = "InsertLeave",
     },
     -- stylua: ignore
     -- keys = {
     --   {
-    --     "<Tab>",
+    --     "<tab>",
     --     function()
-    --       return require("luasnip").jumpable(1) and "<Plug>luasnip-jump-next" or "<Tab>"
+    --       return require("luasnip").jumpable(1) and "<Plug>luasnip-jump-next" or "<tab>"
     --     end,
-    --     expr = true, remap = true, silent = true, mode = "i",
+    --     expr = true, silent = true, mode = "i",
     --   },
-    --   { "<Tab>", function() require("luasnip").jump(1) end, mode = "s" },
-    --   { "<S-Tab>", function() require("luasnip").jump(-1) end, mode = { "i", "s" } },
+    --   { "<tab>", function() require("luasnip").jump(1) end, mode = "s" },
+    --   { "<s-tab>", function() require("luasnip").jump(-1) end, mode = { "i", "s" } },
     -- },
-    config = function(_, opts)
-      require("luasnip").setup(opts)
-
-      local snippets_folder = vim.fn.stdpath "config" .. "/lua/plugins/lsp/snippets/"
-      require("luasnip.loaders.from_lua").lazy_load { paths = snippets_folder }
-
-      vim.api.nvim_create_user_command("LuaSnipEdit", function()
-        require("luasnip.loaders.from_lua").edit_snippet_files()
-      end, {})
-    end,
-  },
-  {
-    "madskjeldgaard/cheeky-snippets.nvim",
-    dependencies = {
-      "L3MON4D3/LuaSnip",
-    },
-    config = function()
-      local cheeky = require "cheeky"
-      cheeky.setup {
-        langs = {
-          all = true,
-          lua = true,
-          cpp = true,
-          asm = true,
-          cmake = true,
-          markdown = true,
-          supercollider = true,
-        },
-      }
-    end,
   },
 }

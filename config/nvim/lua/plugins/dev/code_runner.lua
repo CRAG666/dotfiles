@@ -24,7 +24,7 @@ return {
           "Project",
         }
         local preview = require "code_runner.hooks.preview_pdf"
-        local au_preview = require "code_runner.hooks.autocmd_preview"
+        local cr_au = require "code_runner.hooks.autocmd"
         vim.ui.select(latexCompileOptions, {
           prompt = "Select compile mode:",
         }, function(opt, _)
@@ -37,12 +37,12 @@ return {
                 overwrite_output = "/tmp",
               }
             elseif opt == "Project" then
-              au_preview.stop_au_preview()
+              cr_au.stop_job()
               os.execute "tectonic -X build --keep-logs --open &> /dev/null &"
               local fn = function()
                 os.execute "tectonic -X build --keep-logs &> /dev/null &"
               end
-              au_preview.create_au_preview(fn)
+              cr_au.create_au_write(fn)
             end
           else
             local warn = require("utils").warn

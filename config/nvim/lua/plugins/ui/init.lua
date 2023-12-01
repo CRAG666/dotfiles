@@ -73,7 +73,7 @@ return {
   },
   {
     "ashfinal/qfview.nvim",
-    event = "VeryLazy",
+    event = "UIEnter",
     config = utils.setup "qfview",
   },
 }

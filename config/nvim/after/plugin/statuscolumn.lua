@@ -28,10 +28,12 @@ function _G.StatusColumn()
     nu = vim.v.relnum == 0 and vim.v.lnum or ([[%=]] .. vim.v.relnum)
   end
 
+  foldopen = vim.opt.fillchars:get().foldopen or ""
+  foldclose = vim.opt.fillchars:get().foldclose or ""
   local components = {
     (sign and ("%#" .. (sign.texthl or "DiagnosticInfo") .. "#" .. sign.text .. "%*"))
-      or (folded and vim.opt.fillchars:get().foldclose .. "")
-      or (has_fold and vim.opt.fillchars:get().foldopen .. "")
+      or (folded and foldclose .. "")
+      or (has_fold and foldopen .. "")
       or (git_sign and ("%#" .. git_sign.texthl .. "#" .. git_sign.text .. "%*"))
       or " ",
     nu .. " ",
