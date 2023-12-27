@@ -34,10 +34,9 @@ bob
 cht.sh-git
 fzf
 bat
-lf
-ctpv-git
+yazi
 mmv-c-git
-dragon-drop
+ripdrag
 rclone
 
 # Monitoring
@@ -65,23 +64,15 @@ gnome-disk-utility
 gpart
 
 # Fonts
-ttf-ibmplex-mono-nerd
-ttf-lilex-nerd
-ttf-mononoki-nerd
-noto-fonts-cjk-vf
 apple-fonts
 
 # Basic
 kitty
 
 # Text edition
-pandoc-cli
-pandoc-plot
-texlive-core
-groff
+tectonic
 libreoffice-fresh
 libreoffice-fresh-es
-pdftricks
 tree-sitter
 
 # Viewers
@@ -98,15 +89,12 @@ nicotine+
 transmission-gtk
 
 # Edition
-kdenlive
 audacity
-inkscape
 gimp-devel
 
 # Players
 mpv
 termusic
-pipe-viewer-git
 
 # Web Browsers
 firefox
@@ -117,14 +105,14 @@ arkenfox-user.js
 brave-bin
 
 # Gaming
-libretro-core-info
-libretro-fbneo-git
-libretro-overlays
-libretro-shaders-slang
-retroarch
-retroarch-assets-glui
-retroarch-assets-ozone
-retroarch-assets-xmb
+# libretro-core-info
+# libretro-fbneo-git
+# libretro-overlays
+# libretro-shaders-slang
+# retroarch
+# retroarch-assets-glui
+# retroarch-assets-ozone
+# retroarch-assets-xmb
 
 # Language servers
 marksman-bin
