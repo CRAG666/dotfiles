@@ -18,7 +18,7 @@ configuration {
   text-color:		@fg;
 }
 
-@import "../Themes/style.rasi"
+@import "theme/style.rasi"
 
 mainbox { children: [ inputbar, listview ]; }
 
@@ -37,8 +37,8 @@ inputbar {
   padding:		10px 10px 10px 10px;
 }
 
-prompt { 
-  enabled: true; 
+prompt {
+  enabled: true;
   background-color:	@bg;
   padding:		10px;
   border-radius:	15px;

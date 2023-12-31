@@ -12,7 +12,6 @@ return {
       "ray-x/cmp-treesitter",
       "lukas-reineke/cmp-rg",
       "lukas-reineke/cmp-under-comparator",
-      { "tzachar/cmp-tabnine", build = "./install.sh", enabled = true },
       "saadparwaiz1/cmp_luasnip",
       "onsails/lspkind-nvim",
     },
@@ -36,7 +35,6 @@ return {
         path = "(Path)",
         rg = "(Rg)",
         nvim_lsp_signature_help = "(Sig)",
-        cmp_tabnine = "(TNine)",
         ["vim-dadbod-completion"] = "(DB)",
       }
 
@@ -125,7 +123,6 @@ return {
         sources = {
           { name = "nvim_lsp", group_index = 1, keyword_length = 1 },
           { name = "luasnip", group_index = 1, keyword_length = 2 },
-          { name = "cmp_tabnine", group_index = 1, keyword_length = 3 },
           { name = "treesitter", group_index = 1, keyword_length = 3 },
           { name = "buffer", group_index = 2, keyword_length = 3 },
           { name = "rg", group_index = 2, keyword_length = 3 },
@@ -144,12 +141,6 @@ return {
             local strings = vim.split(kind.kind, "%s", { trimempty = true })
             kind.kind = " " .. strings[1] .. " "
             kind.menu = menu
-            if source == "cmp_tabnine" then
-              if entry.completion_item.data ~= nil and entry.completion_item.data.detail ~= nil then
-                menu = entry.completion_item.data.detail .. " " .. menu
-              end
-              kind.kind = "  "
-            end
             if source == "treesitter" then
               kind.kind = " 󰐅 "
             end
@@ -207,20 +198,6 @@ return {
           { name = "buffer" },
         }),
       })
-
-      -- TabNine
-      local tabnine = require "cmp_tabnine.config"
-      tabnine:setup {
-        max_lines = 1000,
-        max_num_results = 20,
-        sort = true,
-        run_on_every_keystroke = true,
-        snippet_placeholder = "..",
-        ignored_file_types = { -- default is not to ignore
-          -- uncomment to ignore in lua:
-          -- lua = true
-        },
-      }
 
       -- Auto pairs
       local cmp_autopairs = require "nvim-autopairs.completion.cmp"

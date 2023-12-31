@@ -10,7 +10,7 @@
 configuration {
     font: 							"SF Pro 16";
     fixed-num-lines: 				true;
-    show-icons: 					false;
+    show-icons: 					  false;
     sidebar-mode: 					true;
     scroll-method: 					0;
     window-format: 					"[{w}] ··· {c} ···   {t}";
