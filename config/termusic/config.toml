@@ -1,4 +1,4 @@
-music_dir = ["/home/lvm/Música"]
+music_dir = ["/home/think-crag/Música"]
 player_port = 50101
 player_loop_mode = "Random"
 player_volume = 100

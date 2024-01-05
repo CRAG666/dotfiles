@@ -58,17 +58,19 @@ local function lsp_init()
   -- vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, config.float)
 end
 
-function M.setup(server)
+function M.setup(server, on_attach)
   utils.on_attach(function(client, bufnr)
     require("config.lsp.highlighter").setup(client, bufnr)
     require("config.lsp.format").on_attach(client, bufnr)
     require("config.lsp.keymaps").on_attach(client, bufnr)
+    if on_attach ~= nil then
+      on_attach(client, bufnr)
+    end
   end)
 
   lsp_init() -- diagnostics, handlers
 
   server.capabilities = utils.capabilities()
-  -- null-ls
   if server.name == "sumneko_lua" then
     server.before_init = require("neodev.lsp").before_init
   end

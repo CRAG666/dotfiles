@@ -40,6 +40,12 @@ function M.on_attach(_, buffer)
   end
 
   utils.map({ "n", "c" }, ";dg", toggleDiagnosticQuickfix, { desc = "Toggle diagnostic global" })
+  -- utils.map(
+  --   { "n", "c" },
+  --   ";dg",
+  --   toggleDiagnosticQuickfix,
+  --   vim.tbl_extend("force", bufopt, { desc = "Next diagnostic" })
+  -- )
 
   utils.map("n", "]d", d.goto_next, vim.tbl_extend("force", bufopt, { desc = "Next diagnostic" }))
   utils.map("n", "[d", d.goto_prev, vim.tbl_extend("force", bufopt, { desc = "Prev diagnostic" }))

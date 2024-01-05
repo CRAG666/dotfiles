@@ -136,4 +136,12 @@ function M.get_root_dir(names)
   })[1])
 end
 
+function M.get_active_client_by_name(bufnr, servername)
+  for _, client in pairs(vim.lsp.get_active_clients { bufnr = bufnr }) do
+    if client.name == servername then
+      return client
+    end
+  end
+end
+
 return M
