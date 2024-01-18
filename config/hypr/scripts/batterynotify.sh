@@ -22,11 +22,13 @@ if is_laptop; then
 		battery_percentage=$(cat /sys/class/power_supply/BAT0/capacity)
 
 		if [ "$battery_status" == "Discharging" ] && [ "$battery_percentage" -le 20 ]; then
-			dunstify -u CRITICAL "Battery Low" "Battery is at $battery_percentage%. Connect the charger."
+			notify-send -u critical -i "battery" "Battery Low" "Battery is at $battery_percentage%. Connect the charger."
+			paplay /usr/share/sounds/freedesktop/stereo/suspend-error.oga
 		fi
 
-		if [ "$battery_status" == "Charging" ] && [ "$battery_percentage" -ge 80 ]; then
-			dunstify -u NORMAL "Battery Charged" "Battery is at $battery_percentage%. You can unplug the charger."
+		if [ "$battery_status" == "Charging" ] && [ "$battery_percentage" -ge 90 ]; then
+			notify-send -i "battery" "Battery Charged" "Battery is at $battery_percentage%. You can unplug the charger."
+			paplay /usr/share/sounds/freedesktop/stereo/suspend-error.oga
 		fi
 
 		sleep 300 # Sleep for 5 minutes before checking again

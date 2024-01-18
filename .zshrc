@@ -162,7 +162,7 @@ alias music="termusic"
 alias rm='rm -i'
 alias du1='du -h -d 1'
 alias rec="wl-screenrec --dri-device $MOZ_DRM_DEVICE -f $(date +'%s_grab.mp4')"
-alias neofetch='neofetch --ascii --source ~/.config/neofetch/thinkpad.txt --ascii_colors '7' '1''
+alias neofetch='neofetch --ascii --source ~/.config/neofetch/thinkpad-min.txt --ascii_colors '7' '1''
 alias freq="watch -n1 'grep Hz /proc/cpuinfo'"
 alias fm="yazi"
 # alias aid="swaymsg -t get_tree | grep "app_id""
@@ -236,4 +236,5 @@ if test -e "/usr/lib/kitty/shell-integration/zsh/kitty.zsh"; then
   source "/usr/lib/kitty/shell-integration/zsh/kitty.zsh";
 fi
 source ~/.zshfunc
+export PASSWORD_STORE_ENABLE_EXTENSIONS=true
 # END_KITTY_SHELL_INTEGRATION

@@ -2,7 +2,7 @@
 # Any customization should be done in ~/.gtkrc-2.0.mine instead.
 
 # include "/home/crag/.gtkrc-2.0.mine"
-gtk-theme-name="Catppuccin-Mocha-Standard-Lavender-dark"
+gtk-theme-name="adw-gtk3"
 gtk-icon-theme-name="candy-icons"
 gtk-font-name="Lucida MAC 11"
 gtk-cursor-theme-name="Catppuccin-Mocha-Lavender-Cursors"

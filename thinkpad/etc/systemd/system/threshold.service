@@ -1,13 +1,13 @@
 [Unit]
-Description=Sets battery thresholds
+Description=sets battery thresholds
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=echo 65 > /sys/class/power_supply/BAT0/charge_control_start_threshold
-ExecStart=echo 90 > /sys/class/power_supply/BAT0/charge_control_stop_threshold
-ExecStop=echo 0 > /sys/class/power_supply/BAT0/charge_control_start_threshold
-ExecStop=echo 100 > /sys/class/power_supply/BAT0/charge_control_stop_threshold
+ExecStart=bash -c "echo 65 | tee /sys/class/power_supply/BAT0/charge_control_start_threshold"
+ExecStart=bash -c "echo 90 | tee /sys/class/power_supply/BAT0/charge_control_end_threshold"
+ExecStop=bash -c "echo 0 | tee /sys/class/power_supply/BAT0/charge_control_start_threshold"
+ExecStop=bash -c "echo 100 | tee /sys/class/power_supply/BAT0/charge_control_end_threshold"
 
 [Install]
 WantedBy=multi-user.target

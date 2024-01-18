@@ -20,16 +20,16 @@ local texlab = {
         logDirectory = build_path, -- Editar
         pdfDirectory = build_path, -- Editar
         executable = "tectonic",
-        args = { "-X", "build", "-k", "--keep-logs" },
-        forwardSearchAfter = false,
-        onSave = false,
+        args = { "-X", "build", "--synctex", "-k", "--keep-logs" },
+        onSave = true,
       },
       forwardSearch = {
-        executable = nil,
-        args = {},
+        executable = "zathura",
+        args = { "--synctex-forward", "%l:1:%f", "%p" },
+        onSave = true,
       },
       chktex = {
-        onOpenAndSave = false,
+        onOpenAndSave = true,
         onEdit = false,
       },
       diagnosticsDelay = 300,
