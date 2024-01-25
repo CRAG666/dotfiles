@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Selecciona un color aleatorio para el tema de rofi
 ~/.config/rofi/text/ramdom_color.sh
 
 theme="style_2"
@@ -7,39 +8,45 @@ dir="$HOME/.config/rofi/text"
 
 shopt -s nullglob globstar
 
-# switch for autotyping
+# switch para autotipeo
 typeit=0
 if [[ $1 == "--type" ]]; then
     typeit=1
     shift
 fi
 
-# get all the saved password files
+# obtiene todos los archivos de contraseñas guardadas
 prefix=${PASSWORD_STORE_DIR-~/.password-store}
 password_files=("$prefix"/**/*.gpg)
 password_files=("${password_files[@]#"$prefix"/}")
 password_files=("${password_files[@]%.gpg}")
 
-# shows a list of all password files and saved the selected one in a variable
-password=$(printf '%s\n' "${password_files[@]}" | rofi -dmenu "$@" -l 10 -p Password -theme "$dir/$theme")
+# muestra una lista de todos los archivos de contraseñas y guarda el seleccionado en una variable
+password=$(printf '%s\n' "${password_files[@]}" | rofi -dmenu "$@" -l 10 -p "Contraseña" -theme "$dir/$theme")
 [[ -n $password ]] || exit
 
-# pass -c copied the password in clipboard. The additional output from pass is piped in to /dev/null
+# pass -c copia la contraseña en el portapapeles. La salida adicional de pass se redirige a /dev/null
 if [[ $typeit -eq 0 ]]; then
     # pass show -c "$password" | head -n1 2>/dev/null
-    pass copyq $password
+    msg=$(PASSWORD_STORE_ENABLE_EXTENSIONS=true pass copyq "$password")
+
+    # Muestra una notificación con notify-send
+    notify-send -i "passwordsafe" "$msg"
 else
-    # If i want to use autotype i save the user name and the password in to a variable
-    # the actual password files are simple text file.
-    # The password has to be on the first line,
-    # because if you using `pass -i` the first line will be replaced with a new password
+    # Si se desea utilizar el autotipeo, guarda el nombre de usuario y la contraseña en variables
+    # Los archivos de contraseñas son archivos de texto simples.
+    # La contraseña debe estar en la primera línea,
+    # porque si usas `pass -i`, la primera línea se reemplazará con una nueva contraseña
 
     passw=$(pass show "$password" | head -n1)
-    # uname=$(pass show $password | tail -n1)
-    # # xdotool types the username on the active spot (cli or inputfield from a browser)
-    # wtype $uname
-    # # type a TAB (for moving forward in browser input fields)
-    # wtype -p tab
-    # type the password in the active input
-    wtype "$passw"
+    # uname=$(pass show "$password" | tail -n1)
+    # # xdotool escribe el nombre de usuario en el lugar activo (CLI o campo de entrada de un navegador)
+    # xdotool type "$uname"
+    # # escribe un TAB (para avanzar en los campos de entrada del navegador)
+    # xdotool key Tab
+    # escribe la contraseña en la entrada activa
+    xdotool type "$passw"
+
+    # Muestra una notificación con notify-send
+    notify-send "Autotipeo completado" -t 2000 -u normal
 fi

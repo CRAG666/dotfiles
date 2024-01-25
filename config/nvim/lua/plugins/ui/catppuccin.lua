@@ -19,9 +19,8 @@
 
 return {
   "catppuccin/nvim",
+  lazy = true,
   name = "catppuccin",
-  priority = 1000,
-  -- lazy = true,
   config = function()
     local transparent_background = false -- Set background transparency here!
 
@@ -327,6 +326,6 @@ return {
         end,
       },
     }
-    -- vim.cmd.colorscheme "catppuccin"
+    vim.cmd.colorscheme "catppuccin"
   end,
 }

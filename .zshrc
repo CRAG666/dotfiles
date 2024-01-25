@@ -209,13 +209,13 @@ alias Usb="cd /run/media/$USER"
 # HACK: fzf alias
 alias paci="pacman -Slq | fzf --multi --preview 'pacman -Si {1}' | xargs -ro sudo pacman -S"
 alias pacr="pacman -Qq | fzf --multi --preview 'pacman -Qi {1}' | xargs -ro sudo pacman -Rns"
-alias ys="yay -Slq | fzf --multi --preview 'yay -Si {1}' | xargs -ro yay -S"
+alias ys="paru -Slq | fzf --multi --preview 'paru -Si {1}' | xargs -ro paru -S"
 alias ci="{ find . -xdev -printf '%h\n' | sort | uniq -c | sort -k 1 -n; } 2>/dev/null"
 alias gbc="git switch -c"
 
 # -< Environ variable >-
 export MYSQL_PS1="\n \d  ﯐ "
-export TERM="xterm-kitty"
+# export TERM="xterm-kitty"
 export VISUAL=nvim
 export EDITOR=$VISUAL
 export PYTHONSTARTUP=~/.pyrc
@@ -232,9 +232,9 @@ export OPENAI_API_KEY="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"
 # source ~/.passmaria.zsh
 
 # BEGIN_KITTY_SHELL_INTEGRATION
-if test -e "/usr/lib/kitty/shell-integration/zsh/kitty.zsh"; then
-  source "/usr/lib/kitty/shell-integration/zsh/kitty.zsh";
-fi
+# if test -e "/usr/lib/kitty/shell-integration/zsh/kitty.zsh"; then
+#   source "/usr/lib/kitty/shell-integration/zsh/kitty.zsh";
+# fi
 source ~/.zshfunc
 export PASSWORD_STORE_ENABLE_EXTENSIONS=true
 # END_KITTY_SHELL_INTEGRATION

@@ -1,10 +1,35 @@
 local utils = require "utils"
 return {
+  { "MunifTanjim/nui.nvim", lazy = true },
   {
     "echasnovski/mini.indentscope",
-    -- event = "CursorMoved",
-    event = "BufReadPre",
-    config = utils.setup "mini.indentscope",
+    version = false, -- wait till new 0.7.0 release to put it back on semver
+    event = "LazyFile",
+    opts = {
+      -- symbol = "▏",
+      symbol = "│",
+      options = { try_as_border = true },
+    },
+    init = function()
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = {
+          "help",
+          "alpha",
+          "dashboard",
+          "neo-tree",
+          "Trouble",
+          "trouble",
+          "lazy",
+          "mason",
+          "notify",
+          "toggleterm",
+          "lazyterm",
+        },
+        callback = function()
+          vim.b.miniindentscope_disable = true
+        end,
+      })
+    end,
   },
 
   -- {
@@ -15,12 +40,23 @@ return {
   -- },
   {
     "stevearc/dressing.nvim",
-    event = "VeryLazy",
-    config = true,
+    lazy = true,
+    init = function()
+      ---@diagnostic disable-next-line: duplicate-set-field
+      vim.ui.select = function(...)
+        require("lazy").load { plugins = { "dressing.nvim" } }
+        return vim.ui.select(...)
+      end
+      ---@diagnostic disable-next-line: duplicate-set-field
+      vim.ui.input = function(...)
+        require("lazy").load { plugins = { "dressing.nvim" } }
+        return vim.ui.input(...)
+      end
+    end,
   },
   {
     "folke/which-key.nvim",
-    event = "VeryLazy",
+    event = "LazyFile",
     opts = {
       -- window = { position = "top" },
       icons = {
@@ -31,17 +67,9 @@ return {
       spelling = { enabled = false, suggestions = 20 },
     },
   },
-  -- {
-  --   "jinh0/eyeliner.nvim",
-  --   event = "VeryLazy",
-  --   opts = {
-  --     bold = true, -- Default: false
-  --     underline = true, -- Default: false
-  --   },
-  -- },
   {
     "brenoprata10/nvim-highlight-colors",
-    event = "BufReadPost",
+    event = "LazyFile",
     opts = {
       render = "background", -- or 'foreground' or 'first_column'
       enable_tailwind = false,
@@ -49,19 +77,23 @@ return {
   },
   {
     "folke/todo-comments.nvim",
-    dependencies = "nvim-lua/plenary.nvim",
-    event = { "BufEnter", "BufNewFile" },
-    -- event = "BufReadPost",
-    opts = {
-      highlight = {
-        keyword = "wide", -- "fg", "bg", "wide" or empty. (wide is the same as bg, but will also highlight surrounding characters)
-      },
+    cmd = { "TodoTrouble", "TodoTelescope" },
+    event = "LazyFile",
+    config = true,
+    -- stylua: ignore
+    keys = {
+      { "]t", function() require("todo-comments").jump_next() end, desc = "Next todo comment" },
+      { "[t", function() require("todo-comments").jump_prev() end, desc = "Previous todo comment" },
+      { "<leader>xt", "<cmd>TodoTrouble<cr>", desc = "Todo (Trouble)" },
+      { "<leader>xT", "<cmd>TodoTrouble keywords=TODO,FIX,FIXME<cr>", desc = "Todo/Fix/Fixme (Trouble)" },
+      { "<leader>st", "<cmd>TodoTelescope<cr>", desc = "Todo" },
+      { "<leader>sT", "<cmd>TodoTelescope keywords=TODO,FIX,FIXME<cr>", desc = "Todo/Fix/Fixme" },
     },
   },
   {
     "chentoast/marks.nvim",
     name = "marks",
-    event = { "BufEnter", "BufNewFile" },
+    event = "LazyFile",
     config = utils.setup("marks", {
       default_mappings = true,
       builtin_marks = { ".", "<", ">", "^" },
@@ -73,7 +105,7 @@ return {
   },
   {
     "ashfinal/qfview.nvim",
-    event = "UIEnter",
+    event = "LazyFile",
     config = utils.setup "qfview",
   },
 }

@@ -1,9 +1,5 @@
 local setup = require("utils").setup
 return {
-  -- {
-  --   "williamboman/mason.nvim",
-  --   config = true,
-  -- },
   {
 
     "williamboman/mason.nvim",
@@ -14,20 +10,20 @@ return {
       ensure_installed = {
         "stylua",
         "shfmt",
-        "lua-language-server"
+        -- "flake8",
       },
     },
     ---@param opts MasonSettings | {ensure_installed: string[]}
     config = function(_, opts)
       require("mason").setup(opts)
-      local mr = require("mason-registry")
+      local mr = require "mason-registry"
       mr:on("package:install:success", function()
         vim.defer_fn(function()
           -- trigger FileType event to possibly load this newly installed LSP server
-          require("lazy.core.handler.event").trigger({
+          require("lazy.core.handler.event").trigger {
             event = "FileType",
             buf = vim.api.nvim_get_current_buf(),
-          })
+          }
         end, 100)
       end)
       local function ensure_installed()
@@ -46,27 +42,28 @@ return {
     end,
   },
   { "folke/neodev.nvim", ft = "lua" },
-  { "b0o/SchemaStore.nvim", ft = "json" },
-  { "Decodetalkers/csharpls-extended-lsp.nvim", ft = "cs" },
-  { "Hoffs/omnisharp-extended-lsp.nvim", ft = "cs" },
   {
     "VidocqH/lsp-lens.nvim",
     event = "LspAttach",
     config = setup "lsp-lens",
   },
   {
+    "RaafatTurki/corn.nvim",
+    event = "LspAttach",
+  },
+  {
     "nvimtools/none-ls.nvim",
-    event = "BufReadPost",
-    opts = function()
+    event = "LazyFile",
+    opts = function(_, opts)
       local nls = require "null-ls"
-      return {
-        -- root_dir = require("null-ls.utils").root_pattern(".null-ls-root", ".neoconf.json", "Makefile", ".git"),
-        sources = {
-          nls.builtins.formatting.stylua,
-          nls.builtins.formatting.shfmt,
-          nls.builtins.code_actions.refactoring,
-        },
-      }
+      opts.root_dir = opts.root_dir
+        or require("null-ls.utils").root_pattern(".null-ls-root", ".neoconf.json", "Makefile", ".git")
+      opts.sources = vim.list_extend(opts.sources or {}, {
+        nls.builtins.formatting.fish_indent,
+        nls.builtins.diagnostics.fish,
+        nls.builtins.formatting.stylua,
+        nls.builtins.formatting.shfmt,
+      })
     end,
   },
 }

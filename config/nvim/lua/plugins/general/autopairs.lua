@@ -1,7 +1,6 @@
 -- local npairs = require "nvim-autopairs"
 return {
-  "windwp/nvim-autopairs",
-  opts = {
-    check_ts = true,
-  },
+  event = "InsertEnter",
+  "m4xshen/autoclose.nvim",
+  config = true,
 }

@@ -44,7 +44,7 @@ local ruff_lsp = {
   root_dir = utils.get_root_dir(root_files),
   init_options = {
     settings = {
-      args = { "--max-line-length=180" },
+      args = { "--line-length=180" },
     },
   },
 }

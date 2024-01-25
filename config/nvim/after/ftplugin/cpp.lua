@@ -8,19 +8,39 @@ set.cinoptions = ":0g0(0s"
 local utils = require "utils"
 
 local root_files = {
-  ".clangd",
-  ".clang-tidy",
   ".clang-format",
+  ".clang-tidy",
+  ".clangd",
+  ".git",
+  "Makefile",
+  "build.ninja",
   "compile_commands.json",
   "compile_flags.txt",
+  "config.h.in",
   "configure.ac",
-  ".git",
+  "configure.in",
+  "meson.build",
+  "meson_options.txt",
 }
 
 local ccls = {
   name = "clangd",
-  cmd = { "clangd" },
+  cmd = {
+    "clangd",
+    "--background-index",
+    "--clang-tidy",
+    "--header-insertion=iwyu",
+    "--completion-style=detailed",
+    "--function-arg-placeholders",
+    "--fallback-style=llvm",
+  },
   root_dir = utils.get_root_dir(root_files),
+
+  init_options = {
+    usePlaceholders = true,
+    completeUnimported = true,
+    clangdFileStatus = true,
+  },
   capabilities = {
     textDocument = {
       completion = {

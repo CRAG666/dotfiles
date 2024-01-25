@@ -1,6 +1,7 @@
 local set = vim.opt
 
 --  Basic config
+set.completeopt = "menu,menuone,noselect"
 set.autowrite = true -- enable auto write
 set.scrolloff = 8 -- Lines of context
 set.scrollback = 100000
@@ -35,7 +36,7 @@ set.diffopt = "filler,vertical,hiddenoff,linematch:60,foldcolumn:0,algorithm:min
 -- Format options
 set.encoding = "utf-8"
 set.fileformat = "unix"
-set.formatoptions = "jqlnt" -- tcqj
+set.formatoptions = "jcroqlnt" -- tcqj
 set.errorformat:append "%f|%l col %c|%m"
 set.wildignore:append {
   ".git/**",
@@ -75,6 +76,7 @@ set.linebreak = true
 set.textwidth = 80
 
 -- UI Config
+set.winminwidth = 5 -- Minimum window width
 set.syntax = "ON" -- str:  Allow syntax highlighting
 set.termguicolors = true
 set.conceallevel = 0 -- Hide * markup for bold and italic
@@ -121,10 +123,13 @@ set.grepprg = "rg --vimgrep --no-heading --smart-case"
 -- set.foldnestmax = 0
 vim.o.foldmethod = "expr"
 set.fillchars = {
-  -- foldclose = "",
-  foldclose = "",
-  -- foldopen = "",
   foldopen = "",
+  foldclose = "",
+  -- fold = "⸱",
+  fold = " ",
+  foldsep = " ",
+  diff = "╱",
+  eob = " ",
 }
 -- vim.o.fillchars = {
 --   eob = "",
@@ -133,8 +138,8 @@ set.fillchars = {
 --   foldsep = "",
 --   foldclose = "",
 -- }
-set.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-set.foldtext = "v:lua.vim.treesitter.foldtext()"
+set.foldexpr = "v:lua.require'utils'.foldexpr()"
+set.foldtext = "v:lua.require'utils'.foldtext()"
 vim.o.foldcolumn = "auto:1" -- '0' is not bad
 vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
 vim.o.foldlevelstart = 99
@@ -157,5 +162,6 @@ set.splitkeep = "screen"
 set.shortmess:append { W = true, I = true, c = true, C = true }
 -- set.numberwidth = 3
 -- set.statuscolumn =
-vim.cmd "filetype plugin indent on"
-vim.cmd.colorscheme "catppuccin"
+if vim.fn.has "nvim-0.10" == 1 then
+  set.smoothscroll = true
+end
