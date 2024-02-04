@@ -1,176 +1,209 @@
--- M.get_git_status = function(self, addh, changeh, removeh, headh)
---   -- use fallback because it doesn't set this variable on the initial `BufEnter`
---   local signs = vim.b.gitsigns_status_dict or { head = "", added = 0, changed = 0, removed = 0 }
---   local is_head_empty = signs.head ~= ""
---
---   if self:is_truncated(90) then
---     return is_head_empty and string.format("  %s ", signs.head or "") or ""
---   end
---
---   local format = "%%#%s#%s %s "
---   local git_status = {
---     "",
---     "",
---     "",
---     string.format("%%#Border#| %%#%s# %s ", headh, signs.head),
---   }
---   if signs.added > 0 then
---     git_status[1] = string.format(format, addh, Icons.git.status_added, signs.added)
---   end
---   if signs.changed > 0 then
---     git_status[2] = string.format(format, changeh, Icons.git.status_modified, signs.changed)
---   end
---   if signs.removed > 0 then
---     git_status[3] = string.format(format, removeh, Icons.git.status_removed, signs.removed)
---   end
---   return is_head_empty and table.concat(git_status) or ""
--- end
---
-local bg = vim.api.nvim_get_hl(0, { name = "StatusLine" }).bg
-local bg_win = vim.api.nvim_get_hl(0, { name = "WinBar" }).bg
+launched_by_user = function()
+  local parent_process =
+    vim.fn.system(string.format("ps -o ppid= -p %s | xargs ps -o comm= -p | tr -d '\n'", vim.fn.getpid()))
+  return parent_process == "-fish"
+end
 
-function StatusFileIcon()
-  local file_comp = "%#StatusLine#%t %h%m%r"
-  local ft = vim.api.nvim_get_option_value("filetype", { buf = 0 })
-  local icon, color = require("nvim-web-devicons").get_icon_color_by_filetype(ft, {})
-  if icon ~= nil then
-    vim.api.nvim_set_hl(0, "StatusLineIcon", { fg = color, bg = bg })
-    return "%#StatusLineIcon#" .. icon .. " " .. file_comp
+---Get the name of the current branch
+---@return string | nil
+local function get_branch_name()
+  local branch = vim.fn.system "git branch --show-current 2> /dev/null"
+  if branch ~= "" and launched_by_user() then
+    return branch:gsub("\n", "")
+  else
+    return nil
   end
-  return file_comp
 end
 
-function WinbarFileIcon()
-  local file_comp = "%#WinBar#%f %h%m%r"
-  local ft = vim.api.nvim_get_option_value("filetype", { buf = 0 })
-  local icon, color = require("nvim-web-devicons").get_icon_color_by_filetype(ft, {})
-  if icon ~= nil then
-    vim.api.nvim_set_hl(0, "WinBarIcon", { fg = color, bg = bg_win })
-    return "%#WinBarIcon#" .. icon .. " " .. file_comp
+---Get name of the current file
+---@return string
+local function get_file_name()
+  local root_path = vim.loop.cwd()
+  local root_dir = root_path:match "[^/]+$"
+  local home_path = vim.fn.expand "%:~"
+  local overlap, _ = home_path:find(root_dir)
+  if home_path == "" then
+    return root_path:gsub(vim.env.HOME, "~")
+  elseif overlap then
+    return home_path:sub(overlap)
+  else
+    return home_path
   end
-  return file_comp
 end
 
-local severities = {
-  "Error",
-  "Warn",
-  "Info",
-  "Hint",
-}
+---Set buffer variables for branch and file names as frequently as they may change
+vim.api.nvim_create_autocmd({ "FileType", "BufEnter", "FocusGained" }, {
+  group = vim.api.nvim_create_augroup("statusline", { clear = true }),
+  callback = function()
+    vim.b.branch_name = get_branch_name()
+    vim.b.file_name = get_file_name()
+  end,
+})
 
-for _, severity in ipairs(severities) do
-  local fg = vim.api.nvim_get_hl(0, { name = "DiagnosticSign" .. severity }).fg
-  vim.api.nvim_set_hl(0, "DiagnosticStatus" .. severity, { fg = fg, bg = bg })
+---Get instance and count of search matches
+---@return string | nil
+local function get_search_count()
+  if vim.v.hlsearch == 1 and vim.api.nvim_get_mode().mode:match "n" then
+    local search_count = vim.fn.searchcount { maxcount = 0 }
+    return ("%d/%d"):format(search_count.current, search_count.total)
+  else
+    return nil
+  end
 end
 
-function StatusDiagnostics()
-  local str = ""
+---Get formatted and highlighted string of diagnostic counts
+---@return string | nil
+local function get_diagnostics()
+  local diagnostics = vim.diagnostic.get(0)
+  if #diagnostics == 0 or vim.api.nvim_get_mode().mode:match "^i" then
+    return nil
+  end
 
-  for _, severity in ipairs(severities) do
-    local count = #vim.diagnostic.get(0, { severity = severity })
-    if count > 0 then
-      local sign = vim.fn.sign_getdefined("DiagnosticSign" .. severity)[1]
-      if sign ~= nil then
-        str = str .. " %#DiagnosticStatus" .. severity .. "#" .. sign.text .. count .. "%#StatusLine#"
+  local severities = {
+    ERROR = { match = "Error", count = 0 },
+    WARN = { match = "Warn", count = 0 },
+    HINT = { match = "Hint", count = 0 },
+    INFO = { match = "Info", count = 0 },
+  }
+
+  for _, v in ipairs(diagnostics) do
+    for k, _ in pairs(severities) do
+      if v.severity == vim.diagnostic.severity[k] then
+        severities[k].count = severities[k].count + 1
       end
     end
   end
-  return str
-end
 
-local C_fallback = {}
-setmetatable(C_fallback, {
-  __index = function()
-    return "#b4befe"
-  end,
-})
-local C = require("catppuccin.palettes").get_palette() or C_fallback
-
-local assets = {
-  mode_icon = "",
-  dir = "",
-  file = "",
-  lsp = {
-    server = "",
-  },
-  git = {
-    branch = "",
-  },
-}
-
-local mode_colors = {
-  ["n"] = { "NORMAL", C.lavender },
-  ["no"] = { "N-PENDING", C.lavender },
-  ["nt"] = { "NORMAL", C.lavender },
-  ["niI"] = { "I-NORMAL", C.lavender },
-  ["i"] = { "INSERT", C.green },
-  ["ic"] = { "INSERT", C.green },
-  ["t"] = { "TERMINAL", C.green },
-  ["v"] = { "VISUAL", C.flamingo },
-  ["V"] = { "V-LINE", C.flamingo },
-  [""] = { "V-BLOCK", C.flamingo },
-  ["R"] = { "REPLACE", C.maroon },
-  ["Rv"] = { "V-REPLACE", C.maroon },
-  ["s"] = { "SELECT", C.maroon },
-  ["S"] = { "S-LINE", C.maroon },
-  [""] = { "S-BLOCK", C.maroon },
-  ["c"] = { "COMMAND", C.peach },
-  ["cv"] = { "COMMAND", C.peach },
-  ["ce"] = { "COMMAND", C.peach },
-  ["r"] = { "PROMPT", C.teal },
-  ["rm"] = { "MORE", C.teal },
-  ["r?"] = { "CONFIRM", C.mauve },
-  ["!"] = { "SHELL", C.green },
-}
-
-function StatusMode()
-  local mode = vim.api.nvim_get_mode()
-
-  if mode_colors[mode.mode] == nil then
-    print('Unhandled mode "' .. mode .. '" encountered in statusline')
+  local output = {}
+  for _, v in pairs(severities) do
+    if v.count > 0 then
+      table.insert(
+        output,
+        table.concat {
+          "%#DiagnosticVirtualText",
+          v.match,
+          "#",
+          v.count,
+          "%*",
+        }
+      )
+    end
   end
 
-  local name = (mode_colors[mode.mode] or { "NORMAL", C.lavender })[1]
-  local color = (mode_colors[mode.mode] or { "NORMAL", C.lavender })[2]
-  vim.api.nvim_set_hl(0, "StatusMode", { fg = C.surface0, bg = color, bold = true })
+  table.sort(output, function(a, b)
+    local sort_order = { Error = 1, Warn = 2, Hint = 3, Info = 4 }
+    local a_sev = a:match "(%u%l+)#"
+    local b_sev = b:match "(%u%l+)#"
 
-  return "%#StatusMode# " .. assets.mode_icon .. " " .. name .. " %#StatusLine#"
+    return sort_order[a_sev] < sort_order[b_sev]
+  end)
+
+  return table.concat(output, " ")
 end
 
-function StatusLsp()
-  local clients = vim.lsp.get_clients { bufnr = 0 }
-  local names = vim.tbl_map(function(item)
-    return item.name
-  end, clients)
-  return "%#StatusLineNC#" .. assets.lsp.server .. " " .. table.concat(names, ", ") .. "%#StatusLine#"
-end
-
-function StatusGit()
-  if vim.b.gitsigns_head then
-    return assets.git.branch .. " " .. vim.b.gitsigns_head
+---Get location in current buffer as a percentage
+---@return string
+local function get_progress()
+  local p = vim.api.nvim_eval_statusline("%p", {}).str
+  if p == "0" then
+    return "top"
+  elseif p == "100" then
+    return "bot"
+  else
+    return ("%02d%s"):format(p, "%%")
   end
-  return ""
 end
 
-local function wrap(funcName)
-  return [[%{%luaeval("]] .. funcName .. [[()")%}]]
+---Format string for left side of statusline
+---@param branch string | nil
+---@param file string | nil
+---@return string
+local function generate_left(branch, file)
+  branch = branch or vim.b.branch_name
+  file = file or vim.b.file_name
+
+  local left = {}
+  if branch then
+    table.insert(left, branch)
+  end
+  table.insert(left, file)
+  left = { table.concat(left, " | ") }
+
+  local modified_flag = vim.api.nvim_eval_statusline("%m", {}).str
+  if modified_flag ~= "" then
+    table.insert(left, modified_flag)
+  end
+
+  return table.concat(left, " ")
 end
 
-local statusline = {
-  table.concat({
-    wrap "StatusMode",
-    wrap "StatusFileIcon",
-    [[ %P ]],
-    [[%l:%c%V]],
-  }, " "),
-  wrap "StatusDiagnostics",
-  table.concat({
-    wrap "StatusLsp",
-    [[ ]],
-    wrap "StatusGit",
-  }, " "),
-}
+---Truncate branch and file names for narrow window
+---@param overflow number
+---@return string | nil
+---@return string
+local function truncate(overflow)
+  local min_width = 15
+  local new_branch = vim.b.branch_name
+  local new_file = vim.b.file_name
 
-vim.opt.statusline = table.concat(statusline, "%=")
+  if vim.b.branch_name and vim.b.branch_name:len() > min_width then
+    if vim.b.branch_name:len() - overflow >= min_width then
+      new_branch = vim.b.branch_name:sub(1, (overflow + 1) * -1)
+      overflow = 0
+    else
+      new_branch = vim.b.branch_name:sub(1, min_width)
+      overflow = overflow - vim.b.branch_name:sub(min_width + 1):len()
+    end
+    new_branch = new_branch:gsub(".$", ">")
+  end
 
--- vim.opt.winbar = [[%<%{%luaeval("WinbarFileIcon()")%}]]
+  if overflow > 0 and vim.b.file_name:len() > min_width then
+    if vim.b.file_name:len() - overflow >= min_width then
+      new_file = vim.b.file_name:sub(overflow + 1)
+    else
+      new_file = vim.b.file_name:sub(vim.b.file_name:len() - min_width + 1)
+    end
+    new_file = new_file:gsub("^.", "<")
+  end
+
+  return new_branch, new_file
+end
+
+---Generate statusline
+---@return string
+function Status_Line()
+  local left_string = generate_left()
+  local left_string_length = vim.api.nvim_eval_statusline(left_string, { maxwidth = 0 }).width
+
+  local right_table = {}
+  local search_count = get_search_count()
+  if search_count then
+    table.insert(right_table, search_count)
+  end
+  local diagnostics = get_diagnostics()
+  if diagnostics then
+    table.insert(right_table, diagnostics)
+  end
+  if vim.b.gitsigns_status and vim.b.gitsigns_status ~= "" then
+    table.insert(right_table, vim.b.gitsigns_status)
+  end
+  table.insert(right_table, vim.api.nvim_eval_statusline("%Y", {}).str:lower())
+  table.insert(right_table, get_progress())
+  local right_string = table.concat(right_table, " | ")
+  local right_string_length = vim.api.nvim_eval_statusline(right_string, {}).width
+
+  local divider = " | "
+  local length = left_string_length + divider:len() + right_string_length
+  local overflow = length - vim.api.nvim_win_get_width(0)
+  if overflow < 0 then
+    divider = "%="
+  end
+  if overflow > 0 then
+    local trunc_branch, trunc_file = truncate(overflow)
+    left_string = generate_left(trunc_branch, trunc_file)
+  end
+
+  return table.concat { "%<", left_string, divider, right_string }
+end
+
+vim.o.statusline = "%{%v:lua.Status_Line()%}"

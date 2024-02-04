@@ -44,8 +44,8 @@ utils.map("n", "<F2>", ":setlocal spell! spelllang=es<CR>")
 utils.map("n", "<F3>", ":setlocal spell! spelllang=en_us<CR>")
 
 -- Search and replace word
-utils.map("n", "cn", [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]]) -- replace world and nexts word with .
-utils.map("n", "cN", [[?\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgN]]) -- replace world and prev word with .
+-- utils.map("n", "cn", [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]]) -- replace world and nexts word with .
+-- utils.map("n", "cN", [[?\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgN]]) -- replace world and prev word with .
 
 -- buffer movements
 utils.map("n", "[b", "<CMD>bprev<CR>")
@@ -61,12 +61,12 @@ utils.map("n", "]B", "<CMD>blast<CR>")
 for i = 9, 1, -1 do
   local kmap = string.format("<leader>%d", i)
   local command = string.format("%dgt", i)
-  utils.map("n", kmap, command, { desc = string.format("Jump Tab %d", i) })
+  utils.map("n", kmap, command, { desc = string.format("Jump Tab [%d]", i) })
   utils.map(
     "n",
     string.format("<leader>t%d", i),
     string.format(":tabmove %d<CR>", i == 1 and 0 or i),
-    { desc = string.format("Tab Move to %d", i) }
+    { desc = string.format("Tab Move to [%d]", i) }
   )
 end
 
@@ -75,9 +75,9 @@ local maps = {
     prefix = "<leader>t",
     maps = {
       -- { "s", [[:execute 'set showtabline=' . (&showtabline ==# 0 ? 2 : 0)<CR>]], "Show Tabs" },
-      { "n", vim.cmd.tabnew, "New Tab" },
-      { "o", vim.cmd.tabonly, "Tab Only" },
-      { "d", vim.cmd.tabclose, "Tab Close" },
+      { "n", vim.cmd.tabnew, "[n]ew Tab" },
+      { "o", vim.cmd.tabonly, "Tab [o]nly" },
+      { "c", vim.cmd.tabclose, "Tab [c]lose" },
       { "l", ":tabmove +1<CR>", "Tab Move Right" },
       { "h", ":tabmove -1<CR>", "Tab Move Left" },
     },
@@ -93,9 +93,9 @@ local maps = {
     prefix = ";",
     maps = {
       -- { "s", "/", "Search", opts },
-      { "r", ":%s/", "Search and Replace", opts },
-      { "p", [[:%s/\(.*\)/\1]], "Search and Replace", opts },
-      { "cw", [[:%s/\<<C-r><C-w>\>/]], "Replace Word", opts },
+      { "r", ":%s/", "Search and [r]eplace", opts },
+      { "R", [[:%s/\(.*\)/\1]], "Search and [R]eplace extend", opts },
+      { "cw", [[:%s/\<<C-r><C-w>\>/]], "Replace [w]ord", opts },
       -- { "d", ":bd<CR>", "Buffer Delete" },
     },
   },
