@@ -3,7 +3,7 @@ return {
     "AckslD/muren.nvim",
     keys = {
       {
-        "<r",
+        "[r",
         ":MurenToggle<CR>",
       },
     },
@@ -17,7 +17,7 @@ return {
     keys = {
       {
         mode = { "n", "x" },
-        ",r",
+        "]r",
         function()
           require("ssr").open()
         end,

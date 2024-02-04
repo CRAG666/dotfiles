@@ -1,4 +1,5 @@
 return {
+  -- Add C/C++ to treesitter
   {
     "nvim-treesitter/nvim-treesitter",
     opts = function(_, opts)
@@ -7,13 +8,7 @@ return {
       end
     end,
   },
-  {
-    "williamboman/mason.nvim",
-    opts = function(_, opts)
-      opts.ensure_installed = opts.ensure_installed or {}
-      table.insert(opts.ensure_installed, "clangd")
-    end,
-  },
+
   {
     "p00f/clangd_extensions.nvim",
     lazy = true,
@@ -44,14 +39,12 @@ return {
       },
     },
   },
-
   {
     "nvim-cmp",
     opts = function(_, opts)
       table.insert(opts.sorting.comparators, 1, require "clangd_extensions.cmp_scores")
     end,
   },
-
   {
     "mfussenegger/nvim-dap",
     optional = true,

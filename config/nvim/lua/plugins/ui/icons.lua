@@ -1,5 +1,6 @@
 return {
   "nvim-tree/nvim-web-devicons",
+  lazy = true,
   dependencies = { "DaikyXendo/nvim-material-icon", "jonathan-elize/nvim-icon-colorizer" },
   config = function()
     require("nvim-web-devicons").setup {

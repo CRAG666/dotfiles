@@ -108,4 +108,17 @@ return {
     event = "LazyFile",
     config = utils.setup "qfview",
   },
+  {
+    "rasulomaroff/reactive.nvim",
+    event = "LazyFile",
+    config = function()
+      require("reactive").setup {
+        builtin = {
+          cursorline = true,
+          cursor = true,
+          modemsg = true,
+        },
+      }
+    end,
+  },
 }

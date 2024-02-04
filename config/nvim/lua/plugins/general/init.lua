@@ -1,23 +1,28 @@
 return {
   {
+    event = "InsertEnter",
+    "m4xshen/autoclose.nvim",
+    config = true,
+  },
+  {
     "Wansmer/treesj",
     keys = {
       {
-        "<leader><leader>t",
+        "<leader>j",
         function()
           require("treesj").toggle()
         end,
         desc = "Toggle Join Line",
       },
       {
-        "<leader><leader>s",
+        "<leader>S",
         function()
           require("treesj").split()
         end,
         desc = "Toggle Join Line",
       },
       {
-        "<leader><leader>j",
+        "<leader>J",
         function()
           require("treesj").join()
         end,
