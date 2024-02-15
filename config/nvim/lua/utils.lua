@@ -42,7 +42,7 @@ function M.is_empty(s)
 end
 
 function M.get_buf_option(opt)
-  local status_ok, buf_option = pcall(vim.api.nvim_buf_get_option, 0, opt)
+  local status_ok, buf_option = pcall(vim.api.nvim_get_option_value, 0, opt)
   if not status_ok then
     return nil
   else
@@ -53,7 +53,7 @@ end
 -- Highlights functions
 
 function M.get_highlight(hlname)
-  local hl = vim.api.nvim_get_hl_by_name(hlname, true)
+  local hl = vim.api.nvim_get_hl(hlname, true)
   setmetatable(hl, {
     __index = function(t, k)
       if k == "fg" then
@@ -137,7 +137,7 @@ function M.get_root_dir(names)
 end
 
 function M.get_active_client_by_name(bufnr, servername)
-  for _, client in pairs(vim.lsp.get_active_clients { bufnr = bufnr }) do
+  for _, client in pairs(vim.lsp.get_clients { bufnr = bufnr }) do
     if client.name == servername then
       return client
     end

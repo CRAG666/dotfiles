@@ -104,9 +104,14 @@ return {
       },
       color_overrides = {},
       highlight_overrides = {
-        ---@param cp palette
-        all = function(cp)
+        ---@param C palette
+        all = function(C)
           return {
+            -- Statusline
+            StatuslineItalic = { fg = C.text, style = { "italic" } },
+            StatuslineSpinner = { fg = C.green },
+            StatuslineTitle = { fg = C.text, style = { "bold" } },
+            StatusLine = { bg = C.base },
             -- Tabline
             TabLineFill = { bg = C.crust },
             TabLine = { fg = C.overlay0, bg = C.crust },
@@ -144,80 +149,80 @@ return {
             CmpItemKindTypeParameter = { fg = C.base, bg = C.blue },
             CmpItemKindCopilot = { fg = C.base, bg = C.teal },
             -- For base configs
-            NormalFloat = { fg = cp.text, bg = transparent_background and cp.none or cp.mantle },
+            NormalFloat = { fg = C.text, bg = transparent_background and C.none or C.mantle },
             FloatBorder = {
-              fg = transparent_background and cp.blue or cp.mantle,
-              bg = transparent_background and cp.none or cp.mantle,
+              fg = transparent_background and C.blue or C.mantle,
+              bg = transparent_background and C.none or C.mantle,
             },
-            CursorLineNr = { fg = cp.green },
+            CursorLineNr = { fg = C.green },
 
             -- For native lsp configs
-            DiagnosticVirtualTextError = { bg = cp.none },
-            DiagnosticVirtualTextWarn = { bg = cp.none },
-            DiagnosticVirtualTextInfo = { bg = cp.none },
-            DiagnosticVirtualTextHint = { bg = cp.none },
+            DiagnosticVirtualTextError = { bg = C.none },
+            DiagnosticVirtualTextWarn = { bg = C.none },
+            DiagnosticVirtualTextInfo = { bg = C.none },
+            DiagnosticVirtualTextHint = { bg = C.none },
             LspInfoBorder = { link = "FloatBorder" },
 
             -- For mason.nvim
             MasonNormal = { link = "NormalFloat" },
 
             -- For indent-blankline
-            IblIndent = { fg = cp.surface0 },
-            IblScope = { fg = cp.surface2, style = { "bold" } },
+            IblIndent = { fg = C.surface0 },
+            IblScope = { fg = C.surface2, style = { "bold" } },
 
             -- For nvim-cmp and wilder.nvim
-            Pmenu = { fg = cp.overlay2, bg = transparent_background and cp.none or cp.base },
-            PmenuBorder = { fg = cp.surface1, bg = transparent_background and cp.none or cp.base },
-            PmenuSel = { bg = cp.green, fg = cp.base },
-            CmpItemAbbr = { fg = cp.overlay2 },
-            CmpItemAbbrMatch = { fg = cp.blue, style = { "bold" } },
+            Pmenu = { fg = C.overlay2, bg = transparent_background and C.none or C.base },
+            PmenuBorder = { fg = C.surface1, bg = transparent_background and C.none or C.base },
+            PmenuSel = { bg = C.green, fg = C.base },
+            CmpItemAbbr = { fg = C.overlay2 },
+            CmpItemAbbrMatch = { fg = C.blue, style = { "bold" } },
             CmpDoc = { link = "NormalFloat" },
             CmpDocBorder = {
-              fg = transparent_background and cp.surface1 or cp.mantle,
-              bg = transparent_background and cp.none or cp.mantle,
+              fg = transparent_background and C.surface1 or C.mantle,
+              bg = transparent_background and C.none or C.mantle,
             },
 
             -- For fidget
-            FidgetTask = { bg = cp.none, fg = cp.surface2 },
-            FidgetTitle = { fg = cp.blue, style = { "bold" } },
+            FidgetTask = { bg = C.none, fg = C.surface2 },
+            FidgetTitle = { fg = C.blue, style = { "bold" } },
 
             -- For nvim-notify
-            NotifyBackground = { bg = cp.base },
+            NotifyBackground = { bg = C.base },
 
             -- For nvim-tree
-            NvimTreeRootFolder = { fg = cp.pink },
-            NvimTreeIndentMarker = { fg = cp.surface2 },
+            NvimTreeRootFolder = { fg = C.pink },
+            NvimTreeIndentMarker = { fg = C.surface2 },
 
             -- For trouble.nvim
-            TroubleNormal = { bg = transparent_background and cp.none or cp.base },
+            TroubleNormal = { bg = transparent_background and C.none or C.base },
 
             -- For telescope.nvim
-            TelescopeMatching = { fg = cp.lavender },
-            TelescopeResultsDiffAdd = { fg = cp.green },
-            TelescopeResultsDiffChange = { fg = cp.yellow },
-            TelescopeResultsDiffDelete = { fg = cp.red },
+            TelescopeMatching = { fg = C.lavender },
+            TelescopeResultsDiffAdd = { fg = C.green },
+            TelescopeResultsDiffChange = { fg = C.yellow },
+            TelescopeResultsDiffDelete = { fg = C.red },
 
             -- For glance.nvim
-            GlanceWinBarFilename = { fg = cp.subtext1, style = { "bold" } },
-            GlanceWinBarFilepath = { fg = cp.subtext0, style = { "italic" } },
-            GlanceWinBarTitle = { fg = cp.teal, style = { "bold" } },
-            GlanceListCount = { fg = cp.lavender },
+            GlanceWinBarFilename = { fg = C.subtext1, style = { "bold" } },
+            GlanceWinBarFilepath = { fg = C.subtext0, style = { "italic" } },
+            GlanceWinBarTitle = { fg = C.teal, style = { "bold" } },
+            GlanceListCount = { fg = C.lavender },
             GlanceListFilepath = { link = "Comment" },
-            GlanceListFilename = { fg = cp.blue },
-            GlanceListMatch = { fg = cp.lavender, style = { "bold" } },
-            GlanceFoldIcon = { fg = cp.green },
+            GlanceListFilename = { fg = C.blue },
+            GlanceListMatch = { fg = C.lavender, style = { "bold" } },
+            GlanceFoldIcon = { fg = C.green },
 
             -- For nvim-treehopper
             TSNodeKey = {
-              fg = cp.peach,
-              bg = transparent_background and cp.none or cp.base,
+              fg = C.peach,
+              bg = transparent_background and C.none or C.base,
               style = { "bold", "underline" },
             },
 
             -- For treesitter
-            ["@keyword.return"] = { fg = cp.pink, style = clear },
-            ["@error.c"] = { fg = cp.none, style = clear },
-            ["@error.cpp"] = { fg = cp.none, style = clear },
+            ["@keyword.return"] = { fg = C.pink, style = clear },
+            ["@error.c"] = { fg = C.none, style = clear },
+            ["@error.cpp"] = { fg = C.none, style = clear },
           }
         end,
       },

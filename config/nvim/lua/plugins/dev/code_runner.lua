@@ -18,6 +18,7 @@ return {
       number = 1,
     },
     filetype = {
+      v = "v run",
       tex = function(...)
         latexCompileOptions = {
           "Single",

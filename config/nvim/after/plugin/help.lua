@@ -9,8 +9,8 @@ local set_quit_maps = function()
   -- vim.keymap.set("n", "<ESC>", ":bd!<CR>", { buffer = true, silent = true })
   local buf = vim.api.nvim_get_current_buf()
   vim.api.nvim_buf_set_name(buf, "cheatsheet-" .. buf)
-  vim.api.nvim_buf_set_option(buf, "filetype", "cheat")
-  vim.api.nvim_buf_set_option(buf, "syntax", vim.bo.ft)
+  vim.api.nvim_set_option_value(buf, "filetype", "cheat")
+  vim.api.nvim_set_option_value(buf, "syntax", vim.bo.ft)
 end
 
 function cheat_input(text, command)

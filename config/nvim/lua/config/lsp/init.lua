@@ -3,10 +3,10 @@ local M = {}
 
 local function lsp_init()
   local signs = {
-    { name = "DiagnosticSignError", text = Icons.diagnostics.bold_error },
-    { name = "DiagnosticSignWarn", text = Icons.diagnostics.bold_warning },
-    { name = "DiagnosticSignHint", text = Icons.diagnostics.bold_hint },
-    { name = "DiagnosticSignInfo", text = Icons.diagnostics.bold_information },
+    { name = "DiagnosticSignError", text = Icons.diagnostics.Bold_error },
+    { name = "DiagnosticSignWarn", text = Icons.diagnostics.Bold_warning },
+    { name = "DiagnosticSignHint", text = Icons.diagnostics.Bold_hint },
+    { name = "DiagnosticSignInfo", text = Icons.diagnostics.Bold_information },
   }
   for _, sign in ipairs(signs) do
     vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = sign.name })

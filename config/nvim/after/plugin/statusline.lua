@@ -1,209 +1,292 @@
-launched_by_user = function()
-  local parent_process =
-    vim.fn.system(string.format("ps -o ppid= -p %s | xargs ps -o comm= -p | tr -d '\n'", vim.fn.getpid()))
-  return parent_process == "-fish"
-end
+-- Don't show the command that produced the quickfix list.
+vim.g.qf_disable_statusline = 1
 
----Get the name of the current branch
----@return string | nil
-local function get_branch_name()
-  local branch = vim.fn.system "git branch --show-current 2> /dev/null"
-  if branch ~= "" and launched_by_user() then
-    return branch:gsub("\n", "")
-  else
-    return nil
-  end
-end
+-- Show the mode in my custom component instead.
+vim.o.showmode = false
 
----Get name of the current file
+--- Keeps track of the highlight groups I've already created.
+---@type table<string, boolean>
+local statusline_hls = {}
+
+---@param hl string
 ---@return string
-local function get_file_name()
-  local root_path = vim.loop.cwd()
-  local root_dir = root_path:match "[^/]+$"
-  local home_path = vim.fn.expand "%:~"
-  local overlap, _ = home_path:find(root_dir)
-  if home_path == "" then
-    return root_path:gsub(vim.env.HOME, "~")
-  elseif overlap then
-    return home_path:sub(overlap)
-  else
-    return home_path
+function get_or_create_hl(hl)
+  local hl_name = "Statusline" .. hl
+
+  if not statusline_hls[hl] then
+    -- If not in the cache, create the highlight group using the icon's foreground color
+    -- and the statusline's background color.
+    local bg_hl = vim.api.nvim_get_hl(0, { name = "StatusLine" })
+    local fg_hl = vim.api.nvim_get_hl(0, { name = hl })
+    vim.api.nvim_set_hl(0, hl_name, { bg = ("#%06x"):format(bg_hl.bg), fg = ("#%06x"):format(fg_hl.fg) })
+    statusline_hls[hl] = true
   end
+
+  return hl_name
 end
 
----Set buffer variables for branch and file names as frequently as they may change
-vim.api.nvim_create_autocmd({ "FileType", "BufEnter", "FocusGained" }, {
-  group = vim.api.nvim_create_augroup("statusline", { clear = true }),
-  callback = function()
-    vim.b.branch_name = get_branch_name()
-    vim.b.file_name = get_file_name()
-  end,
-})
-
----Get instance and count of search matches
----@return string | nil
-local function get_search_count()
-  if vim.v.hlsearch == 1 and vim.api.nvim_get_mode().mode:match "n" then
-    local search_count = vim.fn.searchcount { maxcount = 0 }
-    return ("%d/%d"):format(search_count.current, search_count.total)
-  else
-    return nil
-  end
-end
-
----Get formatted and highlighted string of diagnostic counts
----@return string | nil
-local function get_diagnostics()
-  local diagnostics = vim.diagnostic.get(0)
-  if #diagnostics == 0 or vim.api.nvim_get_mode().mode:match "^i" then
-    return nil
-  end
-
-  local severities = {
-    ERROR = { match = "Error", count = 0 },
-    WARN = { match = "Warn", count = 0 },
-    HINT = { match = "Hint", count = 0 },
-    INFO = { match = "Info", count = 0 },
+--- Current mode.
+---@return string
+function mode_component()
+  -- Note that: \19 = ^S and \22 = ^V.
+  local mode_to_str = {
+    ["n"] = "NORMAL",
+    ["no"] = "OP-PENDING",
+    ["nov"] = "OP-PENDING",
+    ["noV"] = "OP-PENDING",
+    ["no\22"] = "OP-PENDING",
+    ["niI"] = "NORMAL",
+    ["niR"] = "NORMAL",
+    ["niV"] = "NORMAL",
+    ["nt"] = "NORMAL",
+    ["ntT"] = "NORMAL",
+    ["v"] = "VISUAL",
+    ["vs"] = "VISUAL",
+    ["V"] = "VISUAL",
+    ["Vs"] = "VISUAL",
+    ["\22"] = "VISUAL",
+    ["\22s"] = "VISUAL",
+    ["s"] = "SELECT",
+    ["S"] = "SELECT",
+    ["\19"] = "SELECT",
+    ["i"] = "INSERT",
+    ["ic"] = "INSERT",
+    ["ix"] = "INSERT",
+    ["R"] = "REPLACE",
+    ["Rc"] = "REPLACE",
+    ["Rx"] = "REPLACE",
+    ["Rv"] = "VIRT REPLACE",
+    ["Rvc"] = "VIRT REPLACE",
+    ["Rvx"] = "VIRT REPLACE",
+    ["c"] = "COMMAND",
+    ["cv"] = "VIM EX",
+    ["ce"] = "EX",
+    ["r"] = "PROMPT",
+    ["rm"] = "MORE",
+    ["r?"] = "CONFIRM",
+    ["!"] = "SHELL",
+    ["t"] = "TERMINAL",
   }
 
-  for _, v in ipairs(diagnostics) do
-    for k, _ in pairs(severities) do
-      if v.severity == vim.diagnostic.severity[k] then
-        severities[k].count = severities[k].count + 1
-      end
-    end
+  -- Get the respective string to display.
+  local mode = mode_to_str[vim.api.nvim_get_mode().mode] or "UNKNOWN"
+
+  -- Set the highlight group.
+  local hl = "Other"
+  if mode:find "NORMAL" then
+    hl = "Normal"
+  elseif mode:find "PENDING" then
+    hl = "Pending"
+  elseif mode:find "VISUAL" then
+    hl = "Visual"
+  elseif mode:find "INSERT" or mode:find "SELECT" then
+    hl = "Insert"
+  elseif mode:find "COMMAND" or mode:find "TERMINAL" or mode:find "EX" then
+    hl = "Command"
   end
 
-  local output = {}
-  for _, v in pairs(severities) do
-    if v.count > 0 then
-      table.insert(
-        output,
-        table.concat {
-          "%#DiagnosticVirtualText",
-          v.match,
-          "#",
-          v.count,
-          "%*",
-        }
-      )
-    end
+  -- Construct the bubble-like component.
+  return table.concat {
+    string.format("%%#StatuslineModeSeparator%s#", hl),
+    string.format("%%#StatuslineMode%s#%s", hl, mode),
+    string.format("%%#StatuslineModeSeparator%s#", hl),
+  }
+end
+
+--- Git status (if any).
+---@return string
+function git_component()
+  local head = vim.b.gitsigns_head
+  if not head then
+    return ""
   end
 
-  table.sort(output, function(a, b)
-    local sort_order = { Error = 1, Warn = 2, Hint = 3, Info = 4 }
-    local a_sev = a:match "(%u%l+)#"
-    local b_sev = b:match "(%u%l+)#"
+  return string.format(" %s", head)
+end
 
-    return sort_order[a_sev] < sort_order[b_sev]
+--- The current debugging status (if any).
+---@return string?
+function dap_component()
+  if not package.loaded["dap"] or require("dap").status() == "" then
+    return nil
+  end
+
+  return string.format("%%#%s#%s  %s", get_or_create_hl "DapUIRestart", Icons.misc.Bug, require("dap").status())
+end
+
+---@type table<string, string?>
+local progress_status = {
+  client = nil,
+  kind = nil,
+  title = nil,
+}
+
+vim.api.nvim_create_autocmd("LspProgress", {
+  group = vim.api.nvim_create_augroup("crag/statusline", { clear = true }),
+  desc = "Update LSP progress in statusline",
+  pattern = { "begin", "end" },
+  callback = function(args)
+    -- This should in theory never happen, but I've seen weird errors.
+    if not args.data then
+      return
+    end
+
+    progress_status = {
+      client = vim.lsp.get_client_by_id(args.data.client_id).name,
+      kind = args.data.result.value.kind,
+      title = args.data.result.value.title,
+    }
+
+    if progress_status.kind == "end" then
+      progress_status.title = nil
+      -- Wait a bit before clearing the status.
+      vim.defer_fn(function()
+        vim.cmd.redrawstatus()
+      end, 3000)
+    else
+      vim.cmd.redrawstatus()
+    end
+  end,
+})
+--- The latest LSP progress message.
+---@return string
+function lsp_progress_component()
+  if not progress_status.client or not progress_status.title then
+    return ""
+  end
+
+  return table.concat {
+    "%#StatuslineSpinner#󱥸 ",
+    string.format("%%#StatuslineTitle#%s  ", progress_status.client),
+    string.format("%%#StatuslineItalic#%s...", progress_status.title),
+  }
+end
+
+local last_diagnostic_component = ""
+--- Diagnostic counts in the current buffer.
+---@return string
+function diagnostics_component()
+  -- Use the last computed value if in insert mode.
+  if vim.startswith(vim.api.nvim_get_mode().mode, "i") then
+    return last_diagnostic_component
+  end
+
+  local counts = vim.iter(vim.diagnostic.get(0)):fold({
+    ERROR = 0,
+    WARN = 0,
+    HINT = 0,
+    INFO = 0,
+  }, function(acc, diagnostic)
+    local severity = vim.diagnostic.severity[diagnostic.severity]
+    acc[severity] = acc[severity] + 1
+    return acc
   end)
 
-  return table.concat(output, " ")
+  local parts = vim.iter.map(function(severity, count)
+    if count == 0 then
+      return nil
+    end
+
+    local hl = "Diagnostic" .. severity:sub(1, 1) .. severity:sub(2):lower()
+    return string.format("%%#%s#%s %d", get_or_create_hl(hl), Icons.diagnostics[severity], count)
+  end, counts)
+
+  return table.concat(parts, " ")
 end
 
----Get location in current buffer as a percentage
+--- The buffer's filetype.
 ---@return string
-local function get_progress()
-  local p = vim.api.nvim_eval_statusline("%p", {}).str
-  if p == "0" then
-    return "top"
-  elseif p == "100" then
-    return "bot"
+function filetype_component()
+  local devicons = require "nvim-web-devicons"
+
+  -- Special icons for some filetypes.
+  local special_icons = {
+    DiffviewFileHistory = { Icons.git.Branch, "Number" },
+    DiffviewFiles = { Icons.git.Branch, "Number" },
+    DressingInput = { "󰍩", "Comment" },
+    DressingSelect = { "", "Comment" },
+    OverseerForm = { "󰦬", "Special" },
+    OverseerList = { "󰦬", "Special" },
+    dapui_breakpoints = { Icons.ui.Bug, "DapUIRestart" },
+    dapui_scopes = { Icons.ui.Bug, "DapUIRestart" },
+    dapui_stacks = { Icons.ui.Bug, "DapUIRestart" },
+    gitcommit = { Icons.git.Branch, "Number" },
+    gitrebase = { Icons.git.Branch, "Number" },
+    fzf = { "", "Special" },
+    lazy = { Icons.kinds.Method, "Special" },
+    lazyterm = { "", "Special" },
+    minifiles = { Icons.ui.Folder, "Directory" },
+    qf = { Icons.ui.Search, "Conditional" },
+    spectre_panel = { Icons.ui.Search, "Constant" },
+  }
+  local filetype = vim.bo.filetype
+  if filetype == "" then
+    filetype = "[No Name]"
+  end
+
+  local icon, icon_hl
+  if special_icons[filetype] then
+    icon, icon_hl = unpack(special_icons[filetype])
   else
-    return ("%02d%s"):format(p, "%%")
-  end
-end
+    local buf_name = vim.api.nvim_buf_get_name(0)
+    local name, ext = vim.fn.fnamemodify(buf_name, ":t"), vim.fn.fnamemodify(buf_name, ":e")
 
----Format string for left side of statusline
----@param branch string | nil
----@param file string | nil
----@return string
-local function generate_left(branch, file)
-  branch = branch or vim.b.branch_name
-  file = file or vim.b.file_name
-
-  local left = {}
-  if branch then
-    table.insert(left, branch)
-  end
-  table.insert(left, file)
-  left = { table.concat(left, " | ") }
-
-  local modified_flag = vim.api.nvim_eval_statusline("%m", {}).str
-  if modified_flag ~= "" then
-    table.insert(left, modified_flag)
-  end
-
-  return table.concat(left, " ")
-end
-
----Truncate branch and file names for narrow window
----@param overflow number
----@return string | nil
----@return string
-local function truncate(overflow)
-  local min_width = 15
-  local new_branch = vim.b.branch_name
-  local new_file = vim.b.file_name
-
-  if vim.b.branch_name and vim.b.branch_name:len() > min_width then
-    if vim.b.branch_name:len() - overflow >= min_width then
-      new_branch = vim.b.branch_name:sub(1, (overflow + 1) * -1)
-      overflow = 0
-    else
-      new_branch = vim.b.branch_name:sub(1, min_width)
-      overflow = overflow - vim.b.branch_name:sub(min_width + 1):len()
+    icon, icon_hl = devicons.get_icon(name, ext)
+    if not icon then
+      icon, icon_hl = devicons.get_icon_by_filetype(filetype, { default = true })
     end
-    new_branch = new_branch:gsub(".$", ">")
   end
+  icon_hl = get_or_create_hl(icon_hl)
 
-  if overflow > 0 and vim.b.file_name:len() > min_width then
-    if vim.b.file_name:len() - overflow >= min_width then
-      new_file = vim.b.file_name:sub(overflow + 1)
-    else
-      new_file = vim.b.file_name:sub(vim.b.file_name:len() - min_width + 1)
-    end
-    new_file = new_file:gsub("^.", "<")
-  end
-
-  return new_branch, new_file
+  return string.format("%%#%s#%s %%#StatuslineTitle#%s", icon_hl, icon, filetype)
 end
 
----Generate statusline
+--- File-content encoding for the current buffer.
 ---@return string
-function Status_Line()
-  local left_string = generate_left()
-  local left_string_length = vim.api.nvim_eval_statusline(left_string, { maxwidth = 0 }).width
-
-  local right_table = {}
-  local search_count = get_search_count()
-  if search_count then
-    table.insert(right_table, search_count)
-  end
-  local diagnostics = get_diagnostics()
-  if diagnostics then
-    table.insert(right_table, diagnostics)
-  end
-  if vim.b.gitsigns_status and vim.b.gitsigns_status ~= "" then
-    table.insert(right_table, vim.b.gitsigns_status)
-  end
-  table.insert(right_table, vim.api.nvim_eval_statusline("%Y", {}).str:lower())
-  table.insert(right_table, get_progress())
-  local right_string = table.concat(right_table, " | ")
-  local right_string_length = vim.api.nvim_eval_statusline(right_string, {}).width
-
-  local divider = " | "
-  local length = left_string_length + divider:len() + right_string_length
-  local overflow = length - vim.api.nvim_win_get_width(0)
-  if overflow < 0 then
-    divider = "%="
-  end
-  if overflow > 0 then
-    local trunc_branch, trunc_file = truncate(overflow)
-    left_string = generate_left(trunc_branch, trunc_file)
-  end
-
-  return table.concat { "%<", left_string, divider, right_string }
+function encoding_component()
+  local encoding = vim.opt.fileencoding:get()
+  return encoding ~= "" and string.format("%%#StatuslineModeSeparatorOther# %s", encoding) or ""
 end
 
-vim.o.statusline = "%{%v:lua.Status_Line()%}"
+--- The current line, total line count, and column position.
+---@return string
+function position_component()
+  local line = vim.fn.line "."
+  local line_count = vim.api.nvim_buf_line_count(0)
+  local col = vim.fn.virtcol "."
+
+  return table.concat {
+    "%#StatuslineItalic#l: ",
+    string.format("%%#StatuslineTitle#%d", line),
+    string.format("%%#StatuslineItalic#/%d c: %d", line_count, col),
+  }
+end
+
+--- Renders the statusline.
+---@return string
+function render()
+  ---@param components string[]
+  ---@return string
+  local function concat_components(components)
+    return vim.iter(components):skip(1):fold(components[1], function(acc, component)
+      return #component > 0 and string.format("%s    %s", acc, component) or acc
+    end)
+  end
+
+  return table.concat {
+    concat_components {
+      -- mode_component(),
+      git_component(),
+      dap_component() or lsp_progress_component(),
+    },
+    "%#StatusLine#%=",
+    concat_components {
+      diagnostics_component(),
+      filetype_component(),
+      encoding_component(),
+      position_component(),
+    },
+    " ",
+  }
+end
+vim.o.statusline = "%!v:lua.render()"

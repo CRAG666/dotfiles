@@ -1,4 +1,4 @@
-local neorg_leader = "<leader>o"
+local neorg_leader = "<leader><leader>"
 local neorg_enabled = false
 -- vim.w.toc_open = false
 -- vim.w.win_toc = -1
