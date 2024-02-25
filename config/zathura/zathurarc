@@ -11,12 +11,11 @@ set window-title-home-tilde "true"
 set window-title-basename "true"
 set statusbar-basename "true"
 
-set font "Lilex Nerd Font Bold 14"
+set font "SF Pro Display 16"
 
 #
 # Theme
 #
-
 set default-fg                "#CDD6F4"
 set default-bg 			          "#1E1E2E"
 
@@ -40,6 +39,7 @@ set notification-warning-fg	  "#FAE3B0"
 set inputbar-fg			          "#CDD6F4"
 set inputbar-bg 		          "#313244"
 
+set recolor                   "true"
 set recolor-lightcolor		    "#1E1E2E"
 set recolor-darkcolor		      "#CDD6F4"
 
@@ -53,15 +53,12 @@ set render-loading-fg		      "#CDD6F4"
 
 set highlight-color		        "#575268"
 set highlight-fg              "#F5C2E7"
-set highlight-active-color	  "#F5C2E7"
+set highlight-active-color	  "#F5C2E7"#
 
-#
 # End Theme
 #
 
 #
 # Startup options
 #
-
 set adjust-open width
-set recolor false
