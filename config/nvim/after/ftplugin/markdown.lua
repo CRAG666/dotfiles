@@ -5,4 +5,5 @@ local marksman = {
   single_file_suppor = true,
   root_dir = utils.get_root_dir { ".git", ".marksman.toml" },
 }
+require("config.lsp.grammar").setup()
 require("config.lsp").setup(marksman)

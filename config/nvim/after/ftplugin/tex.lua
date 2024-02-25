@@ -102,4 +102,6 @@ local function on_attach(client_id, bufnr)
   -- local keymap = vim.api.nvim_buf_set_keymap
   -- keymap(bufnr, "n", "<leader>Lv", ":TexlabView<CR>", { noremap = true, silent = true, desc = { "TexlabView" } })
 end
+
+require("config.lsp.grammar").setup()
 require("config.lsp").setup(texlab, on_attach)

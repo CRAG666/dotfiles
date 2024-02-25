@@ -24,11 +24,9 @@ return {
     "williamboman/mason.nvim",
     opts = function(_, opts)
       opts.ensure_installed = opts.ensure_installed or {}
+      vim.list_extend(opts.ensure_installed, { "latexindent", "texlab", "vale", "ltex-ls" })
       -- table.insert(opts.ensure_installed, "bibtex-tidy")
-      table.insert(opts.ensure_installed, "latexindent")
       -- table.insert(opts.ensure_installed, "ltex-ls")
-      table.insert(opts.ensure_installed, "texlab")
-      table.insert(opts.ensure_installed, "vale")
     end,
   },
 }

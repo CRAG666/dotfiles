@@ -117,10 +117,10 @@ return {
             TabLine = { fg = C.overlay0, bg = C.crust },
             TabLineSel = { fg = C.lavender, bg = C.base },
             -- Neorg
-            ["@neorg.headings.1.title.norg"] = { fg = C.pink },
-            ["@neorg.links.location.heading.1.norg"] = { fg = C.pink },
-            ["@neorg.headings.2.title.norg"] = { fg = C.yellow },
-            ["@neorg.links.location.heading.2.norg"] = { fg = C.yellow },
+            -- ["@neorg.headings.1.title.norg"] = { fg = C.pink },
+            -- ["@neorg.links.location.heading.1.norg"] = { fg = C.pink },
+            -- ["@neorg.headings.2.title.norg"] = { fg = C.yellow },
+            -- ["@neorg.links.location.heading.2.norg"] = { fg = C.yellow },
             -- CMP
             CmpItemKindSnippet = { fg = C.base, bg = C.mauve },
             CmpItemKindKeyword = { fg = C.base, bg = C.red },

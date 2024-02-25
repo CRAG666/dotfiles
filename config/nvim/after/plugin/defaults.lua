@@ -3,9 +3,9 @@ local set = vim.opt
 --  Basic config
 set.completeopt = "menu,menuone,noselect"
 set.autowrite = true -- enable auto write
-set.scrolloff = 8 -- Lines of context
+set.scrolloff = 12 -- Lines of context
 set.scrollback = 100000
-set.sidescrolloff = 8
+set.sidescrolloff = 12
 set.tags = "/tmp/tags"
 
 set.mouse = "a"

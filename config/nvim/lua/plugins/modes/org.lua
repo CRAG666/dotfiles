@@ -61,13 +61,15 @@ return {
           ["core.concealer"] = {
             config = {
               icon_preset = "basic",
+              -- icon_preset = "diamond",
               icons = {
                 code_block = {
-                  conceal = false,
+                  conceal = true,
                 },
-                heading = {
-                  icons = { "🌸", "🌼", "🏵️", "❇️", "💠", "◉" },
-                },
+
+                -- heading = {
+                --   icons = { "🌸", "🌼", "🏵️", "❇️", "💠", "◉" },
+                -- },
               },
             },
           },

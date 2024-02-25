@@ -25,12 +25,14 @@ cursorGrp = augroup "CursorLine"
 autocmd({ "InsertLeave", "WinEnter" }, { pattern = "*", command = "set cursorline", group = cursorGrp })
 
 -- Use vertical splits for help windows
-local vertical_help = augroup "VerticalHelp"
 autocmd("FileType", {
-  desc = "make help split vertical",
+  group = augroup "vertical_help",
   pattern = "help",
-  command = "wincmd L",
-  group = vertical_help,
+  callback = function()
+    vim.bo.bufhidden = "unload"
+    vim.cmd.wincmd "L"
+    vim.cmd.wincmd "="
+  end,
 })
 
 -- go to last loc when opening a buffer

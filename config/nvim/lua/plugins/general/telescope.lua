@@ -64,7 +64,7 @@ return {
           prompt_prefix = "  ",
           selection_caret = "» ",
           entry_prefix = "  ",
-          initial_mode = "insert",
+          initial_mode = "normal",
           selection_strategy = "reset",
           sorting_strategy = "ascending",
           layout_strategy = "horizontal",
@@ -209,6 +209,19 @@ return {
         builtin.git_bcommits(opts)
       end
 
+      function spell_check()
+        builtin.spell_suggest {
+          layout_strategy = "cursor",
+          layout_config = {
+            cursor = {
+              height = 0.35,
+              preview_cutoff = 0,
+              width = 0.20,
+            },
+          },
+        }
+      end
+
       maps = {
         ext.file_browser.file_browser,
         ext.frecency.frecency,
@@ -243,7 +256,8 @@ return {
         builtin.git_branches,
         builtin.git_status,
         builtin.git_stash,
-        builtin.spell_suggest,
+        -- builtin.spell_suggest,
+        spell_check,
         -- utils.map('n', '<leader>bt', builtin.current_buffer_tags, { desc = "Buffer Tags" })
 
         -- -- LSP Pickers

@@ -41,6 +41,7 @@ progress_border = "Cyan"
 lyric_foreground = "Foreground"
 lyric_background = "Reset"
 lyric_border = "Green"
+currently_playing_track_symbol = "►"
 
 [style_color_symbol.alacritty_theme]
 path = ""
