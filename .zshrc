@@ -153,7 +153,7 @@ alias ls="logo-ls"
 alias la="logo-ls -la"
 # alias grep='grep --color=auto'
 alias cp='rsync --progress -avz'
-alias cd='cd && ls'
+# alias cd='/bin/cd && ls'
 alias tree="ls -R"
 alias vi="nvim"
 alias vim="nvim"

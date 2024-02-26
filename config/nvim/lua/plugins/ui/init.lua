@@ -105,7 +105,7 @@ return {
   },
   {
     "ashfinal/qfview.nvim",
-    event = "LazyFile",
+    event = "UIEnter",
     config = utils.setup "qfview",
   },
   {

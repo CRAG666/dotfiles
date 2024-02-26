@@ -101,7 +101,7 @@ function git_component()
     return ""
   end
 
-  return string.format(" %s", head)
+  return string.format(" %%#StatuslineItalic#%s", head)
 end
 
 --- The current debugging status (if any).
@@ -188,7 +188,7 @@ function diagnostics_component()
     end
 
     local hl = "Diagnostic" .. severity:sub(1, 1) .. severity:sub(2):lower()
-    return string.format("%%#%s#%s %d", get_or_create_hl(hl), Icons.diagnostics[severity], count)
+    return string.format("%%#%s#%s %%#StatuslineItalic#%d", get_or_create_hl(hl), Icons.diagnostics[severity], count)
   end, counts)
 
   return table.concat(parts, " ")
@@ -238,14 +238,14 @@ function filetype_component()
   end
   icon_hl = get_or_create_hl(icon_hl)
 
-  return string.format("%%#%s#%s %%#StatuslineTitle#%s", icon_hl, icon, filetype)
+  return string.format("%%#%s#%s %%#StatuslineTitle#%%#StatuslineItalic#%s", icon_hl, icon, filetype)
 end
 
 --- File-content encoding for the current buffer.
 ---@return string
 function encoding_component()
   local encoding = vim.opt.fileencoding:get()
-  return encoding ~= "" and string.format("%%#StatuslineModeSeparatorOther# %s", encoding) or ""
+  return encoding ~= "" and string.format("%%#StatuslineModeSeparatorOther#%%#StatuslineItalic# %s", encoding) or ""
 end
 
 --- The current line, total line count, and column position.
