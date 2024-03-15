@@ -24,6 +24,7 @@ return {
   {
     "NeogitOrg/neogit",
     cmd = "Neogit",
+    keys = { { "<leader>gm", "<cmd>Neogit<CR>", desc = "[g]it [m]ode" } },
     dependencies = {
       "nvim-lua/plenary.nvim", -- required
       "nvim-telescope/telescope.nvim", -- optional

@@ -80,6 +80,4 @@ return {
     keys = { { "cs" }, { "ds" }, { "ys" } },
     config = true,
   },
-  -- Tim Pope docet
-  { "tpope/vim-repeat", keys = { "." } },
 }
