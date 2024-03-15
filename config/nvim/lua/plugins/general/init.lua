@@ -5,39 +5,33 @@ return {
     config = true,
   },
   {
-    "Wansmer/treesj",
-    keys = {
-      {
-        "<leader>j",
-        function()
-          require("treesj").toggle()
-        end,
-        desc = "Toggle Join Line",
-      },
-      {
-        "<leader>S",
-        function()
-          require("treesj").split()
-        end,
-        desc = "Toggle Join Line",
-      },
-      {
-        "<leader>J",
-        function()
-          require("treesj").join()
-        end,
-        desc = "Toggle Join Line",
-      },
-    },
-    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    "echasnovski/mini.splitjoin",
+    version = false,
+    keys = { { "gS" } },
     config = function()
-      require("treesj").setup {
-        use_default_keymaps = false,
-      }
+      require("mini.splitjoin").setup()
     end,
   },
+  -- {
+  --   "wellle/targets.vim",
+  --   keys = {
+  --     { "ci" },
+  --     { "di" },
+  --     { "yi" },
+  --     { "cI" },
+  --     { "dI" },
+  --     { "yI" },
+  --     { "ca" },
+  --     { "da" },
+  --     { "ya" },
+  --     { "cA" },
+  --     { "dA" },
+  --     { "yA" },
+  --   },
+  -- },
   {
-    "wellle/targets.vim",
+    "echasnovski/mini.ai",
+    version = false,
     keys = {
       { "ci" },
       { "di" },
@@ -52,6 +46,9 @@ return {
       { "dA" },
       { "yA" },
     },
+    config = function()
+      require("mini.ai").setup()
+    end,
   },
   {
     "chaoren/vim-wordmotion",

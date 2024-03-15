@@ -146,6 +146,7 @@ eval "$(starship init zsh)"
 # -< Aliases >-
 # HACK: Command alternatives
 # alias vpn="~/.scripts/vpn"
+alias ip='ip -color=auto'
 alias ping="prettyping"
 alias icat="kitty +kitten icat"
 alias js="/usr/bin/node ~/.noderc"
@@ -229,6 +230,11 @@ export FZF_DEFAULT_OPTS=" --prompt='ﰉ ' --pointer='ﰊ' --height 40% --reverse
 --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
 --color=marker:#f5e0dc,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8"
 export OPENAI_API_KEY="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"
+
+# Working with latex
+export EISVOGEL=~/Documentos/Proyectos/Writings/eisvogel/eisvogel.tex
+export IEEESTL=~/Documentos/Proyectos/Writings/latex_utils/ieee.csl
+export LCOLORCATPPUCCIN=~/Documentos/Proyectos/Writings/latex_utils/catppuccin
 
 # source ~/.passmaria.zsh
 

@@ -1,6 +1,6 @@
 local M = {}
 function M.on_attach(_, buffer)
-  local utils = require "utils"
+  local utils = require "utils.keymap"
   local lsp = vim.lsp.buf
   local bufopt = { buffer = buffer }
 

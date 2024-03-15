@@ -1,5 +1,5 @@
 local function setup()
-  local utils = require "utils"
+  local utils = require "utils.keymaps"
   local rest = require "rest-nvim"
   rest.setup {
     result_split_horizontal = false,

@@ -4,13 +4,16 @@ local root_files = {
   "Tectonic.toml",
   ".git",
 }
-root_path = utils.get_root_dir(root_files)
+root_path = utils.fs.proj_dir(vim.api.nvim_buf_get_name(0), root_files)
 build_path = root_path .. "/build/default"
 local texlab = {
   name = "texlab",
   cmd = { "texlab" },
   filetypes = { "tex", "plaintex", "bib" },
-  root_dir = root_path,
+  root_patterns = {
+    "Tectonic.toml",
+    ".git",
+  },
   single_file_support = true,
   settings = {
     texlab = {

@@ -5,8 +5,6 @@ vim.bo.textwidth = 120
 vim.bo.expandtab = true
 vim.bo.autoindent = true
 
-local utils = require "utils"
-
 -- lua lsp server
 local util = require "null-ls.utils"
 local runtime_path = vim.split(package.path, ";")
@@ -15,7 +13,7 @@ table.insert(runtime_path, "lua/?/init.lua")
 local lua_ls = {
   name = "lua_ls",
   cmd = { "lua-language-server" },
-  root_dir = utils.get_root_dir {
+  root_patterns = {
     ".luarc.json",
     ".luarc.jsonc",
     ".luacheckrc",
@@ -23,7 +21,6 @@ local lua_ls = {
     "stylua.toml",
     "selene.toml",
     "selene.yml",
-    ".git",
   },
   settings = {
     Lua = {

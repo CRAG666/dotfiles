@@ -1,4 +1,4 @@
-local utils = require "utils"
+local utils = require "utils.fn"
 return {
   { "MunifTanjim/nui.nvim", lazy = true },
   {
@@ -105,20 +105,24 @@ return {
   },
   {
     "ashfinal/qfview.nvim",
-    event = "UIEnter",
+    event = "FileType",
     config = utils.setup "qfview",
   },
   {
     "rasulomaroff/reactive.nvim",
-    event = "LazyFile",
+    event = "InsertEnter",
     config = function()
       require("reactive").setup {
-        builtin = {
-          cursorline = true,
-          cursor = true,
-          modemsg = true,
-        },
+        load = { "catppuccin-mocha-cursor", "catppuccin-mocha-cursorline" },
       }
+    end,
+  },
+  {
+    "echasnovski/mini.animate",
+    version = false,
+    event = "LazyFile",
+    config = function()
+      require("mini.animate").setup()
     end,
   },
 }

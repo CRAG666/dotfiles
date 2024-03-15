@@ -5,24 +5,6 @@ set.shiftwidth = 2
 set.expandtab = true
 set.cinoptions = ":0g0(0s"
 
-local utils = require "utils"
-
-local root_files = {
-  ".clang-format",
-  ".clang-tidy",
-  ".clangd",
-  ".git",
-  "Makefile",
-  "build.ninja",
-  "compile_commands.json",
-  "compile_flags.txt",
-  "config.h.in",
-  "configure.ac",
-  "configure.in",
-  "meson.build",
-  "meson_options.txt",
-}
-
 local ccls = {
   name = "clangd",
   cmd = {
@@ -34,8 +16,19 @@ local ccls = {
     "--function-arg-placeholders",
     "--fallback-style=llvm",
   },
-  root_dir = utils.get_root_dir(root_files),
-
+  root_patterns = {
+    ".clang-format",
+    ".clang-tidy",
+    ".clangd",
+    "build.ninja",
+    "compile_commands.json",
+    "compile_flags.txt",
+    "config.h.in",
+    "configure.ac",
+    "configure.in",
+    "meson.build",
+    "meson_options.txt",
+  },
   init_options = {
     usePlaceholders = true,
     completeUnimported = true,

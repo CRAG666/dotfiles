@@ -74,6 +74,10 @@ function M.setup(server, on_attach)
   if server.name == "sumneko_lua" then
     server.before_init = require("neodev.lsp").before_init
   end
+  local fs = require "utils.fs"
+  server.root_dir =
+    fs.proj_dir(vim.api.nvim_buf_get_name(0), vim.list_extend(server.root_patterns or {}, fs.root_patterns or {}))
+  server.root_patterns = nil
   vim.lsp.start(server)
 end
 

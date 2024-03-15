@@ -112,9 +112,14 @@ fapp() {
 fkill() {
   local pid
 
+  # pid="$(
+  #   pgrep . -l \
+  #     | fzf -m \
+  #     | awk '{print $1}'
+  # )" || return
   pid="$(
     pgrep . -l \
-      | fzf -m \
+      | gum filter --no-limit --height=25 \
       | awk '{print $1}'
   )" || return
   if [ "$pid" ];then

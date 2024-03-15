@@ -1,4 +1,4 @@
-local utils = require "utils"
+local utils = require "utils.keymap"
 local prefix_1 = "<leader>f"
 local prefix_2 = "<leader>g"
 local prefix_3 = "<leader>l"

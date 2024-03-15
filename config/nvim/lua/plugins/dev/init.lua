@@ -1,4 +1,4 @@
-local setup = require("utils").setup
+local setup = require("utils.fn").setup
 return {
   {
 

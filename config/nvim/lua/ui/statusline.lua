@@ -1,3 +1,4 @@
+utils = require "utils"
 -- Don't show the command that produced the quickfix list.
 vim.g.qf_disable_statusline = 1
 
@@ -93,6 +94,30 @@ function mode_component()
   }
 end
 
+---@return string
+function git_diff()
+  -- Integración con gitsigns.nvim
+  ---@diagnostic disable-next-line: undefined-field
+  local diff = vim.b.gitsigns_status_dict or utils.git.diffstat()
+  local added = diff.added or 0
+  local changed = diff.changed or 0
+  local removed = diff.removed or 0
+
+  local result = ""
+
+  if added > 0 then
+    result = result .. string.format("%%#StatuslineGitAdded#%s %d ", Icons.git.added, added)
+  end
+  if changed > 0 then
+    result = result .. string.format("%%#StatuslineGitChanged#%s %d ", Icons.git.modified, changed)
+  end
+  if removed > 0 then
+    result = result .. string.format("%%#StatuslineGitRemoved#%s %d ", Icons.git.removed, removed)
+  end
+
+  return result
+end
+
 --- Git status (if any).
 ---@return string
 function git_component()
@@ -101,7 +126,7 @@ function git_component()
     return ""
   end
 
-  return string.format(" %%#StatuslineItalic#%s", head)
+  return string.format("%%#TelescopeResultsDiffDelete# %%#StatuslineItalic#%s %s", head, git_diff())
 end
 
 --- The current debugging status (if any).
@@ -245,7 +270,9 @@ end
 ---@return string
 function encoding_component()
   local encoding = vim.opt.fileencoding:get()
-  return encoding ~= "" and string.format("%%#StatuslineModeSeparatorOther#%%#StatuslineItalic# %s", encoding) or ""
+  return encoding ~= ""
+      and string.format("%%#StatuslineModeSeparatorOther#%%#NvimTreeRootFolder# %%#StatuslineItalic#%s", encoding)
+    or ""
 end
 
 --- The current line, total line count, and column position.
@@ -289,4 +316,7 @@ function render()
     " ",
   }
 end
-vim.o.statusline = "%!v:lua.render()"
+
+return {
+  render = render,
+}

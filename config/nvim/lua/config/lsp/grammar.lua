@@ -1,4 +1,4 @@
-utils = require "utils"
+local utils = require "utils.keymap"
 local function init(language)
   require("config.lsp").setup {
     name = "ltex",
@@ -32,22 +32,30 @@ local function init(language)
 end
 
 local function setltex(language)
-  vim.cmd("setlocal spell! spelllang=" .. language)
+  vim.opt_local.spell = true
+  vim.opt_local.spelllang = language
   init(language)
 end
 local M = {}
 function M.setup()
-  utils.map("n", "<leader>ge", function()
-    setltex "es"
-  end, { desc = "Set grammar check es" })
+  utils.map("n", "<leader>sg", function()
+    vim.ui.select({ "es", "en" }, {
+      prompt = "Select preview mode:",
+    }, function(opt, _)
+      if opt then
+        setltex(opt)
+      else
+        local warn = require("utils.notify").warn
+        warn("Lang not valid", "Lang")
+      end
+    end)
+  end, { desc = "[S]elect [G]rammar check" })
 
-  utils.map("n", "<leader>gi", function()
-    setltex "en"
-  end, { desc = "Set grammar check en" })
+  vim.opt_local.spell = true
+  vim.opt_local.spelllang = "es"
+  vim.schedule(function()
+    init "es"
+  end)
 end
 
-vim.cmd "setlocal spell! spelllang=es"
-vim.schedule(function()
-  init "es"
-end)
 return M

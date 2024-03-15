@@ -54,6 +54,7 @@ return {
             information = { "underline" },
           },
         },
+        treesitter = true,
         aerial = true,
         alpha = false,
         barbar = false,
@@ -110,6 +111,9 @@ return {
             -- Statusline
             StatuslineItalic = { fg = C.text, style = { "italic" } },
             StatuslineSpinner = { fg = C.green },
+            StatuslineGitAdded = { fg = C.green },
+            StatuslineGitChanged = { fg = C.yellow },
+            StatuslineGitRemoved = { fg = C.red },
             StatuslineTitle = { fg = C.text, style = { "bold" } },
             StatusLine = { bg = C.base },
             -- Tabline

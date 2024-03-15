@@ -46,7 +46,7 @@ return {
               cr_au.create_au_write(fn)
             end
           else
-            local warn = require("utils").warn
+            local warn = require("utils.notify").warn
             warn("Not Preview", "Preview")
           end
         end)
@@ -81,7 +81,7 @@ return {
               }
             end
           else
-            local warn = require("utils").warn
+            local warn = require("utils.notify").warn
             warn("Not Preview", "Preview")
           end
         end)

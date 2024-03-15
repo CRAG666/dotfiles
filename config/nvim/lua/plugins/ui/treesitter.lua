@@ -6,7 +6,8 @@ return {
     "nvim-treesitter/nvim-treesitter",
     version = false, -- last release is way too old and doesn't work on Windows
     build = ":TSUpdate",
-    event = { "LazyFile", "VeryLazy" },
+    -- event = { "LazyFile", "VeryLazy" },
+    event = "FileType",
     init = function(plugin)
       -- PERF: add nvim-treesitter queries to the rtp and it's custom query predicates early
       -- This is needed because a bunch of plugins no longer `require("nvim-treesitter")`, which
@@ -42,6 +43,8 @@ return {
           end
         end,
       },
+      "RRethy/nvim-treesitter-endwise",
+      "JoosepAlviste/nvim-ts-context-commentstring",
     },
     cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
     keys = {
@@ -112,6 +115,9 @@ return {
           goto_previous_end = { ["[F"] = "@function.outer", ["[C"] = "@class.outer" },
         },
       },
+      endwise = {
+        enable = true,
+      },
     },
     ---@param opts TSConfig
     config = function(_, opts)
@@ -126,7 +132,35 @@ return {
           return true
         end, opts.ensure_installed)
       end
-      require("nvim-treesitter.configs").setup(opts)
+      ---@param buf integer
+      ---@return nil
+      local function enable_ts_folding(buf)
+        -- Treesitter folding is extremely slow in large files,
+        -- making typing and undo lag as hell
+        if not vim.api.nvim_buf_is_valid(buf) or vim.b[buf].bigfile then
+          return
+        end
+        vim.api.nvim_buf_call(buf, function()
+          local o = vim.opt_local
+          local fdm = o.fdm:get() ---@diagnostic disable-line: undefined-field
+          local fde = o.fde:get() ---@diagnostic disable-line: undefined-field
+          o.fdm = fdm == "manual" and "expr" or fdm
+          o.fde = fde == "0" and "nvim_treesitter#foldexpr()" or fde
+        end)
+      end
+
+      enable_ts_folding(0)
+
+      -- Set treesitter folds
+      vim.api.nvim_create_autocmd("FileType", {
+        group = vim.api.nvim_create_augroup("TSFolds", {}),
+        callback = function(info)
+          enable_ts_folding(info.buf)
+        end,
+      })
+      vim.schedule(function()
+        require("nvim-treesitter.configs").setup(opts)
+      end)
     end,
   },
 

@@ -4,7 +4,7 @@
 -- |_|\_\___|\__, |_| |_| |_|\__,_| .__/
 --           |___/                |_|
 
-local utils = require "utils"
+local utils = require "utils.keymap"
 local opts = { noremap = true, silent = false }
 
 vim.keymap.set("n", "i", function()

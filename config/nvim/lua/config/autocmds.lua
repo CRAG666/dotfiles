@@ -46,17 +46,6 @@ autocmd("BufReadPost", {
   end,
 })
 
--- wrap and check for spell in text filetypes
-autocmd("FileType", {
-  group = augroup "wrap_spell",
-  pattern = { "gitcommit", "markdown", "tex" },
-  callback = function()
-    vim.opt_local.spelllang = "es"
-    vim.opt_local.wrap = true
-    vim.opt_local.spell = true
-  end,
-})
-
 -- Auto toggle hlsearch
 -- local ns = vim.api.nvim_create_namespace "toggle_hlsearch"
 -- local function toggle_hlsearch(char)
@@ -80,10 +69,11 @@ autocmd("TermEnter", {
 
 -- Delete spaces
 autocmd("BufWritePre", { command = [[%s/\s\+$//e]] })
+
 autocmd("BufEnter", { command = [[let @/=""]] })
+
 -- Pwd in currente buffer
 autocmd("BufEnter", { command = "silent! lcd %:p:h" })
--- Format options
 
 -- don't auto comment new line
 autocmd("BufEnter", { command = [[set formatoptions-=cro]] })
@@ -91,6 +81,7 @@ autocmd("BufEnter", { command = [[set formatoptions-=cro]] })
 autocmd("FileType", { pattern = "man", command = [[nnoremap <buffer><silent> q :quit<CR>]] })
 
 autocmd({ "BufRead", "BufEnter" }, { pattern = "*.tex", command = [[set filetype=tex]] })
+
 autocmd("CursorHold", {
   buffer = bufnr,
   callback = function()

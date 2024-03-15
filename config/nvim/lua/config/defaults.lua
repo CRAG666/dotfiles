@@ -120,27 +120,17 @@ set.grepprg = "rg --vimgrep --no-heading --smart-case"
 
 -- Folding
 
--- set.foldnestmax = 0
-vim.o.foldmethod = "expr"
 set.fillchars = {
   foldopen = "",
   foldclose = "",
-  -- fold = "⸱",
-  fold = " ",
+  fold = "⸱",
   foldsep = " ",
   diff = "╱",
   eob = " ",
 }
--- vim.o.fillchars = {
---   eob = "",
---   fold = "",
---   foldopen = "",
---   foldsep = "",
---   foldclose = "",
--- }
-set.foldexpr = "v:lua.require'utils'.foldexpr()"
-set.foldtext = "v:lua.require'utils'.foldtext()"
-vim.o.foldcolumn = "auto:1" -- '0' is not bad
+
+set.colorcolumn = "+1"
+set.foldtext = ""
 vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
 vim.o.foldlevelstart = 99
 vim.o.foldenable = true
