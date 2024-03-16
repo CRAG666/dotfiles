@@ -22,4 +22,33 @@ return {
       },
     }),
   },
+  {
+    "echasnovski/mini.splitjoin",
+    version = false,
+    keys = { { "gS" } },
+    config = function()
+      require("mini.splitjoin").setup()
+    end,
+  },
+  {
+    "echasnovski/mini.ai",
+    version = false,
+    keys = {
+      { "ci" },
+      { "di" },
+      { "yi" },
+      { "cI" },
+      { "dI" },
+      { "yI" },
+      { "ca" },
+      { "da" },
+      { "ya" },
+      { "cA" },
+      { "dA" },
+      { "yA" },
+    },
+    config = function()
+      require("mini.ai").setup()
+    end,
+  },
 }

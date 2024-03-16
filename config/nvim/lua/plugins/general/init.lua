@@ -5,52 +5,6 @@ return {
     config = true,
   },
   {
-    "echasnovski/mini.splitjoin",
-    version = false,
-    keys = { { "gS" } },
-    config = function()
-      require("mini.splitjoin").setup()
-    end,
-  },
-  -- {
-  --   "wellle/targets.vim",
-  --   keys = {
-  --     { "ci" },
-  --     { "di" },
-  --     { "yi" },
-  --     { "cI" },
-  --     { "dI" },
-  --     { "yI" },
-  --     { "ca" },
-  --     { "da" },
-  --     { "ya" },
-  --     { "cA" },
-  --     { "dA" },
-  --     { "yA" },
-  --   },
-  -- },
-  {
-    "echasnovski/mini.ai",
-    version = false,
-    keys = {
-      { "ci" },
-      { "di" },
-      { "yi" },
-      { "cI" },
-      { "dI" },
-      { "yI" },
-      { "ca" },
-      { "da" },
-      { "ya" },
-      { "cA" },
-      { "dA" },
-      { "yA" },
-    },
-    config = function()
-      require("mini.ai").setup()
-    end,
-  },
-  {
     "chaoren/vim-wordmotion",
     keys = {
       { "w" },

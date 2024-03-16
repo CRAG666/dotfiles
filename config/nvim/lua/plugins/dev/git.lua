@@ -1,8 +1,8 @@
 function get_keys()
   local keys = {
-    { "<leader><leader>do", ":DiffviewOpen<CR>", desc = "Diff Open" },
-    { "<leader><leader>dc", ":DiffviewClose<CR>", desc = "Diff Close" },
-    { "<leader><leader>dh", ":DiffviewFileHistory<CR>", desc = "Diff Close" },
+    { "<leader><leader>do", ":DiffviewOpen<CR>", desc = "Diff [o]pen" },
+    { "<leader><leader>dc", ":DiffviewClose<CR>", desc = "Diff [c]lose" },
+    { "<leader><leader>dh", ":DiffviewFileHistory<CR>", desc = "Diff close" },
   }
   for i = 9, 1, -1 do
     keys[#keys + 1] = {

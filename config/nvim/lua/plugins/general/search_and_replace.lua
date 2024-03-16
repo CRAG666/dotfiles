@@ -5,6 +5,7 @@ return {
       {
         "[r",
         ":MurenToggle<CR>",
+        desc = "[r]eplace pattern",
       },
     },
     config = function()
@@ -21,6 +22,7 @@ return {
         function()
           require("ssr").open()
         end,
+        desc = "[r]eplace all files",
       },
     },
     opts = {

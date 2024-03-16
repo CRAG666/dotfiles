@@ -7,28 +7,28 @@ return {
       function()
         require("neogen").generate { type = "class" }
       end,
-      desc = "Comment Class",
+      desc = "Comment [c]lass",
     },
     {
       prefix .. "f",
       function()
         require("neogen").generate { type = "func" }
       end,
-      desc = "Comment Function",
+      desc = "Comment [f]unction",
     },
     {
       prefix .. "i",
       function()
         require("neogen").generate { type = "file" }
       end,
-      desc = "Comment File",
+      desc = "Comment F[i]le",
     },
     {
       prefix .. "t",
       function()
         require("neogen").generate { type = "type" }
       end,
-      desc = "Comment type",
+      desc = "Comment [t]ype",
     },
   },
   opts = {

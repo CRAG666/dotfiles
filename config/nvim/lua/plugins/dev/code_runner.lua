@@ -9,7 +9,7 @@ return {
       function()
         require("code_runner").run_code()
       end,
-      desc = "Execute Code",
+      desc = "[e]xcute code",
     },
   },
   opts = {
