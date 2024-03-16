@@ -24,7 +24,36 @@ return {
   {
     "NeogitOrg/neogit",
     cmd = "Neogit",
-    keys = { { "<leader>gm", "<cmd>Neogit<CR>", desc = "[g]it [m]ode" } },
+    keys = {
+      {
+        "<leader>gm",
+        function()
+          require("neogit").open()
+        end,
+        desc = "[g]it [m]ode",
+      },
+      {
+        "<leader>gc",
+        function()
+          require("neogit").open { "commit" }
+        end,
+        desc = "[g]it [c]ommit",
+      },
+      {
+        "<leader>gp",
+        function()
+          require("neogit").open { "pull" }
+        end,
+        desc = "[g]it [p]ull",
+      },
+      {
+        "<leader>gP",
+        function()
+          require("neogit").open { "push" }
+        end,
+        desc = "[g]it [p]ush",
+      },
+    },
     dependencies = {
       "nvim-lua/plenary.nvim", -- required
       "nvim-telescope/telescope.nvim", -- optional

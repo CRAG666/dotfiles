@@ -15,9 +15,9 @@ local keys = {
   { prefix_1 .. "l", desc = "[f]ind [l]ive Grep" },
   { prefix_1 .. "h", desc = "[f]ind [h]elp tags" },
   { prefix_1 .. "s", desc = "[f]ind [s]earch History" },
-  { prefix_1 .. "cs", desc = "[f]ind [c]olor[s]cheme" },
-  { prefix_1 .. "cc", desc = "[f]ind [c]ommands" },
-  { prefix_1 .. "ch", desc = "[f]ind [c]ommands [h]istory" },
+  { prefix_1 .. "C", desc = "[f]ind [c]olor[s]cheme" },
+  { prefix_1 .. "c", desc = "[f]ind [c]ommands" },
+  { prefix_1 .. "H", desc = "[f]ind commands [H]istory" },
   { prefix_1 .. "k", desc = "[f]ind [k]eymaps" },
   { prefix_1 .. "t", desc = "[f]ile[t]ype" },
   { prefix_1 .. "f", desc = "[f]uzzy [f]ind" },
@@ -27,10 +27,10 @@ local keys = {
   { prefix_3 .. "i", desc = "[l]SP [i]mplementations" },
   { prefix_3 .. "d", desc = "[l]SP [d]iagnostics" },
   -- Git builtin
-  { prefix_2 .. "c", desc = "[g]it Buffer [c]ommits" },
+  { prefix_2 .. "C", desc = "[g]it Buffer [c]ommits" },
   { prefix_2 .. "b", desc = "[g]it [b]ranches" },
   { prefix_2 .. "s", desc = "[g]it [s]tatus" },
-  { prefix_2 .. "t", desc = "[g]it S[t]ash" },
+  { prefix_2 .. "S", desc = "[g]it [S]tash" },
   { "<leader>ss", desc = "[s]pell [s]uggest" },
 }
 
