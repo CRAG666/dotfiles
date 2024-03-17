@@ -193,9 +193,9 @@ alias starshipc="nvim ~/.config/starship.toml"
 # HACK: Config Nvim Aliases
 alias vimc='nvim ~/.config/nvim/init.lua'
 alias vimp='nvim ~/.config/nvim/lua/plugins/init.lua'
-alias vimk='nvim ~/.config/nvim/after/plugin/keymappings.lua'
-alias vimd='nvim ~/.config/nvim/after/plugin/defaults.lua'
-alias vima='nvim ~/.config/nvim/after/plugin/autocmds.lua'
+alias vimk='nvim ~/.config/nvim/lua/config/keymappings.lua'
+alias vimd='nvim ~/.config/nvim/lua/config/defaults.lua'
+alias vima='nvim ~/.config/nvim/lua/config/autocmds.lua'
 alias viml='nvim ~/.config/nvim/lua/config/lsp/init.lua'
 alias vo='nvim -c "Neorg workspace notes"'
 # HACK: Jump alias
@@ -211,7 +211,7 @@ alias Usb="cd /run/media/$USER"
 # HACK: fzf alias
 alias paci="pacman -Slq | fzf --multi --preview 'pacman -Si {1}' | xargs -ro sudo pacman -S"
 alias pacr="pacman -Qq | fzf --multi --preview 'pacman -Qi {1}' | xargs -ro sudo pacman -Rns"
-alias ys="paru -Slq | fzf --multi --preview 'paru -Si {1}' | xargs -ro paru -S"
+alias ys="yay -Slq | fzf --multi --preview 'yay -Si {1}' | xargs -ro yay -S"
 alias ci="{ find . -xdev -printf '%h\n' | sort | uniq -c | sort -k 1 -n; } 2>/dev/null"
 alias gbc="git switch -c"
 

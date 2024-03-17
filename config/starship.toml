@@ -1,4 +1,6 @@
 add_newline = false
+format = """$character"""
+right_format = """$all"""
 palette = "catppuccin_mocha"
 
 [character]

@@ -27,7 +27,17 @@ return {
       { "<s-tab>", function() require("luasnip").jump(-1) end, mode = { "i", "s" } },
     },
   },
-
+  {
+    "Exafunction/codeium.nvim",
+    event = "InsertEnter",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "hrsh7th/nvim-cmp",
+    },
+    config = function()
+      require("codeium").setup {}
+    end,
+  },
   -- auto completion
   {
     "hrsh7th/nvim-cmp",
@@ -72,6 +82,7 @@ return {
         },
         sources = cmp.config.sources({
           { name = "nvim_lsp" },
+          { name = "codeium" },
           { name = "luasnip" },
           { name = "path" },
           { name = "rg" },

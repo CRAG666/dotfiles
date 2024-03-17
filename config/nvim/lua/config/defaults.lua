@@ -1,39 +1,26 @@
 local set = vim.opt
 
---  Basic config
 set.completeopt = "menu,menuone,noselect"
-set.autowrite = true -- enable auto write
-set.scrolloff = 12 -- Lines of context
+set.autowrite = true
+set.scrolloff = 99
+set.sidescrolloff = 99
 set.scrollback = 100000
-set.sidescrolloff = 12
 set.tags = "/tmp/tags"
-
 set.mouse = "a"
--- clipboard
 set.clipboard:append "unnamedplus"
 set.splitright = true
 set.splitbelow = true
 set.icm = "nosplit"
 set.virtualedit = "block"
--- set.virtualedit = "onemore"
-set.backspace = { "indent", "eol", "start", "nostop" } -- Better backspace.
--- sow preview command
+set.backspace = { "indent", "eol", "start", "nostop" }
 set.inccommand = "nosplit"
 set.matchtime = 2
--- set.updatetime = 40
-set.updatetime = 200
+-- set.updatetime = 200
 set.timeoutlen = 300
-set.joinspaces = false -- No double spaces with join after a dot
-
--- speed up
+set.joinspaces = false
 set.lazyredraw = false
-
--- Tricks
 set.hidden = true
-
 set.diffopt = "filler,vertical,hiddenoff,linematch:60,foldcolumn:0,algorithm:minimal"
-
--- Format options
 set.encoding = "utf-8"
 set.fileformat = "unix"
 set.formatoptions = "jcroqlnt" -- tcqj
@@ -53,13 +40,8 @@ set.wildignore:append {
   "**/bower_modules/**",
   "**/node_modules/**",
 }
-
--- Better search
 set.path:remove "/usr/include"
 set.path:append "**"
-
--- Spaces & Tabsset
-
 set.autoindent = true
 set.breakindent = true
 set.expandtab = true
@@ -68,21 +50,17 @@ set.shiftround = true
 set.shiftwidth = 2
 set.softtabstop = -1
 set.smarttab = true
-
--- Text line
 set.wrap = true
 set.whichwrap:append "<>[]hl"
 set.linebreak = true
 set.textwidth = 80
-
--- UI Config
-set.winminwidth = 5 -- Minimum window width
-set.syntax = "ON" -- str:  Allow syntax highlighting
+set.winminwidth = 5
+set.syntax = "ON"
 set.termguicolors = true
-set.conceallevel = 0 -- Hide * markup for bold and italic
+set.conceallevel = 0
 set.showtabline = 0
-set.pumblend = 10 -- Popup blend
-set.pumheight = 12 -- Maximum number of entries in a popup
+set.pumblend = 10
+set.pumheight = 15
 set.showmode = false
 set.title = true
 set.number = true
@@ -91,10 +69,9 @@ set.showcmd = false
 set.cursorline = true
 set.cursorcolumn = true
 set.wildmenu = true
-set.wildmode = "longest:full,full" -- Command-line completion mode
+set.wildmode = "longest:full,full"
 set.showmatch = true
 set.errorbells = true
--- set.signcolumn = "yes:1"
 set.signcolumn = "auto:1"
 set.listchars = {
   eol = "↲",
@@ -108,18 +85,13 @@ set.listchars = {
 set.list = false
 set.laststatus = 3
 set.cmdheight = 0
-
--- Search
-set.hlsearch = false
+set.hlsearch = true
 set.incsearch = true
 set.ignorecase = true
 set.smartcase = true
 set.smartindent = true
 set.grepformat = "%f:%l:%c:%m"
 set.grepprg = "rg --vimgrep --no-heading --smart-case"
-
--- Folding
-
 set.fillchars = {
   foldopen = "",
   foldclose = "",
@@ -128,14 +100,11 @@ set.fillchars = {
   diff = "╱",
   eob = " ",
 }
-
 set.colorcolumn = "+1"
 set.foldtext = ""
-vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
+vim.o.foldlevel = 99
 vim.o.foldlevelstart = 99
 vim.o.foldenable = true
-
--- Backup
 set.fsync = false
 set.swapfile = false
 set.backup = false
@@ -144,14 +113,8 @@ set.undofile = true
 set.undolevels = 1000
 set.writebackup = false
 set.backupcopy = "yes"
-
--- vim.opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize" }
--- vim.opt.spelllang = { "en" }
-
 set.splitkeep = "screen"
 set.shortmess:append { W = true, I = true, c = true, C = true }
--- set.numberwidth = 3
--- set.statuscolumn =
 if vim.fn.has "nvim-0.10" == 1 then
   set.smoothscroll = true
 end

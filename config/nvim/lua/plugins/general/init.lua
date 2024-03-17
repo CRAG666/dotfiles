@@ -34,4 +34,18 @@ return {
     keys = { { "cs" }, { "ds" }, { "ys" } },
     config = true,
   },
+  {
+    "preservim/vim-pencil",
+    cmd = {
+      "Pencil",
+      "TogglePencil",
+      "SoftPencil",
+      "HardPencil",
+    },
+    init = function()
+      vim.g["pencil#wrapModeDefault"] = "soft"
+      vim.g["pencil#autoformat"] = 1
+      vim.g["pencil#textwidth"] = 80
+    end,
+  },
 }

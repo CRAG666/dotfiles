@@ -127,6 +127,7 @@ return {
             -- ["@neorg.links.location.heading.2.norg"] = { fg = C.yellow },
             -- CMP
             CmpItemKindSnippet = { fg = C.base, bg = C.mauve },
+            CmpItemKindCodeium = { fg = C.base, bg = C.green },
             CmpItemKindKeyword = { fg = C.base, bg = C.red },
             CmpItemKindText = { fg = C.base, bg = C.teal },
             CmpItemKindMethod = { fg = C.base, bg = C.blue },
