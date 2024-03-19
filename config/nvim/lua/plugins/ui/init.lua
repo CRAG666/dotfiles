@@ -117,12 +117,4 @@ return {
       }
     end,
   },
-  {
-    "echasnovski/mini.animate",
-    version = false,
-    event = "LazyFile",
-    config = function()
-      require("mini.animate").setup()
-    end,
-  },
 }

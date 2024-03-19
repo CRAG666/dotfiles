@@ -60,7 +60,9 @@ return {
         "bash",
         "c",
         "diff",
+        "graphql",
         "html",
+        "http",
         "hyprlang",
         "javascript",
         "jsdoc",
@@ -77,6 +79,7 @@ return {
         "toml",
         "vim",
         "vimdoc",
+        "xml",
         "yaml",
       },
       incremental_selection = {
