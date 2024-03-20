@@ -1,12 +1,13 @@
 local utils = require "config.lsp.utils"
+local icons = require "utils.static.icons"
 local M = {}
 
 local function lsp_init()
   local signs = {
-    { name = "DiagnosticSignError", text = Icons.diagnostics.Bold_error },
-    { name = "DiagnosticSignWarn", text = Icons.diagnostics.Bold_warning },
-    { name = "DiagnosticSignHint", text = Icons.diagnostics.Bold_hint },
-    { name = "DiagnosticSignInfo", text = Icons.diagnostics.Bold_information },
+    { name = "DiagnosticSignError", text = icons.diagnostics.DiagnosticSignError },
+    { name = "DiagnosticSignWarn", text = icons.diagnostics.DiagnosticSignWarn },
+    { name = "DiagnosticSignHint", text = icons.diagnostics.DiagnosticSignHint },
+    { name = "DiagnosticSignInfo", text = icons.diagnostics.DiagnosticSignInfo },
   }
   for _, sign in ipairs(signs) do
     vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = sign.name })

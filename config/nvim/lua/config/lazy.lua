@@ -79,8 +79,8 @@ function M.setup()
   vim.fn.system({ "git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", "--branch=stable", lazypath })
   end
   vim.opt.rtp:prepend(lazypath)
-  require "config.icons"
   M.lazy_file()
+  local icons = require "utils.static.icons"
   require("lazy").setup {
     spec = {
       { import = "plugins.ui" },
@@ -121,24 +121,24 @@ function M.setup()
       -- The border to use for the UI window. Accepts same border values as |nvim_open_win()|.
       border = "rounded",
       icons = {
-        cmd = Icons.misc.Code,
-        config = Icons.ui.Gear,
-        event = Icons.kinds.Event,
-        ft = Icons.documents.Files,
-        init = Icons.misc.ManUp,
-        import = Icons.documents.Import,
-        keys = Icons.ui.Keyboard,
-        loaded = Icons.ui.Check,
-        not_loaded = Icons.misc.Ghost,
-        plugin = Icons.ui.Package,
-        runtime = Icons.misc.Vim,
-        source = Icons.kinds.StaticMethod,
-        start = Icons.ui.Play,
+        cmd = icons.misc.Code,
+        config = icons.ui.Gear,
+        event = icons.kinds.Event,
+        ft = icons.kinds.File,
+        init = icons.misc.ManUp,
+        import = icons.documents.Import,
+        keys = icons.kinds.Keyboard,
+        loaded = icons.ui.Check,
+        not_loaded = icons.misc.Ghost,
+        plugin = icons.ui.Package,
+        runtime = icons.ft.Vim,
+        source = icons.kinds.StaticMethod,
+        start = icons.ui.Play,
         list = {
-          Icons.ui.BigCircle,
-          Icons.ui.BigUnfilledCircle,
-          Icons.ui.Square,
-          Icons.ui.ChevronRight,
+          icons.ui.BigCircle,
+          icons.ui.BigUnfilledCircle,
+          icons.ui.Square,
+          icons.ui.ChevronRight,
         },
       },
     },

@@ -30,6 +30,6 @@ return {
       },
     }
 
-    vim.g.db_ui_icons = Icons.database
+    vim.g.db_ui_icons = require("utils.static.icons").database
   end,
 }

@@ -10,6 +10,14 @@ return {
       ensure_installed = {
         "stylua",
         "shfmt",
+        "lua-language-server",
+        -- ast-grep
+        -- harper-ls
+        -- lemmy-help
+        -- lua-language-server
+        -- luacheck
+        -- luaformatter
+        -- selene
         -- "flake8",
       },
     },
@@ -59,8 +67,6 @@ return {
       opts.root_dir = opts.root_dir
         or require("null-ls.utils").root_pattern(".null-ls-root", ".neoconf.json", "Makefile", ".git")
       opts.sources = vim.list_extend(opts.sources or {}, {
-        nls.builtins.formatting.fish_indent,
-        nls.builtins.diagnostics.fish,
         nls.builtins.formatting.stylua,
         nls.builtins.formatting.shfmt,
       })

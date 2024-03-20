@@ -92,7 +92,7 @@ return {
         formatting = {
           fields = { "kind", "abbr", "menu" },
           format = function(_, item)
-            local icons = Icons.kinds
+            local icons = require("utils.static.icons").kinds
             if icons[item.kind] then
               item.menu = "    (" .. (item.kind or "") .. ")"
               item.kind = " " .. icons[item.kind] .. " "

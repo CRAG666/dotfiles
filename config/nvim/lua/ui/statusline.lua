@@ -1,4 +1,5 @@
 utils = require "utils"
+icons = require "utils.static.icons"
 -- Don't show the command that produced the quickfix list.
 vim.g.qf_disable_statusline = 1
 
@@ -106,13 +107,13 @@ function git_diff()
   local result = ""
 
   if added > 0 then
-    result = result .. string.format("%%#StatuslineGitAdded#%s %d ", Icons.git.added, added)
+    result = result .. string.format("%%#StatuslineGitAdded#%s %d ", icons.git.Added, added)
   end
   if changed > 0 then
-    result = result .. string.format("%%#StatuslineGitChanged#%s %d ", Icons.git.modified, changed)
+    result = result .. string.format("%%#StatuslineGitChanged#%s %d ", icons.git.Modified, changed)
   end
   if removed > 0 then
-    result = result .. string.format("%%#StatuslineGitRemoved#%s %d ", Icons.git.removed, removed)
+    result = result .. string.format("%%#StatuslineGitRemoved#%s %d ", icons.git.Removed, removed)
   end
 
   return result
@@ -136,7 +137,7 @@ function dap_component()
     return nil
   end
 
-  return string.format("%%#%s#%s  %s", get_or_create_hl "DapUIRestart", Icons.misc.Bug, require("dap").status())
+  return string.format("%%#%s#%s  %s", get_or_create_hl "DapUIRestart", icons.misc.Bug, require("dap").status())
 end
 
 ---@type table<string, string?>
@@ -213,7 +214,7 @@ function diagnostics_component()
     end
 
     local hl = "Diagnostic" .. severity:sub(1, 1) .. severity:sub(2):lower()
-    return string.format("%%#%s#%s %%#StatuslineItalic#%d", get_or_create_hl(hl), Icons.diagnostics[severity], count)
+    return string.format("%%#%s#%s %%#StatuslineItalic#%d", get_or_create_hl(hl), icons.diagnostics[severity], count)
   end, counts)
 
   return table.concat(parts, " ")
@@ -226,23 +227,23 @@ function filetype_component()
 
   -- Special icons for some filetypes.
   local special_icons = {
-    DiffviewFileHistory = { Icons.git.Branch, "Number" },
-    DiffviewFiles = { Icons.git.Branch, "Number" },
+    DiffviewFileHistory = { icons.kinds.GitBranch, "Number" },
+    DiffviewFiles = { icons.kinds.GitBranch, "Number" },
     DressingInput = { "󰍩", "Comment" },
     DressingSelect = { "", "Comment" },
     OverseerForm = { "󰦬", "Special" },
     OverseerList = { "󰦬", "Special" },
-    dapui_breakpoints = { Icons.ui.Bug, "DapUIRestart" },
-    dapui_scopes = { Icons.ui.Bug, "DapUIRestart" },
-    dapui_stacks = { Icons.ui.Bug, "DapUIRestart" },
-    gitcommit = { Icons.git.Branch, "Number" },
-    gitrebase = { Icons.git.Branch, "Number" },
+    dapui_breakpoints = { icons.misc.Bug, "DapUIRestart" },
+    dapui_scopes = { icons.misc.Bug, "DapUIRestart" },
+    dapui_stacks = { icons.misc.Bug, "DapUIRestart" },
+    gitcommit = { icons.kinds.GitBranch, "Number" },
+    gitrebase = { icons.kinds.GitBranch, "Number" },
     fzf = { "", "Special" },
-    lazy = { Icons.kinds.Method, "Special" },
+    lazy = { icons.kinds.Method, "Special" },
     lazyterm = { "", "Special" },
-    minifiles = { Icons.ui.Folder, "Directory" },
-    qf = { Icons.ui.Search, "Conditional" },
-    spectre_panel = { Icons.ui.Search, "Constant" },
+    minifiles = { icons.kinds.Folder, "Directory" },
+    qf = { icons.misc.Search, "Conditional" },
+    spectre_panel = { icons.misc.Search, "Constant" },
   }
   local filetype = vim.bo.filetype
   if filetype == "" then
@@ -301,6 +302,7 @@ function render()
   end
 
   return table.concat {
+    [[%{%&bt==#''?'%t':(&bt==#'terminal'?'[Terminal] '.bufname()->substitute('^term://.\{-}//\d\+:\s*','',''):'%F')%} ]],
     concat_components {
       -- mode_component(),
       git_component(),
