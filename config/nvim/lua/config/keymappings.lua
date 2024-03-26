@@ -87,6 +87,7 @@ local maps = {
     maps = {
       --Delete search result
       { "c", ':let @/=""<cr>' },
+      { "R", [[:%s/\(.*\)/\1]], "Search and [R]eplace extend", opts },
     },
   },
   {
@@ -94,7 +95,6 @@ local maps = {
     maps = {
       -- { "s", "/", "Search", opts },
       { "r", ":%s/", "Search and [r]eplace", opts },
-      { "R", [[:%s/\(.*\)/\1]], "Search and [R]eplace extend", opts },
       { "cw", [[:%s/\<<C-r><C-w>\>/]], "Replace [w]ord", opts },
       -- { "d", ":bd<CR>", "Buffer Delete" },
     },

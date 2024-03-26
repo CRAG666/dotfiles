@@ -14,7 +14,6 @@ return {
   },
   {
     "cshuaimin/ssr.nvim",
-    name = "ssr",
     keys = {
       {
         mode = { "n", "x" },
@@ -22,18 +21,26 @@ return {
         function()
           require("ssr").open()
         end,
-        desc = "[r]eplace all files",
+        desc = "[r]eplace structure",
       },
     },
-    opts = {
-      min_width = 50,
-      min_height = 5,
-      keymaps = {
-        close = "q",
-        next_match = "n",
-        prev_match = "N",
-        replace_all = "<leader><cr>",
-      },
-    },
+    name = "ssr",
+    config = function()
+      require("ssr").setup {
+        border = "rounded",
+        min_width = 50,
+        min_height = 5,
+        max_width = 120,
+        max_height = 25,
+        adjust_window = true,
+        keymaps = {
+          close = "q",
+          next_match = "n",
+          prev_match = "N",
+          replace_confirm = "<cr>",
+          replace_all = "<leader><cr>",
+        },
+      }
+    end,
   },
 }

@@ -20,82 +20,80 @@ return {
     filetype = {
       v = "v run",
       tex = function(...)
-        latexCompileOptions = {
-          "Single",
-          "Project",
-        }
-        local preview = require "code_runner.hooks.preview_pdf"
-        local cr_au = require "code_runner.hooks.autocmd"
-        vim.ui.select(latexCompileOptions, {
-          prompt = "Select compile mode:",
-        }, function(opt, _)
-          if opt then
-            if opt == "Single" then
-              preview.run {
-                command = "tectonic",
-                args = { "$fileName", "--keep-logs", "-o", "/tmp" },
-                preview_cmd = preview_cmd,
-                overwrite_output = "/tmp",
-              }
-            elseif opt == "Project" then
-              cr_au.stop_job()
-              os.execute "tectonic -X build --keep-logs --open &> /dev/null &"
-              local fn = function()
-                os.execute "tectonic -X build --keep-logs &> /dev/null &"
-              end
-              cr_au.create_au_write(fn)
+        require("code_runner.hooks.ui").select {
+          Single = function()
+            local preview = require "code_runner.hooks.preview_pdf"
+            preview.run {
+              command = "tectonic",
+              args = { "$fileName", "--keep-logs", "-o", "/tmp" },
+              preview_cmd = preview_cmd,
+              overwrite_output = "/tmp",
+            }
+          end,
+          Project = function()
+            local cr_au = require "code_runner.hooks.autocmd"
+            cr_au.stop_job()
+            os.execute "tectonic -X build --keep-logs --open &> /dev/null &"
+            local fn = function()
+              os.execute "tectonic -X build --keep-logs &> /dev/null &"
             end
-          else
-            local warn = require("utils.notify").warn
-            warn("Not Preview", "Preview")
-          end
-        end)
+            cr_au.create_au_write(fn)
+          end,
+        }
       end,
       markdown = function(...)
-        markdownCompileOptions = {
-          Normal = "pdf",
-          Presentation = "beamer",
-          Eisvogel = "",
-          Slides = "",
-        }
         local hook = require "code_runner.hooks.preview_pdf"
-        vim.ui.select(vim.tbl_keys(markdownCompileOptions), {
-          prompt = "Select preview mode:",
-        }, function(opt, _)
-          if opt then
-            if opt == "Slides" then
-              local filename = vim.fn.expand "%:p"
-              os.execute("kitty slides " .. filename .. " &> /dev/null &")
-            elseif opt == "Eisvogel" then
-              hook.run {
-                command = "bash",
-                args = { "./build.sh" },
-                preview_cmd = preview_cmd,
-                overwrite_output = ".",
-              }
-            else
-              hook.run {
-                command = "pandoc",
-                args = { "$fileName", "-o", "$tmpFile", "-t", markdownCompileOptions[opt] },
-                preview_cmd = preview_cmd,
-              }
-            end
-          else
-            local warn = require("utils.notify").warn
-            warn("Not Preview", "Preview")
-          end
-        end)
+        require("code_runner.hooks.ui").select {
+          Normal = function()
+            hook.run {
+              command = "pandoc",
+              args = { "$fileName", "-o", "$tmpFile", "-t pdf" },
+              preview_cmd = preview_cmd,
+            }
+          end,
+          Presentation = function()
+            hook.run {
+              command = "pandoc",
+              args = { "$fileName", "-o", "$tmpFile", "-t beamer" },
+              preview_cmd = preview_cmd,
+            }
+          end,
+          Eisvogel = function()
+            hook.run {
+              command = "bash",
+              args = { "./build.sh" },
+              preview_cmd = preview_cmd,
+              overwrite_output = ".",
+            }
+          end,
+        }
       end,
       javascript = "node",
       java = "cd $dir && javac $fileName && java $fileNameWithoutExt",
       kotlin = "cd $dir && kotlinc-native $fileName -o $fileNameWithoutExt && ./$fileNameWithoutExt.kexe",
-      c = {
-        "cd $dir &&",
-        "gcc $fileName -o",
-        "/tmp/$fileNameWithoutExt &&",
-        "/tmp/$fileNameWithoutExt &&",
-        "rm /tmp/$fileNameWithoutExt",
-      },
+      c = function(...)
+        c_base = {
+          "cd $dir &&",
+          "gcc $fileName -o",
+          "/tmp/$fileNameWithoutExt",
+        }
+        local c_exec = {
+          "&& /tmp/$fileNameWithoutExt &&",
+          "rm /tmp/$fileNameWithoutExt",
+        }
+        vim.ui.input({ prompt = "Add more args:" }, function(input)
+          c_base[4] = input
+          vim.print(vim.tbl_extend("force", c_base, c_exec))
+          require("code_runner.commands").run_from_fn(vim.list_extend(c_base, c_exec))
+        end)
+      end,
+      -- c = {
+      --   "cd $dir &&",
+      --   "gcc $fileName -o",
+      --   "/tmp/$fileNameWithoutExt &&",
+      --   "/tmp/$fileNameWithoutExt &&",
+      --   "rm /tmp/$fileNameWithoutExt",
+      -- },
       cpp = {
         "cd $dir &&",
         "g++ $fileName",
