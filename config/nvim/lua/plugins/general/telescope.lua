@@ -391,17 +391,6 @@ return {
       "nvim-lua/plenary.nvim",
       "natecraddock/telescope-zf-native.nvim",
       {
-        "prochri/telescope-all-recent.nvim",
-        dependencies = {
-          "kkharji/sqlite.lua",
-          -- optional, if using telescope for vim.ui.select
-          "stevearc/dressing.nvim",
-        },
-        -- opts = {
-        --   -- your config goes here
-        -- },
-      },
-      {
         "nvim-telescope/telescope-frecency.nvim",
         dependencies = { "kkharji/sqlite.lua" },
       },

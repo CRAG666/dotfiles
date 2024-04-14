@@ -96,3 +96,10 @@ autocmd("CursorHold", {
     vim.diagnostic.open_float(nil, opts)
   end,
 })
+vim.filetype.add {
+  pattern = { [".*/hypr/.*%.conf"] = "hyprlang" },
+}
+
+vim.filetype.add {
+  pattern = { ["zathurarc"] = "zathurarc" },
+}

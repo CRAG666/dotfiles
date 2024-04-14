@@ -11,12 +11,7 @@ return {
         desc = "[r]un Endpoint",
       },
     },
-    dependencies = {
-      "vhyrro/luarocks.nvim",
-      config = function()
-        require("luarocks").setup {}
-      end,
-    },
+    dependencies = { "luarocks.nvim" },
     config = function()
       require("rest-nvim").setup()
     end,

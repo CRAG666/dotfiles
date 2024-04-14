@@ -10,9 +10,7 @@ vim.keymap.set("", "<Space>", "<Nop>", { noremap = true, silent = true })
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 vim.g.modern_ui = true
-vim.schedule(function()
-  require "config.defaults"
-  require "config.keymappings"
-end)
+require "config.defaults"
+require "config.keymappings"
 require "config.autocmds"
 require("config.lazy").setup()

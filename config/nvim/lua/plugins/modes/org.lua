@@ -13,8 +13,8 @@ return {
   },
   {
     "nvim-neorg/neorg",
-    build = ":Neorg sync-parsers",
-    dependencies = { "nvim-lua/plenary.nvim", "nvim-neorg/neorg-telescope" },
+    version = "*", -- Pin Neorg to the latest stable release
+    dependencies = { "luarocks.nvim", "nvim-neorg/neorg-telescope" },
     cmd = "Neorg",
     ft = "norg",
     keys = {
@@ -66,7 +66,6 @@ return {
                 code_block = {
                   conceal = true,
                 },
-
                 -- heading = {
                 --   icons = { "🌸", "🌼", "🏵️", "❇️", "💠", "◉" },
                 -- },
