@@ -52,9 +52,9 @@ fi
 CARD=$(echo "$DEVICE_NAME" | awk 'NR==1')
 
 if [ "$CARD" = "card0" ]; then
-	export WLR_DRM_DEVICES="/dev/dri/card0:/dev/dri/card1"
+	sed -i 's|\(.*\)\/dev\/dri\/card1:\/dev\/dri\/card0|\1\/dev\/dri\/card0:\/dev\/dri\/card1|' "$HOME/.config/hypr/hybrid.conf"
 else
-	export WLR_DRM_DEVICES="/dev/dri/card1:/dev/dri/card0"
+	sed -i 's|\(.*\)\/dev\/dri\/card0:\/dev\/dri\/card1|\1\/dev\/dri\/card1:\/dev\/dri\/card0|' "$HOME/.config/hypr/hybrid.conf"
 fi
 
 RENDER=$(echo "$DEVICE_NAME" | awk 'NR==2')
@@ -71,13 +71,10 @@ case "$MODE" in
 "hybrid")
 	sed -i "s/intel/hybrid/" "$HOME/.config/hypr/hyprland.conf"
 	sed -i "s/nvidia/hybrid/" "$HOME/.config/hypr/hyprland.conf"
-	RENDER=$(echo "$DEVICE_NVIDIA" | awk 'NR==2')
+	# RENDER=$(echo "$DEVICE_NVIDIA" | awk 'NR==2')
 	;;
 esac
 
-export MOZ_WAYLAND_DRM_DEVICE="${DRM_DEVICE}${RENDER}"
-export MOZ_DRM_DEVICE="${DRM_DEVICE}${RENDER}"
-
-fastfetch -l ~/.config/fastfetch/thinkpad.txt --logo-color-1 white --logo-color-2 red --logo-color-3 '38;2;23;147;209'
+sed -i "s/renderD[[:alnum:]]*/$RENDER/" "$HOME/.config/hypr/hybrid.conf"
 
 Hyprland >/dev/null 2>&1

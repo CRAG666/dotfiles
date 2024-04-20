@@ -49,6 +49,7 @@ return {
       "hrsh7th/cmp-path",
       "saadparwaiz1/cmp_luasnip",
       "lukas-reineke/cmp-rg",
+      "jc-doyle/cmp-pandoc-references",
     },
     opts = function()
       vim.api.nvim_set_hl(0, "CmpGhostText", { link = "Comment", default = true })
@@ -86,6 +87,7 @@ return {
           { name = "luasnip" },
           { name = "path" },
           { name = "rg" },
+          { name = "pandoc_references" },
         }, {
           { name = "buffer" },
         }),

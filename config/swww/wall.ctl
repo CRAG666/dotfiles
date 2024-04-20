@@ -1,1 +1,1 @@
-1|Catppuccin-Mocha|~/Imágenes/wallpaperCicle/think.png
+1|Catppuccin-Mocha|~/Imágenes/wallpaperCicle/Buffalo66.jpeg

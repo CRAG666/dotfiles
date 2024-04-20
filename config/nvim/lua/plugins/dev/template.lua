@@ -1,7 +1,7 @@
 -- with lazy.nvim
 
 return {
-  "glepnir/template.nvim",
+  "nvimdev/template.nvim",
   cmd = { "Template", "TemProject" },
   config = function()
     require("template").setup {

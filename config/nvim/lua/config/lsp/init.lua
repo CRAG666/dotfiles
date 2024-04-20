@@ -64,17 +64,13 @@ function M.setup(server, on_attach)
     require("config.lsp.highlighter").setup(client, bufnr)
     require("config.lsp.format").on_attach(client, bufnr)
     require("config.lsp.keymaps").on_attach(client, bufnr)
+    lsp_init() -- diagnostics, handlers
     if on_attach ~= nil then
       on_attach(client, bufnr)
     end
   end)
 
-  lsp_init() -- diagnostics, handlers
-
   server.capabilities = utils.capabilities()
-  if server.name == "sumneko_lua" then
-    server.before_init = require("neodev.lsp").before_init
-  end
   local fs = require "utils.fs"
   server.root_dir =
     fs.proj_dir(vim.api.nvim_buf_get_name(0), vim.list_extend(server.root_patterns or {}, fs.root_patterns or {}))

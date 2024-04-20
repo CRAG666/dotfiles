@@ -126,6 +126,8 @@ return {
             -- ["@neorg.headings.2.title.norg"] = { fg = C.yellow },
             -- ["@neorg.links.location.heading.2.norg"] = { fg = C.yellow },
             -- CMP
+
+            CmpItemMenu = { fg = C.lavender, italic = true },
             CmpItemKindSnippet = { fg = C.base, bg = C.mauve },
             CmpItemKindCodeium = { fg = C.base, bg = C.green },
             CmpItemKindKeyword = { fg = C.base, bg = C.red },

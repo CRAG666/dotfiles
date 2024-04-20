@@ -15,7 +15,7 @@ configuration {
 	scroll-method: 0;
 	normalize-match: true;
 	show-icons: true;
-	icon-theme: "BeautyFolders";
+	icon-theme: "Macjaro";
 /*	cache-dir: ;*/
 	steal-focus: false;
 /*	dpi: -1;*/

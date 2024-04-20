@@ -208,14 +208,15 @@ function diagnostics_component()
     return acc
   end)
 
-  local parts = vim.iter.map(function(severity, count)
-    if count == 0 then
-      return nil
+  local parts = {}
+  for severity, count in pairs(counts) do
+    if count ~= 0 then
+      local hl = "Diagnostic" .. severity:sub(1, 1) .. severity:sub(2):lower()
+      local part =
+        string.format("%%#%s#%s %%#StatuslineItalic#%d", get_or_create_hl(hl), icons.diagnostics[severity], count)
+      table.insert(parts, part)
     end
-
-    local hl = "Diagnostic" .. severity:sub(1, 1) .. severity:sub(2):lower()
-    return string.format("%%#%s#%s %%#StatuslineItalic#%d", get_or_create_hl(hl), icons.diagnostics[severity], count)
-  end, counts)
+  end
 
   return table.concat(parts, " ")
 end
