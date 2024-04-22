@@ -19,12 +19,17 @@ local pyright = {
   cmd = { "pyright-langserver", "--stdio" },
   root_patterns = root_patterns,
   settings = {
+    pyright = {
+      -- Using Ruff's import organizer
+      disableOrganizeImports = true,
+    },
     python = {
       analysis = {
         autoImportCompletions = true,
         typeCheckingMode = "on",
         autoSearchPaths = true,
         useLibraryCodeForTypes = true,
+        ignore = { "*" },
         diagnosticMode = "openFilesOnly", -- "openFilesOnly" or "openFilesOnly"
         stubPath = vim.fn.stdpath "data" .. "/lazy/python-type-stubs/stubs",
       },
@@ -35,7 +40,7 @@ local pyright = {
 
 local ruff_lsp = {
   name = "ruff-lsp",
-  cmd = { "ruff-lsp" },
+  cmd = { "ruff", "server", "--preview" },
   single_file_support = true,
   root_patterns = root_patterns,
   init_options = {
@@ -44,5 +49,7 @@ local ruff_lsp = {
     },
   },
 }
-require("config.lsp").setup(pyright)
+require("config.lsp").setup(pyright, function(client, ...)
+  client.server_capabilities.hoverProvider = false
+end)
 require("config.lsp").setup(ruff_lsp)

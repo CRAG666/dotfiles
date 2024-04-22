@@ -44,5 +44,5 @@ local texlab = {
   },
 }
 
--- require("config.lsp.grammar").setup()
+require("config.lsp.grammar").setup()
 require("config.lsp").setup(texlab)

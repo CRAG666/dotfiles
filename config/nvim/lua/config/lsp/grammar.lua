@@ -1,33 +1,73 @@
 local utils = require "utils.keymap"
+
+local language_id_mapping = {
+  bib = "bibtex",
+  plaintex = "tex",
+  rnoweb = "rsweave",
+  rst = "restructuredtext",
+  tex = "latex",
+  pandoc = "markdown",
+  text = "plaintext",
+}
+
+local filetypes = {
+  "bib",
+  "gitcommit",
+  "markdown",
+  "org",
+  "plaintex",
+  "rst",
+  "rnoweb",
+  "tex",
+  "pandoc",
+  "quarto",
+  "rmd",
+  "context",
+  "html",
+  "xhtml",
+  "mail",
+  "text",
+}
+
+local function get_language_id(_, filetype)
+  local language_id = language_id_mapping[filetype]
+  if language_id then
+    return language_id
+  else
+    return filetype
+  end
+end
+local enabled_ids = {}
+do
+  local enabled_keys = {}
+  for _, ft in ipairs(filetypes) do
+    local id = get_language_id({}, ft)
+    if not enabled_keys[id] then
+      enabled_keys[id] = true
+      table.insert(enabled_ids, id)
+    end
+  end
+end
+
 local function init(language)
   require("config.lsp").setup {
     name = "ltex",
     cmd = { "ltex-ls" },
-    flags = { debounce_text_changes = 300 },
+    get_language_id = get_language_id,
+    single_file_support = true,
     settings = {
       ltex = {
-        enabled = {
-          "bibtex",
-          "context",
-          "gitcommit",
-          "html",
-          "latex",
-          "markdown",
-          "org",
-          "quarto",
-          "restructuredtext",
-          "rmd",
-          "rsweave",
-          "tex",
-          "xhtml",
-        },
+        enabled = enabled_ids,
         language = language,
+        additionalRules = {
+          enablePickyRules = true,
+          motherTongue = language,
+        },
         checkFrequency = "save",
-        setenceCacheSize = 2000,
-        trace = { server = "verbose" },
+        setenceCacheSize = 20000,
+        trace = { server = "off" },
       },
     },
-    single_file_support = true,
   }
 end
 
@@ -53,9 +93,7 @@ function M.setup()
 
   vim.opt_local.spell = true
   vim.opt_local.spelllang = "es"
-  vim.schedule(function()
-    init "es"
-  end)
+  init "es"
 end
 
 return M

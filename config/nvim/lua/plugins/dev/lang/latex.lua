@@ -12,19 +12,19 @@ return {
       end
     end,
   },
-  {
-    "nvimtools/none-ls.nvim",
-    ft = "tex",
-    opts = function(_, opts)
-      local nls = require "null-ls"
-      table.insert(opts.sources, nls.builtins.diagnostics.vale)
-    end,
-  },
+  -- {
+  --   "nvimtools/none-ls.nvim",
+  --   ft = "tex",
+  --   opts = function(_, opts)
+  --     local nls = require "null-ls"
+  --     table.insert(opts.sources, nls.builtins.diagnostics.vale)
+  --   end,
+  -- },
   {
     "williamboman/mason.nvim",
     opts = function(_, opts)
       opts.ensure_installed = opts.ensure_installed or {}
-      vim.list_extend(opts.ensure_installed, { "latexindent", "texlab", "vale", "ltex-ls" })
+      vim.list_extend(opts.ensure_installed, { "latexindent", "texlab", "ltex-ls" })
     end,
   },
 }

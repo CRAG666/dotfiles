@@ -1,1 +1,1 @@
-1|Catppuccin-Mocha|~/Imágenes/wallpaperCicle/Buffalo66.jpeg
+1|Catppuccin-Mocha|~/Imágenes/wallpaperCicle/kill-bill.jpg
