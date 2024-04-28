@@ -1,0 +1,67 @@
+@import "iconmenu.rasi"
+
+/*****----- Configuration -----*****/
+configuration {
+	scroll-method		: 0;
+	selected-row		: 2;
+}
+
+/*****----- Head -----*****/
+
+coverbox { border-radius : 0px; }
+
+/*****----- Listview -----*****/
+listview {
+	spacing		 	: 4px;
+	padding		 	: 5px;
+    	columns   	 	: 1;
+    	lines     	 	: 10;
+    	scrollbar 	 	: true;
+}
+
+scrollbar {
+	margin        	 	: 5px 0px 5px 0px;
+  	handle-width  	 	: 4px;
+  	handle-color  	 	: var(foreground);
+  	border-color  	 	: var(background-alt);
+  	border-radius 	 	: 12px;
+  	background-color 	: var(background-alt);
+}
+
+element {
+	border-radius    	: 8px;
+	orientation		: horizontal;
+	spacing			: 6px;
+	/* children		: [ element-icon, element-text ]; */
+	children		: [ element-text, element-icon ];
+	/* children		: [ element-text ]; */
+}
+
+element-text {
+	font    	 	: "feather 13";
+	padding			: 0px 5px;
+  	horizontal-align 	: 0;
+}
+
+element-icon {
+  	cursor  	 	: "default";
+	background-color	: transparent;
+	size			: 20;
+  	vertical-align   	: 0.5;
+  	horizontal-align 	: 0;
+}
+
+element selected.active,
+element selected.normal,
+element selected.urgent {
+	background-color 	: var(selected);
+    	text-color	 	: var(background);
+}
+
+element normal.active,
+element alternate.active,
+element alternate.normal,
+element normal.normal, {
+	background-color 	: var(background-alt);
+    	text-color	 	: var(foreground);
+}

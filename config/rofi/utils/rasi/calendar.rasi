@@ -1,0 +1,10 @@
+@import "iconmenu.rasi"
+
+message { border-radius: 160px; }
+
+textbox {
+    font:                        "Iosevka 20";
+    background-color:            transparent;
+    vertical-align:              0.5;
+    horizontal-align:            0.5;
+}

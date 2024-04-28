@@ -103,3 +103,7 @@ vim.filetype.add {
 vim.filetype.add {
   pattern = { ["zathurarc"] = "zathurarc" },
 }
+
+vim.filetype.add {
+  pattern = { ["*.conf"] = "rasi" },
+}
