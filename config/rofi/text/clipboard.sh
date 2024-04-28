@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-~/.config/rofi/text/ramdom_color.sh
-
 theme="style_2"
 dir="$HOME/.config/rofi/text"
 styles=("$(ls -p --hide="colors.rasi" "$dir"/styles)")

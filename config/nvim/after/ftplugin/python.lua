@@ -40,7 +40,8 @@ local pyright = {
 
 local ruff_lsp = {
   name = "ruff-lsp",
-  cmd = { "ruff", "server", "--preview" },
+  -- cmd = { "ruff", "server", "--preview" },
+  cmd = { "ruff-lsp" },
   single_file_support = true,
   root_patterns = root_patterns,
   init_options = {
@@ -49,7 +50,8 @@ local ruff_lsp = {
     },
   },
 }
-require("config.lsp").setup(pyright, function(client, ...)
-  client.server_capabilities.hoverProvider = false
-end)
-require("config.lsp").setup(ruff_lsp)
+-- require("config.lsp").setup(pyright, function(client, ...)
+--   client.server_capabilities.hoverProvider = false
+-- end)
+require("config.lsp").setup(pyright)
+-- require("config.lsp").setup(ruff_lsp)

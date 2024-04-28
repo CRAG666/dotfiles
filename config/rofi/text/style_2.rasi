@@ -1,12 +1,3 @@
-/*
- *
- * Author  : Aditya Shakya
- * Mail    : adi1090x@gmail.com
- * Github  : @adi1090x
- * Twitter : @adi1090x
- *
- */
-
 configuration {
     font: 							"SF Pro 16";
     fixed-num-lines: 				true;
@@ -24,13 +15,13 @@ configuration {
     display-combi: 					"";
 }
 
-@import "styles/colors.rasi"
+@import "~/.config/rofi/colors/catppuccin.rasi"
 
 * {
-  background-color: @bg;
-  bgAlt: @al;
-  background-color:	@bg;
-  text-color:		@fg;
+  background-color: @background;
+  bgAlt: @background-alt;
+  background-color:	@background;
+  text-color:		@foreground;
 }
 
 window {
@@ -39,7 +30,7 @@ window {
   border-radius:	15px;
   height:		750px;
   border: 12px;
-  border-color: @bg;
+  border-color: @background;
 }
 
 inputbar {
@@ -50,13 +41,13 @@ inputbar {
 
 prompt {
   enabled: true;
-  background-color:	@bgAlt;
+  background-color:	@background-alt;
   padding:		15px;
   border-radius:	15px;
 }
 
 entry {
-  background-color:	@bgAlt;
+  background-color:	@background-alt;
   placeholder:		"Buscar";
   expand:		true;
   padding:		15px;
@@ -72,12 +63,12 @@ textbox-prompt-colon {
 
 case-indicator {
     spacing:    					0;
-    text-color: 					@fg;
+    text-color: 					@foreground;
 }
 
 mainbox {
     border: 						0px;
-    border-color: 					@ac;
+    border-color: 					@active;
     padding: 						6;
 }
 
@@ -86,7 +77,7 @@ listview {
     columns:						1;
     fixed-height: 					0;
     border: 						0px;
-    border-color: 					@ac;
+    border-color: 					@active;
     spacing: 						4px;
     scrollbar: 						false;
     padding: 						5px 5px 0px 5px;
@@ -103,82 +94,82 @@ element {
     padding: 						8px;
 }
 element normal.normal {
-    background-color: 				@bg;
-    text-color:       				@fg;
+    background-color: 				@background;
+    text-color:       				@foreground;
 }
 element normal.urgent {
-    background-color: 				@bg;
-    text-color:       				@red;
+    background-color: 				@background;
+    text-color:       				@urgent;
 }
 element normal.active {
-    background-color: 				@green;
-    text-color:       				@bg;
+    background-color: 				@active;
+    text-color:       				@background;
 }
 element selected.normal {
-    background-color: 				@ac;
-    text-color:       				@bg;
+    background-color: 				@selected;
+    text-color:       				@background;
 }
 element selected.urgent {
-    background-color: 				@bg;
-    text-color:       				@red;
+    background-color: 				@background;
+    text-color:       				@urgent;
 }
 element selected.active {
-    background-color: 				@fg;
-    text-color:       				@bg;
+    background-color: 				@foreground;
+    text-color:       				@background;
 }
 element alternate.normal {
-    background-color: 				@bg;
-    text-color:       				@fg;
+    background-color: 				@background;
+    text-color:       				@foreground;
 }
 element alternate.urgent {
-    background-color: 				@bg;
-    text-color:       				@fg;
+    background-color: 				@background;
+    text-color:       				@foreground;
 }
 element alternate.active {
-    background-color: 				@bg;
-    text-color:       				@fg;
+    background-color: 				@background;
+    text-color:       				@foreground;
 }
 
 sidebar {
     border:       					0px;
-    border-color: 					@ac;
+    border-color: 					@active;
     border-radius: 					0px;
 }
 
 button {
     horizontal-align:               0.5;
     vertical-align:                 0.5;
-    background-color:             	@fg;
+    background-color:             	@foreground;
     margin: 						5px;
     padding: 						5px;
-    text-color: 					@bg;
+    text-color: 					@background;
     border: 						0px;
     border-radius: 					4px;
-    border-color: 					@fg;
+    border-color: 					@foreground;
 }
 
 button selected {
-    background-color:             	@ac;
-    text-color: 					@fg;
+    background-color:             	@active;
+    text-color: 					@foreground;
     border: 						0px;
     border-radius: 					4px;
-    border-color: 					@fg;
+    border-color: 					@foreground;
 }
 
 scrollbar {
     width:        					4px;
     border:       					0px;
-    handle-color: 					@fg;
+    handle-color: 					@foreground;
     handle-width: 					8px;
     padding:      					0;
 }
 
 message {
     border: 						0px;
-    border-color: 					@ac;
+    border-color: 					@active;
     padding: 						1px;
 }
 
 textbox {
-    text-color: 					@fg;
+    text-color: 					@foreground;
 }

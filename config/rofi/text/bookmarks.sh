@@ -1,7 +1,5 @@
 #!/bin/sh
 
-~/.config/rofi/text/ramdom_color.sh
-
 theme="style_2"
 dir="$HOME/.config/rofi/text"
 
