@@ -5,8 +5,8 @@ theme="$type/$style"
 hyprmonitor=$HOME/.config/hypr/monitors.conf
 
 # Theme Elements
-prompt='Screenshot'
-mesg="DIR: $(xdg-user-dir PICTURES)/Screenshots"
+prompt='Monitor Settings'
+mesg="Change Settings monitor"
 list_col='1'
 list_row='5'
 win_width='120px'

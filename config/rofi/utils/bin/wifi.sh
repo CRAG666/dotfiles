@@ -33,10 +33,10 @@ handle_option() {
 	connection)
 		message=''
 		if [[ $status =~ disconnected ]]; then
-			nmcli dev connect wlp58s0 >/dev/null
+			nmcli dev connect wlp82s0 >/dev/null
 			sleep 1
 		else
-			nmcli dev disconnect wlp58s0 >/dev/null
+			nmcli dev disconnect wlp82s0 >/dev/null
 		fi
 		;;
 	list)

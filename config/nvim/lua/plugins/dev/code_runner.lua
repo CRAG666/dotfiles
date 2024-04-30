@@ -20,26 +20,11 @@ return {
     filetype = {
       v = "v run",
       tex = function(...)
-        require("code_runner.hooks.ui").select {
-          Single = function()
-            local preview = require "code_runner.hooks.preview_pdf"
-            preview.run {
-              command = "tectonic",
-              args = { "$fileName", "--keep-logs", "-o", "/tmp" },
-              preview_cmd = preview_cmd,
-              overwrite_output = "/tmp",
-            }
-          end,
-          Project = function()
-            local cr_au = require "code_runner.hooks.autocmd"
-            cr_au.stop_job()
-            os.execute "tectonic -X build --keep-logs --open &> /dev/null &"
-            local fn = function()
-              os.execute "tectonic -X build --keep-logs &> /dev/null &"
-            end
-            cr_au.create_au_write(fn)
-          end,
-        }
+        if vim.g.tectonic == nil then
+          vim.fn.jobstart "tectonic -X build --open"
+          vim.fn.jobstart "tectonic -X watch -x 'build --keep-intermediates --keep-logs'"
+          vim.g.tectonic = 1
+        end
       end,
       markdown = function(...)
         local hook = require "code_runner.hooks.preview_pdf"

@@ -90,10 +90,9 @@ function M.setup()
       end
     end)
   end, { desc = "[S]elect [G]rammar check" })
-
-  vim.opt_local.spell = true
-  vim.opt_local.spelllang = "es"
-  init "es"
+  -- vim.opt_local.spell = true
+  -- vim.opt_local.spelllang = "es"
+  -- init "es"
 end
 
 return M

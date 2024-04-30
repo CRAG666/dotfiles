@@ -1,3 +1,4 @@
+vim.bo.textwidth = 100
 local utils = require "utils"
 
 local root_files = {
@@ -12,15 +13,15 @@ local texlab = {
   root_patterns = root_files,
   settings = {
     texlab = {
-      rootDirectory = nil,
+      rootDirectory = root_path,
       build = {
-        auxDirectory = build_path, -- Editar
-        logDirectory = build_path, -- Editar
-        pdfDirectory = build_path, -- Editar
+        auxDirectory = build_path,
+        logDirectory = build_path,
+        pdfDirectory = build_path,
         executable = "tectonic",
-        args = { "-X", "build", "--synctex", "-k", "--keep-logs" },
+        args = { "-X", "watch", "-x", "'build --synctex -k --keep-logs'" },
         onSave = false,
-        forwardSearchAfter = false,
+        forwardSearchAfter = true,
       },
       forwardSearch = {
         executable = "zathura",
@@ -39,10 +40,10 @@ local texlab = {
         modifyLineBreaks = false,
       },
       bibtexFormatter = "texlab",
-      formatterLineLength = 80,
+      formatterLineLength = 100,
     },
   },
 }
 
-require("config.lsp.grammar").setup()
+-- require("config.lsp.grammar").setup()
 require("config.lsp").setup(texlab)
