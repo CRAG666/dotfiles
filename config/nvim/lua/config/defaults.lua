@@ -42,13 +42,15 @@ set.wildignore:append {
 }
 set.path:remove "/usr/include"
 set.path:append "**"
-set.autoindent = true
 set.breakindent = true
+set.ts = 4
+set.softtabstop = 4
+set.shiftwidth = 4
 set.expandtab = true
-set.tabstop = 2
+set.autoindent = true
+set.ignorecase = true
+set.smartcase = true
 set.shiftround = true
-set.shiftwidth = 2
-set.softtabstop = -1
 set.smarttab = true
 set.wrap = true
 set.whichwrap:append "<>[]hl"
@@ -87,15 +89,13 @@ set.laststatus = 3
 set.cmdheight = 0
 set.hlsearch = true
 set.incsearch = true
-set.ignorecase = true
-set.smartcase = true
 set.smartindent = true
 set.grepformat = "%f:%l:%c:%m"
 set.grepprg = "rg --vimgrep --no-heading --smart-case"
 set.fillchars = {
   foldopen = "",
   foldclose = "",
-  fold = "⸱",
+  fold = "",
   foldsep = " ",
   diff = "╱",
   eob = " ",

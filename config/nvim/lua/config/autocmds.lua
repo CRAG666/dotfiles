@@ -105,5 +105,5 @@ vim.filetype.add {
 }
 
 vim.filetype.add {
-  pattern = { ["*.conf"] = "rasi" },
+  pattern = { [".*%.rasi"] = "rasi" },
 }

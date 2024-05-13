@@ -11,7 +11,7 @@ return {
     "williamboman/mason.nvim",
     opts = function(_, opts)
       opts.ensure_installed = opts.ensure_installed or {}
-      table.insert(opts.ensure_installed, "pyright")
+      table.insert(opts.ensure_installed, "basepyright")
       table.insert(opts.ensure_installed, "ruff")
       table.insert(opts.ensure_installed, "ruff-lsp")
     end,

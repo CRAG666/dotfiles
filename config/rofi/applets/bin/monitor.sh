@@ -45,7 +45,7 @@ run_rofi() {
 }
 
 fullres() {
-	sed -i '/#second$/s/.*/monitor=HDMI-A-1,3840x2160@59.94Hz,0x0,1.2 #second/' $hyprmonitor
+	sed -i '/#second$/s/.*/monitor=HDMI-A-1,3840x2160@59.94Hz,0x0,1 #second/' $hyprmonitor
 	hyprctl reload
 	hyprctl reload
 }
