@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# You can call this script like this:
+# $./volume.sh up
+# $./volume.sh down
+# $./volume.sh mute
+
+function get_volume {
+	wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print $2}'
+}
+
+function send_notification {
+	volume=$(get_volume)
+	volume_integer=$(echo "($volume * 100)" | bc | awk '{printf "%d\n", $1}')
+	echo $volume_integer
+	notify-send -i audio-volume-medium -h int:value:$volume_integer "Volume"
+}
+
+case $1 in
+up)
+	wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+ >/dev/null
+	canberra-gtk-play -i audio-volume-change -d "changeVolume"
+	send_notification
+	;;
+down)
+	wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%- >/dev/null
+	canberra-gtk-play -i audio-volume-change -d "changeVolume"
+	send_notification
+	;;
+mute)
+	# Toggle mute
+	wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+	canberra-gtk-play -i audio-volume-change -d "changeVolume"
+	;;
+esac
