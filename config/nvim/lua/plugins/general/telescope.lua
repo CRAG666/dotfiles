@@ -98,7 +98,7 @@ return {
         function()
           require("telescope.builtin").colorscheme()
         end,
-        desc = "[f]ind [c]olor[s]cheme",
+        desc = "[f]ind [C]olorscheme",
       },
       {
         prefix_1 .. "c",
@@ -148,6 +148,13 @@ return {
           require("telescope.builtin").jumplist()
         end,
         desc = "[f]ind [j]umplist",
+      },
+      {
+        prefix_1 .. "u",
+        function()
+          require("telescope").extensions.undo.undo()
+        end,
+        desc = "[f]ind undo",
       },
       {
         prefix_3 .. "r",
@@ -335,7 +342,7 @@ return {
           },
         },
       }
-      local extensions = { "zf-native", "frecency", "file_browser" }
+      local extensions = { "zf-native", "frecency", "file_browser", "undo" }
       for _, extension in ipairs(extensions) do
         require("telescope").load_extension(extension)
       end
@@ -390,6 +397,7 @@ return {
       "nvim-lua/popup.nvim",
       "nvim-lua/plenary.nvim",
       "natecraddock/telescope-zf-native.nvim",
+      "debugloop/telescope-undo.nvim",
       {
         "nvim-telescope/telescope-frecency.nvim",
         dependencies = { "kkharji/sqlite.lua" },

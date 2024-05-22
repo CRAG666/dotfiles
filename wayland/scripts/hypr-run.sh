@@ -51,10 +51,10 @@ fi
 
 CARD=$(echo "$DEVICE_NAME" | awk 'NR==1')
 
-if [ "$CARD" = "card0" ]; then
-	sed -i 's|\(.*\)\/dev\/dri\/card1:\/dev\/dri\/card0|\1\/dev\/dri\/card0:\/dev\/dri\/card1|' "$HOME/.config/hypr/hybrid.conf"
+if [ "$CARD" = "card1" ]; then
+	sed -i 's|\(.*\)\/dev\/dri\/card2:\/dev\/dri\/card1|\1\/dev\/dri\/card1:\/dev\/dri\/card2|' "$HOME/.config/hypr/hybrid.conf"
 else
-	sed -i 's|\(.*\)\/dev\/dri\/card0:\/dev\/dri\/card1|\1\/dev\/dri\/card1:\/dev\/dri\/card0|' "$HOME/.config/hypr/hybrid.conf"
+	sed -i 's|\(.*\)\/dev\/dri\/card1:\/dev\/dri\/card2|\1\/dev\/dri\/card2:\/dev\/dri\/card1|' "$HOME/.config/hypr/hybrid.conf"
 fi
 
 RENDER=$(echo "$DEVICE_NAME" | awk 'NR==2')

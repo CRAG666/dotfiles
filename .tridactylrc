@@ -1,4 +1,3 @@
-" vim: filetype=vim
 "
 "   _____ _           __            __     ___
 "  |  ___(_)_ __ ___ / _| _____  __ \ \   / (_)_ __ ___
@@ -16,6 +15,10 @@
 " This wipes all existing settings. This means that if a setting in this file
 " is removed, then it will return to default. In other words, this file serves
 " as an enforced single point of truth for Tridactyl's configuration.
+set configversion 2.0
+set modeindicatorshowkeys true
+set modeindicatormodes.ignore false
+set modeindicator true
 sanitize tridactyllocal tridactylsync
 
 " colorscheme catppuccin
@@ -36,9 +39,6 @@ set hintfiltermode vimperator-reflow
 "
 bind j scrollline 5
 bind k scrollline -5
-bind <A-h> tabprev
-bind <A-l> tabnext
-bind = tabduplicate
 bind q back
 bind w forward
 bind $ tablast
@@ -56,17 +56,11 @@ bind ? fillcmdline find -?
 bind n findnext 1
 bind N findnext -1
 
-" Make gu take you back to subreddit from comments
-bindurl reddit.com gu urlparent 4
-
 " Allow Ctrl-a to select all in the commandline
 unbind --mode=ex <C-a>
 
 " Allow Ctrl-c to copy in the commandline
 unbind --mode=ex <C-c>
-
-" Open right click menu on links
-bind ;C composite hint focus; !s wtype -P Menu -p Menu
 
 "
 " Quickmarks
@@ -76,11 +70,11 @@ quickmark f https://relay.firefox.com/accounts/profile/
 quickmark g https://github.com/
 quickmark l http://localhost/
 quickmark m https://medium.com/
-quickmark n https://this-week-in-neovim.org/
+quickmark n https://dotfyle.com/this-week-in-neovim
 quickmark p https://mail.proton.me/u/1/inbox
 quickmark r https://reddit.com/
 quickmark t https://translate.google.com/
-quickmark w web.whatsapp.com/
+quickmark w https://web.whatsapp.com/
 quickmark y https://www.youtube.com/feed/subscriptions
 
 "
@@ -96,7 +90,12 @@ bind ;6 tab 6
 bind ;7 tab 7
 bind ;8 tab 8
 bind ;9 tab 9
+bind ;0 tab 10
 
 alias tabsort jsb browser.tabs.query({}).then(tabs => tabs.sort((t1, t2) => t1.url.localeCompare(t2.url)).forEach((tab, index) => browser.tabs.move(tab.id, {index})))
 
 alias tabuniq jsb browser.tabs.query({}).then(tabs => browser.tabs.remove(tabs.filter((tab, index) => tabs.slice(index + 1).find(t => t.url == tab.url)).map(tab => tab.id)))
+
+" For syntax highlighting see https://github.com/tridactyl/vim-tridactyl
+" vim: set filetype=tridactyl
+" vim: set ft=vim :

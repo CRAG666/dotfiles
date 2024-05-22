@@ -130,6 +130,13 @@ element alternate.active {
     text-color:       				@foreground;
 }
 
+element-icon {
+    background-color:            transparent;
+    text-color:                  inherit;
+    size:                        72px;
+    cursor:                      inherit;
+}
+
 sidebar {
     border:       					0px;
     border-color: 					@active;
