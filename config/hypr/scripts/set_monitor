@@ -2,3 +2,4 @@
 hyprmonitor=$HOME/.config/hypr/monitors.conf
 sed -i '/#primary$/s/.*/monitor = eDP-1,highrr,auto,1 #primary/' $hyprmonitor
 hyprctl reload
+hyprctl reload

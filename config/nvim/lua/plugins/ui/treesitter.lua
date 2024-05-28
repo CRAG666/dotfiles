@@ -44,7 +44,6 @@ return {
         end,
       },
       "RRethy/nvim-treesitter-endwise",
-      "JoosepAlviste/nvim-ts-context-commentstring",
     },
     cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
     keys = {

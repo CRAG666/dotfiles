@@ -45,19 +45,13 @@ run_rofi() {
 }
 
 fullres() {
-	sed -i '/#second$/s/.*/monitor=HDMI-A-1,3840x2160@59.94Hz,0x0,1 #second/' $hyprmonitor
+	sed -i '/#second$/s/.*/monitor=DP-3,3840x2160@59.94Hz,0x0,1 #second/' $hyprmonitor
 	hyprctl reload
 	hyprctl reload
 }
 
 fullhz() {
-	sed -i '/#second$/s/.*/monitor=HDMI-A-1,2560x1440@144.00Hz,0x0,1 #second/' $hyprmonitor
-	hyprctl reload
-	hyprctl reload
-}
-
-autores() {
-	sed -i '/#second$/s/.*/monitor=,preferred,0x0,1 #second/' $hyprmonitor
+	sed -i '/#second$/s/.*/monitor=DP-3,2560x1440@144.00Hz,0x0,1 #second/' $hyprmonitor
 	hyprctl reload
 	hyprctl reload
 }

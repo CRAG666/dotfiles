@@ -1,20 +1,19 @@
-# DO NOT EDIT! This file will be overwritten by LXAppearance.
+# DO NOT EDIT! This file will be overwritten by nwg-look.
 # Any customization should be done in ~/.gtkrc-2.0.mine instead.
 
-# include "/home/crag/.gtkrc-2.0.mine"
-gtk-theme-name="adw-gtk3"
-gtk-icon-theme-name="candy-icons"
-gtk-font-name="Lucida MAC 11"
-gtk-cursor-theme-name="Catppuccin-Mocha-Lavender-Cursors"
-gtk-cursor-theme-size=0
-gtk-toolbar-style=GTK_TOOLBAR_BOTH_HORIZ
-gtk-toolbar-icon-size=GTK_ICON_SIZE_BUTTON
+include "/home/think-crag/.gtkrc-2.0.mine"
+gtk-theme-name="catppuccin-mocha-maroon"
+gtk-icon-theme-name="Macjaro"
+gtk-font-name="SF Pro Display 14"
+gtk-cursor-theme-name="Catppuccin-Mocha-Red-Cursors"
+gtk-cursor-theme-size=40
+gtk-toolbar-style=GTK_TOOLBAR_ICONS
+gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR
 gtk-button-images=0
-gtk-menu-images=1
+gtk-menu-images=0
 gtk-enable-event-sounds=1
-gtk-enable-input-feedback-sounds=1
+gtk-enable-input-feedback-sounds=0
 gtk-xft-antialias=1
 gtk-xft-hinting=1
 gtk-xft-hintstyle="hintfull"
 gtk-xft-rgba="rgb"
-gtk-modules="gail:atk-bridge"

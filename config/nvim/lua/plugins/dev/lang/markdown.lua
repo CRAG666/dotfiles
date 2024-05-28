@@ -1,5 +1,4 @@
 return {
-  { "phanen/mder.nvim", ft = "markdown", config = true },
   {
     "nvim-treesitter/nvim-treesitter",
     opts = function(_, opts)
