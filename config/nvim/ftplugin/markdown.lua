@@ -1,3 +1,4 @@
+vim.bo.textwidth = 98
 local marksman = {
   name = "marksman",
   cmd = { "marksman", "server" },

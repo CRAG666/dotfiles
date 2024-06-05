@@ -232,7 +232,7 @@ export FZF_DEFAULT_OPTS=" --prompt='ﰉ ' --pointer='ﰊ' --height 40% --reverse
 export OPENAI_API_KEY="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"
 
 # Working with latex
-export EISVOGEL=~/Documentos/Proyectos/Writings/eisvogel/eisvogel.tex
+export EISVOGEL=~/Documentos/Proyectos/Writings/latex_utils/eisvogel.tex
 export IEEESTL=~/Documentos/Proyectos/Writings/latex_utils/ieee.csl
 export LCOLORCATPPUCCIN=~/Documentos/Proyectos/Writings/latex_utils/catppuccin
 
