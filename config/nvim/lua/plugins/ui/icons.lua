@@ -12,7 +12,7 @@ return {
   {
     "rachartier/tiny-devicons-auto-colors.nvim",
     dependencies = {
-      "nvim-tree/nvim-web-devicons",
+      "DaikyXendo/nvim-material-icon",
     },
     event = "VeryLazy",
     config = function()
