@@ -56,7 +56,7 @@ elif [[ $name == "-" ]]; then
 elif [[ $name == "*" ]]; then
 	category=$(get_categories | rofi_main_window "Bookmarks" | awk '{print $2}')
 	[[ -n $category ]] || exit
-	grep "$category" "$BOOKMARKS" | cut -d '|' -f 2 | xargs -I{} $BROWSER {}
+	grep "$category" "$BOOKMARKS" | cut -d '|' -f 2 | xargs $BROWSER
 else
 	[[ -n $name ]] || exit
 	url=$(grep "$name" "$BOOKMARKS" | cut -d '|' -f 2)

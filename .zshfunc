@@ -31,7 +31,7 @@ atm() {
     return 1
   fi
 
-  device=$(echo "$devices" | fzf --header='Select Device' | awk '{print $(NF)}')
+  device=$(echo "$devices" | gum filter --no-limit --height=25 --placeholder 'Select Device' | awk '{print $(NF)}')
   if [ -z "$device" ]; then
     echo "No se seleccionó ningún dispositivo."
     return 1
@@ -61,9 +61,9 @@ atm() {
         echo "No hay particiones montadas en este dispositivo."
         return 1
       fi
-      partition=$(echo "$partitions" | grep -i -e "$mounted_partitions" | sed 's/[├─└─]//g' | fzf --header='Select Partition' | awk '{print $1}')
+      partition=$(echo "$partitions" | grep -i -e "$mounted_partitions" | sed 's/[├─└─]//g' | gum filter --no-limit --height=25 --placeholder 'Select Partition' | awk '{print $1}')
     else
-      partition=$(echo "$partitions" | sed 's/[├─└─]//g' | fzf --header='Select Partition' | awk '{print $1}')
+      partition=$(echo "$partitions" | sed 's/[├─└─]//g' | gum filter --no-limit --height=25 --placeholder 'Select Partition' | awk '{print $1}')
     fi
   fi
 
@@ -108,18 +108,12 @@ dhg() {
 }
 
 fapp() {
-	selected="$(/bin/ls /usr/share/applications | fzf -e)"
+	selected="$(/bin/ls /usr/share/applications | gum filter --no-limit --height=25 --placeholder "Select an application")"
 	nohup "$(grep '^Exec' "/usr/share/applications/$selected" | tail -1 | sed 's/^Exec=//' | sed 's/%.//')" >/dev/null 2>&1&
 }
 
 fkill() {
   local pid
-
-  # pid="$(
-  #   pgrep . -l \
-  #     | fzf -m \
-  #     | awk '{print $1}'
-  # )" || return
   pid="$(
     pgrep . -l \
       | gum filter --no-limit --height=25 \
@@ -172,7 +166,7 @@ gb() {
 }
 
 gbs() {
-  gb | fzf --ansi --header='switch branch <choose branch>' --reverse | awk '{print $4}' | xargs -ro git switch
+  gb | gum filter --no-limit --height=25 --placeholder 'switch branch <choose branch>' | awk '{print $4}' | xargs -ro git switch
 }
 
 # Lazy loading

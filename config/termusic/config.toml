@@ -20,10 +20,10 @@ player_use_mpris = true
 player_use_discord = false
 
 [album_photo_xywh]
-x_between_1_100 = 99
-y_between_1_100 = 79
-width_between_1_100 = 20
-align = "BottomRight"
+x_between_1_100 = 2
+y_between_1_100 = 45
+width_between_1_100 = 60
+align = "TopLeft"
 
 [style_color_symbol]
 library_foreground = "Foreground"

@@ -118,3 +118,8 @@ set.shortmess:append { W = true, I = true, c = true, C = true }
 if vim.fn.has "nvim-0.10" == 1 then
   set.smoothscroll = true
 end
+
+vim.keymap.set("", "<Space>", "<Nop>", { noremap = true, silent = true })
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+vim.g.modern_ui = true

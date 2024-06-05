@@ -22,24 +22,24 @@ function M.on_attach(_, buffer)
     end
   end
 
-  utils.map({ "n", "l" }, ";dl", toggleDiagnosticList, { desc = "Toggle diagnostic local" })
-
-  local function toggleDiagnosticQuickfix()
-    local quickfix_win = vim.fn.getqflist({ winid = 0 }).winid
-
-    if quickfix_win ~= 0 and vim.fn.win_getid() == quickfix_win then
-      -- Si el foco está en la ventana del quickfix, ciérrala
-      vim.cmd "cclose"
-    elseif quickfix_win ~= 0 then
-      -- Si el quickfix está abierto pero el foco no está en él, también ciérralo
-      vim.cmd "cclose"
-    else
-      -- Si el quickfix está cerrado, ábrelo
-      vim.diagnostic.setqflist { open = true }
-    end
-  end
-
-  utils.map({ "n", "c" }, ";dg", toggleDiagnosticQuickfix, { desc = "Toggle diagnostic global" })
+  -- utils.map({ "n", "l" }, ";dl", toggleDiagnosticList, { desc = "Toggle diagnostic local" })
+  --
+  -- local function toggleDiagnosticQuickfix()
+  --   local quickfix_win = vim.fn.getqflist({ winid = 0 }).winid
+  --
+  --   if quickfix_win ~= 0 and vim.fn.win_getid() == quickfix_win then
+  --     -- Si el foco está en la ventana del quickfix, ciérrala
+  --     vim.cmd "cclose"
+  --   elseif quickfix_win ~= 0 then
+  --     -- Si el quickfix está abierto pero el foco no está en él, también ciérralo
+  --     vim.cmd "cclose"
+  --   else
+  --     -- Si el quickfix está cerrado, ábrelo
+  --     vim.diagnostic.setqflist { open = true }
+  --   end
+  -- end
+  --
+  -- utils.map({ "n", "c" }, ";dg", toggleDiagnosticQuickfix, { desc = "Toggle diagnostic global" })
   -- utils.map(
   --   { "n", "c" },
   --   ";dg",

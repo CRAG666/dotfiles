@@ -15,6 +15,7 @@ local filetypes = {
   "gitcommit",
   "markdown",
   "org",
+  "norg",
   "plaintex",
   "rst",
   "rnoweb",
@@ -59,13 +60,14 @@ local function init(language)
       ltex = {
         enabled = enabled_ids,
         language = language,
-        additionalRules = {
-          enablePickyRules = true,
-          motherTongue = language,
-        },
         checkFrequency = "save",
         setenceCacheSize = 20000,
         trace = { server = "off" },
+        additionalRules = {
+          enablePickyRules = true,
+          motherTongue = language,
+          languageModel = vim.fn.expand("~/Documentos/Models/" .. language),
+        },
       },
     },
   }
@@ -90,9 +92,6 @@ function M.setup()
       end
     end)
   end, { desc = "[S]elect [G]rammar check" })
-  -- vim.opt_local.spell = true
-  -- vim.opt_local.spelllang = "es"
-  -- init "es"
 end
 
 return M
