@@ -1,7 +1,7 @@
 music_dir = ["/home/think-crag/Música"]
 player_port = 50101
 player_interface = "::"
-player_loop_mode = "Random"
+player_loop_mode = "Playlist"
 player_volume = 100
 player_speed = 10
 player_gapless = false

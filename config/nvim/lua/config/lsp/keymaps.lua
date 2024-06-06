@@ -7,20 +7,20 @@ function M.on_attach(_, buffer)
   vim.bo[buffer].omnifunc = "v:lua.vim.lsp.omnifunc"
   local d = vim.diagnostic
 
-  local function toggleDiagnosticList()
-    local curr_win = vim.api.nvim_get_current_win()
-    local loclist_win = vim.fn.getloclist(0, { winid = 0 }).winid
-
-    if loclist_win ~= 0 then
-      if curr_win == loclist_win then
-        vim.cmd.lclose()
-      else
-        vim.cmd.lclose()
-      end
-    else
-      vim.diagnostic.setloclist { open = true }
-    end
-  end
+  -- local function toggleDiagnosticList()
+  --   local curr_win = vim.api.nvim_get_current_win()
+  --   local loclist_win = vim.fn.getloclist(0, { winid = 0 }).winid
+  --
+  --   if loclist_win ~= 0 then
+  --     if curr_win == loclist_win then
+  --       vim.cmd.lclose()
+  --     else
+  --       vim.cmd.lclose()
+  --     end
+  --   else
+  --     vim.diagnostic.setloclist { open = true }
+  --   end
+  -- end
 
   -- utils.map({ "n", "l" }, ";dl", toggleDiagnosticList, { desc = "Toggle diagnostic local" })
   --

@@ -14,7 +14,7 @@ function M.toggle()
   end
 end
 
-function M.highlight(client, bufnr)
+function M.on_attach(client, bufnr)
   if M.highlight then
     if client.server_capabilities.documentHighlightProvider then
       local lsp_highlight_grp = api.nvim_create_augroup("LspDocumentHighlight", { clear = true })
@@ -34,10 +34,6 @@ function M.highlight(client, bufnr)
       })
     end
   end
-end
-
-function M.setup(client, bufnr)
-  M.highlight(client, bufnr)
 end
 
 return M

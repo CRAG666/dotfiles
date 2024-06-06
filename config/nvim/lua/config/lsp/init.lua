@@ -3,69 +3,49 @@ local icons = require "utils.static.icons"
 local M = {}
 
 local function lsp_init()
-  local signs = {
-    { name = "DiagnosticSignError", text = icons.diagnostics.DiagnosticSignError },
-    { name = "DiagnosticSignWarn", text = icons.diagnostics.DiagnosticSignWarn },
-    { name = "DiagnosticSignHint", text = icons.diagnostics.DiagnosticSignHint },
-    { name = "DiagnosticSignInfo", text = icons.diagnostics.DiagnosticSignInfo },
-  }
-  -- LSP handlers configuration
-  local config = {
-    float = {
-      focusable = true,
-      style = "minimal",
-      border = "rounded",
-    },
-
-    diagnostic = {
-      -- virtual_text = false,
-      -- virtual_text = { spacing = 4, prefix = "●" },
-
-      virtual_text = false,
-      -- virtual_text = {
-      --   severity = {
-      --     min = vim.diagnostic.severity.ERROR,
-      --   },
-      -- },
-      signs = {
-        active = signs,
+  -- Diagnostic configuration
+  vim.diagnostic.config {
+    underline = false,
+    virtual_text = false,
+    -- virtual_text = { spacing = 4, prefix = "●" },
+    -- virtual_text = {
+    --   severity = {
+    --     min = vim.diagnostic.severity.ERROR,
+    --   },
+    -- },
+    signs = {
+      text = {
+        [vim.diagnostic.severity.ERROR] = icons.diagnostics.DiagnosticSignError,
+        [vim.diagnostic.severity.WARN] = icons.diagnostics.DiagnosticSignWarn,
+        [vim.diagnostic.severity.INFO] = icons.diagnostics.DiagnosticSignInfo,
+        [vim.diagnostic.severity.HINT] = icons.diagnostics.DiagnosticSignHint,
       },
-      underline = false,
-      update_in_insert = false,
       severity_sort = true,
-      float = {
-        focusable = true,
-        style = "minimal",
-        border = "rounded",
-        source = "always",
-        header = "",
-        prefix = "",
-      },
       -- virtual_lines = true,
     },
   }
 
-  -- Diagnostic configuration
-  vim.diagnostic.config(config.diagnostic)
-
   -- Hover configuration
-  -- vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, config.float)
-
-  -- Signature help configuration
-  -- vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, config.float)
+  vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+    focusable = true,
+    style = "minimal",
+    border = "rounded",
+    source = "always",
+    header = "",
+    prefix = "",
+  })
 end
 
 function M.setup(server, on_attach)
   utils.on_attach(function(client, bufnr)
-    require("config.lsp.highlighter").setup(client, bufnr)
+    require("config.lsp.highlighter").on_attach(client, bufnr)
     require("config.lsp.format").on_attach(client, bufnr)
     require("config.lsp.keymaps").on_attach(client, bufnr)
-    lsp_init() -- diagnostics, handlers
+    lsp_init()
     if on_attach ~= nil then
       on_attach(client, bufnr)
     end
   end)
-
   server.capabilities = utils.capabilities()
   local fs = require "utils.fs"
   server.root_dir =
