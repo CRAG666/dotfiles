@@ -56,14 +56,15 @@ function M.on_attach(_, buffer)
     {
       prefix = "g",
       maps = {
+        { "r", lsp.rename, "Rename", bufopt },
         { "d", lsp.definition, "Goto Definition", bufopt },
         { "D", lsp.declaration, "Goto Declaration", bufopt },
         { "i", lsp.implementation, "Goto Implementation", bufopt },
         { "o", lsp.type_definition, "Type definition", bufopt },
-        { "r", lsp.rename, "Rename", bufopt },
         { "s", lsp.signature_help, "Goto Implementation", bufopt },
         { "y", "<cmd>tab split | lua vim.lsp.buf.definition()<CR>", "Goto Definition in new Tab", bufopt },
         { "h", lsp.hover, "LSP Hover", bufopt },
+        { "/", lsp.references, "LSP References", bufopt },
       },
     },
     {

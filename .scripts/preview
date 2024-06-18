@@ -1,9 +1,10 @@
 #!/usr/bin/env sh
 
-X="90"
-Y="4"
-WIDTH="$FZF_PREVIEW_COLUMNS"
-HEIGHT="$FZF_PREVIEW_LINES"
+CELL_WIDTH=12
+CELL_HEIGHT=22
+
+WIDTH=$(($FZF_PREVIEW_COLUMNS * $CELL_WIDTH))
+HEIGHT=$(($FZF_PREVIEW_LINES * $CELL_HEIGHT))
 TMP="/tmp/fzf-preview"
 CACHEFILE="$TMP/$(echo "$1" | base64).png"
 
@@ -12,7 +13,7 @@ maketemp() {
 }
 
 previewclear() {
-	kitty +kitten icat --transfer-mode=file --silent --clear
+	printf '\033[2J\033[H' # Clear screen
 }
 
 text() {
@@ -24,7 +25,7 @@ archive() {
 }
 
 draw() {
-	kitty +kitten icat --transfer-mode=file --silent --align=left --place="${WIDTH}x$HEIGHT@${X}x$Y" --z-index=-1 "$1"
+	img2sixel -w "$WIDTH" -h "$HEIGHT" "$1"
 }
 
 image() {

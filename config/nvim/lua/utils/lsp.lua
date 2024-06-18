@@ -45,13 +45,17 @@ function M.start(config, opts)
     return
   end
 
+  local name = cmd_exec
+  local bufname = vim.api.nvim_buf_get_name(0)
+  local root_dir = require("utils.fs").proj_dir(
+    bufname,
+    vim.list_extend(config.root_patterns or {}, M.default_config.root_patterns or {})
+  ) or vim.fs.dirname(bufname)
+
   return vim.lsp.start(
     vim.tbl_deep_extend("keep", config or {}, {
-      name = cmd_exec,
-      root_dir = require("utils.fs").proj_dir(
-        vim.api.nvim_buf_get_name(0),
-        vim.list_extend(config.root_patterns or {}, M.default_config.root_patterns or {})
-      ),
+      name = name,
+      root_dir = root_dir,
     }, M.default_config),
     opts
   )

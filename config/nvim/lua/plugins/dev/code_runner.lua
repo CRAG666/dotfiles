@@ -29,14 +29,17 @@ return {
       markdown = function(...)
         local hook = require "code_runner.hooks.preview_pdf"
         require("code_runner.hooks.ui").select {
-          Normal = function()
+          Marp = function()
+            require("code_runner.commands").run_from_fn "marp --theme-set $MARPT -w -p . &$end"
+          end,
+          Latex = function()
             hook.run {
               command = "pandoc",
               args = { "$fileName", "-o", "$tmpFile", "-t pdf" },
               preview_cmd = preview_cmd,
             }
           end,
-          Presentation = function()
+          Beamer = function()
             hook.run {
               command = "pandoc",
               args = { "$fileName", "-o", "$tmpFile", "-t beamer" },

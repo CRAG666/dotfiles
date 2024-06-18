@@ -1,5 +1,4 @@
 local current = 2
-local modes = { "n" }
 return {
   "CRAG666/betterTerm.nvim",
   dev = true,
@@ -17,7 +16,6 @@ return {
       function()
         require("betterTerm").select()
       end,
-      mode = modes,
       desc = "Select terminal",
     },
     {
@@ -26,7 +24,6 @@ return {
         require("betterTerm").open(current)
         current = current + 1
       end,
-      mode = modes,
       desc = "Init new terminal",
     },
   },

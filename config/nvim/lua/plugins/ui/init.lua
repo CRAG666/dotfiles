@@ -1,4 +1,4 @@
-local utils = require "utils.fn"
+local utils = require "utils"
 return {
   { "MunifTanjim/nui.nvim", lazy = true },
   {
@@ -77,7 +77,7 @@ return {
     "chentoast/marks.nvim",
     name = "marks",
     event = "LazyFile",
-    config = utils.setup("marks", {
+    config = utils.fn.setup("marks", {
       default_mappings = true,
       builtin_marks = { ".", "<", ">", "^" },
       cyclic = true,
@@ -91,6 +91,23 @@ return {
   --   event = "UIEnter",
   --   config = true,
   -- },
+  {
+
+    "yorickpeterse/nvim-pqf",
+    event = "UIEnter",
+    config = function()
+      local icons = utils.static.icons.diagnostics
+      require("pqf").setup {
+        signs = {
+          error = { text = icons.DiagnosticSignError, hl = "DiagnosticSignError" },
+          warning = { text = icons.DiagnosticSignWarn, hl = "DiagnosticSignWarn" },
+          info = { text = icons.DiagnosticSignInfo, hl = "DiagnosticSignInfo" },
+          hint = { text = icons.DiagnosticSignHint, hl = "DiagnosticSignHint" },
+        },
+        show_multiple_lines = true,
+      }
+    end,
+  },
   {
     "rasulomaroff/reactive.nvim",
     event = "InsertEnter",
