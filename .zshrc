@@ -139,6 +139,8 @@ zstyle ':fzf-tab:complete:*:*' fzf-preview '~/.scripts/preview $realpath'
 # %(!.%B%F{red}%n%f%b in .${SSH_TTY:+"%B%F{yellow}%n%f%b in "})${SSH_TTY:+"%B%F{green}%m%f%b in "}%B%F{cyan}%~%f%b${(e)git_info[prompt]}${VIRTUAL_ENV:+" via %B%F{yellow}${VIRTUAL_ENV:t}%b%f"}${duration_info}
 # %B%(1j.%F{blue}*%f .)%(?.%F{#f38ba8}ﰉ %F{#f9e2af}ﰉ %F{#a6e3a1}ﰉ.%F{#a6e3a1}ﰉ %F{#f9e2af}ﰉ %F{#f38ba8}ﰉ)%f%b '
 
+enable-fzf-tab
+
 # -< Evals >-
 eval "$(zoxide init zsh)"
 eval "$(starship init zsh)"

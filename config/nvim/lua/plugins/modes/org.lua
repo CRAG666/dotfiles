@@ -1,4 +1,4 @@
-local neorg_leader = "<leader><leader>"
+local neorg_leader = "<leader>o"
 local neorg_enabled = false
 -- vim.w.toc_open = false
 -- vim.w.win_toc = -1
@@ -13,7 +13,6 @@ return {
   },
   {
     "nvim-neorg/neorg",
-    version = "*", -- Pin Neorg to the latest stable release
     dependencies = { "luarocks.nvim", "nvim-neorg/neorg-telescope" },
     cmd = "Neorg",
     ft = "norg",
@@ -30,11 +29,6 @@ return {
           neorg_enabled = true
         end,
         desc = "Toggle org notes",
-      },
-      {
-        neorg_leader .. "th",
-        ":Neorg toggle-concealer<CR>",
-        desc = "Toggle highlighting org",
       },
       {
         neorg_leader .. "tt",
@@ -66,9 +60,9 @@ return {
                 code_block = {
                   conceal = true,
                 },
-                -- heading = {
-                --   icons = { "🌸", "🌼", "🏵️", "❇️", "💠", "◉" },
-                -- },
+                heading = {
+                  icons = { "🌸", "🌼", "🏵️", "❇️", "💠", "◉" },
+                },
               },
             },
           },
@@ -87,13 +81,23 @@ return {
 
                   n = { -- Bind keys in normal mode
                     {
-                      neorg_leader .. "lf",
+                      neorg_leader .. "fl",
                       "core.integrations.telescope.find_linkable",
                       opts = { desc = "Find linkable" },
                     },
                     {
-                      neorg_leader .. "il",
+                      neorg_leader .. "fh",
+                      "core.integrations.telescope.search_headings",
+                      opts = { desc = "Search headings" },
+                    },
+                    {
+                      neorg_leader .. "fi",
                       "core.integrations.telescope.insert_link",
+                      opts = { desc = "Insert link" },
+                    },
+                    {
+                      neorg_leader .. "ff",
+                      "core.integrations.telescope.insert_file_link",
                       opts = { desc = "Insert link" },
                     },
                     { "]l", "core.integrations.treesitter.next.link", opts = { desc = "Next link" } },

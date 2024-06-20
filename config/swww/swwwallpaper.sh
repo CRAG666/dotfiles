@@ -110,4 +110,4 @@ fi
 ## set wallpaper
 
 Wall_Set
-convert -scale 10% -blur 0x2 -resize 100% $BaseDir/wall.set $BaseDir/wall.blur
+magick -scale 10% -blur 0x2 -resize 100% $BaseDir/wall.set $BaseDir/wall.blur
