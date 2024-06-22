@@ -21,14 +21,21 @@ return {
         neorg_leader .. "o",
         function()
           if neorg_enabled then
-            vim.cmd ":Neorg return"
+            vim.cmd.Neorg "return"
             neorg_enabled = false
             return
           end
-          vim.cmd "Neorg workspace notes"
+          vim.cmd.Neorg.workspace "notes"
           neorg_enabled = true
         end,
         desc = "Toggle org notes",
+      },
+      {
+        neorg_leader .. "c",
+        function()
+          vim.cmd.Neorg "toggle-concealer"
+        end,
+        desc = "Toggle highlighting org",
       },
       {
         neorg_leader .. "tt",
@@ -38,7 +45,7 @@ return {
           --   vim.w.toc_open = false
           --   return
           -- end
-          vim.cmd "Neorg toc"
+          vim.cmd.Neorg "toc"
           vim.cmd "vert resize 60"
           -- vim.w.win_toc = vim.api.nvim_win_get_number(0)
           -- vim.w.toc_open = true
@@ -60,8 +67,34 @@ return {
                 code_block = {
                   conceal = true,
                 },
+                delimiter = {
+                  horizontal_line = {
+                    icon = "■",
+                  },
+                },
+                -- todo = {
+                --   cancelled = { icon = "🚫" },
+                --   done = { icon = "✅" },
+                --   undone = { icon = "🕒" },
+                --   on_hold = { icon = "⏸️" },
+                --   pending = { icon = "⏳" },
+                --   recurring = { icon = "🔄" },
+                --   uncertain = { icon = "❓" },
+                --   urgent = { icon = "🚨" },
+                -- },
+                definition = {
+                  single = { icon = "󰃃" },
+                  multi_prefix = { icon = "󰉾 " },
+                  multi_suffix = { icon = "󰝗 " },
+                },
+                list = {
+                  icons = { "" },
+                },
+                quote = {
+                  icons = { "󰇙" },
+                },
                 heading = {
-                  icons = { "🌸", "🌼", "🏵️", "❇️", "💠", "◉" },
+                  icons = { "🌸 ", "🌼 ", "🏵️ ", "💠 ", "🍀 ", "🍁 " },
                 },
               },
             },
