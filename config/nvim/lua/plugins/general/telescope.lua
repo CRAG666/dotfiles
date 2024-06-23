@@ -252,20 +252,17 @@ return {
           initial_mode = "normal",
           selection_strategy = "reset",
           sorting_strategy = "ascending",
-          layout_strategy = "horizontal",
+          layout_strategy = "bottom_pane",
           layout_config = {
             horizontal = {
               prompt_position = "top",
-              preview_width = 0.55,
-              results_width = 0.8,
+              -- preview_width = 0.55,
+              -- results_width = 0.8,
               preview_cutoff = 0,
             },
-            vertical = {
-              mirror = false,
-            },
-            width = 0.87,
-            height = 0.80,
-            preview_cutoff = 120,
+            height = math.floor(vim.o.lines / 2),
+            width = vim.o.columns,
+            -- preview_cutoff = 120,
           },
           file_sorter = require("telescope.sorters").get_fuzzy_file,
           file_ignore_patterns = {},
@@ -313,7 +310,15 @@ return {
 
               -- enable zf filename match priority
               match_filename = true,
+
+              -- optional function to define a sort order when the query is empty
+              initial_sort = nil,
+
+              -- set to false to enable case sensitive matching
+              smart_case = true,
             },
+
+            -- options for sorting all other items
             generic = {
               -- override default telescope generic item sorter
               enable = true,
@@ -326,6 +331,9 @@ return {
 
               -- optional function to define a sort order when the query is empty
               initial_sort = nil,
+
+              -- set to false to enable case sensitive matching
+              smart_case = true,
             },
           },
           file_browser = {

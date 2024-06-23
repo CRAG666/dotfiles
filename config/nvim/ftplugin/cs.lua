@@ -3,12 +3,13 @@ set.shiftwidth = 4
 set.softtabstop = 4
 set.expandtab = true
 
-local util = require "null-ls.utils"
 local root_dir = function(file, _)
   if file:sub(-#".csx") == ".csx" then
     return vim.fs.dirname(file)
   end
-  return util.root_pattern "*.sln"(file) or util.root_pattern "*.csproj"(file)
+  return vim.fs.root(0, function(name, path)
+    return name:match "%.csproj$" ~= nil
+  end)
 end
 
 local pid = vim.fn.getpid()

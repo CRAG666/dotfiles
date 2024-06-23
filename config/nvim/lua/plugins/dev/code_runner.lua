@@ -21,8 +21,9 @@ return {
       v = "v run",
       tex = function(...)
         if vim.g.tectonic == nil then
-          vim.fn.jobstart "tectonic -X build --open"
+          vim.system { "tectonic", "-X", "build", "--open" }
           vim.fn.jobstart "tectonic -X watch -x 'build --keep-intermediates --keep-logs'"
+          -- vim.system { "tectonic", "-X", "watch", "-x", "'build --keep-intermediates --keep-logs'" }
           vim.g.tectonic = 1
         end
       end,

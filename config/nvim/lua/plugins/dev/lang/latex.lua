@@ -12,14 +12,6 @@ return {
       end
     end,
   },
-  -- {
-  --   "nvimtools/none-ls.nvim",
-  --   ft = "tex",
-  --   opts = function(_, opts)
-  --     local nls = require "null-ls"
-  --     table.insert(opts.sources, nls.builtins.diagnostics.vale)
-  --   end,
-  -- },
   {
     "williamboman/mason.nvim",
     opts = function(_, opts)

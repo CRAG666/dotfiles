@@ -142,6 +142,9 @@ local function setup_diagnostic()
 end
 
 function M.setup(server, on_attach)
+  if vim.lsp.inlay_hint.is_enabled() ~= true then
+    vim.lsp.inlay_hint.enable()
+  end
   local lu = require "config.lsp.utils"
   lu.on_attach(function(client, bufnr)
     require("config.lsp.highlighter").on_attach(client, bufnr)

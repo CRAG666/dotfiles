@@ -47,9 +47,6 @@ function M.on_attach(_, buffer)
   --   vim.tbl_extend("force", bufopt, { desc = "Next diagnostic" })
   -- )
 
-  utils.map("n", "]d", d.goto_next, vim.tbl_extend("force", bufopt, { desc = "Next diagnostic" }))
-  utils.map("n", "[d", d.goto_prev, vim.tbl_extend("force", bufopt, { desc = "Prev diagnostic" }))
-
   -- vim.keymap.set("n", ";df", vim.diagnostic.open_float)
 
   local lsp_maps = {
@@ -63,7 +60,6 @@ function M.on_attach(_, buffer)
         { "o", lsp.type_definition, "Type definition", bufopt },
         { "s", lsp.signature_help, "Goto Implementation", bufopt },
         { "y", "<cmd>tab split | lua vim.lsp.buf.definition()<CR>", "Goto Definition in new Tab", bufopt },
-        { "h", lsp.hover, "LSP Hover", bufopt },
         { "/", lsp.references, "LSP References", bufopt },
       },
     },
