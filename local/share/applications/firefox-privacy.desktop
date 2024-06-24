@@ -1,0 +1,33 @@
+# converted by firecfg
+[Desktop Entry]
+Version=1.0
+Name=Privacy Web Browser
+Comment=Privacy config
+GenericName=Web Browser
+Keywords=Internet;WWW;Browser;Web;Explorer
+Exec=firefox -P privacy %u
+Icon=firefox
+Terminal=false
+Type=Application
+MimeType=text/html;text/xml;application/xhtml+xml;application/vnd.mozilla.xul+xml;text/mml;x-scheme-handler/http;x-scheme-handler/https;application/x-xpinstall;application/pdf;application/json;
+StartupNotify=true
+Categories=Network;WebBrowser;
+Actions=new-window;new-private-window;profile-manager-window;
+StartupWMClass=firefox
+
+
+[Desktop Action new-window]
+Name=Open a New Window
+Exec=firefox -P privacy --new-window %u
+
+[Desktop Action new-private-window]
+Name=Open a New Private Window
+Exec=firefox -P privacy --private-window %u
+
+[Desktop Action profile-manager-window]
+Name=Open the Profile Manager
+Name[cs]=Správa profilů
+Name[de]=Profilverwaltung öffnen
+Name[es]=Abrir el Gestor de Perfiles
+Name[fr]=Ouvrir le gestionnaire de profils
+Exec=firefox --ProfileManager

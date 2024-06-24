@@ -7,7 +7,7 @@ HEIGHT=$(($FZF_PREVIEW_LINES * $CELL_HEIGHT))
 MAX_WIDTH=$(($FZF_PREVIEW_COLUMNS * $CELL_WIDTH))
 
 TMP="/tmp/fzf-preview"
-LTMP="~/.cache/fzf-preview"
+LTMP="$HOME/.cache/fzf-preview"
 CACHEFILE="$TMP/$(echo "$1" | base64).png"
 LCACHEFILE="$LTMP/$(echo "$1" | base64).png"
 

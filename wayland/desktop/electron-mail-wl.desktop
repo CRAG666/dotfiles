@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=ElectronMail wayland
-Exec=/opt/ElectronMail/electron-mail --enable-features=UseOzonePlatform --ozone-platform=wayland %U
-Terminal=false
-Type=Application
-Icon=electron-mail
-StartupWMClass=electron-mail
-Comment=Unofficial ProtonMail Desktop App
-Categories=Office;
