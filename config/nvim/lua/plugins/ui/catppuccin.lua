@@ -124,26 +124,32 @@ return {
             -- Neorg
 
             ["@neorg.lists.unordered.prefix.norg"] = { fg = C.mauve },
+            ["@neorg.anchors.declaration.norg"] = { fg = C.blue },
 
             ["@neorg.headings.1.title.norg"] = { fg = C.pink },
+            ["@neorg.headings.1.prefix"] = { fg = C.pink },
             ["@neorg.headings.1.prefix.norg"] = { fg = C.pink },
             ["@neorg.links.location.heading.1.norg"] = { fg = C.pink },
 
             ["@neorg.headings.2.title.norg"] = { fg = C.yellow },
+            ["@neorg.headings.2.prefix"] = { fg = C.yellow },
             ["@neorg.headings.2.prefix.norg"] = { fg = C.yellow },
             ["@neorg.links.location.heading.2.norg"] = { fg = C.yellow },
 
-            ["@neorg.headings.4.title.norg"] = { fg = C.sapphire },
-            ["@neorg.headings.4.prefix.norg"] = { fg = C.sapphire },
-            ["@neorg.links.location.heading.4.norg"] = { fg = C.sapphire },
+            ["@neorg.headings.3.title.norg"] = { fg = C.sky },
+            ["@neorg.headings.3.prefix"] = { fg = C.sky },
+            ["@neorg.headings.3.prefix.norg"] = { fg = C.sky },
+            ["@neorg.links.location.heading.3.norg"] = { fg = C.sky },
 
-            ["@neorg.headings.5.title.norg"] = { fg = C.green },
-            ["@neorg.headings.5.prefix.norg"] = { fg = C.green },
-            ["@neorg.links.location.heading.5.norg"] = { fg = C.green },
+            ["@neorg.headings.4.title.norg"] = { fg = C.green },
+            ["@neorg.headings.4.prefix"] = { fg = C.green },
+            ["@neorg.headings.4.prefix.norg"] = { fg = C.green },
+            ["@neorg.links.location.heading.4.norg"] = { fg = C.green },
 
-            ["@neorg.headings.6.title.norg"] = { fg = C.red },
-            ["@neorg.headings.6.prefix.norg"] = { fg = C.red },
-            ["@neorg.links.location.heading.6.norg"] = { fg = C.red },
+            ["@neorg.headings.5.title.norg"] = { fg = C.lavender },
+            ["@neorg.headings.5.prefix"] = { fg = C.lavender },
+            ["@neorg.headings.5.prefix.norg"] = { fg = C.lavender },
+            ["@neorg.links.location.heading.5.norg"] = { fg = C.lavender },
 
             -- CMP
             CmpItemMenu = { fg = C.lavender, italic = true },

@@ -61,6 +61,7 @@ return {
           ["core.integrations.nvim-cmp"] = {},
           ["core.concealer"] = {
             config = {
+              dim_code_blocks = { conceal = false },
               icon_preset = "basic",
               -- icon_preset = "diamond",
               icons = {
@@ -94,7 +95,7 @@ return {
                   icons = { "󰇙" },
                 },
                 heading = {
-                  icons = { "🌸 ", "🌼 ", "🏵️ ", "💠 ", "🍀 ", "🍁 " },
+                  icons = { "🌸 ", "🌼 ", "💠 ", "🍀 ", "🪻 ", "❁" },
                 },
               },
             },
@@ -103,6 +104,7 @@ return {
             config = {
               workspaces = {
                 notes = "~/Documentos/Org/Notes",
+                state_art = "~/Documentos/Org/Estado_Arte/",
               },
             },
           },
@@ -147,9 +149,10 @@ return {
               end,
             },
           },
-          ["core.summary"] = {},
+          ["core.looking-glass"] = {},
           ["core.export"] = {},
           ["core.integrations.telescope"] = {},
+          ["core.summary"] = {},
           ["core.ui.calendar"] = {},
         },
       }

@@ -1,4 +1,5 @@
 local preview_cmd = "/bin/zathura --fork"
+local folder = ""
 return {
   "CRAG666/code_runner.nvim",
   -- name = "code_runner",
@@ -21,11 +22,12 @@ return {
       v = "v run",
       tex = function(...)
         if vim.g.tectonic == nil then
-          vim.system { "tectonic", "-X", "build", "--open" }
           vim.fn.jobstart "tectonic -X watch -x 'build --keep-intermediates --keep-logs'"
-          -- vim.system { "tectonic", "-X", "watch", "-x", "'build --keep-intermediates --keep-logs'" }
+          folder = vim.lsp.buf.list_workspace_folders()[1] .. "/build/default/default.pdf"
+          vim.print(folder)
           vim.g.tectonic = 1
         end
+        vim.system { "/bin/zathura", "--fork", folder }
       end,
       markdown = function(...)
         local hook = require "code_runner.hooks.preview_pdf"

@@ -121,4 +121,31 @@ return {
     "folke/todo-comments.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
   },
+  {
+    "OXY2DEV/helpview.nvim",
+    ft = "help",
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+    },
+  },
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    ft = { "markdown" },
+    opts = {},
+    -- dependencies = { "nvim-treesitter/nvim-treesitter", "echasnovski/mini.nvim" }, -- if you use the mini.nvim suite
+    -- -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' }, -- if you use standalone mini plugins
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" }, -- if you prefer nvim-web-devicons
+  },
+  {
+    "hat0uma/csvview.nvim",
+    ft = { "csv" },
+    config = function()
+      require("csvview").setup {
+        view = {
+          display_mode = "border",
+        },
+      }
+      require("csvview").toggle()
+    end,
+  },
 }
