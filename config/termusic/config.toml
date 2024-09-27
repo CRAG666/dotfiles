@@ -1,8 +1,8 @@
 music_dir = ["/home/think-crag/Música"]
 player_port = 50101
 player_interface = "::"
-player_loop_mode = "Random"
-player_volume = 100
+player_loop_mode = "Playlist"
+player_volume = 65
 player_speed = 10
 player_gapless = false
 podcast_simultanious_download = 3

@@ -59,7 +59,6 @@ set.textwidth = 80
 set.winminwidth = 5
 set.syntax = "ON"
 set.termguicolors = true
-set.conceallevel = 0
 set.showtabline = 0
 set.pumblend = 10
 set.pumheight = 15
@@ -122,4 +121,5 @@ end
 vim.keymap.set("", "<Space>", "<Nop>", { noremap = true, silent = true })
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+set.conceallevel = 2
 vim.g.modern_ui = true

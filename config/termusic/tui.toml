@@ -1,0 +1,169 @@
+version = "2"
+com = "same"
+
+[behavior]
+quit_server_on_exit = true
+confirm_quit = false
+
+[coverart]
+align = "top left"
+size_scale = 60
+hidden = false
+
+[style.library]
+foreground_color = "Foreground"
+background_color = "Reset"
+border_color = "Magenta"
+highlight_color = "LightYellow"
+highlight_symbol = "🦄"
+
+[style.playlist]
+foreground_color = "Foreground"
+background_color = "Reset"
+border_color = "Red"
+highlight_color = "LightRed"
+highlight_symbol = "🚀"
+current_track_symbol = "►"
+use_loop_mode_symbol = true
+
+[style.lyric]
+foreground_color = "Foreground"
+background_color = "Reset"
+border_color = "Green"
+
+[style.progress]
+foreground_color = "LightBlue"
+background_color = "Reset"
+border_color = "Cyan"
+
+[style.important_popup]
+foreground_color = "Yellow"
+background_color = "Reset"
+border_color = "Yellow"
+
+[style.fallback]
+foreground_color = "Foreground"
+background_color = "Reset"
+border_color = "Blue"
+highlight_color = "LightYellow"
+
+[theme]
+name = "crag"
+author = "Diego Aguilar"
+
+[theme.primary]
+background = "#1e1e2e"
+foreground = "#cdd6f4"
+
+[theme.cursor]
+text = "#45475a"
+cursor = "#f5e0dc"
+
+[theme.normal]
+black = "#585b70"
+red = "#f38ba8"
+green = "#a6e3a1"
+yellow = "#f9e2af"
+blue = "#89b4fa"
+magenta = "#cba6f7"
+cyan = "#94e2d5"
+white = "#cdd6f4"
+
+[theme.bright]
+black = "#45475a"
+red = "#eba0ac"
+green = "#89dceb"
+yellow = "#f2cdcd"
+blue = "#74c7ec"
+magenta = "#b4befe"
+cyan = "#f5c2e7"
+white = "#bac2de"
+
+[keys]
+escape = "escape"
+quit = "q"
+
+[keys.view]
+view_library = "1"
+view_database = "2"
+view_podcasts = "3"
+open_config = "control+c"
+open_help = "control+h"
+
+[keys.navigation]
+up = "k"
+down = "j"
+left = "h"
+right = "l"
+goto_top = "g"
+goto_bottom = "shift+G"
+
+[keys.global_player]
+toggle_pause = "space"
+next_track = "n"
+previous_track = "shift+N"
+volume_up = "="
+volume_down = "-"
+seek_forward = "f"
+seek_backward = "b"
+speed_up = "control+f"
+speed_down = "control+b"
+toggle_prefetch = "control+g"
+save_playlist = "control+s"
+
+[keys.global_lyric]
+adjust_offset_forwards = "shift+F"
+adjust_offset_backwards = "shift+B"
+cycle_frames = "shift+T"
+
+[keys.library]
+load_track = "l"
+load_dir = "shift+L"
+delete = "d"
+yank = "y"
+paste = "p"
+cycle_root = "o"
+add_root = "a"
+remove_root = "shift+A"
+search = "/"
+youtube_search = "s"
+open_tag_editor = "t"
+
+[keys.playlist]
+delete = "d"
+delete_all = "shift+D"
+shuffle = "r"
+cycle_loop_mode = "m"
+play_selected = "l"
+search = "/"
+swap_up = "shift+K"
+swap_down = "shift+J"
+add_random_songs = "s"
+add_random_album = "shift+S"
+
+[keys.database]
+add_selected = "l"
+add_all = "shift+L"
+
+[keys.podcast]
+search = "s"
+mark_played = "m"
+mark_all_played = "shift+M"
+refresh_feed = "r"
+refresh_all_feeds = "shift+R"
+download_episode = "d"
+delete_local_episode = "shift+D"
+delete_feed = "x"
+delete_all_feeds = "shift+X"
+
+[keys.adjust_cover_art]
+move_left = "control+shift+arrowleft"
+move_right = "control+shift+arrowright"
+move_up = "control+shift+arrowup"
+move_down = "control+shift+arrowdown"
+increase_size = "control+shift+pageup"
+decrease_size = "control+shift+pagedown"
+toggle_hide = "control+shift+end"
+
+[keys.config]
+save = "control+s"

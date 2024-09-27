@@ -7,25 +7,24 @@ local utils = require('ui.winbar.utils')
 ---@param buf integer buffer handler
 local function get_node_short_name(node, buf)
   return vim.trim(
-    vim.treesitter
-      .get_node_text(node, buf)
-      :gsub('\n.*', '')
-      :match(configs.opts.sources.treesitter.name_pattern) or ''
+    vim.fn.matchstr(
+      vim.treesitter.get_node_text(node, buf):gsub('\n', ' '):gsub('\t', ' '),
+      configs.opts.sources.treesitter.name_pattern
+    )
   )
 end
 
 ---Get valid treesitter node type name
 ---@param node TSNode
----@return string? type_name
----@return integer rank type rank
+---@return string type_name
 local function get_node_short_type(node)
   local ts_type = node:type()
-  for i, type in ipairs(configs.opts.sources.treesitter.valid_types) do
-    if ts_type:find(type, 1, true) then
-      return type, i
+  for _, type in ipairs(configs.opts.sources.treesitter.valid_types) do
+    if vim.startswith(ts_type, type) then
+      return type
     end
   end
-  return nil, math.huge
+  return ''
 end
 
 ---Check if treesitter node is valid
@@ -33,7 +32,7 @@ end
 ---@param buf integer buffer handler
 ---@return boolean
 local function valid_node(node, buf)
-  return get_node_short_type(node) ~= nil
+  return get_node_short_type(node) ~= ''
     and get_node_short_name(node, buf) ~= ''
 end
 
@@ -60,7 +59,7 @@ end
 ---@return integer idx index of the node in its siblings
 local function get_node_siblings(node, buf)
   local siblings = {}
-  local current = node
+  local current = node ---@type TSNode?
   while current do
     if valid_node(current, buf) then
       table.insert(siblings, 1, current)
@@ -142,10 +141,7 @@ local function get_symbols(buf, win, cursor)
     return {}
   end
 
-  local symbols = {}
-  local num_lines = vim.api.nvim_buf_line_count(buf)
-  local prev_type_rank = math.huge
-  local prev_row = math.huge
+  local symbols = {} ---@type winbar_symbol_t[]
   local current_node =
     vim.treesitter.get_node({
       bufnr = buf,
@@ -157,30 +153,8 @@ local function get_symbols(buf, win, cursor)
       },
     })
   while current_node do
-    local name = get_node_short_name(current_node, buf)
-    local type, type_rank = get_node_short_type(current_node)
-    local range = { current_node:range() } ---@type Range4
-    local start_row = range[1]
-    local end_row = range[3]
-    if
-      valid_node(current_node, buf)
-      and not (start_row == 0 and end_row == num_lines)
-    then
-      local lsp_type = utils.string.snake_to_camel(type)
-      if
-        vim.tbl_isempty(symbols)
-        or symbols[1].name ~= name
-        or start_row < prev_row
-      then
-        table.insert(symbols, 1, convert(current_node, buf, win))
-        prev_type_rank = type_rank
-        prev_row = start_row
-      elseif type_rank < prev_type_rank then
-        symbols[1].icon = configs.opts.icons.kinds.symbols[lsp_type]
-        symbols[1].icon_hl = 'WinBarIconKind' .. lsp_type
-        prev_type_rank = type_rank
-        prev_row = start_row
-      end
+    if valid_node(current_node, buf) then
+      table.insert(symbols, 1, convert(current_node, buf, win))
     end
     current_node = current_node:parent()
   end

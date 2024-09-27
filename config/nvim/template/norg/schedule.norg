@@ -1,10 +1,11 @@
 @document.meta
-title: Horario de clases
-description: llevar control del horario de clases y enlaces a actividades
-authors: Diego Crag
+title: schedule
+description: Horario del dia con actividades
+authors: think-crag
 categories: Schedule
 created: {{_date_}}
-version: 0.0.1
+updated: 2024-09-20T21:12:35-0600
+version: 1.1.1
 @end
 
 * Lunes

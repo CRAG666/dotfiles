@@ -1,0 +1,28 @@
+@document.meta
+title: {{_file_name_}}
+description: Revision del estado del arte de {{_date_}}
+authors: think-crag
+categories: Estado del arte
+created: {{_date_}}
+updated: 2024-09-20T21:10:11-0600
+version: 1.1.1
+@end
+
+* {{_cursor_}}
+  *Fuente*: IEEE
+  *Link*:
+  *Full bibTex*: [Bib]{/ ~/Documentos/Proyectos/Writings/Maestria/Tesis/references.bib}
+  @code bib
+  {{_cursor_}}
+  @end
+** Resumen
+
+** Metodología
+
+** Contribuciones Clave
+
+** Limitaciones
+
+** Relación con mi Trabajo
+
+** Ideas para la Tesis

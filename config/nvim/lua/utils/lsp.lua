@@ -1,9 +1,5 @@
 local M = {}
 
----@type lsp_client_config_t
----@diagnostic disable-next-line: missing-fields
-M.default_config = { root_patterns = require("utils.fs").root_patterns }
-
 ---@class vim.lsp.ClientConfig: lsp_client_config_t
 ---@class lsp_client_config_t
 ---@field cmd? (string[]|fun(dispatchers: table):table)
@@ -28,38 +24,6 @@ M.default_config = { root_patterns = require("utils.fs").root_patterns }
 ---@field flags? table
 ---@field root_dir? string
 ---@field root_patterns? string[]
-
----Wrapper of `vim.lsp.start()`, starts and attaches LSP client for
----the current buffer
----@param config lsp_client_config_t
----@param opts table?
----@return integer? client_id id of attached client or nil if failed
-function M.start(config, opts)
-  if vim.b.bigfile or vim.bo.bt == "nofile" then
-    return
-  end
-
-  local cmd_type = type(config.cmd)
-  local cmd_exec = cmd_type == "table" and config.cmd[1]
-  if cmd_type == "table" and vim.fn.executable(cmd_exec or "") == 0 then
-    return
-  end
-
-  local name = cmd_exec
-  local bufname = vim.api.nvim_buf_get_name(0)
-  local root_dir = require("utils.fs").proj_dir(
-    bufname,
-    vim.list_extend(config.root_patterns or {}, M.default_config.root_patterns or {})
-  ) or vim.fs.dirname(bufname)
-
-  return vim.lsp.start(
-    vim.tbl_deep_extend("keep", config or {}, {
-      name = name,
-      root_dir = root_dir,
-    }, M.default_config),
-    opts
-  )
-end
 
 ---@class lsp_soft_stop_opts_t
 ---@field retry integer?

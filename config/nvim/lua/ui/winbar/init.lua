@@ -57,7 +57,12 @@ local function setup(opts)
     vim.api.nvim_create_autocmd(configs.opts.general.attach_events, {
       group = groupid,
       callback = function(info)
-        utils.bar.attach(info.buf, 0)
+        -- Try attaching winbar to all windows containing the buffer
+        -- Notice that we cannot simply let `win=0` here since the current
+        -- buffer isn't necessarily the window containing the buffer
+        for _, win in ipairs(vim.fn.win_findbuf(info.buf)) do
+          utils.bar.attach(info.buf, win)
+        end
       end,
       desc = 'Attach winbar',
     })

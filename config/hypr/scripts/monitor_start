@@ -1,0 +1,15 @@
+#!/bin/bash
+
+sleep 1
+hyprmonitor=$HOME/.config/hypr/monitors.conf
+if hyprctl monitors | rg -q "DP-3"; then
+	sed -i '/#primary$/s/.*/monitor = eDP-1,disable #primary/' $hyprmonitor
+	systemctl --user stop wluma.service
+else
+	sed -i '/#primary$/s/.*/monitor = eDP-1,highrr,auto,1 #primary/' $hyprmonitor
+	systemctl --user start wluma.service
+fi
+sleep 1
+hyprctl reload
+sleep 1
+hyprctl reload

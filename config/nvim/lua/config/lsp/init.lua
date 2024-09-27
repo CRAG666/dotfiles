@@ -1,5 +1,20 @@
 local utils = require "utils"
 local M = {}
+local root_patterns = {
+  ".git/",
+  ".svn/",
+  ".bzr/",
+  ".hg/",
+  ".project/",
+  ".pro",
+  ".sln",
+  ".vcxproj",
+  "Makefile",
+  "makefile",
+  "MAKEFILE",
+  ".gitignore",
+  ".editorconfig",
+}
 
 local lsp_autostop_pending
 ---Automatically stop LSP servers that no longer attaches to any buffers
@@ -142,9 +157,9 @@ local function setup_diagnostic()
 end
 
 function M.setup(server, on_attach)
-  if vim.lsp.inlay_hint.is_enabled() ~= true then
-    vim.lsp.inlay_hint.enable()
-  end
+  -- if vim.lsp.inlay_hint.is_enabled() ~= true then
+  --   vim.lsp.inlay_hint.enable()
+  -- end
   local lu = require "config.lsp.utils"
   lu.on_attach(function(client, bufnr)
     require("config.lsp.highlighter").on_attach(client, bufnr)
@@ -158,9 +173,7 @@ function M.setup(server, on_attach)
     end
   end)
   server.capabilities = lu.capabilities()
-  local fs = utils.fs
-  server.root_dir =
-    fs.proj_dir(vim.api.nvim_buf_get_name(0), vim.list_extend(server.root_patterns or {}, fs.root_patterns or {}))
+  server.root_dir = vim.fs.root(0, vim.list_extend(server.root_patterns or {}, root_patterns or {}))
   server.root_patterns = nil
   vim.lsp.start(server)
 end

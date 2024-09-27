@@ -1,0 +1,30 @@
+version = "2"
+
+[com]
+port = 50101
+address = "::"
+
+[player]
+music_dirs = ["/home/think-crag/Música"]
+library_scan_depth = 10
+loop_mode = "random"
+volume = 65
+speed = 10
+gapless = false
+use_mediacontrols = true
+set_discord_status = false
+random_track_quantity = 20
+random_album_min_quantity = 1
+
+[player.remember_position]
+music = "no"
+podcast = "yes"
+
+[player.seek_step]
+short_tracks = 5
+long_tracks = 30
+
+[podcast]
+concurrent_downloads_max = 3
+max_download_retries = 3
+download_dir = "/home/think-crag/Música/podcast"
