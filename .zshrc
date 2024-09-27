@@ -152,12 +152,12 @@ alias ip='ip -color=auto'
 alias ping="prettyping"
 # alias icat="kitty +kitten icat"
 alias js="/usr/bin/node ~/.noderc"
-alias ls="eza --icons"
-alias la="eza --icons -la"
+alias ls="exa --icons"
+alias la="exa --icons -la"
 # alias grep='grep --color=auto'
 # alias cp='rsync --progress -avz'
 # alias cd='/bin/cd && ls'
-alias tree="eza --icons --tree --level=2 --long --git"
+alias tree="exa --icons --tree --level=2 --long --git"
 alias vi="nvim"
 alias vim="nvim"
 alias zt="/bin/zathura --fork"
@@ -200,6 +200,7 @@ alias vimd='nvim ~/.config/nvim/lua/config/defaults.lua'
 alias vima='nvim ~/.config/nvim/lua/config/autocmds.lua'
 alias viml='nvim ~/.config/nvim/lua/config/lsp/init.lua'
 alias vo='nvim -c "Neorg workspace notes"'
+alias vs='nvim -c "Neorg workspace state_art"'
 # HACK: Jump alias
 alias Applications="cd /usr/share/applications"
 alias Desktop="cd /$HOME/Escritorio"
@@ -245,6 +246,8 @@ export LCOLORCATPPUCCIN=~/Documentos/Proyectos/Writings/utils/latex/catppuccin
 # if test -e "/usr/lib/kitty/shell-integration/zsh/kitty.zsh"; then
 #   source "/usr/lib/kitty/shell-integration/zsh/kitty.zsh";
 # fi
+# END_KITTY_SHELL_INTEGRATION
+
 source ~/.zshfunc
 export PASSWORD_STORE_ENABLE_EXTENSIONS=true
-# END_KITTY_SHELL_INTEGRATION
+# FPATH="/usr/share/zsh/site-functions:${FPATH}"

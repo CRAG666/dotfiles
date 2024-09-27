@@ -1,0 +1,82 @@
+#!/bin/bash
+
+MOUNT_OPTIONS="--vfs-cache-mode full \
+  --vfs-cache-max-size 8G \
+  --vfs-cache-max-age 24h \
+  --buffer-size 512M \
+  --dir-cache-time 24h \
+  --vfs-read-chunk-size 128M \
+  --vfs-read-chunk-size-limit off \
+  --transfers 8 \
+  --checkers 16 \
+  --poll-interval 1m \
+  --allow-non-empty"
+
+MOUNT_POINTS=(
+	"Drive:/ $HOME/Público/Drive"
+	"InaoeDrive:/ $HOME/Público/InaoeDrive"
+	"InaoeOneDrive:/ $HOME/Público/InaoeOneDrive"
+)
+
+MAX_RETRIES=5
+INTERVAL=30
+
+check_internet() {
+	/bin/ping -c 1 8.8.8.8 &>/dev/null
+	return $?
+}
+
+attempt=0
+while ! check_internet; do
+	attempt=$((attempt + 1))
+	echo "No hay conexión a internet. Intento $attempt de $MAX_RETRIES..."
+	if [ "$attempt" -ge "$MAX_RETRIES" ]; then
+		echo "Error: No se pudo establecer la conexión a internet después de $MAX_RETRIES intentos."
+		exit 1
+	fi
+	echo "Reintentando en $INTERVAL segundos..."
+	sleep $INTERVAL
+done
+
+echo "Conexión a internet establecida. Montando unidades..."
+
+for MOUNT in "${MOUNT_POINTS[@]}"; do
+	SOURCE=$(echo "$MOUNT" | awk '{print $1}')
+	TARGET=$(echo "$MOUNT" | awk '{print $2}')
+
+	if [[ "$SOURCE" == "InaoeOneDrive:/" ]]; then
+		rclone mount "$SOURCE" "$TARGET" $MOUNT_OPTIONS --onedrive-chunk-size 320M &
+	else
+		rclone mount "$SOURCE" "$TARGET" $MOUNT_OPTIONS &
+	fi
+done
+
+echo "Esperando a que todos los puntos de montaje estén listos..."
+
+all_mounted=false
+while [ "$all_mounted" = false ]; do
+	all_mounted=true
+	for MOUNT in "${MOUNT_POINTS[@]}"; do
+		TARGET=$(echo "$MOUNT" | awk '{print $2}')
+		if ! mountpoint -q "$TARGET"; then
+			all_mounted=false
+			echo "$TARGET no está montado. Esperando..."
+			sleep 5
+			break
+		fi
+	done
+done
+
+echo "Todos los puntos de montaje están listos."
+
+LOCAL_FOLDER="$HOME/Documentos/Org"
+
+echo "Iniciando sincronización con rsync..."
+
+for MOUNT in "${MOUNT_POINTS[@]}"; do
+	TARGET=$(echo "$MOUNT" | awk '{print $2}')
+	echo "Sincronizando con $TARGET..."
+	rsync -av --delete --progress "$LOCAL_FOLDER" "$TARGET"
+done
+
+echo "Sincronización completada."
