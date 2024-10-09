@@ -1,12 +1,11 @@
 vim.bo.textwidth = 100
 vim.bo.commentstring = "% %s"
-local utils = require "utils"
 
 local root_files = {
   "Tectonic.toml",
   ".git",
-  "references.bib",
 }
+
 root_path = vim.fs.root(0, root_files)
 build_path = root_path .. "/build/default"
 

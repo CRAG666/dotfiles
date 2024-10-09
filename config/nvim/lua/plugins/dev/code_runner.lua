@@ -23,11 +23,8 @@ return {
       tex = function(...)
         if vim.g.tectonic == nil then
           vim.fn.jobstart "tectonic -X watch -x 'build --keep-intermediates --keep-logs'"
-          folder = vim.lsp.buf.list_workspace_folders()[1] .. "/build/default/default.pdf"
-          vim.print(folder)
           vim.g.tectonic = 1
         end
-        vim.system { "/bin/zathura", "--fork", folder }
       end,
       markdown = function(...)
         local hook = require "code_runner.hooks.preview_pdf"

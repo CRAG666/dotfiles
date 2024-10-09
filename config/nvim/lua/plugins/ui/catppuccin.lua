@@ -154,6 +154,7 @@ return {
             -- CMP
             CmpItemMenu = { fg = C.lavender, italic = true },
             CmpItemKindCodeium = { fg = C.base, bg = C.green },
+            CmpItemKindSupermaven = { fg = C.base, bg = C.pink },
             CmpItemKindClass = { fg = C.base, bg = C.yellow },
             CmpItemKindColor = { fg = C.base, bg = C.red },
             CmpItemKindConstant = { fg = C.base, bg = C.peach },

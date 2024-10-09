@@ -99,6 +99,7 @@ return {
     Class               = ' ',
     Cmd                 = ' ',
     Codeium             = "󰘦 ",
+    Supermaven          = "󰘦 ",
     Color               = '󰏘 ',
     Config              = ' ',
     Constant            = '󰏿 ',

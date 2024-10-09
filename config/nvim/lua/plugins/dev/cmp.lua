@@ -1,7 +1,9 @@
 return {
   {
-    "hrsh7th/nvim-cmp",
-    version = false, -- last release is way too old
+    -- "hrsh7th/nvim-cmp",
+    "iguanacucumber/magazine.nvim",
+    name = "nvim-cmp", -- Otherwise highlighting gets messed up
+    -- version = false, -- last release is way too old
     event = "InsertEnter",
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
@@ -43,7 +45,8 @@ return {
         },
         sources = cmp.config.sources({
           { name = "nvim_lsp" },
-          { name = "codeium" },
+          -- { name = "codeium" },
+          { name = "supermaven" },
           { name = "luasnip", max_item_count = 3 },
           { name = "path" },
           { name = "rg" },
@@ -79,15 +82,11 @@ return {
       for _, source in ipairs(opts.sources) do
         source.group_index = source.group_index or 1
       end
-      -- require("codeium").setup {}
+      require("supermaven-nvim").setup {}
       require("cmp").setup(opts)
     end,
   },
-  -- {
-  --   "Exafunction/codeium.nvim",
-  --   dependencies = {
-  --     "nvim-lua/plenary.nvim",
-  --     "hrsh7th/nvim-cmp",
-  --   },
-  -- },
+  {
+    "supermaven-inc/supermaven-nvim",
+  },
 }
