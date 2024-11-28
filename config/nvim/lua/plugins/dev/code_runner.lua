@@ -26,6 +26,12 @@ return {
           vim.g.tectonic = 1
         end
       end,
+      quarto = {
+        "cd $dir &&",
+        "quarto preview $fileName",
+        "--no-browser",
+        "--port 4444",
+      },
       markdown = function(...)
         local hook = require "code_runner.hooks.preview_pdf"
         require("code_runner.hooks.ui").select {

@@ -1,92 +1,92 @@
 return {
   {
-    -- "hrsh7th/nvim-cmp",
-    "iguanacucumber/magazine.nvim",
-    name = "nvim-cmp", -- Otherwise highlighting gets messed up
-    -- version = false, -- last release is way too old
+    "supermaven-inc/supermaven-nvim",
     event = "InsertEnter",
+    config = function()
+      require("supermaven-nvim").setup {
+        keymaps = {
+          accept_suggestion = "<C-I>",
+          clear_suggestion = "<C-CR>",
+          accept_word = "<C-J>",
+        },
+      }
+    end
+  },
+  -- add blink.compat
+  -- use the latest release, via version = '*', if you also use the latest release for blink.cmp
+  {
+    'saghen/blink.cmp',
+    event = "InsertEnter",
+    version = '0.*',
     dependencies = {
-      "hrsh7th/cmp-nvim-lsp",
-      "hrsh7th/cmp-buffer",
-      "hrsh7th/cmp-path",
-      "saadparwaiz1/cmp_luasnip",
+      'rafamadriz/friendly-snippets',
       "lukas-reineke/cmp-rg",
       "jc-doyle/cmp-pandoc-references",
+      'L3MON4D3/LuaSnip',
+      'saadparwaiz1/cmp_luasnip',
+      { 'saghen/blink.compat', version = '*', opts = { impersonate_nvim_cmp = true } },
     },
-    opts = function()
-      vim.api.nvim_set_hl(0, "CmpGhostText", { link = "Comment", default = true })
-      local cmp = require "cmp"
-      local defaults = require "cmp.config.default"()
-      return {
+    ---@module 'blink.cmp'
+    ---@type blink.cmp.Config
+    opts = {
+      highlight = {
+        use_nvim_cmp_as_default = false,
+      },
+      windows = {
+        documentation = {
+          auto_show = true,
+        },
+      },
+      keymap = { preset = 'super-tab' },
+      sources = {
         completion = {
-          completeopt = "menu,menuone,noinsert",
-        },
-        snippet = {
-          expand = function(args)
-            require("luasnip").lsp_expand(args.body)
-          end,
-        },
-        mapping = cmp.mapping.preset.insert {
-          ["<C-n>"] = cmp.mapping.select_next_item { behavior = cmp.SelectBehavior.Insert },
-          ["<C-p>"] = cmp.mapping.select_prev_item { behavior = cmp.SelectBehavior.Insert },
-          ["<C-b>"] = cmp.mapping.scroll_docs(-4),
-          ["<C-f>"] = cmp.mapping.scroll_docs(4),
-          ["<C-y>"] = cmp.mapping.complete(),
-          ["<C-e>"] = cmp.mapping.abort(),
-          ["<CR>"] = cmp.mapping.confirm { select = true }, -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-          ["<S-CR>"] = cmp.mapping.confirm {
-            behavior = cmp.ConfirmBehavior.Replace,
-            select = true,
-          }, -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-          ["<C-CR>"] = function(fallback)
-            cmp.abort()
-            fallback()
-          end,
-        },
-        sources = cmp.config.sources({
-          { name = "nvim_lsp" },
-          -- { name = "codeium" },
-          { name = "supermaven" },
-          { name = "luasnip", max_item_count = 3 },
-          { name = "path" },
-          { name = "rg" },
-          { name = "pandoc_references" },
-        }, {
-          { name = "buffer" },
-        }),
-        formatting = {
-          fields = { "kind", "abbr", "menu" },
-          format = function(_, item)
-            local icons = require("utils.static.icons").kinds
-            if icons[item.kind] then
-              item.menu = "    (" .. (item.kind or "") .. ")"
-              item.kind = " " .. icons[item.kind] .. " "
+          enabled_providers = function(ctx)
+            local node = vim.treesitter.get_node()
+            local providers = {'lsp', 'path', 'snippets', 'buffer', 'luasnip', 'rg', 'supermaven' }
+            if vim.bo.filetype == 'tex' then
+              table.insert(providers, 'pandoc_references')
+              return providers
+            else
+              return providers
             end
-            local max_width = 80
-            if max_width ~= 0 and #item.abbr > max_width then
-              item.abbr = string.sub(item.abbr, 1, max_width - 1) .. ""
-            end
-            return item
-          end,
+          end
         },
-        experimental = {
-          ghost_text = {
-            hl_group = "CmpGhostText",
+        appearance = {
+          use_nvim_cmp_as_default = true,
+          nerd_font_variant = 'mono'
+        },
+        signature = {
+            enabled = true,
+        },
+        providers = {
+          luasnip = {
+            name = 'luasnip',
+            module = 'blink.compat.source',
+
+            score_offset = -3,
+
+            opts = {
+              use_show_condition = false,
+              show_autosnippets = true,
+            },
           },
-        },
-        sorting = defaults.sorting,
+          rg = {
+            name = 'rg',
+            module = 'blink.compat.source',
+            score_offset = -1,
+          },
+          pandoc_references = {
+            name = 'pandoc_references',
+            module = 'blink.compat.source',
+            score_offset = -3,
+          },
+          supermaven = {
+            name = 'supermaven',
+            module = 'blink.compat.source',
+            score_offset = 1,
+          },
+        }
       }
-    end,
-    ---@param opts cmp.ConfigSchema
-    config = function(_, opts)
-      for _, source in ipairs(opts.sources) do
-        source.group_index = source.group_index or 1
-      end
-      require("supermaven-nvim").setup {}
-      require("cmp").setup(opts)
-    end,
-  },
-  {
-    "supermaven-inc/supermaven-nvim",
+    }
   },
 }

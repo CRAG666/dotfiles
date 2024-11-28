@@ -44,6 +44,7 @@ return {
         end,
       },
       "RRethy/nvim-treesitter-endwise",
+      { "nushell/tree-sitter-nu", build = ":TSUpdate nu" },
     },
     cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
     keys = {

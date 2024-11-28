@@ -107,3 +107,7 @@ vim.filetype.add {
 vim.filetype.add {
   pattern = { [".*%.rasi"] = "rasi" },
 }
+vim.treesitter.language.register('markdown', 'quarto')
+vim.filetype.add {
+  pattern = { [".*%.ipynb"] = "jupyter" },
+}

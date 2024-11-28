@@ -86,7 +86,7 @@ local maps = {
     prefix = "<leader>",
     maps = {
       --Delete search result
-      { "c", ':let @/=""<cr>' },
+      { "cc", ':let @/=""<cr>' },
       { "R", [[:%s/\(.*\)/\1]], "Search and [R]eplace extend", opts },
     },
   },

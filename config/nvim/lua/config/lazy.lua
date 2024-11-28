@@ -85,7 +85,7 @@ function M.setup()
     spec = {
       { import = "plugins.ui" },
       { import = "plugins.dev" },
-      -- { import = "plugins.dev.lang" },
+      { import = "plugins.dev.lang" },
       { import = "plugins.general" },
       { import = "plugins.modes" },
     },

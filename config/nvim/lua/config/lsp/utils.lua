@@ -23,7 +23,8 @@ function M.capabilities()
     dynamicRegistration = false,
     lineFoldingOnly = true,
   }
-  return require("cmp_nvim_lsp").default_capabilities(capabilities)
+  -- return require("cmp_nvim_lsp").default_capabilities(capabilities)
+  return require('blink.cmp').get_lsp_capabilities(capabilities)
 end
 
 function M.on_attach(on_attach)

@@ -249,5 +249,6 @@ export LCOLORCATPPUCCIN=~/Documentos/Proyectos/Writings/utils/latex/catppuccin
 # END_KITTY_SHELL_INTEGRATION
 
 source ~/.zshfunc
+source ~/.keys
 export PASSWORD_STORE_ENABLE_EXTENSIONS=true
 # FPATH="/usr/share/zsh/site-functions:${FPATH}"
