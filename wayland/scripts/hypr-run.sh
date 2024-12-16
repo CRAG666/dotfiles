@@ -41,23 +41,15 @@ if [ -z "$MODE" ]; then
 	show_help
 fi
 
-DRM_DEVICE="/dev/dri/"
 if [ "$MODE" = "hybrid" ]; then
-	DEVICE_NAME=$(ls -l /dev/dri/by-path | grep "$(lspci -k | grep -E '(VGA|3D)' | grep -i "intel" | awk '{print $1}')" | awk -F/ '{print $NF}')
-	DEVICE_NVIDIA=$(ls -l /dev/dri/by-path | grep "$(lspci -k | grep -E '(VGA|3D)' | grep -i "nvidia" | awk '{print $1}')" | awk -F/ '{print $NF}')
+	DEVICE_INTEL=$(ls -l /dev/dri/by-path | grep "$(lspci -k | grep -E '(VGA|3D)' | grep -i "intel" | awk '{print $1}')" | awk -F/ '{print $NF}')
+	DEVICE_NAME=$(ls -l /dev/dri/by-path | grep "$(lspci -k | grep -E '(VGA|3D)' | grep -i "nvidia" | awk '{print $1}')" | awk -F/ '{print $NF}')
+	CARD_NVIDIA=$(echo "$DEVICE_NAME" | awk 'NR==1')
+	CARD_INTEL=$(echo "$DEVICE_INTEL" | awk 'NR==1')
+	sed -i -E "s#/dev/dri/(card[0-9]+):/dev/dri/(card[0-9]+)#/dev/dri/${CARD_INTEL}:/dev/dri/${CARD_NVIDIA}#g" "$HOME/.config/hypr/hybrid.conf"
 else
 	DEVICE_NAME=$(ls -l /dev/dri/by-path | grep "$(lspci -k | grep -E '(VGA|3D)' | grep -i "$MODE" | awk '{print $1}')" | awk -F/ '{print $NF}')
 fi
-
-CARD=$(echo "$DEVICE_NAME" | awk 'NR==1')
-
-if [ "$CARD" = "card1" ]; then
-	sed -i 's|\(.*\)\/dev\/dri\/card2:\/dev\/dri\/card1|\1\/dev\/dri\/card1:\/dev\/dri\/card2|' "$HOME/.config/hypr/hybrid.conf"
-else
-	sed -i 's|\(.*\)\/dev\/dri\/card1:\/dev\/dri\/card2|\1\/dev\/dri\/card2:\/dev\/dri\/card1|' "$HOME/.config/hypr/hybrid.conf"
-fi
-
-RENDER=$(echo "$DEVICE_NAME" | awk 'NR==2')
 
 case "$MODE" in
 "intel")
@@ -71,10 +63,10 @@ case "$MODE" in
 "hybrid")
 	sed -i "s/intel/hybrid/" "$HOME/.config/hypr/hyprland.conf"
 	sed -i "s/nvidia/hybrid/" "$HOME/.config/hypr/hyprland.conf"
-	# RENDER=$(echo "$DEVICE_NVIDIA" | awk 'NR==2')
 	;;
 esac
 
+RENDER=$(echo "$DEVICE_NAME" | awk 'NR==2')
 sed -i "s/renderD[[:alnum:]]*/$RENDER/" "$HOME/.config/hypr/hybrid.conf"
 
 Hyprland >/dev/null 2>&1
