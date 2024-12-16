@@ -10,7 +10,9 @@ function M.win_safe_set_height(win, height)
   end
   local winnr = vim.fn.winnr()
   if vim.fn.winnr "j" ~= winnr or vim.fn.winnr "k" ~= winnr then
+    local cmdheight = vim.go.cmdheight
     vim.api.nvim_win_set_height(win, height)
+    vim.go.cmdheight = cmdheight
   end
 end
 
@@ -36,7 +38,7 @@ function M.effective_lines()
     )
 end
 
----Returns a function to save some attributes a list of windows
+---Returns a function to save some attributes over a list of windows
 ---@param save_method fun(win: integer): any?
 ---@param store table<integer, any>
 ---@return fun(wins: integer[]?): nil
@@ -83,7 +85,7 @@ end
 ---@return fun(): nil
 function M.clear(store)
   return function()
-    for win, _ in ipairs(store) do
+    for win, _ in pairs(store) do
       store[win] = nil
     end
   end

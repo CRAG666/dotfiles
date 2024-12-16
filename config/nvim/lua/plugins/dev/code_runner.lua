@@ -1,5 +1,6 @@
 local preview_cmd = "/bin/zathura --fork"
 local folder = ""
+
 return {
   "CRAG666/code_runner.nvim",
   -- name = "code_runner",
@@ -16,15 +17,12 @@ return {
   opts = {
     mode = "better_term",
     better_term = {
-      number = 1,
+      number = 2,
     },
     filetype = {
       v = "v run",
       tex = function(...)
-        if vim.g.tectonic == nil then
-          vim.fn.jobstart "tectonic -X watch -x 'build --keep-intermediates --keep-logs'"
-          vim.g.tectonic = 1
-        end
+        require("code_runner.hooks.tectonic").build(preview_cmd, { "--keep-logs" })
       end,
       quarto = {
         "cd $dir &&",
@@ -77,7 +75,6 @@ return {
         }
         vim.ui.input({ prompt = "Add more args:" }, function(input)
           c_base[4] = input
-          vim.print(vim.tbl_extend("force", c_base, c_exec))
           require("code_runner.commands").run_from_fn(vim.list_extend(c_base, c_exec))
         end)
       end,

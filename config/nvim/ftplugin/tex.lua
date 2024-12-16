@@ -7,7 +7,7 @@ local root_files = {
 }
 
 root_path = vim.fs.root(0, root_files)
-build_path = root_path .. "/build/default"
+build_path = "build/default"
 
 local texlab = {
   cmd = { "texlab" },
@@ -17,10 +17,11 @@ local texlab = {
       rootDirectory = root_path,
       build = {
         auxDirectory = build_path,
-        logDirectory = build_path,
-        pdfDirectory = build_path,
+        -- logDirectory = build_path,
+        -- pdfDirectory = build_path,
+        filename = "default.pdf",
         executable = "tectonic",
-        args = { "-X", "watch", "-x", "'build --synctex -k --keep-logs'" },
+        args = { "-X", "build", "--synctex", "-k", "--keep-logs" },
         onSave = false,
         forwardSearchAfter = true,
       },
@@ -29,7 +30,7 @@ local texlab = {
         args = { "--synctex-forward", "%l:1:%f", "%p" },
         onSave = false,
       },
-      auxDirectory = ".",
+      auxDirectory = build_path,
       chktex = {
         onOpenAndSave = false,
         onEdit = false,

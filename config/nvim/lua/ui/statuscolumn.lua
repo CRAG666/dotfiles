@@ -111,7 +111,7 @@ function builders.signcol(data, filter, virtual)
       return make_hl(
         vim.trim(sign_details.sign_text),
         data.culhl and sign_details.cursorline_hl_group
-          or sign_details.sign_hl_group
+          or sign_details.sign_hl_group --[[@as string]]
       )
     end
   end
@@ -172,7 +172,7 @@ end
 ---@return string
 local function extsign_get_name(sign)
   local details = sign[4]
-  return details.sign_name or details.sign_hl_group or ''
+  return details.sign_name or details.sign_hl_group or '' --[[@as string]]
 end
 
 ---@param sign extmark_sign_t
@@ -329,4 +329,3 @@ end
 return {
   setup = setup,
 }
-

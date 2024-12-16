@@ -107,14 +107,9 @@ function M.qftf(info)
   -- stylua: ignore end
 
   local lines = {} ---@type string[]
-  local format_str = vim.g.modern_ui and "%s %s:%s%s%s %s" or "%s│%s:%s%s%s│ %s"
+  local format_str = vim.go.termguicolors and "%s %s:%s%s%s %s" or "%s│%s:%s%s%s│ %s"
 
   local function _fill_item(idx, item)
-    if item.valid == 0 then
-      table.insert(lines, "")
-      return
-    end
-
     local fname = fname_str_cache[idx]
     local fname_cur_width = fname_width_cache[idx]
 
@@ -251,12 +246,12 @@ function M.goto_paragraph_lastline()
   end
 end
 
----Close floating windows with 'q'
+---Close floating windows with a given key
 --- 1. If current window is a floating window, close it and return
 --- 2. Else, close all floating windows that can be focused
---- 3. Fallback to normal mode 'q' if no floating window can be focused
+--- 3. Fallback to `key` if no floating window can be focused
 ---@return nil
-function M.q()
+function M.close_floats(key)
   local count = 0
   local current_win = vim.api.nvim_get_current_win()
   -- Close current win only if it's a floating window
@@ -267,15 +262,14 @@ function M.q()
   for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
     if vim.api.nvim_win_is_valid(win) then
       local config = vim.api.nvim_win_get_config(win)
-      -- Close floating windows that can be focused
-      if config.relative ~= "" and config.focusable then
+      if config.relative ~= "" then
         vim.api.nvim_win_close(win, false) -- do not force
         count = count + 1
       end
     end
   end
   if count == 0 then -- Fallback
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("q", true, true, true), "n", false)
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), "n", false)
   end
 end
 

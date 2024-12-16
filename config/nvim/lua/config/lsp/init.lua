@@ -17,7 +17,7 @@ local root_patterns = {
 }
 
 local lsp_autostop_pending
----Automatically stop LSP servers that no longer attaches to any buffers
+---Automatically stop LSP servers that no longer attach to any buffers
 ---
 ---  Once `BufDelete` is triggered, wait for 60s before checking and
 ---  stopping servers, in this way the callback will be invoked once
@@ -26,10 +26,10 @@ local lsp_autostop_pending
 ---  clients on every `BufDelete` events
 ---
 ---@return nil
-local function setup_lsp_stopidle()
+local function setup_lsp_stopdetached()
   vim.api.nvim_create_autocmd("BufDelete", {
     group = vim.api.nvim_create_augroup("LspAutoStop", {}),
-    desc = "Automatically stop idle language servers.",
+    desc = "Automatically stop detached language servers.",
     callback = function()
       if lsp_autostop_pending then
         return
@@ -52,16 +52,19 @@ end
 local function setup_lsp_overrides()
   -- Show notification if no references, definition, declaration,
   -- implementation or type definition is found
-  local handlers = {
-    ["textDocument/references"] = vim.lsp.handlers["textDocument/references"],
-    ["textDocument/definition"] = vim.lsp.handlers["textDocument/definition"],
-    ["textDocument/declaration"] = vim.lsp.handlers["textDocument/declaration"],
-    ["textDocument/implementation"] = vim.lsp.handlers["textDocument/implementation"],
-    ["textDocument/typeDefinition"] = vim.lsp.handlers["textDocument/typeDefinition"],
+  local methods = {
+    "textDocument/references",
+    "textDocument/definition",
+    "textDocument/declaration",
+    "textDocument/implementation",
+    "textDocument/typeDefinition",
   }
-  for method, handler in pairs(handlers) do
+
+  for _, method in ipairs(methods) do
     local obj_name = method:match("/(%w*)$"):gsub("s$", "")
-    vim.lsp.handlers[method] = function(err, result, ctx, cfg)
+    local handler = vim.lsp.handlers[method]
+
+    vim.lsp.handlers[method] = function(err, result, ctx, ...)
       if not result or vim.tbl_isempty(result) then
         vim.notify("[LSP] no " .. obj_name .. " found")
         return
@@ -79,29 +82,12 @@ local function setup_lsp_overrides()
         vim.notify("[LSP] found 1 " .. obj_name)
         return
       end
-      handler(err, result, ctx, cfg)
+
+      handler(err, result, ctx, ...)
     end
   end
 
   -- Configure hovering window style
-  local opts_override_floating_preview = {
-    border = "solid",
-    max_width = math.max(80, math.ceil(vim.go.columns * 0.75)),
-    max_height = math.max(20, math.ceil(vim.go.lines * 0.4)),
-    close_events = {
-      "CursorMoved",
-      "CursorMovedI",
-      "WinScrolled",
-    },
-  }
-  vim.api.nvim_create_autocmd("VimResized", {
-    desc = "Update LSP floating window maximum size on VimResized.",
-    group = vim.api.nvim_create_augroup("LspUpdateFloatingWinMaxSize", {}),
-    callback = function()
-      opts_override_floating_preview.max_width = math.max(80, math.ceil(vim.go.columns * 0.75))
-      opts_override_floating_preview.max_height = math.max(20, math.ceil(vim.go.lines * 0.4))
-    end,
-  })
   -- Hijack LSP floating window function to use custom options
   local _open_floating_preview = vim.lsp.util.open_floating_preview
   ---@param contents table of lines to show in window
@@ -111,7 +97,19 @@ local function setup_lsp_overrides()
   ---@diagnostic disable-next-line: duplicate-set-field
   function vim.lsp.util.open_floating_preview(contents, syntax, opts)
     local source_ft = vim.bo[vim.api.nvim_get_current_buf()].ft
-    opts = vim.tbl_deep_extend("force", opts, opts_override_floating_preview)
+    opts = vim.tbl_deep_extend("force", opts, {
+      border = "solid",
+      max_width = math.max(80, math.ceil(vim.go.columns * 0.75)),
+      max_height = math.max(20, math.ceil(vim.go.lines * 0.4)),
+      close_events = {
+        "CursorMovedI",
+        "CursorMoved",
+        "InsertEnter",
+        "WinScrolled",
+        "WinResized",
+        "VimResized",
+      },
+    })
     -- If source filetype is markdown, use custom mkd syntax instead of
     -- markdown syntax to avoid using treesitter highlight and get math
     -- concealing provided by vimtex in the floating window
@@ -122,6 +120,16 @@ local function setup_lsp_overrides()
     local floating_bufnr, floating_winnr = _open_floating_preview(contents, syntax, opts)
     vim.wo[floating_winnr].concealcursor = "nc"
     return floating_bufnr, floating_winnr
+  end
+
+  -- Use loclist instead of qflist by default when showing document symbols
+  local _lsp_document_symbol = vim.lsp.buf.document_symbol
+  ---@diagnostic disable-next-line: duplicate-set-field
+  vim.lsp.buf.document_symbol = function()
+    ---@diagnostic disable-next-line: redundant-parameter
+    _lsp_document_symbol {
+      loclist = true,
+    }
   end
 end
 
@@ -166,7 +174,7 @@ function M.setup(server, on_attach)
     require("config.lsp.format").on_attach(client, bufnr)
     require("config.lsp.keymaps").on_attach(client, bufnr)
     setup_lsp_overrides()
-    setup_lsp_stopidle()
+    setup_lsp_stopdetached()
     setup_diagnostic()
     if on_attach ~= nil then
       on_attach(client, bufnr)

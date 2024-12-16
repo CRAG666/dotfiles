@@ -1,4 +1,4 @@
-local utils = require('utils')
+local utils = require "utils"
 
 ---Mimic vim buffer options using vim.b (b:) and vim.g (g:)
 ---@class bufopt_t
@@ -28,13 +28,10 @@ function bufopt_t:new(name, default)
   local new_opt = setmetatable({
     name = name,
     default = default,
-    augroup = vim.api.nvim_create_augroup(
-      'BufOpt' .. utils.string.snake_to_camel(name),
-      {}
-    ),
+    augroup = vim.api.nvim_create_augroup("BufOpt" .. utils.string.snake_to_camel(name), {}),
     initialized = initialized,
   }, { __index = self })
-  vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWinEnter' }, {
+  vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
     group = new_opt.augroup,
     callback = function(info)
       local buf = info.buf
@@ -44,7 +41,7 @@ function bufopt_t:new(name, default)
       end
     end,
   })
-  vim.api.nvim_create_autocmd({ 'BufDelete', 'BufWipeOut', 'BufUnload' }, {
+  vim.api.nvim_create_autocmd({ "BufDelete", "BufWipeOut", "BufUnload" }, {
     group = new_opt.augroup,
     callback = function(info)
       new_opt.initialized[info.buf] = nil
@@ -60,7 +57,7 @@ function bufopt_t:del()
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
     vim.b[buf][self.name] = nil
   end
-  vim.api.nvim_clear_autocmds({ group = self.augroup })
+  vim.api.nvim_clear_autocmds { group = self.augroup }
   bufopts[self.name] = nil
 end
 
@@ -165,11 +162,11 @@ end
 ---@vararg any
 ---@return any
 function bufopt_t:scope_action(opts, action, ...)
-  if opts['global'] then
-    return self[action .. 'global'](self, ...)
+  if opts["global"] then
+    return self[action .. "global"](self, ...)
   end
-  if opts['local'] then
-    return self[action .. 'local'](self, ...)
+  if opts["local"] then
+    return self[action .. "local"](self, ...)
   end
   return self[action](self, ...)
 end
