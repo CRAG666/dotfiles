@@ -1,4 +1,4 @@
-local preview_cmd = "/bin/zathura --fork"
+local preview_cmd = "/bin/zathura"
 local folder = ""
 
 return {
@@ -15,9 +15,10 @@ return {
     },
   },
   opts = {
-    mode = "better_term",
+    -- mode = "better_term",
+    mode = "term",
     better_term = {
-      number = 2,
+      number = 1,
     },
     filetype = {
       v = "v run",

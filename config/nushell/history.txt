@@ -1877,3 +1877,458 @@ ls
 cp -r ~/Git/dot/.config/nvim/syntax/ .
 git status
 clear
+..
+ls
+vimc
+hyprc
+btop
+btop
+vimc
+acpi -ba
+acpi -bi
+acpi -ia
+acpi -bi
+z nvim
+ls
+clear
+z code
+ls
+cd hooks/
+ls
+acpi -bi
+clear
+ls
+vim tectonic.lua
+ls
+cd Documentos/
+ls
+cd libros/
+clear
+ls
+zt Dialnet-LosAntiguosYLosModernos-148833.pdf
+zathura Dialnet-LosAntiguosYLosModernos-148833.pdf
+ls
+z tex
+ls
+cd
+z poster
+ls
+cd build
+ls
+cd default/
+ls
+clear
+ls
+..
+ls
+..
+ls
+cd src/
+ls
+clear
+ls
+vim index.tex
+ls
+ls
+vimc
+ls
+ls ../build/default/default.pdf
+clear
+vimc
+vim index.tex
+ls
+z code
+ls
+clear
+ls
+clear
+ls
+cd hooks/
+ls
+vim index.tex
+bob use nigthly
+bob list
+bob use nightly
+ls
+vim index.tex
+vim tectonic.lua
+vim index.tex
+git status
+ls
+vim index.tex
+vim tectonic.lua
+clear
+ls
+vimc
+z code
+ls
+..
+ls
+vim autocmd.lua
+ls
+vimc
+ls
+..
+ls
+..
+ls
+rg plenary
+clear
+ls
+..
+ls
+z code
+ls
+..
+ls
+rg plenary
+ls
+..
+ls
+rg plenary
+cd lua
+ls
+clear
+ls
+cd code_runner/
+ls
+cd hooks/
+ls
+vim autocmd.lua
+git status
+clear
+..
+ls
+vim commands.lua
+ls
+..
+ls
+z dot
+ls
+z coe
+ls
+z code
+ls
+clear
+ls
+..
+ls
+..
+ls
+vim README.md
+..
+ls
+z code
+ls
+clear
+git status
+ls
+acp
+clear
+zhs
+vim code_runner.lua 
+clear
+ls
+..
+ls
+vim README.md
+ls
+cd lua
+ls
+cd code_runner/
+ls
+clear
+ls
+z prueba
+ls
+neofetch
+clear
+acpi -bi
+clear
+ls
+z prueba
+ls
+vim main.py
+vimc
+vim main.py
+vim other.py
+vim commands.lua
+ls
+vim commands.lua
+vim other.py
+ls
+mkdir other_folder
+ls
+mv other.py other_folder/
+ls
+cd other_folder/
+ls
+vim other.py
+..
+ls
+vim other.py
+ls
+vim main.py
+ls
+cd other_folder/
+ls
+vim other.py
+clear
+vimc
+ls
+vim other.py
+vim commands.lua
+git status
+acp
+vimc
+ls
+cd Documentos/
+sl
+ls
+cd utils/
+ls
+fm
+pwd
+clear
+z Exp
+ls
+clear
+ls
+clear
+ls
+glo
+clear
+ls
+cd Documentos/
+ls
+cd libros/
+ls
+clear
+ls
+cd Computacion/
+ls
+clear
+ls
+fm
+ls
+cd linux/
+ls
+..
+ls
+clear
+z code
+ls
+vim project.lua
+vimc
+ls
+rm `''`
+rm \
+ls
+vim utils.lua
+ls
+cd Git
+ls
+cd prueba/
+ls
+vim main.py
+z prueba
+ls
+vim main.py
+vim commands.lua
+vim main.py
+vim other.py
+cd other_folder/
+ls
+vim project.lua
+vim other.py
+vim commands.lua
+vim other.py
+..
+ls
+cd main.py
+vim main.py
+z code
+ls
+z code
+ls
+z pro
+ls
+z prue
+ls
+vim main.py
+vim other_folder/other.py 
+vim project.lua
+vim main.py
+vim filetype.lua
+ls
+vim main.py
+vim utils.lua
+vim filetype.lua
+git status
+vim other_folder/other.py
+ls
+vim commands.lua
+git status
+..
+ls
+..
+ls
+vim README.md
+git status
+acp
+vim main.py
+z code
+ls
+vim utils.lua
+clear
+git status
+acp
+z code
+ls
+vim options.lua
+ls
+z prue
+ls
+vim utils.lua
+clear
+ls
+vim main.py
+z bett
+ls
+cd lua
+ls
+vim betterTerm.lua
+glo
+clear
+zhs
+vim utils.lua
+z bett
+ls
+cd lua
+ls
+..
+ls
+vim code_runner/
+vim code_runner.lua
+ls
+..
+ls
+vim README.md
+clear
+ls
+cd lua
+ls
+cd code_runner/
+ls
+vim commands.lua
+vim betterTerm.lua
+ls
+vim commands.lua
+z code
+ls
+vim filetype.lua
+vim project.lua
+vim filetype.lua
+z code
+ls
+z code
+sl
+ls
+vim singlenton.lua
+ls
+vim singlenton.lua
+vim commands.lua
+clear
+ls
+vim filetype_class.lua
+git status
+clear
+git status
+git restore filetype.lua
+rm -rf filetype.lua singleton_class.lua
+ls
+clear
+ls
+git status
+git restore project.lua
+ls
+clear
+ls
+git status
+git restore filetype.lua
+git status
+rm filetype_class.lua
+clear
+git status
+ls
+z code
+ls
+vim filetype.lua
+git status
+vim commands.lua
+rg singlenton
+ls
+rg Singlenton
+rg Singleton
+vim commands.lua
+git status
+z code
+ls
+clear
+ls
+vim singlenton.lua
+rm singlenton.lua
+vimc
+ls
+clear
+ls
+rg print
+rg notify
+clear
+ls
+vim commands.lua
+clear
+ls
+vim filetype.lua
+vim floats.lua
+z code
+ls
+vim project.lua
+z code
+ls
+z code
+rg "No hay"
+ls
+..
+ls
+rg "No hay"
+ls
+..
+ls
+rg "No hay"
+clear
+ls
+cd lua
+ls
+vim code_runner.lua
+rg notify
+clear
+rg notify -l
+vim code_runner/filetype.lua
+z code
+rg notify -l
+z code
+sl
+ls
+rg notify -l
+vim hooks/utils.lua
+vim hooks/tectonic.lua\
+vim hooks/tectonic.lua
+vim hooks/ui.lua
+vim hooks/preview_pdf.lua
+clear
+ls
+git status
+z dot
+ls
+vim README.md
