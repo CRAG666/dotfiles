@@ -1,3 +1,4 @@
+local utils = require('utils')
 local configs = require('ui.winbar.configs')
 local bar = require('ui.winbar.bar')
 local groupid = vim.api.nvim_create_augroup('WinBarLsp', {})
@@ -94,56 +95,6 @@ local function symbol_type(symbols)
   end
 end
 
----Check if cursor is in range
----@param cursor integer[] cursor position (line, character); (1, 0)-based
----@param range lsp_range_t 0-based range
----@return boolean
-local function cursor_in_range(cursor, range)
-  local cursor0 = { cursor[1] - 1, cursor[2] }
-  -- stylua: ignore start
-  return (
-    cursor0[1] > range.start.line
-    or (cursor0[1] == range.start.line
-        and cursor0[2] >= range.start.character)
-  )
-    and (
-      cursor0[1] < range['end'].line
-      or (cursor0[1] == range['end'].line
-          and cursor0[2] <= range['end'].character)
-    )
-  -- stylua: ignore end
-end
-
----Check if range1 contains range2
----Strict indexing -- if range1 == range2, return false
----@param range1 lsp_range_t 0-based range
----@param range2 lsp_range_t 0-based range
----@return boolean
-local function range_contains(range1, range2)
-  -- stylua: ignore start
-  return (
-    range2.start.line > range1.start.line
-    or (range2.start.line == range1.start.line
-        and range2.start.character > range1.start.character)
-    )
-    and (
-      range2.start.line < range1['end'].line
-      or (range2.start.line == range1['end'].line
-          and range2.start.character < range1['end'].character)
-    )
-    and (
-      range2['end'].line > range1.start.line
-      or (range2['end'].line == range1.start.line
-          and range2['end'].character > range1.start.character)
-    )
-    and (
-      range2['end'].line < range1['end'].line
-      or (range2['end'].line == range1['end'].line
-          and range2['end'].character < range1['end'].character)
-    )
-  -- stylua: ignore end
-end
-
 ---Convert LSP DocumentSymbol into winbar symbol
 ---@param document_symbol lsp_document_symbol_t LSP DocumentSymbol
 ---@param buf integer buffer number
@@ -208,11 +159,18 @@ local function convert_document_symbol_list(
   -- Parse in reverse order so that the symbol with the largest start position
   -- is preferred
   for idx, symbol in vim.iter(lsp_symbols):enumerate():rev() do
-    if cursor_in_range(cursor, symbol.range) then
-      table.insert(
-        winbar_symbols,
-        convert_document_symbol(symbol, buf, win, lsp_symbols, idx)
-      )
+    if utils.lsp.range_contains_cursor(symbol.range, cursor) then
+      if
+        vim.tbl_contains(
+          configs.opts.sources.lsp.valid_symbols,
+          symbol_kind_names[symbol.kind]
+        )
+      then
+        table.insert(
+          winbar_symbols,
+          convert_document_symbol(symbol, buf, win, lsp_symbols, idx)
+        )
+      end
       if symbol.children then
         convert_document_symbol_list(
           symbol.children,
@@ -246,7 +204,7 @@ local function unify(symbols)
   for list_idx, sym in vim.iter(symbols):enumerate():skip(1) do
     local prev = symbols[list_idx - 1] --[[@as lsp_symbol_information_tree_t]]
     -- If the symbol is a child of the previous symbol
-    if range_contains(prev.location.range, sym.location.range) then
+    if utils.lsp.range_contains(prev.location.range, sym.location.range) then
       sym.parent = prev
     else -- Else the symbol is a sibling of the previous symbol
       sym.parent = prev.parent
@@ -261,33 +219,45 @@ local function unify(symbols)
   return document_symbols
 end
 
----Update LSP symbols from an LSP client
+---Update LSP symbols for given buffer
 ---Side effect: update symbol_list
 ---@param buf integer buffer handler
----@param client lsp_client_t LSP client
 ---@param ttl integer? limit the number of recursive requests, default 60
-local function update_symbols(buf, client, ttl)
+local function update_symbols(buf, ttl)
   ttl = ttl or configs.opts.sources.lsp.request.ttl_init
-  if
-    ttl <= 0
-    or not vim.api.nvim_buf_is_valid(buf)
-    or not vim.b[buf].winbar_lsp_attached
-  then
+  if ttl <= 0 or not vim.api.nvim_buf_is_valid(buf) then
     lsp_buf_symbols[buf] = nil
     return
   end
-  local textdocument_params = vim.lsp.util.make_text_document_params(buf)
+
+  local function _defer_update()
+    vim.defer_fn(function()
+      update_symbols(buf, ttl - 1)
+    end, configs.opts.sources.lsp.request.interval)
+  end
+
+  local client = vim.tbl_filter(
+    function(client)
+      return client.supports_method('textDocument/documentSymbol')
+    end,
+    vim.lsp.get_clients({
+      bufnr = buf,
+    })
+  )[1]
+  if not client then
+    _defer_update()
+    return
+  end
+
   client.request(
     'textDocument/documentSymbol',
-    { textDocument = textdocument_params },
+    { textDocument = vim.lsp.util.make_text_document_params(buf) },
     function(err, symbols, _)
       if err or not symbols or vim.tbl_isempty(symbols) then
-        vim.defer_fn(function()
-          update_symbols(buf, client, ttl - 1)
-        end, configs.opts.sources.lsp.request.interval)
-      else -- Update symbol_list
-        lsp_buf_symbols[buf] = unify(symbols)
+        _defer_update()
+        return
       end
+      lsp_buf_symbols[buf] = unify(symbols)
     end,
     buf
   )
@@ -299,21 +269,16 @@ local function attach(buf)
   if vim.b[buf].winbar_lsp_attached then
     return
   end
-  local function _update()
-    local client = vim.tbl_filter(function(client)
-      return client.supports_method('textDocument/documentSymbol')
-    end, vim.lsp.get_clients({ bufnr = buf }))[1]
-    update_symbols(buf, client)
-  end
-  vim.b[buf].winbar_lsp_attached = vim.api.nvim_create_autocmd(
-    { 'TextChanged', 'TextChangedI' },
-    {
+
+  update_symbols(buf)
+  vim.b[buf].winbar_lsp_attached =
+    vim.api.nvim_create_autocmd(configs.opts.bar.update_events.buf, {
       group = groupid,
       buffer = buf,
-      callback = _update,
-    }
-  )
-  _update()
+      callback = function(info)
+        update_symbols(info.buf)
+      end,
+    })
 end
 
 ---Detach LSP symbol getter from buffer

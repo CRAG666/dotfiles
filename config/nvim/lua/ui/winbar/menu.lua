@@ -213,7 +213,7 @@ function winbar_menu_t:new(opts)
       entries = {},
       win_configs = configs.opts.menu.win_configs,
     }, opts or {}),
-    winbar_menu_t
+    self
   )
   for idx, entry in ipairs(winbar_menu.entries) do
     entry.menu = winbar_menu
@@ -372,6 +372,27 @@ function winbar_menu_t:make_buf()
   end
   self.buf = vim.api.nvim_create_buf(false, true)
 
+  -- Align symbol icons with different lengths
+  local max_sym_icon_len = math.max(
+    0,
+    unpack(
+      ---@param entry winbar_menu_entry_t
+      vim.tbl_map(function(entry)
+        local sym = entry.components[2]
+        return (not sym or not sym.icon) and 0
+          or vim.fn.strdisplaywidth(sym.icon)
+      end, self.entries)
+    )
+  )
+  for _, entry in ipairs(self.entries) do
+    local sym = entry.components[2]
+    if sym then
+      sym.icon = sym.icon or ''
+      sym.icon = sym.icon
+        .. string.rep(' ', max_sym_icon_len - vim.fn.strdisplaywidth(sym.icon))
+    end
+  end
+
   -- Get lines and highlights for each line
   local lines = {} ---@type string[]
   local hl_info = {} ---@type winbar_menu_hl_info_t[][]
@@ -420,9 +441,10 @@ function winbar_menu_t:make_buf()
   -- Set buffer-local keymaps
   -- Default modes: normal
   for key, mapping in pairs(configs.opts.menu.keymaps) do
-    if type(mapping) == 'function' or type(mapping) == 'string' then
+    local mapping_type = type(mapping)
+    if mapping_type == 'function' or mapping_type == 'string' then
       vim.keymap.set('n', key, mapping, { buffer = self.buf })
-    elseif type(mapping) == 'table' then
+    elseif mapping_type == 'table' then
       for mode, rhs in pairs(mapping) do
         vim.keymap.set(mode, key, rhs, { buffer = self.buf })
       end

@@ -4,53 +4,13 @@ local M = {}
 
 ---@class winbar_configs_t
 M.opts = {
-  general = {
-    ---@type boolean|fun(buf: integer, win: integer): boolean
-    enable = function(buf, win)
-      return not vim.w[win].winbar_no_attach
-        and not vim.b[buf].winbar_no_attach
-        and vim.wo[win].winbar == ''
-        and vim.fn.win_gettype(win) == ''
-        and vim.bo[buf].ft ~= 'help'
-        and not vim.startswith(vim.bo[buf].ft, 'git')
-        and utils.treesitter.is_active(buf)
-    end,
-    attach_events = {
-      'BufEnter',
-      'BufWinEnter',
-      'BufWritePost',
-    },
-    -- Wait for a short time before updating the winbar, if another update
-    -- request is received within this time, the previous request will be
-    -- cancelled, this improves the performance when the user is holding
-    -- down a key (e.g. 'j') to scroll the window
-    update_interval = 32,
-    update_events = {
-      win = {
-        'CursorMoved',
-        'CursorMovedI',
-        'WinResized',
-      },
-      buf = {
-        'BufModifiedSet',
-        'FileChangedShellPost',
-        'TextChanged',
-        'TextChangedI',
-      },
-      global = {
-        'DirChanged',
-        'VimResized',
-      },
-    },
-  },
   icons = {
     kinds = {
-      use_devicons = true,
       symbols = icons.kinds,
     },
     ui = {
       bar = {
-        separator = vim.g.no_nf and ' > ' or icons.ui.AngleRight,
+        separator = vim.g.has_nf and icons.ui.AngleRight or ' > ',
         extends = vim.opt.listchars:get().extends
           or vim.trim(icons.ui.Ellipsis),
       },
@@ -61,6 +21,109 @@ M.opts = {
     },
   },
   symbol = {
+    ---@type fun(symbol: winbar_symbol_t, min_width: integer?, n_clicks: integer?, button: string?, modifiers: string?)|false?
+    on_click = function(symbol)
+      -- Update current context highlights if the symbol
+      -- is shown inside a menu
+      if symbol.entry and symbol.entry.menu then
+        symbol.entry.menu:update_current_context_hl(symbol.entry.idx)
+      elseif symbol.bar then
+        symbol.bar:update_current_context_hl(symbol.bar_idx)
+      end
+
+      -- Determine menu configs
+      local prev_win = nil ---@type integer?
+      local entries_source = nil ---@type winbar_symbol_t[]?
+      local init_cursor = nil ---@type integer[]?
+      local win_configs = {}
+      if symbol.bar then -- If symbol inside a winbar
+        prev_win = symbol.bar.win
+        entries_source = symbol.opts.siblings
+        init_cursor = symbol.opts.sibling_idx
+          and { symbol.opts.sibling_idx, 0 }
+        ---@param tbl number[]
+        local function _sum(tbl)
+          local sum = 0
+          for _, v in ipairs(tbl) do
+            sum = sum + v
+          end
+          return sum
+        end
+        if symbol.bar.in_pick_mode then
+          win_configs.relative = 'win'
+          win_configs.win = vim.api.nvim_get_current_win()
+          win_configs.row = 0
+          win_configs.col = symbol.bar.padding.left
+            + _sum(vim.tbl_map(
+              function(component)
+                return component:displaywidth()
+                  + symbol.bar.separator:displaywidth()
+              end,
+              vim.tbl_filter(function(component)
+                return component.bar_idx < symbol.bar_idx
+              end, symbol.bar.components)
+            ))
+        end
+      elseif symbol.entry and symbol.entry.menu then -- If inside a menu
+        prev_win = symbol.entry.menu.win
+        entries_source = symbol.opts.children
+      end
+
+      -- Toggle existing menu
+      if symbol.menu then
+        symbol.menu:toggle({
+          prev_win = prev_win,
+          win_configs = win_configs,
+        })
+        return
+      end
+
+      -- Create a new menu for the symbol
+      if not entries_source or vim.tbl_isempty(entries_source) then
+        return
+      end
+
+      local menu = require('ui.winbar.menu')
+      local configs = require('ui.winbar.configs')
+      symbol.menu = menu.winbar_menu_t:new({
+        prev_win = prev_win,
+        cursor = init_cursor,
+        win_configs = win_configs,
+        ---@param sym winbar_symbol_t
+        entries = vim.tbl_map(function(sym)
+          local menu_indicator_icon = configs.opts.icons.ui.menu.indicator
+          local menu_indicator_on_click = nil
+          if not sym.children or vim.tbl_isempty(sym.children) then
+            menu_indicator_icon =
+              string.rep(' ', vim.fn.strdisplaywidth(menu_indicator_icon))
+            menu_indicator_on_click = false
+          end
+          return menu.winbar_menu_entry_t:new({
+            components = {
+              sym:merge({
+                name = '',
+                icon = menu_indicator_icon,
+                icon_hl = 'winbarIconUIIndicator',
+                on_click = menu_indicator_on_click,
+              }),
+              sym:merge({
+                on_click = function()
+                  local current_menu = symbol.menu
+                  while current_menu and current_menu.prev_menu do
+                    current_menu = current_menu.prev_menu
+                  end
+                  if current_menu then
+                    current_menu:close(false)
+                  end
+                  sym:jump()
+                end,
+              }),
+            },
+          })
+        end, entries_source),
+      })
+      symbol.menu:toggle()
+    end,
     preview = {
       ---Reorient the preview window on previewing a new symbol
       ---@param _ integer source window id, ignored
@@ -95,6 +158,43 @@ M.opts = {
     },
   },
   bar = {
+    ---@type boolean|fun(buf: integer, win: integer): boolean
+    enable = function(buf, win)
+      return not vim.w[win].winbar_no_attach
+        and not vim.b[buf].winbar_no_attach
+        and vim.wo[win].winbar == ''
+        and vim.fn.win_gettype(win) == ''
+        and vim.bo[buf].ft ~= 'help'
+        and vim.bo[buf].ft ~= 'diff'
+        and not vim.startswith(vim.bo[buf].ft, 'git')
+        and utils.treesitter.is_active(buf)
+    end,
+    attach_events = {
+      'BufEnter',
+      'BufWinEnter',
+      'BufWritePost',
+    },
+    -- Wait for a short time before updating the winbar, if another update
+    -- request is received within this time, the previous request will be
+    -- cancelled, this improves the performance when the user is holding
+    -- down a key (e.g. 'j') to scroll the window
+    update_debounce = 32,
+    update_events = {
+      win = {
+        'CursorMoved',
+        'WinResized',
+      },
+      buf = {
+        'BufModifiedSet',
+        'FileChangedShellPost',
+        'TextChanged',
+        'InsertLeave',
+      },
+      global = {
+        'DirChanged',
+        'VimResized',
+      },
+    },
     hover = true,
     ---@type winbar_source_t[]|fun(buf: integer, win: integer): winbar_source_t[]
     sources = function(buf)
@@ -266,10 +366,10 @@ M.opts = {
       end,
     },
     treesitter = {
-      -- Vim pattern used to extract a short name from the node text
+      -- Vim regex used to extract a short name from the node text
       -- word with optional prefix and suffix: [#~!@\*&.]*[[:keyword:]]\+!\?
       -- word separators: \(->\)\+\|-\+\|\.\+\|:\+\|\s\+
-      name_pattern = [=[[#~!@\*&.]*[[:keyword:]]\+!\?]=]
+      name_regex = [=[[#~!@\*&.]*[[:keyword:]]\+!\?]=]
         .. [=[\(\(\(->\)\+\|-\+\|\.\+\|:\+\|\s\+\)\?[#~!@\*&.]*[[:keyword:]]\+!\?\)*]=],
       -- The order matters! The first match is used as the type
       -- of the treesitter symbol and used to show the icon
@@ -336,6 +436,34 @@ M.opts = {
       },
     },
     lsp = {
+      valid_symbols = {
+        'File',
+        'Module',
+        'Namespace',
+        'Package',
+        'Class',
+        'Method',
+        'Property',
+        'Field',
+        'Constructor',
+        'Enum',
+        'Interface',
+        'Function',
+        'Variable',
+        'Constant',
+        'String',
+        'Number',
+        'Boolean',
+        'Array',
+        'Object',
+        'Keyword',
+        'Null',
+        'EnumMember',
+        'Struct',
+        'Event',
+        'Operator',
+        'TypeParameter',
+      },
       request = {
         -- Times to retry a request before giving up
         ttl_init = 60,
@@ -362,7 +490,7 @@ end
 ---@param opt T|fun(...): T
 ---@return T
 function M.eval(opt, ...)
-  if type(opt) == 'function' then
+  if opt and vim.is_callable(opt) then
     return opt(...)
   end
   return opt

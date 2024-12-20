@@ -81,109 +81,6 @@ end
 ---@field swapped table<string, true>? swapped fields of the symbol
 ---@field cache table? caches string representation, length, etc. for the symbol
 
----Default `on_click()` callback for winbar symbols
----@param symbol winbar_symbol_t
----@return nil
-local function default_on_click(symbol, _, _, _, _)
-  -- Update current context highlights if the symbol
-  -- is shown inside a menu
-  if symbol.entry and symbol.entry.menu then
-    symbol.entry.menu:update_current_context_hl(symbol.entry.idx)
-  elseif symbol.bar then
-    symbol.bar:update_current_context_hl(symbol.bar_idx)
-  end
-
-  -- Determine menu configs
-  local prev_win = nil ---@type integer?
-  local entries_source = nil ---@type winbar_symbol_t[]?
-  local init_cursor = nil ---@type integer[]?
-  local win_configs = {}
-  if symbol.bar then -- If symbol inside a winbar
-    prev_win = symbol.bar.win
-    entries_source = symbol.opts.siblings
-    init_cursor = symbol.opts.sibling_idx and { symbol.opts.sibling_idx, 0 }
-    ---@param tbl number[]
-    local function _sum(tbl)
-      local sum = 0
-      for _, v in ipairs(tbl) do
-        sum = sum + v
-      end
-      return sum
-    end
-    if symbol.bar.in_pick_mode then
-      win_configs.relative = 'win'
-      win_configs.win = vim.api.nvim_get_current_win()
-      win_configs.row = 0
-      win_configs.col = symbol.bar.padding.left
-        + _sum(vim.tbl_map(
-          function(component)
-            return component:displaywidth()
-              + symbol.bar.separator:displaywidth()
-          end,
-          vim.tbl_filter(function(component)
-            return component.bar_idx < symbol.bar_idx
-          end, symbol.bar.components)
-        ))
-    end
-  elseif symbol.entry and symbol.entry.menu then -- If inside a menu
-    prev_win = symbol.entry.menu.win
-    entries_source = symbol.opts.children
-  end
-
-  -- Toggle existing menu
-  if symbol.menu then
-    symbol.menu:toggle({
-      prev_win = prev_win,
-      win_configs = win_configs,
-    })
-    return
-  end
-
-  -- Create a new menu for the symbol
-  if not entries_source or vim.tbl_isempty(entries_source) then
-    return
-  end
-  local menu = require('ui.winbar.menu')
-  symbol.menu = menu.winbar_menu_t:new({
-    prev_win = prev_win,
-    cursor = init_cursor,
-    win_configs = win_configs,
-    ---@param sym winbar_symbol_t
-    entries = vim.tbl_map(function(sym)
-      local menu_indicator_icon = configs.opts.icons.ui.menu.indicator
-      local menu_indicator_on_click = nil
-      if not sym.children or vim.tbl_isempty(sym.children) then
-        menu_indicator_icon =
-          string.rep(' ', vim.fn.strdisplaywidth(menu_indicator_icon))
-        menu_indicator_on_click = false
-      end
-      return menu.winbar_menu_entry_t:new({
-        components = {
-          sym:merge({
-            name = '',
-            icon = menu_indicator_icon,
-            icon_hl = 'WinBarIconUIIndicator',
-            on_click = menu_indicator_on_click,
-          }),
-          sym:merge({
-            on_click = function()
-              local current_menu = symbol.menu
-              while current_menu and current_menu.prev_menu do
-                current_menu = current_menu.prev_menu
-              end
-              if current_menu then
-                current_menu:close(false)
-              end
-              sym:jump()
-            end,
-          }),
-        },
-      })
-    end, entries_source),
-  })
-  symbol.menu:toggle()
-end
-
 ---Create a winbar symbol instance, with drop-down menu support
 ---@param opts winbar_symbol_opts_t?
 ---@return winbar_symbol_t
@@ -195,7 +92,7 @@ function winbar_symbol_t:new(opts)
         icon = '',
         cache = {},
         opts = opts,
-        on_click = opts and default_on_click,
+        on_click = opts and configs.opts.symbol.on_click,
       }, opts or {}),
       getmetatable(opts or {})
     ),
@@ -264,8 +161,9 @@ function winbar_symbol_t:bytewidth()
 end
 
 ---Jump to the start of the symbol associated with the winbar symbol
+---@param reorient boolean? whether to set view after jumping, default true
 ---@return nil
-function winbar_symbol_t:jump()
+function winbar_symbol_t:jump(reorient)
   if not self.range or not self.win then
     return
   end
@@ -274,9 +172,11 @@ function winbar_symbol_t:jump()
     self.range.start.line + 1,
     self.range.start.character,
   })
-  vim.api.nvim_win_call(self.win, function()
-    configs.opts.symbol.jump.reorient(self.win, self.range)
-  end)
+  if reorient ~= false then
+    vim.api.nvim_win_call(self.win, function()
+      configs.opts.symbol.jump.reorient(self.win, self.range)
+    end)
+  end
 end
 
 ---Preview the symbol in the source window
@@ -385,7 +285,7 @@ function winbar_t:new(opts)
       }),
       padding = configs.opts.bar.padding,
     }, opts or {}),
-    winbar_t
+    self
   )
   -- vim.tbl_deep_extend drops metatables
   setmetatable(winbar.separator, winbar_symbol_t)
@@ -575,14 +475,13 @@ function winbar_t:update()
       end
     end
     self:redraw()
-  end, configs.opts.general.update_interval)
+  end, configs.opts.bar.update_debounce)
 end
 
 ---Execute a function in pick mode
 ---Side effect: change winbar.in_pick_mode
----@generic T
----@param fn fun(...): T?
----@return T?
+---@param fn fun(...): ...?
+---@return ...?
 function winbar_t:pick_mode_wrap(fn, ...)
   local pick_mode = self.in_pick_mode
   self.in_pick_mode = true

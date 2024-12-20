@@ -2,25 +2,26 @@
 local hlgroups = {
   WinBarCurrentContext            = { link = 'Visual' },
   WinBarHover                     = { link = 'Visual' },
+  WinBarIconKindDefault           = { link = 'Special' },
   WinBarIconKindArray             = { link = 'Operator' },
   WinBarIconKindBoolean           = { link = 'Boolean' },
   WinBarIconKindBreakStatement    = { link = 'Error' },
   WinBarIconKindCall              = { link = 'Function' },
-  WinBarIconKindCaseStatement     = { link = 'Conditional' },
-  WinBarIconKindClass             = { link = 'CmpItemKindClass' },
+  WinBarIconKindCaseStatement     = { link = '@keyword.conditional' },
+  WinBarIconKindClass             = { link = 'Type' },
   WinBarIconKindConstant          = { link = 'Constant' },
-  WinBarIconKindConstructor       = { link = 'CmpItemKindConstructor' },
+  WinBarIconKindConstructor       = { link = '@constructor' },
   WinBarIconKindContinueStatement = { link = 'Repeat' },
-  WinBarIconKindDeclaration       = { link = 'CmpItemKindSnippet' },
+  WinBarIconKindDeclaration       = { link = 'WinBarIconKindDefault' },
   WinBarIconKindDelete            = { link = 'Error' },
   WinBarIconKindDoStatement       = { link = 'Repeat' },
-  WinBarIconKindElseStatement     = { link = 'Conditional' },
-  WinBarIconKindElement           = { link = 'NameSpace' },
-  WinBarIconKindEnum              = { link = 'CmpItemKindEnum' },
-  WinBarIconKindEnumMember        = { link = 'CmpItemKindEnumMember' },
-  WinBarIconKindEvent             = { link = 'CmpItemKindEvent' },
-  WinBarIconKindField             = { link = 'CmpItemKindField' },
-  WinBarIconKindFile              = { link = 'Field' },
+  WinBarIconKindElseStatement     = { link = '@keyword.conditional' },
+  WinBarIconKindElement           = { link = 'WinBarIconKindDefault' },
+  WinBarIconKindEnum              = { link = 'Constant' },
+  WinBarIconKindEnumMember        = { link = 'WinBarIconKindEnumMember' },
+  WinBarIconKindEvent             = { link = '@lsp.type.event' },
+  WinBarIconKindField             = { link = 'WinBarIconKindDefault' },
+  WinBarIconKindFile              = { link = 'WinBarIconKindFolder' },
   WinBarIconKindFolder            = { link = 'Directory' },
   WinBarIconKindForStatement      = { link = 'Repeat' },
   WinBarIconKindFunction          = { link = 'Function' },
@@ -30,10 +31,10 @@ local hlgroups = {
   WinBarIconKindH4Marker          = { link = 'markdownH4' },
   WinBarIconKindH5Marker          = { link = 'markdownH5' },
   WinBarIconKindH6Marker          = { link = 'markdownH6' },
-  WinBarIconKindIdentifier        = { link = 'CmpItemKindVariable' },
-  WinBarIconKindIfStatement       = { link = 'Conditional' },
-  WinBarIconKindInterface         = { link = 'CmpItemKindInterface' },
-  WinBarIconKindKeyword           = { link = 'Keyword' },
+  WinBarIconKindIdentifier        = { link = 'WinBarIconKindDefault' },
+  WinBarIconKindIfStatement       = { link = '@keyword.conditional' },
+  WinBarIconKindInterface         = { link = 'Type' },
+  WinBarIconKindKeyword           = { link = '@keyword' },
   WinBarIconKindList              = { link = 'Operator' },
   WinBarIconKindMacro             = { link = 'Macro' },
   WinBarIconKindMarkdownH1        = { link = 'markdownH1' },
@@ -42,30 +43,30 @@ local hlgroups = {
   WinBarIconKindMarkdownH4        = { link = 'markdownH4' },
   WinBarIconKindMarkdownH5        = { link = 'markdownH5' },
   WinBarIconKindMarkdownH6        = { link = 'markdownH6' },
-  WinBarIconKindMethod            = { link = 'CmpItemKindMethod' },
-  WinBarIconKindModule            = { link = 'CmpItemKindModule' },
-  WinBarIconKindNamespace         = { link = 'NameSpace' },
+  WinBarIconKindMethod            = { link = 'Function' },
+  WinBarIconKindModule            = { link = '@module' },
+  WinBarIconKindNamespace         = { link = '@lsp.type.namespace' },
   WinBarIconKindNull              = { link = 'Constant' },
   WinBarIconKindNumber            = { link = 'Number' },
   WinBarIconKindObject            = { link = 'Statement' },
   WinBarIconKindOperator          = { link = 'Operator' },
-  WinBarIconKindPackage           = { link = 'CmpItemKindModule' },
-  WinBarIconKindPair              = { link = 'String' },
-  WinBarIconKindProperty          = { link = 'CmpItemKindProperty' },
-  WinBarIconKindReference         = { link = 'CmpItemKindReference' },
+  WinBarIconKindPackage           = { link = '@module' },
+  WinBarIconKindPair              = { link = 'WinBarIconKindDefault' },
+  WinBarIconKindProperty          = { link = 'WinBarIconKindDefault' },
+  WinBarIconKindReference         = { link = 'WinBarIconKindDefault' },
   WinBarIconKindRepeat            = { link = 'Repeat' },
-  WinBarIconKindRuleSet           = { link = 'NameSpace' },
-  WinBarIconKindScope             = { link = 'NameSpace' },
-  WinBarIconKindSpecifier         = { link = 'Keyword' },
+  WinBarIconKindRuleSet           = { link = '@lsp.type.namespace' },
+  WinBarIconKindScope             = { link = '@lsp.type.namespace' },
+  WinBarIconKindSpecifier         = { link = '@keyword' },
   WinBarIconKindStatement         = { link = 'Statement' },
-  WinBarIconKindString            = { link = 'String' },
-  WinBarIconKindStruct            = { link = 'CmpItemKindStruct' },
-  WinBarIconKindSwitchStatement   = { link = 'Conditional' },
-  WinBarIconKindType              = { link = 'CmpItemKindClass' },
-  WinBarIconKindTypeParameter     = { link = 'CmpItemKindTypeParameter' },
-  WinBarIconKindUnit              = { link = 'CmpItemKindUnit' },
+  WinBarIconKindString            = { link = '@string' },
+  WinBarIconKindStruct            = { link = 'Type' },
+  WinBarIconKindSwitchStatement   = { link = '@keyword.conditional' },
+  WinBarIconKindType              = { link = 'Type' },
+  WinBarIconKindTypeParameter     = { link = 'WinBarIconKindDefault' },
+  WinBarIconKindUnit              = { link = 'WinBarIconKindDefault' },
   WinBarIconKindValue             = { link = 'Number' },
-  WinBarIconKindVariable          = { link = 'CmpItemKindVariable' },
+  WinBarIconKindVariable          = { link = 'WinBarIconKindDefault' },
   WinBarIconKindWhileStatement    = { link = 'Repeat' },
   WinBarIconUIIndicator           = { link = 'SpecialChar' },
   WinBarIconUIPickPivot           = { link = 'Error' },
@@ -115,23 +116,34 @@ end
 
 ---Initialize highlight groups for winbar
 local function init()
+  local groupid = vim.api.nvim_create_augroup('WinBarHlGroups', {})
+
   set_hlgroups()
   vim.api.nvim_create_autocmd('ColorScheme', {
-    group = vim.api.nvim_create_augroup('WinBarHlGroups', {}),
+    group = groupid,
     callback = set_hlgroups,
   })
 
-  clear_winbar_bg()
-  local gid_clear_bg = vim.api.nvim_create_augroup('WinBarHlClearBg', {})
-  vim.api.nvim_create_autocmd('ColorScheme', {
-    group = gid_clear_bg,
-    callback = clear_winbar_bg,
-  })
-  vim.api.nvim_create_autocmd('OptionSet', {
-    group = gid_clear_bg,
-    pattern = 'background',
-    callback = clear_winbar_bg,
-  })
+  -- See https://github.com/Bekaboo/dropbar.nvim/issues/118
+  --     https://github.com/neovim/neovim/issues/26037#issuecomment-1838548013
+  --     https://github.com/Bekaboo/dropbar.nvim/pull/195
+  if vim.fn.has('nvim-0.11.0') == 0 then
+    clear_winbar_bg()
+    vim.api.nvim_create_autocmd('UIEnter', {
+      once = true,
+      group = groupid,
+      callback = clear_winbar_bg,
+    })
+    vim.api.nvim_create_autocmd('ColorScheme', {
+      group = groupid,
+      callback = clear_winbar_bg,
+    })
+    vim.api.nvim_create_autocmd('OptionSet', {
+      group = groupid,
+      pattern = 'background',
+      callback = clear_winbar_bg,
+    })
+  end
 end
 
 return {

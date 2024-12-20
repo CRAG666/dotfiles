@@ -15,8 +15,7 @@ return {
     },
   },
   opts = {
-    -- mode = "better_term",
-    mode = "term",
+    mode = "better_term",
     better_term = {
       number = 1,
     },
@@ -35,7 +34,7 @@ return {
         local hook = require "code_runner.hooks.preview_pdf"
         require("code_runner.hooks.ui").select {
           Marp = function()
-            require("code_runner.commands").run_from_fn "marp --theme-set $MARPT -w -p . &$end"
+            require("code_runner").run_from_fn "marp --theme-set $MARPT -w -p . &$end"
           end,
           Latex = function()
             hook.run {
@@ -92,7 +91,8 @@ return {
         "-o /tmp/$fileNameWithoutExt &&",
         "/tmp/$fileNameWithoutExt",
       },
-      python = "python -u '$dir/$fileName'",
+      -- python = "python -u '$dir/$fileName'",
+      python = "python3",
       sh = "bash",
       typescript = "deno run",
       typescriptreact = "yarn dev$end",

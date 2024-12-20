@@ -6,12 +6,14 @@ local utils = require('ui.winbar.utils')
 ---@param node TSNode
 ---@param buf integer buffer handler
 local function get_node_short_name(node, buf)
-  return vim.trim(
-    vim.fn.matchstr(
-      vim.treesitter.get_node_text(node, buf):gsub('\n', ' '):gsub('\t', ' '),
-      configs.opts.sources.treesitter.name_pattern
+  return vim
+    .trim(
+      vim.fn.matchstr(
+        vim.treesitter.get_node_text(node, buf):gsub('\n', ' '),
+        configs.opts.sources.treesitter.name_regex
+      )
     )
-  )
+    :gsub('%s+', ' ')
 end
 
 ---Get valid treesitter node type name
