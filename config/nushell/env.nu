@@ -3,8 +3,6 @@
 # version = "0.98.0"
 
 
-
-
 # The prompt indicators are environmental variables that represent
 # the state of the prompt
 # Use nushell functions to define your right and left prompt
