@@ -1,6 +1,6 @@
-local uf = require('snippets.utils.funcs')
-local un = require('snippets.utils.nodes')
-local us = require('snippets.utils.snips')
+local uf = require('utils.snippets.funcs')
+local un = require('utils.snippets.nodes')
+local us = require('utils.snippets.snips')
 local ls = require('luasnip')
 local sn = ls.snippet_node
 local t = ls.text_node
@@ -22,10 +22,25 @@ return {
       })
     end),
   }),
-  us.samWr({ trig = '([%w_\\{}]*)//' }, {
+  us.msamWr({
+    { trig = '//', priority = 999 },
+    { trig = '(%b())//' },
+    { trig = '(\\?%w+[_^]?%w?)//' },
+    { trig = '(\\?%w+[_^]?%b{})//' },
+    { trig = '(\\?%w+%b{}[_^]?%w?)//' },
+    { trig = '(\\?%w+%b{}[_^]?%b{})//' },
+    { trig = '(\\?%w+[_^]?%w?[_^]?%w?)//' },
+    { trig = '(\\?%w+[_^]?%b{}[_^]?%w?)//' },
+    { trig = '(\\?%w+[_^]?%w?[_^]?%b{})//' },
+    { trig = '(\\?%w+[_^]?%b{}[_^]?%b{})//' },
+    { trig = '(\\?%w+%b{}[_^]?%w?[_^]?%w?)//' },
+    { trig = '(\\?%w+%b{}[_^]?%b{}[_^]?%w?)//' },
+    { trig = '(\\?%w+%b{}[_^]?%w?[_^]?%b{})//' },
+    { trig = '(\\?%w+%b{}[_^]?%b{}[_^]?%b{})//' },
+  }, {
     d(1, function(_, snip)
       local numerator = snip.captures[1]
-      if numerator == nil or not numerator:match('%S') then
+      if not numerator then
         return sn(nil, {
           t('\\frac{'),
           i(1),
@@ -33,6 +48,11 @@ return {
           i(2),
           t('}'),
         })
+      end
+
+      -- Remove surrounding brackets
+      if #(numerator:match('%b()') or '') == #numerator then
+        numerator = numerator:sub(2, -2)
       end
       return sn(nil, {
         t('\\frac{'),
@@ -64,7 +84,7 @@ return {
 
   us.samW({ trig = '==' }, t('&= ')),
   us.samW({ trig = ':=' }, t('\\coloneqq ')),
-  us.msamW({ { trig = '!=' }, { trig = 'neq' } }, t('\\neq ')),
+  us.samW({ trig = '!=' }, t('\\neq ')),
   us.samW({ trig = '&= =' }, t('\\equiv ')),
   us.samW({ trig = '>=' }, t('\\ge ')),
   us.samW({ trig = '<=' }, t('\\le ')),
@@ -201,7 +221,10 @@ return {
   us.sambW({ trig = 'cm' }, t('^{C}')),
   us.sambW({ trig = 'inv' }, t('^{-1}')),
   us.sambW({ trig = '\\in v' }, t('^{-1}')),
-  us.sambW({ trig = 'tr' }, t('^{\\intercal}')),
+  us.msambW({
+    { trig = 'tr' },
+    { trig = '.T' },
+  }, t('^{\\intercal}')),
 
   us.samWr({ trig = '(\\?%w*_*%w*)vv' }, un.sdn(1, '\\vec{', '}')),
   us.samWr({ trig = '(\\?%w*_*%w*)hat' }, un.sdn(1, '\\hat{', '}')),
@@ -303,8 +326,34 @@ return {
   us.sam({ trig = 'o*' }, t('\\circledast ')),
   us.sam({ trig = 'dd' }, t('\\mathrm{d}')),
   us.sam({ trig = 'pp' }, t('\\partial ')),
-  us.msam({ { trig = 'DD' }, { trig = 'Dd' } }, t('\\Delta ')),
   us.msam({ { trig = 'oo' }, { trig = '\\in f' } }, t('\\infty')),
+
+  us.sam({ trig = 'AA' }, t('\\mathbb{A}')),
+  us.sam({ trig = 'BB' }, t('\\mathbb{B}')),
+  us.sam({ trig = 'CC' }, t('\\mathbb{C}')),
+  us.sam({ trig = 'DD' }, t('\\mathbb{D}')),
+  us.sam({ trig = 'EE' }, t('\\mathbb{E}')),
+  us.sam({ trig = 'FF' }, t('\\mathbb{F}')),
+  us.sam({ trig = 'GG' }, t('\\mathbb{G}')),
+  us.sam({ trig = 'HH' }, t('\\mathbb{H}')),
+  us.sam({ trig = 'II' }, t('\\mathbb{I}')),
+  us.sam({ trig = 'JJ' }, t('\\mathbb{J}')),
+  us.sam({ trig = 'KK' }, t('\\mathbb{K}')),
+  us.sam({ trig = 'LL' }, t('\\mathbb{L}')),
+  us.sam({ trig = 'MM' }, t('\\mathbb{M}')),
+  us.sam({ trig = 'NN' }, t('\\mathbb{N}')),
+  us.sam({ trig = 'OO' }, t('\\mathbb{O}')),
+  us.sam({ trig = 'PP' }, t('\\mathbb{P}')),
+  us.sam({ trig = 'QQ' }, t('\\mathbb{Q}')),
+  us.sam({ trig = 'RR' }, t('\\mathbb{R}')),
+  us.sam({ trig = 'SS' }, t('\\mathbb{S}')),
+  us.sam({ trig = 'TT' }, t('\\mathbb{T}')),
+  us.sam({ trig = 'UU' }, t('\\mathbb{U}')),
+  us.sam({ trig = 'VV' }, t('\\mathbb{V}')),
+  us.sam({ trig = 'WW' }, t('\\mathbb{W}')),
+  us.sam({ trig = 'XX' }, t('\\mathbb{X}')),
+  us.sam({ trig = 'YY' }, t('\\mathbb{Y}')),
+  us.sam({ trig = 'ZZ' }, t('\\mathbb{Z}')),
 
   us.sam({ trig = 'set' }, { t('\\{'), i(1), t('\\}') }),
   us.sam({ trig = 'void' }, t('\\emptyset')),

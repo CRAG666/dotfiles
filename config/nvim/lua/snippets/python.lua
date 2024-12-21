@@ -1,7 +1,7 @@
 local M = {}
-local uf = require('snippets.utils.funcs')
-local un = require('snippets.utils.nodes')
-local us = require('snippets.utils.snips')
+local uf = require('utils.snippets.funcs')
+local un = require('utils.snippets.nodes')
+local us = require('utils.snippets.snips')
 local ls = require('luasnip')
 local sn = ls.snippet_node
 local t = ls.text_node
@@ -64,16 +64,16 @@ M.snippets = {
       q = un.qt(),
       line = c(1, {
         -- stylua: ignore start
-        i(nil, '-----------------------------------------------------------------'),
-        i(nil, '================================================================='),
-        i(nil, '.................................................................'),
-        i(nil, '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'),
-        i(nil, '*****************************************************************'),
-        i(nil, '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'),
-        i(nil, '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'),
-        i(nil, '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'),
-        i(nil, '#################################################################'),
-        i(nil, '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'),
+        i(nil, '----------------------------------------'),
+        i(nil, '========================================'),
+        i(nil, '........................................'),
+        i(nil, '++++++++++++++++++++++++++++++++++++++++'),
+        i(nil, '****************************************'),
+        i(nil, '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'),
+        i(nil, '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'),
+        i(nil, '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'),
+        i(nil, '########################################'),
+        i(nil, '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'),
         -- stylua: ignore end
       }),
     })
@@ -300,35 +300,18 @@ M.snippets = {
       { trig = 'def' },
       common = { desc = 'Function definition' },
     },
-    c(1, {
-      un.fmtad(
-        [[
-          def <name>(<args>):
-          <body>
-        ]],
-        {
-          name = r(1, 'fn_name'),
-          args = r(2, 'args'),
-          body = un.body(3, 1, false),
-        }
-      ),
-      un.fmtad(
-        [[
-          def <name>(<args>):
-          <q><q><q>
-          <docstring>
-          <q><q><q>
-          <body>
-        ]],
-        {
-          name = r(1, 'fn_name'),
-          args = r(2, 'args'),
-          q = un.qt(),
-          docstring = i(3),
-          body = un.body(4, 1, false),
-        }
-      ),
-    }),
+    un.fmtad(
+      [[
+        def <name>(<args>)<ret>:
+        <body>
+      ]],
+      {
+        name = r(1, 'fn_name'),
+        args = r(2, 'args'),
+        ret = i(3),
+        body = un.body(4, 1, false),
+      }
+    ),
     {
       common_opts = {
         stored = {
@@ -343,89 +326,39 @@ M.snippets = {
       { trig = 'method' },
       common = { desc = 'Method definition' },
     },
-    c(1, {
-      un.fmtad(
-        [[
-        def <name>(self, <args>):
+    un.fmtad(
+      [[
+        def <name>(self<args>):
         <body>
       ]],
-        {
-          name = r(1, 'method_name'),
-          args = r(2, 'args'),
-          body = un.body(3, 1, false),
-        }
-      ),
-      un.fmtad(
-        [[
-          def <name>(self, <args>):
-          <q><q><q>
-          <docstring>
-          <q><q><q>
-          <body>
-        ]],
-        {
-          name = r(1, 'method_name'),
-          args = r(2, 'args'),
-          q = un.qt(),
-          docstring = i(3),
-          body = un.body(4, 1, false),
-        }
-      ),
-    }),
-    {
       {
-        stored = {
-          method_name = i(nil, 'method_name'),
-        },
-      },
-    }
+        name = i(1, 'method_name'),
+        args = i(2),
+        body = un.body(3, 1, false),
+      }
+    )
   ),
   us.msn(
     {
       { trig = 'cls' },
       { trig = 'class' },
+      { trig = 'tp' },
+      { trig = 'type' },
       common = { desc = 'Class definition' },
     },
-    c(1, {
-      un.fmtad(
-        [[
-          class <name>:
-          <idnt>def __init__(self, <args>):
-          <body>
-        ]],
-        {
-          name = r(1, 'class_name'),
-          args = r(2, 'args'),
-          idnt = un.idnt(1),
-          body = un.body(3, 1, false),
-        }
-      ),
-      un.fmtad(
-        [[
-          class <name>:
-          <idnt><q><q><q>
-          <idnt><docstring>
-          <idnt><q><q><q>
-          <idnt>def __init__(self, <args>):
-          <body>
-        ]],
-        {
-          name = r(1, 'class_name'),
-          q = un.qt(),
-          docstring = i(3),
-          args = r(2, 'args'),
-          idnt = un.idnt(1),
-          body = un.body(4, 1, false),
-        }
-      ),
-    }),
-    {
-      common_opts = {
-        stored = {
-          class_name = i(nil, 'class_name'),
-        },
-      },
-    }
+    un.fmtad(
+      [[
+        class <name>:
+        <idnt>def __init__(self<args>):
+        <body>
+      ]],
+      {
+        name = i(1, 'class_name'),
+        args = i(2),
+        idnt = un.idnt(1),
+        body = un.body(3, 2, false),
+      }
+    )
   ),
   us.sn(
     {

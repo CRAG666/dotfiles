@@ -126,3 +126,18 @@ utils.map("t", "<C-v><Esc>", "<Esc>")
 utils.map("n", "<bs>", ":<c-u>exe v:count ? v:count . 'b' : 'b' . (bufloaded(0) ? '#' : 'n')<cr>")
 --utils.map("n", "<leader>fo", vim.cmd.TodoTelescope, { desc = "Todo List" })
 utils.map("n", "<leader>ts", [[:execute 'set showtabline=' . (&showtabline ==# 0 ? 2 : 0)<CR>]])
+
+vim.api.nvim_create_autocmd("CmdlineEnter", {
+  once = true,
+  callback = function()
+    utils.command_map(":", "lua ")
+    utils.command_abbrev("man", "Man")
+    utils.command_abbrev("rm", "!rm")
+    utils.command_abbrev("mv", "!mv")
+    utils.command_abbrev("git", "!git")
+    utils.command_abbrev("mkd", "!mkdir")
+    utils.command_abbrev("mkdir", "!mkdir")
+    utils.command_abbrev("touch", "!touch")
+    return true
+  end,
+})

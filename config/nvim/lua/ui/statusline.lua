@@ -147,46 +147,51 @@ local progress_status = {
   title = nil,
 }
 
--- vim.api.nvim_create_autocmd("LspProgress", {
---   group = vim.api.nvim_create_augroup("crag/statusline", { clear = true }),
---   desc = "Update LSP progress in statusline",
---   pattern = { "begin", "end" },
---   callback = function(args)
---     -- This should in theory never happen, but I've seen weird errors.
---     if not args.data then
---       return
---     end
---
---     progress_status = {
---       client = vim.lsp.get_client_by_id(args.data.client_id).name,
---       kind = args.data.result.value.kind,
---       title = args.data.result.value.title,
---     }
---
---     if progress_status.kind == "end" then
---       progress_status.title = nil
---       -- Wait a bit before clearing the status.
---       vim.defer_fn(function()
---         vim.cmd.redrawstatus()
---       end, 3000)
---     else
---       vim.cmd.redrawstatus()
---     end
---   end,
--- })
--- --- The latest LSP progress message.
--- ---@return string
--- function lsp_progress_component()
---   if not progress_status.client or not progress_status.title then
---     return ""
---   end
---
---   return table.concat {
---     "%#StatuslineSpinner#󱥸 ",
---     string.format("%%#StatuslineTitle#%s  ", progress_status.client),
---     string.format("%%#StatuslineItalic#%s...", progress_status.title),
---   }
--- end
+vim.api.nvim_create_autocmd("LspProgress", {
+  group = vim.api.nvim_create_augroup("mariasolos/statusline", { clear = true }),
+  desc = "Update LSP progress in statusline",
+  pattern = { "begin", "end" },
+  callback = function(args)
+    -- This should in theory never happen, but I've seen weird errors.
+    if not args.data then
+      return
+    end
+
+    progress_status = {
+      client = vim.lsp.get_client_by_id(args.data.client_id).name,
+      kind = args.data.params.value.kind,
+      title = args.data.params.value.title,
+    }
+
+    if progress_status.kind == "end" then
+      progress_status.title = nil
+      -- Wait a bit before clearing the status.
+      vim.defer_fn(function()
+        vim.cmd.redrawstatus()
+      end, 3000)
+    else
+      vim.cmd.redrawstatus()
+    end
+  end,
+})
+--- The latest LSP progress message.
+---@return string
+function lsp_progress_component()
+  if not progress_status.client or not progress_status.title then
+    return ""
+  end
+
+  -- Avoid noisy messages while typing.
+  if vim.startswith(vim.api.nvim_get_mode().mode, "i") then
+    return ""
+  end
+
+  return table.concat {
+    "%#StatuslineSpinner#󱥸 ",
+    string.format("%%#StatuslineTitle#%s  ", progress_status.client),
+    string.format("%%#StatuslineItalic#%s...", progress_status.title),
+  }
+end
 
 local last_diagnostic_component = ""
 --- Diagnostic counts in the current buffer.
@@ -307,8 +312,7 @@ function render()
     concat_components {
       -- mode_component(),
       git_component(),
-      -- dap_component() or lsp_progress_component(),
-      dap_component(),
+      dap_component() or lsp_progress_component(),
     },
     "%#StatusLine#%=",
     concat_components {

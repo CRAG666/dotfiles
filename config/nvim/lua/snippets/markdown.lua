@@ -1,25 +1,40 @@
 local M = {}
-local un = require('snippets.utils.nodes')
-local us = require('snippets.utils.snips')
-local conds = require('snippets.utils.conds')
+local un = require('utils.snippets.nodes')
+local us = require('utils.snippets.snips')
+local conds = require('utils.snippets.conds')
 local ls = require('luasnip')
+local sn = ls.snippet_node
 local t = ls.text_node
 local i = ls.insert_node
+local d = ls.dynamic_node
 local l = require('luasnip.extras').lambda
 local dl = require('luasnip.extras').dynamic_lambda
 
-M.math = require('snippets.shared.math')
+M.math = require('snippets.tex.math')
 
-M.format = {
-  us.sn({
-    trig = '^# ',
-    regTrig = true,
-    hidden = true,
-    snippetType = 'autosnippet',
+M.snippets = {
+  us.msnr({
+    { trig = '^# ', snippetType = 'autosnippet' },
+    { trig = '^h1' },
   }, {
     t('# '),
-    dl(1, l.TM_FILENAME:gsub('^%d*_', ''):gsub('_', ' '):gsub('%..*', ''), {}),
+    dl(
+      1,
+      l.TM_FILENAME
+        :gsub('^%d*_', '')
+        :gsub('_', ' ')
+        :gsub('^%l', string.upper)
+        :gsub(' %l', string.upper)
+        :gsub('%..*', ''),
+      {}
+    ),
   }),
+  us.snr({ trig = '^h2' }, { t('## '), i(0) }),
+  us.snr({ trig = '^h3' }, { t('### '), i(0) }),
+  us.snr({ trig = '^h4' }, { t('#### '), i(0) }),
+  us.snr({ trig = '^h5' }, { t('##### '), i(0) }),
+  us.snr({ trig = '^h6' }, { t('###### '), i(0) }),
+
   us.sn('pkgs', {
     t({ '---', '' }),
     t({ 'header-includes:', '' }),
@@ -33,9 +48,7 @@ M.format = {
     t({ '- \\usepackage{mathtools}', '' }),
     t({ '---', '' }),
   }),
-}
 
-M.markers = {
   us.msan({
     {
       trig = '**',
@@ -57,9 +70,13 @@ M.markers = {
     { trig = 'cdb' },
   }, {
     t('```'),
-    i(1),
+    d(1, function()
+      return vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ':e') == 'ipynb'
+          and sn(nil, i(1, 'python'))
+        or sn(nil, i(1))
+    end, {}),
     t({ '', '' }),
-    i(0),
+    un.body(2, 0),
     t({ '', '```' }),
   }),
   us.sn({
@@ -67,21 +84,10 @@ M.markers = {
     desc = 'Inline code',
   }, {
     t('`'),
-    i(1),
+    un.body(1, 0),
     t('`'),
   }),
-}
 
-M.titles = {
-  us.sn({ trig = 'h1' }, { t('# '), i(0) }),
-  us.sn({ trig = 'h2' }, { t('## '), i(0) }),
-  us.sn({ trig = 'h3' }, { t('### '), i(0) }),
-  us.sn({ trig = 'h4' }, { t('#### '), i(0) }),
-  us.sn({ trig = 'h5' }, { t('##### '), i(0) }),
-  us.sn({ trig = 'h6' }, { t('###### '), i(0) }),
-}
-
-M.theorems = {
   us.sn({ trig = 'theo' }, { t('***'), i(1, 'Theorem'), t('***') }),
   us.sn({ trig = 'def' }, { t('***'), i(1, 'Definition'), t('***') }),
   us.sn({ trig = 'pro' }, { t('***'), i(1, 'Proof'), t('***') }),

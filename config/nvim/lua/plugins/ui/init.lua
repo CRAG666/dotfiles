@@ -1,4 +1,5 @@
 local utils = require "utils"
+local icons = utils.static.icons.diagnostics
 return {
   { "MunifTanjim/nui.nvim", lazy = true },
   {
@@ -86,27 +87,20 @@ return {
       sign_priority = { lower = 10, upper = 15, builtin = 8, bookmark = 20 },
     }),
   },
-  -- {
-  --   "ashfinal/qfview.nvim",
-  --   event = "UIEnter",
-  --   config = true,
-  -- },
   {
-
-    "yorickpeterse/nvim-pqf",
-    event = "UIEnter",
-    config = function()
-      local icons = utils.static.icons.diagnostics
-      require("pqf").setup {
-        signs = {
-          error = { text = icons.DiagnosticSignError, hl = "DiagnosticSignError" },
-          warning = { text = icons.DiagnosticSignWarn, hl = "DiagnosticSignWarn" },
-          info = { text = icons.DiagnosticSignInfo, hl = "DiagnosticSignInfo" },
-          hint = { text = icons.DiagnosticSignHint, hl = "DiagnosticSignHint" },
-        },
-        show_multiple_lines = true,
-      }
-    end,
+    "stevearc/quicker.nvim",
+    event = "FileType qf",
+    ---@module "quicker"
+    ---@type quicker.SetupOptions
+    opts = {
+      type_icons = {
+        E = icons.DiagnosticSignError,
+        W = icons.DiagnosticSignWarn,
+        I = icons.DiagnosticSignInfo,
+        N = icons.DiagnosticSignInfo,
+        H = icons.DiagnosticSignHint,
+      },
+    },
   },
   {
     "rasulomaroff/reactive.nvim",

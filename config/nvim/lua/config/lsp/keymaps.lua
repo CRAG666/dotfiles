@@ -5,8 +5,6 @@ function M.on_attach(_, buffer)
   local bufopt = { buffer = buffer }
 
   vim.bo[buffer].omnifunc = "v:lua.vim.lsp.omnifunc"
-  local d = vim.diagnostic
-
   -- local function toggleDiagnosticList()
   --   local curr_win = vim.api.nvim_get_current_win()
   --   local loclist_win = vim.fn.getloclist(0, { winid = 0 }).winid
@@ -54,13 +52,13 @@ function M.on_attach(_, buffer)
       prefix = "g",
       maps = {
         { "r", lsp.rename, "Rename", bufopt },
-        { "d", lsp.definition, "Goto Definition", bufopt },
-        { "D", lsp.declaration, "Goto Declaration", bufopt },
-        { "i", lsp.implementation, "Goto Implementation", bufopt },
+        -- { "d", lsp.definition, "Goto Definition", bufopt },
+        { "/", lsp.declaration, "Goto Declaration", bufopt },
+        -- { "i", lsp.implementation, "Goto Implementation", bufopt },
         { "o", lsp.type_definition, "Type definition", bufopt },
-        { "s", lsp.signature_help, "Goto Implementation", bufopt },
-        { "y", "<cmd>tab split | lua vim.lsp.buf.definition()<CR>", "Goto Definition in new Tab", bufopt },
-        { "/", lsp.references, "LSP References", bufopt },
+        { "h", lsp.signature_help, "Signature help", bufopt },
+        { "D", "<cmd>tab split | lua vim.lsp.buf.definition()<CR>", "Goto Definition in new Tab", bufopt },
+        -- { "R", lsp.references, "LSP References", bufopt },
       },
     },
     {
@@ -72,7 +70,7 @@ function M.on_attach(_, buffer)
     },
   }
   utils.maps(lsp_maps)
-  utils.map({ "n", "x" }, "<C-.>", lsp.code_action, vim.tbl_extend("force", bufopt, { desc = "Code actions" }))
+  -- utils.map({ "n", "x" }, "<C-.>", lsp.code_action, vim.tbl_extend("force", bufopt, { desc = "Code actions" }))
   vim.keymap.set({ "n", "x" }, "gy", function()
     local diags = vim.diagnostic.get(0, { lnum = vim.fn.line "." - 1 })
     local n_diags = #diags

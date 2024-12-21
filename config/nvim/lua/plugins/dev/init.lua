@@ -63,10 +63,23 @@ return {
   {
     "RaafatTurki/corn.nvim",
     event = "LspAttach",
+    config = function()
+      require("corn").setup()
+      local group = vim.api.nvim_create_augroup("CornStatus", { clear = true })
+      vim.api.nvim_create_autocmd({ "LspAttach" }, {
+        group = group,
+        callback = function(...)
+          require("corn").toggle()
+        end,
+      })
+    end,
   },
   {
     "mbbill/undotree",
-    event = "BufEnter",
+    cmd = "UndotreeToggle",
+    keys = {
+      { "<leader>u", "<cmd>UndotreeToggle<cr>", desc = "[U]ndotree" },
+    },
   },
   {
     "nvimtools/none-ls.nvim",
@@ -83,6 +96,15 @@ return {
   },
   {
     "rachartier/tiny-code-action.nvim",
+    keys = {
+      {
+        "<C-.>",
+        function()
+          require("tiny-code-action").code_action { backend = "delta" }
+        end,
+        desc = "Code Action",
+      },
+    },
     dependencies = {
       { "nvim-lua/plenary.nvim" },
       { "nvim-telescope/telescope.nvim" },
@@ -95,5 +117,11 @@ return {
   {
     "Omochice/TeXTable.vim",
     ft = { "tex" },
+  },
+  {
+    "folke/ts-comments.nvim",
+    opts = {},
+    event = "VeryLazy",
+    enabled = vim.fn.has "nvim-0.10.0" == 1,
   },
 }

@@ -1,7 +1,7 @@
 local utils = require "utils.keymap"
 local prefix_1 = "<leader>f"
-local prefix_2 = "<leader>g"
-local prefix_3 = "<leader>l"
+local git_prefix = "<leader>g"
+local lsp_prefix = "g"
 local cwd_conf = {
   cwd = vim.fs.dirname(vim.fs.find({ ".git" }, { upward = true })[1]),
 }
@@ -57,7 +57,13 @@ return {
         end,
         desc = "Project Files",
       },
-      -- leader f prefix
+      {
+        ";m",
+        function()
+          require("telescope.builtin").marks()
+        end,
+        desc = "[f]ind [m]ars",
+      },
       {
         prefix_1 .. "b",
         function()
@@ -68,7 +74,7 @@ return {
       {
         prefix_1 .. "w",
         function()
-          require("telescope.builtin").grep_string(cwd_conf)
+          require("telescope.builtin").grep_string()
         end,
         desc = "[f]ind [w]ord",
       },
@@ -136,18 +142,18 @@ return {
         desc = "[f]uzzy [f]ind",
       },
       {
-        prefix_1 .. "m",
-        function()
-          require("telescope.builtin").marks()
-        end,
-        desc = "[f]ind [m]ars",
-      },
-      {
         prefix_1 .. "j",
         function()
           require("telescope.builtin").jumplist()
         end,
         desc = "[f]ind [j]umplist",
+      },
+      {
+        prefix_1 .. "q",
+        function()
+          require("telescope.builtin").quickfix()
+        end,
+        desc = "[f]ind [q]uickfix",
       },
       {
         prefix_1 .. "u",
@@ -157,34 +163,47 @@ return {
         desc = "[f]ind undo",
       },
       {
-        prefix_3 .. "r",
+        lsp_prefix .. "d",
+        function()
+          require("telescope.builtin").lsp_definitions()
+        end,
+        desc = "LSP [d]efinitions",
+      },
+      {
+        lsp_prefix .. "R",
         function()
           require("telescope.builtin").lsp_references()
         end,
-        desc = "[l]SP [r]eferences",
+        desc = "LSP [r]eferences",
       },
       {
-        prefix_3 .. "s",
+        lsp_prefix .. "s",
         function()
           require("telescope.builtin").lsp_document_symbols()
         end,
-        desc = "[l]SP [s]ymbols",
+        desc = "LSP [s]ymbols",
       },
       {
-        prefix_3 .. "i",
+        lsp_prefix .. "i",
         function()
           require("telescope.builtin").lsp_implementations()
         end,
-        desc = "[l]SP [i]mplementations",
+        desc = "LSP [i]mplementations",
       },
       {
-        prefix_3 .. "d",
+        ";dd",
+        function()
+          require("telescope.builtin").diagnostics { bufnr = 0 }
+        end,
+        desc = "LSP [d]iagnostics",
+      },
+      {
+        ";dw",
         function()
           require("telescope.builtin").diagnostics()
         end,
-        desc = "[l]SP [d]iagnostics",
+        desc = "LSP [d]iagnostics Workspace",
       },
-
       {
         "<leader>ss",
         function()
@@ -202,21 +221,14 @@ return {
         desc = "[s]pell [s]uggest",
       },
       {
-        prefix_2 .. "b",
+        git_prefix .. "b",
         function()
           require("telescope.builtin").git_branches()
         end,
         desc = "[g]it [b]ranches",
       },
       {
-        prefix_2 .. "s",
-        function()
-          require("telescope.builtin").git_status()
-        end,
-        desc = "[g]it [s]tatus",
-      },
-      {
-        prefix_2 .. "S",
+        git_prefix .. "S",
         function()
           require("telescope.builtin").git_stash()
         end,
@@ -297,6 +309,9 @@ return {
           grep_string = {
             mappings = mappings,
           },
+          current_buffer_fuzzy_find = {
+            previewer = false,
+          },
         },
         extensions = {
           ["zf-native"] = {
@@ -373,33 +388,60 @@ return {
         end,
       }
 
-      local delta = previewers.new_termopen_previewer {
-        get_command = function(entry)
-          return { "git", "-c", "core.pager=delta", "-c", "delta.side-by-side=false", "diff", entry.value .. "^!" }
-        end,
-      }
-
-      Delta_git_commits = function(opts)
-        opts = opts or {}
-        opts.previewer = {
-          delta,
-          previewers.git_commit_message.new(opts),
-          previewers.git_commit_diff_as_was.new(opts),
+      git_bcommits = function()
+        local opt_commits = {}
+        opt_commits.previewer = previewers.new_termopen_previewer {
+          get_command = function(entry)
+            return {
+              "git",
+              "-c",
+              "core.pager=delta",
+              "-c",
+              "delta.pager=less -R",
+              "show",
+              entry.value,
+            }
+          end,
         }
-        builtin.git_commits(opts)
-      end
 
-      Delta_git_bcommits = function(opts)
-        opts = opts or {}
-        opts.previewer = {
-          delta_bcommits,
-          previewers.git_commit_message.new(opts),
-          previewers.git_commit_diff_as_was.new(opts),
+        builtin.git_bcommits(opt_commits)
+      end
+      git_status = function()
+        local opt_status = {}
+        opt_status.previewer = previewers.new_termopen_previewer {
+          get_command = function(entry)
+            -- vim.print(entry)
+            if entry.status == " D" then
+              return { "git", "show", "HEAD:" .. entry.value }
+            elseif entry.status == "??" then
+              return { "bat", "--style=plain", entry.path }
+            end
+            return {
+              "git",
+              "-c",
+              "core.pager=delta",
+              "-c",
+              "delta.pager=less -R",
+              "diff",
+              entry.path,
+            }
+          end,
         }
-        builtin.git_bcommits(opts)
-      end
+        local icons = require("utils.static.icons").git
+        opt_status.git_icons = {
+          added = icons.Added,
+          changed = icons.Modified,
+          copied = icons.Changedelete,
+          deleted = icons.Removed,
+          renamed = "R",
+          unmerged = "U",
+          untracked = icons.Untracked,
+        }
 
-      utils.map("n", prefix_2 .. "C", Delta_git_bcommits, { desc = "[g]it Buffer [c]ommits" })
+        builtin.git_status(opt_status)
+      end
+      utils.map("n", git_prefix .. "c", git_bcommits, { desc = "[g]it Buffer [c]ommits" })
+      utils.map("n", git_prefix .. "s", git_status, { desc = "[g]it [s]tatus" })
     end,
     dependencies = {
       "nvim-lua/popup.nvim",
