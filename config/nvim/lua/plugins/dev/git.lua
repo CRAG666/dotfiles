@@ -81,5 +81,6 @@ return {
   cmd = { "Fugit2", "Fugit2Diff", "Fugit2Graph" },
   keys = {
     { "<leader>gm", mode = "n", "<cmd>Fugit2<cr>" },
+    { "<leader>gg", mode = "n", "<cmd>Fugit2Graph<cr>" },
   },
 }
