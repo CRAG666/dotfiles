@@ -11,7 +11,7 @@ return {
     "williamboman/mason.nvim",
     opts = function(_, opts)
       opts.ensure_installed = opts.ensure_installed or {}
-      table.insert(opts.ensure_installed, "basepyright")
+      table.insert(opts.ensure_installed, "basedpyright")
       table.insert(opts.ensure_installed, "ruff")
       table.insert(opts.ensure_installed, "ruff-lsp")
     end,
@@ -43,9 +43,23 @@ return {
         { "<leader>dPc", function() require('dap-python').test_class() end, desc = "Debug Class", ft = "python" },
       },
       config = function()
-        local path = require("mason-registry").get_package("debugpy"):get_install_path()
-        require("dap-python").setup(path .. "/venv/bin/python")
+        local python_env_path = "$(poetry env info -p)/bin/python"
+        if vim.fn.has "win32" == 1 then
+          require("dap-python").setup(python_env_path .. ".exe")
+        else
+          require("dap-python").setup(python_env_path)
+        end
       end,
+    },
+  },
+  -- Don't mess up DAP adapters provided by nvim-dap-python
+  {
+    "jay-babu/mason-nvim-dap.nvim",
+    optional = true,
+    opts = {
+      handlers = {
+        python = function() end,
+      },
     },
   },
   { -- directly open ipynb files as quarto docuements

@@ -15,6 +15,7 @@ return {
   {
     "saghen/blink.cmp",
     event = "InsertEnter",
+    version = "*",
     dependencies = {
       {
         "rafamadriz/friendly-snippets",
@@ -116,7 +117,6 @@ return {
       { "saghen/blink.compat", version = "*", opts = { impersonate_nvim_cmp = true } },
       "mikavilpas/blink-ripgrep.nvim",
     },
-    version = "v0.*",
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
     opts = {
@@ -139,6 +139,33 @@ return {
           require("luasnip").jump(direction)
         end,
       },
+      completion = {
+        documentation = { auto_show = true },
+        ghost_text = { enabled = false },
+        menu = {
+          draw = {
+            columns = {
+              { "kind_icon" },
+              { "label", "label_description", gap = 1, "kind" },
+            },
+            components = {
+              kind_icon = {
+                text = function(ctx)
+                  return " " .. ctx.kind_icon .. ctx.icon_gap .. " "
+                end,
+              },
+              kind = {
+                text = function(ctx)
+                  return "(" .. ctx.kind .. ")"
+                end,
+                highlight = function(ctx)
+                  return require("blink.cmp.completion.windows.render.tailwind").get_hl(ctx) or "BlinkCmpCustomType"
+                end,
+              },
+            },
+          },
+        },
+      },
       sources = {
         default = { "lsp", "path", "snippets", "buffer", "luasnip", "ripgrep", "supermaven" },
         per_filetype = {
@@ -150,6 +177,7 @@ return {
           ripgrep = {
             module = "blink-ripgrep",
             name = "Ripgrep",
+            score_offset = -4,
             -- the options below are optional, some default values are shown
             ---@module "blink-ripgrep"
             ---@type blink-ripgrep.Options
@@ -168,18 +196,18 @@ return {
               -- Useful when your project contains large files that might cause
               -- performance issues.
               -- Examples: "1024" (bytes by default), "200K", "1M", "1G"
-              max_filesize = "1M",
+              max_filesize = "1G",
             },
           },
           pandoc_references = {
             name = "pandoc_references",
             module = "blink.compat.source",
-            score_offset = -3,
+            score_offset = -1,
           },
           supermaven = {
             name = "supermaven",
             module = "blink.compat.source",
-            score_offset = 1,
+            score_offset = 999,
           },
         },
       },

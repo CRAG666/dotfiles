@@ -1,7 +1,15 @@
 return {
   {
     "ThePrimeagen/refactoring.nvim",
-    keys = [[<leader>fr]],
+    keys = {
+      {
+        mode = { "n", "x" },
+        "<leader>fr",
+        function()
+          require("telescope").extensions.refactoring.refactors()
+        end,
+      },
+    },
     config = function()
       require("refactoring").setup {
         prompt_func_return_type = {

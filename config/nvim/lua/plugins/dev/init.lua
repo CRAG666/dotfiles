@@ -82,7 +82,7 @@ return {
   },
   {
     "nvimtools/none-ls.nvim",
-    event = "LazyFile",
+    event = "InsertEnter",
     opts = function(_, opts)
       local nls = require "null-ls"
       opts.root_dir = opts.root_dir
@@ -99,7 +99,7 @@ return {
       {
         "<C-.>",
         function()
-          require("tiny-code-action").code_action { backend = "delta" }
+          require("tiny-code-action").code_action()
         end,
         desc = "Code Action",
       },
@@ -110,7 +110,7 @@ return {
     },
     event = "LspAttach",
     config = function()
-      require("tiny-code-action").setup()
+      require("tiny-code-action").setup { backend = "delta" }
     end,
   },
   {
@@ -119,8 +119,8 @@ return {
   },
   {
     "folke/ts-comments.nvim",
+    event = "BufEnter",
     opts = {},
-    event = "VeryLazy",
     enabled = vim.fn.has "nvim-0.10.0" == 1,
   },
 }

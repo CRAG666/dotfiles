@@ -38,10 +38,7 @@ return {
           executable = {
             command = "node",
             -- 💀 Make sure to update this path to point to your installation
-            args = {
-              LazyVim.get_pkg_path("js-debug-adapter", "/js-debug/src/dapDebugServer.js"),
-              "${port}",
-            },
+            args = {},
           },
         }
       end

@@ -36,6 +36,9 @@ return {
   },
   {
     "preservim/vim-pencil",
+    keys = {
+      { "<leader>p", "<cmd>TogglePencil<cr>", desc = "[p]encil" },
+    },
     cmd = {
       "Pencil",
       "TogglePencil",

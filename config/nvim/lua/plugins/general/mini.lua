@@ -26,9 +26,7 @@ return {
     "echasnovski/mini.splitjoin",
     version = false,
     keys = { { "gS" } },
-    config = function()
-      require("mini.splitjoin").setup()
-    end,
+    config = utils.setup "mini.splitjoin",
   },
   {
     "echasnovski/mini.ai",
@@ -47,8 +45,6 @@ return {
       { "dA" },
       { "yA" },
     },
-    config = function()
-      require("mini.ai").setup()
-    end,
+    config = utils.setup "mini.ai",
   },
 }

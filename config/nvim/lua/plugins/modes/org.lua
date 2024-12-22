@@ -13,7 +13,7 @@ return {
   },
   {
     "nvim-neorg/neorg",
-    dependencies = { "luarocks.nvim", "nvim-neorg/neorg-telescope" },
+    dependencies = { "luarocks.nvim", "nvim-neorg/neorg-telescope", "juniorsundar/neorg-extras" },
     cmd = "Neorg",
     ft = "norg",
     keys = {
@@ -154,6 +154,22 @@ return {
           ["core.integrations.telescope"] = {},
           ["core.summary"] = {},
           ["core.ui.calendar"] = {},
+          ["external.many-mans"] = {
+            config = {
+              metadata_fold = true, -- If want @data property ... @end to fold
+              code_fold = true, -- If want @code ... @end to fold
+            },
+          },
+          -- OPTIONAL
+          ["external.agenda"] = {},
+          ["external.roam"] = {
+            config = {
+              fuzzy_finder = "Telescope", -- OR "Fzf" ... Defaults to "Telescope"
+              fuzzy_backlinks = false, -- Set to "true" for backlinks in fuzzy finder instead of buffer
+              roam_base_directory = "", -- Directory in current workspace to store roam nodes
+              node_name_randomiser = false, -- Tokenise node name suffix for more randomisation
+            },
+          },
         },
       }
     end,
