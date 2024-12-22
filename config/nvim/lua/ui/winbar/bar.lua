@@ -665,7 +665,7 @@ end
 
 ---Get the string representation of the winbar
 ---@return string
-function winbar_t:__tostring()
+function winbar_t:__call()
   if vim.tbl_isempty(self.components) then
     self:update()
   end

@@ -75,7 +75,7 @@ local maps = {
     prefix = "<leader>t",
     maps = {
       -- { "s", [[:execute 'set showtabline=' . (&showtabline ==# 0 ? 2 : 0)<CR>]], "Show Tabs" },
-      { "n", vim.cmd.tabnew, "[n]ew Tab" },
+      { "n", vim.cmd.tabnew, "Tab [n]ew" },
       { "o", vim.cmd.tabonly, "Tab [o]nly" },
       { "c", vim.cmd.tabclose, "Tab [c]lose" },
       { "l", ":tabmove +1<CR>", "Tab Move Right" },

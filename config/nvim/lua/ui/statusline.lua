@@ -298,7 +298,7 @@ end
 
 --- Renders the statusline.
 ---@return string
-function render()
+function _G._statusline()
   ---@param components string[]
   ---@return string
   local function concat_components(components)
@@ -325,6 +325,4 @@ function render()
   }
 end
 
-return {
-  render = render,
-}
+return _G._statusline

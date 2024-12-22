@@ -1,3 +1,8 @@
+if vim.g.loaded_statuscolumn ~= nil then
+  return
+end
+vim.g.loaded_statuscolumn = true
+
 local ffi = require('ffi')
 local utils = require('utils')
 
@@ -208,7 +213,7 @@ local function numdigits(number)
 end
 
 ---@return string
-function _G._stc()
+function _G._statuscolumn()
   local win = vim.g.statusline_winid
   local display_tick = ffi.C.display_tick --[[@as uinteger]]
   if not shared[win] then -- Initialize shared data
@@ -279,53 +284,20 @@ function _G._stc()
     .. (data.show_fdc and ' ' or '')
 end
 
----@return nil
-local function setup()
-  if vim.g.loaded_statuscolumn ~= nil then
-    return
-  end
-  vim.g.loaded_statuscolumn = true
+local augroup = vim.api.nvim_create_augroup('StatusColumn', {})
+vim.api.nvim_create_autocmd('WinClosed', {
+  group = augroup,
+  desc = 'Clear per window shared data cache.',
+  callback = function(info)
+    shared[tonumber(info.match)] = nil
+  end,
+})
+vim.api.nvim_create_autocmd('BufDelete', {
+  group = augroup,
+  desc = 'Clear per buffer lnum width cache.',
+  callback = function(info)
+    lnumw_cache[info.buf] = nil
+  end,
+})
 
-  ---Attach statuscolumn to current window
-  local function _attach()
-    if
-      vim.bo.bt == ''
-      and vim.wo.stc == ''
-      and vim.fn.win_gettype() == ''
-      and not vim.b.bigfile
-    then
-      vim.opt_local.stc = '%!v:lua._stc()'
-    end
-  end
-
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
-    vim.api.nvim_win_call(win, _attach)
-  end
-
-  local augroup = vim.api.nvim_create_augroup('StatusColumn', {})
-  vim.api.nvim_create_autocmd({ 'BufWritePost', 'BufWinEnter' }, {
-    group = augroup,
-    desc = 'Set statuscolumn for each window.',
-    callback = function()
-      _attach()
-    end,
-  })
-  vim.api.nvim_create_autocmd('WinClosed', {
-    group = augroup,
-    desc = 'Clear per window shared data cache.',
-    callback = function(info)
-      shared[tonumber(info.match)] = nil
-    end,
-  })
-  vim.api.nvim_create_autocmd('BufDelete', {
-    group = augroup,
-    desc = 'Clear per buffer lnum width cache.',
-    callback = function(info)
-      lnumw_cache[info.buf] = nil
-    end,
-  })
-end
-
-return {
-  setup = setup,
-}
+return _G._statuscolumn

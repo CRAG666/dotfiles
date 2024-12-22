@@ -3,7 +3,15 @@ local bar = require('ui.winbar.bar')
 local configs = require('ui.winbar.configs')
 local utils = require('ui.winbar.utils')
 
-_G._winbar = {}
+_G._winbar = setmetatable({}, {
+  ---Get winbar string for current window
+  ---@return string
+  __call = function()
+    local buf = vim.api.nvim_get_current_buf()
+    local win = vim.api.nvim_get_current_win()
+    return _G._winbar.bars[buf][win]()
+  end,
+})
 
 ---Store the on_click callbacks for each winbar symbol
 ---Make it assessable from global only because nvim's viml-lua interface
@@ -36,14 +44,6 @@ _G._winbar.bars = setmetatable({}, {
     return self[buf]
   end,
 })
-
----Get winbar string for current window
----@return string
-function _G._winbar.get_winbar()
-  local buf = vim.api.nvim_get_current_buf()
-  local win = vim.api.nvim_get_current_win()
-  return tostring(_G._winbar.bars[buf][win])
-end
 
 ---Setup winbar
 ---@param opts winbar_configs_t?

@@ -11,7 +11,7 @@ return {
           require("dbee").toggle()
         end,
         desc = "[d]atabse [m]ode",
-        icon = " ",
+        -- icon = " ",
       },
     },
     build = function()

@@ -2,15 +2,14 @@ return {
   {
     "supermaven-inc/supermaven-nvim",
     event = "InsertEnter",
-    config = function()
-      require("supermaven-nvim").setup {
-        keymaps = {
-          accept_suggestion = "<C-I>",
-          clear_suggestion = "<C-CR>",
-          accept_word = "<C-J>",
-        },
-      }
-    end,
+    opts = {
+      keymaps = {
+        accept_suggestion = "<C-I>",
+        clear_suggestion = "<C-CR>",
+        accept_word = "<C-J>",
+      },
+      ignore_filetypes = { "bigfile" },
+    },
   },
   {
     "saghen/blink.cmp",
@@ -207,7 +206,8 @@ return {
           supermaven = {
             name = "supermaven",
             module = "blink.compat.source",
-            score_offset = 999,
+            score_offset = 100,
+            async = true,
           },
         },
       },

@@ -1,4 +1,5 @@
 local utils = require "utils.keymap"
+local fn = require "utils.fn"
 local prefix_1 = "<leader>f"
 local git_prefix = "<leader>g"
 local lsp_prefix = "g"
@@ -12,37 +13,27 @@ return {
     keys = {
       {
         ";e",
-        function()
-          require("telescope").extensions.file_browser.file_browser()
-        end,
+        fn.telescope_ext "file_browser",
         desc = "[e]xplorer",
       },
       {
         ";f",
-        function()
-          require("telescope").extensions.frecency.frecency()
-        end,
+        fn.telescope_ext "frecency",
         desc = "[f]requent Files",
       },
       {
         ";b",
-        function()
-          require("telescope.builtin").buffers()
-        end,
+        fn.telescope "buffers",
         desc = "[b]uffers",
       },
       {
         ";o",
-        function()
-          require("telescope.builtin").oldfiles()
-        end,
+        fn.telescope "oldfiles",
         desc = "[o]ld Files",
       },
       {
-        ";t",
-        function()
-          require("telescope.builtin").treesitter()
-        end,
+        ";s",
+        fn.telescope "treesitter",
         desc = "[t]reeSitter Symbols",
       },
       {
@@ -59,184 +50,137 @@ return {
       },
       {
         ";m",
-        function()
-          require("telescope.builtin").marks()
-        end,
+        fn.telescope "marks",
         desc = "[f]ind [m]ars",
       },
       {
         prefix_1 .. "b",
-        function()
-          require("telescope.builtin").builtin()
-        end,
+        fn.telescope "builtin",
         desc = "[f]ind [b]uiltin",
       },
       {
         prefix_1 .. "w",
-        function()
-          require("telescope.builtin").grep_string()
-        end,
+        fn.telescope "grep_string",
         desc = "[f]ind [w]ord",
       },
       {
         prefix_1 .. "l",
-        function()
-          require("telescope.builtin").live_grep(cwd_conf)
-        end,
+        fn.telescope("live_grep", cwd_conf),
         desc = "[f]ind [l]ive Grep",
       },
       {
         prefix_1 .. "h",
-        function()
-          require("telescope.builtin").help_tags()
-        end,
+        fn.telescope "help_tags",
         desc = "[f]ind [h]elp tags",
       },
       {
         prefix_1 .. "s",
-        function()
-          require("telescope.builtin").search_history()
-        end,
+        fn.telescope "search_history",
         desc = "[f]ind [s]earch History",
       },
       {
         prefix_1 .. "C",
-        function()
-          require("telescope.builtin").colorscheme()
-        end,
+        fn.telescope "colorscheme",
         desc = "[f]ind [C]olorscheme",
       },
       {
         prefix_1 .. "c",
-        function()
-          require("telescope.builtin").commands()
-        end,
+        fn.telescope "commands",
         desc = "[f]ind [c]ommands",
       },
       {
         prefix_1 .. "H",
-        function()
-          require("telescope.builtin").command_history()
-        end,
+        fn.telescope "command_history",
         desc = "[f]ind commands [H]istory",
       },
       {
         prefix_1 .. "k",
-        function()
-          require("telescope.builtin").keymaps()
-        end,
+        fn.telescope "keymaps",
         desc = "[f]ind [k]eymaps",
       },
       {
         prefix_1 .. "t",
-        function()
-          require("telescope.builtin").filetypes()
-        end,
+        fn.telescope "filetypes",
         desc = "[f]ile[t]ype",
       },
       {
         prefix_1 .. "f",
-        function()
-          require("telescope.builtin").current_buffer_fuzzy_find()
-        end,
+        fn.telescope "current_buffer_fuzzy_find",
         desc = "[f]uzzy [f]ind",
       },
       {
         prefix_1 .. "j",
-        function()
-          require("telescope.builtin").jumplist()
-        end,
+        fn.telescope "jumplist",
         desc = "[f]ind [j]umplist",
       },
       {
         prefix_1 .. "q",
-        function()
-          require("telescope.builtin").quickfix()
-        end,
+        fn.telescope "quickfix",
         desc = "[f]ind [q]uickfix",
       },
       {
         prefix_1 .. "u",
-        function()
-          require("telescope").extensions.undo.undo()
-        end,
+        fn.telescope_ext "undo",
         desc = "[f]ind undo",
       },
       {
         lsp_prefix .. "d",
-        function()
-          require("telescope.builtin").lsp_definitions()
-        end,
+        fn.telescope "lsp_definitions",
         desc = "LSP [d]efinitions",
       },
       {
         lsp_prefix .. "R",
-        function()
-          require("telescope.builtin").lsp_references()
-        end,
+        fn.telescope "lsp_references",
         desc = "LSP [r]eferences",
       },
       {
         lsp_prefix .. "s",
-        function()
-          require("telescope.builtin").lsp_document_symbols()
-        end,
+        fn.telescope "lsp_document_symbols",
         desc = "LSP [s]ymbols",
       },
       {
         lsp_prefix .. "i",
-        function()
-          require("telescope.builtin").lsp_implementations()
-        end,
+        fn.telescope "lsp_implementations",
         desc = "LSP [i]mplementations",
       },
       {
         ";dd",
-        function()
-          require("telescope.builtin").diagnostics { bufnr = 0 }
-        end,
+        fn.telescope("diagnostics", { bufnr = 0 }),
         desc = "LSP [d]iagnostics",
       },
       {
         ";dw",
-        function()
-          require("telescope.builtin").diagnostics()
-        end,
+        fn.telescope "diagnostics",
         desc = "LSP [d]iagnostics Workspace",
       },
       {
         "<leader>ss",
-        function()
-          require("telescope.builtin").spell_suggest {
-            layout_strategy = "cursor",
-            layout_config = {
-              cursor = {
-                height = 0.35,
-                preview_cutoff = 0,
-                width = 0.20,
-              },
+        fn.telescope("spell_suggest", {
+          layout_strategy = "cursor",
+          layout_config = {
+            cursor = {
+              height = 0.35,
+              preview_cutoff = 0,
+              width = 0.20,
             },
-          }
-        end,
+          },
+        }),
         desc = "[s]pell [s]uggest",
       },
       {
         git_prefix .. "b",
-        function()
-          require("telescope.builtin").git_branches()
-        end,
+        fn.telescope "git_branches",
         desc = "[g]it [b]ranches",
       },
       {
         git_prefix .. "S",
-        function()
-          require("telescope.builtin").git_stash()
-        end,
+        fn.telescope "git_stash",
         desc = "[g]it [S]tash",
       },
     },
     config = function()
       local actions = require "telescope.actions"
+      local previewers = require "telescope.previewers"
       local mappings = {
         i = {
           ["<CR>"] = actions.select_tab,
@@ -276,9 +220,9 @@ return {
             width = vim.o.columns,
             -- preview_cutoff = 120,
           },
-          file_sorter = require("telescope.sorters").get_fuzzy_file,
+          -- file_sorter = require("telescope.sorters").get_fuzzy_file,
           file_ignore_patterns = {},
-          generic_sorter = require("telescope.sorters").get_generic_fuzzy_sorter,
+          -- generic_sorter = require("telescope.sorters").get_generic_fuzzy_sorter,
           path_display = { "absolute" },
           winblend = 0,
           border = {},
@@ -286,11 +230,11 @@ return {
           color_devicons = true,
           use_less = true,
           set_env = { ["COLORTERM"] = "truecolor" }, -- default = nil,
-          file_previewer = require("telescope.previewers").vim_buffer_cat.new,
-          grep_previewer = require("telescope.previewers").vim_buffer_vimgrep.new,
-          qflist_previewer = require("telescope.previewers").vim_buffer_qflist.new,
+          file_previewer = previewers.vim_buffer_cat.new,
+          grep_previewer = previewers.vim_buffer_vimgrep.new,
+          qflist_previewer = previewers.vim_buffer_qflist.new,
           -- Developer configurations: Not meant for general override
-          buffer_previewer_maker = require("telescope.previewers").buffer_previewer_maker,
+          buffer_previewer_maker = previewers.buffer_previewer_maker,
         },
         pickers = {
           find_files = {
@@ -371,22 +315,6 @@ return {
       end
 
       local builtin = require "telescope.builtin"
-      local previewers = require "telescope.previewers"
-      local delta_bcommits = previewers.new_termopen_previewer {
-        get_command = function(entry)
-          return {
-            "git",
-            "-c",
-            "core.pager=delta",
-            "-c",
-            "delta.side-by-side=false",
-            "diff",
-            entry.value .. "^!",
-            "--",
-            entry.current_file,
-          }
-        end,
-      }
 
       git_bcommits = function()
         local opt_commits = {}

@@ -45,6 +45,7 @@ return {
       },
       "RRethy/nvim-treesitter-endwise",
       { "nushell/tree-sitter-nu", build = ":TSUpdate nu" },
+      -- { "the-mikedavis/tree-sitter-git-config", build = ":TSUpdate git_config" },
     },
     cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
     keys = {
@@ -77,6 +78,7 @@ return {
         "go",
         "gpg",
         "graphql",
+        "hjson",
         "html",
         "http",
         "hyprlang",
@@ -86,7 +88,6 @@ return {
         "json",
         "json5",
         "jsonc",
-        "hjson",
         "lua",
         "luadoc",
         "luap",
