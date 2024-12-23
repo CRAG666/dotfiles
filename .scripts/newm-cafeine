@@ -1,7 +1,0 @@
-#!/bin/bash
-
-if pgrep newm-cmd > /dev/null; then
-    echo '{"alt":"active"}'
-else
-    echo '{"alt":"inactive"}'
-fi
