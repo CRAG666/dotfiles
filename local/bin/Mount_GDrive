@@ -1,8 +1,0 @@
-#!/bin/sh
-sleep 10
-wget -q --spider http://google.com
-if [ $? -eq 0 ]; then
-	google-drive-ocamlfuse ~/Clouds/Drive
-	rclone mount Mega:/ "$HOME"/Clouds/Mega --vfs-cache-mode full &
-	#rclone mount pcloud:/ /home/crag/Clouds/Pcloud &
-fi

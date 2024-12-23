@@ -1,11 +1,11 @@
 export PATH := ${HOME}/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/bin/core_perl
 export GOPATH := ${HOME}
 
-WAYLAND_PKGS	:= greetd-tuigreet xdg-desktop-portal xdg-desktop-portal-wlr hyprpicker-git shotman-git waybar fnott
-WAYLAND_PKGS	+= wl-screenrec-git wlrctl wtype avizo wlsunset wl-clipboard cliphist catapult rofi-lbonn-wayland slurp
-CONFPATH        := ${HOME}/.config
-
+HYPR_PKGS	    := hyprland grimblast-git xdg-desktop-portal-gtk xdg-desktop-portal-hyprland dunst swww
+WAYLAND_PKGS	:= wl-clipboard wluma swaylock-effects polkit-gnome rofi-wayland qt6-wayland imv foot egl-wayland cliphist greetd-regreet
+NVIDIA_PKGS	    := nvidia nvidia-prime nvidia-settings nvidia-utils cuda libva-nvidia-driver opencl-nvidia nvtop
 SYSTEMD_ENABLE	:= sudo systemctl --now enable
+SYSTEMD_ENABLE_USER	:= systemctl --user --now enable
 
 .DEFAULT_GOAL := help
 .PHONY: allinstall nextinstall
@@ -22,6 +22,7 @@ install: ## Install arch linux packages using yay
 	bob use nightly
 
 etc: ## Add system settings
+	yay -S --needed --noconfirm keyd nftables
 	test -L /etc/keyd || rm -rf /etc/keyd
 	ln -vsfn ${PWD}/etc/keyd /etc
 	test -L /etc/nftables.conf|| rm -rf /etc/nftables.conf
@@ -31,45 +32,44 @@ etc: ## Add system settings
 	$(SYSTEMD_ENABLE) keyd nftables
 
 init: ## Initial deploy dotfiles
-	for item in gitconfig gtkrc-2 noderc pyrc tridactylrc zimrc zshrc zshfunc Xresources tmux.conf profile myclirc; do\
-		ln -vsf {${PWD},${HOME}}/.$$item;\
+	@echo "Creating symbolic links in the HOME directory"
+	@SRC_DIR=$$PWD; \
+	DOTFILES=$$(find $$SRC_DIR -maxdepth 1 -type f -name ".*" -exec basename {} \;); \
+	CONFIGS=$$(find $$SRC_DIR/config -mindepth 1 -maxdepth 1 -exec basename {} \;); \
+	for file in $$DOTFILES; do \
+		if [ ! -e "$$GOPATH/$$file" ]; then \
+			ln -vfs "$$SRC_DIR/$$file" "$$GOPATH/$$file"; \
+		else \
+			echo "The file $$file already exists in $$GOPATH, skipping"; \
+		fi; \
+	done; \
+	for config in $$CONFIGS; do \
+		if [ ! -e "$$GOPATH/.config/$$config" ]; then \
+			mkdir -p "$$GOPATH/.config"; \
+			ln -vfs "$$SRC_DIR/config/$$config" "$$GOPATH/.config/$$config"; \
+		else \
+			echo "The file $$config already exists in $$GOPATH/.config, skipping"; \
+		fi; \
 	done
-	for item in nvim btop ctpv lf mpv rofi starship.toml zathura; do\
-		ln -vsfn {${PWD}/config,${CONFPATH}}/$$item;\
-	done
-	ln -vsfn {${PWD},${HOME}}/.scripts
 
 wayland: ## Wayland packages needs
-	for item in avizo fnott waybar $@; do\
-		ln -vsf {${PWD}/config,${CONFPATH}}/$$item;\
-	done
-	yay -S --needed --noconfirm $(WAYLAND_PKGS)
-
-newm: wayland ## config for newm(wayland)
-	yay -S --needed --noconfirm python-pyfiglet python-pam python-thefuzz-git python-evdev newm-git
-	sudo cp ${PWD}/wayland/scripts/{newm-run.sh,wayland_enablement.sh,open-wl} /usr/local/bin/
 	sudo cp ${PWD}/etc/greetd /etc/
+	yay -S --needed --noconfirm $(WAYLAND_PKGS)
 	$(SYSTEMD_ENABLE) greetd
+	$(SYSTEMD_ENABLE_USER) xdg-desktop-portal-gtk
+
+hypr: wayland ## config for hyprland(wayland)
+	sudo cp ${PWD}/wayland/scripts/hypr-run.sh /usr/local/bin/
+	yay -S --needed --noconfirm $(HYPR_PKGS)
 
 thinkpad: ## Config for thinkpad(power management, battery thresholds and fan control)
-	yay -S --needed --noconfirm tpacpi-bat zcfan acpi_call acpid throttled
+	yay -S --needed --noconfirm zcfan acpi_call throttled
 	sudo cp ${PWD}/$@/etc/zcfan.conf /etc/
-	sudo cp ${PWD}/$@/etc/conf.d/tpacpi /etc/conf.d/
-	sudo cp ${PWD}/$@/etc/acpi/events/battery_event /etc/acpi/events
-	sudo cp ${PWD}/$@/etc/acpi/actions /etc/acpi/
-	$(SYSTEMD_ENABLE) zcfan tpacpi-bat acpid throttled
+	$(SYSTEMD_ENABLE) zcfan throttled
+	$(SYSTEMD_ENABLE_USER) xdg-desktop-portal-hyprland
 
-self-tools: ## Add cli tools to local bin
-	ln -vsf ${PWD}/local/bin/* ${HOME}/.local/bin/
-
-Code: ## Install and configure VScode
-	mkdir -p ${HOME}/.config/$@/
-	ln -vsf ${PWD}/$@/* ${HOME}/.config/$@/
-	yay -S --needed --noconfirm visual-studio-code-bin
-	bash ${PWD}/$@/my_vscode_extensions.sh
-	sudo npm install -g vsce
-	cd ${PWD}/$@/miramare/ && vsce package .
-	code --install-extension ${PWD}/$@/miramare/miramare-0.0.2.vsix
+nvidia: ## Nvidia config
+	yay -S --needed --noconfirm $(NVIDIA_PKGS)
 
 dnscrypt-proxy:
 	ln -vsf ${PWD}/etc/resolv.conf /etc/
@@ -92,7 +92,6 @@ testpath: ## Echo PATH
 	GOPATH=$$GOPATH
 	@echo $$GOPATH
 
-newminstall: install etc init newm
-tnewminstall: install etc init newm thinkpad
-
+hyprinstall: install etc init hypr
 nextinstall: docker
+thinkpadnvidia: nvidia thinkpad

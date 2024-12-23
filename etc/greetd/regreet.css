@@ -1,0 +1,10 @@
+window {
+        background-image: url("file:///home/think-crag/.config/swww/wall.set");
+        background-size: cover;
+        background-position: center;
+}
+box#body {
+   background-color: rgba(245, 194, 231, 0.8);
+   border-radius: 10px;
+   padding: 50px;
+}

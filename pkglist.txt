@@ -1,6 +1,4 @@
 # System utilities
-acpi
-keyd
 ananicy-cpp
 
 # Basic security
@@ -16,9 +14,19 @@ playerctl
 nm-connection-editor
 
 # CLI tools
-ripgrep
-fd
-jq
+zsh
+yt-dlp
+starship
+reflector
+quarto-cli-bin
+pandoc-bin
+less
+gum
+graphviz
+gocryptfs
+eza
+git
+git-crypt
 git-delta
 topgrade
 ttyper
@@ -28,26 +36,36 @@ rm-improved
 glow
 cs
 prettyping
-zoxide
 xh
 bob
 cht.sh-git
-fzf
 bat
 yazi
+ffmpeg
+ffmpegthumbnailer
+p7zip
+jq
+poppler
+fd
+ripgrep
+ripgrep-all
+fzf
+zoxide
+imagemagick
 mmv-c-git
 ripdrag
 rclone
+bc
+carapace-bin
 
 # Monitoring
 btop
 htop-vim
 iotop-c
-neofetch
+fastfetch
 duf
 progress
 s-tui
-nvtop
 
 # Audio
 pipewire
@@ -57,26 +75,28 @@ pipewire-jack
 pipewire-pulse
 pipewire-zeroconf
 wireplumber
-pavucontrol-compact-git
+pavucontrol
 
 # Disk Utilities
 gnome-disk-utility
 gpart
 
 # Fonts
-apple-fonts
+otf-apple-fonts
+ttf-apple-emoji
+noto-fonts-cjk 20230817-2
 
 # Basic
-kitty
+ntfs-3g
 
 # Text edition
 tectonic
 libreoffice-fresh
 libreoffice-fresh-es
 tree-sitter
+tree-sitter-cli
 
 # Viewers
-imv
 zathura
 zathura-pdf-mupdf
 
@@ -86,11 +106,11 @@ telegram-desktop
 
 # Download
 nicotine+
-transmission-gtk
 
 # Edition
 audacity
 gimp-devel
+lunacy-bin
 
 # Players
 mpv
@@ -102,7 +122,8 @@ firefox-i18n-es-mx
 firefox-tridactyl
 firefox-tridactyl-native
 arkenfox-user.js
-brave-bin
+microsoft-edge-stable-bin
+#librewolf-bin
 
 # Gaming
 # libretro-core-info
@@ -114,25 +135,14 @@ brave-bin
 # retroarch-assets-ozone
 # retroarch-assets-xmb
 
-# Language servers
-marksman-bin
-texlab
-dockerfile-language-server
-lua-language-server
-typescript-language-server
-vscode-css-languageserver
-bash-language-server
-pyright
-ccls
+# Intel
+intel-gpu-tools
+intel-media-driver
+intel-ucode
+vulkan-intel
 
-# Formatters and Linters
-prettierd
-ruff
-eslint_d
-selene
-shellharden
-shfmt
-shellcheck
-stylua
-python-black
-python-isort
+# GPU
+libva-utils
+vdpauinfo
+vulkan-tools
+clinfo
