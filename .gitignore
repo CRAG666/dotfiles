@@ -553,3 +553,4 @@ btop.log
 # End of https://www.toptal.com/developers/gitignore/api/node,python,intellij+all,intellij+iml,intellij,pycharm,visualstudiocode
 *.AppImage
 **/lazy-lock.json
+**/marks.json

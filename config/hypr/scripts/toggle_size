@@ -1,0 +1,36 @@
+#!/bin/bash
+
+monitors_json=$(hyprctl monitors -j)
+active_window_json=$(hyprctl activewindow -j)
+
+monitor_id=$(echo "$active_window_json" | jq '.monitor')
+
+monitor=$(echo "$monitors_json" | jq ".[] | select(.id == $monitor_id)")
+
+monitor_width=$(echo "$monitor" | jq '.width')
+monitor_height=$(echo "$monitor" | jq '.height')
+
+window_width=$(echo "$active_window_json" | jq '.size[0]')
+window_height=$(echo "$active_window_json" | jq '.size[1]')
+
+half_monitor_width=$((monitor_width / 2))
+half_monitor_height=$((monitor_height / 2))
+
+if [[ $monitor_id -eq 0 ]]; then
+    if [[ $window_width -lt $half_monitor_width ]]; then
+        result=3
+    else
+        result=1
+    fi
+    hyprctl dispatch scroller:setwidth $result
+else
+    result=1
+
+    if [[ $window_width -lt $half_monitor_width && $window_height -lt $half_monitor_height ]]; then
+        result=3
+    else
+        result=1
+    fi
+    hyprctl dispatch scroller:setheight $result
+    hyprctl dispatch scroller:setwidth $result
+fi
