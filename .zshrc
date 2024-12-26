@@ -221,7 +221,7 @@ alias gbc="git switch -c"
 # -< Environ variable >-
 export MYSQL_PS1="\n \d  ﯐ "
 # export TERM="xterm-kitty"
-export VISUAL=nvim
+export VISUAL=$HOME/.local/share/bob/nvim-bin/nvim
 export EDITOR=$VISUAL
 export PYTHONSTARTUP=~/.pyrc
 export BAT_THEME="Catppuccin-mocha"

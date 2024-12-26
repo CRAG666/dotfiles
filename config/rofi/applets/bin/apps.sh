@@ -22,13 +22,12 @@ elif [[ ("$theme" == *'type-2'*) || ("$theme" == *'type-4'*) ]]; then
 fi
 
 # CMDs (add your apps here)
-rofirun=~/.config/rofi/run.sh
 term_cmd='footclient'
 file_cmd='footclient yazi'
 disk_cmd='gnome-disks'
-calendar_cmd="$rofirun calendar"
-wifi_cmd="$rofirun wifi"
-bluetooth_cmd="$rofirun bluetooth"
+calendar_cmd="footclient cal"
+wifi_cmd="footclient impala"
+bluetooth_cmd="footclient bluetui"
 
 # Options
 layout=$(cat ${theme} | grep 'USE_ICON' | cut -d'=' -f2)

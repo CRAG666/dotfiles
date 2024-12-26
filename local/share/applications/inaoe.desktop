@@ -1,0 +1,26 @@
+[Desktop Entry]
+Name=Inaoe
+Comment=Browser for researchers in inaoe
+Exec=/opt/zen-browser-bin/zen-bin -P inaoe %u
+Icon=firefox
+Type=Application
+MimeType=text/html;text/xml;application/xhtml+xml;x-scheme-handler/http;x-scheme-handler/https;application/x-xpinstall;application/pdf;application/json;
+StartupWMClass=zen-beta
+Categories=Network;WebBrowser;
+StartupNotify=true
+Terminal=false
+X-MultipleArgs=false
+Keywords=Internet;WWW;Browser;Web;Explorer;
+Actions=new-window;new-private-window;profilemanager;
+
+[Desktop Action new-window]
+Name=Open a New Window
+Exec=/opt/zen-browser-bin/zen-bin -P inaoe %u
+
+[Desktop Action new-private-window]
+Name=Open a New Private Window
+Exec=/opt/zen-browser-bin/zen-bin -P inaoe --private-window %u
+
+[Desktop Action profilemanager]
+Name=Open the Profile Manager
+Exec=/opt/zen-browser-bin/zen-bin --ProfileManager %u

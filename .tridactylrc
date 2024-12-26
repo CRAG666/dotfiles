@@ -23,9 +23,6 @@ sanitize tridactyllocal tridactylsync
 
 " colorscheme catppuccin
 set theme midnight
-" colourscheme --url https://raw.githubusercontent.com/lonepie/catppuccin-tridactyl/main/catppuccin.css catppuccin
-" colourscheme --url file:///home/think-crag/Git/dotfiles/themes/firefox/catppuccin.css catppuccin
-" set theme catppuccin
 
 set newtab about:blank
 
@@ -39,8 +36,6 @@ set hintfiltermode vimperator-reflow
 "
 bind j scrollline 5
 bind k scrollline -5
-bind q back
-bind w forward
 bind $ tablast
 bind 0 tabfirst
 " Ctrl-F should use the browser's native 'find' functionality.

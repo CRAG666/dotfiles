@@ -8,10 +8,12 @@ firejail
 pass
 
 # Controls
-blueman
 brightnessctl
 playerctl
 nm-connection-editor
+bluez-utils
+impala
+bluetui
 
 # CLI tools
 zsh
@@ -31,12 +33,9 @@ git-delta
 topgrade
 ttyper
 rsync
-lemmy-help
 rm-improved
 glow
-cs
 prettyping
-xh
 bob
 cht.sh-git
 bat
@@ -75,7 +74,7 @@ pipewire-jack
 pipewire-pulse
 pipewire-zeroconf
 wireplumber
-pavucontrol
+pwvucontrol
 
 # Disk Utilities
 gnome-disk-utility
@@ -91,8 +90,6 @@ ntfs-3g
 
 # Text edition
 tectonic
-libreoffice-fresh
-libreoffice-fresh-es
 tree-sitter
 tree-sitter-cli
 
@@ -117,13 +114,10 @@ mpv
 termusic
 
 # Web Browsers
-firefox
-firefox-i18n-es-mx
-firefox-tridactyl
-firefox-tridactyl-native
-arkenfox-user.js
 microsoft-edge-stable-bin
-#librewolf-bin
+librewolf-bin
+zen-browser-bin
+firefox-tridactyl-native
 
 # Gaming
 # libretro-core-info

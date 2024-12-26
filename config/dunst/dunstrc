@@ -3,6 +3,8 @@ corner_radius = 10
 icon_corner_radius = 10
 dmenu = /usr/bin/rofi -config "~/.config/rofi/notification.rasi" -dmenu -p dunst:
 icon_theme = Macjaro
+frame_color = "#89b4fa"
+highlight = "#89b4fa"
 
 [Type-1]
 appname = "t1"
@@ -13,9 +15,9 @@ appname = "t2"
 format = "<span size="250%">%s</span>\n%b"
 
 [urgency_critical]
-background = "#f5e0dc"
-foreground = "#1e1e2e"
-frame_color = "#f38ba8"
+background = "#1e1e2e"
+foreground = "#cdd6f4"
+frame_color = "#fab387"
 timeout = 0
 
 # ------------------------------------------------------------------------------
@@ -43,7 +45,7 @@ horizontal_padding = 8
 text_icon_padding = 10
 frame_width = 5
 gap_size = 5
-separator_color = auto
+separator_color= frame
 sort = yes
 font = "Monospace 20"
 line_height = 3
@@ -87,13 +89,11 @@ desktop_entry = "^Skype$"
 new_icon = skype
 
 [urgency_low]
-    background = "#4E8BA380"
-    foreground = "#8FDFFFE6"
-    frame_color = "#4E8BA303"
+    background = "#1e1e2e"
+    foreground = "#cdd6f4"
     timeout = 5
 
 [urgency_normal]
-    background = "#2D426B80"
-    foreground = "#8FB4FFE6"
-    frame_color = "#2D426B03"
+    background = "#1e1e2e"
+    foreground = "#cdd6f4"
     timeout = 5
