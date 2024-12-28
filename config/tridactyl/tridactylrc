@@ -15,14 +15,18 @@
 " This wipes all existing settings. This means that if a setting in this file
 " is removed, then it will return to default. In other words, this file serves
 " as an enforced single point of truth for Tridactyl's configuration.
+sanitize tridactyllocal tridactylsync
+
 set configversion 2.0
+" Mode indicator
 set modeindicatorshowkeys true
 set modeindicatormodes.ignore false
 set modeindicator true
-sanitize tridactyllocal tridactylsync
 
-" colorscheme catppuccin
-set theme midnight
+set externalclipboardcmd wl-copy
+set yankto both
+
+colorscheme catppuccin
 
 set newtab about:blank
 
@@ -34,6 +38,7 @@ set hintfiltermode vimperator-reflow
 "
 " Binds
 "
+bind yg composite js "git clone " + document.location.href.replace(/https?:\/\//,"git@").replace("/",":").replace(/$/,".git") | clipboard yank
 bind j scrollline 5
 bind k scrollline -5
 bind $ tablast

@@ -16,6 +16,7 @@ impala
 bluetui
 
 # CLI tools
+perl-image-exiftool
 zsh
 yt-dlp
 starship

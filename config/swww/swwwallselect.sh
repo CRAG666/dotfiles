@@ -37,7 +37,12 @@ generate_thumbnail() {
 	local image="$1"
 	local thumbnail="$2"
 	if [ ! -f "${thumbnail}" ]; then
-		magick "${image}" -resize 400x400^ -gravity center -quality 90 -extent 400x400 "${thumbnail}"
+		if [[ "$image" =~ \.gif$ ]]; then
+			# Extraer el primer fotograma del GIF y guardarlo como PNG
+			magick "$image[0]" -resize 400x400^ -gravity center -quality 90 -extent 400x400 "$thumbnail"
+		else
+			magick "$image" -resize 400x400^ -gravity center -quality 90 -extent 400x400 "$thumbnail"
+		fi
 	fi
 }
 

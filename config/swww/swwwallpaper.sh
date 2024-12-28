@@ -117,8 +117,15 @@ fi
 
 Wall_Set
 if command -v magick > /dev/null 2>&1; then
-    magick "$BaseDir/wall.set" -strip -scale 10% -blur 0x3 -resize 100% "$BaseDir/wall.blur"
-    magick "$BaseDir/wall.set" -resize 12% "${HOME}/.cache/wallpapers/thumbnails/wall.sqre"
+    if file "$BaseDir/wall.set" | grep -iq gif; then
+        magick "$BaseDir/wall.set[0]" "/tmp/wall.png"
+        sourceImage="/tmp/wall.png"
+    else
+        sourceImage="$BaseDir/wall.set"
+    fi
+
+    magick "$sourceImage" -strip -scale 10% -blur 0x3 -resize 100% "$BaseDir/wall.blur"
+    magick "$sourceImage" -resize 25% -quality 90 "${HOME}/.cache/wallpapers/thumbnails/wall.sqre"
 else
     echo "WARNING: ImageMagick not found. Skipping blur creation."
 fi

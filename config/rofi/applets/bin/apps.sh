@@ -22,29 +22,29 @@ elif [[ ("$theme" == *'type-2'*) || ("$theme" == *'type-4'*) ]]; then
 fi
 
 # CMDs (add your apps here)
-term_cmd='footclient'
-file_cmd='footclient yazi'
+music_cmd='footclient -T termusic termusic'
+file_cmd='footclient -T yazi yazi'
 disk_cmd='gnome-disks'
-calendar_cmd="footclient cal"
-wifi_cmd="footclient impala"
-bluetooth_cmd="footclient bluetui"
+calendar_cmd="$HOME/.config/rofi/calendar/bin/calendar"
+wifi_cmd="footclient -T impala impala"
+bluetooth_cmd="footclient -T bluetui bluetui"
 
 # Options
 layout=$(cat ${theme} | grep 'USE_ICON' | cut -d'=' -f2)
 if [[ "$layout" == 'NO' ]]; then
-	option_1="󰋊 Disk <span weight='light' size='small'><i>($disk_cmd)</i></span>"
+	option_1="󰝚 Music <span weight='light' size='small'><i>($music_cmd)</i></span>"
 	option_2="󰂰 Bluetooth <span weight='light' size='small'><i>($bluetooth_cmd)</i></span>"
 	option_3=" Wifi <span weight='light' size='small'><i>($wifi_cmd)</i></span>"
 	option_4=" Files <span weight='light' size='small'><i>($file_cmd)</i></span>"
-	option_5=" Terminal <span weight='light' size='small'><i>($term_cmd)</i></span>"
-	option_6=" Calendar <span weight='light' size='small'><i>($calendar_cmd)</i></span>"
+	option_5=" Calendar <span weight='light' size='small'><i>($calendar_cmd)</i></span>"
+	option_6="󰋊 Disk <span weight='light' size='small'><i>($disk_cmd)</i></span>"
 else
-	option_1="󰋊"
+	option_1="󰝚"
 	option_2="󰂰"
 	option_3=""
 	option_4=""
-	option_5=""
-	option_6=""
+	option_5=""
+	option_6="󰋊"
 fi
 
 # Rofi CMD
@@ -66,7 +66,7 @@ run_rofi() {
 # Execute Command
 run_cmd() {
 	if [[ "$1" == '--opt1' ]]; then
-		${disk_cmd}
+		${music_cmd}
 	elif [[ "$1" == '--opt2' ]]; then
 		${bluetooth_cmd}
 	elif [[ "$1" == '--opt3' ]]; then
@@ -74,9 +74,9 @@ run_cmd() {
 	elif [[ "$1" == '--opt4' ]]; then
 		${file_cmd}
 	elif [[ "$1" == '--opt5' ]]; then
-		${term_cmd}
-	elif [[ "$1" == '--opt6' ]]; then
 		${calendar_cmd}
+	elif [[ "$1" == '--opt6' ]]; then
+		${disk_cmd}
 	fi
 }
 

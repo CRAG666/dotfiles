@@ -1,0 +1,298 @@
+/* stylelint-disable declaration-colon-space-after, scss/dollar-variable-colon-space-after */
+:root {
+  --background-0: #1d2021;
+  --background-1: #282828;
+  --background-2: #32302f;
+  --background-3: #3c3836;
+  --background-4: #504945;
+  --background-5: #665c54;
+  --foreground-0: #665c54;
+  --foreground-1: #bdae93;
+  --foreground-2: #d5c4a1;
+  --foreground-3: #ebdbb2;
+  --foreground-4: #fbf1c7;
+  --red: #ea6962;
+  --orange: #e78a4e;
+  --yellow: #d8a657;
+  --green: #a9b665;
+  --cyan: #89b482;
+  --blue: #7daea3;
+  --magenta: #d3869b;
+}
+
+:root {
+  --border-radius-0: 3px;
+  --border-radius-1: 4px;
+  --border-radius-2: 6px;
+  --border-radius-3: 8px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --shadow-0:
+    0 0.1px 0.1px 0 rgb(0 0 0 / 35%),
+    0 0.4px 0.5px -0.7px rgb(0 0 0 / 35%),
+    0 1.1px 1.2px -1.5px rgb(0 0 0 / 25%),
+    0 2.7px 3.2px -2px rgb(0 0 0 / 35%),
+    0 -0.1px 1.2px 0 rgb(0 0 0 / 20%),
+    0 0 3.5px -2.2px rgb(0 0 0 / 30%);
+  --shadow-1:
+    rgb(0 0 0 / 7%) 0 0.4px 0.5px 0,
+    rgb(0 0 0 / 7%) 0 1.2px 1.3px -0.8px,
+    rgb(0 0 0 / 7%) 0 2.9px 3.3px -1.7px,
+    rgb(0 0 0 / 7%) 0.1px 6.9px 7.8px -2.5px,
+    rgb(0 0 0 / 10%) 0 0 7.8px -2.5px;
+  --shadow-2:
+    rgb(0 0 0 / 15%) 0 0.4px 0.5px 0,
+    rgb(0 0 0 / 15%) 0 1.8px 2px -0.4px,
+    rgb(0 0 0 / 15%) 0 3.3px 3.7px -0.7px,
+    rgb(0 0 0 / 15%) 0.1px 5.3px 6px -1.1px,
+    rgb(0 0 0 / 15%) 0.1px 8.4px 9.5px -1.4px,
+    rgb(0 0 0 / 15%) 0.1px 13.1px 14.7px -1.8px,
+    rgb(0 0 0 / 15%) 0.2px 19.9px 22.4px -2.1px,
+    rgb(0 0 0 / 15%) 0.3px 29.3px 33px -2.5px,
+    rgb(0 0 0 / 17.5%) 0 0 9.5px -1.4px;
+  --font-family-sans:
+    -apple-system,
+    blinkmacsystemfont,
+    "Open Sans",
+    "Helvetica Neue",
+    "Segoe UI",
+    roboto,
+    oxygen,
+    ubuntu,
+    cantarell,
+    sans-serif;
+  --font-family-mono:
+    "Mono Lisa",
+    sfmono-regular,
+    "Source Code Pro",
+    menlo,
+    monaco,
+    consolas,
+    "Liberation Mono",
+    monospace;
+  --font-size-1: 10px;
+  --font-size-2: 16px;
+  --font-size-3: 20px;
+  --font-weight-mono-normal: 400;
+  --font-weight-sans-normal: 400;
+  --font-weight-mono-semibold: 500;
+  --font-weight-sans-semibold: 500;
+  --font-weight-mono-bold: 600;
+  --font-weight-sans-bold: 600;
+}
+
+:root {
+  --tridactyl-cmdl-font-size: var(--font-size-3);
+  --tridactyl-header-font-size: var(--font-size-2);
+  --tridactyl-cmdl-font-family: var(--font-family-mono);
+  --tridactyl-cmplt-font-family: var(--font-family-mono);
+  --tridactyl-header-font-weight: var(--font-weight-mono-semibold);
+  --tridactyl-fg: var(--foreground-2);
+  --tridactyl-bg: var(--background-2);
+  --tridactyl-url-fg: var(--blue);
+  --tridactyl-url-bg: var(--background-2);
+  --tridactyl-highlight-box-bg: var(--green);
+  --tridactyl-highlight-box-fg: var(--background-2);
+  --tridactyl-photon-colours-accent-1: var(--blue);
+  --tridactyl-hintspan-fg: var(--background-2) !important;
+  --tridactyl-hintspan-bg: var(--cyan) !important;
+  --tridactyl-hint-active-fg: none;
+  --tridactyl-hint-active-bg: none;
+  --tridactyl-hint-active-outline: none;
+  --tridactyl-hint-bg: none;
+  --tridactyl-hint-outline: none;
+}
+
+span.TridactylHint {
+  padding: 1px var(--space-1) 2px !important;
+  border-radius: var(--border-radius-0) !important;
+  font-family: var(--font-family-mono) !important;
+  font-weight: var(--font-weight-mono-semibold) !important;
+  box-shadow: var(--shadow-0) !important;
+  animation: 3s linear 1s infinite running hint !important;
+}
+span.TridactylHint:nth-child(1n) {
+  background: #ea6962 !important;
+}
+span.TridactylHint:nth-child(2n) {
+  background: #e78a4e !important;
+}
+span.TridactylHint:nth-child(3n) {
+  background: #d8a657 !important;
+}
+span.TridactylHint:nth-child(4n) {
+  background: #a9b665 !important;
+}
+span.TridactylHint:nth-child(5n) {
+  background: #89b482 !important;
+}
+span.TridactylHint:nth-child(6n) {
+  background: #7daea3 !important;
+}
+span.TridactylHint:nth-child(7n) {
+  background: #d3869b !important;
+}
+
+#trinewtab > img {
+  display: none;
+}
+
+.TridactylStatusIndicator {
+  position: fixed !important;
+  right: 5px !important;
+  bottom: 0 !important;
+  bottom: 5px !important;
+  padding: 0.25rem 0.375rem !important;
+  border: unset !important;
+  background: var(--tridactyl-bg) !important;
+  border-radius: var(--border-radius-1) !important;
+  box-shadow: var(--shadow-1) !important;
+  color: var(--yellow) !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  opacity: 0.75;
+}
+
+#cmdline_iframe {
+  position: fixed !important;
+  z-index: 2147483647 !important;
+  top: 20% !important;
+  bottom: unset;
+  left: 10% !important;
+  width: 80% !important;
+  color-scheme: light;
+}
+
+.TridactylOwnNamespace > body {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 3rem;
+}
+
+#command-line-holder {
+  display: flex;
+  overflow: hidden;
+  flex-direction: row;
+  align-items: center;
+  order: 1;
+  background: var(--background-0);
+  border-radius: 0;
+  border-top-left-radius: var(--border-radius-3);
+  border-top-right-radius: var(--border-radius-3);
+  box-shadow: var(--shadow-2);
+  color: var(--tridactyl-bg);
+  opacity: 0.95;
+}
+#command-line-holder #tridactyl-colon {
+  padding-left: 0.75rem;
+  color: var(--foreground-1);
+  font-size: 1.25rem;
+  opacity: 0.5;
+}
+
+#tridactyl-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1rem;
+  padding-left: 0.25rem;
+  background: transparent;
+  color: var(--tridactyl-fg);
+  line-height: 1.5;
+}
+
+#completions {
+  --option-height: 1.4em;
+  display: inline-block;
+  overflow: hidden;
+  width: auto;
+  order: 2;
+  padding-bottom: 0.5rem;
+  border-top: unset;
+  background: var(--tridactyl-bg);
+  border-radius: 0;
+  border-bottom-left-radius: var(--border-radius-3);
+  border-bottom-right-radius: var(--border-radius-3);
+  box-shadow: var(--shadow-2);
+  color: var(--tridactyl-fg);
+  font-size: unset;
+  opacity: 0.95;
+}
+#completions > div {
+  min-height: auto;
+  max-height: calc(20 * var(--option-height));
+}
+#completions .sectionHeader {
+  padding: 0.5rem !important;
+  padding-bottom: 0.2rem;
+  padding-left: unset;
+  border-bottom: unset;
+  background: var(--background-1);
+  font-weight: var(--font-weight-mono-semibold);
+}
+#completions table.optionContainer {
+  padding-top: 0;
+  padding-bottom: 1rem;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+#completions table.optionContainer td {
+  padding: 0.25rem 0.5rem;
+}
+#completions table.optionContainer td.content, #completions table.optionContainer td.documentation, #completions table.optionContainer td.title {
+  font-family: var(--font-family-sans);
+  font-weight: var(--font-weight-sans-normal);
+}
+#completions table.optionContainer td.title {
+  width: 50%;
+  font-weight: var(--font-weight-sans-semibold);
+}
+#completions table.optionContainer td.privatewindow, #completions table.optionContainer td.container {
+  display: none;
+}
+#completions table.optionContainer td.prefix {
+  color: var(--foreground-0);
+  font-weight: var(--font-weight-mono-bold);
+}
+#completions table.optionContainer td.icon {
+  position: relative;
+}
+#completions table.optionContainer td.icon img {
+  filter: sepia(100%);
+}
+#completions .focused {
+  background: var(--background-4);
+  color: var(--foreground-3);
+}
+#completions .focused .excmd {
+  color: var(--magenta);
+}
+#completions .focused .url {
+  background: var(--background-4);
+  color: var(--magenta);
+}
+#completions .BmarkCompletionSource {
+  min-height: unset;
+  max-height: unset;
+}
+#completions .BufferCompletionSource {
+  min-height: unset;
+  max-height: unset;
+}
+#completions .HistoryCompletionSource {
+  min-height: unset;
+  max-height: unset;
+}
+#completions .BufferCompletionSource tablecompletion-table {
+  width: unset;
+  border-spacing: unset;
+  font-size: unset;
+  table-layout: unset;
+}
+#completions .HistoryCompletionSource td.prefix {
+  display: none;
+}
+
+/*# sourceMappingURL=dark-soft.css.map */

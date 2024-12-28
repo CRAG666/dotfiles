@@ -354,3 +354,8 @@ keymap = [
 	# Filtering
 	{ on = "f", run = "filter", desc = "Apply a filter for the help items" },
 ]
+
+[[manager.prepend_keymap]]
+on   = [ "i" ]
+run = "plugin searchjump"
+desc = "searchjump mode"

@@ -87,6 +87,15 @@ suppress_preload = false
 
 [plugin]
 
+prepend_previewers = [
+    { mime = "audio/*",   run = "exifaudio"},
+    { name = "*.epub", run = "epub" },
+]
+
+prepend_preloaders = [
+  { name = "*.epub", run = "epub" },
+]
+
 fetchers = [
 	# Mimetype
 	{ id = "mime", name = "*", run = "mime", if = "!mime", prio = "high" },
