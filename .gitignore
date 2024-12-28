@@ -554,3 +554,4 @@ btop.log
 *.AppImage
 **/lazy-lock.json
 **/marks.json
+./config/yazi/plugins
