@@ -1,5 +1,11 @@
 #!/usr/bin/env sh
 
+CELL_HEIGHT=22
+CELL_WIDTH=12
+
+HEIGHT=$(($FZF_PREVIEW_LINES * $CELL_HEIGHT))
+MAX_WIDTH=$(($FZF_PREVIEW_COLUMNS * $CELL_WIDTH))
+
 TMP="/tmp/fzf-preview"
 LTMP="$HOME/.cache/fzf-preview"
 CACHEFILE="$TMP/$(echo "$1" | base64).png"
@@ -11,9 +17,7 @@ maketemp() {
 }
 
 previewclear() {
-	# printf '\033[2J\033[H'
-   printf '\033[2J\033[3J\033[1;1H'
-   printf "\x1b_Ga=d,d=A\x1b\\"
+	printf '\033[2J\033[H' # Clear screen
 }
 
 text() {
@@ -51,7 +55,16 @@ archive() {
 }
 
 draw() {
-    kitty icat --transfer-mode=memory --stdin=no --place=${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}@0x0 $1
+	dimensions=$(identify -format "%wx%h" "$1")
+	original_width=$(echo $dimensions | cut -d'x' -f1)
+	original_height=$(echo $dimensions | cut -d'x' -f2)
+	aspect_ratio=$(echo "scale=4; $original_width / $original_height" | bc)
+	WIDTH=$(echo "scale=0; $HEIGHT * $aspect_ratio / 1" | bc)
+	if [ "$WIDTH" -gt "$MAX_WIDTH" ]; then
+		WIDTH=$MAX_WIDTH
+		HEIGHT=$(echo "scale=0; $WIDTH / $aspect_ratio / 1" | bc)
+	fi
+	img2sixel -w "$WIDTH" -h "$HEIGHT" "$1"
 }
 
 image() {
@@ -79,14 +92,11 @@ epub() {
 	draw "$CACHEFILE"
 }
 
-service() {
-	SYSTEMD_COLORS=1 systemctl status "$1"
-}
-
 main() {
 	previewclear
 	maketemp
-	mimetype=$(file -b --mime-type "$1" 2>/dev/null)
+	mimetype=$(file -b --mime-type "$1")
+
 	case $mimetype in
 	application/epub*)
 		epub "$1"

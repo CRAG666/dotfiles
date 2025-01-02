@@ -17,6 +17,9 @@ bluetui
 
 # CLI tools
 perl-image-exiftool
+epub-thumbnailer-git
+atuin
+carapace-bin
 zsh
 yt-dlp
 starship

@@ -119,7 +119,7 @@ source ${ZIM_HOME}/init.zsh
 # zsh-history-substring-search
 #
 
-zmodload -F zsh/terminfo +p:terminfo
+# zmodload -F zsh/terminfo +p:terminfo
 # Bind ^[[A/^[[B manually so up/down works both before and after zle-line-init
 for key ('^[[A' '^P' ${terminfo[kcuu1]}) bindkey ${key} history-substring-search-up
 for key ('^[[B' '^N' ${terminfo[kcud1]}) bindkey ${key} history-substring-search-down
@@ -132,31 +132,55 @@ unset key
 # fzf-tab preview
 #
 
+zstyle ':completion:*:descriptions' format '[%d]'
+zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' \
+	fzf-preview 'echo ${(P)word}'
+zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word'
+zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview \
+	'git diff $word | delta'
+zstyle ':fzf-tab:complete:git-log:*' fzf-preview \
+	'git log --color=always $word'
+zstyle ':fzf-tab:complete:git-help:*' fzf-preview \
+	'git help $word | bat -plman --color=always'
+zstyle ':fzf-tab:complete:git-show:*' fzf-preview \
+	'case "$group" in
+	"commit tag") git show --color=always $word ;;
+	*) git show --color=always $word | delta ;;
+	esac'
+zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
+	'case "$group" in
+	"modified file") git diff $word | delta ;;
+	"recent commit object name") git show --color=always $word | delta ;;
+	*) git log --color=always $word ;;
+	esac'
+zstyle ':fzf-tab:complete:*:options' fzf-preview
+zstyle ':fzf-tab:complete:*:argument-1' fzf-preview
+zstyle ':fzf-tab:complete:-command-:*' fzf-preview \
+   '(out=$(cht.sh "$word") 2>/dev/null && echo $out) || (out=$(MANWIDTH=$FZF_PREVIEW_COLUMNS man "$word") 2>/dev/null && echo $out) || (out=$(which "$word") && echo $out) || echo "${(P)word}"'
 zstyle ':fzf-tab:complete:*:*' fzf-preview '~/.scripts/preview $realpath'
-
-# PROMPT='%(?.%F{#fb5c8e}ﰉ %F{#f47d49}ﰉ %F{#a29dff}ﰉ.%F{#a29dff}ﰉ %F{#f47d49}ﰉ %F{#fb5c8e}ﰉ)%f '
-# PS1='
-# %(!.%B%F{red}%n%f%b in .${SSH_TTY:+"%B%F{yellow}%n%f%b in "})${SSH_TTY:+"%B%F{green}%m%f%b in "}%B%F{cyan}%~%f%b${(e)git_info[prompt]}${VIRTUAL_ENV:+" via %B%F{yellow}${VIRTUAL_ENV:t}%b%f"}${duration_info}
-# %B%(1j.%F{blue}*%f .)%(?.%F{#f38ba8}ﰉ %F{#f9e2af}ﰉ %F{#a6e3a1}ﰉ.%F{#a6e3a1}ﰉ %F{#f9e2af}ﰉ %F{#f38ba8}ﰉ)%f%b '
 
 enable-fzf-tab
 
 # -< Evals >-
 eval "$(zoxide init zsh)"
+eval "$(atuin init zsh)"
 eval "$(starship init zsh)"
+
+# export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense' # optional
+# zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
+# source <(carapace _carapace)
 
 # -< Aliases >-
 # HACK: Command alternatives
 # alias vpn="~/.scripts/vpn"
 alias ip='ip -color=auto'
 alias ping="prettyping"
-# alias icat="kitty +kitten icat"
 alias js="/usr/bin/node ~/.noderc"
 alias ls="exa --icons"
 alias la="exa --icons -la"
 # alias grep='grep --color=auto'
 # alias cp='rsync --progress -avz'
-# alias cd='/bin/cd && ls'
+cd() { pushd $1 && ls; }
 alias tree="exa --icons --tree --level=2 --long --git"
 alias vi="nvim"
 alias vim="nvim"
@@ -169,7 +193,6 @@ alias rec="wl-screenrec --dri-device $MOZ_DRM_DEVICE -f $(date +'%s_grab.mp4')"
 alias neofetch="fastfetch -l ~/.config/fastfetch/thinkpad.txt --logo-color-1 white --logo-color-2 red --logo-color-3 '38;2;23;147;209'"
 alias freq="watch -n1 'grep Hz /proc/cpuinfo'"
 alias fm="yazi"
-# alias aid="swaymsg -t get_tree | grep "app_id""
 alias help="cht.sh"
 alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 # HACK: docker Nftables
@@ -178,17 +201,12 @@ alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 # alias dor='doff && don'
 # HACK: Config alias
 alias grubc="sudo -e /etc/default/grub"
-# alias alacric="nvim ~/.config/alacritty/alacritty.yml"
-# alias swayc="nvim ~/.config/sway/config"
 alias newmc="nvim ~/.config/newm/config.py"
 alias hyprc="nvim ~/.config/hypr/hyprland.conf"
 alias keydc="nvim ~/Git/dotfiles/etc/keyd/default.conf"
 alias zshc="nvim ~/.zshrc"
 alias zshf="nvim ~/.zshfunc"
 alias zimc="nvim ~/.zimrc"
-# alias tmuxc="nvim ~/.tmux.conf"
-# alias firefoxc="nvim ~/.mozilla/firefox/profiles.ini"
-# alias kittyc="nvim ~/.config/kitty/kitty.conf"
 alias dnsc="nvim /etc/resolv.conf"
 alias nftc="nvim /etc/nftables.conf"
 alias starshipc="nvim ~/.config/starship.toml"
@@ -220,7 +238,6 @@ alias gbc="git switch -c"
 
 # -< Environ variable >-
 export MYSQL_PS1="\n \d  ﯐ "
-# export TERM="xterm-kitty"
 export VISUAL=$HOME/.local/share/bob/nvim-bin/nvim
 export EDITOR=$VISUAL
 export PYTHONSTARTUP=~/.pyrc
@@ -243,9 +260,19 @@ export LCOLORCATPPUCCIN=~/Documentos/Proyectos/Writings/utils/latex/catppuccin
 # source ~/.passmaria.zsh
 
 # BEGIN_KITTY_SHELL_INTEGRATION
-# if test -e "/usr/lib/kitty/shell-integration/zsh/kitty.zsh"; then
-#   source "/usr/lib/kitty/shell-integration/zsh/kitty.zsh";
-# fi
+export TERM="xterm-kitty"
+custom_autocomplete() {
+    zle fzf-tab-complete
+    printf "\x1b_Ga=d,d=A\x1b\\"
+}
+
+zle -N custom_autocomplete
+bindkey '^I' custom_autocomplete
+alias kittyc="nvim ~/.config/kitty/kitty.conf"
+alias icat="kitty +kitten icat"
+if test -e "/usr/lib/kitty/shell-integration/zsh/kitty.zsh"; then
+  source "/usr/lib/kitty/shell-integration/zsh/kitty.zsh";
+fi
 # END_KITTY_SHELL_INTEGRATION
 
 source ~/.zshfunc
