@@ -13,7 +13,14 @@ return {
   },
   {
     "nvim-neorg/neorg",
-    dependencies = { "luarocks.nvim", "nvim-neorg/neorg-telescope", "juniorsundar/neorg-extras" },
+    dependencies = {
+      "luarocks.nvim",
+      "nvim-neorg/neorg-telescope",
+      {
+        "juniorsundar/neorg-extras",
+        version = "*",
+      },
+    },
     cmd = "Neorg",
     ft = "norg",
     keys = {
@@ -154,6 +161,7 @@ return {
           ["core.integrations.telescope"] = {},
           ["core.summary"] = {},
           ["core.ui.calendar"] = {},
+          ["core.latex.renderer"] = {},
           ["external.many-mans"] = {
             config = {
               metadata_fold = true, -- If want @data property ... @end to fold

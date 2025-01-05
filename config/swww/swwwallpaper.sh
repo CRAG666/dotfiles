@@ -110,7 +110,7 @@ esac
 ## check swww daemon
 
 if ! swww query > /dev/null 2>&1; then
-    swww init
+    swww-daemon
 fi
 
 ## set wallpaper

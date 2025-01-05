@@ -22,12 +22,12 @@ elif [[ ("$theme" == *'type-2'*) || ("$theme" == *'type-4'*) ]]; then
 fi
 
 # CMDs (add your apps here)
-music_cmd='footclient -T termusic termusic'
-file_cmd='footclient -T yazi yazi'
+music_cmd='kitty -T termusic termusic'
+file_cmd='kitty -T yazi yazi'
 disk_cmd='gnome-disks'
 calendar_cmd="$HOME/.config/rofi/calendar/bin/calendar"
-wifi_cmd="footclient -T impala impala"
-bluetooth_cmd="footclient -T bluetui bluetui"
+wifi_cmd="kitty -T impala impala"
+bluetooth_cmd="kitty -T bluetui bluetui"
 
 # Options
 layout=$(cat ${theme} | grep 'USE_ICON' | cut -d'=' -f2)

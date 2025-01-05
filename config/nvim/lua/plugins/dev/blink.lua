@@ -113,8 +113,13 @@ return {
           })
         end,
       },
-      { "saghen/blink.compat", version = "*", opts = { impersonate_nvim_cmp = true } },
+      {
+        "saghen/blink.compat",
+        version = "*",
+        opts = {},
+      },
       "mikavilpas/blink-ripgrep.nvim",
+      "Kaiser-Yang/blink-cmp-dictionary",
     },
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
@@ -168,11 +173,56 @@ return {
       sources = {
         default = { "lsp", "path", "snippets", "buffer", "luasnip", "ripgrep", "supermaven" },
         per_filetype = {
-          markdown = { "lsp", "path", "snippets", "buffer", "luasnip", "ripgrep", "supermaven", "pandoc_references" },
-          tex = { "lsp", "path", "snippets", "buffer", "luasnip", "ripgrep", "supermaven", "pandoc_references" },
+          markdown = {
+            "lsp",
+            "path",
+            "snippets",
+            "buffer",
+            "luasnip",
+            "ripgrep",
+            "supermaven",
+            "pandoc_references",
+            "dictionary",
+          },
+          norg = {
+            "lsp",
+            "path",
+            "snippets",
+            "buffer",
+            "luasnip",
+            "ripgrep",
+            "supermaven",
+            "dictionary",
+          },
+          quarto = {
+            "lsp",
+            "path",
+            "snippets",
+            "buffer",
+            "luasnip",
+            "ripgrep",
+            "supermaven",
+            "pandoc_references",
+            "dictionary",
+          },
+          tex = {
+            "lsp",
+            "path",
+            "snippets",
+            "buffer",
+            "luasnip",
+            "ripgrep",
+            "supermaven",
+            "pandoc_references",
+            "dictionary",
+          },
         },
         -- cmdline = {},
         providers = {
+          dictionary = {
+            module = "blink-cmp-dictionary",
+            name = "Dict",
+          },
           ripgrep = {
             module = "blink-ripgrep",
             name = "Ripgrep",

@@ -134,4 +134,18 @@ return {
       require("csvview").toggle()
     end,
   },
+  {
+    "3rd/image.nvim",
+    ft = { "markdown", "norg", "quarto" },
+    build = false,
+    opts = {
+      processor = "magick_cli",
+      clear_in_insert_mode = true,
+      integrations = {
+        markdown = {
+          filetypes = { "markdown", "vimwiki", "quarto" }, -- markdown extensions (ie. quarto) can go here
+        },
+      },
+    },
+  },
 }

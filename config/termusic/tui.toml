@@ -6,7 +6,7 @@ quit_server_on_exit = true
 confirm_quit = false
 
 [coverart]
-align = "bottom left"
+align = "bottom right"
 size_scale = 99
 hidden = false
 

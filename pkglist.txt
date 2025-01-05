@@ -69,6 +69,7 @@ fastfetch
 duf
 progress
 s-tui
+lazyjournal
 
 # Audio
 pipewire
