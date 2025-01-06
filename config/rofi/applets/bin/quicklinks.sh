@@ -65,7 +65,7 @@ run_rofi() {
 # Execute Command
 run_cmd() {
 	if [[ "$1" == '--opt1' ]]; then
-		librewolf -P inaoe 'https://ieeexplore.ieee.org/Xplore/home.jsp'
+		zen-browser -P inaoe 'https://ieeexplore.ieee.org/Xplore/home.jsp'
 	elif [[ "$1" == '--opt2' ]]; then
 		xdg-open 'https://web.whatsapp.com/'
 	elif [[ "$1" == '--opt3' ]]; then
