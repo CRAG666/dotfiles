@@ -20,3 +20,14 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.go.tabline = [[%!v:lua.require'ui.tabline'()]]
 vim.go.statusline = [[%!v:lua.require'ui.statusline'()]]
 vim.opt.statuscolumn = [[%!v:lua.require'ui.statuscolumn'()]]
+
+-- z
+vim.api.nvim_create_autocmd({ "CmdlineEnter", "CmdUndefined" }, {
+  group = vim.api.nvim_create_augroup("ZSetup", {}),
+  desc = "Init z plugin.",
+  once = true,
+  callback = function()
+    require("ui.z").setup()
+    return true
+  end,
+})

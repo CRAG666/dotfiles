@@ -94,7 +94,7 @@ local function convert(ts_node, buf, win)
   if not valid_node(ts_node, buf) then
     return nil
   end
-  local kind = utils.string.snake_to_camel(get_node_short_type(ts_node))
+  local kind = utils.str.snake_to_camel(get_node_short_type(ts_node))
   local range = { ts_node:range() }
   return bar.winbar_symbol_t:new(setmetatable({
     buf = buf,
@@ -139,22 +139,20 @@ end
 ---@param cursor integer[] cursor position
 ---@return winbar_symbol_t[] symbols winbar symbols
 local function get_symbols(buf, win, cursor)
-  if not utils.treesitter.is_active(buf) then
+  if not utils.ts.active(buf) then
     return {}
   end
 
   local symbols = {} ---@type winbar_symbol_t[]
-  local current_node =
-    vim.treesitter.get_node({
-      bufnr = buf,
-      pos = {
-        cursor[1] - 1,
-        cursor[2] - (cursor[2] >= 1 and vim.api
-          .nvim_get_mode().mode
-          :match('^i') and 1 or 0),
-      },
-    })
-  while current_node do
+  local current_node = vim.treesitter.get_node({
+    bufnr = buf,
+    pos = {
+      cursor[1] - 1,
+      cursor[2]
+        - (cursor[2] >= 1 and vim.startswith(vim.fn.mode(), 'i') and 1 or 0),
+    },
+  })
+  while current_node and #symbols < configs.opts.sources.treesitter.max_depth do
     if valid_node(current_node, buf) then
       table.insert(symbols, 1, convert(current_node, buf, win))
     end

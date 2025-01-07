@@ -160,14 +160,22 @@ M.opts = {
   bar = {
     ---@type boolean|fun(buf: integer, win: integer): boolean
     enable = function(buf, win)
-      return not vim.w[win].winbar_no_attach
+      return not vim.b.bigfile
+        and not vim.w[win].winbar_no_attach
         and not vim.b[buf].winbar_no_attach
-        and vim.wo[win].winbar == ''
         and vim.fn.win_gettype(win) == ''
         and vim.bo[buf].ft ~= 'help'
         and vim.bo[buf].ft ~= 'diff'
         and not vim.startswith(vim.bo[buf].ft, 'git')
-        and utils.treesitter.is_active(buf)
+        and not utils.opt.winbar:last_set_loc()
+        and (
+          vim.bo[buf].ft == 'markdown'
+          or utils.ts.active(buf)
+          or not vim.tbl_isempty(vim.lsp.get_clients({
+            bufnr = buf,
+            method = 'textDocument/documentSymbol',
+          }))
+        )
     end,
     attach_events = {
       'BufEnter',
@@ -345,27 +353,8 @@ M.opts = {
     },
   },
   sources = {
-    path = {
-      ---@type string|fun(buf: integer, win: integer): string
-      relative_to = function(_, win)
-        -- Workaround for Vim:E5002: Cannot find window number
-        local ok, cwd = pcall(vim.fn.getcwd, win)
-        return ok and cwd or vim.fn.getcwd()
-      end,
-      ---Can be used to filter out files or directories
-      ---based on their name
-      ---@type fun(name: string): boolean
-      filter = function(_)
-        return true
-      end,
-      ---Last symbol from path source when current buf is modified
-      ---@param sym winbar_symbol_t
-      ---@return winbar_symbol_t
-      modified = function(sym)
-        return sym
-      end,
-    },
     treesitter = {
+      max_depth = 8,
       -- Vim regex used to extract a short name from the node text
       -- word with optional prefix and suffix: [#~!@\*&.]*[[:keyword:]]\+!\?
       -- word separators: \(->\)\+\|-\+\|\.\+\|:\+\|\s\+
@@ -436,6 +425,7 @@ M.opts = {
       },
     },
     lsp = {
+      max_depth = 8,
       valid_symbols = {
         'File',
         'Module',
@@ -471,6 +461,7 @@ M.opts = {
       },
     },
     markdown = {
+      max_depth = 6,
       parse = {
         -- Number of lines to update when cursor moves out of the parsed range
         look_ahead = 200,

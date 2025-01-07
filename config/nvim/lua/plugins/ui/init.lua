@@ -140,6 +140,7 @@ return {
     build = false,
     opts = {
       processor = "magick_cli",
+      window_overlap_clear_enabled = true,
       clear_in_insert_mode = true,
       integrations = {
         markdown = {

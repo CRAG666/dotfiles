@@ -4,6 +4,9 @@ return setmetatable({}, {
   __index = function(_, key)
     local has_local_util, local_util =
       pcall(require, 'ui.winbar.utils.' .. key)
-    return has_local_util and local_util or utils[key]
+    if has_local_util then
+      return local_util
+    end
+    return utils[key]
   end,
 })

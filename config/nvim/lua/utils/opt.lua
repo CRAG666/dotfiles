@@ -20,6 +20,12 @@ function opt_util_t:last_set_from(where)
     ~= nil
 end
 
+---Get the location where the option is last set from
+---@return string?
+function opt_util_t:last_set_loc()
+  return vim.fn.execute(string.format("silent! verbose setlocal %s?", self.name)):match "Last set from (%S*)"
+end
+
 return setmetatable({}, {
   __index = function(self, name)
     self[name] = opt_util_t:new(name)
