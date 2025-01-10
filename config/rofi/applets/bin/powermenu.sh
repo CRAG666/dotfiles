@@ -92,7 +92,11 @@ run_cmd() {
 	if [[ "$1" == '--opt1' ]]; then
 		swaylock
 	elif [[ "$1" == '--opt2' ]]; then
-		confirm_run 'hyprctl dispatch exit'
+        if [[ "$XDG_CURRENT_DESKTOP" == 'Hyprland' ]]; then
+            confirm_run 'hyprctl dispatch exit'
+        elif [[ "$XDG_CURRENT_DESKTOP" == 'owl' ]]; then
+            confirm_run 'killall owl'
+        fi
 	elif [[ "$1" == '--opt3' ]]; then
 		confirm_run 'amixer set Master mute' 'systemctl suspend'
 	elif [[ "$1" == '--opt4' ]]; then

@@ -1,0 +1,22 @@
+@import "~/.config/rofi/colors/catppuccin.rasi"
+
+* {
+    background-color:       @background;
+    text-color:             @foreground;
+	font:				 	"SF Pro 16";
+}
+
+window {
+    width:      			1300px;
+    padding:    			25px;
+    border:					0px;
+    border-radius:          0px;
+    border-color:           @active;
+    location:               center;
+    y-offset:               -20px;
+}
+
+entry {
+    expand: 				true;
+    text-color:				@active;
+}

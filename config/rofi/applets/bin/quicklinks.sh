@@ -74,6 +74,7 @@ run_cmd() {
 		xdg-open 'https://www.github.com/'
 	elif [[ "$1" == '--opt5' ]]; then
 		xdg-open 'https://chat.openai.com/'
+        xdg-open 'https://claude.ai/new'
 	elif [[ "$1" == '--opt6' ]]; then
 		xdg-open 'https://entrepeliculasyseries.nz/'
 	fi
