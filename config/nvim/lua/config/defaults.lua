@@ -1,79 +1,46 @@
+-- =============================
+-- General Configuration
+-- =============================
+vim.loader.enable()
 local set = vim.opt
 
-set.completeopt = "menu,menuone,noselect"
-set.autowrite = true
-set.scrolloff = 99
-set.sidescrolloff = 99
-set.scrollback = 100000
-set.tags = "/tmp/tags"
-set.mouse = "a"
-set.clipboard:append "unnamedplus"
-set.splitright = true
-set.splitbelow = true
-set.icm = "nosplit"
-set.virtualedit = "block"
-set.backspace = { "indent", "eol", "start", "nostop" }
-set.inccommand = "nosplit"
-set.matchtime = 2
--- set.updatetime = 200
-set.timeoutlen = 300
-set.joinspaces = false
-set.lazyredraw = false
-set.hidden = true
-set.diffopt = "filler,vertical,hiddenoff,linematch:60,foldcolumn:0,algorithm:minimal"
 set.encoding = "utf-8"
 set.fileformat = "unix"
-set.formatoptions = "jcroqlnt" -- tcqj
-set.errorformat:append "%f|%l col %c|%m"
-set.wildignore:append {
-  ".git/**",
-  "*.pyc",
-  "*.pyc",
-  "*.pyo",
-  "*/__pycache__/*",
-  "*.beam",
-  "*.swp,~*",
-  "*.zip",
-  "*.tar",
-  "*.DS_Store,**/",
-  "node_modules/**",
-  "**/bower_modules/**",
-  "**/node_modules/**",
-}
-set.path:remove "/usr/include"
-set.path:append "**"
-set.breakindent = true
-set.ts = 4
-set.softtabstop = 4
-set.shiftwidth = 4
-set.expandtab = true
-set.autoindent = true
-set.ignorecase = true
-set.smartcase = true
-set.shiftround = true
-set.smarttab = true
-set.wrap = true
-set.whichwrap:append "<>[]hl"
-set.linebreak = true
-set.textwidth = 80
-set.winminwidth = 5
 set.syntax = "ON"
-set.termguicolors = true
-set.showtabline = 0
-set.pumblend = 10
-set.pumheight = 15
-set.showmode = false
+set.hidden = true
+set.swapfile = false
+set.backup = false
+set.writebackup = false
+set.undofile = true
+set.undodir = os.getenv "HOME" .. "/.vim/undodir"
+set.undolevels = 1000
+set.backupcopy = "yes"
+set.fsync = false
+set.lazyredraw = false
+
+-- =============================
+-- User Interface
+-- =============================
+vim.g.has_ui = #vim.api.nvim_list_uis() > 0
+vim.g.has_gui = vim.fn.has "gui_running" == 1
+vim.g.has_display = vim.g.has_ui and vim.env.DISPLAY ~= nil
+vim.g.has_nf = vim.env.TERM ~= "linux" and true or false
 set.title = true
+set.termguicolors = true
 set.number = true
 set.relativenumber = true
-set.showcmd = false
 set.cursorline = true
 set.cursorcolumn = true
+set.scrolloff = 99
+set.sidescrolloff = 99
+set.splitright = true
+set.splitbelow = true
+set.laststatus = 3
+set.showtabline = 0
 set.wildmenu = true
 set.wildmode = "longest:full,full"
-set.showmatch = true
-set.errorbells = true
-set.signcolumn = "auto:1"
+set.cmdheight = 0
+set.list = false
 set.listchars = {
   eol = "↲",
   space = "␣",
@@ -83,14 +50,87 @@ set.listchars = {
   extends = "→",
   nbsp = "␣",
 }
-set.list = false
-set.laststatus = 3
-set.cmdheight = 0
+set.smoothscroll = true
+
+-- =============================
+-- Text and Formatting
+-- =============================
+set.expandtab = true
+set.shiftwidth = 4
+set.softtabstop = 4
+set.ts = 4
+set.autoindent = true
+set.smartindent = true
+set.linebreak = true
+set.breakindent = true
+set.textwidth = 80
+set.formatoptions = "jcroqlnt"
+
+-- =============================
+-- Search Configuration
+-- =============================
+set.ignorecase = true
+set.smartcase = true
 set.hlsearch = true
 set.incsearch = true
-set.smartindent = true
-set.grepformat = "%f:%l:%c:%m"
-set.grepprg = "rg --vimgrep --no-heading --smart-case"
+
+-- =============================
+-- Performance
+-- =============================
+set.timeoutlen = 200
+set.updatetime = 200 -- Uncomment if needed
+set.lazyredraw = false
+
+-- =============================
+-- Key Mappings
+-- =============================
+vim.keymap.set("", "<Space>", "<Nop>", { noremap = true, silent = true })
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
+-- =============================
+-- Folds
+-- =============================
+set.foldtext = ""
+vim.o.foldlevel = 99
+vim.o.foldlevelstart = 99
+vim.o.foldenable = true
+
+-- =============================
+-- Clipboard and Mouse
+-- =============================
+set.clipboard:append "unnamedplus"
+set.mouse = "a"
+
+-- =============================
+-- Diff and Git
+-- =============================
+set.diffopt = "filler,vertical,hiddenoff,linematch:60,foldcolumn:0,algorithm:minimal"
+
+-- =============================
+-- Wildcards and Paths
+-- =============================
+set.path:remove "/usr/include"
+set.path:append "**"
+set.wildignore:append {
+  ".git/**",
+  "*.pyc",
+  "*.pyo",
+  "*/__pycache__/*",
+  "*.beam",
+  "*.swp,~*",
+  "*.zip",
+  "*.tar",
+  "*.DS_Store",
+  "node_modules/**",
+  "**/bower_modules/**",
+  "**/node_modules/**",
+}
+
+-- =============================
+-- Colors and Highlighting
+-- =============================
+set.colorcolumn = "+1"
 set.fillchars = {
   foldopen = "",
   foldclose = "",
@@ -99,27 +139,22 @@ set.fillchars = {
   diff = "╱",
   eob = " ",
 }
-set.colorcolumn = "+1"
-set.foldtext = ""
-vim.o.foldlevel = 99
-vim.o.foldlevelstart = 99
-vim.o.foldenable = true
-set.fsync = false
-set.swapfile = false
-set.backup = false
-set.undodir = os.getenv "HOME" .. "/.vim/undodir"
-set.undofile = true
-set.undolevels = 1000
-set.writebackup = false
-set.backupcopy = "yes"
-set.splitkeep = "screen"
-set.shortmess:append { W = true, I = true, c = true, C = true }
-if vim.fn.has "nvim-0.10" == 1 then
-  set.smoothscroll = true
-end
+set.hlsearch = true
 
-vim.keymap.set("", "<Space>", "<Nop>", { noremap = true, silent = true })
-vim.g.mapleader = " "
-vim.g.maplocalleader = " "
-set.conceallevel = 2
-vim.g.modern_ui = true
+-- =============================
+-- Plugins and External Tools
+-- =============================
+set.grepprg = "rg --vimgrep --no-heading --smart-case"
+set.grepformat = "%f:%l:%c:%m"
+
+-- =============================
+-- Special Behaviors
+-- =============================
+set.inccommand = "nosplit"
+set.joinspaces = false
+set.virtualedit = "block"
+set.shiftround = true
+set.smarttab = true
+set.whichwrap:append "<>[]hl"
+set.errorbells = true
+set.shortmess:append { W = true, I = true, c = true, C = true }

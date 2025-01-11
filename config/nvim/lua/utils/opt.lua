@@ -16,15 +16,19 @@ end
 ---@param where string
 ---@return boolean
 function opt_util_t:last_set_from(where)
-  return vim.fn.execute(string.format("silent! verbose setlocal %s?", self.name)):match("Last set from " .. where)
-    ~= nil
+  return vim.fn
+    .execute(string.format('silent! verbose setlocal %s?', self.name))
+    :match('Last set from ' .. where) ~= nil
 end
 
 ---Get the location where the option is last set from
 ---@return string?
 function opt_util_t:last_set_loc()
-  return vim.fn.execute(string.format("silent! verbose setlocal %s?", self.name)):match "Last set from (%S*)"
+  return vim.fn
+    .execute(string.format('silent! verbose setlocal %s?', self.name))
+    :match('Last set from (%S*)')
 end
+
 
 return setmetatable({}, {
   __index = function(self, name)

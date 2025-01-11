@@ -9,8 +9,9 @@ local M = {}
 function M.hl(str, hl, restore, force)
   restore = restore == nil or restore
   -- Don't add highlight in tty to get a cleaner UI
-  hl = (vim.go.termguicolors or force) and hl or ""
-  return restore and table.concat { "%#", hl, "#", str or "", "%*" } or table.concat { "%#", hl, "#", str or "" }
+  hl = (vim.go.termguicolors or force) and hl or ''
+  return restore and table.concat({ '%#', hl, '#', str or '', '%*' })
+    or table.concat({ '%#', hl, '#', str or '' })
 end
 
 ---Make a winbar string clickable
@@ -18,7 +19,7 @@ end
 ---@param callback string
 ---@return string
 function M.make_clickable(str, callback)
-  return string.format("%%@%s@%s%%X", callback, str)
+  return string.format('%%@%s@%s%%X', callback, str)
 end
 
 ---Escape '%' with '%' in a string to avoid it being treated as a statusline
@@ -26,7 +27,7 @@ end
 ---@param str string
 ---@return string
 function M.escape(str)
-  return (str:gsub("%%", "%%%%"))
+  return (str:gsub('%%', '%%%%'))
 end
 
 return M

@@ -17,20 +17,20 @@ return {
     vt = '║',
   },
   rounded = {
-    tl = '╭',
-    tr = '╮',
-    bl = '╰',
-    br = '╯',
+    tl = '┌',
+    tr = '┐',
+    bl = '└',
+    br = '┘',
     hr = '─',
     vt = '│',
   },
   bold = {
-    tl = '┏',
-    tr = '┓',
-    bl = '┗',
-    br = '┛',
-    hr = '━',
-    vt = '┃',
+    tl = '╔',
+    tr = '╗',
+    bl = '╚',
+    br = '╝',
+    hr = '═',
+    vt = '║',
   },
   vintage = {
     tl = '+',
@@ -41,4 +41,4 @@ return {
     vt = '|',
   },
 }
--- stylua: ignore start
+-- stylua: ignore end
