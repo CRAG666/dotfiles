@@ -4,7 +4,6 @@ theme="style_2"
 dir="$HOME/.config/rofi/text"
 
 BOOKMARKS="$HOME/.config/rofi/text/bookmarks"
-BROWSER="xdg-open"
 
 function rofi_main_window() {
     rofi -dmenu -i -l 10 -p "$1" -theme "$dir/$theme"

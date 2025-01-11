@@ -279,4 +279,5 @@ fi
 source ~/.zshfunc
 source ~/.keys
 export PASSWORD_STORE_ENABLE_EXTENSIONS=true
+export NVM_NF=true
 # FPATH="/usr/share/zsh/site-functions:${FPATH}"

@@ -1,5 +1,6 @@
 local utils = require "utils.keymap"
 local fn = require "utils.fn"
+local border = require "utils.static.borders"
 local prefix_1 = "<leader>f"
 local git_prefix = "<leader>g"
 local lsp_prefix = "g"
@@ -209,6 +210,7 @@ return {
           selection_strategy = "reset",
           sorting_strategy = "ascending",
           layout_strategy = "bottom_pane",
+          -- layout_strategy = "horizontal",
           layout_config = {
             horizontal = {
               prompt_position = "top",
@@ -226,7 +228,7 @@ return {
           path_display = { "absolute" },
           winblend = 0,
           border = {},
-          borderchars = { " ", " ", " ", " ", " ", " ", " ", " " },
+          borderchars = border.rounded_clc,
           color_devicons = true,
           use_less = true,
           set_env = { ["COLORTERM"] = "truecolor" }, -- default = nil,
