@@ -1,0 +1,3 @@
+[filechooser]
+cmd=$HOME/.config/xdg-desktop-portal-termfilechooser/yazi-wrapper.sh
+default_dir=$HOME

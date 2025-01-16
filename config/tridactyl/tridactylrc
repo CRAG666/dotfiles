@@ -23,8 +23,8 @@ set modeindicatorshowkeys true
 set modeindicatormodes.ignore false
 set modeindicator true
 
-set externalclipboardcmd wl-copy
-set yankto both
+" set externalclipboardcmd wl-copy
+" set yankto both
 
 colorscheme catppuccin
 

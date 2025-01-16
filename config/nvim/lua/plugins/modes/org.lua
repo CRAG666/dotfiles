@@ -15,7 +15,6 @@ return {
     "nvim-neorg/neorg",
     dependencies = {
       "luarocks.nvim",
-      "nvim-neorg/neorg-telescope",
       {
         "juniorsundar/neorg-extras",
         version = "*",
@@ -63,7 +62,7 @@ return {
     config = function()
       require("neorg").setup {
         load = {
-          ["core.defaults"] = {}, -- Loads default behaviour
+          ["core.defaults"] = {},
           ["core.completion"] = { config = { engine = "nvim-cmp", name = "[Norg]" } },
           ["core.integrations.nvim-cmp"] = {},
           ["core.concealer"] = {
@@ -80,18 +79,8 @@ return {
                     icon = "■",
                   },
                 },
-                -- todo = {
-                --   cancelled = { icon = "🚫" },
-                --   done = { icon = "✅" },
-                --   undone = { icon = "🕒" },
-                --   on_hold = { icon = "⏸️" },
-                --   pending = { icon = "⏳" },
-                --   recurring = { icon = "🔄" },
-                --   uncertain = { icon = "❓" },
-                --   urgent = { icon = "🚨" },
-                -- },
                 definition = {
-                  single = { icon = "󰃃" },
+                  single = { icon = "🔖 " },
                   multi_prefix = { icon = "󰉾 " },
                   multi_suffix = { icon = "󰝗 " },
                 },
@@ -102,7 +91,7 @@ return {
                   icons = { "󰇙" },
                 },
                 heading = {
-                  icons = { "🌸 ", "🌼 ", "💠 ", "🍀 ", "🪻 ", "❁" },
+                  icons = { "🌸 ", "🌼 ", "🌺 ", "💠 ", "🍀 ", "🪻 " },
                 },
               },
             },
@@ -122,32 +111,11 @@ return {
                 keybinds.map_event_to_mode("norg", {
 
                   n = { -- Bind keys in normal mode
-                    {
-                      neorg_leader .. "fl",
-                      "core.integrations.telescope.find_linkable",
-                      opts = { desc = "Find linkable" },
-                    },
-                    {
-                      neorg_leader .. "fh",
-                      "core.integrations.telescope.search_headings",
-                      opts = { desc = "Search headings" },
-                    },
-                    {
-                      neorg_leader .. "fi",
-                      "core.integrations.telescope.insert_link",
-                      opts = { desc = "Insert link" },
-                    },
-                    {
-                      neorg_leader .. "ff",
-                      "core.integrations.telescope.insert_file_link",
-                      opts = { desc = "Insert link" },
-                    },
                     { "]l", "core.integrations.treesitter.next.link", opts = { desc = "Next link" } },
                     { "[l", "core.integrations.treesitter.previous.link", opts = { desc = "Previous link" } },
                   },
 
                   i = { -- Bind in insert mode
-                    { "<C-l>", "core.integrations.telescope.insert_link", opts = { desc = "Insert link" } },
                   },
                 }, {
                   silent = true,
@@ -158,7 +126,6 @@ return {
           },
           ["core.looking-glass"] = {},
           ["core.export"] = {},
-          ["core.integrations.telescope"] = {},
           ["core.summary"] = {},
           ["core.ui.calendar"] = {},
           ["core.latex.renderer"] = {},
@@ -172,7 +139,7 @@ return {
           ["external.agenda"] = {},
           ["external.roam"] = {
             config = {
-              fuzzy_finder = "Telescope", -- OR "Fzf" ... Defaults to "Telescope"
+              fuzzy_finder = "Telescope",
               fuzzy_backlinks = false, -- Set to "true" for backlinks in fuzzy finder instead of buffer
               roam_base_directory = "", -- Directory in current workspace to store roam nodes
               node_name_randomiser = false, -- Tokenise node name suffix for more randomisation

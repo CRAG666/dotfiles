@@ -16,6 +16,7 @@ impala
 bluetui
 
 # CLI tools
+hyperfine
 perl-image-exiftool
 epub-thumbnailer-git
 atuin

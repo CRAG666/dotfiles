@@ -139,20 +139,25 @@ return {
             ["@neorg.headings.2.prefix.norg"] = { fg = C.yellow },
             ["@neorg.links.location.heading.2.norg"] = { fg = C.yellow },
 
-            ["@neorg.headings.3.title.norg"] = { fg = C.sky },
-            ["@neorg.headings.3.prefix"] = { fg = C.sky },
-            ["@neorg.headings.3.prefix.norg"] = { fg = C.sky },
-            ["@neorg.links.location.heading.3.norg"] = { fg = C.sky },
+            ["@neorg.headings.3.title.norg"] = { fg = C.red },
+            ["@neorg.headings.3.prefix"] = { fg = C.red },
+            ["@neorg.headings.3.prefix.norg"] = { fg = C.red },
+            ["@neorg.links.location.heading.3.norg"] = { fg = C.red },
 
-            ["@neorg.headings.4.title.norg"] = { fg = C.green },
-            ["@neorg.headings.4.prefix"] = { fg = C.green },
-            ["@neorg.headings.4.prefix.norg"] = { fg = C.green },
-            ["@neorg.links.location.heading.4.norg"] = { fg = C.green },
+            ["@neorg.headings.4.title.norg"] = { fg = C.sky },
+            ["@neorg.headings.4.prefix"] = { fg = C.sky },
+            ["@neorg.headings.4.prefix.norg"] = { fg = C.sky },
+            ["@neorg.links.location.heading.4.norg"] = { fg = C.sky },
 
-            ["@neorg.headings.5.title.norg"] = { fg = C.lavender },
-            ["@neorg.headings.5.prefix"] = { fg = C.lavender },
-            ["@neorg.headings.5.prefix.norg"] = { fg = C.lavender },
-            ["@neorg.links.location.heading.5.norg"] = { fg = C.lavender },
+            ["@neorg.headings.5.title.norg"] = { fg = C.green },
+            ["@neorg.headings.5.prefix"] = { fg = C.green },
+            ["@neorg.headings.5.prefix.norg"] = { fg = C.green },
+            ["@neorg.links.location.heading.5.norg"] = { fg = C.green },
+
+            ["@neorg.headings.6.title.norg"] = { fg = C.lavender },
+            ["@neorg.headings.6.prefix"] = { fg = C.lavender },
+            ["@neorg.headings.6.prefix.norg"] = { fg = C.lavender },
+            ["@neorg.links.location.heading.6.norg"] = { fg = C.lavender },
 
             -- CMP
             BlinkCmpMenu = { bg = C.base, italic = true },

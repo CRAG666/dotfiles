@@ -27,7 +27,7 @@ vim.api.nvim_create_autocmd({ "CmdlineEnter", "CmdUndefined" }, {
   desc = "Init z plugin.",
   once = true,
   callback = function()
-    require("ui.z").setup()
+    require("modules.z").setup()
     return true
   end,
 })

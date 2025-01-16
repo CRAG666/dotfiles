@@ -65,6 +65,22 @@ augroup("YankHighlight", {
   },
 })
 
+augroup("WritingAssistant", {
+  "FileType",
+  {
+    desc = "Writing Assistant",
+    pattern = { "tex", "latex", "text", "txt", "markdown", "md", "org", "pandoc", "norg", "quarto" },
+    callback = function()
+      vim.keymap.set(
+        "n",
+        "<leader>fa",
+        require("modules.writing_assistant").tags,
+        { noremap = true, silent = true, buffer = true }
+      )
+    end,
+  },
+})
+
 augroup("CursorLine", {
   { "InsertLeave", "WinEnter" },
   { pattern = "*", command = "set cursorline" },

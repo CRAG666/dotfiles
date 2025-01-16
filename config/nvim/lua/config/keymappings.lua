@@ -107,9 +107,6 @@ utils.map("t", "<C-v><Esc>", "<Esc>")
 -- utils.map('n', '<bs>', '<c-^>`”zz')
 
 utils.map("n", "<bs>", ":<c-u>exe v:count ? v:count . 'b' : 'b' . (bufloaded(0) ? '#' : 'n')<cr>")
-
---utils.map("n", "<leader>fo", vim.cmd.TodoTelescope, { desc = "Todo List" })
-
 vim.api.nvim_create_autocmd("CmdlineEnter", {
   once = true,
   callback = function()
