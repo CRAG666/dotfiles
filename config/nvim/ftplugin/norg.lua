@@ -4,8 +4,6 @@ vim.opt.conceallevel = 2
 -- vim.opt_local.wrap = true
 vim.o.textwidth = 150
 
-require("config.lsp.grammar").setup()
-
 local utils = require "utils.keymap"
 local options = {
   Maestria = function()

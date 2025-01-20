@@ -183,7 +183,7 @@ function M.setup(server, on_attach)
   server.capabilities = lu.capabilities()
   server.root_dir = vim.fs.root(0, vim.list_extend(server.root_patterns or {}, root_patterns or {}))
   server.root_patterns = nil
-  vim.lsp.start(server)
+  return vim.lsp.start(server)
 end
 
 return M

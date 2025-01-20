@@ -6,7 +6,7 @@ local t = ls.text_node
 local i = ls.insert_node
 local c = ls.choice_node
 
-M.c = require('snippets.c').syntax
+M.c = require('snippets.c').snippets
 
 M.snippets = {
   -- Macros

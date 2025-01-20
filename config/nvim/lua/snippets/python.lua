@@ -80,6 +80,7 @@ M.snippets = {
   ),
   us.msn({
     { trig = 'im' },
+    { trig = 'ip' },
     { trig = 'imp' },
     common = {
       desc = 'import statement',
@@ -91,10 +92,12 @@ M.snippets = {
   us.msn({
     { trig = 'fim' },
     { trig = 'imf' },
+    { trig = 'fip' },
+    { trig = 'ipf' },
     { trig = 'fimp' },
     { trig = 'impf' },
     common = {
-      desc = 'from ... import statement',
+      desc = 'from ... import ... statement',
     },
   }, {
     t('from '),
@@ -102,20 +105,19 @@ M.snippets = {
     t(' import '),
     i(0, 'name'),
   }),
-  us.sn('inp', t('import numpy as np')),
-  us.sn('ipd', t('import pandas as pd')),
-  us.sn('iplt', t('import matplotlib.pyplot as plt')),
-  us.sn('itf', t('import tensorflow as tf')),
-  us.sn('itor', t('import torch')),
-  us.sn('itn', t('import torch.nn as nn')),
-  us.sn('itnf', t('import torch.nn.functional as F')),
-  us.sn('ito', t('import torch.optim as optim')),
-  us.sn('itv', t('import torchvision')),
-  us.sn('itt', t('import torchvision.transforms as transforms')),
-  us.sn('itd', t('import torchvision.datasets as datasets')),
-  us.sn('itu', t('import torchvision.utils as utils')),
-  us.sn('itud', t('import torch.utils.data as data')),
-  us.sn('itm', t('import torchvision.models as models')),
+  us.msn({
+    { trig = 'ima' },
+    { trig = 'ipa' },
+    { trig = 'impa' },
+    common = {
+      desc = 'import ... as ... statement',
+    },
+  }, {
+    t('import '),
+    i(1, 'module'),
+    t(' as '),
+    i(0, 'alias'),
+  }),
   us.sn(
     {
       trig = 'if',
@@ -128,7 +130,7 @@ M.snippets = {
       ]],
       {
         cond = i(1),
-        body = un.body(2, 1, false),
+        body = un.body(2, 1, 'pass'),
       }
     )
   ),
@@ -144,12 +146,12 @@ M.snippets = {
         if <cond>:
         <body>
         else:
-        <idnt>
+        <body2>
       ]],
       {
         cond = i(1),
-        body = un.body(2, 1),
-        idnt = un.idnt(1),
+        body = un.body(2, 1, 'pass'),
+        body2 = un.body(3, 1, 'pass'),
       }
     )
   ),
@@ -168,12 +170,12 @@ M.snippets = {
         if <cond>:
         <body>
         elif:
-        <idnt>
+        <body2>
       ]],
       {
         cond = i(1),
-        body = un.body(2, 1),
-        idnt = un.idnt(1),
+        body = un.body(2, 1, 'pass'),
+        body2 = un.body(3, 1, 'pass'),
       }
     )
   ),
@@ -189,7 +191,7 @@ M.snippets = {
         <body>
       ]],
       {
-        body = un.body(1, 1, false),
+        body = un.body(1, 1, 'pass'),
       }
     )
   ),
@@ -208,7 +210,7 @@ M.snippets = {
       ]],
       {
         cond = i(1),
-        body = un.body(2, 1, false),
+        body = un.body(2, 1, 'pass'),
       }
     )
   ),
@@ -225,7 +227,7 @@ M.snippets = {
       {
         var = i(1),
         iter = i(2),
-        body = un.body(3, 1, false),
+        body = un.body(3, 1, 'pass'),
       }
     )
   ),
@@ -246,7 +248,7 @@ M.snippets = {
       {
         var = i(1),
         range = i(2),
-        body = un.body(3, 1, false),
+        body = un.body(3, 1, 'pass'),
       }
     )
   ),
@@ -270,7 +272,7 @@ M.snippets = {
         idx = i(1, 'idx'),
         elem = i(2, 'elem'),
         iterable = i(3),
-        body = un.body(4, 1, false),
+        body = un.body(4, 1, 'pass'),
       }
     )
   ),
@@ -287,7 +289,7 @@ M.snippets = {
       ]],
       {
         cond = i(1),
-        body = un.body(2, 1, false),
+        body = un.body(2, 1, 'pass'),
       }
     )
   ),
@@ -309,13 +311,13 @@ M.snippets = {
         name = r(1, 'fn_name'),
         args = r(2, 'args'),
         ret = i(3),
-        body = un.body(4, 1, false),
+        body = un.body(4, 1, 'pass'),
       }
     ),
     {
       common_opts = {
         stored = {
-          fn_name = i(nil, 'function_name'),
+          fn_name = i(nil, 'func'),
         },
       },
     }
@@ -334,7 +336,7 @@ M.snippets = {
       {
         name = i(1, 'method_name'),
         args = i(2),
-        body = un.body(3, 1, false),
+        body = un.body(3, 1, 'pass'),
       }
     )
   ),
@@ -356,7 +358,7 @@ M.snippets = {
         name = i(1, 'class_name'),
         args = i(2),
         idnt = un.idnt(1),
-        body = un.body(3, 2, false),
+        body = un.body(3, 2, 'pass'),
       }
     )
   ),
@@ -373,7 +375,7 @@ M.snippets = {
       {
         expr = i(1),
         var = i(2),
-        body = un.body(3, 1, false),
+        body = un.body(3, 1, 'pass'),
       }
     )
   ),
@@ -389,7 +391,7 @@ M.snippets = {
         <body>
       ]],
       {
-        body = un.body(1, 1, false),
+        body = un.body(1, 1, 'pass'),
       }
     )
   ),
@@ -456,7 +458,7 @@ M.snippets = {
       ]],
       {
         exc = i(1),
-        body = un.body(2, 1, false),
+        body = un.body(2, 1, 'pass'),
       }
     )
   ),
@@ -473,7 +475,7 @@ M.snippets = {
         <body>
       ]],
       {
-        body = un.body(1, 1, false),
+        body = un.body(1, 1, 'pass'),
       }
     )
   ),
@@ -492,7 +494,7 @@ M.snippets = {
       ]],
       {
         q = un.qt(),
-        body = un.body(1, 1, false),
+        body = un.body(1, 1, 'pass'),
       }
     )
   ),

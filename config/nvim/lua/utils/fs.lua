@@ -126,4 +126,23 @@ function M.contains(dir, sub)
   return vim.startswith(sub, dir)
 end
 
+---Check if given directory is root directory
+---@return boolean
+function M.is_root_dir(dir)
+  return dir == vim.fs.dirname(dir)
+end
+
+---Home directory
+---@type string?
+local home
+
+---Check if given directory is home directory
+---@return boolean
+function M.is_home_dir(dir)
+  if not home then
+    home = vim.uv.os_homedir()
+  end
+  return dir == home
+end
+
 return M

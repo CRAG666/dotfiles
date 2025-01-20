@@ -4,33 +4,48 @@ local utils = require('utils')
 ---Check if the current line is a markdown code block, using regex
 ---to check each line
 ---@param lnum integer? default to current line number
+---@param buf integer? default to current buffer
+---@return false|string? false if not in a code block; else the language of the code block
 function M.in_codeblock_regex(lnum, buf)
   buf = buf or 0
   lnum = lnum or vim.api.nvim_win_get_cursor(0)[1]
-  local lines = vim.api.nvim_buf_get_lines(buf, 0, lnum - 1, false)
-  local result = false
+  local lines = vim.api.nvim_buf_get_lines(buf, 0, lnum, false)
+  local lang = false
+  local in_codeblock = false
+  local in_codeblock_next = false
   for _, line in ipairs(lines) do
-    if line:match('^```') then
-      result = not result
+    line = vim.trim(line)
+    in_codeblock = in_codeblock_next
+    if vim.startswith(line, '```') then
+      lang = line:match('^```(%S+)')
+      if not in_codeblock then
+        in_codeblock_next = true
+      else
+        in_codeblock = false
+        in_codeblock_next = false
+      end
     end
   end
-  return result
+  return in_codeblock and lang or false
 end
 
 ---Check if the current line is a markdown code block
 ---@param lnum integer? 1-based line index, default to current line number
 ---@param buf integer? default to current buffer
----@return boolean
+---@return false|string? false if not in a code block; else the language of the code block
 function M.in_codeblock(lnum, buf)
   buf = buf or 0
   lnum = lnum or vim.api.nvim_win_get_cursor(0)[1]
-  if utils.ts.active(buf) then
-    return utils.ts.in_node(function(ntype)
-      return ntype:match('fence') and ntype:match('code') and true or false
-    end, {
-      pos = { lnum - 1, 0 },
-      bufnr = buf,
-    })
+  if utils.ts.is_active(buf) then
+    if
+      not utils.ts.in_node('code_fence_content', {
+        pos = { lnum - 1, 0 },
+        bufnr = buf,
+      })
+    then
+      return false
+    end
+    return utils.ts.lang({ lnum, 0 }, buf)
   end
   return M.in_codeblock_regex(lnum, buf)
 end

@@ -3,7 +3,7 @@
 " Author:       Bekaboo <kankefengjing@gmail.com>
 " Maintainer:   Bekaboo <kankefengjing@gmail.com>
 " Remark:       Uses tex syntax file
-" Last Updated: Wed Nov 13 02:20:03 AM EST 2024
+" Last Updated: Mon Dec 23 08:32:54 PM EST 2024
 
 if exists('b:current_syntax')
   finish

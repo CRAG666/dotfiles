@@ -241,6 +241,16 @@ function winbar_menu_t:del()
   end
 end
 
+---Retrieves the root menu (first menu opened from winbar)
+---@return winbar_menu_t?
+function winbar_menu_t:root()
+  local current = self
+  while current and current.prev_menu do
+    current = current.prev_menu
+  end
+  return current
+end
+
 ---Evaluate window configurations
 ---Side effects: update self._win_configs
 ---@return nil
@@ -249,11 +259,7 @@ function winbar_menu_t:eval_win_configs()
   -- Evaluate function-valued window configurations
   self._win_configs = {}
   for k, config in pairs(self.win_configs) do
-    if type(config) == 'function' then
-      self._win_configs[k] = config(self)
-    else
-      self._win_configs[k] = config
-    end
+    self._win_configs[k] = configs.eval(config, self)
   end
 
   -- Ensure `win` field is nil if `relative` ~= 'win', else nvim will
@@ -393,6 +399,19 @@ function winbar_menu_t:make_buf()
     end
   end
 
+  -- Ensure menu width is sufficient after aligning symbol icons which can
+  -- increase symbol width
+  local max_entry_width = math.max(
+    0,
+    unpack(vim.tbl_map(function(entry)
+      local w = entry:displaywidth()
+      return w
+    end, self.entries))
+  )
+  if max_entry_width > self._win_configs.width then
+    self._win_configs.width = max_entry_width
+  end
+
   -- Get lines and highlights for each line
   local lines = {} ---@type string[]
   local hl_info = {} ---@type winbar_menu_hl_info_t[][]
@@ -401,14 +420,18 @@ function winbar_menu_t:make_buf()
     -- Pad lines with spaces to the width of the window
     -- This is to make sure hl-WinBarMenuCurrentContext colors
     -- the entire line
-    table.insert(
-      lines,
-      line
-        .. string.rep(
-          ' ',
-          self._win_configs.width - vim.fn.strdisplaywidth(line)
-        )
-    )
+    -- Also pad the last symbol's name so that cursor is always
+    -- on at least one symbol when inside the menu
+    local n = self._win_configs.width - entry:displaywidth()
+    if n > 0 then
+      local pad = string.rep(' ', n)
+      local last_sym = entry.components[#entry.components]
+      if last_sym then
+        last_sym.name = last_sym.name .. pad
+      end
+      line = line .. pad
+    end
+    table.insert(lines, line)
     table.insert(hl_info, entry_hl_info)
   end
 
@@ -476,6 +499,8 @@ function winbar_menu_t:make_buf()
 
       if configs.opts.menu.quick_navigation then
         self:quick_navigation(cursor)
+      else
+        self.prev_cursor = vim.api.nvim_win_get_cursor(0)
       end
 
       self:update_hover_hl(self.prev_cursor)

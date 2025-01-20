@@ -108,12 +108,9 @@ M.opts = {
               }),
               sym:merge({
                 on_click = function()
-                  local current_menu = symbol.menu
-                  while current_menu and current_menu.prev_menu do
-                    current_menu = current_menu.prev_menu
-                  end
-                  if current_menu then
-                    current_menu:close(false)
+                  local root_menu = symbol.menu and symbol.menu:root()
+                  if root_menu then
+                    root_menu:close(false)
                   end
                   sym:jump()
                 end,
@@ -160,17 +157,19 @@ M.opts = {
   bar = {
     ---@type boolean|fun(buf: integer, win: integer): boolean
     enable = function(buf, win)
-      return not vim.b.bigfile
-        and not vim.w[win].winbar_no_attach
+      return not vim.w[win].winbar_no_attach
         and not vim.b[buf].winbar_no_attach
         and vim.fn.win_gettype(win) == ''
+        and vim.bo[buf].bt ~= 'terminal'
+        and vim.bo[buf].bt ~= 'quickfix'
+        and vim.bo[buf].bt ~= 'prompt'
         and vim.bo[buf].ft ~= 'help'
         and vim.bo[buf].ft ~= 'diff'
         and not vim.startswith(vim.bo[buf].ft, 'git')
         and not utils.opt.winbar:last_set_loc()
         and (
           vim.bo[buf].ft == 'markdown'
-          or utils.ts.active(buf)
+          or utils.ts.is_active(buf)
           or not vim.tbl_isempty(vim.lsp.get_clients({
             bufnr = buf,
             method = 'textDocument/documentSymbol',
@@ -354,7 +353,7 @@ M.opts = {
   },
   sources = {
     treesitter = {
-      max_depth = 8,
+      max_depth = 12,
       -- Vim regex used to extract a short name from the node text
       -- word with optional prefix and suffix: [#~!@\*&.]*[[:keyword:]]\+!\?
       -- word separators: \(->\)\+\|-\+\|\.\+\|:\+\|\s\+
@@ -365,8 +364,6 @@ M.opts = {
       -- Types listed below must have corresponding icons
       -- in the `icons.kinds.symbols` table for the icon to be shown
       valid_types = {
-        'array',
-        'boolean',
         'break_statement',
         'call',
         'case_statement',
@@ -396,7 +393,6 @@ M.opts = {
         'module',
         'namespace',
         'null',
-        'number',
         'operator',
         'package',
         'pair',
@@ -408,6 +404,7 @@ M.opts = {
         'specifier',
         'struct',
         'switch_statement',
+        'table',
         'type',
         'type_parameter',
         'unit',
@@ -419,13 +416,16 @@ M.opts = {
         'identifier',
         'object',
         'statement',
+        -- 'boolean',
+        -- 'number',
         -- 'text',
-        -- 'list',
         -- 'string',
+        -- 'array',
+        -- 'list',
       },
     },
     lsp = {
-      max_depth = 8,
+      max_depth = 12,
       valid_symbols = {
         'File',
         'Module',

@@ -7,33 +7,48 @@ local sn = ls.snippet_node
 local t = ls.text_node
 local i = ls.insert_node
 local d = ls.dynamic_node
-local l = require('luasnip.extras').lambda
-local dl = require('luasnip.extras').dynamic_lambda
 
 M.math = require('snippets.tex.math')
 
 M.snippets = {
-  us.msnr({
-    { trig = '^# ', snippetType = 'autosnippet' },
-    { trig = '^h1' },
+  us.mssn({
+    {
+      trig = '# ',
+      snippetType = 'autosnippet',
+      condition = conds.at_line_end,
+      show_condition = conds.at_line_end,
+    },
+    { trig = 'h1' },
   }, {
     t('# '),
-    dl(
-      1,
-      l.TM_FILENAME
-        :gsub('^%d*_', '')
-        :gsub('_', ' ')
-        :gsub('^%l', string.upper)
-        :gsub(' %l', string.upper)
-        :gsub('%..*', ''),
-      {}
-    ),
+    d(1, function()
+      local fname = vim.api.nvim_buf_get_name(0)
+      if fname == '' then
+        return sn(nil, i(nil))
+      end
+
+      local title =
+        vim.fn.fnamemodify(fname, ':t:r'):gsub('^%d*_*', ''):gsub('_', ' ')
+      local title_words = vim.fn.split(title, '\\W\\zs', 0)
+      for idx, word in ipairs(title_words) do
+        local word_lower = word:lower()
+        local word_lower_trimmed = vim.trim(word_lower)
+        title_words[idx] = (
+          idx == 1 -- first word should always be capitalized
+          or #word_lower_trimmed >= 3
+            and not _G._title_lowercase_words[word_lower_trimmed]
+        )
+            and word_lower:gsub('^%l', string.upper)
+          or word_lower
+      end
+      return sn(nil, i(1, table.concat(title_words)))
+    end),
   }),
-  us.snr({ trig = '^h2' }, { t('## '), i(0) }),
-  us.snr({ trig = '^h3' }, { t('### '), i(0) }),
-  us.snr({ trig = '^h4' }, { t('#### '), i(0) }),
-  us.snr({ trig = '^h5' }, { t('##### '), i(0) }),
-  us.snr({ trig = '^h6' }, { t('###### '), i(0) }),
+  us.ssn({ trig = 'h2' }, { t('## '), i(0) }),
+  us.ssn({ trig = 'h3' }, { t('### '), i(0) }),
+  us.ssn({ trig = 'h4' }, { t('#### '), i(0) }),
+  us.ssn({ trig = 'h5' }, { t('##### '), i(0) }),
+  us.ssn({ trig = 'h6' }, { t('###### '), i(0) }),
 
   us.sn('pkgs', {
     t({ '---', '' }),

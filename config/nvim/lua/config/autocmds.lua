@@ -14,16 +14,16 @@ local groupid = vim.api.nvim_create_augroup
 ---@return nil
 local function augroup(group, ...)
   local id = groupid(group, {})
-  for _, a in ipairs { ... } do
+  for _, a in ipairs({ ... }) do
     a[2].group = id
     autocmd(unpack(a))
   end
 end
 
-augroup("BigFileSettings", {
-  "BufReadPre",
+augroup('BigFileSettings', {
+  'BufReadPre',
   {
-    desc = "Set settings for large files.",
+    desc = 'Set settings for large files.',
     callback = function(info)
       vim.b.bigfile = false
       local stat = vim.uv.fs_stat(info.match)
@@ -33,17 +33,17 @@ augroup("BigFileSettings", {
         vim.opt_local.swapfile = false
         vim.opt_local.undofile = false
         vim.opt_local.breakindent = false
-        vim.opt_local.colorcolumn = ""
-        vim.opt_local.statuscolumn = ""
-        vim.opt_local.signcolumn = "no"
-        vim.opt_local.foldcolumn = "0"
-        vim.opt_local.winbar = ""
-        vim.opt_local.syntax = ""
-        autocmd("BufReadPost", {
+        vim.opt_local.colorcolumn = ''
+        vim.opt_local.statuscolumn = ''
+        vim.opt_local.signcolumn = 'no'
+        vim.opt_local.foldcolumn = '0'
+        vim.opt_local.winbar = ''
+        vim.opt_local.syntax = ''
+        autocmd('BufReadPost', {
           once = true,
           buffer = info.buf,
           callback = function()
-            vim.opt_local.syntax = ""
+            vim.opt_local.syntax = ''
             return true
           end,
         })
@@ -52,64 +52,93 @@ augroup("BigFileSettings", {
   },
 })
 
-augroup("YankHighlight", {
-  "TextYankPost",
+augroup('YankHighlight', {
+  'TextYankPost',
   {
-    desc = "Highlight the selection on yank.",
+    desc = 'Highlight the selection on yank.',
     callback = function()
       pcall(vim.highlight.on_yank, {
-        higroup = "Visual",
+        higroup = 'Visual',
         timeout = 200,
       })
     end,
   },
 })
 
-augroup("WritingAssistant", {
-  "FileType",
+augroup('LspClearGroup', {
+  'VimLeavePre',
   {
-    desc = "Writing Assistant",
-    pattern = { "tex", "latex", "text", "txt", "markdown", "md", "org", "pandoc", "norg", "quarto" },
+    desc = 'Detener todos los servidores LSP al cerrar Neovim',
+    callback = function()
+      local active_clients = vim.lsp.get_active_clients()
+      for _, client in ipairs(active_clients) do
+        vim.lsp.stop_client(client.id)
+      end
+      vim.diagnostic.reset()
+      vim.notify(
+        'Todos los servidores LSP han sido detenidos',
+        vim.log.levels.INFO
+      )
+    end,
+  },
+})
+
+augroup('WritingAssistant', {
+  'FileType',
+  {
+    desc = 'Writing Assistant',
+    pattern = {
+      'tex',
+      'latex',
+      'text',
+      'txt',
+      'markdown',
+      'md',
+      'org',
+      'pandoc',
+      'norg',
+      'quarto',
+    },
     callback = function()
       vim.keymap.set(
-        "n",
-        "<leader>fa",
-        require("modules.writing_assistant").tags,
+        'n',
+        '<leader>fa',
+        require('modules.writing_assistant').tags,
         { noremap = true, silent = true, buffer = true }
       )
     end,
   },
 })
 
-augroup("CursorLine", {
-  { "InsertLeave", "WinEnter" },
-  { pattern = "*", command = "set cursorline" },
+augroup('CursorLine', {
+  { 'InsertLeave', 'WinEnter' },
+  { pattern = '*', command = 'set cursorline' },
 })
 
-augroup("CursorLine", {
-  { "InsertLeave", "WinEnter" },
+augroup('CursorLine', {
+  { 'InsertLeave', 'WinEnter' },
   {
-    pattern = "*",
-    command = "set cursorline",
+    pattern = '*',
+    command = 'set cursorline',
   },
 })
 
 -- Use vertical splits for help windows
-augroup("HelpConfig", {
-  "FileType",
+augroup('HelpConfig', {
+  'FileType',
   {
-    pattern = "help",
+    pattern = 'help',
     callback = function()
-      vim.bo.bufhidden = "unload"
-      vim.cmd.wincmd "L"
-      vim.cmd.wincmd "="
+      vim.bo.bufhidden = 'unload'
+      vim.cmd.wincmd('L')
+      vim.cmd.wincmd('=')
     end,
   },
 })
 
 -- go to last loc when opening a buffer
-augroup("LastLoc", {
-  "BufReadPost",
+augroup('LastLoc', {
+  'BufReadPost',
   {
     callback = function()
       local mark = vim.api.nvim_buf_get_mark(0, '"')
@@ -135,40 +164,40 @@ augroup("LastLoc", {
 -- end
 -- vim.on_key(toggle_hlsearch, ns)
 
-vim.api.nvim_set_hl(0, "TerminalCursorShape", { underline = true })
-augroup("TerminalCursorShape", {
-  "TermEnter",
+vim.api.nvim_set_hl(0, 'TerminalCursorShape', { underline = true })
+augroup('TerminalCursorShape', {
+  'TermEnter',
   {
     callback = function()
-      vim.cmd [[setlocal winhighlight=TermCursor:TerminalCursorShape]]
+      vim.cmd([[setlocal winhighlight=TermCursor:TerminalCursorShape]])
     end,
   },
 })
 
-augroup("BufferConfig", {
-  "BufWritePre",
+augroup('BufferConfig', {
+  'BufWritePre',
   {
     command = [[%s/\s\+$//e]],
   },
 }, {
-  "BufEnter",
+  'BufEnter',
   {
     command = [[let @/=""]],
   },
 }, {
-  "BufEnter",
+  'BufEnter',
   {
-    command = "silent! lcd %:p:h",
+    command = 'silent! lcd %:p:h',
   },
 }, {
-  "BufEnter",
+  'BufEnter',
   {
     command = [[set formatoptions-=cro]],
   },
 }, {
-  { "BufRead", "BufEnter" },
+  { 'BufRead', 'BufEnter' },
   {
-    pattern = "*.tex",
+    pattern = '*.tex',
     command = [[set filetype=tex]],
   },
 })
@@ -190,10 +219,10 @@ augroup("BufferConfig", {
 --   end,
 -- })
 
-augroup("ManConfig", {
-  "FileType",
+augroup('ManConfig', {
+  'FileType',
   {
-    pattern = "man",
+    pattern = 'man',
     command = [[nnoremap <buffer><silent> q :quit<CR>]],
   },
 })

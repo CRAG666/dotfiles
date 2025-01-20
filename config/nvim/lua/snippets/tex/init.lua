@@ -11,7 +11,7 @@ local d = ls.dynamic_node
 
 M.math = require('snippets.tex.math')
 
-M.env = {
+M.snippets = {
   us.sM(
     { trig = 'env' },
     un.fmtad(
@@ -92,15 +92,9 @@ M.env = {
       }
     )
   ),
-}
-
-M.style = {
   us.sM({ trig = 'em' }, { t('\\emph{'), i(1), t('}') }),
   us.sM({ trig = 'bf' }, { t('\\textbf{'), i(1), t('}') }),
   us.sM({ trig = 'ul' }, { t('\\underline{'), i(1), t('}') }),
-}
-
-M.style_auto = {
   us.sM(
     {
       trig = '^(%s*)- ',

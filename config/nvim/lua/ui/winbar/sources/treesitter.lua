@@ -139,12 +139,15 @@ end
 ---@param cursor integer[] cursor position
 ---@return winbar_symbol_t[] symbols winbar symbols
 local function get_symbols(buf, win, cursor)
-  if not utils.ts.active(buf) then
+  if not utils.ts.is_active(buf) then
     return {}
   end
 
   local symbols = {} ---@type winbar_symbol_t[]
-  local current_node = vim.treesitter.get_node({
+
+  -- Prevent errors when getting node from filetypes without a parser
+  local node = vim.F.npcall(vim.treesitter.get_node, {
+    ft = vim.filetype.match({ buf = buf }),
     bufnr = buf,
     pos = {
       cursor[1] - 1,
@@ -152,12 +155,14 @@ local function get_symbols(buf, win, cursor)
         - (cursor[2] >= 1 and vim.startswith(vim.fn.mode(), 'i') and 1 or 0),
     },
   })
-  while current_node and #symbols < configs.opts.sources.treesitter.max_depth do
-    if valid_node(current_node, buf) then
-      table.insert(symbols, 1, convert(current_node, buf, win))
+
+  while node and #symbols < configs.opts.sources.treesitter.max_depth do
+    if valid_node(node, buf) then
+      table.insert(symbols, 1, convert(node, buf, win))
     end
-    current_node = current_node:parent()
+    node = node:parent()
   end
+
   return symbols
 end
 
