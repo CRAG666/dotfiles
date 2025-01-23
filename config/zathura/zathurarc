@@ -5,7 +5,7 @@ set statusbar-v-padding 0
 set page-padding 1
 set guioptions none
 set synctex true
-set synctex-editor-command "vim -g %{input}:%{line}"
+set synctex-editor-command "texlab inverse-search -i %{input} -l %{line}"
 set selection-clipboard "clipboard"
 set window-title-home-tilde "true"
 set window-title-basename "true"
@@ -56,10 +56,12 @@ set highlight-color		        rgba(87,82,104,0.5)
 set highlight-fg              rgba(245,194,231,0.5)
 set highlight-active-color	  rgba(245,194,231,0.5)
 
+
 #
 # End Theme
 #
 
 #
 # Startup options
+#
 #

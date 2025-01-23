@@ -48,7 +48,14 @@ _G._winbar.bars = setmetatable({}, {
 ---Setup winbar
 ---@param opts winbar_configs_t?
 local function setup(opts)
+  -- Don't init twice, but still allow dynamic config change
+  -- after first call to `setup()`
   configs.set(opts)
+  if vim.g.loaded_winbar ~= nil then
+    return
+  end
+  vim.g.loaded_winbar = true
+
   hlgroups.init()
   local groupid = vim.api.nvim_create_augroup('WinBar', {})
   for _, win in ipairs(vim.api.nvim_list_wins()) do

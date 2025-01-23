@@ -1,8 +1,3 @@
-if vim.g.loaded_statuscolumn ~= nil then
-  return
-end
-vim.g.loaded_statuscolumn = true
-
 local ffi = require('ffi')
 local utils = require('utils')
 

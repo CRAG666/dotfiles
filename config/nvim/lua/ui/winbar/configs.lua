@@ -185,7 +185,7 @@ M.opts = {
     -- request is received within this time, the previous request will be
     -- cancelled, this improves the performance when the user is holding
     -- down a key (e.g. 'j') to scroll the window
-    update_debounce = 32,
+    update_debounce = vim.fn.executable('termux-info') == 1 and 128 or 16,
     update_events = {
       win = {
         'CursorMoved',

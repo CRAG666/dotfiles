@@ -1,21 +1,5 @@
-local utils = require "utils"
+local utils = require('utils')
 local M = {}
-local root_patterns = {
-  ".git/",
-  ".svn/",
-  ".bzr/",
-  ".hg/",
-  ".project/",
-  ".pro",
-  ".sln",
-  ".vcxproj",
-  "Makefile",
-  "makefile",
-  "MAKEFILE",
-  ".gitignore",
-  ".editorconfig",
-}
-
 local lsp_autostop_pending
 ---Automatically stop LSP servers that no longer attach to any buffers
 ---
@@ -27,9 +11,9 @@ local lsp_autostop_pending
 ---
 ---@return nil
 local function setup_lsp_stopdetached()
-  vim.api.nvim_create_autocmd("BufDelete", {
-    group = vim.api.nvim_create_augroup("LspAutoStop", {}),
-    desc = "Automatically stop detached language servers.",
+  vim.api.nvim_create_autocmd('BufDelete', {
+    group = vim.api.nvim_create_augroup('LspAutoStop', {}),
+    desc = 'Automatically stop detached language servers.',
     callback = function()
       if lsp_autostop_pending then
         return
@@ -53,20 +37,20 @@ local function setup_lsp_overrides()
   -- Show notification if no references, definition, declaration,
   -- implementation or type definition is found
   local methods = {
-    "textDocument/references",
-    "textDocument/definition",
-    "textDocument/declaration",
-    "textDocument/implementation",
-    "textDocument/typeDefinition",
+    'textDocument/references',
+    'textDocument/definition',
+    'textDocument/declaration',
+    'textDocument/implementation',
+    'textDocument/typeDefinition',
   }
 
   for _, method in ipairs(methods) do
-    local obj_name = method:match("/(%w*)$"):gsub("s$", "")
+    local obj_name = method:match('/(%w*)$'):gsub('s$', '')
     local handler = vim.lsp.handlers[method]
 
     vim.lsp.handlers[method] = function(err, result, ctx, ...)
       if not result or vim.tbl_isempty(result) then
-        vim.notify("[LSP] no " .. obj_name .. " found")
+        vim.notify('[LSP] no ' .. obj_name .. ' found')
         return
       end
 
@@ -79,7 +63,6 @@ local function setup_lsp_overrides()
       if #result == 1 then
         local enc = vim.lsp.get_client_by_id(ctx.client_id).offset_encoding
         vim.lsp.util.jump_to_location(result[1], enc)
-        vim.notify("[LSP] found 1 " .. obj_name)
         return
       end
 
@@ -97,28 +80,29 @@ local function setup_lsp_overrides()
   ---@diagnostic disable-next-line: duplicate-set-field
   function vim.lsp.util.open_floating_preview(contents, syntax, opts)
     local source_ft = vim.bo[vim.api.nvim_get_current_buf()].ft
-    opts = vim.tbl_deep_extend("force", opts, {
-      border = "solid",
+    opts = vim.tbl_deep_extend('force', opts, {
+      border = 'solid',
       max_width = math.max(80, math.ceil(vim.go.columns * 0.75)),
       max_height = math.max(20, math.ceil(vim.go.lines * 0.4)),
       close_events = {
-        "CursorMovedI",
-        "CursorMoved",
-        "InsertEnter",
-        "WinScrolled",
-        "WinResized",
-        "VimResized",
+        'CursorMovedI',
+        'CursorMoved',
+        'InsertEnter',
+        'WinScrolled',
+        'WinResized',
+        'VimResized',
       },
     })
     -- If source filetype is markdown, use custom mkd syntax instead of
     -- markdown syntax to avoid using treesitter highlight and get math
     -- concealing provided by vimtex in the floating window
-    if source_ft == "markdown" then
-      syntax = "markdown"
+    if source_ft == 'markdown' then
+      syntax = 'markdown'
       opts.wrap = false
     end
-    local floating_bufnr, floating_winnr = _open_floating_preview(contents, syntax, opts)
-    vim.wo[floating_winnr].concealcursor = "nc"
+    local floating_bufnr, floating_winnr =
+      _open_floating_preview(contents, syntax, opts)
+    vim.wo[floating_winnr].concealcursor = 'nc'
     return floating_bufnr, floating_winnr
   end
 
@@ -127,16 +111,16 @@ local function setup_lsp_overrides()
   ---@diagnostic disable-next-line: duplicate-set-field
   vim.lsp.buf.document_symbol = function()
     ---@diagnostic disable-next-line: redundant-parameter
-    _lsp_document_symbol {
+    _lsp_document_symbol({
       loclist = true,
-    }
+    })
   end
 end
 
 local function setup_diagnostic()
   -- Diagnostic configuration
   local icons = utils.static.icons.diagnostics
-  vim.diagnostic.config {
+  vim.diagnostic.config({
     underline = false,
     virtual_text = false,
     -- virtual_text = { spacing = 4, prefix = "●" },
@@ -153,37 +137,37 @@ local function setup_diagnostic()
         [vim.diagnostic.severity.HINT] = icons.DiagnosticSignHint,
       },
       numhl = {
-        [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
-        [vim.diagnostic.severity.WARN] = "DiagnosticSignWarn",
-        [vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
-        [vim.diagnostic.severity.HINT] = "DiagnosticSignHint",
+        [vim.diagnostic.severity.ERROR] = 'DiagnosticSignError',
+        [vim.diagnostic.severity.WARN] = 'DiagnosticSignWarn',
+        [vim.diagnostic.severity.INFO] = 'DiagnosticSignInfo',
+        [vim.diagnostic.severity.HINT] = 'DiagnosticSignHint',
       },
       severity_sort = true,
       -- virtual_lines = true,
     },
-  }
+  })
 end
 
 function M.setup(server, on_attach)
-  -- if vim.lsp.inlay_hint.is_enabled() ~= true then
-  --   vim.lsp.inlay_hint.enable()
-  -- end
-  local lu = require "config.lsp.utils"
+  if vim.lsp.inlay_hint.is_enabled() ~= true then
+    vim.lsp.inlay_hint.enable()
+  end
+  require('config.lsp.grammar').setup()
+  local lu = require('config.lsp.utils')
   lu.on_attach(function(client, bufnr)
-    require("config.lsp.highlighter").on_attach(client, bufnr)
-    require("config.lsp.format").on_attach(client, bufnr)
-    require("config.lsp.keymaps").on_attach(client, bufnr)
+    require('config.lsp.highlighter').on_attach(client, bufnr)
+    require('config.lsp.format').on_attach(client, bufnr)
+    require('config.lsp.keymaps').on_attach(client, bufnr)
     setup_lsp_overrides()
     setup_lsp_stopdetached()
     setup_diagnostic()
+    require('config.lsp.commands').setup()
     if on_attach ~= nil then
       on_attach(client, bufnr)
     end
   end)
   server.capabilities = lu.capabilities()
-  server.root_dir = vim.fs.root(0, vim.list_extend(server.root_patterns or {}, root_patterns or {}))
-  server.root_patterns = nil
-  return vim.lsp.start(server)
+  utils.lsp.start(server)
 end
 
 return M

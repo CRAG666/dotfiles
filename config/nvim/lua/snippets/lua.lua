@@ -46,6 +46,25 @@ local function is_nvim_lua()
 end
 
 M.snippets = {
+  us.msns({
+    { trig = 'sb' },
+    { trig = '#!', snippetType = 'autosnippet' },
+    desc = 'Shebang',
+  }, {
+    t('#!'),
+    c(1, {
+      i(nil, '/usr/bin/env luajit'),
+      i(nil, '/usr/bin/env lua5.4'),
+      i(nil, '/usr/bin/env lua5.3'),
+      i(nil, '/usr/bin/env lua5.2'),
+      i(nil, '/usr/bin/env lua5.1'),
+      i(nil, '/usr/bin/luajit'),
+      i(nil, '/usr/bin/lua5.4'),
+      i(nil, '/usr/bin/lua5.3'),
+      i(nil, '/usr/bin/lua5.2'),
+      i(nil, '/usr/bin/lua5.1'),
+    }),
+  }),
   us.msn({
     { trig = 'lv' },
     { trig = 'lc' },

@@ -11,6 +11,17 @@ local d = ls.dynamic_node
 local r = ls.restore_node
 
 M.snippets = {
+  us.msns({
+    { trig = 'sb' },
+    { trig = '#!', snippetType = 'autosnippet' },
+    desc = 'Shebang',
+  }, {
+    t('#!'),
+    c(1, {
+      i(nil, '/usr/bin/env python3'),
+      i(nil, '/usr/bin/python3'),
+    }),
+  }),
   us.sn({
     trig = 'ret',
     desc = 'return statement',

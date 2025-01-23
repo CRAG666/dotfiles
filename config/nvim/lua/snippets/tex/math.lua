@@ -242,7 +242,10 @@ return {
     un.sdn(1, '\\dot{', '}')
   ),
   us.samWr({ trig = '(\\?%w*_*%w*)ddot' }, un.sdn(1, '\\ddot{', '}')),
-  us.samWr({ trig = '(\\?%w*_*%w*)\\operatorname{d}ot' }, un.sdn(1, '\\ddot{', '}')),
+  us.samWr(
+    { trig = '(\\?%w*_*%w*)\\operatorname{d}ot' },
+    un.sdn(1, '\\ddot{', '}')
+  ),
   us.samWr({ trig = '(\\?%w*_*%w*)ovl' }, un.sdn(1, '\\overline{', '}')),
   us.samWr({ trig = '(\\?%w*_*%w*)ovs' }, {
     d(1, function(_, snip)
@@ -643,33 +646,53 @@ return {
     c(1, {
       sn(nil, {
         t('\\prod \\limits_{'),
-        i(1, 'n=0'),
+        i(1, 'n=1'),
         t('}^{'),
-        i(2, 'N-1'),
+        i(2, 'N'),
         t('} '),
+        r(3, 'x_n'),
       }),
       sn(nil, {
         t('\\prod \\limits_{'),
         i(1, 'x'),
         t('} '),
+        r(2, 'x_n'),
+      }),
+      sn(nil, {
+        t('\\prod '),
+        r(1, 'x_n'),
       }),
     }),
+  }, {
+    stored = {
+      x_n = i(nil, 'x_n'),
+    },
   }),
   us.sam({ trig = 'sum' }, {
     c(1, {
       sn(nil, {
         t('\\sum \\limits_{'),
-        i(1, 'n=0'),
+        i(1, 'n=1'),
         t('}^{'),
-        i(2, 'N-1'),
+        i(2, 'N'),
         t('} '),
+        r(3, 'x_n'),
       }),
       sn(nil, {
         t('\\sum \\limits_{'),
         i(1, 'x'),
         t('} '),
+        r(2, 'x_n'),
+      }),
+      sn(nil, {
+        t('\\sum '),
+        r(1, 'x_n'),
       }),
     }),
+  }, {
+    stored = {
+      x_n = i(nil, 'x_n'),
+    },
   }),
   us.sam({ trig = 'lim' }, {
     t('\\lim_{'),
