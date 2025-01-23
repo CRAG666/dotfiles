@@ -157,18 +157,22 @@ M.opts = {
   bar = {
     ---@type boolean|fun(buf: integer, win: integer): boolean
     enable = function(buf, win)
+      local bt = vim.bo[buf].bt
+      local ft = vim.bo[buf].ft
+
       return not vim.w[win].winbar_no_attach
         and not vim.b[buf].winbar_no_attach
         and vim.fn.win_gettype(win) == ''
-        and vim.bo[buf].bt ~= 'terminal'
-        and vim.bo[buf].bt ~= 'quickfix'
-        and vim.bo[buf].bt ~= 'prompt'
-        and vim.bo[buf].ft ~= 'help'
-        and vim.bo[buf].ft ~= 'diff'
+        and bt ~= 'terminal'
+        and bt ~= 'quickfix'
+        and bt ~= 'prompt'
+        and ft ~= 'query'
+        and ft ~= 'help'
+        and ft ~= 'diff'
         and not vim.startswith(vim.bo[buf].ft, 'git')
         and not utils.opt.winbar:last_set_loc()
         and (
-          vim.bo[buf].ft == 'markdown'
+          ft == 'markdown'
           or utils.ts.is_active(buf)
           or not vim.tbl_isempty(vim.lsp.get_clients({
             bufnr = buf,

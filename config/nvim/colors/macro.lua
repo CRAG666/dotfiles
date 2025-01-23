@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Thu Oct  3 11:58:48 PM EDT 2024
+-- Last Updated: Thu Jan 23 01:54:03 PM EST 2025
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -314,7 +314,7 @@ local hlgroups = {
   ['@keyword.import'] = { link = 'PreProc' },
   ['@keyword.luap'] = { link = '@string.regexp' },
   ['@keyword.operator'] = { bold = true, fg = c_macroRed },
-  ['@keyword.return'] = { fg = c_macroRed, italic = true },
+  ['@keyword.return'] = { fg = c_macroRed },
   ['@module'] = { fg = c_macroOrange0 },
   ['@operator'] = { link = 'Operator' },
   ['@punctuation.bracket'] = { fg = c_macroGray1 },
@@ -355,7 +355,7 @@ local hlgroups = {
   ['@markup.link.url.markdown_inline'] = { link = 'htmlString' },
   ['@comment.warning'] = { bg = c_roninYellow, fg = c_waveBlue0, bold = true },
   ['@variable'] = { fg = c_macroFg0 },
-  ['@variable.builtin'] = { fg = c_macroRed, italic = true },
+  ['@variable.builtin'] = { fg = c_macroRed },
   -- }}}
 
   -- LSP semantic {{{2
@@ -498,7 +498,7 @@ local hlgroups = {
   CmpItemKindEnum = { link = 'Type' },
   CmpItemKindEnumMember = { link = 'Constant' },
   CmpItemKindField = { link = '@variable.member' },
-  CmpItemKindFile = { link = 'Directory' },
+  CmpItemKindFile = { link = 'Constant' },
   CmpItemKindFolder = { link = 'Directory' },
   CmpItemKindFunction = { link = 'Function' },
   CmpItemKindInterface = { link = 'Type' },

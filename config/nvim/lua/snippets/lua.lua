@@ -97,33 +97,57 @@ M.snippets = {
     { trig = 'function' },
   }, {
     d(1, function()
-      return (
-        uc.in_tsnode('field', { ignore_injections = false })()
-        or uc.in_tsnode('arguments', { ignore_injections = false })()
-        or uc.in_tsnode('assignment', { ignore_injections = false })()
-        or uc.in_tsnode('table_constructor', { ignore_injections = false })() -- unnamed function in list
-        or uc.in_tsnode('binary_expression', { ignore_injections = false })() -- <expression> and function ... end
-        or uc.in_tsnode(
-          'parenthesized_expression',
-          { ignore_injections = false }
-        )()
-      )
-          and sn(nil, {
-            t('function('),
-            r(1, 'params'),
-            t({ ')', '' }),
-          })
-        or sn(nil, {
-          t('function '),
-          i(1, 'func'),
-          t('('),
-          r(2, 'params'),
+      if
+        uc.in_tsnode({
+          'field', --- { function() ... end, ... }
+          'arguments', -- foo(function() ... end, ...)
+          'assignment', -- val = function() ... end
+          'return_statement', -- return function() ... end
+          'table_constructor', -- unnamed function in list
+          'binary_expression', -- <expression> and function() ... end
+          'parenthesized_expression', -- (function() ... end)()
+        }, { ignore_injections = false })()
+      then
+        -- Unnamed function
+        return sn(nil, {
+          t('function('),
+          r(1, 'params'),
           t({ ')', '' }),
         })
+      end
+      -- Named function
+      return sn(nil, {
+        t('function '),
+        i(1, 'func'),
+        t('('),
+        r(2, 'params'),
+        t({ ')', '' }),
+      })
     end),
     un.body(2, 1),
     t({ '', 'end' }),
   }),
+  us.msn(
+    {
+      { trig = 'ifn' },
+      { trig = 'ifun' },
+      { trig = 'ifunc' },
+      { trig = 'ifunction' },
+      common = { desc = 'Immediate function evaluation' },
+    },
+    un.fmtad(
+      [[
+        (function(<params>)
+        <body>
+        end)(<val>)
+      ]],
+      {
+        val = i(1),
+        params = i(2),
+        body = un.body(3, 1),
+      }
+    )
+  ),
   us.msn({
     { trig = 'me' },
     { trig = 'method' },

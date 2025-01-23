@@ -11,14 +11,14 @@ local d = ls.dynamic_node
 M.math = require('snippets.tex.math')
 
 M.snippets = {
-  us.mssn({
+  us.msn({
+    { trig = 'h1' },
     {
       trig = '# ',
       snippetType = 'autosnippet',
-      condition = conds.at_line_end,
-      show_condition = conds.at_line_end,
+      condition = conds.at_line_start * conds.at_line_end,
+      show_condition = conds.at_line_start * conds.at_line_end,
     },
-    { trig = 'h1' },
   }, {
     t('# '),
     d(1, function()

@@ -32,10 +32,10 @@ function M.is_active(buf)
 end
 
 ---Returns whether cursor is in a specific type of treesitter node
----@param ntype string|function(type: string): boolean type of node, or function to check node type
+---@param types string|string[]|fun(types: string|string[]): boolean type of node, or function to check node type
 ---@param opts vim.treesitter.get_node.Opts?
 ---@return boolean
-function M.in_node(ntype, opts)
+function M.in_node(types, opts)
   if not M.is_active(opts and opts.bufnr) then
     return false
   end
@@ -45,11 +45,17 @@ function M.in_node(ntype, opts)
     return false
   end
 
-  if type(ntype) == 'string' then
-    return node:type():match(ntype) ~= nil
+  local nt = node:type() -- current node type
+  if vim.is_callable(types) then
+    return types(nt)
   end
 
-  return ntype(node:type())
+  if type(types) == 'string' then
+    types = { types }
+  end
+  return vim.iter(types):any(function(t)
+    return nt:match(t)
+  end)
 end
 
 ---Get language at given buffer position, useful in files with injected syntax

@@ -86,6 +86,9 @@ function M.list(input)
   return paths
 end
 
+local cmp_args_cache ---@type string?
+local cmp_list_cache ---@type string[]?
+
 ---Return a complete function for given z command
 ---@param cmd string
 ---@return function
@@ -101,8 +104,29 @@ function M.cmp(cmd)
     -- e.g. if paths `/foo/bar` and `/baz/bar` are in z's database, then
     -- `z foo bar` should only complete `/foo/bar` instead of both (using
     -- both 'foo' and 'bar' to match)
-    -- TODO: only split on spaces that is not escaped
-    return M.list(vim.split(cmdline:sub(1, cursorpos):gsub(cmd_reg, ''), ' '))
+    -- TODO: only split on spaces that are not escaped
+    local argslead = cmdline:sub(1, cursorpos):gsub(cmd_reg, '')
+    local trigs = vim.split(argslead, ' ', { trimempty = true })
+
+    -- Avoid calling `z` on each keystroke when auto completion is enabled
+    if
+      cmp_args_cache
+      and cmp_list_cache
+      and vim.startswith(argslead, cmp_args_cache)
+    then
+      return vim
+        .iter(cmp_list_cache)
+        :filter(function(path)
+          return vim.iter(trigs):all(function(trig)
+            return path:find(trig, 1, true)
+          end)
+        end)
+        :totable()
+    end
+
+    cmp_args_cache = argslead
+    cmp_list_cache = M.list(trigs)
+    return cmp_list_cache
   end
 end
 
