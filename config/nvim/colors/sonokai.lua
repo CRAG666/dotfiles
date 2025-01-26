@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Sun Dec  8 03:00:34 AM EST 2024
+-- Last Updated: Fri Jan 24 10:07:08 PM EST 2025
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -342,7 +342,7 @@ local hlgroups = {
   shQuote = { link = 'String' },
   shTestOpr = { link = 'Operator' },
   shVarAssign = { fg = c_red },
-  shVariable = { fg = c_blue, italic = true },
+  shVariable = { link = 'Constant' },
 
   -- HTML
   htmlArg = { fg = c_blue },
@@ -427,7 +427,7 @@ local hlgroups = {
   CmpItemKindEnum = { link = 'Type' },
   CmpItemKindEnumMember = { link = 'Constant' },
   CmpItemKindField = { link = '@property' },
-  CmpItemKindFile = { link = 'Directory' },
+  CmpItemKindFile = { link = 'Special' },
   CmpItemKindFolder = { link = 'Directory' },
   CmpItemKindFunction = { link = 'Function' },
   CmpItemKindInterface = { link = 'Type' },
@@ -508,11 +508,11 @@ local hlgroups = {
 
   -- lazy.nvim
   LazyProgressTodo = { fg = c_bg4 },
-  -- }}}
 
   -- statusline
   StatusLineHeader = { bg = c_purple, fg = c_bg0 },
   StatusLineHeaderModified = { bg = c_yellow, fg = c_bg0 },
+  -- }}}
 }
 -- }}}1
 
@@ -527,4 +527,4 @@ for name, attr in pairs(hlgroups) do
 end
 -- }}}1
 
--- vim:ts=2:sw=2:sts=2:fdm=marker:fdl=0
+-- vim:ts=2:sw=2:sts=2:fdm=marker

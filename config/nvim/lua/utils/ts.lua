@@ -31,6 +31,54 @@ function M.is_active(buf)
   return false
 end
 
+---Wrapper of `vim.treesitter.get_node()` that fixes the cursor pos in
+---insert mode
+---@param opts vim.treesitter.get_node.Opts?
+function M.get_node(opts)
+  return vim.treesitter.get_node({
+    -- According to `:h vim.treesitter.get_node()`, `pos` fallback to current
+    -- cursor position is not given, however it is REQUIRED if `opts.bufnr` is
+    -- given and is not the current buffer
+    pos = (function()
+      -- 1. If `opts.pos` is provided, use it as-is
+      -- 2. If `opts.bufnr` refers to a non-current buffer, pass `opts.pos` to
+      --    `vim.treesitter.get_node()` regardless if it's nil (will error if
+      --    nil)
+      if
+        opts
+        and (
+          opts.pos
+          or opts.bufnr
+            and opts.bufnr ~= 0
+            and opts.bufnr ~= vim.api.nvim_get_current_buf()
+        )
+      then
+        return opts.pos
+      end
+
+      -- Fix cursor position in insert mode -- if currently in insert mode,
+      -- shift `pos` left by one character because we care about the node
+      -- before cursor instead of under it since we are inserting text
+      -- before cursor instead of after it, e.g. if our cursor is in between
+      -- node1 and node2 in insert mode, like this:
+      --
+      -- <node1>|<node2>
+      --
+      -- where `|` is the cursor currently on node2, we will want to get node1
+      -- (node before cursor) instead of node2 (node after/covered by cursor)
+      --
+      -- Also useful when the cursor is at the end of line and is not on any
+      -- text (and of course treesitter nodes)
+      local cursor = opts and opts.pos or vim.api.nvim_win_get_cursor(0)
+      return {
+        cursor[1] - 1,
+        cursor[2]
+          - (cursor[2] >= 1 and vim.startswith(vim.fn.mode(), 'i') and 1 or 0),
+      }
+    end)(),
+  })
+end
+
 ---Returns whether cursor is in a specific type of treesitter node
 ---@param types string|string[]|fun(types: string|string[]): boolean type of node, or function to check node type
 ---@param opts vim.treesitter.get_node.Opts?
@@ -40,7 +88,7 @@ function M.in_node(types, opts)
     return false
   end
 
-  local node = vim.treesitter.get_node(opts)
+  local node = M.get_node(opts)
   if not node then
     return false
   end
@@ -53,9 +101,10 @@ function M.in_node(types, opts)
   if type(types) == 'string' then
     types = { types }
   end
-  return vim.iter(types):any(function(t)
+  local result = vim.iter(types):any(function(t)
     return nt:match(t)
   end)
+  return result
 end
 
 ---Get language at given buffer position, useful in files with injected syntax

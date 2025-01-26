@@ -123,35 +123,16 @@ M.opts = {
     end,
     preview = {
       ---Reorient the preview window on previewing a new symbol
-      ---@param _ integer source window id, ignored
-      ---@param range {start: {line: integer}, end: {line: integer}} 0-indexed
-      reorient = function(_, range)
-        local invisible = range['end'].line - vim.fn.line('w$') + 1
-        if invisible > 0 then
-          local view = vim.fn.winsaveview()
-          view.topline = math.min(
-            view.topline + invisible,
-            math.max(1, range.start.line - vim.wo.scrolloff + 1)
-          )
-          vim.fn.winrestview(view)
-        end
-      end,
+      ---@param win integer source window id
+      ---@param range { start: { line: integer }, end: { line: integer } } 0-indexed
+      ---@diagnostic disable-next-line: unused-local
+      reorient = function(win, range) end, -- luacheck: ignore 212
     },
     jump = {
       ---@param win integer source window id
-      ---@param range {start: {line: integer}, end: {line: integer}} 0-indexed
-      reorient = function(win, range)
-        local view = vim.fn.winsaveview()
-        local win_height = vim.api.nvim_win_get_height(win)
-        local topline = range.start.line - math.floor(win_height / 4)
-        if
-          topline > view.topline
-          and topline + win_height < vim.fn.line('$')
-        then
-          view.topline = topline
-          vim.fn.winrestview(view)
-        end
-      end,
+      ---@param range { start: { line: integer }, end: { line: integer } } 0-indexed
+      ---@diagnostic disable-next-line: unused-local
+      reorient = function(win, range) end, -- luacheck: ignore 212
     },
   },
   bar = {
@@ -169,8 +150,8 @@ M.opts = {
         and ft ~= 'query'
         and ft ~= 'help'
         and ft ~= 'diff'
-        and not vim.startswith(vim.bo[buf].ft, 'git')
-        and not utils.opt.winbar:last_set_loc()
+        and not vim.startswith(ft, 'git')
+        and not utils.opt.winbar:was_locally_set({ win = 0 })
         and (
           ft == 'markdown'
           or utils.ts.is_active(buf)
@@ -189,7 +170,7 @@ M.opts = {
     -- request is received within this time, the previous request will be
     -- cancelled, this improves the performance when the user is holding
     -- down a key (e.g. 'j') to scroll the window
-    update_debounce = vim.fn.executable('termux-info') == 1 and 128 or 16,
+    update_debounce = 16,
     update_events = {
       win = {
         'CursorMoved',
@@ -229,6 +210,7 @@ M.opts = {
   menu = {
     -- When on, preview the symbol in the source window
     preview = true,
+    hover = true,
     -- When on, set the cursor to the closest clickable component
     -- on CursorMoved
     quick_navigation = true,
@@ -286,7 +268,9 @@ M.opts = {
           return
         end
         local mouse = vim.fn.getmousepos()
-        utils.menu.update_hover_hl(mouse)
+        if M.opts.menu.hover then
+          utils.menu.update_hover_hl(mouse)
+        end
         if M.opts.menu.preview then
           utils.menu.update_preview(mouse)
         end
@@ -394,7 +378,6 @@ M.opts = {
         'keyword',
         'macro',
         'method',
-        'module',
         'namespace',
         'null',
         'operator',
@@ -421,6 +404,7 @@ M.opts = {
         'object',
         'statement',
         -- 'boolean',
+        -- 'module',
         -- 'number',
         -- 'text',
         -- 'string',

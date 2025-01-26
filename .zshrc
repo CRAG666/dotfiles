@@ -257,8 +257,7 @@ export MARPT=~/Documentos/Proyectos/Writings/utils/marp/themes
 export EISVOGEL=~/Documentos/Proyectos/Writings/utils/latex/eisvogel.tex
 export IEEESTL=~/Documentos/Proyectos/Writings/utils/latex/ieee.csl
 export LCOLORCATPPUCCIN=~/Documentos/Proyectos/Writings/utils/latex/catppuccin
-
-# source ~/.passmaria.zsh
+source ~/.utils.zsh
 
 # BEGIN_KITTY_SHELL_INTEGRATION
 export TERM="xterm-kitty"

@@ -1,28 +1,28 @@
-local utils = require "utils"
+local utils = require('utils')
 local icons = utils.static.icons.diagnostics
 return {
-  { "MunifTanjim/nui.nvim", lazy = true },
+  { 'MunifTanjim/nui.nvim', lazy = true },
   {
-    "echasnovski/mini.indentscope",
+    'echasnovski/mini.indentscope',
     version = false, -- wait till new 0.7.0 release to put it back on semver
-    event = "LazyFile",
+    event = 'LazyFile',
     opts = {
       -- symbol = "▏",
-      symbol = "│",
+      symbol = '│',
       options = { try_as_border = true },
     },
     init = function()
-      vim.api.nvim_create_autocmd("FileType", {
+      vim.api.nvim_create_autocmd('FileType', {
         pattern = {
-          "help",
-          "alpha",
-          "dashboard",
-          "neo-tree",
-          "lazy",
-          "mason",
-          "notify",
-          "toggleterm",
-          "lazyterm",
+          'help',
+          'alpha',
+          'dashboard',
+          'neo-tree',
+          'lazy',
+          'mason',
+          'notify',
+          'toggleterm',
+          'lazyterm',
         },
         callback = function()
           vim.b.miniindentscope_disable = true
@@ -38,49 +38,49 @@ return {
   --   init = utils.setup "mini.tabline",
   -- },
   {
-    "stevearc/dressing.nvim",
+    'stevearc/dressing.nvim',
     lazy = true,
     init = function()
       ---@diagnostic disable-next-line: duplicate-set-field
       vim.ui.select = function(...)
-        require("lazy").load { plugins = { "dressing.nvim" } }
+        require('lazy').load({ plugins = { 'dressing.nvim' } })
         return vim.ui.select(...)
       end
       ---@diagnostic disable-next-line: duplicate-set-field
       vim.ui.input = function(...)
-        require("lazy").load { plugins = { "dressing.nvim" } }
+        require('lazy').load({ plugins = { 'dressing.nvim' } })
         return vim.ui.input(...)
       end
     end,
   },
   {
-    "folke/which-key.nvim",
-    event = "LazyFile",
+    'folke/which-key.nvim',
+    event = 'VeryLazy',
     opts = {
       -- window = { position = "top" },
       icons = {
-        breadcrumb = "»",
-        separator = "➜",
-        group = "…",
+        breadcrumb = '»',
+        separator = '➜',
+        group = '…',
       },
       spelling = { enabled = false, suggestions = 20 },
     },
   },
   {
-    "brenoprata10/nvim-highlight-colors",
-    event = "LazyFile",
+    'brenoprata10/nvim-highlight-colors',
+    event = 'LazyFile',
     opts = {
-      render = "background", -- or 'foreground' or 'first_column'
+      render = 'background', -- or 'foreground' or 'first_column'
       enable_tailwind = false,
     },
   },
   {
-    "chentoast/marks.nvim",
-    name = "marks",
-    event = "LazyFile",
-    config = utils.fn.setup("marks", {
+    'chentoast/marks.nvim',
+    name = 'marks',
+    event = 'LazyFile',
+    config = utils.fn.setup('marks', {
       default_mappings = true,
-      builtin_marks = { ".", "<", ">", "^" },
+      builtin_marks = { '.', '<', '>', '^' },
       cyclic = true,
       force_write_shada = false,
       refresh_interval = 250,
@@ -88,8 +88,8 @@ return {
     }),
   },
   {
-    "stevearc/quicker.nvim",
-    event = "FileType qf",
+    'stevearc/quicker.nvim',
+    event = 'FileType qf',
     ---@module "quicker"
     ---@type quicker.SetupOptions
     opts = {
@@ -103,56 +103,49 @@ return {
     },
   },
   {
-    "rasulomaroff/reactive.nvim",
-    event = "InsertEnter",
+    'rasulomaroff/reactive.nvim',
+    event = 'InsertEnter',
     config = function()
-      require("reactive").setup {
-        load = { "catppuccin-mocha-cursor", "catppuccin-mocha-cursorline" },
-      }
+      require('reactive').setup({
+        load = { 'catppuccin-mocha-cursor', 'catppuccin-mocha-cursorline' },
+      })
     end,
   },
   {
-    "folke/todo-comments.nvim",
-    dependencies = { "nvim-lua/plenary.nvim" },
+    'folke/todo-comments.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
   },
   {
-    "OXY2DEV/helpview.nvim",
-    ft = "help",
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter",
-    },
-  },
-  {
-    "hat0uma/csvview.nvim",
-    ft = { "csv" },
+    'hat0uma/csvview.nvim',
+    ft = { 'csv' },
     config = function()
-      require("csvview").setup {
+      require('csvview').setup({
         view = {
-          display_mode = "border",
+          display_mode = 'border',
         },
-      }
-      require("csvview").toggle()
+      })
+      require('csvview').toggle()
     end,
   },
   {
-    "3rd/image.nvim",
-    ft = { "markdown", "norg", "quarto" },
+    '3rd/image.nvim',
+    ft = { 'markdown', 'norg', 'quarto' },
     build = false,
     opts = {
-      processor = "magick_cli",
+      processor = 'magick_cli',
       window_overlap_clear_enabled = true,
       clear_in_insert_mode = true,
       integrations = {
         markdown = {
-          filetypes = { "markdown", "vimwiki", "quarto" }, -- markdown extensions (ie. quarto) can go here
+          filetypes = { 'markdown', 'vimwiki', 'quarto' }, -- markdown extensions (ie. quarto) can go here
         },
       },
     },
   },
   {
-    "nvzone/typr",
-    cmd = "TyprStats",
-    dependencies = "nvzone/volt",
+    'nvzone/typr',
+    cmd = 'TyprStats',
+    dependencies = 'nvzone/volt',
     opts = {},
   },
 }

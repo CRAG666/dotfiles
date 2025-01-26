@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Sat Nov 23 08:24:44 PM EST 2024
+-- Last Updated: Fri Jan 24 10:06:59 PM EST 2025
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -24,51 +24,45 @@ local c_shaded
 local c_faint
 local c_faded
 local c_grass
-local c_tea
 local c_pine
 local c_lavender
 local c_violet
-local c_vermillion
 local c_black
 
 if vim.go.bg == 'dark' then
-  c_foreground = '#cbced2'
-  c_background = '#2e3440'
-  c_highlight  = '#3b4252'
-  c_critical   = '#ebcb8b'
-  c_salient    = '#81a1c0'
-  c_strong     = '#e5e7ec'
-  c_popout     = '#d08770'
-  c_subtle     = '#434c5e'
-  c_shaded     = '#4f596e'
-  c_faint      = '#6d7d9a'
-  c_faded      = '#99aac8'
-  c_grass      = '#43565a'
-  c_tea        = '#495c60'
-  c_pine       = '#79968b'
-  c_lavender   = '#48506e'
-  c_violet     = '#616b96'
-  c_vermillion = '#c85926'
-  c_black      = '#1c2027'
+  c_foreground = { '#cbced2', 251 }
+  c_background = { '#2e3440', 236 }
+  c_highlight  = { '#3b4252', 238 }
+  c_critical   = { '#ebcb8b', 222 }
+  c_salient    = { '#81a1c0', 110 }
+  c_strong     = { '#e5e7ec', 255 }
+  c_popout     = { '#d08770', 173 }
+  c_subtle     = { '#434c5e', 239 }
+  c_shaded     = { '#4f596e', 60  }
+  c_faint      = { '#6d7d9a', 103 }
+  c_faded      = { '#99aac8', 110 }
+  c_grass      = { '#43565a', 23  }
+  c_pine       = { '#8eb0a2', 109 }
+  c_lavender   = { '#48506e', 60  }
+  c_violet     = { '#97a5dc', 146 }
+  c_black      = { '#1c2027', 234 }
 else
-  c_foreground = '#495b64'
-  c_background = '#ffffff'
-  c_highlight  = '#f5f8fa'
-  c_critical   = '#ff6f00'
-  c_salient    = '#673ab7'
-  c_strong     = '#000000'
-  c_popout     = '#f09276'
-  c_subtle     = '#e9eef1'
-  c_shaded     = '#dde3e6'
-  c_faint      = '#bec8cc'
-  c_faded      = '#9fadb4'
-  c_grass      = '#e8f5e9'
-  c_tea        = '#ccdcdb'
-  c_pine       = '#608c88'
-  c_lavender   = '#f4eef8'
-  c_violet     = '#d9caf0'
-  c_vermillion = '#ff6f00'
-  c_black      = '#5b6c75'
+  c_foreground = { '#495b64', 59  }
+  c_background = { '#ffffff', 231 }
+  c_highlight  = { '#f5f8fa', 255 }
+  c_critical   = { '#ff6f00', 208 }
+  c_salient    = { '#673ab7', 98  }
+  c_strong     = { '#000000', 16  }
+  c_popout     = { '#f09276', 216 }
+  c_subtle     = { '#e9eef1', 255 }
+  c_shaded     = { '#dde3e6', 254 }
+  c_faint      = { '#bec8cc', 250 }
+  c_faded      = { '#9fadb4', 247 }
+  c_grass      = { '#e8f5e9', 194 }
+  c_pine       = { '#608c88', 66  }
+  c_lavender   = { '#f4eef8', 255 }
+  c_violet     = { '#d9caf0', 183 }
+  c_black      = { '#5b6c75', 242 }
 end
 -- stylua: ignore end
 -- }}}
@@ -76,39 +70,39 @@ end
 -- Set terminal colors {{{
 -- stylua: ignore start
 if vim.go.bg == 'dark' then
-  vim.g.terminal_color_0  = c_subtle
-  vim.g.terminal_color_1  = c_popout
-  vim.g.terminal_color_2  = c_pine
-  vim.g.terminal_color_3  = c_critical
-  vim.g.terminal_color_4  = c_faint
-  vim.g.terminal_color_5  = c_strong
-  vim.g.terminal_color_6  = c_salient
-  vim.g.terminal_color_7  = c_faded
-  vim.g.terminal_color_8  = c_faded
-  vim.g.terminal_color_9  = c_popout
-  vim.g.terminal_color_10 = c_pine
-  vim.g.terminal_color_11 = c_critical
-  vim.g.terminal_color_12 = c_faded
-  vim.g.terminal_color_13 = c_strong
-  vim.g.terminal_color_14 = c_salient
-  vim.g.terminal_color_15 = c_faded
+  vim.g.terminal_color_0  = c_subtle[1]
+  vim.g.terminal_color_1  = c_popout[1]
+  vim.g.terminal_color_2  = c_pine[1]
+  vim.g.terminal_color_3  = c_critical[1]
+  vim.g.terminal_color_4  = c_faint[1]
+  vim.g.terminal_color_5  = c_strong[1]
+  vim.g.terminal_color_6  = c_salient[1]
+  vim.g.terminal_color_7  = c_faded[1]
+  vim.g.terminal_color_8  = c_faded[1]
+  vim.g.terminal_color_9  = c_popout[1]
+  vim.g.terminal_color_10 = c_pine[1]
+  vim.g.terminal_color_11 = c_critical[1]
+  vim.g.terminal_color_12 = c_faded[1]
+  vim.g.terminal_color_13 = c_strong[1]
+  vim.g.terminal_color_14 = c_salient[1]
+  vim.g.terminal_color_15 = c_faded[1]
 else
-  vim.g.terminal_color_0  = c_subtle
-  vim.g.terminal_color_1  = c_critical
-  vim.g.terminal_color_2  = c_pine
-  vim.g.terminal_color_3  = c_popout
-  vim.g.terminal_color_4  = c_faint
-  vim.g.terminal_color_5  = c_strong
-  vim.g.terminal_color_6  = c_salient
-  vim.g.terminal_color_7  = c_faded
-  vim.g.terminal_color_8  = c_faded
-  vim.g.terminal_color_9  = c_critical
-  vim.g.terminal_color_10 = c_pine
-  vim.g.terminal_color_11 = c_popout
-  vim.g.terminal_color_12 = c_faded
-  vim.g.terminal_color_13 = c_strong
-  vim.g.terminal_color_14 = c_salient
-  vim.g.terminal_color_15 = c_faded
+  vim.g.terminal_color_0  = c_subtle[1]
+  vim.g.terminal_color_1  = c_critical[1]
+  vim.g.terminal_color_2  = c_pine[1]
+  vim.g.terminal_color_3  = c_popout[1]
+  vim.g.terminal_color_4  = c_faint[1]
+  vim.g.terminal_color_5  = c_strong[1]
+  vim.g.terminal_color_6  = c_salient[1]
+  vim.g.terminal_color_7  = c_faded[1]
+  vim.g.terminal_color_8  = c_faded[1]
+  vim.g.terminal_color_9  = c_critical[1]
+  vim.g.terminal_color_10 = c_pine[1]
+  vim.g.terminal_color_11 = c_popout[1]
+  vim.g.terminal_color_12 = c_faded[1]
+  vim.g.terminal_color_13 = c_strong[1]
+  vim.g.terminal_color_14 = c_salient[1]
+  vim.g.terminal_color_15 = c_faded[1]
 end
 -- stylua: ignore end
 -- }}}
@@ -129,7 +123,7 @@ local hlgroups = {
   DiffAdded = { fg = c_pine },
   DiffChange = { bg = c_lavender },
   DiffDelete = { fg = c_faint },
-  DiffText = { fg = c_foreground, bg = c_violet },
+  DiffText = { fg = c_strong, bg = c_violet },
   Directory = { fg = c_faded },
   EndOfBuffer = { fg = c_subtle },
   ErrorMsg = { fg = c_popout },
@@ -189,7 +183,7 @@ local hlgroups = {
   -- Syntax {{{2
   Comment = { fg = c_faint },
   Constant = { fg = c_faded },
-  String = { fg = c_faded },
+  String = { fg = c_popout },
   DocumentKeyword = { link = 'Keyword' },
   Character = { fg = c_critical },
   Number = { fg = c_faded },
@@ -247,7 +241,7 @@ local hlgroups = {
   ['@markup.list'] = { link = 'Delimiter' },
   ['@string'] = { link = 'String' },
   ['@string.regexp'] = { link = 'String' },
-  ['@string.escape'] = { fg = c_popout },
+  ['@string.escape'] = { fg = c_critical },
   ['@character'] = { link = 'Character' },
   ['@character.special'] = { link = 'SpecialChar' },
   ['@boolean'] = { link = 'Boolean' },
@@ -472,9 +466,9 @@ local hlgroups = {
   CmpItemKindValue = { link = 'Number' },
   CmpItemKindClass = { link = 'Type' },
   CmpItemKindStruct = { link = 'Type' },
-  CmpItemKindEvent = { fg = c_tea },
+  CmpItemKindEvent = { fg = c_pine },
   CmpItemKindInterface = { fg = c_faded },
-  CmpItemKindFile = { link = 'DevIconDefault' },
+  CmpItemKindFile = { link = 'Identifier' },
   CmpItemKindFolder = { link = 'Directory' },
   CmpItemKindUnit = { fg = c_salient },
   CmpItemKind = { fg = c_foreground },
@@ -482,7 +476,7 @@ local hlgroups = {
   CmpVirtualText = { fg = c_faint, italic = true },
 
   -- gitsigns
-  GitSignsAdd = { fg = c_tea },
+  GitSignsAdd = { fg = c_pine },
   GitSignsAddInline = { fg = c_pine },
   GitSignsAddLnInline = { fg = c_pine },
   GitSignsAddPreview = { fg = c_pine },
@@ -490,7 +484,7 @@ local hlgroups = {
   GitSignsChangeInline = { fg = c_violet },
   GitSignsChangeLnInline = { fg = c_violet },
   GitSignsCurrentLineBlame = { fg = c_violet },
-  GitSignsDelete = { fg = c_vermillion },
+  GitSignsDelete = { fg = c_popout },
   GitSignsDeleteInline = { fg = c_popout },
   GitSignsDeleteLnInline = { fg = c_popout },
   GitSignsDeletePreview = { fg = c_popout },
@@ -703,9 +697,14 @@ end
 -- }}}1
 
 -- Set highlight groups {{{1
-for hlgroup_name, hlgroup_attr in pairs(hlgroups) do
-  vim.api.nvim_set_hl(0, hlgroup_name, hlgroup_attr)
+for name, attr in pairs(hlgroups) do
+  attr.ctermbg = attr.bg and attr.bg[2]
+  attr.ctermfg = attr.fg and attr.fg[2]
+  attr.bg = attr.bg and attr.bg[1]
+  attr.fg = attr.fg and attr.fg[1]
+  attr.sp = attr.sp and attr.sp[1]
+  vim.api.nvim_set_hl(0, name, attr)
 end
 -- }}}1
 
--- vim:ts=2:sw=2:sts=2:fdm=marker:fdl=0
+-- vim:ts=2:sw=2:sts=2:fdm=marker

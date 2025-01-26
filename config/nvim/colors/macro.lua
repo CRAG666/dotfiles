@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Thu Jan 23 01:54:03 PM EST 2025
+-- Last Updated: Fri Jan 24 10:06:52 PM EST 2025
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -62,147 +62,147 @@ local c_winterRed
 local c_winterYellow
 
 if vim.go.bg == 'dark' then
-  c_autumnGreen  = '#76946a'
-  c_autumnRed    = '#c34043'
-  c_autumnYellow = '#dca561'
-  c_carpYellow   = '#c8ae81'
-  c_katanaGray   = '#717c7c'
-  c_lotusBlue    = '#9fb5c9'
-  c_lotusGray    = '#716e61'
-  c_lotusRed0    = '#d7474b'
-  c_lotusRed1    = '#e84444'
-  c_lotusRed2    = '#d9a594'
-  c_macroAqua    = '#95aeac'
-  c_macroAsh     = '#626462'
-  c_macroBg0     = '#0d0c0c'
-  c_macroBg1     = '#181616'
-  c_macroBg2     = '#201d1d'
-  c_macroBg3     = '#282727'
-  c_macroBg4     = '#393836'
-  c_macroBg5     = '#625e5a'
-  c_macroBlue0   = '#658594'
-  c_macroBlue1   = '#8ba4b0'
-  c_macroFg0     = '#c5c9c5'
-  c_macroFg1     = '#b4b3a7'
-  c_macroFg2     = '#a09f95'
-  c_macroGray0   = '#a6a69c'
-  c_macroGray1   = '#9e9b93'
-  c_macroGray2   = '#7a8382'
-  c_macroGreen0  = '#87a987'
-  c_macroGreen1  = '#8a9a7b'
-  c_macroOrange0 = '#b6927b'
-  c_macroOrange1 = '#b98d7b'
-  c_macroPink    = '#a292a3'
-  c_macroRed     = '#c4746e'
-  c_macroTeal    = '#949fb5'
-  c_macroViolet  = '#8992a7'
-  c_roninYellow  = '#ff9e3b'
-  c_springBlue   = '#7fb4ca'
-  c_springGreen  = '#98bb6c'
-  c_springViolet = '#938aa9'
-  c_sumiInk6     = '#54546d'
-  c_waveAqua0    = '#6a9589'
-  c_waveAqua1    = '#7aa89f'
-  c_waveBlue0    = '#223249'
-  c_waveBlue1    = '#2d4f67'
-  c_waveRed      = '#e46876'
-  c_winterBlue   = '#252535'
-  c_winterGreen  = '#2e322d'
-  c_winterRed    = '#43242b'
-  c_winterYellow = '#322e29'
-else
-  c_autumnGreen  = '#969438'
-  c_autumnRed    = '#b73242'
-  c_autumnYellow = '#a0713c'
-  c_carpYellow   = '#debe97'
-  c_katanaGray   = '#717c7c'
-  c_lotusBlue    = '#9fb5c9'
-  c_lotusGray    = '#716e61'
-  c_lotusRed0    = '#d7474b'
-  c_lotusRed1    = '#e84444'
-  c_lotusRed2    = '#d9a594'
-  c_macroAqua    = '#586e62'
-  c_macroAsh     = '#a0a0a0'
-  c_macroBg0     = '#f6f6f6'
-  c_macroBg1     = '#e7e7e7'
-  c_macroBg2     = '#eeeeee'
-  c_macroBg3     = '#d8d8d8'
-  c_macroBg4     = '#c8c8c8'
-  c_macroBg5     = '#a0a0a0'
-  c_macroBlue0   = '#658594'
-  c_macroBlue1   = '#537788'
-  c_macroFg0     = '#1b1b1b'
-  c_macroFg1     = '#303030'
-  c_macroFg2     = '#787878'
-  c_macroGray0   = '#827f79'
-  c_macroGray1   = '#6e6b66'
-  c_macroGray2   = '#7a8382'
-  c_macroGreen0  = '#87a987'
-  c_macroGreen1  = '#6a824f'
-  c_macroOrange0 = '#a06c4e'
-  c_macroOrange1 = '#825c45'
-  c_macroPink    = '#a292a3'
-  c_macroRed     = '#b23b34'
-  c_macroTeal    = '#445f96'
-  c_macroViolet  = '#373e50'
-  c_roninYellow  = '#c87b2e'
-  c_springBlue   = '#7fb4ca'
-  c_springGreen  = '#98bb6c'
-  c_springViolet = '#938aa9'
-  c_sumiInk6     = '#b1b1d2'
-  c_waveAqua0    = '#69827b'
-  c_waveAqua1    = '#7aa89f'
-  c_waveBlue0    = '#223249'
-  c_waveBlue1    = '#2d4f67'
-  c_waveRed      = '#e46876'
-  c_winterBlue   = '#d4d4f0'
-  c_winterGreen  = '#d5dcd2'
-  c_winterRed    = '#e6c2c7'
-  c_winterYellow = '#e2dcd4'
-end
+    c_autumnGreen  = { '#76946a', 107 }
+    c_autumnRed    = { '#c34043', 203 }
+    c_autumnYellow = { '#dca561', 179 }
+    c_carpYellow   = { '#c8ae81', 180 }
+    c_katanaGray   = { '#717c7c', 243 }
+    c_lotusBlue    = { '#9fb5c9', 110 }
+    c_lotusGray    = { '#716e61', 242 }
+    c_lotusRed0    = { '#d7474b', 203 }
+    c_lotusRed1    = { '#e84444', 203 }
+    c_lotusRed2    = { '#d9a594', 174 }
+    c_macroAqua    = { '#95aeac', 109 }
+    c_macroAsh     = { '#626462', 241 }
+    c_macroBg0     = { '#0d0c0c', 232 }
+    c_macroBg1     = { '#181616', 233 }
+    c_macroBg2     = { '#201d1d', 234 }
+    c_macroBg3     = { '#282727', 235 }
+    c_macroBg4     = { '#393836', 237 }
+    c_macroBg5     = { '#625e5a', 241 }
+    c_macroBlue0   = { '#658594', 66  }
+    c_macroBlue1   = { '#8ba4b0', 109 }
+    c_macroFg0     = { '#c5c9c5', 251 }
+    c_macroFg1     = { '#b4b3a7', 248 }
+    c_macroFg2     = { '#a09f95', 247 }
+    c_macroGray0   = { '#a6a69c', 247 }
+    c_macroGray1   = { '#9e9b93', 246 }
+    c_macroGray2   = { '#7a8382', 243 }
+    c_macroGreen0  = { '#87a987', 108 }
+    c_macroGreen1  = { '#8a9a7b', 107 }
+    c_macroOrange0 = { '#b6927b', 137 }
+    c_macroOrange1 = { '#b98d7b', 137 }
+    c_macroPink    = { '#a292a3', 139 }
+    c_macroRed     = { '#c4746e', 174 }
+    c_macroTeal    = { '#949fb5', 103 }
+    c_macroViolet  = { '#8992a7', 103 }
+    c_roninYellow  = { '#ff9e3b', 215 }
+    c_springBlue   = { '#7fb4ca', 110 }
+    c_springGreen  = { '#98bb6c', 107 }
+    c_springViolet = { '#938aa9', 103 }
+    c_sumiInk6     = { '#54546d', 60  }
+    c_waveAqua0    = { '#6a9589', 66  }
+    c_waveAqua1    = { '#7aa89f', 108 }
+    c_waveBlue0    = { '#223249', 237 }
+    c_waveBlue1    = { '#2d4f67', 24  }
+    c_waveRed      = { '#e46876', 204 }
+    c_winterBlue   = { '#252535', 235 }
+    c_winterGreen  = { '#2e322d', 236 }
+    c_winterRed    = { '#43242b', 52  }
+    c_winterYellow = { '#322e29', 236 }
+  else
+    c_autumnGreen  = { '#969438', 100 }
+    c_autumnRed    = { '#b73242', 131 }
+    c_autumnYellow = { '#a0713c', 130 }
+    c_carpYellow   = { '#debe97', 180 }
+    c_katanaGray   = { '#717c7c', 243 }
+    c_lotusBlue    = { '#9fb5c9', 110 }
+    c_lotusGray    = { '#716e61', 242 }
+    c_lotusRed0    = { '#d7474b', 203 }
+    c_lotusRed1    = { '#e84444', 203 }
+    c_lotusRed2    = { '#d9a594', 174 }
+    c_macroAqua    = { '#586e62', 65  }
+    c_macroAsh     = { '#a0a0a0', 247 }
+    c_macroBg0     = { '#f6f6f6', 255 }
+    c_macroBg1     = { '#e7e7e7', 254 }
+    c_macroBg2     = { '#eeeeee', 255 }
+    c_macroBg3     = { '#d8d8d8', 252 }
+    c_macroBg4     = { '#c8c8c8', 251 }
+    c_macroBg5     = { '#a0a0a0', 247 }
+    c_macroBlue0   = { '#658594', 66  }
+    c_macroBlue1   = { '#537788', 24  }
+    c_macroFg0     = { '#1b1b1b', 234 }
+    c_macroFg1     = { '#303030', 236 }
+    c_macroFg2     = { '#787878', 243 }
+    c_macroGray0   = { '#827f79', 244 }
+    c_macroGray1   = { '#6e6b66', 242 }
+    c_macroGray2   = { '#7a8382', 243 }
+    c_macroGreen0  = { '#87a987', 108 }
+    c_macroGreen1  = { '#6a824f', 101 }
+    c_macroOrange0 = { '#a06c4e', 130 }
+    c_macroOrange1 = { '#825c45', 95  }
+    c_macroPink    = { '#a292a3', 139 }
+    c_macroRed     = { '#b23b34', 131 }
+    c_macroTeal    = { '#445f96', 60  }
+    c_macroViolet  = { '#373e50', 59  }
+    c_roninYellow  = { '#c87b2e', 172 }
+    c_springBlue   = { '#7fb4ca', 110 }
+    c_springGreen  = { '#98bb6c', 107 }
+    c_springViolet = { '#938aa9', 103 }
+    c_sumiInk6     = { '#b1b1d2', 146 }
+    c_waveAqua0    = { '#69827b', 66  }
+    c_waveAqua1    = { '#7aa89f', 108 }
+    c_waveBlue0    = { '#223249', 237 }
+    c_waveBlue1    = { '#2d4f67', 24  }
+    c_waveRed      = { '#e46876', 204 }
+    c_winterBlue   = { '#d4d4f0', 189 }
+    c_winterGreen  = { '#d5dcd2', 188 }
+    c_winterRed    = { '#e6c2c7', 181 }
+    c_winterYellow = { '#e2dcd4', 188 }
+  end
 -- stylua: ignore end
 -- }}}
 
 -- Terminal colors {{{
 -- stylua: ignore start
 if vim.go.bg == 'dark' then
-  vim.g.terminal_color_0  = c_macroBg0
-  vim.g.terminal_color_1  = c_macroRed
-  vim.g.terminal_color_2  = c_macroGreen1
-  vim.g.terminal_color_3  = c_carpYellow
-  vim.g.terminal_color_4  = c_macroBlue1
-  vim.g.terminal_color_5  = c_macroPink
-  vim.g.terminal_color_6  = c_macroAqua
-  vim.g.terminal_color_7  = c_macroFg1
-  vim.g.terminal_color_8  = c_macroBg4
-  vim.g.terminal_color_9  = c_waveRed
-  vim.g.terminal_color_10 = c_macroGreen0
-  vim.g.terminal_color_11 = c_autumnYellow
-  vim.g.terminal_color_12 = c_springBlue
-  vim.g.terminal_color_13 = c_springViolet
-  vim.g.terminal_color_14 = c_waveAqua1
-  vim.g.terminal_color_15 = c_macroFg0
-  vim.g.terminal_color_16 = c_macroOrange0
-  vim.g.terminal_color_17 = c_macroOrange1
+  vim.g.terminal_color_0  = c_macroBg0[1]
+  vim.g.terminal_color_1  = c_macroRed[1]
+  vim.g.terminal_color_2  = c_macroGreen1[1]
+  vim.g.terminal_color_3  = c_carpYellow[1]
+  vim.g.terminal_color_4  = c_macroBlue1[1]
+  vim.g.terminal_color_5  = c_macroPink[1]
+  vim.g.terminal_color_6  = c_macroAqua[1]
+  vim.g.terminal_color_7  = c_macroFg1[1]
+  vim.g.terminal_color_8  = c_macroBg4[1]
+  vim.g.terminal_color_9  = c_waveRed[1]
+  vim.g.terminal_color_10 = c_macroGreen0[1]
+  vim.g.terminal_color_11 = c_autumnYellow[1]
+  vim.g.terminal_color_12 = c_springBlue[1]
+  vim.g.terminal_color_13 = c_springViolet[1]
+  vim.g.terminal_color_14 = c_waveAqua1[1]
+  vim.g.terminal_color_15 = c_macroFg0[1]
+  vim.g.terminal_color_16 = c_macroOrange0[1]
+  vim.g.terminal_color_17 = c_macroOrange1[1]
 else
-  vim.g.terminal_color_0  = c_macroBg1
-  vim.g.terminal_color_1  = c_macroRed
-  vim.g.terminal_color_2  = c_macroGreen1
-  vim.g.terminal_color_3  = c_autumnYellow
-  vim.g.terminal_color_4  = c_macroBlue1
-  vim.g.terminal_color_5  = c_springViolet
-  vim.g.terminal_color_6  = c_macroAqua
-  vim.g.terminal_color_7  = c_macroBg5
-  vim.g.terminal_color_8  = c_macroBg3
-  vim.g.terminal_color_9  = c_waveRed
-  vim.g.terminal_color_10 = c_macroGreen0
-  vim.g.terminal_color_11 = c_carpYellow
-  vim.g.terminal_color_12 = c_springBlue
-  vim.g.terminal_color_13 = c_sumiInk6
-  vim.g.terminal_color_14 = c_waveAqua1
-  vim.g.terminal_color_15 = c_macroFg0
-  vim.g.terminal_color_16 = c_macroOrange0
-  vim.g.terminal_color_17 = c_macroOrange1
+  vim.g.terminal_color_0  = c_macroBg1[1]
+  vim.g.terminal_color_1  = c_macroRed[1]
+  vim.g.terminal_color_2  = c_macroGreen1[1]
+  vim.g.terminal_color_3  = c_autumnYellow[1]
+  vim.g.terminal_color_4  = c_macroBlue1[1]
+  vim.g.terminal_color_5  = c_springViolet[1]
+  vim.g.terminal_color_6  = c_macroAqua[1]
+  vim.g.terminal_color_7  = c_macroBg5[1]
+  vim.g.terminal_color_8  = c_macroBg3[1]
+  vim.g.terminal_color_9  = c_waveRed[1]
+  vim.g.terminal_color_10 = c_macroGreen0[1]
+  vim.g.terminal_color_11 = c_carpYellow[1]
+  vim.g.terminal_color_12 = c_springBlue[1]
+  vim.g.terminal_color_13 = c_sumiInk6[1]
+  vim.g.terminal_color_14 = c_waveAqua1[1]
+  vim.g.terminal_color_15 = c_macroFg0[1]
+  vim.g.terminal_color_16 = c_macroOrange0[1]
+  vim.g.terminal_color_17 = c_macroOrange1[1]
 end
 -- stylua: ignore end
 --- }}}
@@ -611,9 +611,14 @@ end
 -- }}}1
 
 -- Set highlight groups {{{1
-for hlgroup_name, hlgroup_attr in pairs(hlgroups) do
-  vim.api.nvim_set_hl(0, hlgroup_name, hlgroup_attr)
+for name, attr in pairs(hlgroups) do
+  attr.ctermbg = attr.bg and attr.bg[2]
+  attr.ctermfg = attr.fg and attr.fg[2]
+  attr.bg = attr.bg and attr.bg[1]
+  attr.fg = attr.fg and attr.fg[1]
+  attr.sp = attr.sp and attr.sp[1]
+  vim.api.nvim_set_hl(0, name, attr)
 end
 -- }}}1
 
--- vim:ts=2:sw=2:sts=2:fdm=marker:fdl=0
+-- vim:ts=2:sw=2:sts=2:fdm=marker

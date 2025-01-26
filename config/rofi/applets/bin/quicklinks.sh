@@ -34,7 +34,7 @@ if [[ "$layout" == 'NO' ]]; then
 	option_2=" Whatsapp"
 	option_3=" Youtube"
 	option_4=" Github"
-	option_5="  GPT"
+	option_5=" IA"
 	option_6="󰝆 Streaming"
 else
 	option_1=""
@@ -74,7 +74,10 @@ run_cmd() {
 		xdg-open 'https://www.github.com/'
 	elif [[ "$1" == '--opt5' ]]; then
 		xdg-open 'https://chat.openai.com/'
-        xdg-open 'https://claude.ai/new'
+		xdg-open 'https://claude.ai/new'
+		xdg-open 'https://chat.deepseek.com'
+		xdg-open 'https://www.doubao.com/chat'
+		xdg-open 'https://copilot.cloud.microsoft/'
 	elif [[ "$1" == '--opt6' ]]; then
 		xdg-open 'https://entrepeliculasyseries.nz/'
 	fi

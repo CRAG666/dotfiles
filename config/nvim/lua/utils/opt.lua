@@ -12,23 +12,15 @@ function opt_util_t:new(name)
   }, self)
 end
 
----Check whether the option is set from a modeline
----@param where string
----@return boolean
-function opt_util_t:last_set_from(where)
-  return vim.fn
-    .execute(string.format('silent! verbose setlocal %s?', self.name))
-    :match('Last set from ' .. where) ~= nil
-end
-
 ---Get the location where the option is last set from
----@return string?
-function opt_util_t:last_set_loc()
-  return vim.fn
-    .execute(string.format('silent! verbose setlocal %s?', self.name))
-    :match('Last set from (%S*)')
+---@param opts vim.api.keyset.option?
+---@return boolean
+function opt_util_t:was_locally_set(opts)
+  local info = vim.api.nvim_get_option_info2(self.name, opts or {})
+  return info.last_set_chan ~= 0
+    or info.last_set_linenr ~= 0
+    or info.last_set_sid ~= 0
 end
-
 
 return setmetatable({}, {
   __index = function(self, name)

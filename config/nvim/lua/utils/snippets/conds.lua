@@ -12,16 +12,8 @@ local utils = require('utils')
 ---@class snip_conds_t
 ---@field make_condition function
 local M = setmetatable({ _ = {} }, {
-  __index = function(self, k)
-    if self._[k] then
-      local cond = lsconds.make_condition(self._[k])
-      rawset(self, k, cond)
-      return cond
-    end
-    return lsconds[k]
-  end,
   __newindex = function(self, k, v)
-    self._[k] = v
+    rawset(self, k, lsconds.make_condition(v))
   end,
 })
 
@@ -34,52 +26,44 @@ end
 ---Returns whether the cursor is in a code block
 ---@return boolean
 function M.in_codeblock()
-  local cursor = vim.api.nvim_win_get_cursor(0)
-  return utils.ft.markdown.in_codeblock(cursor[1])
-end
-
----Returns whether the current buffer has treesitter enabled
----@return boolean
-function M.ts_active()
-  return utils.ts.is_active()
+  return utils.ft.markdown.in_codeblock(vim.fn.line('.'))
 end
 
 ---Returns whether current cursor is in a comment
----@param type string
+---@param type string|string[]
 ---@param opts vim.treesitter.get_node.Opts?
----@return snip_cond_t
+---@return boolean
 function M.in_tsnode(type, opts)
-  return lsconds.make_condition(function()
-    return utils.ts.in_node(type, opts)
-  end)
+  return utils.ts.in_node(type, opts)
 end
 
 ---Returns whether the cursor is in a normal zone
 ---@return boolean
 function M.in_normalzone()
-  if not M.ts_active() then
-    -- If treesitter is not active, we can only check for markdown and tex
-    -- using the regex method to ensure we are not in a code block or math zone
-    if vim.bo.ft == 'markdown' or vim.bo.ft == 'tex' then
-      return utils.ft[vim.bo.ft].in_normalzone()
-    end
-    -- For other filetypes, always return true
-    return true
+  if utils.ts.is_active() then
+    return not utils.ts.in_node(
+      { 'comment', 'string', 'block' },
+      { ignore_injections = false }
+    )
   end
-  return not M.in_tsnode('comment', { ignore_injections = false })()
-    and not M.in_tsnode('string', { ignore_injections = false })()
+
+  -- If treesitter is not active, we can only check for markdown and tex
+  -- using the regex method to ensure we are not in a code block or math zone
+  if vim.bo.ft == 'markdown' or vim.bo.ft == 'tex' then
+    return utils.ft[vim.bo.ft].in_normalzone()
+  end
+
+  return true
 end
 
 ---Returns whether the cursor is before a pattern
 ---@param pattern string lua pattern
----@return snip_cond_t
+---@return boolean
 function M.before_pattern(pattern)
-  return lsconds.make_condition(function()
-    return vim.api
-      .nvim_get_current_line()
-      :sub(vim.api.nvim_win_get_cursor(0)[2] + 1)
-      :match('^' .. pattern) ~= nil
-  end)
+  return vim.api
+    .nvim_get_current_line()
+    :sub(vim.fn.col('.'))
+    :match('^' .. pattern) ~= nil
 end
 
 ---Returns whether the cursor is after a pattern
@@ -90,7 +74,7 @@ function M.after_pattern(pattern)
   return lsconds.make_condition(function(_, matched_trigger)
     return vim.api
       .nvim_get_current_line()
-      :sub(1, vim.api.nvim_win_get_cursor(0)[2])
+      :sub(1, vim.fn.col('.') - 1)
       :gsub(vim.pesc(matched_trigger) .. '$', '', 1)
       :match(pattern .. '$') ~= nil
   end)
@@ -102,44 +86,36 @@ end
 function M.at_line_start(_, matched_trigger)
   return vim.api
     .nvim_get_current_line()
-    :sub(1, vim.api.nvim_win_get_cursor(0)[2])
-    :gsub(matched_trigger or '', '') == ''
+    :sub(1, vim.fn.col('.') - 1)
+    :gsub(matched_trigger or '%S*', '') == ''
 end
 
 ---Returns whether the cursor is at the end of a line
 ---@return boolean
 function M.at_line_end()
-  return vim.api.nvim_win_get_cursor(0)[2] == #vim.api.nvim_get_current_line()
+  return vim.fn.col('.') - 1 == #vim.api.nvim_get_current_line()
 end
 
 ---Returns whether the previous line matches a pattern
 ---@param pattern string lua pattern
----@return snip_cond_t
+---@return boolean
 function M.prev_line_matches(pattern)
-  return lsconds.make_condition(function()
-    local lnum = vim.fn.line('.')
-    if lnum <= 1 then
-      return false
-    end
-    return vim.api
-      .nvim_buf_get_lines(0, lnum - 2, lnum - 1, true)[1]
-      :match(pattern) ~= nil
-  end)
+  local lnum = vim.fn.line('.')
+  if lnum <= 1 then
+    return false
+  end
+  return vim.fn.getbufoneline(0, lnum - 1):match(pattern) ~= nil
 end
 
 ---Returns whether the next line matches a pattern
 ---@param pattern string lua pattern
----@return snip_cond_t
+---@return boolean
 function M.next_line_matches(pattern)
-  return lsconds.make_condition(function()
-    local lnum = vim.fn.line('.')
-    if lnum >= vim.api.nvim_buf_line_count(0) then
-      return false
-    end
-    return vim.api
-      .nvim_buf_get_lines(0, lnum, lnum + 1, true)[1]
-      :match(pattern) ~= nil
-  end)
+  local lnum = vim.fn.line('.')
+  if lnum >= vim.api.nvim_buf_line_count(0) then
+    return false
+  end
+  return vim.fn.getbufoneline(0, lnum):match(pattern) ~= nil
 end
 
 return M

@@ -173,6 +173,8 @@ return {
           'supermaven',
         },
         per_filetype = {
+          AvanteInput = { 'supermaven' },
+          codecompanion = { 'supermaven', 'codecompanion' },
           markdown = {
             'lsp',
             'path',

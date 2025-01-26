@@ -16,10 +16,20 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 
--- tabline, statusline, statuscolumn
-vim.go.tabline = [[%!v:lua.require'ui.tabline'()]]
-vim.go.statusline = [[%!v:lua.require'ui.statusline'()]]
-vim.opt.statuscolumn = [[%!v:lua.require'ui.statuscolumn'()]]
+---Load ui elements e.g. tabline, statusline, statuscolumn
+---@param name string
+local function load_ui(name)
+  local loaded_flag = 'loaded_' .. name
+  if vim.g[loaded_flag] ~= nil then
+    return
+  end
+  vim.g[loaded_flag] = true
+  vim.opt[name] = string.format("%%!v:lua.require'ui.%s'()", name)
+end
+
+load_ui('tabline')
+load_ui('statusline')
+load_ui('statuscolumn')
 
 -- z
 vim.api.nvim_create_autocmd({ 'UIEnter', 'CmdlineEnter', 'CmdUndefined' }, {

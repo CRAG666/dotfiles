@@ -76,11 +76,17 @@ function M.in_mathzone()
   return utils.ft.tex.in_mathzone()
 end
 
+---Returns whether the cursor is in comment
+---@return boolean
+function M.in_comment()
+  return require('utils.ts').in_node({ 'comment', 'html_block' })
+end
+
 ---Returns whether the cursor is in normal zone
 ---(not in math zone or code block)
 ---@return boolean
 function M.in_normalzone()
-  return not M.in_mathzone() and not M.in_codeblock()
+  return not M.in_mathzone() and not M.in_codeblock() and not M.in_comment()
 end
 
 return M

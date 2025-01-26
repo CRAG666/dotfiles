@@ -16,7 +16,7 @@ set.undodir = os.getenv('HOME') .. '/.vim/undodir'
 set.undolevels = 10000
 set.backupcopy = 'yes'
 set.fsync = false
-set.lazyredraw = true
+set.lazyredraw = false
 set.splitkeep = 'screen'
 
 -- =============================
@@ -88,7 +88,7 @@ set.updatetime = 200
 -- =============================
 vim.keymap.set('', '<Space>', '<Nop>', { noremap = true, silent = true })
 vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
+vim.g.maplocalleader = ','
 
 -- =============================
 -- Folds

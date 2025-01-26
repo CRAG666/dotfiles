@@ -65,15 +65,18 @@ unbind --mode=ex <C-c>
 "
 " Quickmarks
 "
-quickmark c https://chat.openai.com/chat
+" quickmark t https://translate.google.com/
+quickmark c https://www.doubao.com/chat
+quickmark d https://chat.deepseek.com
 quickmark f https://relay.firefox.com/accounts/profile/
 quickmark g https://github.com/
 quickmark l http://localhost/
-quickmark m https://medium.com/
-quickmark n https://dotfyle.com/this-week-in-neovim
+quickmark m https://copilot.cloud.microsoft/
+quickmark n https://www.notion.so
+quickmark o https://chat.openai.com/chat
 quickmark p https://mail.proton.me/u/1/inbox
 quickmark r https://reddit.com/
-quickmark t https://translate.google.com/
+quickmark s https://claude.ai/new
 quickmark w https://web.whatsapp.com/
 quickmark y https://www.youtube.com/feed/subscriptions
 

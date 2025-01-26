@@ -30,6 +30,7 @@ M.default_config = {
 ---@field flags? table
 ---@field root_dir? string
 ---@field root_patterns? string[]
+---@field requires? string[] additional executables required to start the language server
 
 ---Wrapper of `vim.lsp.start()`, starts and attaches LSP client for
 ---the current buffer
@@ -43,7 +44,12 @@ function M.start(config, opts)
 
   local cmd_type = type(config.cmd)
   local cmd_exec = cmd_type == 'table' and config.cmd[1]
-  if cmd_type == 'table' and vim.fn.executable(cmd_exec or '') == 0 then
+  if
+    cmd_type == 'table' and vim.fn.executable(cmd_exec or '') == 0
+    or vim.iter(config.requires or {}):any(function(e)
+      return vim.fn.executable(e) == 0
+    end)
+  then
     return
   end
 
@@ -56,9 +62,7 @@ function M.start(config, opts)
   local function validate(dir)
     -- For some special buffers like `fugitive:///xxx`, `vim.fs.root()`
     -- returns '.' as result, which is NOT a valid directory
-    return dir ~= '.'
-        and (dir and vim.uv.fs_stat(dir) or {}).type == 'directory'
-        and dir
+    return dir ~= nil and dir ~= '.' and vim.fn.isdirectory(dir) == 1 and dir
       or nil
   end
 
@@ -70,7 +74,22 @@ function M.start(config, opts)
         M.default_config.root_patterns or {}
       )
     )
-  ) or validate(vim.fs.dirname(bufname))
+  )
+
+  -- Some language servers e.g. lua-language-server, refuse
+  -- to use home dir as its root dir and prints an error message
+  --
+  -- 99% of time we don't want have home dir or root dir as lsp root directory
+  -- anyway except when editing `~/.bashrc`, in which case we fallback to
+  -- the file's containing directory (the home directory)
+  if
+    not root_dir
+    or require('utils.fs').is_home_dir(root_dir)
+    or require('utils.fs').is_root_dir(root_dir)
+  then
+    root_dir = validate(vim.fs.dirname(bufname))
+  end
+
   if not root_dir then
     return
   end
