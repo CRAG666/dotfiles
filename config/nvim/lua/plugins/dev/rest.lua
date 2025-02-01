@@ -1,19 +1,14 @@
 return {
   {
-    "rest-nvim/rest.nvim",
-    ft = "http",
-    keys = {
-      {
-        "<leader><leader>r",
-        function()
-          require("rest-nvim").run()
-        end,
-        desc = "[r]un Endpoint",
-      },
-    },
-    dependencies = { "luarocks.nvim" },
+    'rstcruzo/http.nvim',
     config = function()
-      require("rest-nvim").setup()
+      require('http-nvim').setup()
     end,
+    build = { ':TSUpdate http2', ':Http update_grammar_queries' },
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-treesitter/nvim-treesitter',
+      'nvim-telescope/telescope.nvim',
+    },
   },
 }

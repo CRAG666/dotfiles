@@ -1,163 +1,163 @@
-local utils = require "utils.keymap"
-local fn = require "utils.fn"
-local border = require "utils.static.borders"
-local prefix_1 = "<leader>f"
-local git_prefix = "<leader>g"
-local lsp_prefix = "g"
+local utils = require('utils.keymap')
+local fn = require('utils.fn')
+local border = require('utils.static.borders')
+local prefix_1 = '<leader>f'
+local git_prefix = '<leader>g'
+local lsp_prefix = 'g'
 local cwd_conf = {
-  cwd = vim.fs.dirname(vim.fs.find({ ".git" }, { upward = true })[1]),
+  cwd = vim.fs.dirname(vim.fs.find({ '.git' }, { upward = true })[1]),
 }
 
 return {
   {
-    "nvim-telescope/telescope.nvim",
+    'nvim-telescope/telescope.nvim',
     keys = {
       {
-        ";e",
-        fn.telescope_ext "file_browser",
-        desc = "[e]xplorer",
+        ';e',
+        fn.telescope_ext('file_browser'),
+        desc = '[e]xplorer',
       },
       {
-        ";f",
-        fn.telescope_ext "frecency",
-        desc = "[f]requent Files",
+        ';f',
+        fn.telescope_ext('frecency'),
+        desc = '[f]requent Files',
       },
       {
-        ";b",
-        fn.telescope "buffers",
-        desc = "[b]uffers",
+        ';b',
+        fn.telescope('buffers'),
+        desc = '[b]uffers',
       },
       {
-        ";o",
-        fn.telescope "oldfiles",
-        desc = "[o]ld Files",
+        ';o',
+        fn.telescope('oldfiles'),
+        desc = '[o]ld Files',
       },
       {
-        ";s",
-        fn.telescope "treesitter",
-        desc = "[t]reeSitter Symbols",
+        ';s',
+        fn.telescope('treesitter'),
+        desc = '[t]reeSitter Symbols',
       },
       {
-        ";;",
+        ';;',
         function()
-          local builtin = require "telescope.builtin"
+          local builtin = require('telescope.builtin')
           local opts = {} -- define here if you want to define something
           local ok = pcall(builtin.git_files, opts)
           if not ok then
             builtin.find_files(opts)
           end
         end,
-        desc = "Project Files",
+        desc = 'Project Files',
       },
       {
-        ";m",
-        fn.telescope "marks",
-        desc = "[f]ind [m]ars",
+        ';m',
+        fn.telescope('marks'),
+        desc = '[f]ind [m]ars',
       },
       {
-        prefix_1 .. "b",
-        fn.telescope "builtin",
-        desc = "[f]ind [b]uiltin",
+        prefix_1 .. 'b',
+        fn.telescope('builtin'),
+        desc = '[f]ind [b]uiltin',
       },
       {
-        prefix_1 .. "w",
-        fn.telescope "grep_string",
-        desc = "[f]ind [w]ord",
+        prefix_1 .. 'w',
+        fn.telescope('grep_string'),
+        desc = '[f]ind [w]ord',
       },
       {
-        prefix_1 .. "l",
-        fn.telescope("live_grep", cwd_conf),
-        desc = "[f]ind [l]ive Grep",
+        prefix_1 .. 'l',
+        fn.telescope('live_grep', cwd_conf),
+        desc = '[f]ind [l]ive Grep',
       },
       {
-        prefix_1 .. "h",
-        fn.telescope "help_tags",
-        desc = "[f]ind [h]elp tags",
+        prefix_1 .. 'h',
+        fn.telescope('help_tags'),
+        desc = '[f]ind [h]elp tags',
       },
       {
-        prefix_1 .. "s",
-        fn.telescope "search_history",
-        desc = "[f]ind [s]earch History",
+        prefix_1 .. 's',
+        fn.telescope('search_history'),
+        desc = '[f]ind [s]earch History',
       },
       {
-        prefix_1 .. "C",
-        fn.telescope "colorscheme",
-        desc = "[f]ind [C]olorscheme",
+        prefix_1 .. 'C',
+        fn.telescope('colorscheme'),
+        desc = '[f]ind [C]olorscheme',
       },
       {
-        prefix_1 .. "c",
-        fn.telescope "commands",
-        desc = "[f]ind [c]ommands",
+        prefix_1 .. 'c',
+        fn.telescope('commands'),
+        desc = '[f]ind [c]ommands',
       },
       {
-        prefix_1 .. "H",
-        fn.telescope "command_history",
-        desc = "[f]ind commands [H]istory",
+        prefix_1 .. 'H',
+        fn.telescope('command_history'),
+        desc = '[f]ind commands [H]istory',
       },
       {
-        prefix_1 .. "k",
-        fn.telescope "keymaps",
-        desc = "[f]ind [k]eymaps",
+        prefix_1 .. 'k',
+        fn.telescope('keymaps'),
+        desc = '[f]ind [k]eymaps',
       },
       {
-        prefix_1 .. "t",
-        fn.telescope "filetypes",
-        desc = "[f]ile[t]ype",
+        prefix_1 .. 't',
+        fn.telescope('filetypes'),
+        desc = '[f]ile[t]ype',
       },
       {
-        prefix_1 .. "f",
-        fn.telescope "current_buffer_fuzzy_find",
-        desc = "[f]uzzy [f]ind",
+        prefix_1 .. 'f',
+        fn.telescope('current_buffer_fuzzy_find'),
+        desc = '[f]uzzy [f]ind',
       },
       {
-        prefix_1 .. "j",
-        fn.telescope "jumplist",
-        desc = "[f]ind [j]umplist",
+        prefix_1 .. 'j',
+        fn.telescope('jumplist'),
+        desc = '[f]ind [j]umplist',
       },
       {
-        prefix_1 .. "q",
-        fn.telescope "quickfix",
-        desc = "[f]ind [q]uickfix",
+        prefix_1 .. 'q',
+        fn.telescope('quickfix'),
+        desc = '[f]ind [q]uickfix',
       },
       {
-        prefix_1 .. "u",
-        fn.telescope_ext "undo",
-        desc = "[f]ind undo",
+        prefix_1 .. 'u',
+        fn.telescope_ext('undo'),
+        desc = '[f]ind undo',
       },
       {
-        lsp_prefix .. "d",
-        fn.telescope "lsp_definitions",
-        desc = "LSP [d]efinitions",
+        lsp_prefix .. 'd',
+        fn.telescope('lsp_definitions'),
+        desc = 'LSP [d]efinitions',
       },
       {
-        lsp_prefix .. "R",
-        fn.telescope "lsp_references",
-        desc = "LSP [r]eferences",
+        lsp_prefix .. 'R',
+        fn.telescope('lsp_references'),
+        desc = 'LSP [r]eferences',
       },
       {
-        lsp_prefix .. "s",
-        fn.telescope "lsp_document_symbols",
-        desc = "LSP [s]ymbols",
+        lsp_prefix .. 's',
+        fn.telescope('lsp_document_symbols'),
+        desc = 'LSP [s]ymbols',
       },
       {
-        lsp_prefix .. "i",
-        fn.telescope "lsp_implementations",
-        desc = "LSP [i]mplementations",
+        lsp_prefix .. 'i',
+        fn.telescope('lsp_implementations'),
+        desc = 'LSP [i]mplementations',
       },
       {
-        ";dd",
-        fn.telescope("diagnostics", { bufnr = 0 }),
-        desc = "LSP [d]iagnostics",
+        ';dd',
+        fn.telescope('diagnostics', { bufnr = 0 }),
+        desc = 'LSP [d]iagnostics',
       },
       {
-        ";dw",
-        fn.telescope "diagnostics",
-        desc = "LSP [d]iagnostics Workspace",
+        ';dw',
+        fn.telescope('diagnostics'),
+        desc = 'LSP [d]iagnostics Workspace',
       },
       {
-        "<leader>ss",
-        fn.telescope("spell_suggest", {
-          layout_strategy = "cursor",
+        '<leader>ss',
+        fn.telescope('spell_suggest', {
+          layout_strategy = 'cursor',
           layout_config = {
             cursor = {
               height = 0.35,
@@ -166,54 +166,54 @@ return {
             },
           },
         }),
-        desc = "[s]pell [s]uggest",
+        desc = '[s]pell [s]uggest',
       },
       {
-        git_prefix .. "b",
-        fn.telescope "git_branches",
-        desc = "[g]it [b]ranches",
+        git_prefix .. 'b',
+        fn.telescope('git_branches'),
+        desc = 'Git [b]ranches',
       },
       {
-        git_prefix .. "S",
-        fn.telescope "git_stash",
-        desc = "[g]it [S]tash",
+        git_prefix .. 'S',
+        fn.telescope('git_stash'),
+        desc = 'Git [S]tash',
       },
     },
     config = function()
-      local actions = require "telescope.actions"
-      local previewers = require "telescope.previewers"
+      local actions = require('telescope.actions')
+      local previewers = require('telescope.previewers')
       local mappings = {
         i = {
-          ["<CR>"] = actions.select_tab,
-          ["<C-l>"] = actions.select_default,
+          ['<CR>'] = actions.select_tab,
+          ['<C-l>'] = actions.select_default,
         },
         n = {
-          ["<CR>"] = actions.select_tab,
-          ["l"] = actions.select_default,
+          ['<CR>'] = actions.select_tab,
+          ['l'] = actions.select_default,
         },
       }
-      require("telescope").setup {
+      require('telescope').setup({
         defaults = {
           vimgrep_arguments = {
-            "rg",
-            "--color=never",
-            "--no-heading",
-            "--with-filename",
-            "--line-number",
-            "--column",
-            "--smart-case",
+            'rg',
+            '--color=never',
+            '--no-heading',
+            '--with-filename',
+            '--line-number',
+            '--column',
+            '--smart-case',
           },
-          prompt_prefix = "  ",
-          selection_caret = "» ",
-          entry_prefix = "  ",
-          initial_mode = "normal",
-          selection_strategy = "reset",
-          sorting_strategy = "ascending",
-          layout_strategy = "bottom_pane",
+          prompt_prefix = '  ',
+          selection_caret = '» ',
+          entry_prefix = '  ',
+          initial_mode = 'normal',
+          selection_strategy = 'reset',
+          sorting_strategy = 'ascending',
+          layout_strategy = 'bottom_pane',
           -- layout_strategy = "horizontal",
           layout_config = {
             horizontal = {
-              prompt_position = "top",
+              prompt_position = 'top',
               -- preview_width = 0.55,
               -- results_width = 0.8,
               preview_cutoff = 0,
@@ -225,13 +225,13 @@ return {
           -- file_sorter = require("telescope.sorters").get_fuzzy_file,
           file_ignore_patterns = {},
           -- generic_sorter = require("telescope.sorters").get_generic_fuzzy_sorter,
-          path_display = { "absolute" },
+          path_display = { 'absolute' },
           winblend = 0,
           border = {},
           borderchars = border.rounded_clc,
           color_devicons = true,
           use_less = true,
-          set_env = { ["COLORTERM"] = "truecolor" }, -- default = nil,
+          set_env = { ['COLORTERM'] = 'truecolor' }, -- default = nil,
           file_previewer = previewers.vim_buffer_cat.new,
           grep_previewer = previewers.vim_buffer_vimgrep.new,
           qflist_previewer = previewers.vim_buffer_qflist.new,
@@ -240,7 +240,7 @@ return {
         },
         pickers = {
           find_files = {
-            find_command = { "fd", "--type", "f", "--strip-cwd-prefix" },
+            find_command = { 'fd', '--type', 'f', '--strip-cwd-prefix' },
             mappings = mappings,
           },
           git_files = {
@@ -260,7 +260,7 @@ return {
           },
         },
         extensions = {
-          ["zf-native"] = {
+          ['zf-native'] = {
             -- options for sorting file-like items
             file = {
               -- override default telescope file sorter
@@ -304,85 +304,90 @@ return {
           frecency = {
             mappings = mappings,
             show_unindexed = false,
-            ignore_patterns = { "*.git/*", "*/tmp/*" },
+            ignore_patterns = { '*.git/*', '*/tmp/*' },
             workspaces = {
-              ["dotfiles"] = "~/Git/dotfiles",
+              ['dotfiles'] = '~/Git/dotfiles',
             },
           },
         },
-      }
-      local extensions = { "zf-native", "frecency", "file_browser", "undo" }
+      })
+      local extensions = { 'zf-native', 'frecency', 'file_browser', 'undo' }
       for _, extension in ipairs(extensions) do
-        require("telescope").load_extension(extension)
+        require('telescope').load_extension(extension)
       end
 
-      local builtin = require "telescope.builtin"
+      local builtin = require('telescope.builtin')
 
       git_bcommits = function()
         local opt_commits = {}
-        opt_commits.previewer = previewers.new_termopen_previewer {
+        opt_commits.previewer = previewers.new_termopen_previewer({
           get_command = function(entry)
             return {
-              "git",
-              "-c",
-              "core.pager=delta",
-              "-c",
-              "delta.pager=less -R",
-              "show",
+              'git',
+              '-c',
+              'core.pager=delta',
+              '-c',
+              'delta.pager=less -R',
+              'show',
               entry.value,
             }
           end,
-        }
+        })
 
         builtin.git_bcommits(opt_commits)
       end
       git_status = function()
         local opt_status = {}
-        opt_status.previewer = previewers.new_termopen_previewer {
+        opt_status.previewer = previewers.new_termopen_previewer({
           get_command = function(entry)
             -- vim.print(entry)
-            if entry.status == " D" then
-              return { "git", "show", "HEAD:" .. entry.value }
-            elseif entry.status == "??" then
-              return { "bat", "--style=plain", entry.path }
+            if entry.status == ' D' then
+              return { 'git', 'show', 'HEAD:' .. entry.value }
+            elseif entry.status == '??' then
+              return { 'bat', '--style=plain', entry.path }
             end
             return {
-              "git",
-              "-c",
-              "core.pager=delta",
-              "-c",
-              "delta.pager=less -R",
-              "diff",
+              'git',
+              '-c',
+              'core.pager=delta',
+              '-c',
+              'delta.pager=less -R',
+              'diff',
               entry.path,
             }
           end,
-        }
-        local icons = require("utils.static.icons").git
+        })
+        local icons = require('utils.static.icons').git
         opt_status.git_icons = {
           added = icons.Added,
           changed = icons.Modified,
           copied = icons.Changedelete,
           deleted = icons.Removed,
-          renamed = "R",
-          unmerged = "U",
+          renamed = 'R',
+          unmerged = 'U',
           untracked = icons.Untracked,
         }
 
         builtin.git_status(opt_status)
       end
-      utils.map("n", git_prefix .. "c", git_bcommits, { desc = "[g]it Buffer [c]ommits" })
-      utils.map("n", git_prefix .. "s", git_status, { desc = "[g]it [s]tatus" })
+      utils.map(
+        'n',
+        git_prefix .. 'c',
+        git_bcommits,
+        { desc = 'Git Buffer [c]ommits' }
+      )
+      utils.map('n', git_prefix .. 's', git_status, { desc = 'Git [s]tatus' })
     end,
     dependencies = {
-      "nvim-lua/popup.nvim",
-      "nvim-lua/plenary.nvim",
-      "natecraddock/telescope-zf-native.nvim",
-      "debugloop/telescope-undo.nvim",
+      'nvim-lua/popup.nvim',
+      'nvim-lua/plenary.nvim',
+      'natecraddock/telescope-zf-native.nvim',
+      'debugloop/telescope-undo.nvim',
       {
-        "nvim-telescope/telescope-frecency.nvim",
-        dependencies = { "kkharji/sqlite.lua" },
+        'nvim-telescope/telescope-frecency.nvim',
+        dependencies = { 'kkharji/sqlite.lua' },
       },
-      "nvim-telescope/telescope-file-browser.nvim",
+      'nvim-telescope/telescope-file-browser.nvim',
     },
   },
 }

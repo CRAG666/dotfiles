@@ -1,4 +1,5 @@
-vim.bo.textwidth = 80
+vim.bo.textwidth = 100
+vim.opt_local.wrap = true
 vim.bo.commentstring = '% %s'
 
 local utils = require('code_runner.hooks.utils')
