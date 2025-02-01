@@ -35,11 +35,10 @@ M.snippets = {
       expr = i(1),
     })
   ),
-  us.msn(
+  us.sn(
     {
-      { trig = 'ck' },
-      { trig = 'check' },
-      common = { desc = 'Inspect through f-string' },
+      trig = 'ck',
+      desc = 'Inspect through f-string',
     },
     un.fmtad('f<q><expr_escaped>: {<expr>}<q>', {
       q = un.qt(),
@@ -50,11 +49,10 @@ M.snippets = {
       end, { 1 }),
     })
   ),
-  us.msn(
+  us.sn(
     {
-      { trig = 'pck' },
-      { trig = 'pcheck' },
-      common = { desc = 'Inspect through print()' },
+      trig = 'pck',
+      desc = 'Inspect through print()',
     },
     un.fmtad('print(f<q><expr_escaped>: {<expr>}<q><e>)', {
       q = un.qt(),
@@ -309,7 +307,6 @@ M.snippets = {
       { trig = 'fn' },
       { trig = 'fun' },
       { trig = 'func' },
-      { trig = 'function' },
       { trig = 'def' },
       common = { desc = 'Function definition' },
     },

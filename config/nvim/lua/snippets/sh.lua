@@ -7,7 +7,6 @@ local t = ls.text_node
 local i = ls.insert_node
 local c = ls.choice_node
 local d = ls.dynamic_node
-local f = ls.function_node
 
 ---Check if current file is bash
 ---@return boolean
@@ -22,18 +21,6 @@ local function is_bash()
   return first_line:match('^#!.*bash') ~= nil
 end
 
----Determine opening bracket type based on file detection
----@return string
-local function get_lbrkt()
-  return is_bash() and '[[' or '['
-end
-
----Determine closing bracket type based on file detection
----@return string
-local function get_rbrkt()
-  return is_bash() and ']]' or ']'
-end
-
 M.snippets = {
   us.mssn({
     { trig = 'sb' },
@@ -46,13 +33,13 @@ M.snippets = {
         nil,
         c(1, is_bash() and {
           i(nil, '/usr/bin/env bash'),
-          i(nil, '/bin/bash'),
           i(nil, '/usr/bin/env sh'),
+          i(nil, '/bin/bash'),
           i(nil, '/bin/sh'),
         } or {
           i(nil, '/usr/bin/env sh'),
-          i(nil, '/bin/sh'),
           i(nil, '/usr/bin/env bash'),
+          i(nil, '/bin/sh'),
           i(nil, '/bin/bash'),
         })
       )
@@ -65,15 +52,13 @@ M.snippets = {
     },
     un.fmtad(
       [[
-        if <lbrkt> <cond> <rbrkt>; then
+        if <cond>; then
         <body>
         fi
       ]],
       {
-        lbrkt = f(get_lbrkt),
-        rbrkt = f(get_rbrkt),
-        cond = i(1),
-        body = un.body(2, 1),
+        cond = i(1, 'true'),
+        body = un.body(2, 1, ':'),
       }
     )
   ),
@@ -86,18 +71,16 @@ M.snippets = {
     },
     un.fmtad(
       [[
-        if <lbrkt> <cond> <rbrkt>; then
+        if <cond>; then
         <body>
         else
         <idnt><else_body>
         fi
       ]],
       {
-        lbrkt = f(get_lbrkt),
-        rbrkt = f(get_rbrkt),
-        cond = i(1),
-        body = un.body(2, 1),
-        else_body = i(3),
+        cond = i(1, 'true'),
+        body = un.body(2, 1, ':'),
+        else_body = i(3, ':'),
         idnt = un.idnt(1),
       }
     )
@@ -110,14 +93,12 @@ M.snippets = {
     },
     un.fmtad(
       [[
-        elif <lbrkt> <cond> <rbrkt>; then
+        elif <cond>; then
         <body>
       ]],
       {
-        lbrkt = f(get_lbrkt),
-        rbrkt = f(get_rbrkt),
-        cond = i(1),
-        body = un.body(2, 1),
+        cond = i(1, 'true'),
+        body = un.body(2, 1, ':'),
       }
     )
   ),
@@ -135,7 +116,7 @@ M.snippets = {
       {
         var = i(1, 'item'),
         items = i(2, '${items[@]}'),
-        body = un.body(3, 1),
+        body = un.body(3, 1, ':'),
       }
     )
   ),
@@ -147,23 +128,21 @@ M.snippets = {
     },
     un.fmtad(
       [[
-        while <lbrkt> <cond> <rbrkt>; do
+        while <cond>; do
         <body>
         done
       ]],
       {
-        lbrkt = f(get_lbrkt),
-        rbrkt = f(get_rbrkt),
-        cond = i(1),
-        body = un.body(2, 1),
+        cond = i(1, 'false'),
+        body = un.body(2, 1, ':'),
       }
     )
   ),
   us.msn(
     {
       { trig = 'fn' },
+      { trig = 'fun' },
       { trig = 'func' },
-      { trig = 'function' },
       common = { desc = 'Function definition' },
     },
     un.fmtad(
@@ -196,7 +175,7 @@ M.snippets = {
       {
         expr = i(1, '$1'),
         pattern = i(2, '*'),
-        body = un.body(3, 2),
+        body = un.body(3, 2, ':'),
         idnt = un.idnt(1),
       }
     )
@@ -214,7 +193,7 @@ M.snippets = {
       ]],
       {
         pattern = i(1, '*'),
-        body = un.body(2, 1),
+        body = un.body(2, 1, ':'),
       }
     )
   ),
@@ -232,7 +211,7 @@ M.snippets = {
       {
         var = i(1, 'item'),
         items = i(2, '${items[@]}'),
-        body = un.body(3, 1),
+        body = un.body(3, 1, ':'),
       }
     )
   ),
@@ -243,15 +222,13 @@ M.snippets = {
     },
     un.fmtad(
       [[
-        until <lbrkt> <cond> <rbrkt>; do
+        until <cond>; do
         <body>
         done
       ]],
       {
-        lbrkt = f(get_lbrkt),
-        rbrkt = f(get_rbrkt),
-        cond = i(1),
-        body = un.body(2, 1),
+        cond = i(1, 'true'),
+        body = un.body(2, 1, ':'),
       }
     )
   ),
@@ -295,8 +272,6 @@ M.snippets = {
     {
       { trig = 'pck' },
       { trig = 'eck' },
-      { trig = 'pcheck' },
-      { trig = 'echeck' },
       common = { desc = 'Debug check expression value' },
     },
     un.fmtad([[echo '<v_esc>:' <v>]], {
@@ -307,14 +282,11 @@ M.snippets = {
       end, { 1 }),
     })
   ),
-  us.msn(
+  us.sn(
     {
-      { trig = 'ck' },
-      { trig = 'check' },
-      common = {
-        priority = 999,
-        desc = 'Debug check expression value (cont.)',
-      },
+      trig = 'ck',
+      priority = 999,
+      desc = 'Debug check expression value (cont.)',
     },
     un.fmtad([['<v_esc>:' <v>]], {
       v = i(1, '"$var"'),
@@ -358,7 +330,7 @@ M.snippets = {
   us.msn(
     {
       { trig = 'go' },
-      { trig = 'getopts' },
+      { trig = 'geto' },
       common = { desc = 'getopts option parsing' },
     },
     un.fmtad(
@@ -371,7 +343,7 @@ M.snippets = {
       ]],
       {
         opts = i(1, 'abc:'),
-        body = un.body(2, 2),
+        body = un.body(2, 2, ':'),
         idnt = un.idnt(1),
       }
     )
@@ -384,9 +356,9 @@ M.snippets = {
     un.fmtad('trap <cmd> <sig>', {
       cmd = i(1, 'cleanup'),
       sig = c(2, {
-        t('EXIT'),
-        t('SIGINT SIGTERM'),
-        t('ERR'),
+        i(nil, 'EXIT'),
+        i(nil, 'SIGINT SIGTERM'),
+        i(nil, 'ERR'),
       }),
     })
   ),

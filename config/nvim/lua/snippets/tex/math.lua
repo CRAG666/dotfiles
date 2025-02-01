@@ -12,14 +12,12 @@ local r = ls.restore_node
 
 return {
   us.samWr({ trig = '(%a)(%d)' }, {
-    d(1, function(_, snip)
-      local symbol = snip.captures[1]
-      local subscript = snip.captures[2]
-      return sn(nil, {
-        t(symbol),
-        t('_'),
-        t(subscript),
-      })
+    f(function(_, parent)
+      return string.format(
+        '%s_%s',
+        parent.snippet.captures[1],
+        parent.snippet.captures[2]
+      )
     end),
   }),
   us.msamWr({
@@ -779,6 +777,11 @@ return {
     i(1, 'X'),
     t('\\right)'),
   }),
+  us.sam({ trig = 'eva' }, {
+    t('\\operatorname{E}\\left['),
+    i(1, 'X'),
+    t('\\right]'),
+  }),
   us.sam({ trig = 'mse' }, { t('\\operatorname{MSE}') }),
   us.sam({ trig = 'err' }, { t('\\operatorname{error}') }),
   us.sam(
@@ -800,5 +803,54 @@ return {
       '\\mathcal{N} \\left(<mean>, <var>\\right)',
       { mean = i(1, '\\mu'), var = i(2, '\\sigma^2') }
     )
+  ),
+
+  -- Math env
+  -- Press double '$' -> $|$ -> press '$' again -> multi-line math env
+  -- Also support visual snippet:
+  -- -> select text
+  -- -> press snippet trigger (`<Tab>`)
+  -- -> press double '$'
+  -- -> inline or multi-line math env with selected text as content
+  us.sa({
+    trig = '$',
+    condition = function()
+      local line = vim.api.nvim_get_current_line()
+      local col = vim.api.nvim_win_get_cursor(0)[2]
+      if line:sub(col + 1, col + 1) == '$' then
+        vim.api.nvim_set_current_line(line:sub(1, -2))
+        return true
+      end
+      return false
+    end,
+  }, {
+    t({ '$', '' }),
+    un.idnt(1),
+    i(1),
+    t({ '', '$$' }),
+  }),
+
+  us.sa(
+    { trig = '$$', priority = 999 },
+    d(1, function(_, snip)
+      local sel_dedent = snip.env.LS_SELECT_DEDENT
+      local sel_raw = snip.env.LS_SELECT_RAW
+
+      if #sel_raw == 0 or #sel_raw == 1 and sel_raw[1]:match('^%S') then
+        return sn(nil, { t('$'), i(1, sel_raw), t('$') })
+      end
+
+      for idx = 2, #sel_dedent do
+        if sel_dedent[idx]:match('%S') then
+          sel_dedent[idx] = uf.get_indent_str(1) .. sel_dedent[idx]
+        end
+      end
+      return sn(nil, {
+        t({ '$$', '' }),
+        un.idnt(1),
+        i(1, sel_dedent),
+        t({ '', '$$' }),
+      })
+    end)
   ),
 }

@@ -98,11 +98,10 @@ M.snippets = {
       }),
     })
   ),
-  us.msn(
+  us.sn(
     {
-      { trig = 'ck' },
-      { trig = 'check' },
-      common = { desc = 'Inspect through formatted string' },
+      trig = 'ck',
+      desc = 'Inspect through formatted string',
     },
     un.fmtad('"<expr_escaped>: <placeholder>\\n", <expr>', {
       expr = i(1),
@@ -124,11 +123,10 @@ M.snippets = {
       }),
     })
   ),
-  us.msn(
+  us.sn(
     {
-      { trig = 'pck' },
-      { trig = 'pcheck' },
-      common = { desc = 'Inspect through printf()' },
+      trig = 'pck',
+      desc = 'Inspect through printf()',
     },
     un.fmtad('printf("<expr_escaped>: <placeholder>\\n", <expr>);', {
       expr = i(1),
@@ -150,11 +148,10 @@ M.snippets = {
       }),
     })
   ),
-  us.msn(
+  us.sn(
     {
-      { trig = 'dpck' },
-      { trig = 'dpcheck' },
-      common = { desc = 'Inspect through dbg_printf()' },
+      trig = 'dpck',
+      desc = 'Inspect through dbg_printf()',
     },
     un.fmtad('dbg_printf("<expr_escaped>: <placeholder>\\n", <expr>);', {
       expr = i(1),
@@ -521,7 +518,6 @@ M.snippets = {
       { trig = 'fn' },
       { trig = 'fun' },
       { trig = 'func' },
-      { trig = 'function' },
       common = { desc = 'Function definition/declaration' },
     },
     c(1, {

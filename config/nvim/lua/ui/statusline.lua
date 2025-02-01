@@ -85,24 +85,51 @@ end
 ---Get diff stats for current buffer
 ---@return string
 function _G._statusline.gitdiff()
-  -- Integration with gitsigns.nvim
-  ---@diagnostic disable-next-line: undefined-field
   local diff = vim.b.gitsigns_status_dict or utils.git.diffstat()
   local added = diff.added or 0
   local changed = diff.changed or 0
   local removed = diff.removed or 0
-  if added == 0 and removed == 0 and changed == 0 then
+
+  if added + changed + removed == 0 then
     return ''
   end
-  return string.format(
-    '%s %d %s %d %s %d',
-    utils.stl.hl(tostring(icons.git.Added), 'StatusLineGitAdded'),
-    added,
-    utils.stl.hl(tostring(icons.git.Modified), 'StatusLineGitChanged'),
-    changed,
-    utils.stl.hl(tostring(icons.git.Removed), 'StatusLineGitRemoved'),
-    removed
-  )
+
+  local parts = {}
+
+  if added > 0 then
+    table.insert(
+      parts,
+      string.format(
+        '%s %d',
+        utils.stl.hl(tostring(icons.git.Added), 'StatusLineGitAdded'),
+        added
+      )
+    )
+  end
+
+  if changed > 0 then
+    table.insert(
+      parts,
+      string.format(
+        '%s %d',
+        utils.stl.hl(tostring(icons.git.Modified), 'StatusLineGitChanged'),
+        changed
+      )
+    )
+  end
+
+  if removed > 0 then
+    table.insert(
+      parts,
+      string.format(
+        '%s %d',
+        utils.stl.hl(tostring(icons.git.Removed), 'StatusLineGitRemoved'),
+        removed
+      )
+    )
+  end
+
+  return table.concat(parts, ' ')
 end
 
 ---Get string representation of current git branch

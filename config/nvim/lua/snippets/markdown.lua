@@ -11,7 +11,7 @@ local d = ls.dynamic_node
 M.math = require('snippets.tex.math')
 
 M.snippets = {
-  us.msn({
+  us.mssn({
     { trig = 'h1' },
     {
       trig = '# ',
@@ -31,15 +31,12 @@ M.snippets = {
         vim.fn.fnamemodify(fname, ':t:r'):gsub('^%d*_*', ''):gsub('_', ' ')
       local title_words = vim.fn.split(title, '\\W\\zs', 0)
       for idx, word in ipairs(title_words) do
-        local word_lower = word:lower()
-        local word_lower_trimmed = vim.trim(word_lower)
         title_words[idx] = (
           idx == 1 -- first word should always be capitalized
-          or #word_lower_trimmed >= 3
-            and not _G._title_lowercase_words[word_lower_trimmed]
+          or not _G._title_lowercase_words[vim.trim(word:lower())]
         )
-            and word_lower:gsub('^%l', string.upper)
-          or word_lower
+            and word:gsub('^%l', string.upper)
+          or word
       end
       return sn(nil, i(1, table.concat(title_words)))
     end),

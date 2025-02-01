@@ -9,8 +9,19 @@ local utils = require('utils')
 ---@operator pow: snip_cond_t
 ---@operator mod: snip_cond_t
 
----@class snip_conds_t
----@field make_condition function
+---@alias snip_conds_t table<string, fun(...): (fun(...): boolean)>
+
+---Snippet condition functions
+---Fields are automatically wrapped with `lsconds.make_condition()` so that
+---they can be used as luasnip condition objects and supports operators like
+---`*`, `^`, etc.
+---
+---When defining a function with arguments, remember to return a function
+---that returns a boolean instead of the boolean itself so that it can work
+---with the operators unless taking `line_to_cursor`, `matched_trigger`, and
+---`captures` (passed in by luasnip) as arguments, see
+---`LuaSnip/lua/luasnip/extras/conditions/init.lua`
+---@type snip_conds_t
 local M = setmetatable({ _ = {} }, {
   __newindex = function(self, k, v)
     rawset(self, k, lsconds.make_condition(v))
@@ -32,9 +43,11 @@ end
 ---Returns whether current cursor is in a comment
 ---@param type string|string[]
 ---@param opts vim.treesitter.get_node.Opts?
----@return boolean
+---@return fun(): boolean
 function M.in_tsnode(type, opts)
-  return utils.ts.in_node(type, opts)
+  return function()
+    return utils.ts.in_node(type, opts)
+  end
 end
 
 ---Returns whether the cursor is in a normal zone
@@ -58,12 +71,14 @@ end
 
 ---Returns whether the cursor is before a pattern
 ---@param pattern string lua pattern
----@return boolean
+---@return fun(): boolean
 function M.before_pattern(pattern)
-  return vim.api
-    .nvim_get_current_line()
-    :sub(vim.fn.col('.'))
-    :match('^' .. pattern) ~= nil
+  return function()
+    return vim.api
+      .nvim_get_current_line()
+      :sub(vim.fn.col('.'))
+      :match('^' .. pattern) ~= nil
+  end
 end
 
 ---Returns whether the cursor is after a pattern
@@ -98,24 +113,28 @@ end
 
 ---Returns whether the previous line matches a pattern
 ---@param pattern string lua pattern
----@return boolean
+---@return fun(): boolean
 function M.prev_line_matches(pattern)
-  local lnum = vim.fn.line('.')
-  if lnum <= 1 then
-    return false
+  return function()
+    local lnum = vim.fn.line('.')
+    if lnum <= 1 then
+      return false
+    end
+    return vim.fn.getbufoneline(0, lnum - 1):match(pattern) ~= nil
   end
-  return vim.fn.getbufoneline(0, lnum - 1):match(pattern) ~= nil
 end
 
 ---Returns whether the next line matches a pattern
 ---@param pattern string lua pattern
----@return boolean
+---@return fun(): boolean
 function M.next_line_matches(pattern)
-  local lnum = vim.fn.line('.')
-  if lnum >= vim.api.nvim_buf_line_count(0) then
-    return false
+  return function()
+    local lnum = vim.fn.line('.')
+    if lnum >= vim.api.nvim_buf_line_count(0) then
+      return false
+    end
+    return vim.fn.getbufoneline(0, lnum):match(pattern) ~= nil
   end
-  return vim.fn.getbufoneline(0, lnum):match(pattern) ~= nil
 end
 
 return M

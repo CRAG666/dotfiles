@@ -171,55 +171,90 @@ function M.restart(client_or_id, opts)
   })
 end
 
----Check if range1 contains range2
----Strict indexing -- if range1 == range2, return false
+---Check if `range1` contains `range2`
 ---@param range1 lsp_range_t 0-based range
 ---@param range2 lsp_range_t 0-based range
+---@param strict boolean? only return true if `range1` fully contains `range2` (no overlapping boundaries), default false
 ---@return boolean
-function M.range_contains(range1, range2)
+function M.range_contains(range1, range2, strict)
+  local start_line1 = range1.start.line
+  local start_char1 = range1.start.character
+  local end_line1 = range1['end'].line
+  local end_char1 = range1['end'].character
+  local start_line2 = range2.start.line
+  local start_char2 = range2.start.character
+  local end_line2 = range2['end'].line
+  local end_char2 = range2['end'].character
   -- stylua: ignore start
   return (
-    range2.start.line > range1.start.line
-    or (range2.start.line == range1.start.line
-        and range2.start.character > range1.start.character)
+    start_line2 > start_line1
+    or (start_line2 == start_line1
+        and (
+          start_char2 > start_char1
+          or not strict and start_char2 == start_char1
+        )
+      )
     )
     and (
-      range2.start.line < range1['end'].line
-      or (range2.start.line == range1['end'].line
-          and range2.start.character < range1['end'].character)
-    )
+      start_line2 < end_line1
+      or (
+        start_line2 == end_line1
+          and (
+            start_char2 < end_char1
+            or not strict and start_char2 == start_char1
+          )
+        )
+      )
     and (
-      range2['end'].line > range1.start.line
-      or (range2['end'].line == range1.start.line
-          and range2['end'].character > range1.start.character)
-    )
+      end_line2 > start_line1
+      or (
+        end_line2 == start_line1
+          and (
+            end_char2 > start_char1
+            or not strict and end_char2 == end_char1
+          )
+        )
+      )
     and (
-      range2['end'].line < range1['end'].line
-      or (range2['end'].line == range1['end'].line
-          and range2['end'].character < range1['end'].character)
-    )
-  -- stylua: ignore end
+      end_line2 < end_line1
+      or (
+        end_line2 == end_line1
+          and (
+            end_char2 < end_char1
+            or not strict and end_char2 == end_char1
+          )
+        )
+      )
+  -- stylua: ignore off
 end
 
 ---Check if cursor is in range
 ---@param range lsp_range_t 0-based range
 ---@param cursor integer[]? cursor position (line, character); (1, 0)-based
+---@param strict boolean? only return true if `cursor` is fully contained in `range` (not on the boundary), default false
 ---@return boolean
-function M.range_contains_cursor(range, cursor)
+function M.range_contains_cursor(range, cursor, strict)
   cursor = cursor or vim.api.nvim_win_get_cursor(0)
-  local cursor0 = { cursor[1] - 1, cursor[2] }
-  -- stylua: ignore start
+  local line = cursor[1] - 1
+  local char = cursor[2]
+  local start_line = range.start.line
+  local start_char = range.start.character
+  local end_line = range['end'].line
+  local end_char = range['end'].character
   return (
-    cursor0[1] > range.start.line
-    or (cursor0[1] == range.start.line
-        and cursor0[2] >= range.start.character)
+    line > start_line
+    or (
+      line == start_line
+      and (char > start_char or not strict and char == end_char)
+    )
   )
     and (
-      cursor0[1] < range['end'].line
-      or (cursor0[1] == range['end'].line
-          and cursor0[2] <= range['end'].character)
+      line < end_line
+      or (
+        line == end_line
+        and (char < end_char or not strict and char == end_char)
+      )
     )
-  -- stylua: ignore end
 end
 
 return M

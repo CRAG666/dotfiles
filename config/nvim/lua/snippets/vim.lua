@@ -14,7 +14,6 @@ M.snippets = {
     { trig = 'p' },
     { trig = 'e' },
     { trig = 'ech' },
-    { trig = 'echom' },
   }, t('echom ')),
   us.msn(
     {
@@ -44,8 +43,6 @@ M.snippets = {
     {
       { trig = 'pck' },
       { trig = 'eck' },
-      { trig = 'pcheck' },
-      { trig = 'echeck' },
     },
     un.fmtad('echom <q><v_esc>: <q> <v>', {
       q = un.qt(),
@@ -60,7 +57,6 @@ M.snippets = {
     {
       common = { priority = 999 },
       { trig = 'ck' },
-      { trig = 'check' },
     },
     un.fmtad('<q><v_esc>: <q> <v>', {
       q = un.qt(),
@@ -76,7 +72,6 @@ M.snippets = {
       { trig = 'fn' },
       { trig = 'fun' },
       { trig = 'func' },
-      { trig = 'function' },
     },
     un.fmtad(
       [[

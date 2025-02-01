@@ -116,19 +116,6 @@ source ${ZIM_HOME}/init.zsh
 # ------------------------------
 
 #
-# zsh-history-substring-search
-#
-
-# zmodload -F zsh/terminfo +p:terminfo
-# Bind ^[[A/^[[B manually so up/down works both before and after zle-line-init
-for key ('^[[A' '^P' ${terminfo[kcuu1]}) bindkey ${key} history-substring-search-up
-for key ('^[[B' '^N' ${terminfo[kcud1]}) bindkey ${key} history-substring-search-down
-for key ('k') bindkey -M vicmd ${key} history-substring-search-up
-for key ('j') bindkey -M vicmd ${key} history-substring-search-down
-unset key
-# }}} End configuration added by Zim install
-
-#
 # fzf-tab preview
 #
 
@@ -257,7 +244,6 @@ export MARPT=~/Documentos/Proyectos/Writings/utils/marp/themes
 export EISVOGEL=~/Documentos/Proyectos/Writings/utils/latex/eisvogel.tex
 export IEEESTL=~/Documentos/Proyectos/Writings/utils/latex/ieee.csl
 export LCOLORCATPPUCCIN=~/Documentos/Proyectos/Writings/utils/latex/catppuccin
-source ~/.utils.zsh
 
 # BEGIN_KITTY_SHELL_INTEGRATION
 export TERM="xterm-kitty"
@@ -276,7 +262,6 @@ fi
 # END_KITTY_SHELL_INTEGRATION
 
 source ~/.zshfunc
-source ~/.keys
 export PASSWORD_STORE_ENABLE_EXTENSIONS=true
 export NVM_NF=true
 # FPATH="/usr/share/zsh/site-functions:${FPATH}"

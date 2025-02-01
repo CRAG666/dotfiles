@@ -66,6 +66,7 @@ local iter = 1
 local fn = require('utils.fn')
 local root_path = nil
 local log_file = nil
+local pdf = nil
 local function check_and_process_log()
   root_path = root_path or vim.lsp.buf.list_workspace_folders()[1]
   log_file = log_file or root_path .. '/build/default/default.log'
@@ -82,10 +83,10 @@ local function check_and_process_log()
       iter = 1
       vim.cmd('cclose')
       vim.fn.setqflist({}, 'r', { title = 'Tectonic Errors', items = {} })
-      utils.preview_open(
-        root_path .. '/build/default/default.pdf',
-        '/bin/zathura'
-      )
+      pdf = pdf or root_path .. '/build/default/default.pdf'
+      if vim.uv.fs_stat(pdf) then
+        utils.preview_open(pdf, '/bin/zathura')
+      end
     end
   end
 end
