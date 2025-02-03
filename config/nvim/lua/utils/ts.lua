@@ -35,48 +35,47 @@ end
 ---insert mode
 ---@param opts vim.treesitter.get_node.Opts?
 function M.get_node(opts)
-  return vim.treesitter.get_node({
-    -- According to `:h vim.treesitter.get_node()`, `pos` fallback to current
-    -- cursor position is not given, however it is REQUIRED if `opts.bufnr` is
-    -- given and is not the current buffer
-    pos = (function()
-      -- 1. If `opts.pos` is provided, use it as-is
-      -- 2. If `opts.bufnr` refers to a non-current buffer, pass `opts.pos` to
-      --    `vim.treesitter.get_node()` regardless if it's nil (will error if
-      --    nil)
-      if
-        opts
-        and (
-          opts.pos
-          or opts.bufnr
-            and opts.bufnr ~= 0
-            and opts.bufnr ~= vim.api.nvim_get_current_buf()
-        )
-      then
-        return opts.pos
-      end
+  opts = opts or {}
 
-      -- Fix cursor position in insert mode -- if currently in insert mode,
-      -- shift `pos` left by one character because we care about the node
-      -- before cursor instead of under it since we are inserting text
-      -- before cursor instead of after it, e.g. if our cursor is in between
-      -- node1 and node2 in insert mode, like this:
-      --
-      -- <node1>|<node2>
-      --
-      -- where `|` is the cursor currently on node2, we will want to get node1
-      -- (node before cursor) instead of node2 (node after/covered by cursor)
-      --
-      -- Also useful when the cursor is at the end of line and is not on any
-      -- text (and of course treesitter nodes)
-      local cursor = opts and opts.pos or vim.api.nvim_win_get_cursor(0)
-      return {
-        cursor[1] - 1,
-        cursor[2]
-          - (cursor[2] >= 1 and vim.startswith(vim.fn.mode(), 'i') and 1 or 0),
-      }
-    end)(),
-  })
+  -- According to `:h vim.treesitter.get_node()`, `pos` fallback to current
+  -- cursor position is not given, however it is REQUIRED if `opts.bufnr` is
+  -- given and is not the current buffer, so don't fix `opts.pos` if
+  -- 1. `opts.pos` is provided, or
+  -- 2. `opts.bufnr` refers to a non-current buffer
+  if
+    opts.pos
+    or opts.bufnr
+      and opts.bufnr ~= 0
+      and opts.bufnr ~= vim.api.nvim_get_current_buf()
+  then
+    return vim.treesitter.get_node(opts)
+  end
+
+  opts = opts or {}
+
+  -- Fix cursor position in insert mode -- if currently in insert mode,
+  -- shift `pos` left by one character because we care about the node
+  -- before cursor instead of under it since we are inserting text
+  -- before cursor instead of after it, e.g. if our cursor is in between
+  -- node1 and node2 in insert mode, like this:
+  --
+  -- <node1>|<node2>
+  --
+  -- where `|` is the cursor currently on node2, we will want to get node1
+  -- (node before cursor) instead of node2 (node after/covered by cursor)
+  --
+  -- Also useful when the cursor is at the end of line and is not on any
+  -- text (and of course treesitter nodes)
+  opts.pos = (function()
+    local cursor = opts and opts.pos or vim.api.nvim_win_get_cursor(0)
+    return {
+      cursor[1] - 1,
+      cursor[2]
+        - (cursor[2] >= 1 and vim.startswith(vim.fn.mode(), 'i') and 1 or 0),
+    }
+  end)()
+
+  return vim.treesitter.get_node(opts)
 end
 
 ---Returns whether cursor is in a specific type of treesitter node
@@ -88,23 +87,32 @@ function M.in_node(types, opts)
     return false
   end
 
-  local node = M.get_node(opts)
-  if not node then
-    return false
-  end
-
-  local nt = node:type() -- current node type
-  if vim.is_callable(types) then
-    return types(nt)
-  end
-
   if type(types) == 'string' then
     types = { types }
   end
-  local result = vim.iter(types):any(function(t)
-    return nt:match(t)
-  end)
-  return result
+
+  ---Check if given node type matches any of the types given in `types`
+  ---@type fun(t: string): boolean?
+  local check_type_match = vim.is_callable(types)
+      and function(nt)
+        return types(nt)
+      end
+    or function(nt)
+      return vim.iter(types):any(function(t)
+        return nt:match(t)
+      end)
+    end
+
+  local node = M.get_node(opts)
+  while node do
+    local nt = node:type() -- current node type
+    if check_type_match(nt) then
+      return true
+    end
+    node = node:parent()
+  end
+
+  return false
 end
 
 ---Get language at given buffer position, useful in files with injected syntax

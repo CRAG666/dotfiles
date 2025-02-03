@@ -23,7 +23,7 @@ fi
 
 # CMDs (add your apps here)
 music_cmd='kitty -T termusic termusic'
-file_cmd='kitty -T yazi yazi'
+file_cmd='kitty --class yazi -T yazi yazi'
 disk_cmd='gnome-disks'
 calendar_cmd="$HOME/.config/rofi/calendar/bin/calendar"
 wifi_cmd="kitty -T impala impala"

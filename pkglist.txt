@@ -20,7 +20,6 @@ hyperfine
 perl-image-exiftool
 epub-thumbnailer-git
 atuin
-carapace-bin
 zsh
 yt-dlp
 starship
@@ -38,7 +37,7 @@ git-delta
 topgrade
 ttyper
 rsync
-rm-improved
+# rm-improved
 glow
 prettyping
 bob
@@ -60,7 +59,8 @@ mmv-c-git
 ripdrag
 rclone
 bc
-carapace-bin
+# carapace-bin
+nvidia-container-toolkit
 
 # Monitoring
 btop
@@ -89,7 +89,7 @@ gpart
 # Fonts
 otf-apple-fonts
 ttf-apple-emoji
-noto-fonts-cjk 20230817-2
+noto-fonts-cjk
 
 # Basic
 ntfs-3g

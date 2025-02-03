@@ -28,11 +28,12 @@ save="$3"
 path="$4"
 out="$5"
 cmd="yazi"
+# "wezterm start --always-new-process" if you use wezterm
 termcmd="${TERMCMD:-kitty}"
 # change this to "/tmp/xxxxxxx/.last_selected" if you only want to save last selected location
 # in session (flushed after reset device)
-last_selected_path_cfg="$HOME/.config/xdg-desktop-portal-termfilechooser/.last_selected"
-mkdir -p "$(dirname last_selected_path_cfg)"
+last_selected_path_cfg="${XDG_STATE_HOME:-$HOME/.local/state}/xdg-desktop-portal-termfilechooser/last_selected"
+mkdir -p "$(dirname "$last_selected_path_cfg")"
 if [ ! -f "$last_selected_path_cfg" ]; then
     touch "$last_selected_path_cfg"
 fi
@@ -72,7 +73,7 @@ Notes:
 1) This file is provided for your convenience. You
    could delete it and choose another file to overwrite
    that.
-2) If you quit ranger without opening a file, this file
+2) If you quit yazi without opening a file, this file
    will be removed and the save operation aborted.
 ' >"$path"
     set -- --chooser-file="$out" --cwd-file="$last_selected_path_cfg" "$path"

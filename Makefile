@@ -1,8 +1,8 @@
 export PATH := ${HOME}/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/bin/core_perl
 export GOPATH := ${HOME}
 
-HYPR_PKGS	    := hyprland grimblast-git xdg-desktop-portal-gtk xdg-desktop-portal-hyprland dunst swww
-WAYLAND_PKGS	:= wl-clipboard wluma swaylock-effects polkit-gnome rofi-wayland qt6-wayland imv foot egl-wayland cliphist greetd-regreet
+HYPR_PKGS	    := hyprland grimblast-git xdg-desktop-portal-hyprland dunst swww
+WAYLAND_PKGS	:= wl-clipboard wluma swaylock-effects polkit-gnome rofi-wayland qt6-wayland imv foot egl-wayland cliphist greetd-regreet xdg-desktop-portal-termfilechooser-hunkyburrito-git xdg-desktop-portal-gtk
 NVIDIA_PKGS	    := nvidia nvidia-prime nvidia-settings nvidia-utils cuda libva-nvidia-driver opencl-nvidia nvtop
 SYSTEMD_ENABLE	:= sudo systemctl --now enable
 SYSTEMD_ENABLE_USER	:= systemctl --user --now enable

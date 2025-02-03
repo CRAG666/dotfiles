@@ -1,5 +1,5 @@
 [plugin]
-deps = [{ use = "Sonico98/exifaudio", rev = "d794614" }, { use = "yazi-rs/plugins:no-status", rev = "600614a" }]
+deps = [{ use = "yazi-rs/plugins:no-status", rev = "02d18be" }, { use = "boydaihungst/mediainfo", rev = "e2a7cfd" }, { use = "yazi-rs/plugins:chmod", rev = "02d18be" }, { use = "yazi-rs/plugins:full-border", rev = "02d18be" }, { use = "yazi-rs/plugins:max-preview", rev = "02d18be" }]
 
 [flavor]
 deps = []
