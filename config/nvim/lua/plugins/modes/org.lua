@@ -116,7 +116,7 @@ return {
                   multi_suffix = { icon = '󰝗 ' },
                 },
                 list = {
-                  icons = { '' },
+                  icons = { '✿' },
                 },
                 quote = {
                   icons = { '󰇙' },
