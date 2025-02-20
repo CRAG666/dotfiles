@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Fri Jan 24 10:06:59 PM EST 2025
+-- Last Updated: Fri Feb 14 01:50:04 PM EST 2025
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -50,7 +50,7 @@ else
   c_foreground = { '#495b64', 59  }
   c_background = { '#ffffff', 231 }
   c_highlight  = { '#f5f8fa', 255 }
-  c_critical   = { '#ff6f00', 208 }
+  c_critical   = { '#e0b153', 208 }
   c_salient    = { '#673ab7', 98  }
   c_strong     = { '#000000', 16  }
   c_popout     = { '#f09276', 216 }
@@ -166,7 +166,6 @@ local hlgroups = {
   TabLineFill = { fg = c_foreground, bg = c_subtle },
   TabLineSel = { fg = c_strong, bg = c_shaded, bold = true },
   TermCursor = { fg = c_subtle, bg = c_popout },
-  TermCursorNC = { fg = c_critical, bg = c_subtle },
   Title = { fg = c_foreground, bold = true },
   VertSplit = { fg = c_subtle },
   Visual = { bg = c_subtle },
@@ -338,7 +337,7 @@ local hlgroups = {
   -- }}}2
 
   -- LSP {{{2
-  LspReferenceText = { link = 'Identifier' },
+  LspReferenceText = { link = 'Visual' },
   LspReferenceRead = { link = 'LspReferenceText' },
   LspReferenceWrite = { link = 'LspReferenceText' },
   LspSignatureActiveParameter = { link = 'IncSearch' },
@@ -688,7 +687,6 @@ local hlgroups = {
 
 -- Highlight group overrides {{{1
 if vim.go.bg == 'dark' then
-  hlgroups.String = { fg = c_popout }
   hlgroups.CmpItemAbbrMatch = { fg = c_critical }
   hlgroups.DiffText = { fg = c_background, bg = c_faded }
   hlgroups.TelescopePreviewMatch = { fg = c_critical, bold = true }

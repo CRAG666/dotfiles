@@ -1,4 +1,4 @@
-local utils = require "utils"
+local utils = require('utils')
 
 _G._tabline = {}
 
@@ -13,7 +13,7 @@ setmetatable(_G._tabline, {
     if not vim.g._tabline_name_restored then
       for tabnr, tabid in ipairs(vim.api.nvim_list_tabpages()) do
         local tabname_id = vim.t[tabid]._tabname
-        local tabname_nr = vim.g["Tabname" .. tabnr]
+        local tabname_nr = vim.g['Tabname' .. tabnr]
         if not tabname_id and tabname_nr then
           vim.t[tabid]._tabname = tabname_nr
         end
@@ -24,20 +24,23 @@ setmetatable(_G._tabline, {
       -- Tab names are saved in global variables by number instead of id
       -- because tab ids are not preserved across sessions
       if vim.g._tabline_name_restored then
-        vim.g["Tabname" .. tabnr] = vim.t[tabid]._tabname
+        vim.g['Tabname' .. tabnr] = vim.t[tabid]._tabname
       end
       table.insert(
         tabnames,
         utils.stl.hl(
           string.format(
-            "%%%dT %s %%X",
+            '%%%dT %s %%X',
             tabnr,
             vim.t[tabid]._tabname
               or vim.fn.pathshorten(
-                vim.fn.fnamemodify(vim.fn.getcwd(vim.api.nvim_tabpage_get_win(tabid), tabnr), ":.:~")
+                vim.fn.fnamemodify(
+                  vim.fn.getcwd(vim.api.nvim_tabpage_get_win(tabid), tabnr),
+                  ':.:~'
+                )
               )
           ),
-          tabid == tabidcur and "TabLineSel" or "TabLine"
+          tabid == tabidcur and 'TabLineSel' or 'TabLine'
         )
       )
     end
@@ -59,36 +62,36 @@ end
 -- `:[count]TabRename [name]`
 -- 1. `[count]` works like `:[count]tabnew`
 -- 2. When `[name]` is omitted, fallback to default name (cwd)
-vim.api.nvim_create_user_command("TabRename", function(opts)
+vim.api.nvim_create_user_command('TabRename', function(opts)
   _G._tabline.rename(
-    opts.count == -1 and vim.api.nvim_get_current_tabpage() or vim.api.nvim_list_tabpages()[opts.count],
+    opts.count == -1 and vim.api.nvim_get_current_tabpage()
+      or vim.api.nvim_list_tabpages()[opts.count],
     opts.fargs[1]
   )
 end, {
-  nargs = "?",
+  nargs = '?',
   count = -1,
-  addr = "tabs",
-  desc = "Rename the current tab.",
+  addr = 'tabs',
+  desc = 'Rename the current tab.',
 })
 
 -- Preserve tab names across sessions
-vim.opt.sessionoptions:append "globals"
+vim.opt.sessionoptions:append('globals')
 
-local groupid = vim.api.nvim_create_augroup("TablineName", {})
-vim.api.nvim_create_autocmd({ "UIEnter", "SessionLoadPost" }, {
-  desc = "Set flag to enable tab name psersistence across sessions.",
+local groupid = vim.api.nvim_create_augroup('TablineName', {})
+vim.api.nvim_create_autocmd({ 'UIEnter', 'SessionLoadPost' }, {
+  desc = 'Set flag to enable tab name psersistence across sessions.',
   group = groupid,
   once = true,
   callback = function()
     vim.g._tabline_name_restored = true
-    return true
   end,
 })
-vim.api.nvim_create_autocmd("TabClosed", {
-  desc = "Clear global tab name variable for closed tabs.",
+vim.api.nvim_create_autocmd('TabClosed', {
+  desc = 'Clear global tab name variable for closed tabs.',
   group = groupid,
   callback = function(info)
-    vim.g["Tabname" .. info.file] = nil
+    vim.g['Tabname' .. info.file] = nil
   end,
 })
 

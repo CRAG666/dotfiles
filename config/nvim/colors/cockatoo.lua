@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Fri Jan 24 10:06:28 PM EST 2025
+-- Last Updated: Sun Feb  9 03:09:45 PM EST 2025
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -185,7 +185,6 @@ local hlgroups = {
   DebugPC = { bg = c_purple_blend },
   lCursor = { link = 'Cursor' },
   TermCursor = { fg = c_space, bg = c_orange },
-  TermCursorNC = { fg = c_orange, bg = c_ocean },
   DiffAdd = { bg = c_aqua_blend },
   DiffAdded = { fg = c_tea, bg = c_aqua_blend },
   DiffChange = { bg = c_purple_blend },
