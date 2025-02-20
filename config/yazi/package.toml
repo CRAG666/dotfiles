@@ -1,5 +1,27 @@
-[plugin]
-deps = [{ use = "yazi-rs/plugins:no-status", rev = "02d18be" }, { use = "boydaihungst/mediainfo", rev = "e2a7cfd" }, { use = "yazi-rs/plugins:chmod", rev = "02d18be" }, { use = "yazi-rs/plugins:full-border", rev = "02d18be" }, { use = "yazi-rs/plugins:max-preview", rev = "02d18be" }]
+[[plugin.deps]]
+use = "yazi-rs/plugins:no-status"
+rev = "02d18be"
+hash = "26907959d4d45f6258487f9bfe54a9c4"
+
+[[plugin.deps]]
+use = "boydaihungst/mediainfo"
+rev = "e2a7cfd"
+hash = "8d45529a12b71afec8bf4f15330cf136"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:chmod"
+rev = "02d18be"
+hash = "4c7e8fd0266eedee7b619d966bd2d025"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:full-border"
+rev = "02d18be"
+hash = "882ed23839778f82dc137248979c8681"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:max-preview"
+rev = "02d18be"
+hash = "9bc26d10d2f6e2aa93b10905b1b76979"
 
 [flavor]
 deps = []

@@ -15,10 +15,10 @@ return {
     },
   },
   opts = {
-    -- mode = "better_term",
-    -- better_term = {
-    --   number = 1,
-    -- },
+    mode = 'better_term',
+    better_term = {
+      number = 2,
+    },
     filetype = {
       v = 'v run',
       tex = function(...)

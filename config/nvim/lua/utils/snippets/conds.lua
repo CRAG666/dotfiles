@@ -31,13 +31,32 @@ local M = setmetatable({ _ = {} }, {
 ---Returns whether the cursor is in a math zone
 ---@return boolean
 function M.in_mathzone()
-  return utils.ft.markdown.in_mathzone()
+  if utils.ts.is_active() then
+    return utils.ts.in_node(
+      { 'formula', 'equation', 'math' },
+      { ignore_injections = false }
+    )
+  end
+
+  if vim.b.current_syntax then
+    return utils.syn.in_group({ 'MathZone' })
+  end
+
+  return false
 end
 
 ---Returns whether the cursor is in a code block
 ---@return boolean
 function M.in_codeblock()
-  return utils.ft.markdown.in_codeblock(vim.fn.line('.'))
+  if utils.ts.is_active() then
+    return utils.ts.in_node({ 'fence' })
+  end
+
+  if vim.b.current_syntax then
+    return utils.syn.in_group({ 'CodeBlock' })
+  end
+
+  return false
 end
 
 ---Returns whether current cursor is in a comment
@@ -55,15 +74,13 @@ end
 function M.in_normalzone()
   if utils.ts.is_active() then
     return not utils.ts.in_node(
-      { 'comment', 'string', 'block' },
+      { 'comment', 'string', 'fence', 'formula', 'equation', 'math' },
       { ignore_injections = false }
     )
   end
 
-  -- If treesitter is not active, we can only check for markdown and tex
-  -- using the regex method to ensure we are not in a code block or math zone
-  if vim.bo.ft == 'markdown' or vim.bo.ft == 'tex' then
-    return utils.ft[vim.bo.ft].in_normalzone()
+  if vim.b.current_syntax then
+    return not utils.syn.in_group({ 'Comment', 'String', 'Code', 'MathZone' })
   end
 
   return true

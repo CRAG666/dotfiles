@@ -146,7 +146,7 @@ M.snippets = {
   ),
   us.msn({
     { trig = 'me' },
-    { trig = 'method' },
+    { trig = 'meth' },
   }, {
     t('function '),
     i(1, 'class'),
@@ -294,19 +294,15 @@ M.snippets = {
   }, {
     t('return '),
   }),
-  us.msn({
-    { trig = 'p' },
-  }, {
+  us.sn({ trig = 'p' }, {
     t('print('),
     i(1),
     t(')'),
   }),
-  us.msn(
+  us.sn(
     {
-      {
-        trig = 'pl',
-        dscr = 'Print a line',
-      },
+      trig = 'pl',
+      dscr = 'Print a line',
     },
     un.fmtad('print(<q><v><q>)', {
       q = un.qt(),
@@ -373,7 +369,7 @@ M.snippets = {
       e = i(4),
     })
   ),
-  us.msn(
+  us.sn(
     { trig = 'ck', priority = 999 },
     un.fmtad('<q><v_esc>: <q> .. <inspect>(<v>)', {
       q = un.qt(),
@@ -427,11 +423,17 @@ M.snippets = {
       end, { 1 }),
     })
   ),
-  us.sn({ trig = 'nf', desc = 'Disable stylua format' }, {
-    t({ '-- stylua: ignore start', '' }),
-    un.body(1, 0),
-    t({ '', '-- stylua: ignore off' }),
-  }),
+  us.sn(
+    { trig = 'nf', desc = 'Disable stylua format' },
+    un.fmtad(
+      [[
+        -- stylua: ignore start
+        <body>
+        -- stylua: ignore off
+      ]],
+      { body = un.body(1, 0) }
+    )
+  ),
 }
 
 return M

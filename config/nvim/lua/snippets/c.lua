@@ -735,6 +735,17 @@ M.snippets = {
       },
     }
   ),
+  us.sn(
+    { trig = 'nf', desc = 'Disable clang-format' },
+    un.fmtad(
+      [[
+        // clang-format off
+        <body>
+        // clang-format on
+      ]],
+      { body = un.body(1, 0) }
+    )
+  ),
 }
 
 return M

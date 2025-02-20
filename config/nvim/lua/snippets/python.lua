@@ -333,7 +333,7 @@ M.snippets = {
   us.msn(
     {
       { trig = 'me' },
-      { trig = 'method' },
+      { trig = 'meth' },
       common = { desc = 'Method definition' },
     },
     un.fmtad(
@@ -348,13 +348,10 @@ M.snippets = {
       }
     )
   ),
-  us.msn(
+  us.sn(
     {
-      { trig = 'cls' },
-      { trig = 'class' },
-      { trig = 'tp' },
-      { trig = 'type' },
-      common = { desc = 'Class definition' },
+      trig = 'cls',
+      desc = 'Class definition',
     },
     un.fmtad(
       [[
@@ -370,10 +367,46 @@ M.snippets = {
       }
     )
   ),
-  us.sn(
+  us.msn(
     {
-      trig = 'with',
-      desc = 'with statement',
+      { trig = 'wi' },
+      { trig = 'with' },
+      common = { desc = 'with statement' },
+    },
+    c(1, {
+      un.fmtad(
+        [[
+          with <expr>:
+          <body>
+        ]],
+        {
+          expr = r(1, 'expr'),
+          body = un.body(2, 1, 'pass'),
+        }
+      ),
+      un.fmtad(
+        [[
+          with <expr> as <var>:
+          <body>
+        ]],
+        {
+          expr = r(1, 'expr'),
+          var = i(2),
+          body = un.body(3, 1, 'pass'),
+        }
+      ),
+    }),
+    {
+      stored = {
+        expr = i(1),
+      },
+    }
+  ),
+  us.msn(
+    {
+      { trig = 'wa' },
+      { trig = 'witha' },
+      common = { desc = 'with...as... statement' },
     },
     un.fmtad(
       [[
@@ -454,10 +487,10 @@ M.snippets = {
       }
     )
   ),
-  us.msn(
+  us.sn(
     {
-      { trig = 'exc' },
-      common = { desc = 'except statement' },
+      trig = 'exc',
+      desc = 'except statement',
     },
     un.fmtad(
       [[
@@ -503,6 +536,35 @@ M.snippets = {
       {
         q = un.qt(),
         body = un.body(1, 1, 'pass'),
+      }
+    )
+  ),
+  us.sn(
+    { trig = 'nf', desc = 'Disable black formatting' },
+    un.fmtad(
+      [[
+        # fmt: off
+        <body>
+        # fmt: on
+      ]],
+      { body = un.body(1, 0) }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'ds' },
+      { trig = 'docs' },
+      common = { desc = 'Docstring' },
+    },
+    un.fmtad(
+      [[
+        <q><q><q>
+        <body>
+        <q><q><q>
+      ]],
+      {
+        q = un.qt(),
+        body = un.body(1, 0),
       }
     )
   ),

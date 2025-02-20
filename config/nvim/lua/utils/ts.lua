@@ -51,8 +51,6 @@ function M.get_node(opts)
     return vim.treesitter.get_node(opts)
   end
 
-  opts = opts or {}
-
   -- Fix cursor position in insert mode -- if currently in insert mode,
   -- shift `pos` left by one character because we care about the node
   -- before cursor instead of under it since we are inserting text
@@ -87,10 +85,6 @@ function M.in_node(types, opts)
     return false
   end
 
-  if type(types) == 'string' then
-    types = { types }
-  end
-
   ---Check if given node type matches any of the types given in `types`
   ---@type fun(t: string): boolean?
   local check_type_match = vim.is_callable(types)
@@ -98,6 +92,9 @@ function M.in_node(types, opts)
         return types(nt)
       end
     or function(nt)
+      if type(types) == 'string' then
+        types = { types }
+      end
       return vim.iter(types):any(function(t)
         return nt:match(t)
       end)

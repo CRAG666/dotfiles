@@ -1,6 +1,7 @@
 local uf = require('utils.snippets.funcs')
 local un = require('utils.snippets.nodes')
 local us = require('utils.snippets.snips')
+local conds = require('utils.snippets.conds')
 local ls = require('luasnip')
 local sn = ls.snippet_node
 local t = ls.text_node
@@ -58,18 +59,6 @@ return {
         t('}{'),
         i(1),
         t('}'),
-      })
-    end),
-  }),
-  -- matrix/vector bold font
-  us.samWr({
-    trig = ';(%a)',
-    priority = 999,
-    dscr = 'vector bold math font',
-  }, {
-    d(1, function(_, snip)
-      return sn(nil, {
-        t(string.format('\\mathbf{%s}', snip.captures[1])),
       })
     end),
   }),
@@ -229,9 +218,19 @@ return {
   us.msambW({
     { trig = 'tr' },
     { trig = '.T' },
+    { trig = '^T' },
   }, t('^{\\intercal}')),
+  us.sambW(
+    {
+      trig = 'T',
+      condition = conds.before_pattern('}') * conds.after_pattern('%^{'),
+      show_condition = conds.before_pattern('}') * conds.after_pattern('%^{'),
+    },
+    t('\\intercal')
+  ),
 
   us.samWr({ trig = '(\\?%w*_*%w*)vv' }, un.sdn(1, '\\vec{', '}')),
+  us.samWr({ trig = '(\\?%w*_*%w*);;' }, un.sdn(1, '\\mathbf{', '}')),
   us.samWr({ trig = '(\\?%w*_*%w*)hat' }, un.sdn(1, '\\hat{', '}')),
   us.samWr({ trig = '(\\?%w*_*%w*)bar' }, un.sdn(1, '\\bar{', '}')),
   us.samWr({ trig = '(\\?%w*_*%w*)td' }, un.sdn(1, '\\tilde{', '}')),
@@ -537,7 +536,10 @@ return {
     i(1),
     t(' \\right\\rceil'),
   }),
-  us.sam({ trig = 'bmat' }, {
+  us.msam({
+    { trig = 'bmat' },
+    { trig = 'vec' },
+  }, {
     t('\\begin{bmatrix} '),
     i(1),
     t(' \\end{bmatrix}'),
@@ -769,6 +771,11 @@ return {
   us.sam({ trig = 'Omega' }, t('\\Omega')),
 
   -- special functions and other notations
+  us.sam({ trig = 'sign' }, {
+    t('\\operatorname{sign}\\left('),
+    i(1),
+    t('\\right)'),
+  }),
   us.sam({ trig = 'cov' }, {
     t('\\operatorname{Cov}\\left('),
     i(1, 'X'),
@@ -781,7 +788,7 @@ return {
     i(1, 'X'),
     t('\\right)'),
   }),
-  us.sam({ trig = 'eva' }, {
+  us.sam({ trig = 'ee' }, {
     t('\\operatorname{E}\\left['),
     i(1, 'X'),
     t('\\right]'),

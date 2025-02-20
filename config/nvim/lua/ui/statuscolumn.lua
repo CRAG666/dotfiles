@@ -119,37 +119,9 @@ function builders.signcol(data, filter, virtual)
   return make_hl(' ', data.culhl and 'CursorLineSign' or 'SignColumn')
 end
 
----@param data stc_shared_data_t
 ---@return string
-function builders.lnum(data)
-  local result = '' ---@type string|integer
-  if not data.show_nu then
-    return ''
-  end
-  if data.virtnum ~= 0 then -- Drawing virtual line
-    goto lnum_ret_default
-  end
-  if not data.nu then
-    result = data.relnum
-    goto lnum_ret_default
-  end
-  if not data.rnu then
-    result = data.lnum
-    goto lnum_ret_default
-  end
-  if data.relnum == 0 then
-    return string.format(
-      '%%=%-' .. math.max(data.nuw - 1, data.lnumw or 0) .. 'd ',
-      data.lnum
-    )
-  end
-  result = data.relnum
-
-  ::lnum_ret_default::
-  return string.format(
-    '%%=%' .. math.max(data.nuw - 1, data.lnumw or 0) .. 's ',
-    result
-  )
+function builders.lnum()
+  return '%l '
 end
 
 ---@param data stc_shared_data_t

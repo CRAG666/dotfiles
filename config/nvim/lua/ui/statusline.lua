@@ -146,7 +146,8 @@ end
 ---Get current filetype
 ---@return string
 function _G._statusline.ft()
-  return vim.bo.ft == '' and '' or vim.bo.ft:gsub('^%l', string.upper)
+  local ft = vim.bo.ft == '' and '' or vim.bo.ft:gsub('^%l', string.upper)
+  return utils.stl.hl(ft, 'StatuslineItalic')
 end
 
 ---@return string
@@ -366,7 +367,11 @@ function _G._statusline.fname()
         vim.b._stl_pdiff
       )
     end
-    return utils.stl.hl(fname, 'StatuslineItalic')
+    return utils.stl.escape(fname)
+  end
+
+  if vim.bo.bt == 'quickfix' then
+    return vim.w.quickfix_title or ''
   end
 
   -- Terminal buffer, show terminal command and id
@@ -461,134 +466,91 @@ function _G._statusline.diag()
   return str
 end
 
-local spinner_end_keep = 2000 -- ms
-local spinner_status_keep = 600 -- ms
-local spinner_progress_keep = 80 -- ms
-local spinner_timer = vim.uv.new_timer()
+---Id and additional info about LSP clients
+---@type table<integer, { name: string, bufs: integer[] }>
+local client_info = {}
 
-local spinner_icons ---@type string[]
-local spinner_icon_done ---@type string
-
-if vim.g.has_nf then
-  spinner_icon_done = vim.trim(utils.static.icons.Ok)
-  spinner_icons = {
-    '⣷',
-    '⣯',
-    '⣟',
-    '⡿',
-    '⢿',
-    '⣻',
-    '⣽',
-    '⣾',
-  }
-else
-  spinner_icon_done = '[done]'
-  spinner_icons = {
-    '[    ]',
-    '[=   ]',
-    '[==  ]',
-    '[=== ]',
-    '[ ===]',
-    '[  ==]',
-    '[   =]',
-  }
-end
-
----Id and additional info of language servers in progress
----@type table<integer, { name: string, timestamp: integer, type: 'begin'|'report'|'end' }>
-local server_info = {}
+vim.api.nvim_create_autocmd('LspDetach', {
+  desc = 'Clean up server info when client detaches.',
+  group = groupid,
+  callback = function(info)
+    if info.data.client_id then
+      client_info[info.data.client_id] = nil
+    end
+  end,
+})
 
 vim.api.nvim_create_autocmd('LspProgress', {
   desc = 'Update LSP progress info for the status line.',
   group = groupid,
   callback = function(info)
-    if spinner_timer then
-      spinner_timer:start(
-        spinner_progress_keep,
-        spinner_progress_keep,
-        vim.schedule_wrap(vim.cmd.redrawstatus)
-      )
-    end
-
+    -- Update LSP progress data
     local id = info.data.client_id
-    local now = vim.uv.now()
-    server_info[id] = {
+    local bufs = vim.lsp.get_buffers_by_client_id(id)
+    client_info[id] = {
       name = vim.lsp.get_client_by_id(id).name,
-      timestamp = now,
-      type = info.data
-        and info.data.params
-        and info.data.params.value
-        and info.data.params.value.kind,
-    } -- Update LSP progress data
-    -- Clear client message after a short time if no new message is received
-    vim.defer_fn(function()
-      -- No new report since the timer was set
-      local last_timestamp = (server_info[id] or {}).timestamp
-      if not last_timestamp or last_timestamp == now then
-        server_info[id] = nil
-        if vim.tbl_isempty(server_info) and spinner_timer then
-          spinner_timer:stop()
-        end
-        vim.cmd.redrawstatus()
-      end
-    end, spinner_end_keep)
+      bufs = bufs,
+    }
 
-    vim.cmd.redrawstatus({
-      mods = { emsg_silent = true },
-    })
+    vim
+      .iter(bufs)
+      :filter(function(buf)
+        -- No need to create and attach spinners to invisible bufs
+        return vim.fn.bufwinid(buf) ~= -1
+      end)
+      :each(function(buf)
+        local b = vim.b[buf]
+        if not utils.stl.spinner.id_is_valid(b.spinner_id) then
+          utils.stl.spinner:new():attach(buf)
+        end
+
+        local spinner = utils.stl.spinner.get_by_id(b.spinner_id)
+        if spinner.status == 'idle' then
+          spinner:spin()
+        end
+
+        local type = info.data
+          and info.data.params
+          and info.data.params.value
+          and info.data.params.value.kind
+        if type == 'end' then
+          spinner:finish()
+        end
+      end)
   end,
 })
 
 ---@return string
-function _G._statusline.lsp_progress()
-  if vim.tbl_isempty(server_info) then
+function _G._statusline.spinner()
+  local spinner = utils.stl.spinner.get_by_id(vim.b.spinner_id)
+  if not spinner or spinner.icon == '' then
     return ''
   end
 
   local buf = vim.api.nvim_get_current_buf()
-  local server_ids = {}
-  for id, _ in pairs(server_info) do
-    if vim.tbl_contains(vim.lsp.get_buffers_by_client_id(id), buf) then
-      table.insert(server_ids, id)
-    end
+  local progs = vim
+    .iter(vim.tbl_keys(client_info))
+    :filter(function(id)
+      return vim.tbl_contains(client_info[id].bufs, buf)
+    end)
+    :map(function(id)
+      return client_info[id].name
+    end)
+    :totable()
+
+  -- Extra progresses requiring spinner animation
+  if vim.b.spinner_progs then
+    vim.list_extend(progs, vim.b.spinner_progs)
   end
-  if vim.tbl_isempty(server_ids) then
+
+  if vim.tbl_isempty(progs) then
     return ''
-  end
-
-  local now = vim.uv.now()
-  ---@return boolean
-  local function allow_changing_state()
-    return not vim.b.spinner_state_changed
-      or now - vim.b.spinner_state_changed > spinner_status_keep
-  end
-
-  if #server_ids == 1 and server_info[server_ids[1]].type == 'end' then
-    if vim.b.spinner_icon ~= spinner_icon_done and allow_changing_state() then
-      vim.b.spinner_state_changed = now
-      vim.b.spinner_icon = spinner_icon_done
-    end
-  else
-    local spinner_icon_progress = spinner_icons[math.ceil(
-      now / spinner_progress_keep
-    ) % #spinner_icons + 1]
-    if vim.b.spinner_icon ~= spinner_icon_done then
-      vim.b.spinner_icon = spinner_icon_progress
-    elseif allow_changing_state() then
-      vim.b.spinner_state_changed = now
-      vim.b.spinner_icon = spinner_icon_progress
-    end
   end
 
   return string.format(
     '%s %s ',
-    table.concat(
-      vim.tbl_map(function(id)
-        return utils.stl.hl(server_info[id].name, 'StatuslineItalic')
-      end, server_ids),
-      ', '
-    ),
-    utils.stl.hl(vim.b.spinner_icon, 'StatuslineSpinner')
+    utils.stl.hl(table.concat(progs, ', '), 'StatuslineItalic'),
+    utils.stl.hl(spinner.icon, 'StatuslineSpinner')
   )
 end
 
@@ -597,11 +559,11 @@ end
 ---@type table<string, string>
 local components = {
   align        = [[%=]],
-  flag         = [[%{%&bt==#''?'':(&bt==#'help'?'%h ':(&pvw?'%w ':''))%}]],
+  flag         = [[%{%&bt==#''?'':(&bt==#'help'?'%h ':(&pvw?'%w ':(&bt==#'quickfix'?'%q ':'')))%}]],
   diag         = [[%{%v:lua._statusline.diag()%}]],
   fname        = [[%{%v:lua._statusline.fname()%} ]],
   info         = [[%{%v:lua._statusline.info()%}]],
-  lsp_progress = [[%{%v:lua._statusline.lsp_progress()%}]],
+  spinner     = [[%{%v:lua._statusline.spinner()%}]],
   mode         = [[%{%v:lua._statusline.mode()%}]],
   padding      = [[ ]],
   pos          = [[%{%&ru?"%l:%c ":""%}]],
@@ -616,7 +578,7 @@ local stl = table.concat({
   components.info,
   components.align,
   components.truncate,
-  components.lsp_progress,
+  components.spinner,
   components.diag,
   components.pos,
 })
@@ -638,6 +600,9 @@ setmetatable(_G._statusline, {
       or stl_nc
   end,
 })
+
+-- Prevent statusline from being overridden by qf ftplugin in quickfix windows
+vim.g.qf_disable_statusline = true
 
 ---Set default highlight groups for statusline components
 ---@return  nil

@@ -31,6 +31,7 @@ M.default_config = {
 ---@field root_dir? string
 ---@field root_patterns? string[]
 ---@field requires? string[] additional executables required to start the language server
+---@field buf_support? boolean whether the language server works on buffers without corresponding files
 
 ---Wrapper of `vim.lsp.start()`, starts and attaches LSP client for
 ---the current buffer
@@ -56,48 +57,39 @@ function M.start(config, opts)
   local name = cmd_exec
   local bufname = vim.api.nvim_buf_get_name(0)
 
+  if config.buf_support == false and not vim.uv.fs_stat(bufname) then
+    return
+  end
+
   ---Check if a directory is valid, return it if so, else return nil
   ---@param dir string?
   ---@return string?
   local function validate(dir)
     -- For some special buffers like `fugitive:///xxx`, `vim.fs.root()`
     -- returns '.' as result, which is NOT a valid directory
-    return dir ~= nil and dir ~= '.' and vim.fn.isdirectory(dir) == 1 and dir
+    return dir ~= nil
+        and dir ~= '.'
+        and vim.fn.isdirectory(dir) == 1
+        -- Some language servers e.g. lua-language-server, refuse
+        -- to use home dir as its root dir and prints an error message
+        and not require('utils.fs').is_home_dir(dir)
+        and not require('utils.fs').is_root_dir(dir)
+        and dir
       or nil
-  end
-
-  local root_dir = validate(
-    vim.fs.root(
-      bufname,
-      vim.list_extend(
-        config.root_patterns or {},
-        M.default_config.root_patterns or {}
-      )
-    )
-  )
-
-  -- Some language servers e.g. lua-language-server, refuse
-  -- to use home dir as its root dir and prints an error message
-  --
-  -- 99% of time we don't want have home dir or root dir as lsp root directory
-  -- anyway except when editing `~/.bashrc`, in which case we fallback to
-  -- the file's containing directory (the home directory)
-  if
-    not root_dir
-    or require('utils.fs').is_home_dir(root_dir)
-    or require('utils.fs').is_root_dir(root_dir)
-  then
-    root_dir = validate(vim.fs.dirname(bufname))
-  end
-
-  if not root_dir then
-    return
   end
 
   return vim.lsp.start(
     vim.tbl_deep_extend('keep', config or {}, {
       name = name,
-      root_dir = root_dir,
+      root_dir = validate(
+        vim.fs.root(
+          bufname,
+          vim.list_extend(
+            config.root_patterns or {},
+            M.default_config.root_patterns or {}
+          )
+        )
+      ),
     }, M.default_config),
     opts
   )
@@ -123,7 +115,7 @@ function M.soft_stop(client_or_id, opts)
   opts.interval = opts.interval or 500
   opts.on_close = opts.on_close or function() end
 
-  if client.is_stopped() then
+  if client:is_stopped() then
     opts.on_close(client)
     return
   end
@@ -132,7 +124,7 @@ function M.soft_stop(client_or_id, opts)
     return
   end
 
-  client.stop(opts.retry == 0)
+  client:stop(opts.retry == 0)
   vim.defer_fn(function()
     opts.retry = opts.retry - 1
     M.soft_stop(client, opts)
@@ -201,7 +193,7 @@ function M.range_contains(range1, range2, strict)
         start_line2 == end_line1
           and (
             start_char2 < end_char1
-            or not strict and start_char2 == start_char1
+            or not strict and start_char2 == end_char1
           )
         )
       )
@@ -211,7 +203,7 @@ function M.range_contains(range1, range2, strict)
         end_line2 == start_line1
           and (
             end_char2 > start_char1
-            or not strict and end_char2 == end_char1
+            or not strict and end_char2 == start_char1
           )
         )
       )
@@ -245,7 +237,7 @@ function M.range_contains_cursor(range, cursor, strict)
     line > start_line
     or (
       line == start_line
-      and (char > start_char or not strict and char == end_char)
+      and (char > start_char or not strict and char == start_char)
     )
   )
     and (

@@ -255,10 +255,8 @@ custom_autocomplete() {
 zle -N custom_autocomplete
 bindkey '^I' custom_autocomplete
 alias kittyc="nvim ~/.config/kitty/kitty.conf"
-alias icat="kitty +kitten icat"
-if test -e "/usr/lib/kitty/shell-integration/zsh/kitty.zsh"; then
-  source "/usr/lib/kitty/shell-integration/zsh/kitty.zsh";
-fi
+alias icat="kitten icat"
+alias s="kitten ssh"
 # END_KITTY_SHELL_INTEGRATION
 
 source ~/.zshfunc

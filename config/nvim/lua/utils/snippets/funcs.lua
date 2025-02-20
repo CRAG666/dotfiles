@@ -89,7 +89,7 @@ vim.api.nvim_create_autocmd({ 'BufDelete', 'BufWipeOut', 'BufUnload' }, {
 
 ---Get which quotation mark (single or double) is preferred in current buffer
 ---@param buf integer?
----@return '"'|''"
+---@return '"'|"'"
 function M.get_quotation_type(buf)
   buf = buf or vim.api.nvim_get_current_buf()
   if quotation_cache[buf] then

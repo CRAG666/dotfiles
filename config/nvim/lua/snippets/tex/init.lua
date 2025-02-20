@@ -26,19 +26,6 @@ M.snippets = {
       }
     )
   ),
-  us.sM({ trig = 'cs' }, {
-    t({
-      '\\begin{equation}',
-      '\\begin{cases}',
-      '',
-    }),
-    un.body(1, 1),
-    t({
-      '',
-      '\\end{cases}',
-      '\\end{equation}',
-    }),
-  }),
   us.sM(
     { trig = 'aln' },
     un.fmtad(

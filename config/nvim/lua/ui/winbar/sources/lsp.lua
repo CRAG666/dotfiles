@@ -253,7 +253,7 @@ local function update_symbols(buf, ttl)
     return
   end
 
-  client.request(
+  client:request(
     'textDocument/documentSymbol',
     { textDocument = vim.lsp.util.make_text_document_params(buf) },
     function(err, symbols, _)

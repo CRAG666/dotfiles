@@ -439,13 +439,13 @@ function winbar_menu_t:make_buf()
   vim.api.nvim_buf_set_lines(self.buf, 0, -1, false, lines)
   for linenr, hl_line_info in ipairs(hl_info) do
     for _, hl_symbol_info in ipairs(hl_line_info) do
-      utils.hl.buf_add_hl(
+      vim.hl.range(
         self.buf,
-        hl_symbol_info.ns or -1,
+        hl_symbol_info.ns or vim.api.nvim_create_namespace('WinBar'),
         hl_symbol_info.hlgroup,
-        linenr - 1, -- 0-indexed
-        hl_symbol_info.start,
-        hl_symbol_info['end']
+        { linenr - 1, hl_symbol_info.start },
+        { linenr - 1, hl_symbol_info['end'] },
+        {}
       )
     end
   end
@@ -519,6 +519,16 @@ function winbar_menu_t:make_buf()
     buffer = self.buf,
     callback = function()
       self:update_hover_hl()
+
+      -- BufLeave event fires BEFORE actually switching buffers, so schedule a
+      -- check to run after buffer switch is complete
+      -- If we've switched to a non-menu buffer, close all menus starting from
+      -- root, this ensures proper cleanup when leaving menu navigation
+      vim.schedule(function()
+        if vim.bo.ft ~= 'winbar_menu' then
+          self:root():close()
+        end
+      end)
     end,
   })
 end
@@ -591,6 +601,8 @@ function winbar_menu_t:update_scrollbar()
       border = 'none',
       relative = 'win',
       win = self.win,
+      focusable = false,
+      noautocmd = true,
       zindex = menu_win_configs.zindex,
     }
     self.scrollbar.background = vim.api.nvim_open_win(

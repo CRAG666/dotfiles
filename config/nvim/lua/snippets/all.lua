@@ -4,7 +4,7 @@ local ls = require('luasnip')
 local f = ls.function_node
 
 M.snippets = {
-  us.sn(
+  us.sN(
     {
       trig = 'date',
       desc = 'Current date and time',
