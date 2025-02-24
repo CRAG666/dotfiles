@@ -95,7 +95,7 @@ M.snippets = {
   }, {
     d(1, function()
       if
-        u.ts.in_node({
+        u.ts.find_node({
           'field', --- { function() ... end, ... }
           'arguments', -- foo(function() ... end, ...)
           'assignment', -- val = function() ... end

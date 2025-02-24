@@ -79,10 +79,10 @@ end
 ---Returns whether cursor is in a specific type of treesitter node
 ---@param types string|string[]|fun(types: string|string[]): boolean type of node, or function to check node type
 ---@param opts vim.treesitter.get_node.Opts?
----@return boolean
-function M.in_node(types, opts)
+---@return TSNode?
+function M.find_node(types, opts)
   if not M.is_active(opts and opts.bufnr) then
-    return false
+    return
   end
 
   ---Check if given node type matches any of the types given in `types`
@@ -104,12 +104,10 @@ function M.in_node(types, opts)
   while node do
     local nt = node:type() -- current node type
     if check_type_match(nt) then
-      return true
+      return node
     end
     node = node:parent()
   end
-
-  return false
 end
 
 ---Get language at given buffer position, useful in files with injected syntax

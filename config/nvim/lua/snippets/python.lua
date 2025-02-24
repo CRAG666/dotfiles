@@ -89,7 +89,6 @@ M.snippets = {
   ),
   us.msn({
     { trig = 'im' },
-    { trig = 'ip' },
     { trig = 'imp' },
     common = {
       desc = 'import statement',
@@ -101,8 +100,6 @@ M.snippets = {
   us.msn({
     { trig = 'fim' },
     { trig = 'imf' },
-    { trig = 'fip' },
-    { trig = 'ipf' },
     { trig = 'fimp' },
     { trig = 'impf' },
     common = {
@@ -116,7 +113,6 @@ M.snippets = {
   }),
   us.msn({
     { trig = 'ima' },
-    { trig = 'ipa' },
     { trig = 'impa' },
     common = {
       desc = 'import ... as ... statement',
@@ -348,10 +344,11 @@ M.snippets = {
       }
     )
   ),
-  us.sn(
+  us.msn(
     {
-      trig = 'cls',
-      desc = 'Class definition',
+      { trig = 'cls' },
+      { trig = 'class' },
+      common = { desc = 'Class definition' },
     },
     un.fmtad(
       [[
@@ -424,26 +421,6 @@ M.snippets = {
     {
       { trig = 'tr' },
       { trig = 'try' },
-      common = { desc = 'try statement' },
-    },
-    un.fmtad(
-      [[
-        try:
-        <body>
-      ]],
-      {
-        body = un.body(1, 1, 'pass'),
-      }
-    )
-  ),
-  us.msn(
-    {
-      { trig = 'te' },
-      { trig = 'tex' },
-      { trig = 'tre' },
-      { trig = 'trex' },
-      { trig = 'trye' },
-      { trig = 'tryex' },
       common = { desc = 'try...except statement' },
     },
     un.fmtad(
@@ -456,33 +433,6 @@ M.snippets = {
       {
         body = un.body(1, 1),
         exc = i(2),
-        idnt = un.idnt(1),
-      }
-    )
-  ),
-  us.msn(
-    {
-      { trig = 'tef' },
-      { trig = 'texf' },
-      { trig = 'tref' },
-      { trig = 'trexf' },
-      { trig = 'tryef' },
-      { trig = 'tryexf' },
-      common = { desc = 'try...except...finally statement' },
-    },
-    un.fmtad(
-      [[
-        try:
-        <body>
-        except<exc>:
-        <idnt><exc_body>
-        finally:
-        <idnt>
-      ]],
-      {
-        body = un.body(1, 1),
-        exc = i(2),
-        exc_body = i(3),
         idnt = un.idnt(1),
       }
     )

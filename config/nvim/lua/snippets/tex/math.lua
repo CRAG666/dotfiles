@@ -220,14 +220,11 @@ return {
     { trig = '.T' },
     { trig = '^T' },
   }, t('^{\\intercal}')),
-  us.sambW(
-    {
-      trig = 'T',
-      condition = conds.before_pattern('}') * conds.after_pattern('%^{'),
-      show_condition = conds.before_pattern('}') * conds.after_pattern('%^{'),
-    },
-    t('\\intercal')
-  ),
+  us.sambW({
+    trig = 'T',
+    condition = conds.before_pattern('}') * conds.after_pattern('%^{'),
+    show_condition = conds.before_pattern('}') * conds.after_pattern('%^{'),
+  }, t('\\intercal')),
 
   us.samWr({ trig = '(\\?%w*_*%w*)vv' }, un.sdn(1, '\\vec{', '}')),
   us.samWr({ trig = '(\\?%w*_*%w*);;' }, un.sdn(1, '\\mathbf{', '}')),
