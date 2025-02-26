@@ -127,6 +127,7 @@ function M.contains(dir, sub)
 end
 
 ---Check if given directory is root directory
+---@param dir string
 ---@return boolean
 function M.is_root_dir(dir)
   return dir == vim.fs.dirname(dir)
@@ -137,12 +138,23 @@ end
 local home
 
 ---Check if given directory is home directory
+---@param dir string
 ---@return boolean
 function M.is_home_dir(dir)
   if not home then
     home = vim.uv.os_homedir()
   end
   return dir == home
+end
+
+---Check if a path is full path
+---@param path string
+---@return boolean
+function M.is_full_path(path)
+  -- Use `fs.normalize()` to trim trailing slashes so that
+  -- `foo/` and `foo` are treated equally
+  return vim.fs.normalize(vim.fn.fnamemodify(path, ':p'))
+    == vim.fs.normalize(path)
 end
 
 return M

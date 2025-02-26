@@ -1,10 +1,10 @@
 local M = {}
 
 ---@param names string|string[]|fun(types: string|string[]): boolean type of node, or function to check node type
----@return boolean
-function M.in_group(names)
+---@return integer?
+function M.find_group(names)
   if not vim.b.current_syntax then
-    return false
+    return
   end
 
   ---Check if given syntax group name matches any of the names given in `names`
@@ -29,10 +29,10 @@ function M.in_group(names)
         vim.fn.col('.') - (vim.startswith(vim.fn.mode(), 'i') and 1 or 0)
       )
     )
-    :map(function(id)
-      return vim.fn.synIDattr(id, 'name')
+    :rev()
+    :find(function(id)
+      return check_name_match(vim.fn.synIDattr(id, 'name')) and id
     end)
-    :any(check_name_match)
 end
 
 return M

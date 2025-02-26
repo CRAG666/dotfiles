@@ -1,28 +1,5 @@
 -- stylua: ignore start
 return {
-  misc = {
-    Code = "",
-    ManUp = "",
-    Ghost = "󰊠",
-    Bug = "",
-    Search = "󰍉",
-  },
-  documents = {
-    Default = "",
-    File = "",
-    Files = "",
-    FileTree = "󰙅",
-    Import = "",
-    Symlink = "",
-  },
-  git = {
-    Added = "",
-    Removed = "",
-    Modified = "",
-    Topdelete = "﯇",
-    Changedelete = "",
-    Untracked = "",
-  },
   debug = {
     Breakpoint          = ' ',
     BreakpointCondition = ' ',
@@ -119,6 +96,7 @@ return {
     String              = '󰉾 ',
     Struct              = ' ',
     SwitchStatement     = '󰺟 ',
+    Table               = '󰅩 ',
     Terminal            = ' ',
     Text                = ' ',
     Type                = ' ',
@@ -172,6 +150,7 @@ return {
     Dot                 = '• ',
     DotLarge            = ' ',
     Ellipsis            = '… ',
+    Eye                 = '󰈈 ',
     GitSignAdd          = '▍ ',
     GitSignChange       = '▍ ',
     GitSignChangedelete = '▍ ',

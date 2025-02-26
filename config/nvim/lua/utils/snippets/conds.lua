@@ -32,14 +32,14 @@ local M = setmetatable({ _ = {} }, {
 ---@return boolean
 function M.in_mathzone()
   if utils.ts.is_active() then
-    return utils.ts.in_node(
+    return utils.ts.find_node(
       { 'formula', 'equation', 'math' },
       { ignore_injections = false }
-    )
+    ) ~= nil
   end
 
   if vim.b.current_syntax then
-    return utils.syn.in_group({ 'MathZone' })
+    return utils.syn.find_group({ 'MathZone' }) ~= nil
   end
 
   return false
@@ -49,11 +49,11 @@ end
 ---@return boolean
 function M.in_codeblock()
   if utils.ts.is_active() then
-    return utils.ts.in_node({ 'fence' })
+    return utils.ts.find_node({ 'fence' }) ~= nil
   end
 
   if vim.b.current_syntax then
-    return utils.syn.in_group({ 'CodeBlock' })
+    return utils.syn.find_group({ 'CodeBlock' }) ~= nil
   end
 
   return false
@@ -65,7 +65,7 @@ end
 ---@return fun(): boolean
 function M.in_tsnode(type, opts)
   return function()
-    return utils.ts.in_node(type, opts)
+    return utils.ts.find_node(type, opts) ~= nil
   end
 end
 
@@ -73,14 +73,19 @@ end
 ---@return boolean
 function M.in_normalzone()
   if utils.ts.is_active() then
-    return not utils.ts.in_node(
+    return utils.ts.find_node(
       { 'comment', 'string', 'fence', 'formula', 'equation', 'math' },
       { ignore_injections = false }
-    )
+    ) == nil
   end
 
   if vim.b.current_syntax then
-    return not utils.syn.in_group({ 'Comment', 'String', 'Code', 'MathZone' })
+    return utils.syn.find_group({
+      'Comment',
+      'String',
+      'Code',
+      'MathZone',
+    }) == nil
   end
 
   return true
