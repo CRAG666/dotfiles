@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Sun Feb 16 12:46:01 AM EST 2025
+-- Last Updated: Mon Mar 10 11:40:14 AM PDT 2025
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -192,7 +192,7 @@ else
   vim.g.terminal_color_4  = c_macroBlue1[1]
   vim.g.terminal_color_5  = c_springViolet[1]
   vim.g.terminal_color_6  = c_macroAqua[1]
-  vim.g.terminal_color_7  = c_macroBg5[1]
+  vim.g.terminal_color_7  = c_macroFg0[1]
   vim.g.terminal_color_8  = c_macroBg3[1]
   vim.g.terminal_color_9  = c_waveRed[1]
   vim.g.terminal_color_10 = c_macroGreen0[1]
@@ -200,7 +200,7 @@ else
   vim.g.terminal_color_12 = c_springBlue[1]
   vim.g.terminal_color_13 = c_sumiInk6[1]
   vim.g.terminal_color_14 = c_waveAqua1[1]
-  vim.g.terminal_color_15 = c_macroFg0[1]
+  vim.g.terminal_color_15 = c_macroBg5[1]
   vim.g.terminal_color_16 = c_macroOrange0[1]
   vim.g.terminal_color_17 = c_macroOrange1[1]
 end
@@ -276,8 +276,8 @@ local hlgroups = {
   WarningMsg = { fg = c_roninYellow },
   Whitespace = { fg = c_macroBg4 },
   WildMenu = { link = 'Pmenu' },
-  WinBar = { bg = 'NONE', fg = c_macroFg1 },
-  WinBarNC = { link = 'WinBar' },
+  WinBar = { bg = c_macroBg0, fg = c_macroFg1 },
+  WinBarNC = { bg = c_macroBg0, fg = c_macroBg5 },
   WinSeparator = { fg = c_macroBg4 },
   lCursor = { link = 'Cursor' },
   -- }}}2
@@ -292,7 +292,7 @@ local hlgroups = {
   Exception = { fg = c_macroRed },
   Float = { link = 'Number' },
   Function = { fg = c_macroBlue1 },
-  Identifier = { fg = c_macroFg0 },
+  Identifier = {},
   Keyword = { fg = c_macroViolet },
   Number = { fg = c_macroPink },
   Operator = { fg = c_macroRed },
@@ -605,6 +605,8 @@ if vim.go.bg == 'light' then
   hlgroups.StatusLineHeader = { bg = c_macroFg0, fg = c_macroBg0 }
   hlgroups.StatusLineHeaderModified = { bg = c_macroRed, fg = c_macroBg0 }
   hlgroups.Visual = { bg = c_macroBg3 }
+  hlgroups.WinBar = { bg = c_macroBg0, fg = c_macroFg1 }
+  hlgroups.WinBarNC = { bg = c_macroBg2, fg = c_macroBg5 }
   hlgroups['@variable.parameter'] = { link = 'Identifier' }
 end
 -- }}}1

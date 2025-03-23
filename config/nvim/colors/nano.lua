@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Fri Feb 14 01:50:04 PM EST 2025
+-- Last Updated: Thu Mar 13 12:38:42 AM EDT 2025
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -189,7 +189,7 @@ local hlgroups = {
   Boolean = { link = 'Constant' },
   Array = { fg = c_critical },
   Float = { link = 'Number' },
-  Identifier = { fg = c_foreground },
+  Identifier = {},
   Builtin = { fg = c_foreground },
   Field = { link = 'None' },
   Enum = { fg = c_faded },
@@ -607,7 +607,7 @@ local hlgroups = {
   texSymbol = { fg = c_critical },
   texTitleArg = { link = 'Title' },
   texVerbZone = { fg = c_foreground },
-  texZone = { fg = c_subtle },
+  texZone = { fg = c_popout },
   texMathArg = { fg = c_foreground },
   texMathCmd = { link = 'texCmd' },
   texMathSub = { fg = c_foreground },

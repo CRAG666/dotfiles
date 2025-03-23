@@ -1,99 +1,376 @@
----@param config {type?:string, args?:string[]|fun():string[]?}
-local function get_args(config)
-  local args = type(config.args) == "function" and (config.args() or {}) or config.args or {} --[[@as string[] | string ]]
-  local args_str = type(args) == "table" and table.concat(args, " ") or args --[[@as string]]
-
-  config = vim.deepcopy(config)
-  ---@cast args string[]
-  config.args = function()
-    local new_args = vim.fn.expand(vim.fn.input("Run with args: ", args_str)) --[[@as string]]
-    if config.type and config.type == "java" then
-      ---@diagnostic disable-next-line: return-type-mismatch
-      return new_args
-    end
-    return require("dap.utils").splitstr(new_args)
-  end
-  return config
-end
-
 return {
   {
-    "mfussenegger/nvim-dap",
-    recommended = true,
-    desc = "Debugging support. Requires language specific adapters to be configured. (see lang extras)",
-
-    dependencies = {
-      "rcarriga/nvim-dap-ui",
-      -- virtual text for the debugger
-      {
-        "theHamsta/nvim-dap-virtual-text",
-        opts = {},
-      },
+    'mfussenegger/nvim-dap',
+    cmd = {
+      'DapContinue',
+      'DapLoadLaunchJSON',
+      'DapRestartFrame',
+      'DapSetLogLevel',
+      'DapShowLog',
+      'DapToggleBreakPoint',
     },
-
-    -- stylua: ignore
     keys = {
-      { "<leader>dB", function() require("dap").set_breakpoint(vim.fn.input('Breakpoint condition: ')) end, desc = "Breakpoint Condition" },
-      { "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "Toggle Breakpoint" },
-      { "<leader>dc", function() require("dap").continue() end, desc = "Run/Continue" },
-      { "<leader>da", function() require("dap").continue({ before = get_args }) end, desc = "Run with Args" },
-      { "<leader>dC", function() require("dap").run_to_cursor() end, desc = "Run to Cursor" },
-      { "<leader>dg", function() require("dap").goto_() end, desc = "Go to Line (No Execute)" },
-      { "<leader>di", function() require("dap").step_into() end, desc = "Step Into" },
-      { "<leader>dj", function() require("dap").down() end, desc = "Down" },
-      { "<leader>dk", function() require("dap").up() end, desc = "Up" },
-      { "<leader>dl", function() require("dap").run_last() end, desc = "Run Last" },
-      { "<leader>do", function() require("dap").step_out() end, desc = "Step Out" },
-      { "<leader>dO", function() require("dap").step_over() end, desc = "Step Over" },
-      { "<leader>dP", function() require("dap").pause() end, desc = "Pause" },
-      { "<leader>dr", function() require("dap").repl.toggle() end, desc = "Toggle REPL" },
-      { "<leader>ds", function() require("dap").session() end, desc = "Session" },
-      { "<leader>dt", function() require("dap").terminate() end, desc = "Terminate" },
-      { "<leader>dw", function() require("dap.ui.widgets").hover() end, desc = "Widgets" },
+      { '<F5>', desc = 'Continue program execution' },
+      { '<F8>', desc = 'Open debug REPL' },
+      { '<F9>', desc = 'Toggle breakpoint' },
+      { '<F21>', desc = 'Set conditional breakpoint' },
+      { '<F45>', desc = 'Set logpoint' },
+      { '<Leader>Gc', desc = 'Continue program execution' },
+      { '<Leader>Ge', desc = 'Open debug REPL' },
+      { '<Leader>Gb', desc = 'Toggle breakpoint' },
+      { '<Leader>GB', desc = 'Set conditional breakpoint' },
+      { '<Leader>Gl', desc = 'Set logpoint' },
     },
-
+    dependencies = {
+      'rcarriga/cmp-dap',
+      'rcarriga/nvim-dap-ui',
+    },
     config = function()
-      vim.api.nvim_set_hl(0, "DapStoppedLine", { default = true, link = "Visual" })
-      for name, sign in pairs(require("utils.static.icons").dap) do
-        sign = type(sign) == "table" and sign or { sign }
-        vim.fn.sign_define(
-          "Dap" .. name,
-          { text = sign[1], texthl = sign[2] or "DiagnosticInfo", linehl = sign[3], numhl = sign[3] }
-        )
+      local dap = require('dap')
+      local key = require('utils.key')
+      local icons = require('utils.static.icons')
+
+      local function set_cond_breakpoint()
+        dap.set_breakpoint(nil, vim.fn.input('Breakpoint condition: '))
       end
 
-      -- setup dap config by VsCode launch.json file
-      local vscode = require "dap.ext.vscode"
-      local json = require "plenary.json"
-      vscode.json_decode = function(str)
-        return vim.json.decode(json.json_strip_comments(str))
+      local function set_logpoint()
+        dap.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))
       end
+
+      local last_dap_fn = function() end
+
+      ---Wrap a function to set it as the last function to be called
+      ---@param fn function
+      ---@return function
+      local function wrap(fn)
+        return function()
+          last_dap_fn = fn
+          fn()
+        end
+      end
+
+      local dap_set_cond_breakpoint = wrap(set_cond_breakpoint)
+      local dap_set_logpoint = wrap(set_logpoint)
+      local dap_up = wrap(dap.up)
+      local dap_down = wrap(dap.down)
+      local dap_continue = wrap(dap.continue)
+      local dap_pause = wrap(dap.pause)
+      local dap_repl_open = wrap(dap.repl.open)
+      local dap_toggle_breakpoint = wrap(dap.toggle_breakpoint)
+      local dap_step_over = wrap(dap.step_over)
+      local dap_step_into = wrap(dap.step_into)
+      local dap_step_out = wrap(dap.step_out)
+      local dap_terminate = wrap(dap.terminate)
+      local dap_restart = wrap(dap.restart)
+
+      vim.keymap.set('n', '<F1>', dap_up, { desc = 'Stack up' })
+      vim.keymap.set('n', '<F2>', dap_down, { desc = 'Stack down' })
+      vim.keymap.set(
+        'n',
+        '<F5>',
+        dap_continue,
+        { desc = 'Continue program execution' }
+      )
+      vim.keymap.set(
+        'n',
+        '<F6>',
+        dap_pause,
+        { desc = 'Pause program execution' }
+      )
+      vim.keymap.set('n', '<F8>', dap_repl_open, { desc = 'Open debug REPL' })
+      vim.keymap.set(
+        'n',
+        '<F9>',
+        dap_toggle_breakpoint,
+        { desc = 'Toggle breakpoint' }
+      )
+      vim.keymap.set('n', '<F10>', dap_step_over, { desc = 'Step over' })
+      vim.keymap.set('n', '<F11>', dap_step_into, { desc = 'Step into' })
+      vim.keymap.set(
+        'n',
+        '<F17>',
+        dap_terminate,
+        { desc = 'Terminate debug session' }
+      )
+      vim.keymap.set('n', '<F23>', dap_step_out, { desc = 'Step out' })
+      vim.keymap.set(
+        'n',
+        '<F41>',
+        dap_restart,
+        { desc = 'Restart debug session' }
+      )
+      vim.keymap.set(
+        'n',
+        '<F21>',
+        dap_set_cond_breakpoint,
+        { desc = 'Set conditional breakpoint' }
+      )
+      vim.keymap.set('n', '<F45>', dap_set_logpoint, { desc = 'Set logpoint' })
+
+      vim.keymap.set('n', '<Leader>Gk', dap_up, { desc = 'Stack up' })
+      vim.keymap.set('n', '<Leader>Gj', dap_down, { desc = 'Stack down' })
+      vim.keymap.set('n', '<Leader>G<Up>', dap_up, { desc = 'Stack up' })
+      vim.keymap.set('n', '<Leader>G<Down>', dap_down, { desc = 'Stack down' })
+      vim.keymap.set(
+        'n',
+        '<Leader>Gc',
+        dap_continue,
+        { desc = 'Continue program execution' }
+      )
+      vim.keymap.set(
+        'n',
+        '<Leader>Gh',
+        dap_pause,
+        { desc = 'Pause program execution' }
+      )
+      vim.keymap.set(
+        'n',
+        '<Leader>Gp',
+        dap_pause,
+        { desc = 'Pause program execution' }
+      )
+      vim.keymap.set(
+        'n',
+        '<C-c>',
+        dap_pause,
+        { desc = 'Pause program execution' }
+      )
+      vim.keymap.set(
+        'n',
+        '<Leader>Ge',
+        dap_repl_open,
+        { desc = 'Open debug REPL' }
+      )
+      vim.keymap.set(
+        'n',
+        '<Leader>Gb',
+        dap_toggle_breakpoint,
+        { desc = 'Toggle breakpoint' }
+      )
+      vim.keymap.set('n', '<Leader>Gn', dap_step_over, { desc = 'Step over' })
+      vim.keymap.set('n', '<Leader>Gi', dap_step_into, { desc = 'Step into' })
+      vim.keymap.set('n', '<Leader>Go', dap_step_out, { desc = 'Step out' })
+      vim.keymap.set(
+        'n',
+        '<Leader>Gt',
+        dap_terminate,
+        { desc = 'Terminate debug session' }
+      )
+      vim.keymap.set(
+        'n',
+        '<Leader>Gx',
+        dap_terminate,
+        { desc = 'Terminate debug session' }
+      )
+      vim.keymap.set(
+        'n',
+        '<Leader>Gr',
+        dap_restart,
+        { desc = 'Restart debug session' }
+      )
+      vim.keymap.set(
+        'n',
+        '<Leader>GB',
+        dap_set_cond_breakpoint,
+        { desc = 'Set conditional breakpoint' }
+      )
+      vim.keymap.set(
+        'n',
+        '<Leader>Gl',
+        dap_set_logpoint,
+        { desc = 'Set logpoint' }
+      )
+      vim.keymap.set(
+        'n',
+        '<Leader>G<Esc>',
+        '<Nop>',
+        { desc = 'Cancel debug action' }
+      )
+
+      -- When there's active dap session, use `<CR>` to repeat the last dap function
+      key.amend('n', '<CR>', function(fallback)
+        if dap.session() then
+          last_dap_fn()
+          return
+        end
+        fallback()
+      end)
+
+      vim.api.nvim_create_user_command('DapClear', dap.clear_breakpoints, {
+        desc = 'Clear all breakpoints',
+      })
+
+      vim.fn.sign_define('DapBreakpoint', {
+        text = vim.trim(icons.debug.Breakpoint),
+        texthl = 'DiagnosticSignHint',
+      })
+      vim.fn.sign_define('DapBreakpointCondition', {
+        text = vim.trim(icons.debug.BreakpointCondition),
+        texthl = 'DiagnosticSignInfo',
+      })
+      vim.fn.sign_define('DapBreakpointRejected', {
+        text = vim.trim(icons.debug.BreakpointRejected),
+        texthl = 'DiagnosticSignWarn',
+      })
+      vim.fn.sign_define('DapLogPoint', {
+        text = vim.trim(icons.debug.BreakpointLog),
+        texthl = 'DiagnosticSignOk',
+      })
+      vim.fn.sign_define('DapStopped', {
+        text = vim.trim(icons.debug.StackFrame),
+        texthl = 'DiagnosticSignError',
+      })
+
+      dap.adapters = {}
+      dap.configurations = {}
+
+      ---Load debug adapter specs for given filetype
+      ---@param ft string
+      local function load_spec(ft)
+        if dap.configurations[ft] then
+          return
+        end
+
+        local ok, spec = pcall(require, 'dap.' .. ft)
+        if not ok then
+          return
+        end
+
+        dap.adapters[spec.config[1].type] = spec.adapter
+        dap.configurations[ft] = spec.config
+      end
+
+      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        load_spec(vim.bo[buf].ft)
+      end
+
+      vim.api.nvim_create_autocmd('FileType', {
+        group = vim.api.nvim_create_augroup('DapLoadSpecs', {}),
+        callback = function(info)
+          load_spec(info.match)
+        end,
+      })
     end,
   },
-
-  -- fancy UI for the debugger
   {
-    "rcarriga/nvim-dap-ui",
-    dependencies = { "nvim-neotest/nvim-nio" },
-    -- stylua: ignore
-    keys = {
-      { "<leader>du", function() require("dapui").toggle({ }) end, desc = "Dap UI" },
-      { "<leader>de", function() require("dapui").eval() end, desc = "Eval", mode = {"n", "v"} },
+    'jbyuki/one-small-step-for-vimkind',
+    cmd = 'DapOSVLaunchServer',
+    dependencies = 'mfussenegger/nvim-dap',
+    config = function()
+      local utils = require('utils')
+      local osv = require('osv')
+
+      vim.api.nvim_create_user_command('DapOSVLaunchServer', function(info)
+        local opts = utils.cmd.parse_cmdline_args(info.fargs)
+        opts.port = opts.port or 8086
+        osv.launch(opts)
+      end, {
+        nargs = '*',
+        complete = utils.cmd.complete({}, {
+          'host',
+          'port',
+          config_file = function(arglead)
+            return vim.fn.getcompletion(
+              (arglead:gsub('^%-%-[%w_]*=', '')),
+              'file'
+            )
+          end,
+        }),
+        desc = [[
+    Launches an osv debug server.
+    Usage: DapOSVLaunchServer [--host=<host>] [--port=<port>] [--config_file=<config_file>]
+  ]],
+      })
+    end,
+  },
+  {
+    'rcarriga/nvim-dap-ui',
+    lazy = true,
+    dependencies = {
+      'mfussenegger/nvim-dap',
+      'nvim-neotest/nvim-nio',
+      'kyazdani42/nvim-web-devicons',
     },
-    opts = {},
-    config = function(_, opts)
-      local dap = require "dap"
-      local dapui = require "dapui"
-      dapui.setup(opts)
-      dap.listeners.after.event_initialized["dapui_config"] = function()
-        dapui.open {}
-      end
-      dap.listeners.before.event_terminated["dapui_config"] = function()
-        dapui.close {}
-      end
-      dap.listeners.before.event_exited["dapui_config"] = function()
-        dapui.close {}
-      end
+    config = function()
+      local dap, dapui = require('dap'), require('dapui')
+      local static = require('utils.static')
+
+      dap.listeners.after.event_initialized['dapui_config'] = dapui.open
+      dap.listeners.before.event_terminated['dapui_config'] = dapui.close
+      dap.listeners.before.event_exited['dapui_config'] = dapui.close
+
+      vim.keymap.set(
+        { 'n', 'x' },
+        '<F24>',
+        dapui.eval,
+        { desc = 'Inspect element value' }
+      ) -- <S-F12>
+      vim.keymap.set(
+        { 'n', 'x' },
+        '<Leader>GK',
+        dapui.eval,
+        { desc = 'Inspect element value' }
+      )
+
+      dapui.setup({
+        layouts = {
+          {
+            elements = {
+              { id = 'scopes', size = 0.25 },
+              { id = 'watches', size = 0.25 },
+              { id = 'breakpoints', size = 0.25 },
+              { id = 'stacks', size = 0.25 },
+            },
+            position = 'left',
+            size = 0.3,
+          },
+          {
+            elements = {
+              { id = 'repl', size = 0.5 },
+              { id = 'console', size = 0.5 },
+            },
+            position = 'bottom',
+            size = 0.25,
+          },
+        },
+        icons = {
+          expanded = vim.trim(static.icons.ui.AngleDown),
+          collapsed = vim.trim(static.icons.ui.AngleRight),
+          current_frame = vim.trim(static.icons.StackFrameCurrent),
+        },
+        controls = {
+          icons = {
+            play = vim.trim(static.icons.debug.Start),
+            pause = vim.trim(static.icons.debug.Pause),
+            run_last = vim.trim(static.icons.debug.Restart),
+            step_back = vim.trim(static.icons.debug.StepBack),
+            step_into = vim.trim(static.icons.debug.StepInto),
+            step_out = vim.trim(static.icons.debug.StepOut),
+            step_over = vim.trim(static.icons.debug.StepOver),
+            terminate = vim.trim(static.icons.debug.Stop),
+            disconnect = vim.trim(static.icons.debug.Disconnect),
+          },
+        },
+        mappings = {
+          -- Use a table to apply multiple mappings
+          expand = { '=', 'za' },
+          open = { '<CR>', 'o', 'zo' },
+          remove = { 'dd', 'x' },
+          edit = { 's', 'cc' },
+          repl = 'r',
+          toggle = '<Leader><Leader>',
+        },
+        floating = {
+          border = 'solid',
+          max_height = 20,
+          max_width = 80,
+          mappings = {
+            close = { 'q', '<Esc>' },
+          },
+        },
+        windows = { indent = 1 },
+      })
     end,
   },
 }

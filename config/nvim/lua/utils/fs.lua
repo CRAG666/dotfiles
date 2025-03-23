@@ -63,11 +63,13 @@ end
 ---@param paths string[]
 ---@return string[]
 function M.diff(paths)
-  local _paths = {}
-  for _, path in ipairs(paths) do
-    _paths[path] = true
-  end
-  local num_unique_paths = #vim.tbl_keys(_paths)
+  local n_paths = (function()
+    local path_set = {}
+    for _, path in ipairs(paths) do
+      path_set[path] = true
+    end
+    return #vim.tbl_keys(path_set)
+  end)()
 
   ---@alias ipath { [1]: string, [2]: integer }
   ---Paths with index
@@ -76,33 +78,32 @@ function M.diff(paths)
   for i, path in ipairs(paths) do
     table.insert(ipaths, { path, i })
   end
+
   ---Groups of paths with the same tail
   ---key:val = tail:ihead[]
   ---@type table<string, ipath[]>
   local groups = { [''] = ipaths }
 
-  while #vim.tbl_keys(groups) < num_unique_paths do
-    local _groups = {}
+  while #vim.tbl_keys(groups) < n_paths do
+    local g = {} ---@type table<string, ipath[]>
     for tail, iheads in pairs(groups) do
       for _, ihead in ipairs(iheads) do
         local head = ihead[1]
         local idx = ihead[2]
-        local _tail = vim.fn.fnamemodify(head, ':t')
-        local _head = vim.fn.fnamemodify(head, ':h')
+        local t = vim.fn.fnamemodify(head, ':t')
+        local h = vim.fn.fnamemodify(head, ':h')
         if #vim.tbl_keys(groups) > 1 then
-          _tail = _tail == '' and tail
-            or tail == '' and _tail
-            or vim.fs.joinpath(_tail, tail)
+          t = t == '' and tail or tail == '' and t or vim.fs.joinpath(t, tail)
         end
-        _head = _head == '.' and '' or _head
+        h = h == '.' and '' or h
 
-        if not _groups[_tail] then
-          _groups[_tail] = {}
+        if not g[t] then
+          g[t] = {}
         end
-        table.insert(_groups[_tail], { _head, idx })
+        table.insert(g[t], { h, idx })
       end
     end
-    groups = _groups
+    groups = g
   end
 
   local diffs = {}

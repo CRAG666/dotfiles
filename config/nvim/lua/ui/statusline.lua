@@ -348,6 +348,7 @@ vim.api.nvim_create_autocmd('WinClosed', {
   end,
 })
 
+---@return string
 function _G._statusline.fname()
   local bname = vim.api.nvim_buf_get_name(0)
 
@@ -376,11 +377,16 @@ function _G._statusline.fname()
 
   -- Terminal buffer, show terminal command and id
   if vim.bo.bt == 'terminal' then
-    local id, cmd = bname:match('^term://.*/(%d+):(.*)')
-    return id
-        and cmd
-        and string.format('[Terminal] %s (%s)', utils.stl.escape(cmd), id)
-      or '[Terminal] %F'
+    local path, pid, cmd, comment = utils.term.parse_name(bname)
+    if not path or not pid or not cmd then
+      return '[Terminal] %F'
+    end
+    return string.format(
+      '[Terminal %s] %s [%s]',
+      comment ~= '' and comment or pid,
+      utils.stl.escape(cmd),
+      vim.fn.fnamemodify(path, ':~'):gsub('/+$', '')
+    )
   end
 
   -- Other special buffer types
@@ -396,14 +402,30 @@ function _G._statusline.fname()
   return '%F'
 end
 
+---Name of python virtual environment
+---@return string
+function _G._statusline.venv()
+  local venv_name = vim.env.VIRTUAL_ENV
+      and vim.fn.fnamemodify(vim.env.VIRTUAL_ENV, ':~:.')
+    or vim.env.CONDA_DEFAULT_ENV
+  return venv_name and string.format('venv: %s', venv_name) or ''
+end
+
 ---Text filetypes
 ---@type table<string, true>
-local text_fts = {
+local is_text = {
   [''] = true,
   ['tex'] = true,
   ['markdown'] = true,
   ['text'] = true,
 }
+
+---Check if current buffer is a python/jupyter notebook buffer
+---@return boolean
+local function is_python()
+  return vim.startswith(vim.bo.ft, 'python')
+    or vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ':e') == 'ipynb'
+end
 
 ---Additional info for the current buffer enclosed in parentheses
 ---@return string
@@ -411,6 +433,7 @@ function _G._statusline.info()
   if vim.bo.bt ~= '' then
     return ''
   end
+
   local info = {}
   ---@param section string
   local function add_section(section)
@@ -418,10 +441,17 @@ function _G._statusline.info()
       table.insert(info, section)
     end
   end
+
   add_section(_G._statusline.ft())
-  if text_fts[vim.bo.ft] and not vim.b.bigfile then
+
+  if is_text[vim.bo.ft] and not vim.b.bigfile then
     add_section(_G._statusline.wordcount())
   end
+
+  if is_python() then
+    add_section(_G._statusline.venv())
+  end
+
   add_section(_G._statusline.branch())
   add_section(_G._statusline.gitdiff())
   return vim.tbl_isempty(info) and ''
@@ -558,16 +588,16 @@ end
 ---Statusline components
 ---@type table<string, string>
 local components = {
-  align        = [[%=]],
-  flag         = [[%{%&bt==#''?'':(&bt==#'help'?'%h ':(&pvw?'%w ':(&bt==#'quickfix'?'%q ':'')))%}]],
-  diag         = [[%{%v:lua._statusline.diag()%}]],
-  fname        = [[%{%v:lua._statusline.fname()%} ]],
-  info         = [[%{%v:lua._statusline.info()%}]],
-  spinner     = [[%{%v:lua._statusline.spinner()%}]],
-  mode         = [[%{%v:lua._statusline.mode()%}]],
-  padding      = [[ ]],
-  pos          = [[%{%&ru?"%l:%c ":""%}]],
-  truncate     = [[%<]],
+  align    = [[%=]],
+  flag     = [[%{%&bt==#''?'':(&bt==#'help'?'%h ':(&pvw?'%w ':(&bt==#'quickfix'?'%q ':'')))%}]],
+  diag     = [[%{%v:lua._statusline.diag()%}]],
+  fname    = [[%{%v:lua._statusline.fname()%} ]],
+  info     = [[%{%v:lua._statusline.info()%}]],
+  spinner  = [[%{%v:lua._statusline.spinner()%}]],
+  mode     = [[%{%v:lua._statusline.mode()%}]],
+  padding  = [[ ]],
+  pos      = [[%{%&ru?"%l:%c ":""%}]],
+  truncate = [[%<]],
 }
 -- stylua: ignore end
 

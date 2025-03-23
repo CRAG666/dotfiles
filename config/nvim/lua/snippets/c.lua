@@ -530,21 +530,22 @@ M.snippets = {
         {
           type = r(1, 'type'),
           func = r(2, 'func'),
-          params = i(3, 'int'),
+          params = r(3, 'params'),
           body = un.body(4, 1),
         }
       ),
       un.fmtad('<type> <func>(<params>);', {
         type = r(1, 'type'),
         func = r(2, 'func'),
-        params = i(3, 'int'),
+        params = r(3, 'params'),
       }),
     }),
     {
       common_opts = {
         stored = {
-          type = i(1, 'int'),
-          func = i(2, 'fn_name'),
+          type = i(nil, 'void'),
+          func = i(nil, 'fn_name'),
+          params = i(nil)
         },
       },
     }

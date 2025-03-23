@@ -18,6 +18,7 @@ setmetatable(_G._tabline, {
           vim.t[tabid]._tabname = tabname_nr
         end
       end
+      vim.g._tabline_name_restored = true
     end
     for tabnr, tabid in ipairs(vim.api.nvim_list_tabpages()) do
       -- Save the tab-local name variable to the corresponding global variable
@@ -36,7 +37,7 @@ setmetatable(_G._tabline, {
               or vim.fn.pathshorten(
                 vim.fn.fnamemodify(
                   vim.fn.getcwd(vim.api.nvim_tabpage_get_win(tabid), tabnr),
-                  ':.:~'
+                  ':~'
                 )
               )
           ),
@@ -73,6 +74,26 @@ end, {
   count = -1,
   addr = 'tabs',
   desc = 'Rename the current tab.',
+  complete = function()
+    local tabnames = {}
+    for _, tabid in ipairs(vim.api.nvim_list_tabpages()) do
+      local name = vim.t[tabid]._tabname
+      if name then
+        tabnames[vim.t[tabid]._tabname] = true
+      end
+    end
+
+    local compl = {}
+    for name, _ in pairs(tabnames) do
+      if name == vim.t._tabname then
+        table.insert(compl, 1, name)
+      else
+        table.insert(compl, name)
+      end
+    end
+
+    return compl
+  end,
 })
 
 -- Preserve tab names across sessions

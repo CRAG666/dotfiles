@@ -352,6 +352,7 @@ M.opts = {
       -- Types listed below must have corresponding icons
       -- in the `icons.kinds.symbols` table for the icon to be shown
       valid_types = {
+        'block_mapping_pair',
         'break_statement',
         'call',
         'case_statement',
@@ -367,6 +368,7 @@ M.opts = {
         'event',
         'for_statement',
         'function',
+        'goto_statement',
         'h1_marker',
         'h2_marker',
         'h3_marker',
@@ -386,6 +388,7 @@ M.opts = {
         'property',
         'reference',
         'repeat',
+        'return_statement',
         'rule_set',
         'scope',
         'specifier',

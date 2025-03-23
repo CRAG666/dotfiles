@@ -1,1 +1,1 @@
-1|Catppuccin-Mocha|/home/think-crag/Imágenes/wallpaperCicle/Dreamy-Aesthetic-Home-Under-Moonlight.png
+1|Catppuccin-Mocha|/home/think-crag/Imágenes/wallpaperCicle/39.jpg

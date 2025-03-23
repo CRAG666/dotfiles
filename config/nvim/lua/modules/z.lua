@@ -7,7 +7,7 @@ local function has_z()
     return true
   end
 
-  if vim.system({ vim.env.SHELL, '-c', 'z' }):wait().code == 0 then
+  if vim.system({ vim.env.SHELL, '-c', 'type z' }):wait().code == 0 then
     vim.g._z_installed = true
     return true
   end

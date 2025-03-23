@@ -168,7 +168,7 @@ alias la="exa --icons -la"
 # alias grep='grep --color=auto'
 # alias cp='rsync --progress -avz'
 cd() { pushd $1 && ls; }
-alias tree="exa --icons --tree --level=2 --long --git"
+alias tree="exa --icons --tree --level=4 --long --git"
 alias vi="nvim"
 alias vim="nvim"
 alias zt="/bin/zathura --fork"

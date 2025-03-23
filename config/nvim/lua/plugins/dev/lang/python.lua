@@ -1,30 +1,34 @@
 return {
   {
-    "nvim-treesitter/nvim-treesitter",
+    'nvim-treesitter/nvim-treesitter',
     opts = function(_, opts)
-      if type(opts.ensure_installed) == "table" then
-        vim.list_extend(opts.ensure_installed, { "python", "rst", "pymanifest", "requirements" })
+      if type(opts.ensure_installed) == 'table' then
+        vim.list_extend(
+          opts.ensure_installed,
+          { 'python', 'rst', 'pymanifest', 'requirements' }
+        )
       end
     end,
   },
   {
-    "williamboman/mason.nvim",
+    'williamboman/mason.nvim',
     opts = function(_, opts)
       opts.ensure_installed = opts.ensure_installed or {}
-      table.insert(opts.ensure_installed, "basedpyright")
-      table.insert(opts.ensure_installed, "ruff")
-      table.insert(opts.ensure_installed, "ruff-lsp")
+      table.insert(opts.ensure_installed, 'basedpyright')
+      -- table.insert(opts.ensure_installed, 'pylyzer')
+      table.insert(opts.ensure_installed, 'ruff')
+      table.insert(opts.ensure_installed, 'ruff-lsp')
     end,
   },
   {
-    "nvim-neotest/neotest",
+    'nvim-neotest/neotest',
     optional = true,
     dependencies = {
-      "nvim-neotest/neotest-python",
+      'nvim-neotest/neotest-python',
     },
     opts = {
       adapters = {
-        ["neotest-python"] = {
+        ['neotest-python'] = {
           -- Here you can specify the settings for the adapter, i.e.
           -- runner = "pytest",
           -- python = ".venv/bin/python",
@@ -33,28 +37,28 @@ return {
     },
   },
   {
-    "mfussenegger/nvim-dap",
+    'mfussenegger/nvim-dap',
     optional = true,
     dependencies = {
-      "mfussenegger/nvim-dap-python",
+      'mfussenegger/nvim-dap-python',
       -- stylua: ignore
       keys = {
         { "<leader>dPt", function() require('dap-python').test_method() end, desc = "Debug Method", ft = "python" },
         { "<leader>dPc", function() require('dap-python').test_class() end, desc = "Debug Class", ft = "python" },
       },
       config = function()
-        local python_env_path = "$(poetry env info -p)/bin/python"
-        if vim.fn.has "win32" == 1 then
-          require("dap-python").setup(python_env_path .. ".exe")
+        local python_env_path = '$(poetry env info -p)/bin/python'
+        if vim.fn.has('win32') == 1 then
+          require('dap-python').setup(python_env_path .. '.exe')
         else
-          require("dap-python").setup(python_env_path)
+          require('dap-python').setup(python_env_path)
         end
       end,
     },
   },
   -- Don't mess up DAP adapters provided by nvim-dap-python
   {
-    "jay-babu/mason-nvim-dap.nvim",
+    'jay-babu/mason-nvim-dap.nvim',
     optional = true,
     opts = {
       handlers = {
@@ -64,19 +68,19 @@ return {
   },
   { -- directly open ipynb files as quarto docuements
     -- and convert back behind the scenes
-    "GCBallesteros/jupytext.nvim",
-    ft = "jupyter",
+    'GCBallesteros/jupytext.nvim',
+    ft = 'jupyter',
     opts = {
       custom_language_formatting = {
         python = {
-          extension = "qmd",
-          style = "quarto",
-          force_ft = "quarto",
+          extension = 'qmd',
+          style = 'quarto',
+          force_ft = 'quarto',
         },
         r = {
-          extension = "qmd",
-          style = "quarto",
-          force_ft = "quarto",
+          extension = 'qmd',
+          style = 'quarto',
+          force_ft = 'quarto',
         },
       },
     },

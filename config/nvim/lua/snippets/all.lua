@@ -10,7 +10,7 @@ M.snippets = {
       desc = 'Current date and time',
     },
     f(function()
-      return vim.trim(vim.system({ 'date' }):wait().stdout)
+      return os.date()
     end)
   ),
 }

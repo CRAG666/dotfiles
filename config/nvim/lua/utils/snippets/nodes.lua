@@ -33,7 +33,7 @@ function M.qt(argnode_references, opts)
 end
 
 ---Returns a dynamic node for suffix snippet
----@param jump_index number
+---@param jump_index number?
 ---@param opening string
 ---@param closing string
 ---@return table node

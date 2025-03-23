@@ -226,8 +226,28 @@ return {
     show_condition = conds.before_pattern('}') * conds.after_pattern('%^{'),
   }, t('\\intercal')),
 
+  us.samWr(
+    { trig = '(\\?%w*_*%w*);;' },
+    d(1, function(_, snip)
+      local symbol = snip.captures[1]
+      if not symbol or not symbol:match('%S') then
+        return sn(1, {
+          c(1, { i(1, '\\mathbf'), i(1, '\\boldsymbol') }),
+          t('{'),
+          i(2),
+          t('}'),
+        })
+      end
+      return sn(1, {
+        -- `\mathbf` does not work for special symbols that starts with `\`,
+        -- e.g. Greek letters such as `\alpha`
+        vim.startswith(symbol, '\\') and t('\\boldsymbol{') or t('\\mathbf{'),
+        t(symbol),
+        t('}'),
+      })
+    end)
+  ),
   us.samWr({ trig = '(\\?%w*_*%w*)vv' }, un.sdn(1, '\\vec{', '}')),
-  us.samWr({ trig = '(\\?%w*_*%w*);;' }, un.sdn(1, '\\mathbf{', '}')),
   us.samWr({ trig = '(\\?%w*_*%w*)hat' }, un.sdn(1, '\\hat{', '}')),
   us.samWr({ trig = '(\\?%w*_*%w*)bar' }, un.sdn(1, '\\bar{', '}')),
   us.samWr({ trig = '(\\?%w*_*%w*)td' }, un.sdn(1, '\\tilde{', '}')),
@@ -293,23 +313,23 @@ return {
     un.fmtad(
       [[
         \begin{bmatrix}
-        <idnt><el><_>{<row0><comma><col0>} & <el><_>{<row0><comma><col1>} & \ldots & <el><_>{<row0><comma><width>} \\
-        <idnt><el><_>{<row1><comma><col0>} & <el><_>{<row1><comma><col1>} & \ldots & <el><_>{<row1><comma><width>} \\
+        <idnt><el00> & <el01> & \ldots & <el0M> \\
+        <idnt><el10> & <el11> & \ldots & <el1M> \\
         <idnt>\vdots & \vdots & \ddots & \vdots \\
-        <idnt><el><_>{<height><comma>0} & <el><_>{<height><comma>1} & \ldots & <el><_>{<height><comma><width>} \\
+        <idnt><elN0> & <elN1> & \ldots & <elNM> \\
         \end{bmatrix}
       ]],
       {
         idnt = un.idnt(1),
-        el = i(1, 'a'),
-        _ = i(8, '_'),
-        height = i(2, 'N-1'),
-        width = i(3, 'M-1'),
-        row0 = i(4, '0'),
-        col0 = i(5, '0'),
-        row1 = i(6, '1'),
-        col1 = i(7, '1'),
-        comma = i(9, ','),
+        el00 = i(1, 'a_{0, 0}'),
+        el01 = i(2, 'a_{0, 1}'),
+        el0M = i(3, 'a_{0, M-1}'),
+        el10 = i(4, 'a_{1, 0}'),
+        el11 = i(5, 'a_{1, 1}'),
+        el1M = i(6, 'a_{1, M-1}'),
+        elN0 = i(7, 'a_{N-1, 0}'),
+        elN1 = i(8, 'a_{N-1, 1}'),
+        elNM = i(9, 'a_{N-1, M-1}'),
       }
     )
   ),
@@ -329,6 +349,8 @@ return {
   us.sam({ trig = 'op' }, { t('\\operatorname{'), i(1), t('}') }),
   us.sam({ trig = 'xx' }, t('\\times ')),
   us.sam({ trig = 'o*' }, t('\\circledast ')),
+  us.sam({ trig = 'ox' }, t('\\otimes ')),
+  us.sam({ trig = 'Ox' }, t('\\bigotimes ')),
   us.sam({ trig = 'dd' }, t('\\mathrm{d}')),
   us.sam({ trig = 'pp' }, t('\\partial ')),
   us.msam({ { trig = 'oo' }, { trig = '\\in f' } }, t('\\infty')),
@@ -387,6 +409,8 @@ return {
   us.sam({ trig = 'Yy' }, t('\\mathcal{Y}')),
   us.sam({ trig = 'Zz' }, t('\\mathcal{Z}')),
 
+  us.sam({ trig = 'ell' }, t('\\ell')),
+
   us.sam({ trig = 'set' }, { t('\\{'), i(1), t('\\}') }),
   us.sam({ trig = 'void' }, t('\\emptyset')),
   us.sam({ trig = 'emptyset' }, t('\\emptyset')),
@@ -409,18 +433,39 @@ return {
   us.sam({ trig = 'forall' }, t('\\forall ')),
   us.sam({ trig = 'any' }, t('\\forall ')),
   us.sam({ trig = 'exists' }, t('\\exists ')),
+  us.msam({ { trig = 'quad' }, { trig = '\\ \\ ' } }, t('\\quad ')),
+  us.msam(
+    { { trig = 'qquad' }, { trig = '\\ \\ \\ ' }, { trig = '\\quad \\ ' } },
+    t('\\qquad ')
+  ),
 
-  us.sam({ trig = 'log' }, {
-    t('\\log_{'),
+  us.sam(
+    { trig = 'log' },
     c(1, {
-      i(nil, '2'),
-      i(nil, '10'),
-      i(nil, 'e'),
+      sn(1, {
+        t('\\log'),
+        t('\\left('),
+        r(1, 'param'),
+        t('\\right)'),
+      }),
+      sn(1, {
+        t('\\log_{'),
+        c(1, {
+          i(nil, '2'),
+          i(nil, '10'),
+          i(nil, 'e'),
+        }),
+        t('}\\left('),
+        r(2, 'param'),
+        t('\\right)'),
+      }),
     }),
-    t('}\\left('),
-    i(2),
-    t('\\right)'),
-  }),
+    {
+      stored = {
+        param = i(1),
+      },
+    }
+  ),
   us.sam({ trig = 'lg', priority = 999 }, {
     t('\\lg'),
     t('\\left('),
@@ -647,52 +692,52 @@ return {
     c(1, {
       sn(nil, {
         t('\\prod \\limits_{'),
-        i(1, 'n=1'),
+        i(1, 'i=1'),
         t('}^{'),
         i(2, 'N'),
         t('} '),
-        r(3, 'x_n'),
+        r(3, 'term'),
       }),
       sn(nil, {
         t('\\prod \\limits_{'),
         i(1, 'x'),
         t('} '),
-        r(2, 'x_n'),
+        r(2, 'term'),
       }),
       sn(nil, {
         t('\\prod '),
-        r(1, 'x_n'),
+        r(1, 'term'),
       }),
     }),
   }, {
     stored = {
-      x_n = i(nil, 'x_n'),
+      term = i(nil, 'x_i'),
     },
   }),
   us.sam({ trig = 'sum' }, {
     c(1, {
       sn(nil, {
         t('\\sum \\limits_{'),
-        i(1, 'n=1'),
+        i(1, 'i=1'),
         t('}^{'),
         i(2, 'N'),
         t('} '),
-        r(3, 'x_n'),
+        r(3, 'term'),
       }),
       sn(nil, {
         t('\\sum \\limits_{'),
         i(1, 'x'),
         t('} '),
-        r(2, 'x_n'),
+        r(2, 'term'),
       }),
       sn(nil, {
         t('\\sum '),
-        r(1, 'x_n'),
+        r(1, 'term'),
       }),
     }),
   }, {
     stored = {
-      x_n = i(nil, 'x_n'),
+      term = i(nil, 'x_i'),
     },
   }),
   us.sam({ trig = 'lim' }, {
@@ -768,6 +813,11 @@ return {
   us.sam({ trig = 'Omega' }, t('\\Omega')),
 
   -- special functions and other notations
+  us.sam({ trig = 'sigmoid' }, {
+    t('\\operatorname{sigmoid}\\left('),
+    i(1),
+    t('\\right)'),
+  }),
   us.sam({ trig = 'sign' }, {
     t('\\operatorname{sign}\\left('),
     i(1),

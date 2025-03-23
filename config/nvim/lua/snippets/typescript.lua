@@ -2,6 +2,7 @@ local M = {}
 local un = require('utils.snippets.nodes')
 local us = require('utils.snippets.snips')
 local ls = require('luasnip')
+local t = ls.text_node
 local i = ls.insert_node
 local c = ls.choice_node
 local r = ls.restore_node
@@ -177,6 +178,10 @@ M.snippets = {
       },
     }
   ),
+  us.sn({
+    trig = 'ret',
+    desc = 'return statement',
+  }, t('return ')),
   us.sn(
     {
       trig = 'ifa',

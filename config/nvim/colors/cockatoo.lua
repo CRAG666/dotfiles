@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Sun Feb  9 03:09:45 PM EST 2025
+-- Last Updated: Mon Mar 10 11:42:40 AM PDT 2025
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -249,7 +249,7 @@ local hlgroups = {
   Boolean = { fg = c_ochre },
   Array = { fg = c_orange },
   Float = { link = 'Number' },
-  Identifier = { fg = c_smoke },
+  Identifier = {},
   Builtin = { fg = c_pink },
   Field = { fg = c_pigeon },
   Enum = { fg = c_ochre },

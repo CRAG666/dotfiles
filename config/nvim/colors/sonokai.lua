@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Sun Feb 16 12:52:19 PM EST 2025
+-- Last Updated: Sat 15 Mar 2025 12:38:31 AM EDT
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -188,7 +188,7 @@ local hlgroups = {
   Exception = { fg = c_red },
   Float = { link = 'Number' },
   Function = { fg = c_green },
-  Identifier = { fg = c_fg },
+  Identifier = {},
   Keyword = { fg = c_red },
   Number = { fg = c_purple },
   Operator = { fg = c_red },
@@ -260,7 +260,7 @@ local hlgroups = {
   ['@lsp.type.macro'] = { link = '@const.macro' },
   ['@lsp.type.method'] = { link = '@method' },
   ['@lsp.type.modifier'] = { link = '@type.qualifier' },
-  ['@lsp.type.namespace'] = { link = '@namespace' },
+  ['@lsp.type.namespace'] = { link = '@module' },
   ['@lsp.type.number'] = { link = '@number' },
   ['@lsp.type.operator'] = { link = '@operator' },
   ['@lsp.type.parameter'] = { link = '@parameter' },

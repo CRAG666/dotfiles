@@ -8,6 +8,7 @@ local i = ls.insert_node
 local f = ls.function_node
 local c = ls.choice_node
 local d = ls.dynamic_node
+local r = ls.restore_node
 
 M.math = require('snippets.tex.math')
 
@@ -62,22 +63,45 @@ M.snippets = {
   ),
   us.sM(
     { trig = 'img' },
-    un.fmtad(
-      [[
-        \begin{figure}[<placement>]
-        <idnt>\centering
-        <idnt>\includegraphics[<size>]{<img_path>}
-        <idnt>\caption{<caption>}
-        \end{figure}
-      ]],
-      {
-        placement = i(1, 'H'),
-        size = i(2, 'width=1.0\\textwidth'),
-        img_path = i(3, 'img/img.png'),
-        caption = i(4),
-        idnt = un.idnt(1),
-      }
-    )
+    c(1, {
+      un.fmtad(
+        [[
+          \begin{figure}[<placement>]
+          <idnt>\centering
+          <idnt>\includegraphics[<size>]{<img_path>}
+          \end{figure}
+        ]],
+        {
+          placement = r(1, 'placement'),
+          size = r(2, 'size'),
+          img_path = r(3, 'img_path'),
+          idnt = un.idnt(1),
+        }
+      ),
+      un.fmtad(
+        [[
+          \begin{figure}[<placement>]
+          <idnt>\centering
+          <idnt>\includegraphics[<size>]{<img_path>}
+          <idnt>\caption{<caption>}
+          \end{figure}
+        ]],
+        {
+          placement = r(1, 'placement'),
+          size = r(2, 'size'),
+          img_path = r(3, 'img_path'),
+          caption = i(4),
+          idnt = un.idnt(1),
+        }
+      ),
+    }),
+    {
+      stored = {
+        placement = i(nil, 'H'),
+        size = i(nil, 'width=1.0\\textwidth'),
+        img_path = i(nil, 'img/img.png'),
+      },
+    }
   ),
   us.sM({ trig = 'em' }, { t('\\emph{'), i(1), t('}') }),
   us.sM({ trig = 'bf' }, { t('\\textbf{'), i(1), t('}') }),
