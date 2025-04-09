@@ -1,6 +1,6 @@
 local M = {}
 
-M.root_patterns = {
+M.root_markers = {
   '.git',
   '.svn',
   '.bzr',

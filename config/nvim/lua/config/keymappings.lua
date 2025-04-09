@@ -16,7 +16,6 @@ vim.keymap.set('n', 'i', function()
 end, { expr = true })
 utils.map('n', '#', '#N')
 utils.map('n', '*', '*N')
-utils.map('n', 'Y', 'yg$')
 utils.map(
   'n',
   'k',
@@ -101,7 +100,7 @@ local maps = {
     prefix = ';',
     maps = {
       { 'r', ':%s/', 'Search and [r]eplace', opts },
-      { 'cw', [[:%s/\<<C-r><C-w>\>/]], 'Replace [w]ord', opts },
+      { 'cw', [[:%s/\<<C-r><C-w>\>/]], '[c]hange [w]ord', opts },
       { 'R', [[:%s/\(.*\)/\1]], 'Search and [R]eplace extend', opts },
     },
   },

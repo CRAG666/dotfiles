@@ -3,16 +3,19 @@ vim.api.nvim_create_autocmd('FileType', {
   once = true,
   group = vim.api.nvim_create_augroup('WinBarSetup', {}),
   callback = function()
+    if vim.g.loaded_winbar ~= nil then
+      return
+    end
+
     local winbar = require('ui.winbar')
     local api = require('ui.winbar.api')
     winbar.setup({ bar = { hover = false } })
 
     -- stylua: ignore start
-    vim.keymap.set('n', '<Leader>;', api.pick, { desc = 'Pick symbols in winbar' })
-    vim.keymap.set('n', '[;', api.goto_context_start, { desc = 'Go to start of current context' })
-    vim.keymap.set('n', '];', api.select_next_context, { desc = 'Select next context' })
+    vim.keymap.set('n', '<leader>w', api.pick, { desc = 'Pick symbols in winbar' })
+    vim.keymap.set('n', '[w', api.goto_context_start, { desc = 'Go to start of current context' })
+    vim.keymap.set('n', ']w', api.select_next_context, { desc = 'Select next context' })
     -- stylua: ignore end
-    return true
   end,
 })
 
@@ -32,18 +35,22 @@ load_ui('statusline')
 load_ui('statuscolumn')
 
 -- z
-vim.api.nvim_create_autocmd({ 'UIEnter', 'CmdlineEnter', 'CmdUndefined' }, {
-  group = vim.api.nvim_create_augroup('ZSetup', {}),
-  desc = 'Init z plugin.',
-  once = true,
-  callback = function()
-    vim.schedule(function()
+vim.api.nvim_create_autocmd(
+  { 'UIEnter', 'CmdlineEnter', 'CmdUndefined', 'DirChanged' },
+  {
+    group = vim.api.nvim_create_augroup('ZSetup', {}),
+    desc = 'Init z plugin.',
+    once = true,
+    callback = vim.schedule_wrap(function()
+      if vim.g.loaded_z then
+        return
+      end
+
       local z = require('modules.z')
       z.setup()
       vim.keymap.set('n', '<Leader>z', z.select, {
-        desc = 'Chagne cwd using z',
+        desc = 'Open a directory from z',
       })
-    end)
-    return true
-  end,
-})
+    end),
+  }
+)

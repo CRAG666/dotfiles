@@ -280,7 +280,6 @@ M.opts = {
     ---@type table<string, winbar_menu_win_config_opts_t>
     ---@see vim.api.nvim_open_win
     win_configs = {
-      border = 'none',
       style = 'minimal',
       relative = 'win',
       win = function(menu)

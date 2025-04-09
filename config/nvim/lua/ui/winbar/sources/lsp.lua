@@ -242,7 +242,7 @@ local function update_symbols(buf, ttl)
 
   local client = vim.tbl_filter(
     function(client)
-      return client.supports_method('textDocument/documentSymbol')
+      return client:supports_method('textDocument/documentSymbol')
     end,
     vim.lsp.get_clients({
       bufnr = buf,
@@ -307,7 +307,7 @@ local function init()
   initialized = true
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
     local clients = vim.tbl_filter(function(client)
-      return client.supports_method('textDocument/documentSymbol')
+      return client:supports_method('textDocument/documentSymbol')
     end, vim.lsp.get_clients({ bufnr = buf }))
     if not vim.tbl_isempty(clients) then
       attach(buf)
@@ -318,7 +318,7 @@ local function init()
     group = groupid,
     callback = function(info)
       local client = vim.lsp.get_client_by_id(info.data.client_id)
-      if client and client.supports_method('textDocument/documentSymbol') then
+      if client and client:supports_method('textDocument/documentSymbol') then
         attach(info.buf)
       end
     end,
@@ -329,7 +329,7 @@ local function init()
     callback = function(info)
       if
         vim.tbl_isempty(vim.tbl_filter(function(client)
-          return client.supports_method('textDocument/documentSymbol')
+          return client:supports_method('textDocument/documentSymbol')
             and client.id ~= info.data.client_id
         end, vim.lsp.get_clients({ bufnr = info.buf })))
       then

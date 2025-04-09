@@ -99,9 +99,9 @@ local texlab = {
     texlab = {
       rootDirectory = nil,
       build = {
-        auxDirectory = '/build/default/',
-        logDirectory = '/build/default/',
-        pdfDirectory = '/build/default/',
+        auxDirectory = 'build/default',
+        logDirectory = 'build/default',
+        pdfDirectory = 'build/default',
         filename = 'default.pdf',
         executable = 'tectonic',
         args = {
@@ -111,12 +111,11 @@ local texlab = {
           '--keep-intermediates',
         },
         onSave = true,
-        forwardSearchAfter = false,
+        forwardSearchAfter = true,
       },
       forwardSearch = {
-        executable = '/bin/zathura',
+        executable = 'zathura',
         args = { '--synctex-forward', '%l:1:%f', '%p' },
-        onSave = false,
       },
       chktex = {
         onOpenAndSave = true,

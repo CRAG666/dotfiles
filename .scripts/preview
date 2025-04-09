@@ -1,121 +1,172 @@
 #!/usr/bin/env sh
 
-TMP="/tmp/fzf-preview"
+# Use user-specific cache directories for persistence
 LTMP="$HOME/.cache/fzf-preview"
-CACHEFILE="$TMP/$(echo "$1" | base64).png"
-LCACHEFILE="$LTMP/$(echo "$1" | base64).png"
+LCACHEFILE="$LTMP/$(printf "%s" "$1" | base64).png"
 
 maketemp() {
-	[ ! -d "$TMP" ] && mkdir -p "$TMP"
-	[ ! -d "$LTMP" ] && mkdir -p "$LTMP"
+    mkdir -p "$LTMP"
 }
 
 previewclear() {
-	# printf '\033[2J\033[H'
-   printf '\033[2J\033[3J\033[1;1H'
-   printf "\x1b_Ga=d,d=A\x1b\\"
+    # Clear screen and scrollback buffer for Kitty compatibility
+    printf '\033[2J\033[3J\033[1;1H'
+    printf "\x1b_Ga=d,d=A\x1b\\"
 }
 
 text() {
-	bat --pager=never --wrap never --style="changes" --color="always" "$1" -p
+    if command -v bat &>/dev/null; then
+        bat --pager=never --wrap auto --style="changes" --color="always" "$1" -p
+    else
+        cat "$1"
+    fi
 }
 
 archive() {
-	local filename="$1"
-	local extension="${filename##*.}"
+    local filename="$1"
+    local extension="${filename##*.}"
 
-	# Determine the tool to use based on the file extension
-	case "$extension" in
-	zip)
-		unzip -l "$filename" | awk 'NR>3 {print $4}'
-		;;
-	tar | tgz | tar.gz)
-		tar -tf "$filename"
-		;;
-	tar.bz2 | tbz2)
-		tar -tjf "$filename"
-		;;
-	tar.xz | txz)
-		tar -tJf "$filename"
-		;;
-	rar)
-		unrar l "$filename" | awk '/^[ ]+[0-9]/ {print $NF}'
-		;;
-	7z)
-		7z l "$filename" | awk 'NR>18 {print $NF}'
-		;;
-	*)
-		echo "Unsupported file type: $extension"
-		;;
-	esac
+    case "$extension" in
+        zip)
+            unzip -l "$filename" | awk 'NR>3 { $1=$2=$3=""; print substr($0,4) }'
+            ;;
+        tar | tgz | tar.gz)
+            tar -tf "$filename"
+            ;;
+        tar.bz2 | tbz2)
+            tar -tjf "$filename"
+            ;;
+        tar.xz | txz)
+            tar -tJf "$filename"
+            ;;
+        rar)
+            if command -v unrar &>/dev/null; then
+                unrar l "$filename" | awk '/^ {2,}[0-9]/ { $1=$2=$3=$4=""; print substr($0,5) }'
+            else
+                echo "unrar not installed"
+            fi
+            ;;
+        7z)
+            if command -v 7z &>/dev/null; then
+                7z l "$filename" | awk '/^[0-9]{4}-[0-9]{2}-[0-9]{2}/ { $1=$2=$3=$4=$5=$6=""; print substr($0,7) }'
+            else
+                echo "7z not installed"
+            fi
+            ;;
+        *)
+            echo "Unsupported file type: $extension"
+            ;;
+    esac
 }
 
 draw() {
-    kitty icat --transfer-mode=memory --stdin=no --place=${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}@0x0 $1
+    if [ -f "$1" ]; then
+        kitty +kitten icat --transfer-mode=memory --stdin=no --place="${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}@0x0" "$1"
+    else
+        echo "Preview not available"
+    fi
 }
 
 image() {
-	draw "$1"
+    draw "$1"
 }
 
-# https://ffmpeg.org/ffmpeg-filters.html#showspectrum-1
 audio() {
-	[ ! -f "$CACHEFILE" ] && ffmpeg -loglevel 0 -y -i "$1" -lavfi "showspectrumpic=s=hd480:legend=0:gain=5:color=intensity" "$CACHEFILE"
-	draw "$CACHEFILE"
+    if command -v ffmpeg &>/dev/null; then
+        [ ! -f "$LCACHEFILE" ] && ffmpeg -loglevel error -y -i "$1" -lavfi "showspectrumpic=s=1024x576:legend=0:gain=5:color=intensity" "$LCACHEFILE"
+        draw "$LCACHEFILE"
+    else
+        echo "ffmpeg not installed"
+    fi
 }
 
 video() {
-	[ ! -f "$LCACHEFILE" ] && ffmpegthumbnailer -i "$1" -o "$LCACHEFILE" -s 1024 -q 10 &>/dev/null
-	draw "$LCACHEFILE"
+    if command -v ffmpegthumbnailer &>/dev/null; then
+        [ ! -f "$LCACHEFILE" ] && ffmpegthumbnailer -i "$1" -o "$LCACHEFILE" -s 1024 -q 10 &>/dev/null
+        draw "$LCACHEFILE"
+    else
+        echo "ffmpegthumbnailer not installed"
+    fi
 }
 
 pdf() {
-	[ ! -f "$CACHEFILE.png" ] && pdftoppm -png -singlefile "$1" "$CACHEFILE" -scale-to 1024
-	draw "$CACHEFILE.png"
+    if command -v pdftoppm &>/dev/null; then
+        local pdf_cache="${LCACHEFILE%.png}"  # Elimina la extensión .png
+        [ ! -f "$pdf_cache.png" ] && pdftoppm -png -singlefile -scale-to 1024 "$1" "$pdf_cache"
+        draw "$pdf_cache.png"
+    else
+        echo "pdftoppm no está instalado"
+    fi
 }
 
 epub() {
-	[ ! -f "$CACHEFILE" ] && epub-thumbnailer "$1" "$CACHEFILE" 1024
-	draw "$CACHEFILE"
+    if command -v gnome-epub-thumbnailer &>/dev/null; then
+        [ ! -f "$LCACHEFILE" ] && gnome-epub-thumbnailer -s 1024 "$1" "$LCACHEFILE"
+        draw "$LCACHEFILE"
+    else
+        echo "gnome-epub-thumbnailer not installed"
+    fi
 }
 
 service() {
-	SYSTEMD_COLORS=1 systemctl status "$1"
+    if command -v systemctl &>/dev/null; then
+        SYSTEMD_COLORS=1 systemctl status "${1##*/}"
+    else
+        echo "systemctl not installed"
+    fi
 }
 
 main() {
-	previewclear
-	maketemp
-	mimetype=$(file -b --mime-type "$1" 2>/dev/null)
-	case $mimetype in
-	application/epub*)
-		epub "$1"
-		;;
-	application/pdf)
-		pdf "$1"
-		;;
-	application/zip | application/x-tar | *rar | application/gzip)
-		archive "$1"
-		;;
-	audio/*)
-		audio "$1"
-		;;
-	image/*)
-		image "$1"
-		;;
-	text/*)
-		text "$1"
-		;;
-	video/*)
-		video "$1"
-		;;
-	inode/directory)
-		[ "${1##*/..*}" = "" ] && echo || eza --icons --color=always --tree --level=2 --git "$1"
-		;;
-	*)
-		text "$1"
-		;;
-	esac
+    previewclear
+    maketemp
+
+    if [ ! -e "$1" ]; then
+        echo "File not found"
+        exit 1
+    fi
+
+    mimetype=$(file -b --mime-type "$1" 2>/dev/null)
+    case $mimetype in
+        application/epub*)
+            epub "$1"
+            ;;
+        application/pdf)
+            pdf "$1"
+            ;;
+        application/zip | application/x-tar | application/gzip | application/vnd.rar | application/x-7z-compressed)
+            archive "$1"
+            ;;
+        audio/*)
+            audio "$1"
+            ;;
+        image/*)
+            image "$1"
+            ;;
+        text/*)
+            text "$1"
+            ;;
+        video/*)
+            video "$1"
+            ;;
+        inode/directory)
+            if [ -d "$1" ] && [ ! -L "$1" ]; then
+                if command -v eza &>/dev/null; then
+                    eza --icons --color=always --tree --level=2 --git "$1"
+                else
+                    ls -l "$1"
+                fi
+            else
+                echo "Symbolic link or invalid directory"
+            fi
+            ;;
+        *)
+            if [ "${1##*.}" = "service" ]; then
+                service "$1"
+            else
+                text "$1"
+            fi
+            ;;
+    esac
 }
 
-main "$1"
+main "$@"

@@ -146,16 +146,17 @@ zstyle ':fzf-tab:complete:-command-:*' fzf-preview \
    '(out=$(cht.sh "$word") 2>/dev/null && echo $out) || (out=$(MANWIDTH=$FZF_PREVIEW_COLUMNS man "$word") 2>/dev/null && echo $out) || (out=$(which "$word") && echo $out) || echo "${(P)word}"'
 zstyle ':fzf-tab:complete:*:*' fzf-preview '~/.scripts/preview $realpath'
 
+
+export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense' # optional
+zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
+source <(carapace _carapace)
+
 enable-fzf-tab
 
 # -< Evals >-
 eval "$(zoxide init zsh)"
 eval "$(atuin init zsh)"
 eval "$(starship init zsh)"
-
-# export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense' # optional
-# zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
-# source <(carapace _carapace)
 
 # -< Aliases >-
 # HACK: Command alternatives

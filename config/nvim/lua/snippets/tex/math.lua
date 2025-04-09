@@ -840,6 +840,12 @@ return {
     i(1, 'X'),
     t('\\right]'),
   }),
+  -- VC dimension
+  us.sam({ trig = 'vc' }, {
+    t('\\operatorname{VC}\\left('),
+    i(1, '\\mathcal{H}'),
+    t('\\right)'),
+  }),
   us.sam({ trig = 'mse' }, { t('\\operatorname{MSE}') }),
   us.sam({ trig = 'err' }, { t('\\operatorname{error}') }),
   us.sam(

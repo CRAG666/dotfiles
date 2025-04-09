@@ -106,32 +106,6 @@ M.snippets = {
   us.sM({ trig = 'em' }, { t('\\emph{'), i(1), t('}') }),
   us.sM({ trig = 'bf' }, { t('\\textbf{'), i(1), t('}') }),
   us.sM({ trig = 'ul' }, { t('\\underline{'), i(1), t('}') }),
-  us.sM(
-    {
-      trig = '^(%s*)- ',
-      regTrig = true,
-      hidden = true,
-      snippetType = 'autosnippet',
-    },
-    f(function(_, snip, _)
-      return snip.captures[1] .. '\\item'
-    end)
-  ),
-  us.sM(
-    {
-      trig = '\\item(%w)',
-      regTrig = true,
-      hidden = true,
-      snippetType = 'autosnippet',
-    },
-    d(1, function(_, snip)
-      return sn(nil, {
-        t('\\item{' .. snip.captures[1]),
-        i(1),
-        t('}'),
-      })
-    end)
-  ),
 }
 
 return M

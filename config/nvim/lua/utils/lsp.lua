@@ -3,7 +3,7 @@ local M = {}
 ---@type lsp_client_config_t
 ---@diagnostic disable-next-line: missing-fields
 M.default_config = {
-  root_patterns = require('utils.fs').root_patterns,
+  root_markers = require('utils.fs').root_markers,
 }
 
 ---@class vim.lsp.ClientConfig: lsp_client_config_t
@@ -29,7 +29,7 @@ M.default_config = {
 ---@field trace? 'off'|'messages'|'verbose'|nil
 ---@field flags? table
 ---@field root_dir? string
----@field root_patterns? string[]
+---@field root_markers? string[]
 ---@field requires? string[] additional executables required to start the language server
 ---@field buf_support? boolean whether the language server works on buffers without corresponding files
 
@@ -85,8 +85,8 @@ function M.start(config, opts)
         vim.fs.root(
           bufname,
           vim.list_extend(
-            config.root_patterns or {},
-            M.default_config.root_patterns or {}
+            config.root_markers or {},
+            M.default_config.root_markers or {}
           )
         )
       ),

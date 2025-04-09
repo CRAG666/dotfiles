@@ -29,7 +29,7 @@ M.snippets = {
 
       local title =
         vim.fn.fnamemodify(fname, ':t:r'):gsub('^%d*_*', ''):gsub('_', ' ')
-      local title_words = vim.fn.split(title, '\\W\\zs', 0)
+      local title_words = vim.fn.split(title, '\\W\\zs')
       for idx, word in ipairs(title_words) do
         title_words[idx] = (
           idx == 1 -- first word should always be capitalized

@@ -187,9 +187,9 @@ function M.select(items, opts, on_choice)
   -- Change border settings if the default top border is empty
   -- to allow prompt to be displayed
   if opts.prompt then
-    local border = configs.opts.menu.win_configs.border
+    local border = configs.opts.menu.win_configs.border or vim.go.winborder
     local border_none_with_prompt = { '', ' ', '', '', '', '', '', '' }
-    if border == 'none' or border == 'shadow' then
+    if border == '' or border == 'none' or border == 'shadow' then
       win_configs.border = border_none_with_prompt
     elseif type(border) == 'table' then
       if #border == 1 and border[1] == '' then

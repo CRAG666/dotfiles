@@ -365,7 +365,7 @@ function _G._statusline.fname()
       return string.format(
         '%s [%s]',
         utils.stl.escape(fname),
-        vim.b._stl_pdiff
+        utils.stl.escape(vim.b._stl_pdiff)
       )
     end
     return utils.stl.escape(fname)
@@ -383,9 +383,9 @@ function _G._statusline.fname()
     end
     return string.format(
       '[Terminal %s] %s [%s]',
-      comment ~= '' and comment or pid,
+      utils.stl.escape(comment ~= '' and comment or pid),
       utils.stl.escape(cmd),
-      vim.fn.fnamemodify(path, ':~'):gsub('/+$', '')
+      utils.stl.escape(vim.fn.fnamemodify(path, ':~'):gsub('/+$', ''))
     )
   end
 

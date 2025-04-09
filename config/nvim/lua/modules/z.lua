@@ -1,49 +1,110 @@
 local M = {}
 
----Check if `z` command is available
----@return boolean
-local function has_z()
-  if vim.g._z_installed then
-    return true
+---HACK: if the last element is a full path, only use it instead of all arguments
+---as arguments for `z` command
+---This is because nvim completion only works for single word and when multiple
+---args are given to `:Z`, e.g. `:Z foo bar`, hitting tab will complete it as
+---`:Z foo /foo/bar/baz`, assuming `/foo/bar/baz` is in z's database
+---Without this trick 'foo /foo/bar/baz' will be passed to `z -e` shell command
+---to get the best matching path, which is of course empty
+---@param args? string[]
+---@return string[]
+local function z_args_norm(args)
+  if not args then
+    return {}
   end
 
-  if vim.system({ vim.env.SHELL, '-c', 'type z' }):wait().code == 0 then
-    vim.g._z_installed = true
-    return true
-  end
-
-  vim.notify_once('[z] `z` command not available\n', vim.log.levels.WARN)
-  return false
+  local last_arg = args[#args]
+  return last_arg
+      and require('utils.fs').is_full_path(last_arg)
+      and { last_arg }
+    or args
 end
 
 ---Given a list of args for `z`, return its corresponding escaped string to be
 ---used as a shell command argument
 ---@param args string[]?
 ---@return string
-local function argesc(args)
+local function z_args_esc(args)
   if not args then
     return ''
-  end
-
-  -- HACK: if the last element is a full path, only use it instead of all arguments
-  -- as arguments for `z` command
-  -- This is because nvim completion only works for single word and when multiple
-  -- args are given to `:Z`, e.g. `:Z foo bar`, hitting tab will complete it as
-  -- `:Z foo /foo/bar/baz`, assuming `/foo/bar/baz` is in z's database
-  -- Without this trick 'foo /foo/bar/baz' will be passed to `z -e` shell command
-  -- to get the best matching path, which is of course empty
-  local last_arg = args[#args]
-  if last_arg and require('utils.fs').is_full_path(last_arg) then
-    return vim.fn.shellescape(last_arg)
   end
 
   return table.concat(
     vim.tbl_map(function(path)
       return vim.fn.shellescape(vim.fn.expand(path))
-    end, args),
+    end, z_args_norm(args)),
     ' '
   )
 end
+
+---@class z_cmds_t
+---@field jump fun(trig?: string[]): string[]
+---@field list fun(trig?: string[]): string[]
+---@field add fun(dir: string): string[]
+
+---@alias z_backend_t { cmds: z_cmds_t, exists: fun(): boolean }
+---@type table<string, z_backend_t>
+local z_backends = {
+  z = {
+    exists = function()
+      return vim.system({ vim.env.SHELL, '-c', 'type z' }):wait().code == 0
+    end,
+    cmds = {
+      jump = function(trig)
+        return { vim.env.SHELL, '-c', 'z -e ' .. z_args_esc(trig) }
+      end,
+      list = function(trig)
+        return { vim.env.SHELL, '-c', 'z -l ' .. z_args_esc(trig) }
+      end,
+      add = function(dir)
+        return { vim.env.SHELL, '-c', 'cd ' .. z_args_esc({ dir }) }
+      end,
+    },
+  },
+  zoxide = {
+    exists = function()
+      return vim.fn.executable('zoxide') == 1
+    end,
+    cmds = {
+      jump = function(trig)
+        return { 'zoxide', 'query', unpack(z_args_norm(trig)) }
+      end,
+      list = function(trig)
+        return { 'zoxide', 'query', '-l', unpack(z_args_norm(trig)) }
+      end,
+      add = function(dir)
+        return { 'zoxide', 'add', dir }
+      end,
+    },
+  },
+}
+
+---@type z_backend_t
+local z = (function()
+  for _, backend in pairs(z_backends) do
+    if backend.exists() then
+      return backend
+    end
+  end
+
+  return {
+    exists = function()
+      return false
+    end,
+    cmds = setmetatable({}, {
+      __index = function()
+        return function()
+          vim.notify_once(
+            '[z] `z` command not available\n',
+            vim.log.levels.WARN
+          )
+          return { vim.env.SHELL, '-c', 'exit' }
+        end
+      end,
+    }),
+  }
+end)()
 
 local cmp_args_cache ---@type string?
 local cmp_list_cache ---@type string[]?
@@ -57,7 +118,7 @@ local function cmp(cmd)
   ---@param cursorpos integer cursor position in the command line
   ---@return string[] completion completion results
   return function(_, cmdline, cursorpos)
-    -- HACK: use sting manipulation to get all args after the command instead
+    -- HACK: use string manipulation to get all args after the command instead
     -- of using `arglead` (only the last argument before cursor) to make the
     -- completion for multiple arguments just link `z` in shell
     -- e.g. if paths `/foo/bar` and `/baz/bar` are in z's database, then
@@ -100,44 +161,33 @@ end
 
 ---Change directory to the most frequently visited directory using `z`
 ---@param input string[]
-function M.z(input)
-  if not has_z() then
-    return
-  end
-
-  vim.system(
-    { vim.env.SHELL, '-c', 'z -e ' .. argesc(input) },
-    { text = true },
-    function(obj)
-      if obj.code ~= 0 then
-        vim.schedule(function()
-          vim.notify('[z] ' .. (obj.stderr or obj.stdout))
-        end)
-        return
-      end
-
-      local output = vim.trim(obj.stdout)
-      local path_escaped = vim.fn.fnameescape(output)
-
-      -- Schedule to allow oil.nvim to conceal line headers correctly
+function M.jump(input)
+  ---@diagnostic disable-next-line: need-check-nil
+  vim.system(z.cmds.jump(input), { text = true }, function(obj)
+    if obj.code ~= 0 then
       vim.schedule(function()
-        vim.cmd.edit(path_escaped)
-        vim.cmd.lcd({ path_escaped, mods = { silent = true } })
+        vim.notify('[z] ' .. (obj.stderr or obj.stdout))
       end)
+      return
     end
-  )
+
+    local output = vim.trim(vim.gsplit(obj.stdout, '\n')() or '')
+    local path_escaped = vim.fn.fnameescape(output)
+
+    -- Schedule to allow oil.nvim to conceal line headers correctly
+    vim.schedule(function()
+      vim.cmd.edit(path_escaped)
+      vim.cmd.lcd({ path_escaped, mods = { silent = true } })
+    end)
+  end)
 end
 
 ---List matching z directories given input
 ---@param input string[]?
 ---@return string[]
 function M.list(input)
-  if not has_z() then
-    return {}
-  end
-
-  local o =
-    vim.system({ vim.env.SHELL, '-c', 'z -l ' .. argesc(input) }):wait()
+  ---@diagnostic disable-next-line: need-check-nil
+  local o = vim.system(z.cmds.list(input)):wait()
   if o.code ~= 0 then
     vim.notify('[z] ' .. o.stderr or o.stdout)
     return {}
@@ -146,7 +196,7 @@ function M.list(input)
   return vim
     .iter(vim.gsplit(o.stdout, '\n', { trimempty = true }))
     :map(function(line)
-      return line:match('^[0-9.]+%s+(.*)')
+      return line:match('^[0-9.]*%s*(.*)')
     end)
     :totable()
 end
@@ -154,10 +204,6 @@ end
 ---Select and jump to z directories using `vim.ui.select()`
 ---@param input string[]?
 function M.select(input)
-  if not has_z() then
-    return
-  end
-
   vim.ui.select(
     M.list(input),
     { prompt = 'Open directory: ' },
@@ -165,7 +211,7 @@ function M.select(input)
       if not dir then
         return
       end
-      M.z({ dir })
+      M.jump({ dir })
     end
   )
 end
@@ -177,7 +223,7 @@ function M.setup()
   end
   vim.g.loaded_z = true
 
-  vim.api.nvim_create_user_command('Z', cmd(M.z), {
+  vim.api.nvim_create_user_command('Z', cmd(M.jump), {
     desc = 'Open a directory from z.',
     complete = cmp('Z'),
     nargs = '*',
@@ -188,17 +234,19 @@ function M.setup()
     nargs = '*',
   })
 
-  vim.api.nvim_create_autocmd('DirChanged', {
-    desc = 'Record nvim path in z.',
-    group = vim.api.nvim_create_augroup('ZRecordDir', {}),
-    callback = function(info)
-      local dir = info.file
-      vim.system({ vim.env.SHELL, '-c', 'cd ' .. vim.fn.shellescape(dir) })
-      if cmp_list_cache and not vim.tbl_contains(cmp_list_cache, dir) then
-        cmp_list_cache = nil
-      end
-    end,
-  })
+  if z.exists() then
+    vim.api.nvim_create_autocmd('DirChanged', {
+      desc = 'Record nvim path in z.',
+      group = vim.api.nvim_create_augroup('ZRecordDir', {}),
+      callback = function(info)
+        local dir = info.file
+        vim.system(z.cmds.add(dir))
+        if cmp_list_cache and not vim.tbl_contains(cmp_list_cache, dir) then
+          cmp_list_cache = nil
+        end
+      end,
+    })
+  end
 end
 
 return M

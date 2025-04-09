@@ -1,5 +1,4 @@
 [filechooser]
 cmd=~/.config/xdg-desktop-portal-termfilechooser/yazi-wrapper.sh
-default_dir=$HOME/Downloads
-; Uncomment and edit the line below to change the terminal emulator command
+default_dir=$HOME/Descargas/
 env=TERMCMD=kitty -T yazi
