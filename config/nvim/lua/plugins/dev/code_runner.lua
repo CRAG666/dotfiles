@@ -22,7 +22,10 @@ return {
     filetype = {
       v = 'v run',
       tex = function(...)
-        vim.cmd('silent! w')
+        require('code_runner.hooks.tectonic').build(
+          preview_cmd,
+          { '--keep-intermediates', '--keep-logs' }
+        )
       end,
       quarto = {
         'cd $dir &&',

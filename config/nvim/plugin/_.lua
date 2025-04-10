@@ -54,3 +54,25 @@ vim.api.nvim_create_autocmd(
     end),
   }
 )
+
+-- Lsp servers
+local clients = {
+  'basedpyright',
+  'bashls',
+  'clangd',
+  'cssls',
+  'dockerls',
+  'jsonls',
+  'lua_ls',
+  'marksman',
+  'omnisharp',
+  'ruff_ls',
+  'texlab',
+  'tsserver',
+  -- 'nimls',
+  -- 'v_analyzer',
+}
+require('config.lsp').setup()
+for _, client in ipairs(clients) do
+  vim.lsp.enable(client)
+end

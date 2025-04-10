@@ -148,13 +148,16 @@ local function setup_diagnostic()
   })
 end
 
-function M.setup(server, on_attach)
-  if vim.lsp.inlay_hint.is_enabled() ~= true then
-    vim.lsp.inlay_hint.enable()
-  end
-  require('config.lsp.grammar').setup()
+function M.setup()
   local lu = require('config.lsp.utils')
+  vim.lsp.config('*', {
+    capabilities = lu.capabilities(),
+    root_markers = { '.git' },
+  })
   lu.on_attach(function(client, bufnr)
+    if vim.lsp.inlay_hint.is_enabled() ~= true then
+      vim.lsp.inlay_hint.enable()
+    end
     require('config.lsp.highlighter').on_attach(client, bufnr)
     require('config.lsp.format').on_attach(client, bufnr)
     require('config.lsp.keymaps').on_attach(client, bufnr)
@@ -162,12 +165,7 @@ function M.setup(server, on_attach)
     setup_lsp_stopdetached()
     setup_diagnostic()
     require('config.lsp.commands').setup()
-    if on_attach ~= nil then
-      on_attach(client, bufnr)
-    end
   end)
-  server.capabilities = lu.capabilities()
-  utils.lsp.start(server)
 end
 
 return M
