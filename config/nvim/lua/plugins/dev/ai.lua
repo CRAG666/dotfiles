@@ -56,6 +56,12 @@ return {
         mode = 'x',
         desc = '[A]i: [T]est code',
       },
+      {
+        '<leader>aw',
+        [[:CodeCompanion /buffer #wassistant <cr>]],
+        mode = 'x',
+        desc = '[A]i: Writting Assistant',
+      },
     },
     opts = {
       opts = {
@@ -70,12 +76,29 @@ return {
             },
             schema = {
               model = {
+                -- default = 'deepseek-reasoner',
                 default = 'deepseek-chat',
               },
             },
           })
         end,
       },
+      -- prompt_library = {
+      --   ['My New Prompt'] = {
+      --     strategy = 'chat',
+      --     description = 'Some cool custom prompt you can do',
+      --     prompts = {
+      --       {
+      --         role = 'system',
+      --         content = 'You are an experienced developer with Lua and Neovim',
+      --       },
+      --       {
+      --         role = 'user',
+      --         content = 'Can you explain why ...',
+      --       },
+      --     },
+      --   },
+      -- },
       strategies = {
         chat = {
           adapter = 'deepseek',
@@ -115,6 +138,24 @@ return {
               callback = 'keymaps.reject_change',
             },
           },
+          variables = {
+            ['wassistant'] = {
+              ---@return string
+              -- Actúa como un escritor de articulos cientificos experimentado, enfocándote en mejorar la claridad y legibilidad del texto. Eres responsable de revisar un el texto. Simplifica las oraciones sin perder el significado ni los matices originales. Usa la puntuación adecuada, simplifica el lenguaje y elimina cualquier jerga innecesaria o palabras de relleno. Asegúrate de que el contenido se ajuste a una guía de estilo coherente y conserve su propósito original, a la vez que sea más fácil de leer y comprender.
+              callback = function()
+                return [[
+                Como escritor experimentado en articulos cientificos, tu tarea es realizar una revisión final del texto. Identifica y corrige cualquier error tipográfico, gramatical, redacción inapropiada u otros pequeños errores que se hayan pasado por alto. Ademas enfocate en mejorar la claridad y legibilidad del texto. Eres responsable de revisar un el texto. Simplifica las oraciones sin perder el significado ni los matices originales. Usa la puntuación adecuada, simplifica el lenguaje y elimina cualquier jerga innecesaria o palabras de relleno. Asegúrate de que el contenido se ajuste a una guía de estilo coherente en materia cientifica y conserve su propósito original, a la vez que sea más fácil de leer y comprender.
+                ]]
+              end,
+              description = 'My Cientific Writting assistant',
+              opts = {
+                contains_code = true,
+              },
+            },
+          },
+        },
+        cmd = {
+          adapter = 'deepseek',
         },
       },
       display = {

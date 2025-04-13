@@ -8,7 +8,7 @@ local root_markers = {
 }
 return {
   cmd = { 'ruff', 'server' },
-  filetye = { 'python' },
+  filetypes = { 'python' },
   single_file_support = true,
   root_markers = root_markers,
   init_options = {

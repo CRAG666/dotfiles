@@ -12,11 +12,10 @@ return {
 
   {
     'p00f/clangd_extensions.nvim',
-    lazy = true,
-    config = function() end,
+    ft = { 'c', 'cpp' },
     opts = {
       inlay_hints = {
-        inline = false,
+        inline = true,
       },
       ast = {
         role_icons = {
@@ -41,12 +40,6 @@ return {
       symbol_info = { border = 'solid' },
     },
   },
-  -- {
-  --   "nvim-cmp",
-  --   opts = function(_, opts)
-  --     table.insert(opts.sorting.comparators, 1, require "clangd_extensions.cmp_scores")
-  --   end,
-  -- },
   {
     'mfussenegger/nvim-dap',
     optional = true,
@@ -56,7 +49,7 @@ return {
       optional = true,
       opts = function(_, opts)
         if type(opts.ensure_installed) == 'table' then
-          vim.list_extend(opts.ensure_installed, { 'codelldb' })
+          vim.list_extend(opts.ensure_installed, { 'codelldb', 'clangd' })
         end
       end,
     },

@@ -66,6 +66,7 @@ local clients = {
   'lua_ls',
   'marksman',
   'omnisharp',
+  -- 'csharp_ls',
   'ruff_ls',
   'texlab',
   'tsserver',
@@ -73,6 +74,7 @@ local clients = {
   -- 'v_analyzer',
 }
 require('config.lsp').setup()
+require('config.lsp.grammar').setup()
 for _, client in ipairs(clients) do
   vim.lsp.enable(client)
 end
