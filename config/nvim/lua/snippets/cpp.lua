@@ -207,26 +207,58 @@ M.snippets = {
       common = { desc = 'C++ constructor definition' },
     },
     d(1, function()
-      local class_node = require('utils.ts').find_node('class_specifier', {
-        ignore_injections = false,
-      })
+      local class_node = (function()
+        if not require('utils.ts').is_active() then
+          return
+        end
+        local parser = vim.treesitter.get_parser()
+        if not parser then
+          return
+        end
+        -- Re-parse to ensure that we have correct language tree, else
+        -- we cannot find node `class_specifier` inside a class definition
+        if not parser:is_valid() then
+          parser:parse()
+        end
+        return require('utils.ts').find_node('class_specifier', {
+          ignore_injections = false,
+        })
+      end)()
 
       -- Outside class definition
       if not class_node then
+        local class_name = r(1, 'class_name', i(nil, i(nil, 'ClassName')))
+        local args = r(2, 'args')
+        local body = un.body(3, 1)
+
         return sn(
           nil,
-          un.fmtad(
-            [[
-              <class_name>::<class_name>(<args>) {
-              <body>
+          c(1, {
+            un.fmtad(
+              [[
+                <class_name>::<class_name>(<args>) {
+                <body>
+                }
+              ]],
+              {
+                class_name = vim.deepcopy(class_name),
+                args = vim.deepcopy(args),
+                body = vim.deepcopy(body),
               }
-            ]],
-            {
-              class_name = i(1, 'ClassName'),
-              args = i(2),
-              body = un.body(3, 1),
-            }
-          )
+            ),
+            un.fmtad(
+              [[
+                <class_name>(<args>) {
+                <body>
+                }
+              ]],
+              {
+                class_name = vim.deepcopy(class_name),
+                args = vim.deepcopy(args),
+                body = vim.deepcopy(body),
+              }
+            ),
+          })
         )
       end
 
@@ -264,26 +296,58 @@ M.snippets = {
       common = { desc = 'C++ destructor definition' },
     },
     d(1, function()
-      local class_node = require('utils.ts').find_node('class_specifier', {
-        ignore_injections = false,
-      })
+      local class_node = (function()
+        if not require('utils.ts').is_active() then
+          return
+        end
+        local parser = vim.treesitter.get_parser()
+        if not parser then
+          return
+        end
+        -- Re-parse to ensure that we have correct language tree, else
+        -- we cannot find node `class_specifier` inside a class definition
+        if not parser:is_valid() then
+          parser:parse()
+        end
+        return require('utils.ts').find_node('class_specifier', {
+          ignore_injections = false,
+        })
+      end)()
 
       -- Outside class definition
       if not class_node then
+        local class_name = r(1, 'class_name', i(nil, i(nil, 'ClassName')))
+        local args = r(2, 'args')
+        local body = un.body(3, 1)
+
         return sn(
           nil,
-          un.fmtad(
-            [[
-              <class_name>::~<class_name>(<args>) {
-              <body>
+          c(1, {
+            un.fmtad(
+              [[
+                <class_name>::~<class_name>(<args>) {
+                <body>
+                }
+              ]],
+              {
+                class_name = vim.deepcopy(class_name),
+                args = vim.deepcopy(args),
+                body = vim.deepcopy(body),
               }
-            ]],
-            {
-              class_name = i(1, 'ClassName'),
-              args = i(2),
-              body = un.body(3, 1),
-            }
-          )
+            ),
+            un.fmtad(
+              [[
+                ~<class_name>(<args>) {
+                <body>
+                }
+              ]],
+              {
+                class_name = vim.deepcopy(class_name),
+                args = vim.deepcopy(args),
+                body = vim.deepcopy(body),
+              }
+            ),
+          })
         )
       end
 

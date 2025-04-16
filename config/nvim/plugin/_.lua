@@ -70,6 +70,7 @@ local clients = {
   'ruff_ls',
   'texlab',
   'tsserver',
+  'emmet',
   -- 'nimls',
   -- 'v_analyzer',
 }

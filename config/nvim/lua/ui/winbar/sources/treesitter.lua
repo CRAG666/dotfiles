@@ -166,6 +166,7 @@ local function get_symbols(buf, win, cursor)
     node = node:parent()
   end
 
+  utils.bar.set_min_widths(symbols, configs.opts.sources.treesitter.min_widths)
   return symbols
 end
 

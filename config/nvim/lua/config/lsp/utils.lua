@@ -28,6 +28,9 @@ end
 
 function M.on_attach(on_attach)
   vim.api.nvim_create_autocmd('LspAttach', {
+    once = true,
+    desc = 'Apply lsp',
+    group = vim.api.nvim_create_augroup('LspSetup', {}),
     callback = function(args)
       local bufnr = args.buf
       local client = vim.lsp.get_client_by_id(args.data.client_id)

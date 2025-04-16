@@ -1,4 +1,4 @@
-local utils = require('utils')
+local utils = require('ui.winbar.utils')
 local configs = require('ui.winbar.configs')
 local bar = require('ui.winbar.bar')
 local groupid = vim.api.nvim_create_augroup('WinBarLsp', {})
@@ -357,6 +357,7 @@ local function get_symbols(buf, win, cursor)
   end
   local result = {}
   convert_document_symbol_list(lsp_buf_symbols[buf], result, buf, win, cursor)
+  utils.bar.set_min_widths(result, configs.opts.sources.lsp.min_widths)
   return result
 end
 

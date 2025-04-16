@@ -368,12 +368,6 @@ M.opts = {
         'for_statement',
         'function',
         'goto_statement',
-        'h1_marker',
-        'h2_marker',
-        'h3_marker',
-        'h4_marker',
-        'h5_marker',
-        'h6_marker',
         'if_statement',
         'interface',
         'keyword',
@@ -390,6 +384,7 @@ M.opts = {
         'return_statement',
         'rule_set',
         'scope',
+        'section',
         'specifier',
         'struct',
         'switch_statement',
@@ -413,6 +408,8 @@ M.opts = {
         -- 'array',
         -- 'list',
       },
+      ---@type integer[]
+      min_widths = {},
     },
     lsp = {
       max_depth = 12,
@@ -449,6 +446,8 @@ M.opts = {
         ttl_init = 60,
         interval = 1000, -- in ms
       },
+      ---@type integer[]
+      min_widths = {},
     },
     markdown = {
       max_depth = 6,
@@ -456,6 +455,8 @@ M.opts = {
         -- Number of lines to update when cursor moves out of the parsed range
         look_ahead = 200,
       },
+      ---@type integer[]
+      min_widths = {},
     },
   },
 }

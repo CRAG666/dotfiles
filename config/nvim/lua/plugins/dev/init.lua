@@ -15,14 +15,6 @@ return {
         'stylua',
         'shfmt',
         'lua-language-server',
-        -- ast-grep
-        -- harper-ls
-        -- lemmy-help
-        -- lua-language-server
-        -- luacheck
-        -- luaformatter
-        -- selene
-        -- "flake8",
       },
     },
     ---@param opts MasonSettings | {ensure_installed: string[]}
@@ -60,20 +52,6 @@ return {
     config = setup('lsp-lens'),
   },
   {
-    'RaafatTurki/corn.nvim',
-    event = 'LspAttach',
-    config = function()
-      require('corn').setup()
-      local group = vim.api.nvim_create_augroup('CornStatus', { clear = true })
-      vim.api.nvim_create_autocmd({ 'LspAttach' }, {
-        group = group,
-        callback = function(...)
-          require('corn').toggle()
-        end,
-      })
-    end,
-  },
-  {
     'mbbill/undotree',
     cmd = 'UndotreeToggle',
     keys = {
@@ -81,25 +59,16 @@ return {
     },
   },
   {
-    'nvimtools/none-ls.nvim',
-    event = 'InsertEnter',
-    opts = function(_, opts)
-      local nls = require('null-ls')
-      opts.root_dir = opts.root_dir
-        or require('null-ls.utils').root_pattern(
-          '.null-ls-root',
-          '.neoconf.json',
-          'Makefile',
-          '.git'
-        )
-      opts.sources = vim.list_extend(opts.sources or {}, {
-        nls.builtins.formatting.stylua,
-        nls.builtins.formatting.shfmt,
-      })
-    end,
+    'stevearc/conform.nvim',
+    opts = {
+      formatters_by_ft = {
+        json = { 'jq' },
+      }
+    },
   },
   {
     'rachartier/tiny-code-action.nvim',
+    event = 'LspAttach',
     keys = {
       {
         '<C-.>',
@@ -113,14 +82,9 @@ return {
       { 'nvim-lua/plenary.nvim' },
       { 'nvim-telescope/telescope.nvim' },
     },
-    event = 'LspAttach',
     config = function()
       require('tiny-code-action').setup({ backend = 'delta' })
     end,
-  },
-  {
-    'Omochice/TeXTable.vim',
-    ft = { 'tex' },
   },
   {
     'folke/ts-comments.nvim',

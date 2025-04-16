@@ -35,6 +35,7 @@ end
 ---@field callback_idx integer? idx of the on_click callback in `_G.winbar.callbacks[buf][win]`, use this to index callback function because `bar_idx` could change after truncate
 ---@field swap table<string, any>? swapped data of the symbol
 ---@field swapped table<string, true>? swapped fields of the symbol
+---@field min_width integer? minimum width when truncated
 ---@field cache table caches string representation, length, etc. for the symbol
 ---@field opts winbar_symbol_opts_t? options passed to `winbar_symbol_t:new()` when the symbols is created
 ---@field data table? any other relavent data
@@ -347,13 +348,15 @@ function winbar_t:truncate()
       break
     end
     local name_len = vim.fn.strdisplaywidth(component.name)
-    local min_len =
-      vim.fn.strdisplaywidth(component.name:sub(1, 1) .. self.extends.icon)
+    local min_len = vim.fn.strdisplaywidth(
+      vim.fn.strcharpart(component.name, 0, component.min_width or 1)
+        .. self.extends.icon
+    )
     if name_len > min_len then
       component.name = vim.fn.strcharpart(
         component.name,
         0,
-        math.max(1, name_len - delta - 1)
+        math.max(component.min_width or 1, name_len - delta - 1)
       ) .. self.extends.icon
       delta = delta - name_len + vim.fn.strdisplaywidth(component.name)
     end

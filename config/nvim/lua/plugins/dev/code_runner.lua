@@ -115,12 +115,6 @@ return {
       typescript = 'deno run',
       typescriptreact = 'yarn dev$end',
       rust = 'cd $dir && rustc $fileName && $dir$fileNameWithoutExt',
-      dart = 'dart',
-      cs = function(...)
-        local root_dir =
-          require('null-ls.utils').root_pattern('*.csproj')(vim.loop.cwd())
-        return 'cd ' .. root_dir .. ' && dotnet run$end'
-      end,
     },
     project_path = vim.fn.expand('~/.config/nvim/project_manager.json'),
   },

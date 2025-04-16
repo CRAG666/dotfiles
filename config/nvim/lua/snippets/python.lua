@@ -37,6 +37,41 @@ M.snippets = {
   ),
   us.sn(
     {
+      trig = 'o',
+      desc = 'open()',
+    },
+    un.fmtad('<fd> = open(<q><file><q>, encoding=<q><encoding><q><kwargs>)', {
+      fd = i(1, 'fd'),
+      q = un.qt(),
+      file = i(2, 'file'),
+      encoding = i(3, 'utf-8'),
+      kwargs = i(4),
+    })
+  ),
+  us.msn(
+    {
+      { trig = 'wo' },
+      { trig = 'wio' },
+      { trig = 'witho' },
+      common = { desc = 'with open() ...' },
+    },
+    un.fmtad(
+      [[
+        with open(<q><file><q>, encoding=<q><encoding><q><kwargs>) as <fd>:
+        <body>
+      ]],
+      {
+        q = un.qt(),
+        file = i(1, 'file'),
+        encoding = i(2, 'utf-8'),
+        kwargs = i(3),
+        fd = i(4, 'fd'),
+        body = un.body(5, 1, 'pass'),
+      }
+    )
+  ),
+  us.sn(
+    {
       trig = 'ck',
       desc = 'Inspect through f-string',
     },
@@ -312,19 +347,30 @@ M.snippets = {
         <body>
       ]],
       {
-        name = r(1, 'fn_name'),
-        args = r(2, 'args'),
+        name = i(1, 'func'),
+        args = i(2),
         ret = i(3),
         body = un.body(4, 1, 'pass'),
       }
-    ),
+    )
+  ),
+  us.msn(
     {
-      common_opts = {
-        stored = {
-          fn_name = i(nil, 'func'),
-        },
-      },
-    }
+      { trig = 'mn' },
+      { trig = 'main' },
+      common = { desc = 'main function' },
+    },
+    un.fmtad(
+      [[
+        def main(<args>)<ret>:
+        <body>
+      ]],
+      {
+        args = i(1),
+        ret = i(2),
+        body = un.body(3, 1, 'pass'),
+      }
+    )
   ),
   us.msn(
     {

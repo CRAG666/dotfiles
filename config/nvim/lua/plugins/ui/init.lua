@@ -76,17 +76,15 @@ return {
     },
   },
   {
-    'chentoast/marks.nvim',
-    name = 'marks',
-    event = 'LazyFile',
-    config = utils.fn.setup('marks', {
-      default_mappings = true,
-      builtin_marks = { '.', '<', '>', '^' },
-      cyclic = true,
-      force_write_shada = false,
-      refresh_interval = 250,
-      sign_priority = { lower = 10, upper = 15, builtin = 8, bookmark = 20 },
-    }),
+    '2kabhishek/markit.nvim',
+    keys = { { "<leader>fm", function()
+      require('telescope').extensions.markit.marks_list_buf()
+    end } },
+    config = function()
+      require('markit').setup()
+      require('telescope').load_extension("markit")
+    end,
+    event = { 'BufReadPre', 'BufNewFile' },
   },
   {
     'stevearc/quicker.nvim',

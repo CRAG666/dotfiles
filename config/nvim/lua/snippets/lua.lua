@@ -434,6 +434,26 @@ M.snippets = {
       { body = un.body(1, 0) }
     )
   ),
+  us.msn(
+    {
+      { trig = 'M' },
+      { trig = 'mod' },
+      common = { desc = 'Define a module' },
+    },
+    un.fmtad(
+      [[
+        local <mod> = {}
+
+        <body>
+
+        return <mod>
+      ]],
+      {
+        mod = i(1, 'M'),
+        body = un.body(2, 0),
+      }
+    )
+  ),
 }
 
 return M

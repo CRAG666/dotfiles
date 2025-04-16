@@ -76,9 +76,12 @@ function M.get_node(opts)
   return vim.treesitter.get_node(opts)
 end
 
+---@class ts_find_node_opts_t : vim.treesitter.get_node.Opts
+---@field depth? integer
+
 ---Returns whether cursor is in a specific type of treesitter node
 ---@param types string|string[]|fun(types: string|string[]): boolean type of node, or function to check node type
----@param opts vim.treesitter.get_node.Opts?
+---@param opts ts_find_node_opts_t?
 ---@return TSNode?
 function M.find_node(types, opts)
   if not M.is_active(opts and opts.bufnr) then
@@ -101,12 +104,14 @@ function M.find_node(types, opts)
     end
 
   local node = M.get_node(opts)
-  while node do
+  local depth = opts and opts.depth or math.huge
+  while node and depth > 0 do
     local nt = node:type() -- current node type
     if check_type_match(nt) then
       return node
     end
     node = node:parent()
+    depth = depth - 1
   end
 end
 
