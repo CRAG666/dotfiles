@@ -6,7 +6,7 @@ configuration {
     font:                        "JetBrainsMono Nerd Font 9";
 }
 
-@theme "~/.config/rofi/theme.rasi"
+@theme "~/.config/rofi/colors/catppuccin.rasi"
 
 
 // Main //
@@ -75,12 +75,12 @@ element {
     padding:                     1em;
     cursor:                      pointer;
     background-color:            transparent;
-    text-color:                  @main-fg;
+    text-color:                  @foreground;
     border-radius:               0em;
 }
 element selected.normal {
-    background-color:            @select-bg;
-    text-color:                  @select-fg;
+    background-color:            @background-alt;
+    text-color:                  @selected;
 }
 element-icon {
     enabled:                     false;

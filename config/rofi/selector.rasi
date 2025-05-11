@@ -3,10 +3,10 @@ configuration {
     modi:                        "drun";
     show-icons:                  true;
     drun-display-format:         "{name}";
-    font:                        "JetBrainsMono Nerd Font 10";
+    font:                        "SF Pro Display 13";
 }
 
-@theme "~/.config/rofi/theme.rasi"
+@theme "~/.config/rofi/colors/catppuccin.rasi"
 
 
 // Main //
@@ -20,7 +20,7 @@ window {
     border:                      0em;
     border-radius:               0em;
     border-color:                transparent;
-    background-color:            @main-bg;
+    background-color:            @background;
 }
 mainbox {
     enabled:                     true;
@@ -47,7 +47,7 @@ listview {
     reverse:                     true;
     cursor:                      "default";
     background-color:            transparent;
-    text-color:                  @main-fg;
+    text-color:                  @foreground;
 }
 dummy {
     width:                       2em;
@@ -63,11 +63,11 @@ element {
     padding:                     0em;
     cursor:                      pointer;
     background-color:            transparent;
-    text-color:                  @main-fg;
+    text-color:                  @foreground;
 }
 element selected.normal {
-    background-color:            @select-bg;
-    text-color:                  @select-fg;
+    background-color:            @selected;
+    text-color:                  @background-alt;
 }
 element-icon {
     cursor:                      inherit;

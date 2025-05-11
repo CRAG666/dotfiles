@@ -23,10 +23,22 @@ return {
     filetype = {
       v = 'v run',
       tex = function(...)
-        require('code_runner.hooks.tectonic').build(
-          preview_cmd,
-          { '--keep-intermediates', '--keep-logs' }
-        )
+        require('code_runner.hooks.ui').select({
+          Project = function()
+            require('code_runner.hooks.tectonic').build(
+              preview_cmd,
+              { '--keep-intermediates', '--keep-logs' }
+            )
+          end,
+          Single = function()
+            require('code_runner.hooks.preview_pdf').run({
+              command = 'tectonic',
+              args = { '$fileName', "-o", "/tmp" },
+              preview_cmd = preview_cmd,
+              overwrite_output = '/tmp',
+            })
+          end,
+        })
       end,
       quarto = {
         'cd $dir &&',
