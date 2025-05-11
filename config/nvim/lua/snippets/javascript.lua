@@ -241,14 +241,15 @@ M.snippets = {
     c(1, {
       un.fmtad(
         [[
-          for (let <idx> = 0; <idx> << <len>; <idx>++) {
+          for (<init>; <cond>; <update>) {
           <body>
           }
         ]],
         {
-          idx = r(1, 'i'),
-          len = i(2, 'array.length'),
-          body = un.body(3, 1),
+          init = i(1),
+          cond = i(2),
+          update = i(3),
+          body = un.body(4, 1),
         }
       ),
       un.fmtad(
@@ -264,6 +265,62 @@ M.snippets = {
         }
       ),
     })
+  ),
+  us.msn(
+    {
+      { trig = 'fi' },
+      { trig = 'fori' },
+      common = { desc = 'for i ... loop' },
+    },
+    c(1, {
+      un.fmtad(
+        [[
+          for (let <idx> = 0; <idx> << <len>; <idx>++) {
+            <body>
+          }
+        ]],
+        {
+          idx = i(1, 'i'),
+          len = i(2, 'array.length'),
+          body = un.body(3, 1),
+        }
+      ),
+      un.fmtad(
+        [[
+          for (let <idx> = <len>; <idx> >>= 0; <idx>--) {
+            <body>
+          }
+        ]],
+        {
+          idx = i(1, 'i'),
+          len = i(2, 'array.length - 1'),
+          body = un.body(3, 1),
+        }
+      ),
+    })
+  ),
+  us.msn(
+    {
+      { trig = 'fo' },
+      { trig = 'fit' },
+      { trig = 'fof' },
+      { trig = 'forit' },
+      { trig = 'forof' },
+      { trig = 'foriter' },
+      common = { desc = 'for ... of ... loop' },
+    },
+    un.fmtad(
+      [[
+        for (const <item> of <items>) {
+        <body>
+        }
+      ]],
+      {
+        item = i(1, 'item'),
+        items = i(2, 'items'),
+        body = un.body(3, 1),
+      }
+    )
   ),
   us.msn(
     {

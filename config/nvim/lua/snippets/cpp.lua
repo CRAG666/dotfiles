@@ -20,37 +20,8 @@ local function get_class_name(node)
 end
 
 M.snippets = {
-  us.msn(
-    {
-      { trig = 'fi' },
-      { trig = 'fit' },
-      { trig = 'fori' },
-      { trig = 'forit' },
-      { trig = 'fiter' },
-      { trig = 'forit' },
-      { trig = 'foriter' },
-      common = { desc = 'Iter loop' },
-    },
-    un.fmtad(
-      [[
-        for (<type> <var> : <container>) {
-        <body>
-        }
-      ]],
-      {
-        type = i(1, 'auto'),
-        var = i(2, 'var'),
-        container = i(3, 'container'),
-        body = un.body(4, 1),
-      }
-    )
-  ),
   us.sn(
-    {
-      trig = 'for',
-      desc = 'For loop',
-      priority = 1001,
-    },
+    { trig = 'for', desc = 'For loop', priority = 1001 },
     c(1, {
       un.fmtad(
         [[
@@ -79,6 +50,50 @@ M.snippets = {
         }
       ),
     })
+  ),
+  us.msn(
+    {
+      { trig = 'fit' },
+      { trig = 'forit' },
+      { trig = 'foriter' },
+      common = { desc = 'Iter loop' },
+    },
+    un.fmtad(
+      [[
+        for (<type> <var> : <container>) {
+        <body>
+        }
+      ]],
+      {
+        type = i(1, 'auto'),
+        var = i(2, 'var'),
+        container = i(3, 'container'),
+        body = un.body(4, 1),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'fi' },
+      { trig = 'fori' },
+      common = {
+        desc = 'For i loop',
+        priority = 1001,
+      },
+    },
+    un.fmtad(
+      [[
+        for (<init>; <cond>; <inc>) {
+        <body>
+        }
+      ]],
+      {
+        init = i(1),
+        cond = i(2),
+        inc = i(3),
+        body = un.body(4, 1),
+      }
+    )
   ),
   us.msn(
     {
@@ -207,23 +222,9 @@ M.snippets = {
       common = { desc = 'C++ constructor definition' },
     },
     d(1, function()
-      local class_node = (function()
-        if not require('utils.ts').is_active() then
-          return
-        end
-        local parser = vim.treesitter.get_parser()
-        if not parser then
-          return
-        end
-        -- Re-parse to ensure that we have correct language tree, else
-        -- we cannot find node `class_specifier` inside a class definition
-        if not parser:is_valid() then
-          parser:parse()
-        end
-        return require('utils.ts').find_node('class_specifier', {
-          ignore_injections = false,
-        })
-      end)()
+      local class_node = require('utils.ts').find_node('class_specifier', {
+        ignore_injections = false,
+      })
 
       -- Outside class definition
       if not class_node then
@@ -296,23 +297,9 @@ M.snippets = {
       common = { desc = 'C++ destructor definition' },
     },
     d(1, function()
-      local class_node = (function()
-        if not require('utils.ts').is_active() then
-          return
-        end
-        local parser = vim.treesitter.get_parser()
-        if not parser then
-          return
-        end
-        -- Re-parse to ensure that we have correct language tree, else
-        -- we cannot find node `class_specifier` inside a class definition
-        if not parser:is_valid() then
-          parser:parse()
-        end
-        return require('utils.ts').find_node('class_specifier', {
-          ignore_injections = false,
-        })
-      end)()
+      local class_node = require('utils.ts').find_node('class_specifier', {
+        ignore_injections = false,
+      })
 
       -- Outside class definition
       if not class_node then

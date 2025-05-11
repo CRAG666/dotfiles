@@ -215,16 +215,7 @@ return {
   us.sambW({ trig = 'cm' }, t('^{C}')),
   us.sambW({ trig = 'inv' }, t('^{-1}')),
   us.sambW({ trig = '\\in v' }, t('^{-1}')),
-  us.msambW({
-    { trig = 'tr' },
-    { trig = '^tr' },
-    { trig = '.T' },
-  }, t('^{\\intercal}')),
-  us.sambW({
-    trig = 'tr',
-    condition = conds.before_pattern('}') * conds.after_pattern('%^{'),
-    show_condition = conds.before_pattern('}') * conds.after_pattern('%^{'),
-  }, t('\\intercal')),
+  us.sambW({ trig = '.T' }, t('^{\\intercal}')),
 
   us.samWr(
     { trig = '(\\?%w*_*%w*);;' },
@@ -499,10 +490,10 @@ return {
       }),
       sn(nil, {
         t('\\min_{'),
-        i(2),
+        i(1),
         t('}'),
         t('\\left('),
-        r(1, 'expr'),
+        r(2, 'expr'),
         t('\\right)'),
       }),
     })
@@ -518,10 +509,10 @@ return {
       }),
       sn(nil, {
         t('\\max_{'),
-        i(2),
+        i(1),
         t('}'),
         t('\\left('),
-        r(1, 'expr'),
+        r(2, 'expr'),
         t('\\right)'),
       }),
     })
@@ -657,6 +648,11 @@ return {
     i(1),
     t('}{\\mathrm{d}'),
     i(2),
+    t('} '),
+  }),
+  us.sam({ trig = 'grad' }, {
+    t('\\nabla_{'),
+    i(1, 'x'),
     t('} '),
   }),
   us.sam({

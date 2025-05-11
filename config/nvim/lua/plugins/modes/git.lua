@@ -6,7 +6,6 @@ return {
   },
   dependencies = {
     'MunifTanjim/nui.nvim',
-    'nvim-tree/nvim-web-devicons',
     'nvim-lua/plenary.nvim',
     {
       'chrisgrieser/nvim-tinygit', -- optional: for Github PR view
@@ -15,7 +14,7 @@ return {
   },
   cmd = { 'Fugit2', 'Fugit2Diff', 'Fugit2Graph' },
   keys = {
-    { '<leader>gm', mode = 'n', '<cmd>Fugit2<cr>', desc = 'Git Mode' },
+    { '<leader>gm', mode = 'n', '<cmd>Fugit2<cr>',      desc = 'Git Mode' },
     { '<leader>gg', mode = 'n', '<cmd>Fugit2Graph<cr>', desc = 'Git Graph' },
   },
 }

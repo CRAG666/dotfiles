@@ -101,7 +101,7 @@ local function setup_lsp_overrides()
       opts.wrap = false
     end
     local floating_bufnr, floating_winnr =
-      _open_floating_preview(contents, syntax, opts)
+        _open_floating_preview(contents, syntax, opts)
     vim.wo[floating_winnr].concealcursor = 'nc'
     return floating_bufnr, floating_winnr
   end
@@ -126,10 +126,11 @@ local function setup_diagnostic_configs()
       float = true,
     },
     -- underline = false,
-    virtual_text = {
-      spacing = 4,
-      prefix = vim.trim(utils.static.icons.AngleLeft),
-    },
+    -- virtual_text = {
+    --   spacing = 4,
+    --   prefix = vim.trim(utils.static.icons.AngleLeft),
+    -- },
+    virtual_text = false,
     signs = {
       text = {
         [vim.diagnostic.severity.ERROR] = icons.DiagnosticSignError,
@@ -180,23 +181,23 @@ local function setup_diagnostic_overrides()
     end)
 
     return vim
-      .iter(diags)
-      :filter(function(diag) ---@param diag diagnostic_t
-        ---@class diagnostic_t: vim.Diagnostic
-        ---@field _hidden boolean whether the diagnostic is shown as virtual text
+        .iter(diags)
+        :filter(function(diag) ---@param diag diagnostic_t
+          ---@class diagnostic_t: vim.Diagnostic
+          ---@field _hidden boolean whether the diagnostic is shown as virtual text
 
-        diag._hidden = vim
-          .iter(diags_cache[diag.bufnr][diag.lnum])
-          :any(function(d) ---@param d diagnostic_t
-            return not d._hidden
-              and d.namespace ~= diag.namespace
-              and d.severity <= diag.severity
-              and d.col == diag.col
-          end)
+          diag._hidden = vim
+              .iter(diags_cache[diag.bufnr][diag.lnum])
+              :any(function(d) ---@param d diagnostic_t
+                return not d._hidden
+                    and d.namespace ~= diag.namespace
+                    and d.severity <= diag.severity
+                    and d.col == diag.col
+              end)
 
-        return not diag._hidden
-      end)
-      :totable()
+          return not diag._hidden
+        end)
+        :totable()
   end
 
   ---Truncates multi-line diagnostic messages to their first line
@@ -204,17 +205,17 @@ local function setup_diagnostic_overrides()
   ---@return vim.Diagnostic[]
   local function truncate_multiline(diags)
     return vim
-      .iter(diags)
-      :map(function(d) ---@param d vim.Diagnostic
-        local first_line = vim.gsplit(d.message, '\n')()
-        if not first_line or first_line == d.message then
-          return d
-        end
-        return vim.tbl_extend('keep', {
-          message = first_line,
-        }, d)
-      end)
-      :totable()
+        .iter(diags)
+        :map(function(d) ---@param d vim.Diagnostic
+          local first_line = vim.gsplit(d.message, '\n')()
+          if not first_line or first_line == d.message then
+            return d
+          end
+          return vim.tbl_extend('keep', {
+            message = first_line,
+          }, d)
+        end)
+        :totable()
   end
 
   vim.diagnostic.handlers.virtual_text.show = (function(cb)
@@ -235,12 +236,11 @@ function M.setup()
     root_markers = { '.git' },
   })
   lu.on_attach(function(client, bufnr)
-    if vim.lsp.inlay_hint.is_enabled() ~= true then
-      vim.lsp.inlay_hint.enable()
-    end
+    -- if vim.lsp.inlay_hint.is_enabled() ~= true then
+    --   vim.lsp.inlay_hint.enable()
+    -- end
     require('config.lsp.commands').setup()
     require('config.lsp.highlighter').on_attach(client, bufnr)
-    require('config.lsp.format').on_attach(client, bufnr)
     require('config.lsp.keymaps').on_attach(client, bufnr)
     setup_lsp_overrides()
     setup_lsp_stopdetached()

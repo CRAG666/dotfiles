@@ -220,59 +220,190 @@ M.snippets = {
     t({ ' then', '' }),
     un.body(2, 1, false),
   }),
-  us.sn({ trig = 'for' }, {
-    t('for '),
+  us.sn(
+    { trig = 'for', desc = 'For loop' },
     c(1, {
-      sn(nil, {
-        r(1, 'idx'),
-        t(', '),
-        r(2, 'val'),
-        t(' in ipairs('),
-        r(3, 'it'),
-        t(')'),
-      }),
-      sn(nil, {
-        i(1, 'key'),
-        t(', '),
-        r(2, 'val'),
-        t(' in pairs('),
-        r(3, 'it'),
-        t(')'),
-      }),
-      sn(nil, {
-        r(1, 'val'),
-        t(' in '),
-        r(2, 'it'),
-      }),
-      sn(nil, {
-        r(1, 'idx'),
-        t(' = '),
-        r(2, 'start'),
-        t(', '),
-        r(3, 'stop'),
-        t(', '),
-        i(4, 'step'),
-      }),
-      sn(nil, {
-        r(1, 'idx'),
-        t(' = '),
-        r(2, 'start'),
-        t(', '),
-        r(3, 'stop'),
-      }),
+      un.fmtad(
+        [[
+          for <idx>, <val> in ipairs(<iter>) do
+          <body>
+          end
+        ]],
+        {
+          idx = r(1, 'idx'),
+          val = r(2, 'val'),
+          iter = r(3, 'iter'),
+          body = un.body(4, 1),
+        }
+      ),
+      un.fmtad(
+        [[
+          for <key>, <val> in pairs(<iter>) do
+          <body>
+          end
+        ]],
+        {
+          key = i(1, 'key'),
+          val = r(2, 'val'),
+          iter = r(3, 'iter'),
+          body = un.body(4, 1),
+        }
+      ),
+      un.fmtad(
+        [[
+          for <val> in <iter> do
+          <body>
+          end
+        ]],
+        {
+          val = r(1, 'val'),
+          iter = r(2, 'iter'),
+          body = un.body(3, 1),
+        }
+      ),
+      un.fmtad(
+        [[
+          for <idx> = <start>, <stop> do
+          <body>
+          end
+        ]],
+        {
+          idx = r(1, 'idx'),
+          start = r(2, 'start'),
+          stop = r(3, 'stop'),
+          body = un.body(4, 1),
+        }
+      ),
+      un.fmtad(
+        [[
+          for <idx> = <start>, <stop>, <step> do
+          <body>
+          end
+        ]],
+        {
+          idx = r(1, 'idx'),
+          start = r(2, 'start'),
+          stop = r(3, 'stop'),
+          step = i(4, 'step'),
+          body = un.body(5, 1),
+        }
+      ),
     }),
-    t({ ' do', '' }),
-    un.body(2, 1),
-    t({ '', 'end' }),
-  }, {
-    stored = {
-      idx = i(nil, '_'),
-      it = i(nil, 'iterable'),
-      val = i(nil, 'val'),
-      start = i(nil, 'start'),
-      stop = i(nil, 'stop'),
+    {
+      stored = {
+        idx = i(nil, 'i'),
+        val = i(nil, 'val'),
+        iter = i(nil, 'iter'),
+        start = i(nil, 'start'),
+        stop = i(nil, 'stop'),
+      },
+    }
+  ),
+  us.msn(
+    {
+      { trig = 'fip' },
+      { trig = 'forip' },
+      common = { desc = 'for ... in ipairs(...) loop' },
     },
-  }),
+    un.fmtad(
+      [[
+        for <idx>, <val> in ipairs(<iter>) do
+        <body>
+        end
+      ]],
+      {
+        idx = i(1, 'i'),
+        val = i(2, 'val'),
+        iter = i(3, 'iter'),
+        body = un.body(4, 1),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'fp' },
+      { trig = 'forp' },
+      common = { desc = 'for ... in pairs(...) loop' },
+    },
+    un.fmtad(
+      [[
+        for <key>, <val> in pairs(<iter>) do
+        <body>
+        end
+      ]],
+      {
+        key = i(1, 'key'),
+        val = i(2, 'val'),
+        iter = i(3, 'iter'),
+        body = un.body(4, 1),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'fit' },
+      { trig = 'forit' },
+      { trig = 'foriter' },
+      common = { desc = 'for ... in ... loop' },
+    },
+    un.fmtad(
+      [[
+        for <val> in <iter> do
+        <body>
+        end
+      ]],
+      {
+        val = i(1, 'val'),
+        iter = i(2, 'iter'),
+        body = un.body(3, 1),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'fi' },
+      { trig = 'fori' },
+      common = { desc = 'for i = ... loop' },
+    },
+    c(1, {
+      un.fmtad(
+        [[
+          for <idx> = <start>, <stop> do
+          <body>
+          end
+        ]],
+        {
+          idx = r(1, 'idx'),
+          start = r(2, 'start'),
+          stop = r(3, 'stop'),
+          body = un.body(4, 1),
+        }
+      ),
+      un.fmtad(
+        [[
+          for <idx> = <start>, <stop>, <step> do
+          <body>
+          end
+        ]],
+        {
+          idx = r(1, 'idx'),
+          start = r(2, 'start'),
+          stop = r(3, 'stop'),
+          step = i(4, 'step'),
+          body = un.body(5, 1),
+        }
+      ),
+    }),
+    {
+      common_opts = {
+        stored = {
+          idx = i(nil, 'i'),
+          start = i(nil, 'start'),
+          stop = i(nil, 'stop'),
+        },
+      },
+    }
+  ),
   us.msn({
     { trig = 'wh' },
     { trig = 'while' },
@@ -451,6 +582,30 @@ M.snippets = {
       {
         mod = i(1, 'M'),
         body = un.body(2, 0),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'st' },
+      { trig = 'cls' },
+      { trig = 'class' },
+      { trig = 'struct' },
+      common = { desc = 'Class definition' },
+    },
+    un.fmtad(
+      [[
+        ---@class <class_name>
+        local <class_name> = {}
+
+        function <class_name>.new(<opts>)
+        <body>
+        end
+      ]],
+      {
+        class_name = i(1, 'class_name'),
+        opts = i(2),
+        body = un.body(2, 1),
       }
     )
   ),

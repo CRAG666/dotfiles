@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      BSD
--- Last Updated: Fri 21 Mar 2025 04:03:22 PM EDT
+-- Last Updated: Mon 28 Apr 2025 05:36:28 PM EDT
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -28,6 +28,7 @@ local c_variable
 local c_generic
 local c_background
 local c_foreground
+local c_faded
 local c_highlight
 local c_lightgreen
 local c_lightblue
@@ -37,6 +38,7 @@ local c_lightyellow
 if vim.go.bg == 'dark' then
   c_background      = { '#232629', 235 }
   c_foreground      = { '#cccccc', 251 }
+  c_faded           = { '#2d3135', 236 }
   c_highlight       = { '#383c41', 238 }
   c_whitespace      = { '#bbbbbb', 250 }
   c_delimiter       = { '#888888', 245 }
@@ -59,6 +61,7 @@ if vim.go.bg == 'dark' then
 else
   c_background      = { '#ffffff', 231 }
   c_foreground      = { '#111111', 233 }
+  c_faded           = { '#f8fafa', 254 }
   c_highlight       = { '#f4f5f5', 255 }
   c_whitespace      = { '#e0e2e2', 250 }
   c_delimiter       = { '#888888', 245 }
@@ -131,7 +134,7 @@ local hlgroups = {
   Cursor = { fg = c_background, bg = c_foreground },
   CursorColumn = { bg = c_highlight },
   CursorIM = { link = 'Cursor' },
-  CursorLine = { bg = c_highlight },
+  CursorLine = { bg = c_faded },
   CursorLineNr = { fg = c_foreground, bold = true },
   DebugPC = { bg = c_lightgreen },
   DiffAdd = { bg = c_lightgreen, fg = c_background },
@@ -145,7 +148,7 @@ local hlgroups = {
   FloatTitle = { fg = c_other, bg = c_highlight, bold = true },
   FoldColumn = { fg = c_comment },
   Folded = { fg = c_comment, bg = c_highlight },
-  IncSearch = { bg = c_other, fg = c_background, bold = true },
+  IncSearch = { fg = c_background, bg = c_other, bold = true },
   LineNr = { fg = c_comment },
   MatchParen = { bg = c_highlight, bold = true },
   ModeMsg = { fg = c_foreground },
@@ -160,7 +163,7 @@ local hlgroups = {
   PmenuThumb = { bg = c_keyword },
   Question = { fg = c_string },
   QuickFixLine = { link = 'Visual' },
-  Search = { fg = c_background, bg = c_special2 },
+  Search = { fg = c_background, bg = c_warn, bold = true },
   SignColumn = { fg = c_comment },
   SpecialKey = { fg = c_special },
   SpellBad = { underdashed = true },
@@ -178,10 +181,10 @@ local hlgroups = {
   VertSplit = { fg = c_whitespace, bg = c_whitespace },
   Visual = { bg = c_highlight },
   VisualNOS = { link = 'Visual' },
-  WarningMsg = { fg = c_other },
+  WarningMsg = { fg = c_warn },
   Whitespace = { link = 'NonText' },
   WildMenu = { link = 'PmenuSel' },
-  WinBar = { fg = c_foreground },
+  WinBar = { fg = c_foreground, bg = c_highlight },
   WinBarNC = { link = 'WinBar' },
   WinSeparator = { link = 'VertSplit' },
   lCursor = { link = 'Cursor' },
@@ -286,11 +289,11 @@ local hlgroups = {
   DiagnosticWarn = { fg = c_warn },
   DiagnosticInfo = { fg = c_special },
   DiagnosticHint = { fg = c_special },
-  DiagnosticVirtualTextOk = { fg = c_string, bg = c_highlight },
-  DiagnosticVirtualTextError = { fg = c_error, bg = c_highlight },
-  DiagnosticVirtualTextWarn = { fg = c_warn, bg = c_highlight },
-  DiagnosticVirtualTextInfo = { fg = c_special, bg = c_highlight },
-  DiagnosticVirtualTextHint = { fg = c_special, bg = c_highlight },
+  DiagnosticVirtualTextOk = { fg = c_string, bg = c_faded },
+  DiagnosticVirtualTextError = { fg = c_error, bg = c_faded },
+  DiagnosticVirtualTextWarn = { fg = c_warn, bg = c_faded },
+  DiagnosticVirtualTextInfo = { fg = c_special, bg = c_faded },
+  DiagnosticVirtualTextHint = { fg = c_special, bg = c_faded },
   DiagnosticUnderlineOk = { underline = true, sp = c_string },
   DiagnosticUnderlineError = { undercurl = true, sp = c_error },
   DiagnosticUnderlineWarn = { undercurl = true, sp = c_warn },
@@ -342,7 +345,7 @@ local hlgroups = {
   fugitiveUntrackedModifier = { fg = c_other, bold = true },
 
   -- nvim-cmp
-  CmpItemAbbrDeprecated = { fg = c_comment, strikethrough = true },
+  CmpItemAbbrDeprecated = { fg = c_delimiter, strikethrough = true },
   CmpItemAbbrMatch = { fg = c_other, bold = true },
   CmpItemAbbrMatchFuzzy = { link = 'CmpItemAbbrMatch' },
   CmpItemKindText = { link = 'String' },

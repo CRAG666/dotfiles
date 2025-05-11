@@ -17,7 +17,6 @@ return {
       table.insert(opts.ensure_installed, 'basedpyright')
       -- table.insert(opts.ensure_installed, 'pylyzer')
       table.insert(opts.ensure_installed, 'ruff')
-      table.insert(opts.ensure_installed, 'ruff-lsp')
     end,
   },
   {

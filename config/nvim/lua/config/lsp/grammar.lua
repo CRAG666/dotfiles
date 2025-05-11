@@ -59,8 +59,7 @@ local function setltex(language)
         checkFrequency = 'save',
         additionalRules = {
           enablePickyRules = false,
-          motherTongue = language,
-          languageModel = vim.fn.expand('~/Documentos/Models/' .. language),
+          languageModel = '~/Documentos/Models/',
         },
       },
     },
@@ -76,7 +75,7 @@ local function create_keybind()
         if M.current_client_id then
           local client = vim.lsp.get_client_by_id(M.current_client_id)
           if client then
-            client.stop()
+            client:stop(true)
           end
         end
         vim.schedule(function()

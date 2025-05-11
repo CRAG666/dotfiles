@@ -4,41 +4,6 @@ local boxes = require('utils.static.boxes')
 return {
   { 'MunifTanjim/nui.nvim', lazy = true },
   {
-    'echasnovski/mini.indentscope',
-    version = false, -- wait till new 0.7.0 release to put it back on semver
-    event = 'LazyFile',
-    opts = {
-      -- symbol = "▏",
-      symbol = '│',
-      options = { try_as_border = true },
-    },
-    init = function()
-      vim.api.nvim_create_autocmd('FileType', {
-        pattern = {
-          'help',
-          'alpha',
-          'dashboard',
-          'neo-tree',
-          'lazy',
-          'mason',
-          'notify',
-          'toggleterm',
-          'lazyterm',
-        },
-        callback = function()
-          vim.b.miniindentscope_disable = true
-        end,
-      })
-    end,
-  },
-
-  -- {
-  --   "echasnovski/mini.tabline",
-  --   -- Agregar keys
-  --   keys = { { "<leader>ts", [[:execute 'set showtabline=' . (&showtabline ==# 0 ? 2 : 0)<CR>]] } },
-  --   init = utils.setup "mini.tabline",
-  -- },
-  {
     'stevearc/dressing.nvim',
     lazy = true,
     init = function()
@@ -47,11 +12,6 @@ return {
         require('lazy').load({ plugins = { 'dressing.nvim' } })
         return vim.ui.select(...)
       end
-      ---@diagnostic disable-next-line: duplicate-set-field
-      vim.ui.input = function(...)
-        require('lazy').load({ plugins = { 'dressing.nvim' } })
-        return vim.ui.input(...)
-      end
     end,
   },
   {
@@ -59,12 +19,13 @@ return {
     event = 'VeryLazy',
     opts = {
       -- window = { position = "top" },
+      preset = "modern",
       icons = {
         breadcrumb = '»',
         separator = '➜',
         group = '…',
       },
-      spelling = { enabled = false, suggestions = 20 },
+      spelling = { enabled = true },
     },
   },
   {
@@ -74,17 +35,6 @@ return {
       render = 'background', -- or 'foreground' or 'first_column'
       enable_tailwind = false,
     },
-  },
-  {
-    '2kabhishek/markit.nvim',
-    keys = { { "<leader>fm", function()
-      require('telescope').extensions.markit.marks_list_buf()
-    end } },
-    config = function()
-      require('markit').setup()
-      require('telescope').load_extension("markit")
-    end,
-    event = { 'BufReadPre', 'BufNewFile' },
   },
   {
     'stevearc/quicker.nvim',
@@ -151,12 +101,15 @@ return {
   },
   {
     'rasulomaroff/reactive.nvim',
-    event = 'InsertEnter',
-    config = function()
-      require('reactive').setup({
-        load = { 'catppuccin-mocha-cursor', 'catppuccin-mocha-cursorline' },
-      })
-    end,
+    event = 'LazyFile',
+    opts = {
+      builtin = {
+        cursorline = true,
+        cursor = true,
+        modemsg = true
+      },
+      load = { 'catppuccin-mocha-cursor', 'catppuccin-mocha-cursorline' }
+    }
   },
   {
     'folke/todo-comments.nvim',

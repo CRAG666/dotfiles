@@ -20,119 +20,6 @@ local function augroup(group, ...)
   end
 end
 
--- This can only handle cases where the big file exists on disk before opening
--- it but not big buffers without corresponding files
--- TODO: Handle big buffers without corresponding files
-augroup('BigFile', {
-  'BufReadPre',
-  {
-    desc = 'Detect big files.',
-    callback = function(info)
-      vim.g.bigfile_max_size = vim.g.bigfile_max_size or 1048576
-
-      local stat = vim.uv.fs_stat(info.match)
-      if stat and stat.size > vim.g.bigfile_max_size then
-        vim.b[info.buf].bigfile = true
-      end
-    end,
-  },
-}, {
-  { 'BufEnter', 'TextChanged' },
-  {
-    desc = 'Detect big files.',
-    callback = function(info)
-      vim.g.bigfile_max_lines = vim.g.bigfile_max_lines or 32768
-
-      local buf = info.buf
-      if vim.b[buf].bigfile then
-        return
-      end
-
-      if vim.api.nvim_buf_line_count(buf) > vim.g.bigfile_max_lines then
-        vim.b[buf].bigfile = true
-      end
-    end,
-  },
-}, {
-  'FileType',
-  {
-    once = true,
-    desc = 'Prevent treesitter and LSP from attaching to big files.',
-    callback = function(info)
-      vim.api.nvim_del_autocmd(info.id)
-
-      local ts_get_parser = vim.treesitter.get_parser
-      local ts_foldexpr = vim.treesitter.foldexpr
-      local lsp_start = vim.lsp.start
-
-      ---@diagnostic disable-next-line: duplicate-set-field
-      function vim.treesitter.get_parser(buf, ...)
-        if buf == nil or buf == 0 then
-          buf = vim.api.nvim_get_current_buf()
-        end
-        -- HACK: Getting parser for a big buffer can freeze nvim, so return a
-        -- fake parser on an empty buffer if current buffer is big
-        if vim.api.nvim_buf_is_valid(buf) and vim.b[buf].bigfile then
-          return vim.treesitter._create_parser(
-            vim.api.nvim_create_buf(false, true),
-            vim.treesitter.language.get_lang(vim.bo.ft) or vim.bo.ft
-          )
-        end
-        return ts_get_parser(buf, ...)
-      end
-
-      ---@diagnostic disable-next-line: duplicate-set-field
-      function vim.treesitter.foldexpr(...)
-        if vim.b.bigfile then
-          return
-        end
-        return ts_foldexpr(...)
-      end
-
-      ---@diagnostic disable-next-line: duplicate-set-field
-      function vim.lsp.start(...)
-        if vim.b.bigfile then
-          return
-        end
-        return lsp_start(...)
-      end
-
-      return true
-    end,
-  },
-}, {
-  'BufReadPre',
-  {
-    desc = 'Disable options in big files.',
-    callback = function(info)
-      local buf = info.buf
-      if not vim.b[buf].bigfile then
-        return
-      end
-      vim.api.nvim_buf_call(buf, function()
-        vim.opt_local.spell = false
-        vim.opt_local.swapfile = false
-        vim.opt_local.undofile = false
-        vim.opt_local.breakindent = false
-        vim.opt_local.foldmethod = 'manual'
-      end)
-    end,
-  },
-}, {
-  { 'BufEnter', 'TextChanged', 'FileType' },
-  {
-    desc = 'Stop treesitter in big files.',
-    callback = function(info)
-      local buf = info.buf
-      if vim.b[buf].bigfile and require('utils.ts').hl_is_active(buf) then
-        vim.treesitter.stop(buf)
-        vim.bo[buf].syntax = vim.filetype.match({ buf = buf })
-          or vim.bo[buf].bt
-      end
-    end,
-  },
-})
-
 augroup('YankHighlight', {
   'TextYankPost',
   {
@@ -191,9 +78,15 @@ augroup('WritingAssistant', {
   },
 })
 
-augroup('CursorLine', {
-  { 'InsertLeave', 'WinEnter' },
-  { pattern = '*', command = 'set cursorline' },
+augroup('Formatting', {
+  'BufWritePre',
+  {
+    desc = 'Formatting',
+    pattern = "*",
+    callback = function(args)
+      require("conform").format({ bufnr = args.buf, lsp_format = "fallback" })
+    end,
+  },
 })
 
 augroup('CursorLine', {

@@ -13,8 +13,6 @@ return {
       background = { light = 'latte', dark = 'mocha' }, -- latte, frappe, macchiato, mocha
       dim_inactive = {
         enabled = false,
-        -- Dim inactive splits/windows/buffers.
-        -- NOT recommended if you use old palette (a.k.a., mocha).
         shade = 'dark',
         percentage = 0.15,
       },
@@ -53,7 +51,7 @@ return {
             information = { 'underline' },
           },
         },
-        aerial = true,
+        aerial = false,
         alpha = false,
         barbar = false,
         beacon = false,
@@ -64,32 +62,33 @@ return {
         dap_ui = true,
         dashboard = false,
         diffview = true,
-        dropbar = { enabled = true, color_mode = true },
+        dropbar = { enabled = false },
         fern = false,
-        fidget = true,
+        fidget = false,
         flash = true,
+        gitgraph = true,
         gitgutter = false,
         gitsigns = true,
         harpoon = true,
         headlines = false,
         hop = false,
         illuminate = true,
-        indent_blankline = { enabled = true, colored_indent_levels = false },
+        indent_blankline = { enabled = false },
         leap = false,
         lightspeed = false,
-        lsp_saga = true,
-        lsp_trouble = true,
+        lsp_saga = false,
+        lsp_trouble = false,
         markdown = true,
         mason = true,
-        mini = true,
-        navic = { enabled = false },
-        neogit = true,
-        neotest = true,
-        neotree = {
-          enabled = false,
-          show_root = true,
-          transparent_panel = false,
+        mini = { enabled = false, indentscope_color = "green" },
+        snacks = {
+          enabled = true,
+          indent_scope_color = "green",
         },
+        navic = { enabled = false },
+        neogit = false,
+        neotest = true,
+        neotree = { enabled = false },
         noice = true,
         notify = true,
         nvim_surround = true,
@@ -101,8 +100,7 @@ return {
         semantic_tokens = true,
         symbols_outline = true,
         telekasten = false,
-        telescope = { enabled = true, style = 'nvchad' },
-        treesitter = true,
+        -- telescope = { enabled = true, style = 'nvchad' },
         treesitter_context = true,
         ts_rainbow = false,
         vim_sneak = false,
@@ -224,66 +222,11 @@ return {
             -- For mason.nvim
             MasonNormal = { link = 'NormalFloat' },
 
-            -- For indent-blankline
-            IblIndent = { fg = C.surface0 },
-            IblScope = { fg = C.surface2, style = { 'bold' } },
-
-            -- For nvim-cmp and wilder.nvim
-            Pmenu = {
-              fg = C.overlay2,
-              bg = transparent_background and C.none or C.base,
-            },
-            PmenuBorder = {
-              fg = C.surface1,
-              bg = transparent_background and C.none or C.base,
-            },
-            PmenuSel = { bg = C.green, fg = C.base },
-            CmpItemAbbr = { fg = C.overlay2 },
-            CmpItemAbbrMatch = { fg = C.blue, style = { 'bold' } },
-            CmpDoc = { link = 'NormalFloat' },
-            CmpDocBorder = {
-              fg = transparent_background and C.surface1 or C.mantle,
-              bg = transparent_background and C.none or C.mantle,
-            },
-
-            -- For fidget
-            FidgetTask = { bg = C.none, fg = C.surface2 },
-            FidgetTitle = { fg = C.blue, style = { 'bold' } },
-
-            -- For nvim-notify
-            NotifyBackground = { bg = C.base },
-
-            -- For nvim-tree
-            NvimTreeRootFolder = { fg = C.pink },
-            NvimTreeIndentMarker = { fg = C.surface2 },
-
-            -- For trouble.nvim
-            TroubleNormal = {
-              bg = transparent_background and C.none or C.base,
-            },
-
             -- For telescope.nvim
             TelescopeMatching = { fg = C.lavender },
             TelescopeResultsDiffAdd = { fg = C.green },
             TelescopeResultsDiffChange = { fg = C.yellow },
             TelescopeResultsDiffDelete = { fg = C.red },
-
-            -- For glance.nvim
-            GlanceWinBarFilename = { fg = C.subtext1, style = { 'bold' } },
-            GlanceWinBarFilepath = { fg = C.subtext0, style = { 'italic' } },
-            GlanceWinBarTitle = { fg = C.teal, style = { 'bold' } },
-            GlanceListCount = { fg = C.lavender },
-            GlanceListFilepath = { link = 'Comment' },
-            GlanceListFilename = { fg = C.blue },
-            GlanceListMatch = { fg = C.lavender, style = { 'bold' } },
-            GlanceFoldIcon = { fg = C.green },
-
-            -- For nvim-treehopper
-            TSNodeKey = {
-              fg = C.peach,
-              bg = transparent_background and C.none or C.base,
-              style = { 'bold', 'underline' },
-            },
 
             -- For treesitter
             ['@keyword.return'] = { fg = C.pink, style = clear },

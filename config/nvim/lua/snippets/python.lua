@@ -259,23 +259,55 @@ M.snippets = {
       trig = 'for',
       desc = 'for loop',
     },
-    un.fmtad(
-      [[
-        for <var> in <iter>:
-        <body>
-      ]],
-      {
-        var = i(1),
-        iter = i(2),
-        body = un.body(3, 1, 'pass'),
-      }
-    )
+    c(1, {
+      un.fmtad(
+        [[
+          for <var> in <iterable>:
+            <body>
+        ]],
+        {
+          var = r(1, 'var'),
+          iterable = r(2, 'iterable'),
+          body = un.body(3, 1, 'pass'),
+        }
+      ),
+      un.fmtad(
+        [[
+          for <var> in range(<range>):
+          <body>
+        ]],
+        {
+          var = r(1, 'var'),
+          range = i(2),
+          body = un.body(3, 1, 'pass'),
+        }
+      ),
+      un.fmtad(
+        [[
+          for <idx>, <var> in iter(<iterable>):
+          <body>
+        ]],
+        {
+          idx = i(1, 'i'),
+          var = r(2, 'var'),
+          iterable = r(3, 'iterable'),
+          body = un.body(4, 1, 'pass'),
+        }
+      ),
+    }),
+    {
+      stored = {
+        var = i(nil, 'var'),
+        iterable = i(nil, 'iterable'),
+      },
+    }
   ),
   us.msn(
     {
+      { trig = 'fi' },
       { trig = 'fr' },
       { trig = 'forr' },
-      { trig = 'frange' },
+      { trig = 'fori' },
       { trig = 'forange' },
       { trig = 'forrange' },
       common = { desc = 'for ... in range(...) loop' },
@@ -286,7 +318,7 @@ M.snippets = {
         <body>
       ]],
       {
-        var = i(1),
+        var = i(1, 'i'),
         range = i(2),
         body = un.body(3, 1, 'pass'),
       }
@@ -294,11 +326,7 @@ M.snippets = {
   ),
   us.msn(
     {
-      { trig = 'fi' },
       { trig = 'fit' },
-      { trig = 'fori' },
-      { trig = 'forit' },
-      { trig = 'fiter' },
       { trig = 'forit' },
       { trig = 'foriter' },
       common = { desc = 'for ... in iter(...) loop' },
@@ -311,7 +339,7 @@ M.snippets = {
       {
         idx = i(1, 'idx'),
         elem = i(2, 'elem'),
-        iterable = i(3),
+        iterable = i(3, 'iterable'),
         body = un.body(4, 1, 'pass'),
       }
     )

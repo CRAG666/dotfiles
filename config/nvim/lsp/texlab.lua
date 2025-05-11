@@ -18,11 +18,5 @@ return {
       bibtexFormatter = 'texlab',
       formatterLineLength = 80,
     },
-  },
-  on_attach = function(client, bufnr)
-    require('code_runner.hooks.tectonic').build(
-      '/bin/zathura',
-      { '--keep-intermediates', '--keep-logs' }
-    )
-  end,
+  }
 }

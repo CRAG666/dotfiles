@@ -1,3 +1,6 @@
 return {
-  { 'nvim-tree/nvim-web-devicons', opts = {} },
+  {
+    'DaikyXendo/nvim-material-icon',
+  }
+  -- { "nvim-tree/nvim-web-devicons", opts = {} },
 }

@@ -66,7 +66,7 @@ set.autoindent = true
 set.smartindent = true
 set.linebreak = true
 set.breakindent = true
-set.textwidth = 80
+set.textwidth = 106
 set.formatoptions = 'jcroqlnt' -- tcqj
 
 -- =============================
@@ -110,7 +110,7 @@ set.mouse = 'a'
 -- Diff and Git
 -- =============================
 set.diffopt =
-  'filler,vertical,hiddenoff,linematch:60,foldcolumn:0,algorithm:minimal'
+'filler,vertical,hiddenoff,linematch:60,foldcolumn:0,algorithm:minimal'
 
 -- =============================
 -- Wildcards and Paths
@@ -155,7 +155,7 @@ set.grepformat = '%f:%l:%c:%m'
 -- =============================
 -- Special Behaviors
 -- =============================
-set.ruler = false -- Disable the default ruler
+set.ruler = false          -- Disable the default ruler
 set.inccommand = 'nosplit' -- preview incremental substitute
 set.jumpoptions = 'view'
 set.joinspaces = false

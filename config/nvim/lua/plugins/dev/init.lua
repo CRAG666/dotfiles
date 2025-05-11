@@ -63,7 +63,32 @@ return {
     opts = {
       formatters_by_ft = {
         json = { 'jq' },
-      }
+        bib = { 'bibtex-tidy' },
+        tex = { 'tex-fmt' },
+      },
+      formatters = {
+        ["tex-fmt"] = {
+          args = {
+            "-s",
+            "--wraplen",
+            "112",
+          },
+        },
+        ["bibtex-tidy"] = {
+          args = {
+            "--curly",
+            "--numeric",
+            "--align=13",
+            "--blank-lines",
+            "--duplicates=key,doi,citation,abstract",
+            "--merge",
+            "--sort-fields",
+            "--remove-empty-fields",
+            "--wrap=106",
+            "$FILENAME"
+          },
+        },
+      },
     },
   },
   {
@@ -78,13 +103,21 @@ return {
         desc = 'Code Action',
       },
     },
+    opts = {
+      backend = 'delta',
+      picker = { "snacks" }
+    },
     dependencies = {
       { 'nvim-lua/plenary.nvim' },
-      { 'nvim-telescope/telescope.nvim' },
     },
+  },
+  {
+    "rachartier/tiny-inline-diagnostic.nvim",
+    event = "LspAttach",
+    priority = 1000,
     config = function()
-      require('tiny-code-action').setup({ backend = 'delta' })
-    end,
+      require('tiny-inline-diagnostic').setup()
+    end
   },
   {
     'folke/ts-comments.nvim',

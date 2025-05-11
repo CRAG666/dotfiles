@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Thu Mar 13 12:38:42 AM EDT 2025
+-- Last Updated: Tue 06 May 2025 10:06:31 AM PDT
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -173,8 +173,8 @@ local hlgroups = {
   WarningMsg = { fg = c_popout },
   Whitespace = { link = 'NonText' },
   WildMenu = { link = 'PmenuSel' },
-  WinBar = { fg = c_foreground },
-  WinBarNC = { fg = c_faded },
+  WinBar = { fg = c_foreground, bg = c_highlight },
+  WinBarNC = { fg = c_faded, bg = c_highlight },
   WinSeparator = { link = 'VertSplit' },
   lCursor = { link = 'Cursor' },
   -- }}}2

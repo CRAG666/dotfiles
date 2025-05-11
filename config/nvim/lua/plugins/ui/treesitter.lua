@@ -50,12 +50,15 @@ return {
     cmd = { 'TSUpdateSync', 'TSUpdate', 'TSInstall' },
     keys = {
       { '<c-space>', desc = 'Increment selection' },
-      { '<bs>', desc = 'Decrement selection', mode = 'x' },
+      { '<bs>',      desc = 'Decrement selection', mode = 'x' },
     },
     ---@type TSConfig
     ---@diagnostic disable-next-line: missing-fields
     opts = {
-      highlight = { enable = true },
+      highlight = {
+        enable = true,
+        additional_vim_regex_highlighting = false
+      },
       indent = { enable = true },
       ensure_installed = {
         'arduino',

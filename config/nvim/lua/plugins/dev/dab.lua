@@ -10,11 +10,11 @@ return {
       'DapToggleBreakPoint',
     },
     keys = {
-      { '<F5>', desc = 'Continue program execution' },
-      { '<F8>', desc = 'Open debug REPL' },
-      { '<F9>', desc = 'Toggle breakpoint' },
-      { '<F21>', desc = 'Set conditional breakpoint' },
-      { '<F45>', desc = 'Set logpoint' },
+      { '<F5>',       desc = 'Continue program execution' },
+      { '<F8>',       desc = 'Open debug REPL' },
+      { '<F9>',       desc = 'Toggle breakpoint' },
+      { '<F21>',      desc = 'Set conditional breakpoint' },
+      { '<F45>',      desc = 'Set logpoint' },
       { '<Leader>Gc', desc = 'Continue program execution' },
       { '<Leader>Ge', desc = 'Open debug REPL' },
       { '<Leader>Gb', desc = 'Toggle breakpoint' },
@@ -290,7 +290,6 @@ return {
     dependencies = {
       'mfussenegger/nvim-dap',
       'nvim-neotest/nvim-nio',
-      'kyazdani42/nvim-web-devicons',
     },
     config = function()
       local dap, dapui = require('dap'), require('dapui')
@@ -317,17 +316,17 @@ return {
         layouts = {
           {
             elements = {
-              { id = 'scopes', size = 0.25 },
-              { id = 'watches', size = 0.25 },
+              { id = 'scopes',      size = 0.25 },
+              { id = 'watches',     size = 0.25 },
               { id = 'breakpoints', size = 0.25 },
-              { id = 'stacks', size = 0.25 },
+              { id = 'stacks',      size = 0.25 },
             },
             position = 'left',
             size = 0.3,
           },
           {
             elements = {
-              { id = 'repl', size = 0.5 },
+              { id = 'repl',    size = 0.5 },
               { id = 'console', size = 0.5 },
             },
             position = 'bottom',

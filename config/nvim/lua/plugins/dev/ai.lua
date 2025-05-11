@@ -33,12 +33,6 @@ return {
         desc = '[A]i: [A]dd selection',
       },
       {
-        '<leader>ab',
-        [[:CodeCompanion /buffer ]],
-        mode = 'x',
-        desc = '[A]i: Analyze [B]uffer',
-      },
-      {
         '<leader>af',
         [[:CodeCompanion /fix ]],
         mode = 'x',
@@ -62,6 +56,12 @@ return {
         mode = 'x',
         desc = '[A]i: Writting Assistant',
       },
+      {
+        '<leader>ai',
+        [[:CodeCompanion /buffer #translate <cr>]],
+        mode = 'x',
+        desc = '[A]i: Translate to Engl[i]sh',
+      },
     },
     opts = {
       opts = {
@@ -83,22 +83,22 @@ return {
           })
         end,
       },
-      -- prompt_library = {
-      --   ['My New Prompt'] = {
-      --     strategy = 'chat',
-      --     description = 'Some cool custom prompt you can do',
-      --     prompts = {
-      --       {
-      --         role = 'system',
-      --         content = 'You are an experienced developer with Lua and Neovim',
-      --       },
-      --       {
-      --         role = 'user',
-      --         content = 'Can you explain why ...',
-      --       },
-      --     },
-      --   },
-      -- },
+      prompt_library = {
+        ["My New Prompt"] = {
+          strategy = "chat",
+          description = "Some cool custom prompt you can do",
+          prompts = {
+            {
+              role = "system",
+              content = "You are an experienced developer with Lua and Neovim",
+            },
+            {
+              role = "user",
+              content = "Can you explain why ..."
+            }
+          },
+        }
+      },
       strategies = {
         chat = {
           adapter = 'deepseek',
@@ -144,10 +144,32 @@ return {
               -- Actúa como un escritor de articulos cientificos experimentado, enfocándote en mejorar la claridad y legibilidad del texto. Eres responsable de revisar un el texto. Simplifica las oraciones sin perder el significado ni los matices originales. Usa la puntuación adecuada, simplifica el lenguaje y elimina cualquier jerga innecesaria o palabras de relleno. Asegúrate de que el contenido se ajuste a una guía de estilo coherente y conserve su propósito original, a la vez que sea más fácil de leer y comprender.
               callback = function()
                 return [[
-                Como escritor experimentado en articulos cientificos, tu tarea es realizar una revisión final del texto. Identifica y corrige cualquier error tipográfico, gramatical, redacción inapropiada u otros pequeños errores que se hayan pasado por alto. Ademas enfocate en mejorar la claridad y legibilidad del texto. Eres responsable de revisar un el texto. Simplifica las oraciones sin perder el significado ni los matices originales. Usa la puntuación adecuada, simplifica el lenguaje y elimina cualquier jerga innecesaria o palabras de relleno. Asegúrate de que el contenido se ajuste a una guía de estilo coherente en materia cientifica y conserve su propósito original, a la vez que sea más fácil de leer y comprender.
+                Como escritor experimentado en articulos cientificos, tu tarea es realizar una revisión final del texto. Identifica y corrige cualquier error tipográfico, gramatical, redacción inapropiada u otros pequeños errores que se hayan pasado por alto. Ademas enfocate en mejorar la claridad y legibilidad del texto. Eres responsable de revisar un el texto. Usa la puntuación adecuada, simplifica el lenguaje y elimina cualquier jerga innecesaria o palabras de relleno. Asegúrate de que el contenido se ajuste a una guía de estilo coherente en materia cientifica y conserve su propósito original, a la vez que sea más fácil de leer y comprender.
                 ]]
               end,
               description = 'My Cientific Writting assistant',
+              opts = {
+                contains_code = true,
+              },
+            },
+            ['translate'] = {
+              ---@return string
+              callback = function()
+                return
+                [[Por favor, traduce el siguiente texto al inglés de manera precisa y natural, evitando traducciones literales. Asegúrate de que la traducción suene fluida y respete el estilo y las expresiones propias del inglés, transmitiendo correctamente el significado y el tono del texto original. Revisa la traducción para eliminar cualquier error gramatical o de vocabulario, y garantiza que el texto sea coherente y profesional.]]
+              end,
+              description = 'Translate to English',
+              opts = {
+                contains_code = true,
+              },
+            },
+            ['traducir'] = {
+              ---@return string
+              callback = function()
+                return
+                [[Por favor, traduce el siguiente texto al español de manera precisa y natural, evitando traducciones literales. Asegúrate de que la traducción suene fluida y respete el estilo y las expresiones propias del español, transmitiendo correctamente el significado y el tono del texto original. Revisa la traducción para eliminar cualquier error gramatical o de vocabulario, y garantiza que el texto sea coherente y profesional.]]
+              end,
+              description = 'Translate to English',
               opts = {
                 contains_code = true,
               },
@@ -166,7 +188,7 @@ return {
           },
           intro_message = 'Welcome to CodeCompanion! Press `g?` for options',
           window = {
-            layout = 'vertical',
+            layout = 'horizontal',
             opts = {
               winbar = '', -- disable winbar in codecompanion chat buffers
               statuscolumn = '',

@@ -1,2 +1,2 @@
-vim.bo.textwidth = 100
+vim.bo.textwidth = 106
 vim.bo.commentstring = '% %s'

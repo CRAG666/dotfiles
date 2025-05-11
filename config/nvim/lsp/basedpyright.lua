@@ -14,8 +14,10 @@ return {
     basedpyright = {
       analysis = {
         autoSearchPaths = true,
-        diagnosticMode = 'openFilesOnly',
-        useLibraryCodeForTypes = true,
+        autoImportCompletions = true,
+        inlayHints = {
+          variableTypes = true,
+        }
       },
     },
   },
