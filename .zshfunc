@@ -16,6 +16,14 @@ _dotnet_zsh_complete()
 
 compdef _dotnet_zsh_complete dotnet
 
+
+pclean(){
+  podman rm $(podman ps -aq)
+  podman rmi $(podman images -q)
+  podman volume prune
+  podman network prune
+}
+
 # User Functions
 sar(){
   rg "$1" -l | xargs sed -i -e "s/$1/$2/g"

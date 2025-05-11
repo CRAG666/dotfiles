@@ -169,12 +169,14 @@ alias la="exa --icons -la"
 # alias cp='rsync --progress -avz'
 cd() { pushd $1 && ls; }
 alias tree="exa --icons --tree --level=4 --long --git"
+alias v="nvim"
 alias vi="nvim"
 alias vim="nvim"
 alias zt="/bin/zathura --fork"
 alias lo="/bin/libreoffice"
 alias music="termusic"
 alias rm='rm -i'
+alias dus='du -h --max-depth=1 2>/dev/null | sort -hr'
 alias du1='du -h -d 1'
 alias rec="wl-screenrec --dri-device $MOZ_DRM_DEVICE -f $(date +'%s_grab.mp4')"
 alias neofetch="fastfetch -l ~/.config/fastfetch/thinkpad.txt --logo-color-1 white --logo-color-2 red --logo-color-3 '38;2;23;147;209'"

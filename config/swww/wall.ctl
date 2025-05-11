@@ -1,1 +1,1 @@
-1|Catppuccin-Mocha|/home/think-crag/Imágenes/wallpaperCicle/akira.png
+1|Catppuccin-Mocha|/home/think-crag/Imágenes/wallpaperCicle/china2.png

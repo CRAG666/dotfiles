@@ -1,10 +1,10 @@
 [delta "catppuccin-mocha"]
 	blame-palette = "#1e1e2e #181825 #11111b #313244 #45475a"
-	commit-decoration-style = box ul
+	commit-decoration-style = "#6c7086" bold box ul
 	dark = true
-	file-decoration-style = "#cdd6f4"
+	file-decoration-style = "#6c7086"
 	file-style = "#cdd6f4"
-	hunk-header-decoration-style = box ul
+	hunk-header-decoration-style = "#6c7086" box ul
 	hunk-header-file-style = bold
 	hunk-header-line-number-style = bold "#a6adc8"
 	hunk-header-style = file line-number syntax

@@ -82,8 +82,8 @@ keymap = [
 	{ on = "s",         run = "search --via=fd",             desc = "Search files by name via fd" },
 	{ on = "S",         run = "search --via=rg",             desc = "Search files by content via ripgrep" },
 	{ on = "<C-s>",     run = "escape --search",             desc = "Cancel the ongoing search" },
-	{ on = "z",         run = "plugin fzf",                  desc = "Jump to a file/directory via fzf" },
-	{ on = "Z",         run = "plugin zoxide",               desc = "Jump to a directory via zoxide" },
+	{ on = "Z",         run = "plugin fzf",                  desc = "Jump to a file/directory via fzf" },
+	{ on = "z",         run = "plugin zoxide",               desc = "Jump to a directory via zoxide" },
 
 	# Linemode
 	{ on = [ "m", "s" ], run = "linemode size",        desc = "Linemode: size" },
@@ -367,7 +367,12 @@ keymap = [
 
 
 [[manager.prepend_keymap]]
-on   = "i"
+on   = [ "i" ]
+run = "plugin searchjump"
+desc = "searchjump mode"
+
+[[manager.prepend_keymap]]
+on   = [ "i" ]
 run = "plugin searchjump -- autocd"
 desc = "searchjump mode"
 
@@ -401,3 +406,13 @@ run = "plugin mount"
 on   =[ "<C-p>" ]
 run = '''shell 'ripdrag -x "$@"' --confirm'''
 desc = "Drag and Drop"
+
+[[manager.prepend_keymap]]
+on = [ "g", "m" ]
+run = "cd /run/media/$USER"
+desc = "Go USB"
+
+[[manager.prepend_keymap]]
+on = [ "g", "w" ]
+run = "cd ~/Documentos/Proyectos/Writings"
+desc = "Go Writings"
