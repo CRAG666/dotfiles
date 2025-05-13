@@ -4,11 +4,13 @@ return {
     event = 'InsertEnter',
     opts = {
       keymaps = {
-        accept_suggestion = '<C-I>',
-        clear_suggestion = '<C-CR>',
+        accept_suggestion = '<C-CR>',
+        clear_suggestion = '<C-BS>',
         accept_word = '<C-J>',
       },
       ignore_filetypes = { 'bigfile' },
+      -- disable_inline_completion = true,
+      -- disable_keymaps = true,
     },
   },
   {
@@ -37,112 +39,78 @@ return {
             end,
           },
         },
-        -- config = function()
-        --   local ls = require('luasnip')
-        --   local ls_types = require('luasnip.util.types')
-        --   local ls_ft = require('luasnip.extras.filetype_functions')
-        --   local static = require('utils.static')
-        --
-        --   ---Filetypes for which snippets have been loaded
-        --   ---@type table<string, boolean>
-        --   local loaded_fts = {}
-        --
-        --   ---Load snippets for a given filetype
-        --   ---@param ft string?
-        --   ---@return nil
-        --   local function load_snippets(ft)
-        --     if not ft or loaded_fts[ft] then
-        --       return
-        --     end
-        --     loaded_fts[ft] = true
-        --
-        --     local ok, snip_groups = pcall(require, 'snippets.' .. ft)
-        --     if ok then
-        --       for _, snip_group in pairs(snip_groups) do
-        --         ls.add_snippets(
-        --           ft,
-        --           snip_group.snip or snip_group,
-        --           snip_group.opts or {}
-        --         )
-        --       end
-        --     end
-        --   end
-        --
-        --   -- Trigger markdown snippets when filetype is 'markdown_inline' or 'html' or
-        --   -- 'html_inline' (lang returned from treesitter when using
-        --   -- `from_pos_or_filetype()` as the filetype function)
-        --   local lang_ft_map = {
-        --     commonlisp = 'lisp',
-        --     glimmer = 'handlebars',
-        --     html = 'markdown',
-        --     html_inline = 'html',
-        --     latex = 'tex',
-        --     markdown_inline = 'markdown',
-        --     tsx = 'typescriptreact',
-        --   }
-        --
-        --   for lang, ft in pairs(lang_ft_map) do
-        --     ls.filetype_extend(lang, { ft })
-        --   end
-        --
-        --   ls.setup({
-        --     ft_func = function()
-        --       load_snippets('all')
-        --
-        --       local langs = ls_ft.from_pos_or_filetype()
-        --       for _, lang in ipairs(langs) do
-        --         load_snippets(lang)
-        --         load_snippets(lang_ft_map[lang])
-        --       end
-        --       return langs
-        --     end,
-        --     keep_roots = true,
-        --     link_roots = true,
-        --     exit_roots = false,
-        --     link_children = true,
-        --     region_check_events = 'CursorMoved,CursorMovedI',
-        --     delete_check_events = 'TextChanged,TextChangedI',
-        --     enable_autosnippets = true,
-        --     store_selection_keys = '<Tab>',
-        --     ext_opts = {
-        --       [ls_types.choiceNode] = {
-        --         active = {
-        --           virt_text = { { static.icons.ArrowUpDown, 'Number' } },
-        --         },
-        --       },
-        --       [ls_types.insertNode] = {
-        --         unvisited = {
-        --           virt_text = { { static.boxes.single.vt, 'NonText' } },
-        --           virt_text_pos = 'inline',
-        --         },
-        --       },
-        --       [ls_types.exitNode] = {
-        --         unvisited = {
-        --           virt_text = { { static.boxes.single.vt, 'NonText' } },
-        --           virt_text_pos = 'inline',
-        --         },
-        --       },
-        --     },
-        --   })
-        --
-        --   -- Unlink current snippet on leaving insert/selection mode
-        --   -- https://github.com/L3MON4D3/LuaSnip/issues/258#issuecomment-1011938524
-        --   vim.api.nvim_create_autocmd('ModeChanged', {
-        --     desc = 'Unlink current snippet on leaving insert/selection mode.',
-        --     group = vim.api.nvim_create_augroup('LuaSnipModeChanged', {}),
-        --     callback = function(info)
-        --       local mode = vim.v.event.new_mode
-        --       local omode = vim.v.event.old_mode
-        --       if
-        --         (omode == 's' and mode == 'n' or omode == 'i')
-        --         and ls.session.current_nodes[info.buf]
-        --         and not ls.session.jump_active
-        --       then
-        --         ls.unlink_current()
-        --       end
-        --     end,
-        --   })
-        -- end,
+        config = function()
+          local ls = require('luasnip')
+          local ls_types = require('luasnip.util.types')
+          local ls_ft = require('luasnip.extras.filetype_functions')
+          local static = require('utils.static')
+
+          ---Filetypes for which snippets have been loaded
+          ---@type table<string, boolean>
+          local loaded_fts = {}
+
+          ---Load snippets for a given filetype
+          ---@param ft string?
+          ---@return nil
+          local function load_snippets(ft)
+            if not ft or loaded_fts[ft] then
+              return
+            end
+            loaded_fts[ft] = true
+
+            local ok, snip_groups = pcall(require, 'snippets.' .. ft)
+            if ok then
+              for _, snip_group in pairs(snip_groups) do
+                ls.add_snippets(ft, snip_group.snip or snip_group, snip_group.opts or {})
+              end
+            end
+          end
+
+          -- Trigger markdown snippets when filetype is 'markdown_inline' or 'html' or
+          -- 'html_inline' (lang returned from treesitter when using
+          -- `from_pos_or_filetype()` as the filetype function)
+          local lang_ft_map = {
+            commonlisp = 'lisp',
+            glimmer = 'handlebars',
+            html = 'markdown',
+            html_inline = 'html',
+            latex = 'tex',
+            markdown_inline = 'markdown',
+            tsx = 'typescriptreact',
+          }
+
+          for lang, ft in pairs(lang_ft_map) do
+            ls.filetype_extend(lang, { ft })
+          end
+
+          ls.setup({
+            ft_func = function()
+              load_snippets('all')
+
+              local langs = ls_ft.from_pos_or_filetype()
+              for _, lang in ipairs(langs) do
+                load_snippets(lang)
+                load_snippets(lang_ft_map[lang])
+              end
+              return langs
+            end,
+            keep_roots = true,
+            link_roots = true,
+            exit_roots = false,
+            link_children = true,
+            region_check_events = 'CursorMoved,CursorMovedI,InsertEnter',
+            delete_check_events = 'TextChanged,TextChangedI,InsertLeave',
+            enable_autosnippets = true,
+            cut_selection_keys = '<Tab>',
+            ext_opts = {
+              [ls_types.choiceNode] = {
+                active = {
+                  virt_text = { { static.icons.ArrowUpDown, 'Number' } },
+                },
+              },
+            },
+          })
+        end,
       },
       {
         'saghen/blink.compat',
@@ -168,7 +136,7 @@ return {
           draw = {
             columns = {
               { 'kind_icon' },
-              { 'label', 'label_description', gap = 1, 'kind' },
+              { 'label',    'label_description', gap = 1, 'kind' },
             },
             components = {
               kind_icon = {
@@ -195,18 +163,15 @@ return {
           'path',
           'buffer',
           'ripgrep',
-          'supermaven',
         },
         per_filetype = {
-          AvanteInput = { 'supermaven' },
-          codecompanion = { 'supermaven', 'codecompanion' },
+          codecompanion = { 'codecompanion' },
           markdown = {
             'snippets',
             'lsp',
             'path',
             'buffer',
             'ripgrep',
-            'supermaven',
             'pandoc_references',
             'dictionary',
           },
@@ -216,7 +181,6 @@ return {
             'path',
             'buffer',
             'ripgrep',
-            'supermaven',
             'dictionary',
           },
           quarto = {
@@ -225,7 +189,6 @@ return {
             'path',
             'buffer',
             'ripgrep',
-            'supermaven',
             'pandoc_references',
             'dictionary',
           },
@@ -235,7 +198,6 @@ return {
             'path',
             'buffer',
             'ripgrep',
-            'supermaven',
             'pandoc_references',
             -- 'dictionary',
           },
@@ -276,20 +238,11 @@ return {
             module = 'blink.compat.source',
             score_offset = -1,
           },
-          supermaven = {
-            name = 'supermaven',
-            module = 'blink.compat.source',
-            score_offset = 100,
-            async = true,
-          },
           snippets = {
-            score_offset = 99,
+            score_offset = 100,
           },
           lsp = {
-            score_offset = 98,
-          },
-          buffer = {
-            score_offset = 97,
+            score_offset = 99,
           },
         },
       },

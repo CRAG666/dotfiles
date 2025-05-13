@@ -74,7 +74,7 @@ return {
       layout = { enabled = true },
       picker = {
         enabled = true,
-        layout = { preset = "ivy" },
+        -- layout = { preset = "ivy" },
         previewers = {
           diff = {
             builtin = false,

@@ -13,6 +13,94 @@ local r = ls.restore_node
 M.math = require('snippets.tex.math')
 
 M.snippets = {
+  us.sn(
+    { trig = 'hti', desc = 'Import a HTML table' },
+    un.fmtad(
+      [[
+        \usepackage{xkeyval}
+        \usepackage{etoolbox}
+        \usepackage{expl3}
+        \usepackage{graphicx}
+        \usepackage{xcolor}
+        \usepackage{caption}
+        \usepackage[cssfile=<style>.sty]{<package>}
+      ]],
+      {
+        style = i(1, "table"),
+        package = i(2, "/home/think-crag/Documentos/Proyectos/Writings/utils/latex/htmltabs"),
+      }
+    )
+  ),
+  us.sn(
+    { trig = 'htt', desc = 'Create a HTML table' },
+    un.fmtad(
+      [[
+        \begin{table}
+          \centering
+          \caption{<caption>}
+          \label{tab:<label>}
+          \begin{htmltab}[class=<class>, width=\textwidth]
+            \begin{colgroup}
+              \HTcol[width=50\%]
+              \HTcol[width=50\%]
+            \end{colgroup}
+            \begin{thead}
+              \HTtr{
+                \HTtd{header1}
+                \HTtd{header2}
+              }
+            \end{thead}
+            \begin{tbody}
+              \HTtr{
+                \HTtd{colunm1}
+                \HTtd{column2}
+              }
+            \end{tbody}
+          \end{htmltab}
+        \end{table}
+      ]],
+      {
+        caption = i(1, "caption"),
+        label = i(2, "label"),
+        class = i(3, "Default"),
+      }
+    )
+  ),
+  us.sn(
+    { trig = 'htc', desc = 'Create a HTML table with cencer' },
+    un.fmtad(
+      [[
+        \begin{center}
+          \captionof{table}{<caption>}
+          \label{tab:<label>}
+          \vspace{3mm}
+          \begin{htmltab}[class=<class>, width=\textwidth]
+            \begin{colgroup}
+              \HTcol[width=50\%]
+              \HTcol[width=50\%]
+            \end{colgroup}
+            \begin{thead}
+              \HTtr{
+                \HTtd{header1}
+                \HTtd{header2}
+              }
+            \end{thead}
+            \begin{tbody}
+              \HTtr{
+                \HTtd{colunm1}
+                \HTtd{column2}
+              }
+            \end{tbody}
+          \end{htmltab}
+        \end{center}
+      ]],
+      {
+        caption = i(1, "caption"),
+        label = i(2, "label"),
+        class = i(3, "Default"),
+      }
+    )
+  ),
   us.sM(
     { trig = 'env' },
     un.fmtad(
@@ -62,7 +150,7 @@ M.snippets = {
     )
   ),
   us.sM(
-    { trig = 'img' },
+    { trig = 'fig' },
     c(1, {
       un.fmtad(
         [[
