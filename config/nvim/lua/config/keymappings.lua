@@ -77,9 +77,9 @@ local maps = {
   {
     prefix = '<leader>t',
     maps = {
-      { 'n', vim.cmd.tabnew, 'Tab [n]ew' },
-      { 'o', vim.cmd.tabonly, 'Tab [o]nly' },
-      { 'c', vim.cmd.tabclose, 'Tab [c]lose' },
+      { 'n', vim.cmd.tabnew,    'Tab [n]ew' },
+      { 'o', vim.cmd.tabonly,   'Tab [o]nly' },
+      { 'c', vim.cmd.tabclose,  'Tab [c]lose' },
       { 'l', ':tabmove +1<CR>', 'Tab Move Right' },
       { 'h', ':tabmove -1<CR>', 'Tab Move Left' },
       {
@@ -93,15 +93,15 @@ local maps = {
     prefix = '<leader>',
     maps = {
       { 'cc', ':let @/=""<cr>' },
-      { 'l', [[*``cgn]], 'Replace word and nexts word with .' },
+      { 'l',  [[*``cgn]],      'Replace word and nexts word with .' },
     },
   },
   {
     prefix = ';',
     maps = {
-      { 'r', ':%s/', 'Search and [r]eplace', opts },
-      { 'cw', [[:%s/\<<C-r><C-w>\>/]], '[c]hange [w]ord', opts },
-      { 'R', [[:%s/\(.*\)/\1]], 'Search and [R]eplace extend', opts },
+      { 'r',  ':%s/',                  'Search and [r]eplace',        opts },
+      { 'cw', [[:%s/\<<C-r><C-w>\>/]], '[c]hange [w]ord',             opts },
+      { 'R',  [[:%s/\(.*\)/\1]],       'Search and [R]eplace extend', opts },
     },
   },
 }

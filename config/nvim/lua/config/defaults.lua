@@ -33,11 +33,11 @@ set.number = true
 set.relativenumber = true
 set.cursorline = true
 set.cursorcolumn = true
-set.scrolloff = 99
-set.sidescrolloff = 99
+set.scrolloff = 10
+set.sidescrolloff = 10
 set.splitright = true
 set.splitbelow = true
-set.laststatus = 3
+set.laststatus = 2
 set.showtabline = 0
 set.wildmenu = true
 set.wildmode = 'longest:full,full'
@@ -53,7 +53,7 @@ set.listchars = {
   extends = '→',
   nbsp = '␣',
 }
-set.smoothscroll = true
+set.smoothscroll = false
 
 -- =============================
 -- Text and Formatting
@@ -67,7 +67,7 @@ set.smartindent = true
 set.linebreak = true
 set.breakindent = true
 set.textwidth = 106
-set.formatoptions = 'jcroqlnt' -- tcqj
+set.formatoptions = 'jcroqlnt'
 
 -- =============================
 -- Search Configuration
@@ -163,7 +163,7 @@ set.virtualedit = 'block'
 set.shiftround = true
 set.smarttab = true
 set.whichwrap:append('<>[]hl')
-set.wrap = false -- Disable line wrap
+set.wrap = true
 set.errorbells = true
 set.shortmess:append({ W = true, I = true, c = true, C = true })
-set.showmode = false -- Dont show mode since we have a statusline
+set.showmode = false
