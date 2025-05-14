@@ -1,2 +1,7 @@
 {
+  "~/Git/code_runner.nvim/lua/test/project": {
+    "name": "Test project",
+    "description": "Simple python project",
+    "command": "bat hello.py"
+  }
 }

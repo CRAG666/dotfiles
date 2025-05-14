@@ -12,6 +12,14 @@ return {
       desc = 'Open terminal',
     },
     {
+      mode = { 'n', 't' },
+      '<C-/>',
+      function()
+        require('betterTerm').open(2)
+      end,
+      desc = 'Open terminal',
+    },
+    {
       '<leader>tt',
       function()
         require('betterTerm').select()
@@ -29,7 +37,7 @@ return {
   },
   opts = {
     position = 'bot',
-    size = 15,
+    size = 20,
+    jump_tab_mapping = "<A-$tab>"
   },
-  -- config = true,
 }

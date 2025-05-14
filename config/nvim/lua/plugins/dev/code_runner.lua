@@ -4,7 +4,7 @@ local folder = ''
 return {
   'CRAG666/code_runner.nvim',
   -- name = "code_runner",
-  cmd = 'RunCode',
+  cmd = { 'RunCode', 'RunFile', 'RunProject' },
   dev = true,
   keys = {
     {
