@@ -1,11 +1,9 @@
 add_newline = false
-format = """$character"""
-right_format = """$all"""
+format = """$all"""
+# right_format = """$all"""
 palette = "catppuccin_mocha"
 
 [character]
-# success_symbol = "[»](fg:#fee074)[»](fg:#f34f4d)[»](fg:#7ad88e)"
-# vicmd_symbol = "[«](fg:#7ad88e)[«](fg:#f34f4d)[«](fg:#fee074)"
 success_symbol = "[ﰉ](fg:red)[ ﰉ](fg:yellow)[ ﰉ](fg:cyan)"
 vicmd_symbol = "[ﰊ](fg:cyan)[ ﰊ](fg:yellow)[ ﰊ](fg:red)"
 error_symbol = "[ﰉ](fg:red)"

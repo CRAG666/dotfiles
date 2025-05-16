@@ -34,27 +34,6 @@ load_ui('tabline')
 load_ui('statusline')
 load_ui('statuscolumn')
 
--- z
-vim.api.nvim_create_autocmd(
-  { 'UIEnter', 'CmdlineEnter', 'CmdUndefined', 'DirChanged' },
-  {
-    group = vim.api.nvim_create_augroup('ZSetup', {}),
-    desc = 'Init z plugin.',
-    once = true,
-    callback = vim.schedule_wrap(function()
-      if vim.g.loaded_z then
-        return
-      end
-
-      local z = require('modules.z')
-      z.setup()
-      vim.keymap.set('n', '<Leader>z', z.select, {
-        desc = 'Open a directory from z',
-      })
-    end),
-  }
-)
-
 -- Lsp servers
 local clients = {
   'basedpyright',

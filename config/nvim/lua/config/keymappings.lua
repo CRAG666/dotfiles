@@ -35,6 +35,7 @@ utils.map('n', 'N', 'Nzzzv')
 
 -- Search and  replace in the current buffer
 utils.map({ 'n', 'v' }, '<leader>r', ':s/', opts)
+
 -- Set ; to end line
 -- utils.map("n", "<leader>;", "<esc>mzA;<esc>`z")
 
@@ -45,16 +46,20 @@ utils.map('n', 'C', '"_C')
 utils.map('v', 'p', '"_dP', opts)
 
 -- Better indent
--- utils.map("v", "<", "<gv", opts)
--- utils.map("v", ">", ">gv", opts)
+utils.map("v", "<", "<gv", opts)
+utils.map("v", ">", ">gv", opts)
 
--- Toggle spell checker
-utils.map('n', '<F2>', ':setlocal spell! spelllang=es<CR>')
-utils.map('n', '<F3>', ':setlocal spell! spelllang=en_us<CR>')
-
--- Search and replace word
--- utils.map("n", "cn", [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]]) -- replace world and nexts word with .
--- utils.map("n", "cN", [[?\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgN]]) -- replace world and prev word with .
+utils.map('n', '<A-s>', function()
+  vim.ui.select({ "es", "en_us" }, {
+    prompt = "Toggle spell checker",
+  }, function(lang)
+    if lang then
+      vim.cmd(string.format([[setlocal spell! spelllang=%s]], lang))
+    else
+      print("language not selected")
+    end
+  end)
+end)
 
 -- sudo
 -- vim.cmd [[cmap w!! w !sudo tee > /dev/null %]]
@@ -92,8 +97,11 @@ local maps = {
   {
     prefix = '<leader>',
     maps = {
-      { 'cc', ':let @/=""<cr>' },
-      { 'l',  [[*``cgn]],      'Replace word and nexts word with .' },
+      { 'cc', ':let @/=""<cr>',                                "Clear [c]hoose" },
+      -- { 'l',  [[*``cgn]],                                      'Replace word and nexts word with .' },
+      -- Search and replace word
+      { 'cn', [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]], 'Replace word and nexts word with .' },
+      { 'cN', [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]], 'Replace word and prevs word with .' },
     },
   },
   {
@@ -111,7 +119,6 @@ utils.maps(maps)
 utils.map('t', '<Esc>', '<C-\\><C-n>')
 utils.map('t', '<M-[>', '<Esc>')
 utils.map('t', '<C-v><Esc>', '<Esc>')
--- utils.map('n', '<bs>', '<c-^>`”zz')
 
 utils.map(
   'n',
@@ -121,7 +128,8 @@ utils.map(
 vim.api.nvim_create_autocmd('CmdlineEnter', {
   once = true,
   callback = function()
-    utils.command_map(':', 'lua ')
+    utils.command_map('t', 'lua ')
+    utils.command_map(':', ':= ')
     utils.command_abbrev('man', 'Man')
     utils.command_abbrev('rm', '!rm')
     utils.command_abbrev('mv', '!mv')
