@@ -18,7 +18,7 @@ return {
   opts = {
     mode = 'better_term',
     better_term = {
-      number = 2,
+      number = 1,
     },
     filetype = {
       v = 'v run',

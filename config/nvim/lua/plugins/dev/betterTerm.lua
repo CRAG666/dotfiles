@@ -15,7 +15,7 @@ return {
       mode = { 'n', 't' },
       '<C-/>',
       function()
-        require('betterTerm').open(2)
+        require('betterTerm').open(1)
       end,
       desc = 'Open terminal',
     },
@@ -38,6 +38,7 @@ return {
   opts = {
     position = 'bot',
     size = 20,
-    jump_tab_mapping = "<A-$tab>"
+    jump_tab_mapping = "<A-$tab>",
+    new_tab_icon = require('utils.static.icons').git.Added
   },
 }

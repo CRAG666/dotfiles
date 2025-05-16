@@ -131,6 +131,7 @@ return {
             -- Tabline
             TabLineFill = { bg = C.crust },
             TabLine = { fg = C.overlay0, bg = C.crust },
+            BetterTermSymbol = { fg = C.base, bg = C.green },
             TabLineSel = { fg = C.lavender, bg = C.base },
 
             -- Neorg
