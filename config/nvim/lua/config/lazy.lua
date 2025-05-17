@@ -74,9 +74,10 @@ end
 function M.setup()
   local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
   if not vim.uv.fs_stat(lazypath) then
-  -- bootstrap lazy.nvim
-  -- stylua: ignore
-  vim.fn.system({ "git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", "--branch=stable", lazypath })
+    -- bootstrap lazy.nvim
+    -- stylua: ignore
+    vim.fn.system({ "git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", "--branch=stable",
+      lazypath })
   end
   vim.opt.rtp:prepend(lazypath)
   M.lazy_file()
@@ -91,19 +92,13 @@ function M.setup()
     },
     defaults = {
       lazy = true,
-      version = false,
-      autocmds = true,
-      keymaps = false,
+      version = nil,
     },
     dev = {
       ---@type string | fun(plugin: LazyPlugin): string directory where you store your local plugin projects
       path = "~/Git",
-      ---@type string[] plugins that match these patterns will use your local versions instead of being fetched from GitHub
-      patterns = {}, -- For example {"folke"}
       fallback = false, -- Fallback to git when local plugin doesn't exist
     },
-
-    checker = { enabled = true },
 
     change_detection = {
       enable = true,
@@ -115,9 +110,6 @@ function M.setup()
       colorscheme = { "catppuccin", "default" },
     },
     ui = {
-      -- a number <1 is a percentage., >1 is a fixed size
-      size = { width = 0.88, height = 0.8 },
-      wrap = true,
       border = "rounded",
       icons = {
         cmd = icons.misc.Code,
@@ -144,7 +136,6 @@ function M.setup()
     performance = {
       cache = {
         enabled = true,
-        disable_events = { "UIEnter", "BufReadPre" },
       },
       rtp = {
         disabled_plugins = {
@@ -177,6 +168,13 @@ function M.setup()
           "zipPlugin",
         },
       },
+    },
+    profiling = {
+      -- Enables extra stats on the debug tab related to the loader cache.
+      -- Additionally gathers stats about all package.loaders
+      loader = true,
+      -- Track each new require in the Lazy profiling tab
+      require = true,
     },
   }
 end

@@ -50,7 +50,7 @@ utils.map("v", "<", "<gv", opts)
 utils.map("v", ">", ">gv", opts)
 
 utils.map('n', '<A-s>', function()
-  vim.ui.select({ "es", "en_us" }, {
+  vim.ui.select({ "es_mx", "en_us" }, {
     prompt = "Toggle spell checker",
   }, function(lang)
     if lang then
@@ -128,7 +128,7 @@ utils.map(
 vim.api.nvim_create_autocmd('CmdlineEnter', {
   once = true,
   callback = function()
-    utils.command_map('t', 'lua ')
+    utils.command_map(';', 'lua ')
     utils.command_map(':', ':= ')
     utils.command_abbrev('man', 'Man')
     utils.command_abbrev('rm', '!rm')

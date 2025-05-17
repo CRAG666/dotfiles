@@ -8,31 +8,13 @@ function M.on_attach(_, buffer)
   local lsp_maps = {
     {
       prefix = 'g',
-      maps = {
-        { 'o', lsp.type_definition, 'Type definition', bufopt },
-        -- { "D", "<cmd>tab split | lua vim.lsp.buf.definition()<CR>", "Goto Definition in new Tab", bufopt },
-        -- { "R", lsp.references, "LSP References", bufopt },
-      },
-    },
-    {
-      prefix = 'g',
       mode = { 'n', 'x' },
       maps = {
         {
-          'D',
-          function()
-            return supports_method('textDocument/declaration', 0)
-                and '<Cmd>lua vim.lsp.buf.declaration()<CR>'
-              or 'gD'
-          end,
-          'Go to declaration',
-          bufopt,
-        },
-        {
-          'y',
+          'Y',
           function()
             local diags =
-              vim.diagnostic.get(0, { lnum = vim.fn.line('.') - 1 })
+                vim.diagnostic.get(0, { lnum = vim.fn.line('.') - 1 })
             local n_diags = #diags
             if n_diags == 0 then
               vim.notify(
@@ -74,11 +56,12 @@ function M.on_attach(_, buffer)
     {
       prefix = '<leader>',
       maps = {
-        { 'aw', vim.lsp.buf.add_workspace_folder, 'LSP Add Folder', bufopt },
-        { 'd', vim.diagnostic.setloclist, 'Toggle Diagnostic', bufopt },
+        { 'aw', vim.lsp.buf.add_workspace_folder, 'LSP Add Folder',    bufopt },
+        { 'd',  vim.diagnostic.setloclist,        'Toggle Diagnostic', bufopt },
       },
     },
   }
   utils.maps(lsp_maps)
 end
+
 return M

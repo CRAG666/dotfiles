@@ -1,11 +1,6 @@
 local setup = require('utils.fn').setup
 return {
   {
-    'vhyrro/luarocks.nvim',
-    priority = 1000,
-    config = true,
-  },
-  {
 
     'williamboman/mason.nvim',
     cmd = 'Mason',
