@@ -36,8 +36,10 @@ return {
     },
   },
   opts = {
+    -- position = 'vertical',
+    -- size = 60,
     position = 'bot',
-    size = 20,
+    size = 25,
     jump_tab_mapping = "<A-$tab>",
     new_tab_icon = require('utils.static.icons').git.Added
   },

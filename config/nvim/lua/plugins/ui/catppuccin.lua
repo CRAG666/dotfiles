@@ -79,6 +79,7 @@ return {
         lsp_saga = false,
         lsp_trouble = false,
         markdown = true,
+        markview = true,
         mason = true,
         mini = { enabled = false, indentscope_color = "green" },
         snacks = {
