@@ -33,7 +33,7 @@ local M = setmetatable({ _ = {} }, {
 function M.in_mathzone()
   if utils.ts.is_active() then
     return utils.ts.find_node(
-      { 'formula', 'equation', 'math' },
+      { 'formula', 'equation', 'math' }, -- requires latex ts parser
       { ignore_injections = false }
     ) ~= nil
   end

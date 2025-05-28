@@ -173,6 +173,7 @@ alias v="nvim"
 alias vi="nvim"
 alias vim="nvim"
 alias zt="/bin/zathura --fork"
+alias zp="zen-browser"
 alias lo="/bin/libreoffice"
 alias music="termusic"
 alias rm='rm -i'
@@ -265,3 +266,4 @@ source ~/.zshfunc
 export PASSWORD_STORE_ENABLE_EXTENSIONS=true
 export NVM_NF=true
 # FPATH="/usr/share/zsh/site-functions:${FPATH}"
+source ~/.env

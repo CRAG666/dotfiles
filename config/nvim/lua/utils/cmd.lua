@@ -1,15 +1,5 @@
 local M = {}
 
----Recursively build a nested table from a list of keys and a value
----@param key_parts string[] list of keys
----@param val any
----@return table
-function M.build_nested(key_parts, val)
-  return key_parts[1]
-      and { [key_parts[1]] = M.build_nested({ unpack(key_parts, 2) }, val) }
-    or val
-end
-
 ---@class parsed_arg_t table
 
 ---Parse arguments from the command line into a table
@@ -40,8 +30,11 @@ function M.parse_cmdline_args(fargs)
   for key, val in pairs(parsed) do
     if type(key) == 'string' then
       local key_parts = vim.split(key, '%.')
-      parsed =
-        vim.tbl_deep_extend('force', parsed, M.build_nested(key_parts, val))
+      parsed = vim.tbl_deep_extend(
+        'force',
+        parsed,
+        require('utils.lua').nest(key_parts, val)
+      )
       if #key_parts > 1 then
         parsed[key] = nil -- Remove the original dot-separated key
       end

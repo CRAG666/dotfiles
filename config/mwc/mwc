@@ -102,16 +102,16 @@ client_side_decorations 0
 # output HDMI-A-1 0    0 1920 1080 60
 # output eDP-1    1920 0 1920 1080 60 1.0
 output eDP-1    0    0 1920 1080 60 1.0
-output DP-3     1920 0 2560 1440 144 1.0
+output DP2     1920 0 2560 1440 144 1.0
 
 # you should also specify where to place workspaces; not doing so will give you just one workspace per monitor
 # syntax is workspace <index> <output_name>
 # index is not that important, you dont have to write them seqentially, but be sure to use the same ones for keybinds, see under
-workspace 1 DP-3
-workspace 2 DP-3
-workspace 3 DP-3
-workspace 4 DP-3
-workspace 5 DP-3
+workspace 1 DP2
+workspace 2 DP2
+workspace 3 DP2
+workspace 4 DP2
+workspace 5 DP2
 
 # i put number 10 first so it is primary when my external monitor is not connected
 

@@ -88,11 +88,11 @@ return {
       }
     }, --@type snacks.Config
     opts = {
-      animate = { enabled = true },
+      animate = { enabled = false },
       indent = { enabled = true },
-      scope = { enabled = true },
+      scope = { enabled = false },
       bigfile = { enabled = true },
-      layout = { enabled = true },
+      layout = { enabled = false },
       picker = {
         enabled = true,
         -- layout = { preset = "ivy" },
@@ -108,7 +108,7 @@ return {
       image = { enabled = true },
       explorer = { enabled = true },
       quickfile = { enabled = true },
-      scroll = { enabled = true },
+      scroll = { enabled = false },
       input = { enabled = true },
       notifier = {
         enabled = true,

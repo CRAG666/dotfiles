@@ -9,7 +9,7 @@ return {
     cmd = 'CodeCompanion',
     keys = {
       {
-        '<leader>ac',
+        '<leader>aa',
         function()
           require('codecompanion').toggle()
         end,
@@ -19,12 +19,6 @@ return {
         '<leader>ap',
         [[<Cmd>CodeCompanionActions<CR>]],
         desc = '[A]i: Action [P]alette',
-      },
-      {
-        '<leader>aa',
-        mode = { 'n', 'v' },
-        [[:CodeCompanion ]],
-        desc = '[A]i: [A]ction',
       },
       {
         '<leader>ad',
@@ -61,6 +55,18 @@ return {
         [[:CodeCompanion /buffer #translate <cr>]],
         mode = 'x',
         desc = '[A]i: Translate to Engl[i]sh',
+      },
+      {
+        '<leader>as',
+        [[:CodeCompanion /buffer #traducir <cr>]],
+        mode = 'x',
+        desc = '[A]i: Translate to Engl[i]sh',
+      },
+      {
+        '<leader>ab',
+        [[:CodeCompanion /buffer ]],
+        mode = 'x',
+        desc = '[A]i: Add instructions',
       },
     },
     opts = {
@@ -188,7 +194,7 @@ return {
           },
           intro_message = 'Welcome to CodeCompanion! Press `g?` for options',
           window = {
-            layout = 'horizontal',
+            layout = 'vertical',
             opts = {
               winbar = '', -- disable winbar in codecompanion chat buffers
               statuscolumn = '',
@@ -203,7 +209,7 @@ return {
         },
         diff = {
           close_chat_at = 0,
-          layout = 'vertical',
+          layout = 'horizontal',
         },
         inline = {
           layout = 'vertical',
@@ -212,3 +218,68 @@ return {
     },
   },
 }
+
+-- return {
+--   "yetone/avante.nvim",
+--   version = false,
+--   build = "make",
+--   dependencies = {
+--     "nvim-lua/plenary.nvim",
+--     "MunifTanjim/nui.nvim",
+--     {
+--       "ravitemer/mcphub.nvim",
+--       build = "bundled_build.lua", -- Bundles `mcp-hub` binary along with the neovim plugin
+--       config = function()
+--         require("mcphub").setup({
+--           use_bundled_binary = true, -- Use local `mcp-hub` binary
+--         })
+--       end,
+--     }
+--   },
+--   keys = {
+--     { "<leader>aa", "<cmd>Avante ask", desc = "Avante Ask" },
+--   },
+--   opts = {
+--     provider = "deepseek",
+--     vendors = {
+--       deepseek = {
+--         __inherited_from = "openai",
+--         api_key_name = "DEEPSEEK_API_KEY",
+--         endpoint = "https://api.deepseek.com",
+--         model = "deepseek-coder",
+--       },
+--     },
+--     file_selector = {
+--       provider = "snacks",
+--     },
+--     -- behaviour = {
+--     --   enable_claude_text_editor_tool_mode = true,
+--     -- },
+--     -- custom_tools = require("custom.avante.tools"),
+--     -- system_prompt as function ensures LLM always has latest MCP server state
+--     -- This is evaluated for every message, even in existing chats
+--     system_prompt = function()
+--       local hub = require("mcphub").get_hub_instance()
+--       return hub and hub:get_active_servers_prompt() or ""
+--     end,
+--     -- Using function prevents requiring mcphub before it's loaded
+--     custom_tools = function()
+--       return {
+--         require("mcphub.extensions.avante").mcp_tool(),
+--       }
+--     end,
+--
+--     disabled_tools = {
+--       "list_files", -- Built-in file operations
+--       "search_files",
+--       "read_file",
+--       "create_file",
+--       "rename_file",
+--       "delete_file",
+--       "create_dir",
+--       "rename_dir",
+--       "delete_dir",
+--       "bash", -- Built-in terminal access
+--     },
+--   }
+-- }

@@ -39,7 +39,7 @@ function M.find_group(names, opts)
     end
 
   return vim.api.nvim_buf_call(opts.bufnr, function()
-    vim
+    return vim
       .iter(
         vim.fn.synstack(
           vim.fn.line('.'),

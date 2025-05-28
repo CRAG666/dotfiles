@@ -2,7 +2,8 @@
 local hlgroups = {
   WinBarCurrentContext            = { link = 'Visual' },
   WinBarHover                     = { link = 'Visual' },
-  WinBarIconKindDefault           = { link = 'Special' },
+  WinBarPreview                   = { link = 'Visual' },
+
   WinBarIconKindArray             = { link = 'Operator' },
   WinBarIconKindBlockMappingPair  = { link = 'WinBarIconKindDefault' },
   WinBarIconKindBoolean           = { link = 'Boolean' },
@@ -14,6 +15,7 @@ local hlgroups = {
   WinBarIconKindConstructor       = { link = '@constructor' },
   WinBarIconKindContinueStatement = { link = 'Repeat' },
   WinBarIconKindDeclaration       = { link = 'WinBarIconKindDefault' },
+  WinBarIconKindDefault           = { link = 'Special' },
   WinBarIconKindDelete            = { link = 'Error' },
   WinBarIconKindDoStatement       = { link = 'Repeat' },
   WinBarIconKindElement           = { link = 'WinBarIconKindDefault' },
@@ -39,6 +41,7 @@ local hlgroups = {
   WinBarIconKindMarkdownH4        = { link = 'markdownH4' },
   WinBarIconKindMarkdownH5        = { link = 'markdownH5' },
   WinBarIconKindMarkdownH6        = { link = 'markdownH6' },
+  WinBarIconKindMessage           = { link = 'Type' },
   WinBarIconKindMethod            = { link = 'Function' },
   WinBarIconKindModule            = { link = '@module' },
   WinBarIconKindNamespace         = { link = '@lsp.type.namespace' },
@@ -52,9 +55,11 @@ local hlgroups = {
   WinBarIconKindReference         = { link = 'WinBarIconKindDefault' },
   WinBarIconKindRepeat            = { link = 'Repeat' },
   WinBarIconKindReturnStatement   = { link = '@keyword.return' },
+  WinBarIconKindRpc               = { link = 'Function' },
   WinBarIconKindRuleSet           = { link = '@lsp.type.namespace' },
   WinBarIconKindScope             = { link = '@lsp.type.namespace' },
   WinBarIconKindSection           = { link = 'Title' },
+  WinBarIconKindService           = { link = 'Type' },
   WinBarIconKindSpecifier         = { link = '@keyword' },
   WinBarIconKindStatement         = { link = 'Statement' },
   WinBarIconKindString            = { link = '@string' },
@@ -67,10 +72,12 @@ local hlgroups = {
   WinBarIconKindValue             = { link = 'Number' },
   WinBarIconKindVariable          = { link = 'WinBarIconKindDefault' },
   WinBarIconKindWhileStatement    = { link = 'Repeat' },
+
   WinBarIconUIIndicator           = { link = 'SpecialChar' },
   WinBarIconUIPickPivot           = { link = 'Error' },
   WinBarIconUISeparator           = { link = 'NonText' },
   WinBarIconUISeparatorMenu       = { link = 'WinBarIconUISeparator' },
+
   WinBarMenuCurrentContext        = { link = 'PmenuSel' },
   WinBarMenuFloatBorder           = { link = 'FloatBorder' },
   WinBarMenuHoverEntry            = { link = 'IncSearch' },
@@ -79,10 +86,10 @@ local hlgroups = {
   WinBarMenuNormalFloat           = { link = 'NormalFloat' },
   WinBarMenuSbar                  = { link = 'PmenuSbar' },
   WinBarMenuThumb                 = { link = 'PmenuThumb' },
-  WinBarPreview                   = { link = 'Visual' },
 
   -- Highlight groups in non-current windows
   WinBarIconKindDefaultNC           = { link = 'WinBarNC' },
+
   WinBarIconKindArrayNC             = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindBlockMappingPairNC  = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindBooleanNC           = { link = 'WinBarIconKindDefaultNC' },
@@ -98,8 +105,8 @@ local hlgroups = {
   WinBarIconKindDoStatementNC       = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindElementNC           = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindElseStatementNC     = { link = 'WinBarIconKindDefaultNC' },
-  WinBarIconKindEnumNC              = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindEnumMemberNC        = { link = 'WinBarIconKindDefaultNC' },
+  WinBarIconKindEnumNC              = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindEventNC             = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindFieldNC             = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindFileNC              = { link = 'WinBarIconKindDefaultNC' },
@@ -119,6 +126,7 @@ local hlgroups = {
   WinBarIconKindMarkdownH4NC        = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindMarkdownH5NC        = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindMarkdownH6NC        = { link = 'WinBarIconKindDefaultNC' },
+  WinBarIconKindMessageNC           = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindMethodNC            = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindModuleNC            = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindNamespaceNC         = { link = 'WinBarIconKindDefaultNC' },
@@ -132,9 +140,11 @@ local hlgroups = {
   WinBarIconKindReferenceNC         = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindRepeatNC            = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindReturnStatementNC   = { link = 'WinBarIconKindDefaultNC' },
+  WinBarIconKindRpcNC               = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindRuleSetNC           = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindScopeNC             = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindSectionNC           = { link = 'WinBarIconKindDefaultNC' },
+  WinBarIconKindServiceNC           = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindSpecifierNC         = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindStatementNC         = { link = 'WinBarIconKindDefaultNC' },
   WinBarIconKindStringNC            = { link = 'WinBarIconKindDefaultNC' },
@@ -232,7 +242,12 @@ local function init()
   vim.api.nvim_create_autocmd('WinEnter', {
     group = groupid,
     callback = function()
-      if not winbar_hl_nc_equal() then
+      -- Only dim icon if current window's winbar color is the same as
+      -- non-current windows'
+      -- Also, don't dim for windows that does not have a winbar, this avoids
+      -- extra overhead and most importantly, avoid dimming icons in drop-down
+      -- menus
+      if not winbar_hl_nc_equal() and vim.wo.winbar ~= '' then
         dim(0, false)
       end
     end,
@@ -241,7 +256,7 @@ local function init()
   vim.api.nvim_create_autocmd('WinLeave', {
     group = groupid,
     callback = function()
-      if not winbar_hl_nc_equal() then
+      if not winbar_hl_nc_equal() and vim.wo.winbar ~= '' then
         dim()
       end
     end,

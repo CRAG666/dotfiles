@@ -114,6 +114,10 @@ return {
         all = function(C)
           return {
             -- Statusline
+            StatusLineGitBranch = {
+              fg = C.red,
+              style = { 'italic' },
+            },
             StatusLineHeader = {
               bg = C.green,
               fg = C.base,
