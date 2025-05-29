@@ -26,7 +26,18 @@ return {
   },
   {
     'kylechui/nvim-surround',
-    keys = { { 'cs' }, { 'ds' }, { 'ys' } },
+    keys = {
+      { 'ys',     desc = 'Surround' },
+      { 'yss',    desc = 'Surround line' },
+      { 'yS',     desc = 'Surround in new lines' },
+      { 'ySS',    desc = 'Surround line in new lines' },
+      { 'ds',     desc = 'Delete surrounding' },
+      { 'cs',     desc = 'Change surrounding' },
+      { 'S',      mode = 'x',                         desc = 'Surround' },
+      { 'gS',     mode = 'x',                         desc = 'Surround in new lines' },
+      { '<C-g>s', mode = 'i',                         desc = 'Surround' },
+      { '<C-g>S', mode = 'i',                         desc = 'Surround' },
+    },
     config = true,
   },
 }

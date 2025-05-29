@@ -1,26 +1,26 @@
 local utils = require "utils.fn"
 return {
-  {
-    "AckslD/muren.nvim",
-    keys = {
-      {
-        "[r",
-        ":MurenToggle<CR>",
-        desc = "[r]eplace pattern",
-      },
-    },
-    config = utils.setup "muren",
-  },
+  -- {
+  --   "AckslD/muren.nvim",
+  --   keys = {
+  --     {
+  --       "[r",
+  --       ":MurenToggle<CR>",
+  --       desc = "[r]eplace pattern",
+  --     },
+  --   },
+  --   config = utils.setup "muren",
+  -- },
   {
     "cshuaimin/ssr.nvim",
     keys = {
       {
         mode = { "n", "x" },
-        "]r",
+        "<leader>sr",
         function()
           require("ssr").open()
         end,
-        desc = "[r]eplace structure",
+        desc = "[S]earch [r]eplace structure",
       },
     },
     name = "ssr",
