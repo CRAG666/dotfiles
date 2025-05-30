@@ -58,112 +58,70 @@ return {
         desc = 'Toggle highlighting org',
       },
     },
-    config = function()
-      require('neorg').setup({
-        load = {
-          ['core.defaults'] = {},
-          -- ['core.keybinds'] = {
-          --   config = {
-          --     default_keybinds = true,
-          -- neorg_leader = neorg_leader,
-          -- hook = function(keybinds)
-          --   keybinds.map_event_to_mode('norg', {
-          --
-          --     n = { -- Bind keys in normal mode
-          --       {
-          --         ']l',
-          --         'core.integrations.treesitter.next.link',
-          --         opts = { desc = 'Next link' },
-          --       },
-          --       {
-          --         '[l',
-          --         'core.integrations.treesitter.previous.link',
-          --         opts = { desc = 'Previous link' },
-          --       },
-          --     },
-          --
-          --     i = { -- Bind in insert mode
-          --     },
-          --   }, {
-          --     silent = true,
-          --     noremap = true,
-          --   })
-          -- end,
-          --   },
-          -- },
-          ['core.completion'] = {
-            config = { engine = 'nvim-cmp', name = '[Norg]' },
-          },
-          ['core.integrations.nvim-cmp'] = {},
-          ['core.concealer'] = {
-            config = {
-              dim_code_blocks = { conceal = false },
-              icon_preset = 'basic',
-              -- icon_preset = "diamond",
-              icons = {
-                code_block = {
-                  conceal = true,
-                },
-                delimiter = {
-                  horizontal_line = {
-                    icon = '■',
-                  },
-                },
-                definition = {
-                  single = { icon = '🔖 ' },
-                  multi_prefix = { icon = '󰉾 ' },
-                  multi_suffix = { icon = '󰝗 ' },
-                },
-                list = {
-                  icons = { '✿' },
-                },
-                quote = {
-                  icons = { '󰇙' },
-                },
-                heading = {
-                  icons = {
-                    '🌸 ',
-                    '🌼 ',
-                    '🌺 ',
-                    '💠 ',
-                    '🍀 ',
-                    '🪻 ',
-                  },
+    opts = {
+      load = {
+        ['core.defaults'] = {},
+        ["core.keybinds"] = {},
+        ['core.concealer'] = {
+          config = {
+            dim_code_blocks = { conceal = false },
+            icon_preset = 'basic',
+            -- icon_preset = "diamond",
+            icons = {
+              code_block = {
+                conceal = true,
+              },
+              delimiter = {
+                horizontal_line = {
+                  icon = '■',
                 },
               },
-            },
-          },
-          ['core.dirman'] = { -- Manages Neorg workspaces
-            config = {
-              workspaces = {
-                notes = '~/Documentos/Org/Notes',
-                state_art = '~/Documentos/Org/Estado_Arte/',
+              definition = {
+                single = { icon = '🔖 ' },
+                multi_prefix = { icon = '󰉾 ' },
+                multi_suffix = { icon = '󰝗 ' },
               },
-            },
-          },
-          ['core.looking-glass'] = {},
-          ['core.export'] = {},
-          ['core.summary'] = {},
-          ['core.ui.calendar'] = {},
-          ['core.latex.renderer'] = {},
-          ['external.many-mans'] = {
-            config = {
-              metadata_fold = true, -- If want @data property ... @end to fold
-              code_fold = true,     -- If want @code ... @end to fold
-            },
-          },
-          -- OPTIONAL
-          ['external.agenda'] = {},
-          ['external.roam'] = {
-            config = {
-              fuzzy_finder = 'Telescope',
-              fuzzy_backlinks = false,      -- Set to "true" for backlinks in fuzzy finder instead of buffer
-              roam_base_directory = '',     -- Directory in current workspace to store roam nodes
-              node_name_randomiser = false, -- Tokenise node name suffix for more randomisation
+              list = {
+                icons = { '✿' },
+              },
+              quote = {
+                icons = { '󰇙' },
+              },
+              heading = {
+                icons = {
+                  '🌸 ',
+                  '🌼 ',
+                  '🌺 ',
+                  '💠 ',
+                  '🍀 ',
+                  '🪻 ',
+                },
+              },
             },
           },
         },
-      })
-    end,
+        ['core.dirman'] = { -- Manages Neorg workspaces
+          config = {
+            workspaces = {
+              notes = '~/Documentos/Org/Notes',
+              state_art = '~/Documentos/Org/Estado_Arte/',
+            },
+          },
+        },
+        ['core.looking-glass'] = {},
+        ['core.export'] = {},
+        ['core.summary'] = {},
+        ['core.ui.calendar'] = {},
+        ['core.latex.renderer'] = {},
+        ['external.many-mans'] = {
+          config = {
+            metadata_fold = true, -- If want @data property ... @end to fold
+            code_fold = true,     -- If want @code ... @end to fold
+          },
+        },
+        -- OPTIONAL
+        ['external.agenda'] = {},
+      }
+    }
   },
 }

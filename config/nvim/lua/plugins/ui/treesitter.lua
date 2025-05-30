@@ -121,6 +121,7 @@ return {
         'yuck',
         'zathurarc',
         -- "jsonet",
+        "qf",
       },
       incremental_selection = {
         enable = true,
@@ -261,6 +262,15 @@ return {
         end, opts.ensure_installed)
       end
       require('nvim-treesitter.configs').setup(opts)
+      local parser_configs = require("nvim-treesitter.parsers").get_parser_configs();
+
+      parser_configs.qf = {
+        install_info = {
+          url = "https://github.com/OXY2DEV/tree-sitter-qf",
+          files = { "src/parser.c" },
+          branch = "main",
+        },
+      }
       local ts_repeat_move = require "nvim-treesitter.textobjects.repeatable_move"
       vim.keymap.set({ "n", "x", "o" }, ";", ts_repeat_move.repeat_last_move_next)
       vim.keymap.set({ "n", "x", "o" }, ",", ts_repeat_move.repeat_last_move_previous)

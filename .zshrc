@@ -226,6 +226,7 @@ alias pacr="pacman -Qq | fzf --multi --preview 'pacman -Qi {1}' | xargs -ro sudo
 alias ys="yay -Slq | fzf --multi --preview 'yay -Si {1}' | xargs -ro yay -S"
 alias ci="{ find . -xdev -printf '%h\n' | sort | uniq -c | sort -k 1 -n; } 2>/dev/null"
 alias gbc="git switch -c"
+alias fontl="fc-list | cut -d ':' -f2 | sort | uniq"
 
 # -< Environ variable >-
 export MYSQL_PS1="\n \d  ﯐ "

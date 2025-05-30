@@ -87,7 +87,7 @@ gnome-disk-utility
 gpart
 
 # Fonts
-otf-apple-fonts
+apple-fonts
 ttf-apple-emoji
 noto-fonts-cjk
 

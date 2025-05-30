@@ -233,14 +233,13 @@ function M.setup()
   local lu = require('config.lsp.utils')
   vim.lsp.config('*', {
     capabilities = lu.capabilities(),
-    root_markers = { '.git' },
+    root_markers = require('utils.fs').root_markers,
   })
   lu.on_attach(function(client, bufnr)
     -- if vim.lsp.inlay_hint.is_enabled() ~= true then
     --   vim.lsp.inlay_hint.enable()
     -- end
     require('config.lsp.commands').setup()
-    require('config.lsp.highlighter').on_attach(client, bufnr)
     require('config.lsp.keymaps').on_attach(client, bufnr)
     setup_lsp_overrides()
     setup_lsp_stopdetached()

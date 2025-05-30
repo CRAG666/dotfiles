@@ -3,6 +3,7 @@ function M.on_attach(_, buffer)
   local utils = require('utils.keymap')
   local lsp = vim.lsp.buf
   local bufopt = { buffer = buffer }
+  local ll = false
 
   vim.bo[buffer].omnifunc = 'v:lua.vim.lsp.omnifunc'
   local lsp_maps = {
@@ -54,10 +55,18 @@ function M.on_attach(_, buffer)
       },
     },
     {
-      prefix = '<leader>',
+      prefix = '<localleader>',
       maps = {
-        { 'aw', vim.lsp.buf.add_workspace_folder, 'LSP Add Folder',    bufopt },
-        { 'd',  vim.diagnostic.setloclist,        'Toggle Diagnostic', bufopt },
+        { 'f', vim.lsp.buf.add_workspace_folder, 'LSP Add Folder', bufopt },
+        { 'd', function()
+          if ll then
+            vim.cmd.lclose()
+            ll = false
+            return
+          end
+          vim.diagnostic.setloclist()
+          ll = true
+        end, 'Toggle Diagnostic' },
       },
     },
   }

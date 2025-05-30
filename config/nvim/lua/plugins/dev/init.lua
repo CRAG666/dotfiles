@@ -118,4 +118,8 @@ return {
     event = 'BufEnter',
     opts = {},
   },
+  {
+    "nvzone/minty",
+    cmd = { "Shades", "Huefy" },
+  }
 }

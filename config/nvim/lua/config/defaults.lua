@@ -88,7 +88,7 @@ set.updatetime = 200
 -- =============================
 vim.keymap.set('', '<Space>', '<Nop>', { noremap = true, silent = true })
 vim.g.mapleader = ' '
-vim.g.maplocalleader = ','
+vim.g.maplocalleader = '\\' -- Backslash for neorg leader
 
 -- =============================
 -- Folds
