@@ -3,7 +3,7 @@
 * {
     background-color:       @background;
     text-color:             @foreground;
-	font:				 	"SF Pro 16";
+	font:				 	"SFProDisplay Nerd Font 16";
 }
 
 window {

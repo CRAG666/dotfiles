@@ -1,5 +1,5 @@
 configuration {
-    font:                           "Iosevka 16";
+    font:                           "SFProDisplay Nerd Font 16";
     show-icons:                     false;
     display-drun: 					":";
     drun-display-format:            "{name}";
@@ -115,7 +115,7 @@ element-icon {
 }
 
 element-text {
-    font:							"Iosevka 16";
+    font:							"SFProDisplay Nerd Font 16";
     expand:                         true;
     horizontal-align:               0;
     vertical-align:                 0;

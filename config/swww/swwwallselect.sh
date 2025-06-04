@@ -147,7 +147,7 @@ if ! [[ "$rofi_scale_input" =~ ^[0-9]+$ ]]; then # Validar que sea un número
     rofi_scale_input=10
 fi
 readonly ROFI_SCALE="$rofi_scale_input"
-readonly ROFI_THEME_SCALE_OVERRIDE="configuration {font: \"SF Pro Display ${ROFI_SCALE}\";}"
+readonly ROFI_THEME_SCALE_OVERRIDE="configuration {font: \"SFProDisplay Nerd Font ${ROFI_SCALE}\";}"
 
 #// Borde de elementos de Rofi basado en hypr_border
 hypr_border_val="${hypr_border:-$HYPR_BORDER_DEFAULT}" # Usar variable de entorno si existe, sino el default del script

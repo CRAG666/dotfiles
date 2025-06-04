@@ -87,9 +87,11 @@ gnome-disk-utility
 gpart
 
 # Fonts
-apple-fonts
-ttf-apple-emoji
+ttf-nerd-fonts-symbols
+ttf-nerd-fonts-symbols-common
+nerd-fonts-apple
 noto-fonts-cjk
+ttf-apple-emoji
 
 # Basic
 ntfs-3g

@@ -11,7 +11,7 @@ set window-title-home-tilde "true"
 set window-title-basename "true"
 set statusbar-basename "true"
 set adjust-open width
-set font "SF Pro Display 16"
+set font "SFProDisplay Nerd Font 16"
 
 #
 # Theme

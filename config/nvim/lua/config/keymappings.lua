@@ -33,9 +33,6 @@ utils.map('n', '<C-u>', '<C-u>zz')
 utils.map('n', 'n', 'nzzzv')
 utils.map('n', 'N', 'Nzzzv')
 
--- Search and  replace in the current buffer
-utils.map({ 'n', 'v' }, '<leader>r', ':s/', opts)
-
 -- Set ; to end line
 -- utils.map("n", "<leader>;", "<esc>mzA;<esc>`z")
 
@@ -97,19 +94,18 @@ local maps = {
   {
     prefix = '<leader>',
     maps = {
-      { 'cc', ':let @/=""<cr>',                                "Clear [c]hoose" },
-      -- { 'l',  [[*``cgn]],                                      'Replace word and nexts word with .' },
-      -- Search and replace word
-      { 'cn', [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]], 'Replace word and nexts word with .' },
-      { 'cN', [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]], 'Replace word and prevs word with .' },
+      { 'cc', ':let @/=""<cr>', "Clear [c]hoose" },
     },
   },
   {
-    prefix = ';',
+    prefix = '<leader>r',
     maps = {
-      { 'r',  ':%s/',                  'Search and [r]eplace',        opts },
-      { 'cw', [[:%s/\<<C-r><C-w>\>/]], '[c]hange [w]ord',             opts },
-      { 'R',  [[:%s/\(.*\)/\1]],       'Search and [R]eplace extend', opts },
+      { 'r', ':%s/',                                          'Search and [r]eplace',              opts },
+      { 'l', ':s/',                                           'Search and [r]eplace [l]ine',       opts },
+      { 'w', [[:%s/\<<C-r><C-w>\>/]],                         'Search and [r]eplace [w]ord',       opts },
+      { 'e', [[:%s/\(.*\)/\1]],                               'Search and [r]eplace extend',       opts },
+      { 'n', [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]], 'Replace word and nexts word with .' },
+      { 'N', [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]], 'Replace word and prevs word with .' },
     },
   },
 }

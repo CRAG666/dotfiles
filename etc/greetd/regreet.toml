@@ -16,7 +16,7 @@ application_prefer_dark_theme = true
 cursor_theme_name = "Adwaita"
 
 # Font name and size
-font_name = "SF Pro Display 18"
+font_name = "SFProDisplay Nerd Font 18"
 
 # Icon theme name
 icon_theme_name = "Adwaita"

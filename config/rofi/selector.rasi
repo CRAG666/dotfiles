@@ -3,7 +3,7 @@ configuration {
     modi:                        "drun";
     show-icons:                  true;
     drun-display-format:         "{name}";
-    font:                        "SF Pro Display 13";
+    font:                        "SFProDisplay Nerd Font 13";
 }
 
 @theme "~/.config/rofi/colors/catppuccin.rasi"

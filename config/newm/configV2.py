@@ -34,7 +34,7 @@ def on_reconfigure():
         f"gsettings set {gnome_schema} icon-theme 'candy-icons'",
         f"gsettings set {gnome_schema} cursor-theme 'Sweet-cursors'",
         f"gsettings set {gnome_schema} cursor-size 35",
-        f"gsettings set {gnome_schema} font-name 'SF Pro 15'",
+        f"gsettings set {gnome_schema} font-name 'SFProDisplay Nerd Font 15'",
         "gsettings set org.gnome.desktop.wm.preferences button-layout :",
         f"gsettings set {gnome_peripheral}.keyboard repeat-interval 30",
         f"gsettings set {gnome_peripheral}.keyboard delay 500",

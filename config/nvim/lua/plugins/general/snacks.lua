@@ -10,12 +10,12 @@ return {
       { "<leader>/",  function() Snacks.picker.grep() end,                                                          desc = "Grep" },
       { "<leader>:",  function() Snacks.picker.command_history() end,                                               desc = "Command History" },
       -- { "<leader>n",       function() Snacks.picker.notifications() end,                           desc = "Notification History" },
-      { "<leader>ff", function() Snacks.explorer() end,                                                             desc = "File Explorer" },
+      { "<leader>.",  function() Snacks.explorer() end,                                                             desc = "File Explorer" },
       -- find
       { "<leader>fb", function() Snacks.picker.buffers() end,                                                       desc = "Buffers" },
       { "<leader>fc", function() Snacks.picker.files({ cwd = vim.fn.stdpath("config") }) end,                       desc = "Find Config File" },
       { "<leader>fd", function() Snacks.picker.files() end,                                                         desc = "Find Files in directory" },
-      { "<leader>;",  function() Snacks.picker.files({ cwd = vim.lsp.buf.list_workspace_folders()[1] or "." }) end, desc = "Find Files in root path" },
+      { "<leader>ff", function() Snacks.picker.files({ cwd = vim.lsp.buf.list_workspace_folders()[1] or "." }) end, desc = "Find Files in root path" },
       { "<leader>fg", function() Snacks.picker.git_files() end,                                                     desc = "Find Git Files" },
       { "<leader>fp", function() Snacks.picker.projects() end,                                                      desc = "Projects" },
       { "<leader>fr", function() Snacks.picker.recent() end,                                                        desc = "Recent" },
@@ -62,7 +62,7 @@ return {
       { "<leader>ss", function() Snacks.picker.lsp_symbols() end,                                                   desc = "LSP Symbols" },
       { "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end,                                         desc = "LSP Workspace Symbols" },
       -- Other
-      { "<leader>.",  function() Snacks.scratch() end,                                                              desc = "Toggle Scratch Buffer" },
+      { "<leader>x",  function() Snacks.scratch() end,                                                              desc = "Toggle Scratch Buffer" },
       { "<leader>S",  function() Snacks.scratch.select() end,                                                       desc = "Select Scratch Buffer" },
       { "<leader>bd", function() Snacks.bufdelete() end,                                                            desc = "Delete Buffer" },
       { "<leader>cR", function() Snacks.rename.rename_file() end,                                                   desc = "Rename File" },

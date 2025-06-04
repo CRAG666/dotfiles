@@ -1,5 +1,5 @@
 configuration {
-    font: 							"SF Pro 16";
+    font: 							"SFProDisplay Nerd Font 16";
     fixed-num-lines: 				true;
     show-icons: 					  false;
     sidebar-mode: 					true;
