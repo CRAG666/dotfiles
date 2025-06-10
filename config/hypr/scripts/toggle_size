@@ -6,7 +6,6 @@ active_window_json=$(hyprctl activewindow -j)
 monitor_id=$(echo "$active_window_json" | jq '.monitor')
 
 monitor=$(echo "$monitors_json" | jq ".[] | select(.id == $monitor_id)")
-monitor_name=$(echo "$monitor" | jq -r '.name')
 monitor_width=$(echo "$monitor" | jq '.width')
 monitor_height=$(echo "$monitor" | jq '.height')
 
@@ -16,21 +15,27 @@ window_height=$(echo "$active_window_json" | jq '.size[1]')
 half_monitor_width=$((monitor_width / 2))
 half_monitor_height=$((monitor_height / 2))
 
-if [[ $monitor_name = "DP-3" ]]; then
-	result=1
+if [[ monitor_width -gt 1920 ]]; then
+    width=1
+    height=1
 
-	if [[ $window_width -lt $half_monitor_width && $window_height -lt $half_monitor_height ]]; then
-		result=3
-	else
-		result=1
-	fi
-	hyprctl dispatch scroller:setheight $result
-	hyprctl dispatch scroller:setwidth $result
+    if [[ $1 = "full" ]]; then
+        if [[ $window_width -lt $half_monitor_width || $window_height -lt $half_monitor_height ]]; then
+            width=3
+            height=3
+        fi
+    else
+        if ! [[ $window_width -lt $half_monitor_width && $window_height -gt $half_monitor_height ]]; then
+            height=3
+        fi
+    fi
+    hyprctl dispatch scroller:setheight $height
+    hyprctl dispatch scroller:setwidth $width
 else
-	if [[ $window_width -lt $half_monitor_width ]]; then
-		result=3
-	else
-		result=1
-	fi
-	hyprctl dispatch scroller:setwidth $result
+    if [[ $window_width -lt $half_monitor_width ]]; then
+        width=3
+    else
+        width=1
+    fi
+    hyprctl dispatch scroller:setwidth $width
 fi
