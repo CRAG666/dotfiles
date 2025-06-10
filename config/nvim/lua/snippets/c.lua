@@ -1,4 +1,5 @@
 local M = {}
+local uf = require('utils.snippets.funcs')
 local un = require('utils.snippets.nodes')
 local us = require('utils.snippets.snips')
 local ls = require('luasnip')
@@ -180,18 +181,10 @@ M.snippets = {
     },
     un.fmtad('dbg_printf("<line>\\n");', {
       line = c(1, {
-        -- stylua: ignore start
+        i(nil, '........................................'),
         i(nil, '----------------------------------------'),
         i(nil, '========================================'),
-        i(nil, '........................................'),
-        i(nil, '++++++++++++++++++++++++++++++++++++++++'),
-        i(nil, '****************************************'),
-        i(nil, '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'),
-        i(nil, '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'),
-        i(nil, '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'),
         i(nil, '########################################'),
-        i(nil, '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'),
-        -- stylua: ignore end
       }),
     })
   ),
@@ -202,18 +195,10 @@ M.snippets = {
     },
     un.fmtad('printf("<line>\\n");', {
       line = c(1, {
-        -- stylua: ignore start
+        i(nil, '........................................'),
         i(nil, '----------------------------------------'),
         i(nil, '========================================'),
-        i(nil, '........................................'),
-        i(nil, '++++++++++++++++++++++++++++++++++++++++'),
-        i(nil, '****************************************'),
-        i(nil, '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'),
-        i(nil, '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'),
-        i(nil, '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'),
         i(nil, '########################################'),
-        i(nil, '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'),
-        -- stylua: ignore end
       }),
     })
   ),
@@ -477,39 +462,55 @@ M.snippets = {
   us.msn(
     {
       { trig = 'sw' },
+      { trig = 'swi' },
       { trig = 'switch' },
-      common = { desc = 'switch statement' },
+      desc = 'switch statement',
     },
     un.fmtad(
       [[
-        switch (<var>) {
-        <idnt>case <val>:
+        switch (<expr>) {
+        case <match1>:
         <body>
+        <idnt>break;
+        case <match2>:
+        <idnt><i>
+        <idnt>break;<e>
+        default:
+        <idnt><d>
         }
       ]],
       {
-        var = i(1),
-        val = i(2),
         idnt = un.idnt(1),
-        body = un.body(3, 2),
+        expr = i(1, 'expr'),
+        match1 = i(2, 'match1'),
+        body = un.body(3, 1),
+        match2 = i(4, 'match2'),
+        i = i(5),
+        e = i(6),
+        d = i(7),
       }
     )
   ),
-  us.msn(
+  us.msnr(
     {
-      { trig = 'cs' },
-      { trig = 'ca' },
-      { trig = 'case' },
+      { trig = '^(%s*)ca' },
+      { trig = '^(%s*)cas' },
+      { trig = '^(%s*)case' },
       common = { desc = 'case statement' },
     },
     un.fmtad(
       [[
-        case <val>:
+        <ddnt>case <match>:
         <body>
+        <ddnt><idnt>break;
       ]],
       {
-        val = i(1),
-        body = un.body(2, 1),
+        ddnt = un.ddnt(1),
+        idnt = un.idnt(1),
+        match = i(1, 'match'),
+        body = un.body(2, function(_, parent)
+          return math.max(0, uf.get_indent_depth(parent.snippet.captures[1]))
+        end),
       }
     )
   ),
@@ -550,7 +551,7 @@ M.snippets = {
       },
     }
   ),
-  us.msn(
+  us.mssn(
     {
       { trig = 'mn' },
       { trig = 'main' },
@@ -629,6 +630,37 @@ M.snippets = {
       common_opts = {
         stored = {
           name = i(1, 'union_name'),
+        },
+      },
+    }
+  ),
+  us.msn(
+    {
+      { trig = 'en' },
+      { trig = 'enu' },
+      { trig = 'enum' },
+      common = { desc = 'Enum definition/declaration' },
+    },
+    c(1, {
+      un.fmtad(
+        [[
+          enum <name> {
+          <body>
+          };
+        ]],
+        {
+          name = r(1, 'name'),
+          body = un.body(2, 1),
+        }
+      ),
+      un.fmtad('enum <name>;', {
+        name = r(1, 'name'),
+      }),
+    }),
+    {
+      common_opts = {
+        stored = {
+          name = i(nil, 'enum_name'),
         },
       },
     }
@@ -723,6 +755,45 @@ M.snippets = {
         }
       ),
       un.fmtad('typedef union <name> <alias>;', {
+        name = r(1, 'name'),
+        alias = r(2, 'alias'),
+      }),
+    }),
+    {
+      common_opts = {
+        stored = {
+          name = i(1, 'name'),
+          alias = i(2, 'alias'),
+        },
+      },
+    }
+  ),
+  us.msn(
+    {
+      { trig = 'tpe' },
+      { trig = 'tpen' },
+      { trig = 'tpenu' },
+      { trig = 'tpenum' },
+      { trig = 'typedefe' },
+      { trig = 'typedefen' },
+      { trig = 'typedefenu' },
+      { trig = 'typedefenum' },
+      common = { desc = 'typedef enum definition/declaration statement' },
+    },
+    c(1, {
+      un.fmtad(
+        [[
+          typedef enum <name> {
+          <body>
+          } <alias>;
+        ]],
+        {
+          name = r(1, 'name'),
+          body = un.body(3, 1),
+          alias = r(2, 'alias'),
+        }
+      ),
+      un.fmtad('typedef enum <name> <alias>;', {
         name = r(1, 'name'),
         alias = r(2, 'alias'),
       }),

@@ -1,7 +1,6 @@
 local uf = require('utils.snippets.funcs')
 local un = require('utils.snippets.nodes')
 local us = require('utils.snippets.snips')
-local conds = require('utils.snippets.conds')
 local ls = require('luasnip')
 local sn = ls.snippet_node
 local t = ls.text_node

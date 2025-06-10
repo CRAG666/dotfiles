@@ -4,7 +4,7 @@
 -- |_|\_\___|\__, |_| |_| |_|\__,_| .__/
 --           |___/                |_|
 
-local utils = require('utils.keymap')
+local key = require('utils.keymap')
 local opts = { noremap = true, silent = false }
 
 vim.keymap.set('n', 'i', function()
@@ -14,52 +14,44 @@ vim.keymap.set('n', 'i', function()
     return 'i'
   end
 end, { expr = true })
-utils.map('n', '#', '#N')
-utils.map('n', '*', '*N')
-utils.map(
-  'n',
-  'k',
-  "v:count == 0 ? 'gk' : 'k'",
-  { expr = true, silent = true }
-)
-utils.map(
-  'n',
-  'j',
-  "v:count == 0 ? 'gj' : 'j'",
-  { expr = true, silent = true }
-)
-utils.map('n', '<C-d>', '<C-d>zz')
-utils.map('n', '<C-u>', '<C-u>zz')
-utils.map('n', 'n', 'nzzzv')
-utils.map('n', 'N', 'Nzzzv')
-utils.map('n', '<CR>', ':w<CR>')
-utils.map('n', '<Tab>', vim.cmd.bnext)
-utils.map('n', '<S-Tab>', vim.cmd.bprev)
-
--- Set ; to end line
--- utils.map("n", "<leader>;", "<esc>mzA;<esc>`z")
+key.map('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+key.map('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+key.map('n', "'", [[printf('`%czz',getchar())]], { expr = true, silent = true })
+key.map('n', '<C-d>', '<C-d>zz')
+key.map('n', '<C-u>', '<C-u>zz')
+key.map('n', 'n', 'nzzzv')
+key.map('n', 'N', 'Nzzzv')
+key.map('n', '<CR>', ':w<CR>')
+key.map('n', '<Tab>', vim.cmd.bnext)
+key.map('n', '<S-Tab>', vim.cmd.bprev)
+key.map("n", "yc", "yygccp", { remap = true })
 
 -- No yank
-utils.map('n', 'x', '"_x')
-utils.map({ 'n', 'x' }, 'c', '"_c')
-utils.map('n', 'C', '"_C')
-utils.map('v', 'p', '"_dP', opts)
+key.map('n', 'x', '"_x')
+key.map({ 'n', 'x' }, 'c', '"_c')
+key.map('n', 'C', '"_C')
+key.map('v', 'p', '"_dP', opts)
 
 -- Better indent
-utils.map("v", "<", "<gv", opts)
-utils.map("v", ">", ">gv", opts)
+key.map("v", "<", "<gv", opts)
+key.map("v", ">", ">gv", opts)
 
-utils.map('n', '<A-s>', function()
+key.map('n', '<localleader>s', function()
+  if vim.wo.spell then
+    vim.wo.spell = false
+    return
+  end
   vim.ui.select({ "es_mx", "en_us" }, {
     prompt = "Toggle spell checker",
   }, function(lang)
     if lang then
-      vim.cmd(string.format([[setlocal spell! spelllang=%s]], lang))
+      vim.wo.spell = true
+      vim.bo.spelllang = lang
     else
       print("language not selected")
     end
   end)
-end)
+end, { desc = "Toggle spell checker" })
 
 -- sudo
 -- vim.cmd [[cmap w!! w !sudo tee > /dev/null %]]
@@ -69,8 +61,8 @@ end)
 for i = 9, 1, -1 do
   local kmap = string.format('<leader>%d', i)
   local command = string.format('%dgt', i)
-  utils.map('n', kmap, command, { desc = string.format('Jump Tab [%d]', i) })
-  utils.map(
+  key.map('n', kmap, command, { desc = string.format('Jump Tab [%d]', i) })
+  key.map(
     'n',
     string.format('<leader>t%d', i),
     string.format(':tabmove %d<CR>', i == 1 and 0 or i),
@@ -108,7 +100,7 @@ local maps = {
       { 'w', [[:%s/\<<C-r><C-w>\>/]],                         'Search and [r]eplace [w]ord',                  opts },
       { 'e', [[:%s/\(.*\)/\1]],                               'Search and [r]eplace [e]xtend',                opts },
       { 'n', [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]], 'Search and Replace word and nexts word with .' },
-      { 'N', [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgN]], 'Search and Replace word and prevs word with .' },
+      { 'N', [[?\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgN]], 'Search and Replace word and prevs word with .' },
     },
   },
   {
@@ -120,14 +112,14 @@ local maps = {
     },
   },
 }
-utils.maps(maps)
+key.maps(maps)
 
 --Esc in terminal mode
-utils.map('t', '<Esc>', '<C-\\><C-n>')
-utils.map('t', '<M-[>', '<Esc>')
-utils.map('t', '<C-v><Esc>', '<Esc>')
+key.map('t', '<Esc>', '<C-\\><C-n>')
+key.map('t', '<M-[>', '<Esc>')
+key.map('t', '<C-v><Esc>', '<Esc>')
 
-utils.map(
+key.map(
   'n',
   '<bs>',
   ":<c-u>exe v:count ? v:count . 'b' : 'b' . (bufloaded(0) ? '#' : 'n')<cr>"
@@ -135,15 +127,15 @@ utils.map(
 vim.api.nvim_create_autocmd('CmdlineEnter', {
   once = true,
   callback = function()
-    utils.command_map(';', 'lua ')
-    utils.command_map(':', ':= ')
-    utils.command_abbrev('man', 'Man')
-    utils.command_abbrev('rm', '!rm')
-    utils.command_abbrev('mv', '!mv')
-    utils.command_abbrev('git', '!git')
-    utils.command_abbrev('mkd', '!mkdir')
-    utils.command_abbrev('mkdir', '!mkdir')
-    utils.command_abbrev('touch', '!touch')
+    key.command_map(':', 'lua ')
+    key.command_map(';', ':= ')
+    key.command_abbrev('man', 'Man')
+    key.command_abbrev('rm', '!rm')
+    key.command_abbrev('mv', '!mv')
+    key.command_abbrev('git', '!git')
+    key.command_abbrev('mkd', '!mkdir')
+    key.command_abbrev('mkdir', '!mkdir')
+    key.command_abbrev('touch', '!touch')
     return true
   end,
 })

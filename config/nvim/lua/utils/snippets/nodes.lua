@@ -1,23 +1,51 @@
+local M = {}
+
 local ls = require('luasnip')
 local f = ls.function_node
 local sn = ls.snippet_node
 local t = ls.text_node
 local i = ls.insert_node
 local d = ls.dynamic_node
+
 local fmt = require('luasnip.extras.fmt').fmt
 local fmta = require('luasnip.extras.fmt').fmta
 
-local M = {}
+local uf = require('utils.snippets.funcs')
 
 ---Returns a function node that returns a string for indentation at the given
 ---depth
----@param depth number|fun(...): number
----@param argnode_references number|table?
+---@param depth? number|fun(...): number
+---@param argnode_references (number|table)?
 ---@param node_opts table?
 ---@return table node
 function M.idnt(depth, argnode_references, node_opts)
+  depth = depth or 1
   return f(function(...)
-    return require('utils.snippets.funcs').get_indent_str(depth, ...)
+    return uf.get_indent_str(depth, ...)
+  end, argnode_references, node_opts)
+end
+
+---Get de-indented string given depth to de-indent and index of indent capture
+---group
+---
+---Intend to be used in regex triggered snippets where the capture group at
+---`capture_idx` contains the indentation string
+---@param depth? number|fun(...): number
+---@param capture_idx? integer
+---@param argnode_references (number|table)?
+---@param node_opts table?
+---@return table node
+function M.ddnt(depth, capture_idx, argnode_references, node_opts)
+  depth = depth or 1
+  capture_idx = capture_idx or 1
+  return f(function(_, parent, ...)
+    return uf.get_indent_str(
+      math.max(
+        0,
+        uf.get_indent_depth(parent.snippet.captures[capture_idx]) - depth
+      ),
+      ...
+    )
   end, argnode_references, node_opts)
 end
 

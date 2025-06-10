@@ -107,18 +107,10 @@ M.snippets = {
     un.fmtad('print(<q><line><q>)', {
       q = un.qt(),
       line = c(1, {
-        -- stylua: ignore start
+        i(nil, '........................................'),
         i(nil, '----------------------------------------'),
         i(nil, '========================================'),
-        i(nil, '........................................'),
-        i(nil, '++++++++++++++++++++++++++++++++++++++++'),
-        i(nil, '****************************************'),
-        i(nil, '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'),
-        i(nil, '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'),
-        i(nil, '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'),
         i(nil, '########################################'),
-        i(nil, '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'),
-        -- stylua: ignore end
       }),
     })
   ),
@@ -382,7 +374,7 @@ M.snippets = {
       }
     )
   ),
-  us.msn(
+  us.mssn(
     {
       { trig = 'mn' },
       { trig = 'main' },
@@ -488,6 +480,58 @@ M.snippets = {
         expr = i(1),
         var = i(2),
         body = un.body(3, 1, 'pass'),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'ma' },
+      { trig = 'mat' },
+      { trig = 'match' },
+      { trig = 'sw' },
+      { trig = 'swi' },
+      { trig = 'switch' },
+      common = { desc = 'match-case statement' },
+    },
+    un.fmtad(
+      [[
+        match <subject>:
+        <idnt>case <match1>:
+        <body>
+        <idnt>case <match2>:
+        <idnt><idnt><i>
+        <idnt>case _:
+        <idnt><idnt> <d>
+      ]],
+      {
+        idnt = un.idnt(1),
+        subject = i(1, 'subject'),
+        match1 = i(2, 'match1'),
+        body = un.body(3, 2, 'pass'),
+        match2 = i(4, 'match2'),
+        i = i(5, 'pass'),
+        d = i(6, 'pass'),
+      }
+    )
+  ),
+  us.msnr(
+    {
+      { trig = '^(%s*)ca' },
+      { trig = '^(%s*)cas' },
+      { trig = '^(%s*)case' },
+      common = { desc = 'match-case statement' },
+    },
+    un.fmtad(
+      [[
+        <ddnt>case <match>:
+        <body>
+      ]],
+      {
+        ddnt = un.ddnt(1),
+        match = i(1, 'match'),
+        body = un.body(2, function(_, parent)
+          return math.max(0, uf.get_indent_depth(parent.snippet.captures[1]))
+        end),
       }
     )
   ),

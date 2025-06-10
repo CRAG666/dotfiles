@@ -1,4 +1,5 @@
 local M = {}
+local uf = require('utils.snippets.funcs')
 local un = require('utils.snippets.nodes')
 local us = require('utils.snippets.snips')
 local ls = require('luasnip')
@@ -56,16 +57,10 @@ M.snippets = {
     un.fmtad('console.log(<q><line><q>)', {
       q = un.qt(),
       line = c(1, {
+        i(nil, '........................................'),
         i(nil, '----------------------------------------'),
         i(nil, '========================================'),
-        i(nil, '........................................'),
-        i(nil, '++++++++++++++++++++++++++++++++++++++++'),
-        i(nil, '****************************************'),
-        i(nil, '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'),
-        i(nil, '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'),
-        i(nil, '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'),
         i(nil, '########################################'),
-        i(nil, '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'),
       }),
     })
   ),
@@ -425,6 +420,61 @@ M.snippets = {
         },
       },
     }
+  ),
+  us.msn(
+    {
+      { trig = 'sw' },
+      { trig = 'swi' },
+      { trig = 'switch' },
+      common = { desc = 'switch statement' },
+    },
+    un.fmtad(
+      [[
+        switch (<expr>) {
+        <idnt>case <match1>:
+        <body>
+        <idnt><idnt>break;
+        <idnt>case <match2>:
+        <idnt><idnt><i>
+        <idnt><idnt>break;<e>
+        <idnt>default:
+        <idnt><idnt><d>
+        }
+      ]],
+      {
+        idnt = un.idnt(1),
+        expr = i(1, 'expr'),
+        match1 = i(2, 'match1'),
+        body = un.body(3, 2),
+        match2 = i(4, 'match2'),
+        i = i(5),
+        e = i(6),
+        d = i(7),
+      }
+    )
+  ),
+  us.msnr(
+    {
+      { trig = '^(%s*)ca' },
+      { trig = '^(%s*)cas' },
+      { trig = '^(%s*)case' },
+      common = { desc = 'case statement' },
+    },
+    un.fmtad(
+      [[
+        <ddnt>case <match>:
+        <body>
+        <ddnt><idnt>break;
+      ]],
+      {
+        ddnt = un.ddnt(1),
+        idnt = un.idnt(1),
+        match = i(1, 'match'),
+        body = un.body(2, function(_, parent)
+          return math.max(0, uf.get_indent_depth(parent.snippet.captures[1]))
+        end),
+      }
+    )
   ),
 }
 

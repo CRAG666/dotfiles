@@ -127,7 +127,7 @@ return {
       },
       image = { enabled = true },
       explorer = { enabled = true },
-      quickfile = { enabled = true },
+      quickfile = { enabled = false },
       input = { enabled = true },
       notifier = {
         enabled = true,

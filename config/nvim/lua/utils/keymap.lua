@@ -1,10 +1,5 @@
 local M = {}
 
-function M.has_width_gt(cols)
-  -- Check if the windows width is greater than a given number of columns
-  return vim.fn.winwidth(0) / 2 > cols
-end
-
 function M.map(mode, lhs, rhs, opts)
   local options = { noremap = true, silent = true }
   if opts then
@@ -15,13 +10,16 @@ end
 
 function M.pmaps(mode, prefix, maps)
   mode = mode or "n"
-  for _, map in pairs(maps) do
-    local opts = { desc = map[3] }
+  vim.tbl_map(function(map)
+    local opts = {}
+    if map[3] then
+      opts.desc = map[3]
+    end
     if map[4] then
       opts = vim.tbl_extend("force", opts, map[4])
     end
     M.map(mode, prefix .. map[1], map[2], opts)
-  end
+  end, maps)
 end
 
 function M.maps(maps)

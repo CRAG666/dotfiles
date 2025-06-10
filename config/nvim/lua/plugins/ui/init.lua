@@ -18,14 +18,7 @@ return {
     'folke/which-key.nvim',
     event = 'VeryLazy',
     opts = {
-      -- window = { position = "top" },
       preset = "modern",
-      icons = {
-        breadcrumb = '»',
-        separator = '➜',
-        group = '…',
-      },
-      spelling = { enabled = true },
     },
   },
   {

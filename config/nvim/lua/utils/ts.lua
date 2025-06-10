@@ -43,8 +43,8 @@ function M.get_node(opts)
   -- 1. `opts.pos` is provided, or
   -- 2. `opts.bufnr` refers to a non-current buffer
   if
-    opts.pos
-    or opts.bufnr
+      opts.pos
+      or opts.bufnr
       and opts.bufnr ~= 0
       and opts.bufnr ~= vim.api.nvim_get_current_buf()
   then
@@ -69,7 +69,7 @@ function M.get_node(opts)
     return {
       cursor[1] - 1,
       cursor[2]
-        - (cursor[2] >= 1 and vim.startswith(vim.fn.mode(), 'i') and 1 or 0),
+      - (cursor[2] >= 1 and vim.startswith(vim.fn.mode(), 'i') and 1 or 0),
     }
   end)()
 
@@ -101,14 +101,14 @@ function M.find_node(types, opts)
       and function(nt)
         return types(nt)
       end
-    or function(nt)
-      if type(types) == 'string' then
-        types = { types }
+      or function(nt)
+        if type(types) == 'string' then
+          types = { types }
+        end
+        return vim.iter(types):any(function(t)
+          return nt:match(t)
+        end)
       end
-      return vim.iter(types):any(function(t)
-        return nt:match(t)
-      end)
-    end
 
   ---@return TSNode?
   local function reverse_traverse()
@@ -165,13 +165,13 @@ function M.lang(pos, buf)
 
   pos = pos or vim.api.nvim_win_get_cursor(0)
   return parser
-    :language_for_range({
-      pos[1] - 1,
-      pos[2],
-      pos[1] - 1,
-      pos[2],
-    })
-    :lang()
+      :language_for_range({
+        pos[1] - 1,
+        pos[2],
+        pos[1] - 1,
+        pos[2],
+      })
+      :lang()
 end
 
 return M

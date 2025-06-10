@@ -21,7 +21,11 @@ function M.unnest(input, delim)
   ---@param tbl table
   ---@param prefix? string `nil` in the initial call
   local function traverse(tbl, prefix)
-    if not tbl or type(tbl) ~= 'table' then -- base case
+    -- Don't recurse down if `tbl` is list, e.g.
+    -- for { a = { b = { 'apple', 'orange' } } }
+    -- want: { 'a.b' = { 'apple', 'orange' } }
+    -- not:  { 'a.b.1' = 'apple', 'a.b.2' = 'orange' }
+    if type(tbl) ~= 'table' or vim.islist(tbl) then -- base case
       assert(prefix)
       result[prefix] = tbl
       return

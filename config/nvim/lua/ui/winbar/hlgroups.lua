@@ -239,7 +239,7 @@ local function init()
     callback = dim_nc_wins,
   })
 
-  vim.api.nvim_create_autocmd('WinEnter', {
+  vim.api.nvim_create_autocmd({ 'BufWinEnter', 'WinEnter' }, {
     group = groupid,
     callback = function()
       -- Only dim icon if current window's winbar color is the same as

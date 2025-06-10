@@ -1,4 +1,5 @@
 local M = {}
+local uf = require('utils.snippets.funcs')
 local un = require('utils.snippets.nodes')
 local us = require('utils.snippets.snips')
 local ls = require('luasnip')
@@ -159,9 +160,12 @@ M.snippets = {
   ),
   us.msn(
     {
-      { trig = 'cs' },
       { trig = 'ca' },
+      { trig = 'cas' },
       { trig = 'case' },
+      { trig = 'sw' },
+      { trig = 'swi' },
+      { trig = 'switch' },
       common = { desc = 'case statement' },
     },
     un.fmtad(
@@ -169,31 +173,36 @@ M.snippets = {
         case <expr> in
         <idnt><pattern>)
         <body>
-        <idnt>;;
+        <idnt><idnt>;;<i>
         esac
       ]],
       {
+        idnt = un.idnt(1),
         expr = i(1, '$1'),
         pattern = i(2, '*'),
         body = un.body(3, 2, ':'),
-        idnt = un.idnt(1),
+        i = i(4),
       }
     )
   ),
-  us.sn(
+  us.snr(
     {
-      trig = 'pat',
+      trig = '^(%s*)pat',
       desc = 'case pattern',
     },
     un.fmtad(
       [[
-        <pattern>)
+        <ddnt><pattern>)
         <body>
-        ;;
+        <ddnt><idnt>;;
       ]],
       {
+        idnt = un.idnt(1),
+        ddnt = un.ddnt(1),
         pattern = i(1, '*'),
-        body = un.body(2, 1, ':'),
+        body = un.body(2, function(_, parent)
+          return math.max(0, uf.get_indent_depth(parent.snippet.captures[1]))
+        end, ':'),
       }
     )
   ),
@@ -237,34 +246,19 @@ M.snippets = {
     { trig = 'e' },
     { trig = 'ech' },
     { trig = 'echo' },
-  }, {
-    t('echo '),
-    c(1, {
-      i(nil, '"$1"'),
-      i(nil, "'$1'"),
-      i(nil, '$1'),
-    }),
-  }),
+  }, t('echo ')),
   us.msn(
     {
       { trig = 'pl' },
       { trig = 'el' },
       common = { desc = 'Print a line' },
     },
-    un.fmtad('echo "<line>"', {
+    un.fmtad("echo '<line>'", {
       line = c(1, {
-        -- stylua: ignore start
+        i(nil, '........................................'),
         i(nil, '----------------------------------------'),
         i(nil, '========================================'),
-        i(nil, '........................................'),
-        i(nil, '++++++++++++++++++++++++++++++++++++++++'),
-        i(nil, '****************************************'),
-        i(nil, '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'),
-        i(nil, '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'),
-        i(nil, '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'),
         i(nil, '########################################'),
-        i(nil, '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'),
-        -- stylua: ignore end
       }),
     })
   ),
@@ -304,7 +298,7 @@ M.snippets = {
     t('read '),
     c(1, {
       i(nil, '-r var'),
-      i(nil, '-p "Prompt: " var'),
+      i(nil, "-p 'Prompt: ' var"),
       i(nil, '-n 1 var'),
     }),
   }),

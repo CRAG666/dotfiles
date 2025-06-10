@@ -1,4 +1,6 @@
 local M = {}
+local u = require('utils')
+local uf = require('utils.snippets.funcs')
 local un = require('utils.snippets.nodes')
 local us = require('utils.snippets.snips')
 local ls = require('luasnip')
@@ -10,7 +12,7 @@ local d = ls.dynamic_node
 local r = ls.restore_node
 
 M.snippets = {
-  us.msn({
+  us.mssn({
     { trig = 'pkg' },
     { trig = 'pack' },
     common = { desc = 'package statement' },
@@ -28,11 +30,11 @@ M.snippets = {
       desc = 'print statement',
     },
     c(1, {
-      un.fmtad('fmt.Printf("<str>\\n"<args>);', {
+      un.fmtad('fmt.Printf("<str>\\n"<args>)', {
         str = r(1, 'str'),
         args = r(2, 'args'),
       }),
-      un.fmtad('fmt.Printf("<str>"<args>);', {
+      un.fmtad('fmt.Printf("<str>"<args>)', {
         str = r(1, 'str'),
         args = r(2, 'args'),
       }),
@@ -47,11 +49,11 @@ M.snippets = {
       desc = 'fmt.Printf()',
     },
     c(1, {
-      un.fmtad('fmt.Printf("<str>\\n"<args>);', {
+      un.fmtad('fmt.Printf("<str>\\n"<args>)', {
         str = r(1, 'str'),
         args = r(2, 'args'),
       }),
-      un.fmtad('fmt.Printf("<str>"<args>);', {
+      un.fmtad('fmt.Printf("<str>"<args>)', {
         str = r(1, 'str'),
         args = r(2, 'args'),
       }),
@@ -72,7 +74,7 @@ M.snippets = {
       desc = 'fprint statement',
     },
     c(1, {
-      un.fmtad('fmt.Fprintf(<w>, "<str>\\n"<args>);', {
+      un.fmtad('fmt.Fprintf(<w>, "<str>\\n"<args>)', {
         w = c(3, {
           i(nil, 'os.Stderr'),
           i(nil, 'os.Stdout'),
@@ -80,7 +82,7 @@ M.snippets = {
         str = r(1, 'str'),
         args = r(2, 'args'),
       }),
-      un.fmtad('fmt.Fprintf(<w>, "<str>"<args>);', {
+      un.fmtad('fmt.Fprintf(<w>, "<str>"<args>)', {
         w = c(3, {
           i(nil, 'os.Stderr'),
           i(nil, 'os.Stdout'),
@@ -103,7 +105,7 @@ M.snippets = {
       desc = 'fmt.Fprintf()',
     },
     c(1, {
-      un.fmtad('fmt.Fprintf(<w>, "<str>"<args>);', {
+      un.fmtad('fmt.Fprintf(<w>, "<str>"<args>)', {
         w = c(3, {
           i(nil, 'os.Stderr'),
           i(nil, 'os.Stdout'),
@@ -135,14 +137,45 @@ M.snippets = {
   ),
   us.sn(
     {
+      trig = 'l',
+      desc = 'testing.T.Log()',
+    },
+    un.fmtad('t.Log("<str>"<args>)', {
+      str = i(1),
+      args = i(2),
+    })
+  ),
+  us.sn(
+    {
+      trig = 'lf',
+      desc = 'testing.T.Logf()',
+    },
+    un.fmtad('t.Logf("<str>"<args>)', {
+      str = i(1),
+      args = i(2),
+    })
+  ),
+  us.sn(
+    {
       trig = 'ck',
       desc = 'Check a value of a variable',
     },
-    un.fmtad('"<expr_escaped>:", <expr>', {
-      expr = i(1),
-      expr_escaped = d(2, function(texts)
-        return sn(nil, i(1, vim.fn.escape(texts[1][1], '\\"')))
-      end, { 1 }),
+    c(1, {
+      un.fmtad('"<expr_escaped>:", <expr>', {
+        expr = r(1, 'expr'),
+        expr_escaped = d(2, function(texts)
+          return sn(nil, i(1, vim.fn.escape(texts[1][1], '\\"')))
+        end, { 1 }),
+      }),
+      un.fmtad(
+        '"<expr_escaped>:", func(x any) string { b, _ := json.MarshalIndent(x, "", "\\t"); return string(b) }(<expr>)',
+        {
+          expr = r(1, 'expr'),
+          expr_escaped = d(2, function(texts)
+            return sn(nil, i(1, vim.fn.escape(texts[1][1], '\\"')))
+          end, { 1 }),
+        }
+      ),
     })
   ),
   us.sn(
@@ -150,12 +183,49 @@ M.snippets = {
       trig = 'pck',
       desc = 'Check a value of a variable through fmt.Println()',
     },
-    un.fmtad('fmt.Println("<expr_escaped>:", <expr>)', {
-      expr = i(1),
-      expr_escaped = d(2, function(texts)
-        local str = vim.fn.escape(texts[1][1], '\\"')
-        return sn(nil, i(1, str))
-      end, { 1 }),
+    c(1, {
+      un.fmtad('fmt.Println("<expr_escaped>:", <expr>)', {
+        expr = r(1, 'expr'),
+        expr_escaped = d(2, function(texts)
+          local str = vim.fn.escape(texts[1][1], '\\"')
+          return sn(nil, i(1, str))
+        end, { 1 }),
+      }),
+      un.fmtad(
+        'fmt.Println("<expr_escaped>:", func(x any) string { b, _ := json.MarshalIndent(x, "", "\\t"); return string(b) }(<expr>))',
+        {
+          expr = r(1, 'expr'),
+          expr_escaped = d(2, function(texts)
+            local str = vim.fn.escape(texts[1][1], '\\"')
+            return sn(nil, i(1, str))
+          end, { 1 }),
+        }
+      ),
+    })
+  ),
+  us.sn(
+    {
+      trig = 'lck',
+      desc = 'Check a value of a variable through testing.T.Log()',
+    },
+    c(1, {
+      un.fmtad('t.Log("<expr_escaped>:", <expr>)', {
+        expr = r(1, 'expr'),
+        expr_escaped = d(2, function(texts)
+          local str = vim.fn.escape(texts[1][1], '\\"')
+          return sn(nil, i(1, str))
+        end, { 1 }),
+      }),
+      un.fmtad(
+        't.Log("<expr_escaped>:", func(x any) string { b, _ := json.MarshalIndent(x, "", "\\t"); return string(b) }(<expr>))',
+        {
+          expr = r(1, 'expr'),
+          expr_escaped = d(2, function(texts)
+            local str = vim.fn.escape(texts[1][1], '\\"')
+            return sn(nil, i(1, str))
+          end, { 1 }),
+        }
+      ),
     })
   ),
   us.sn(
@@ -165,16 +235,10 @@ M.snippets = {
     },
     un.fmtad('fmt.Println("<line>")', {
       line = c(1, {
+        i(nil, '........................................'),
         i(nil, '----------------------------------------'),
         i(nil, '========================================'),
-        i(nil, '........................................'),
-        i(nil, '++++++++++++++++++++++++++++++++++++++++'),
-        i(nil, '****************************************'),
-        i(nil, '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'),
-        i(nil, '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'),
-        i(nil, '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'),
         i(nil, '########################################'),
-        i(nil, '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'),
       }),
     })
   ),
@@ -189,16 +253,24 @@ M.snippets = {
         i(nil, 'os.Stdout'),
       }),
       line = c(1, {
+        i(nil, '........................................'),
         i(nil, '----------------------------------------'),
         i(nil, '========================================'),
-        i(nil, '........................................'),
-        i(nil, '++++++++++++++++++++++++++++++++++++++++'),
-        i(nil, '****************************************'),
-        i(nil, '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'),
-        i(nil, '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'),
-        i(nil, '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'),
         i(nil, '########################################'),
-        i(nil, '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'),
+      }),
+    })
+  ),
+  us.sn(
+    {
+      trig = 'll',
+      desc = 'Log a line',
+    },
+    un.fmtad('t.Log("<line>")', {
+      line = c(1, {
+        i(nil, '........................................'),
+        i(nil, '----------------------------------------'),
+        i(nil, '========================================'),
+        i(nil, '########################################'),
       }),
     })
   ),
@@ -316,7 +388,6 @@ M.snippets = {
   ),
   us.msn(
     {
-      { trig = 'err' },
       { trig = 'ifer' },
       { trig = 'iferr' },
       common = { desc = 'Catch error' },
@@ -407,6 +478,18 @@ M.snippets = {
     c(1, {
       un.fmtad(
         [[
+          for <idx> := range <length> {
+            <body>
+          }
+        ]],
+        {
+          idx = r(1, 'idx'),
+          length = i(2, 'length'),
+          body = un.body(3, 1),
+        }
+      ),
+      un.fmtad(
+        [[
           for <idx> := <iter>; <cond>; <update> {
           <body>
           }
@@ -458,20 +541,39 @@ M.snippets = {
       { trig = 'fori' },
       common = { desc = 'for i := ... loop' },
     },
-    un.fmtad(
-      [[
-        for <var> := <iter>; <cond>; <update> {
-        <body>
+    c(1, {
+      un.fmtad(
+        [[
+          for <idx> := range <length> {
+            <body>
+          }
+        ]],
+        {
+          idx = r(1, 'idx'),
+          length = i(2, 'length'),
+          body = un.body(3, 1),
         }
-      ]],
-      {
-        var = i(1, 'i'),
-        iter = i(2, 'iter'),
-        cond = i(3, 'cond'),
-        update = i(4, 'update'),
-        body = un.body(5, 1),
-      }
-    )
+      ),
+      un.fmtad(
+        [[
+          for <idx> := <iter>; <cond>; <update> {
+            <body>
+          }
+        ]],
+        {
+          idx = r(1, 'idx'),
+          iter = i(2, 'iter'),
+          cond = i(3, 'cond'),
+          update = i(4, 'update'),
+          body = un.body(5, 1),
+        }
+      ),
+    }),
+    {
+      stored = {
+        idx = i(nil, 'i'),
+      },
+    }
   ),
   us.msn(
     {
@@ -517,36 +619,53 @@ M.snippets = {
       }
     )
   ),
-  us.sn(
+  us.msn(
     {
-      trig = 'sw',
+      { trig = 'sw' },
+      { trig = 'swi' },
+      { trig = 'switch' },
       desc = 'switch statement',
     },
     un.fmtad(
       [[
         switch <expr> {
-        <cases>
+        case <match1>:
+        <body>
+        case <match2>:
+        <idnt><i>
+        default:
+        <idnt><d>
         }
       ]],
       {
-        expr = i(1),
-        cases = un.body(2, 0),
+        idnt = un.idnt(1),
+        expr = i(1, 'expr'),
+        match1 = i(2, 'match1'),
+        body = un.body(3, 1),
+        match2 = i(4, 'match2'),
+        i = i(5),
+        d = i(6),
       }
     )
   ),
-  us.sn(
+  us.msnr(
     {
-      trig = 'cs',
-      desc = 'case statement',
+      { trig = '^(%s*)ca' },
+      { trig = '^(%s*)cas' },
+      { trig = '^(%s*)case' },
+      common = { desc = 'case statement' },
     },
     un.fmtad(
       [[
-        case <expr>:
+        <ddnt>case <match>:
         <body>
       ]],
       {
-        expr = i(1, 'expr'),
-        body = un.body(2, 1, false),
+        ddnt = un.ddnt(1),
+        match = i(1, 'match'),
+        body = un.body(2, function(_, parent)
+          return math.max(0, uf.get_indent_depth(parent.snippet.captures[1]))
+        end),
       }
     )
   ),
@@ -653,50 +772,110 @@ M.snippets = {
       { trig = 'fn' },
       { trig = 'fun' },
       { trig = 'func' },
-      { trig = 'def' },
       common = { desc = 'Function definition' },
     },
-    c(1, {
-      un.fmtad(
-        [[
-          func <name>(<args>) <ret> {
-          <body>
-          }
-        ]],
-        {
-          name = r(1, 'name'),
-          args = r(2, 'args'),
-          ret = r(3, 'ret'),
-          body = un.body(4, 1),
-        }
-      ),
-      un.fmtad(
-        [[
-          func (<args>) <ret> {
-          <body>
-          }
-        ]],
-        {
-          args = r(1, 'args'),
-          ret = r(2, 'ret'),
-          body = un.body(3, 1),
-        }
-      ),
-      un.fmtad(
-        [[
-          func (<struct>) <name>(<args>) <ret> {
-          <body>
-          }
-        ]],
-        {
-          name = r(1, 'name'),
-          args = r(2, 'args'),
-          ret = r(3, 'ret'),
-          struct = r(4, 'struct'),
-          body = un.body(5, 1),
-        }
-      ),
-    }),
+    d(1, function()
+      if
+        u.ts.find_node({
+          'expression_list', --- []func(T) U{ func() { ... }, ... }
+          'argument_list', -- foo(func() { ... }, ...)
+          'assignment', -- val = function() ... end
+          'short_var_declaration', -- val := func() { ... }
+          'return_statement', -- return func() { ... }
+          'binary_expression', -- <expression> and func() { ... }
+          'parenthesized_expression', -- (func() { ... })()
+        }, { ignore_injections = false })
+      then
+        -- Unnamed function
+        return sn(
+          nil,
+          un.fmtad(
+            [[
+              func(<args>) <ret> {
+              <body>
+              }
+            ]],
+            {
+              args = i(1),
+              ret = i(2),
+              body = un.body(3, 1),
+            }
+          )
+        )
+      end
+
+      -- Nested functions must be anonymous
+      if
+        u.ts.find_node('function_declaration', { ignore_injections = false })
+      then
+        return sn(
+          nil,
+          c(1, {
+            un.fmtad(
+              [[
+                <name> := func(<args>) <ret> {
+                <body>
+                }
+              ]],
+              {
+                name = r(1, 'name', i(nil, 'funcName')),
+                args = r(2, 'args', i()),
+                ret = r(3, 'ret', i()),
+                body = un.body(4, 1),
+              }
+            ),
+            -- Anonymous functions must be declared beforehand to support
+            -- recursion
+            un.fmtad(
+              [[
+                var <name> = func(<args>) <ret>
+                <name> = func(<args>) <ret> {
+                <body>
+                }
+              ]],
+              {
+                name = r(1, 'name', i(nil, 'funcName')),
+                args = r(2, 'args', i()),
+                ret = r(3, 'ret', i()),
+                body = un.body(4, 1),
+              }
+            ),
+          })
+        )
+      end
+
+      -- Named function
+      return sn(
+        nil,
+        c(1, {
+          un.fmtad(
+            [[
+              func <name>(<args>) <ret> {
+              <body>
+              }
+            ]],
+            {
+              name = r(1, 'name', i(nil, 'funcName')),
+              args = r(2, 'args', i()),
+              ret = r(3, 'ret', i()),
+              body = un.body(4, 1),
+            }
+          ),
+          un.fmtad(
+            [[
+              func (<args>) <ret> {
+              <body>
+              }
+            ]],
+            {
+              args = r(1, 'args', i()),
+              ret = r(2, 'ret', i()),
+              body = un.body(3, 1),
+            }
+          ),
+        })
+      )
+    end),
     {
       common_opts = {
         stored = {
@@ -706,7 +885,7 @@ M.snippets = {
       },
     }
   ),
-  us.msn(
+  us.mssn(
     {
       { trig = 'mn' },
       { trig = 'main' },
@@ -848,6 +1027,57 @@ M.snippets = {
         stored = {
           name = i(nil, 'name'),
           type = i(nil, 'type'),
+        },
+      },
+    }
+  ),
+  us.msn(
+    {
+      { trig = 'en' },
+      { trig = 'enu' },
+      { trig = 'enum' },
+      { trig = 'iota' },
+      common = { desc = 'Enum with iota (const block)' },
+    },
+    c(1, {
+      un.fmtad(
+        [[
+          type <typeName> <baseType>
+
+          const (
+          <idnt><value1> <typeName> = iota
+          <idnt><value2><i>
+          )
+        ]],
+        {
+          idnt = un.idnt(1),
+          typeName = i(1, 'typeName'),
+          baseType = i(2, 'baseType'),
+          value1 = r(3, 'value1'),
+          value2 = r(4, 'value2'),
+          i = i(5),
+        }
+      ),
+      un.fmtad(
+        [[
+          const (
+          <idnt><value1> = iota
+          <idnt><value2><i>
+          )
+        ]],
+        {
+          idnt = un.idnt(1),
+          value1 = r(1, 'value1'),
+          value2 = r(2, 'value2'),
+          i = i(3),
+        }
+      ),
+    }),
+    {
+      common_opts = {
+        stored = {
+          value1 = i(nil, 'Value1'),
+          value2 = i(nil, 'Value2'),
         },
       },
     }
