@@ -32,6 +32,9 @@ utils.map('n', '<C-d>', '<C-d>zz')
 utils.map('n', '<C-u>', '<C-u>zz')
 utils.map('n', 'n', 'nzzzv')
 utils.map('n', 'N', 'Nzzzv')
+utils.map('n', '<CR>', ':w<CR>')
+utils.map('n', '<Tab>', vim.cmd.bnext)
+utils.map('n', '<S-Tab>', vim.cmd.bprev)
 
 -- Set ; to end line
 -- utils.map("n", "<leader>;", "<esc>mzA;<esc>`z")
@@ -100,12 +103,20 @@ local maps = {
   {
     prefix = '<leader>r',
     maps = {
-      { 'r', ':%s/',                                          'Search and [r]eplace',              opts },
-      { 'l', ':s/',                                           'Search and [r]eplace [l]ine',       opts },
-      { 'w', [[:%s/\<<C-r><C-w>\>/]],                         'Search and [r]eplace [w]ord',       opts },
-      { 'e', [[:%s/\(.*\)/\1]],                               'Search and [r]eplace extend',       opts },
-      { 'n', [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]], 'Replace word and nexts word with .' },
-      { 'N', [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]], 'Replace word and prevs word with .' },
+      { 'r', ':%s/',                                          'Search and [r]eplace',                         opts },
+      { 'l', ':s/',                                           'Search and [r]eplace [l]ine',                  opts },
+      { 'w', [[:%s/\<<C-r><C-w>\>/]],                         'Search and [r]eplace [w]ord',                  opts },
+      { 'e', [[:%s/\(.*\)/\1]],                               'Search and [r]eplace [e]xtend',                opts },
+      { 'n', [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]], 'Search and Replace word and nexts word with .' },
+      { 'N', [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgN]], 'Search and Replace word and prevs word with .' },
+    },
+  },
+  {
+    prefix = '<leader>r',
+    mode = 'v',
+    maps = {
+      { 'r', ':s/',            'Search and [r]eplace visual',          opts },
+      { 'e', [[:s/\(.*\)/\1]], 'Search and [r]eplace [e]xtend visual', opts },
     },
   },
 }

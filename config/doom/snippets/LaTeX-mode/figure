@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: myfigure
+# key: fig
+# --
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=${1:0.95}\textwidth]{figures/${2:path.pdf}}
+  \end{center}
+  \caption{$0}\label{fig:${3:label}}
+\end{figure}
