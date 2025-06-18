@@ -3,121 +3,121 @@
 json_file="$HOME/.config/hypr/scripts/marks.json"
 
 if [[ ! -f "$json_file" ]]; then
-	echo '{"marks": []}' >"$json_file"
+    echo '{"marks": []}' >"$json_file"
 fi
 
 add_mark() {
-	active=$(hyprctl activewindow -j)
-	if [[ -z "$active" ]]; then
-		echo "No active window detected."
-		return
-	fi
+    active=$(hyprctl activewindow -j)
+    if [[ -z "$active" ]]; then
+        echo "No active window detected."
+        return
+    fi
 
-	address=$(echo "$active" | jq -r '.address')
+    address=$(echo "$active" | jq -r '.address')
 
-	if jq -e --arg address "$address" '.marks[] | select(.address == $address)' "$json_file" >/dev/null 2>&1; then
-		current_mark=$(jq -r --arg address "$address" '.marks[] | select(.address == $address).mark' "$json_file")
-		hyprctl dispatch scroller:marksdelete "$current_mark"
-		jq --arg address "$address" 'del(.marks[] | select(.address == $address))' "$json_file" >tmp.json && mv tmp.json "$json_file"
-		return
-	fi
+    if jq -e --arg address "$address" '.marks[] | select(.address == $address)' "$json_file" >/dev/null 2>&1; then
+        current_mark=$(jq -r --arg address "$address" '.marks[] | select(.address == $address).mark' "$json_file")
+        hyprctl dispatch scroller:marksdelete "$current_mark"
+        jq --arg address "$address" 'del(.marks[] | select(.address == $address))' "$json_file" >tmp.json && mv tmp.json "$json_file"
+        return
+    fi
 
-	new_mark=$(yad --entry --title="Marks" --text="Insert Mark" --no-buttons --center)
-	if [[ -z "$new_mark" ]]; then
-		yad --text="Not valid input." --title="Error" --center --no-buttons --timeout=3
-		return
-	elif [[ ${#new_mark} -ne 1 ]]; then
-		yad --text="Only one character allowed." --title="Error" --center --no-buttons --timeout=3
-		return
-	fi
+    new_mark=$(yad --entry --title="Marks" --text="Insert Mark" --no-buttons --center)
+    if [[ -z "$new_mark" ]]; then
+        yad --text="Not valid input." --title="Error" --center --no-buttons --timeout=3
+        return
+    elif [[ ${#new_mark} -ne 1 ]]; then
+        yad --text="Only one character allowed." --title="Error" --center --no-buttons --timeout=3
+        return
+    fi
 
-	if jq -e --arg mark "$new_mark" '.marks[] | select(.mark == $mark)' "$json_file" >/dev/null 2>&1; then
-		jq --arg mark "$new_mark" 'del(.marks[] | select(.mark == $mark))' "$json_file" >tmp.json && mv tmp.json "$json_file"
-		hyprctl dispatch scroller:marksdelete "$new_mark"
-	fi
+    if jq -e --arg mark "$new_mark" '.marks[] | select(.mark == $mark)' "$json_file" >/dev/null 2>&1; then
+        jq --arg mark "$new_mark" 'del(.marks[] | select(.mark == $mark))' "$json_file" >tmp.json && mv tmp.json "$json_file"
+        hyprctl dispatch scroller:marksdelete "$new_mark"
+    fi
 
-	title=$(echo "$active" | jq -r '.initialTitle')
+    title=$(echo "$active" | jq -r '.initialTitle')
 
-	jq --arg address "$address" --arg mark "$new_mark" --arg title "$title" \
-		'.marks += [{"address": $address, "mark": $mark, "title": $title}]' "$json_file" >tmp.json && mv tmp.json "$json_file"
-	hyprctl dispatch scroller:marksadd "$new_mark"
+    jq --arg address "$address" --arg mark "$new_mark" --arg title "$title" \
+        '.marks += [{"address": $address, "mark": $mark, "title": $title}]' "$json_file" >tmp.json && mv tmp.json "$json_file"
+    hyprctl dispatch scroller:marksadd "$new_mark"
 }
 
 delete_mark() {
-	address=$(hyprctl activewindow -j | jq -r '.address')
+    address=$(hyprctl activewindow -j | jq -r '.address')
 
-	if jq -e --arg address "$address" '.marks[] | select(.address == $address)' "$json_file" >/dev/null 2>&1; then
-		mark=$(jq -r --arg address "$address" '.marks[] | select(.address == $address).mark' "$json_file")
-		hyprctl dispatch scroller:marksdelete "$mark"
-		jq --arg address "$address" 'del(.marks[] | select(.address == $address))' "$json_file" >tmp.json && mv tmp.json "$json_file"
-	fi
+    if jq -e --arg address "$address" '.marks[] | select(.address == $address)' "$json_file" >/dev/null 2>&1; then
+        mark=$(jq -r --arg address "$address" '.marks[] | select(.address == $address).mark' "$json_file")
+        hyprctl dispatch scroller:marksdelete "$mark"
+        jq --arg address "$address" 'del(.marks[] | select(.address == $address))' "$json_file" >tmp.json && mv tmp.json "$json_file"
+    fi
 }
 
 show_marks() {
-	data=$(jq -r '.marks[] | [.mark, .title] | @tsv' "$json_file" 2>/dev/null)
-	if [[ -z "$data" ]]; then
-		wtype -k escape
-		return
-	fi
-	yad_args=()
-	while IFS=$'\t' read -r mark title; do
-		yad_args+=("$mark" "$title")
-	done <<<"$data"
-	selected=$(yad --list \
-		--title="Marks" \
-		--text="Select a mark:" \
-		--no-buttons \
-		--center \
-		--width=500 \
-		--height=950 \
-		--column="Mark" \
-		--column="Title" \
-		"${yad_args[@]}")
-	if [[ -n "$selected" ]]; then
-		mark=$(echo "$selected" | awk -F'|' '{print $1}')
-		hyprctl dispatch scroller:marksvisit "$mark"
-	fi
-	wtype -k escape
+    data=$(jq -r '.marks[] | [.mark, .title] | @tsv' "$json_file" 2>/dev/null)
+    if [[ -z "$data" ]]; then
+        wtype -k escape
+        return
+    fi
+    yad_args=()
+    while IFS=$'\t' read -r mark title; do
+        yad_args+=("$mark" "$title")
+    done <<<"$data"
+    selected=$(yad --list \
+        --title="Marks" \
+        --text="Select a mark:" \
+        --no-buttons \
+        --bottom \
+        --width=500 \
+        --height=950 \
+        --column="Mark" \
+        --column="Title" \
+        "${yad_args[@]}")
+    if [[ -n "$selected" ]]; then
+        mark=$(echo "$selected" | awk -F'|' '{print $1}')
+        hyprctl dispatch scroller:marksvisit "$mark"
+    fi
+    wtype -k escape
 }
 
 go_mark() {
-	local mark=$1
-	killall -9 yad 2>/dev/null
-	hyprctl dispatch scroller:marksvisit "$mark"
+    local mark=$1
+    killall -9 yad 2>/dev/null
+    hyprctl dispatch scroller:marksvisit "$mark"
 }
 
 clean_marks() {
-	echo '{"marks": []}' >"$json_file"
+    echo '{"marks": []}' >"$json_file"
 }
 
 show_help() {
-	echo "Usage: $0 -t | -d | -s | -g <mark> | -c"
-	echo "  -t        Toggle mark (Add or delete mark)"
-	echo "  -d        Delete a mark in current window"
-	echo "  -s        Show all marks"
-	echo "  -g <mark> Go to a specific mark"
-	echo "  -c        Clean all marks"
-	exit 1
+    echo "Usage: $0 -t | -d | -s | -g <mark> | -c"
+    echo "  -t        Toggle mark (Add or delete mark)"
+    echo "  -d        Delete a mark in current window"
+    echo "  -s        Show all marks"
+    echo "  -g <mark> Go to a specific mark"
+    echo "  -c        Clean all marks"
+    exit 1
 }
 
 while getopts "tdsg:c" opt; do
-	case "$opt" in
-	t) add_mark ;;
-	d) delete_mark ;;
-	s) show_marks ;;
-	g)
-		if [[ -n $OPTARG ]]; then
-			go_mark "$OPTARG"
-		else
-			echo "Error: -g requires a mark."
-			exit 1
-		fi
-		;;
-	c) clean_marks ;;
-	*) show_help ;;
-	esac
+    case "$opt" in
+    t) add_mark ;;
+    d) delete_mark ;;
+    s) show_marks ;;
+    g)
+        if [[ -n $OPTARG ]]; then
+            go_mark "$OPTARG"
+        else
+            echo "Error: -g requires a mark."
+            exit 1
+        fi
+        ;;
+    c) clean_marks ;;
+    *) show_help ;;
+    esac
 done
 
 if [[ $OPTIND -eq 1 ]]; then
-	show_help
+    show_help
 fi

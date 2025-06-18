@@ -28,7 +28,7 @@ readonly HYPR_BORDER_DEFAULT=2 # Valor predeterminado para el borde de Hyprland
 
 # Directorios de búsqueda de fondos de pantalla (puede ser una lista separada por espacios o una ruta única)
 # Ejemplo: WALLPAPER_PATHS=("${HOME}/Imágenes/Fondos" "${HOME}/OtrosFondos")
-WALLPAPER_PATHS=("${HOME}/Imágenes/wallpaperCicle") # Original
+WALLPAPER_PATHS=("/mnt/home/Imágenes/wallpaperCicle") # Original
 
 #// Crear directorio de miniaturas si no existe
 mkdir -p "${THUMB_DIR}"

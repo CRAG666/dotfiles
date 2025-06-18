@@ -33,10 +33,10 @@ return {
         desc = '[A]i: [F]ix code',
       },
       {
-        '<leader>ae',
+        '<leader>ac',
         [[:CodeCompanion /explain ]],
         mode = 'x',
-        desc = '[A]i: [E]xplain code',
+        desc = '[A]i: Explain [c]ode',
       },
       {
         '<leader>at',
@@ -51,16 +51,22 @@ return {
         desc = '[A]i: Writting Assistant',
       },
       {
-        '<leader>ai',
+        '<leader>ae',
         [[:CodeCompanion /buffer #translate <cr>]],
         mode = 'x',
-        desc = '[A]i: Translate to Engl[i]sh',
+        desc = '[A]i: Translate to [e]nglish',
       },
       {
         '<leader>as',
         [[:CodeCompanion /buffer #traducir <cr>]],
         mode = 'x',
-        desc = '[A]i: Translate to Engl[i]sh',
+        desc = '[A]i: Translate to [s]panish',
+      },
+      {
+        '<leader>ag',
+        [[:CodeCompanion /buffer #grammar <cr>]],
+        mode = 'x',
+        desc = '[A]i: [G]rammar fix',
       },
       {
         '<leader>ab',
@@ -147,13 +153,70 @@ return {
           variables = {
             ['wassistant'] = {
               ---@return string
-              -- Actúa como un escritor de articulos cientificos experimentado, enfocándote en mejorar la claridad y legibilidad del texto. Eres responsable de revisar un el texto. Simplifica las oraciones sin perder el significado ni los matices originales. Usa la puntuación adecuada, simplifica el lenguaje y elimina cualquier jerga innecesaria o palabras de relleno. Asegúrate de que el contenido se ajuste a una guía de estilo coherente y conserve su propósito original, a la vez que sea más fácil de leer y comprender.
               callback = function()
                 return [[
-                Como escritor experimentado en articulos cientificos, tu tarea es realizar una revisión final del texto. Identifica y corrige cualquier error tipográfico, gramatical, redacción inapropiada u otros pequeños errores que se hayan pasado por alto. Ademas enfocate en mejorar la claridad y legibilidad del texto. Eres responsable de revisar un el texto. Usa la puntuación adecuada, simplifica el lenguaje y elimina cualquier jerga innecesaria o palabras de relleno. Asegúrate de que el contenido se ajuste a una guía de estilo coherente en materia cientifica y conserve su propósito original, a la vez que sea más fácil de leer y comprender.
-                ]]
+                <prompt>
+                  <role>
+                    Actúa como un escritor experimentado en artículos científicos, especializado en la revisión y edición de textos académicos.
+                  </role>
+                  <task>
+                    Realiza una revisión final del texto proporcionado, corrigiendo errores y mejorando su calidad para garantizar claridad, legibilidad y adherencia a estándares científicos.
+                  </task>
+                  <instructions>
+                    <step1>
+                      Identifica y corrige errores tipográficos, gramaticales, de puntuación o de redacción inapropiada.
+                    </step1>
+                    <step2>
+                      Simplifica el lenguaje, eliminando jerga innecesaria, palabras de relleno o construcciones complejas que dificulten la comprensión.
+                    </step2>
+                    <step3>
+                      Mejora la claridad y legibilidad, asegurando que el texto sea accesible para una audiencia académica multidisciplinar sin comprometer su rigor científico.
+                    </step3>
+                    <step4>
+                      Asegúrate de que el texto cumpla con una guía de estilo científica coherente (por ejemplo, APA, AMA o la especificada por el usuario).
+                    </step4>
+                    <step5>
+                      Conserva el propósito original del contenido, manteniendo la precisión técnica y el enfoque científico.
+                    </step5>
+                  </instructions>
+                  <requirements>
+                    - Usa puntuación adecuada y consistente según la guía de estilo seleccionada.
+                    - Prioriza un lenguaje técnico preciso pero accesible, evitando ambigüedades.
+                    - Mantén el tono formal y objetivo propio de la escritura científica.
+                  </requirements>
+                  <format>Devuelve el texto revisado con correcciones y mejoras aplicadas.</format>
+                </prompt>
+              ]]
               end,
               description = 'My Cientific Writting assistant',
+              opts = {
+                contains_code = true,
+              },
+            },
+            ['grammar'] = {
+              ---@return string
+              callback = function()
+                return
+                [[
+                <prompt>
+                  <instruction>
+                    Analiza el siguiente <text-input>texto proporcionado</text-input> y corrige cualquier error <orthography>ortográfico</orthography> o <grammar>gramatical</grammar> que encuentres.
+                  </instruction>
+                  <guidelines>
+                    <guideline>
+                      Mantén el <style>estilo</style> y el <tone>tono</tone> original del texto.
+                    </guideline>
+                    <guideline>
+                      Mejora la <clarity>claridad</clarity> y la <coherence>coherencia</coherence> del mensaje solo si es estrictamente necesario, sin alterar significativamente el <content>contenido original</content>.
+                    </guideline>
+                  </guidelines>
+                  <output>
+                    Devuelve el texto corregido.
+                  </output>
+                </prompt>
+                ]]
+              end,
+              description = 'Grammar Checker',
               opts = {
                 contains_code = true,
               },
@@ -162,7 +225,27 @@ return {
               ---@return string
               callback = function()
                 return
-                [[Por favor, traduce el siguiente texto al inglés de manera precisa y natural, evitando traducciones literales. Asegúrate de que la traducción suene fluida y respete el estilo y las expresiones propias del inglés, transmitiendo correctamente el significado y el tono del texto original. Revisa la traducción para eliminar cualquier error gramatical o de vocabulario, y garantiza que el texto sea coherente y profesional.]]
+                [[
+                <prompt>
+                  <instruction>
+                    Traduce el siguiente <text-input>texto proporcionado</text-input> al <target-language>inglés</target-language> de manera precisa y natural, evitando traducciones literales.
+                  </instruction>
+                  <guidelines>
+                    <guideline>
+                      Asegúrate de que la traducción sea <fluency>fluida</fluency> y utilice <idiomatic-expressions>expresiones idiomáticas propias del inglés</idiomatic-expressions>, respetando el <style>estilo</style> y el <tone>tono</tone> del texto original.
+                    </guideline>
+                    <guideline>
+                      Garantiza que la traducción transmita correctamente el <meaning>significado</meaning> del texto original y mantenga su <intent>propósito comunicativo</intent>.
+                    </guideline>
+                    <guideline>
+                      Revisa la traducción para eliminar errores de <grammar>gramática</grammar>, <vocabulary>vocabulario</vocabulary> o <coherence>coherencia</coherence>, asegurando un resultado <professional>profesional</professional>.
+                    </guideline>
+                  </guidelines>
+                  <output>
+                    Proporciona la traducción final en inglés.
+                  </output>
+                </prompt>
+                ]]
               end,
               description = 'Translate to English',
               opts = {
@@ -173,7 +256,30 @@ return {
               ---@return string
               callback = function()
                 return
-                [[Por favor, traduce el siguiente texto al español de manera precisa y natural, evitando traducciones literales. Asegúrate de que la traducción suene fluida y respete el estilo y las expresiones propias del español, transmitiendo correctamente el significado y el tono del texto original. Revisa la traducción para eliminar cualquier error gramatical o de vocabulario, y garantiza que el texto sea coherente y profesional.]]
+                [[
+                <prompt>
+                  <instruction>
+                    Traduce el siguiente <text-input>texto proporcionado</text-input> al <target-language>español</target-language> de manera precisa y natural, evitando traducciones literales.
+                  </instruction>
+                  <guidelines>
+                    <guideline>
+                      Asegúrate de que la traducción sea <fluency>fluida</fluency> y utilice <idiomatic-expressions>expresiones idiomáticas propias del español</idiomatic-expressions>, respetando el <style>estilo</style> y el <tone>tono</tone> del texto original.
+                    </guideline>
+                    <guideline>
+                      Garantiza que la traducción transmita correctamente el <meaning>significado</meaning> del texto original y mantenga su <intent>propósito comunicativo</intent>.
+                    </guideline>
+                    <guideline>
+                      Revisa la traducción para eliminar errores de <grammar>gramática</grammar>, <vocabulary>vocabulario</vocabulary> o <coherence>coherencia</coherence>, asegurando un resultado <professional>profesional</professional>.
+                    </guideline>
+                    <guideline>
+                      Considera el <context>contexto cultural</context> del español para adaptar términos o expresiones cuando sea necesario, priorizando un lenguaje natural y apropiado para el público hispanohablante.
+                    </guideline>
+                  </guidelines>
+                  <output>
+                    Proporciona la traducción final en español.
+                  </output>
+                </prompt>
+                ]]
               end,
               description = 'Translate to English',
               opts = {

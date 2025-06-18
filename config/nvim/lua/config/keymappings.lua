@@ -25,6 +25,8 @@ key.map('n', '<CR>', ':w<CR>')
 key.map('n', '<Tab>', vim.cmd.bnext)
 key.map('n', '<S-Tab>', vim.cmd.bprev)
 key.map("n", "yc", "yygccp", { remap = true })
+key.map('x', 'z/', '<C-\\><C-n>`</\\%V', { desc = 'Search forward within visual selection' })
+key.map('x', 'z?', '<C-\\><C-n>`>?\\%V', { desc = 'Search backward within visual selection' })
 
 -- No yank
 key.map('n', 'x', '"_x')
