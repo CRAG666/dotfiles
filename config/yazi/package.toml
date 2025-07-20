@@ -1,6 +1,6 @@
 [[plugin.deps]]
 use = "yazi-rs/plugins:no-status"
-rev = "aeca767"
+rev = "1ab21d4"
 hash = "3e023d31f29201efdac2a6ae35fedb78"
 
 [[plugin.deps]]
