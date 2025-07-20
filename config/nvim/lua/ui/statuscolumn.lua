@@ -283,15 +283,15 @@ local augroup = vim.api.nvim_create_augroup('StatusColumn', {})
 vim.api.nvim_create_autocmd('WinClosed', {
   group = augroup,
   desc = 'Clear per window shared data cache.',
-  callback = function(info)
-    shared[tonumber(info.match)] = nil
+  callback = function(args)
+    shared[tonumber(args.match)] = nil
   end,
 })
 vim.api.nvim_create_autocmd('BufDelete', {
   group = augroup,
   desc = 'Clear per buffer lnum width cache.',
-  callback = function(info)
-    lnumw_cache[info.buf] = nil
+  callback = function(args)
+    lnumw_cache[args.buf] = nil
   end,
 })
 

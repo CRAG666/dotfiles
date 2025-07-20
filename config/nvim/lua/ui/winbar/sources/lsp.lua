@@ -84,13 +84,16 @@ local symbol_kind_names = setmetatable({
 })
 -- stylua: ignore end
 
+---@alias lsp_symbol_type_t 'SymbolInformation'|'DocumentSymbol'
+
 ---Return type of the symbol table
 ---@param symbols lsp_symbol_t[] symbol table
----@return string? symbol type
+---@return lsp_symbol_type_t? type symbol type
 local function symbol_type(symbols)
   if symbols[1] and symbols[1].location then
     return 'SymbolInformation'
-  elseif symbols[1] and symbols[1].range then
+  end
+  if symbols[1] and symbols[1].range then
     return 'DocumentSymbol'
   end
 end
@@ -128,7 +131,9 @@ local function convert_document_symbol(
           return convert_document_symbol(child, buf, win)
         end, document_symbol.children)
         return self.children
-      elseif k == 'siblings' then
+      end
+
+      if k == 'siblings' then
         if not siblings then
           return nil
         end
@@ -234,42 +239,69 @@ local function update_symbols(buf, ttl)
     return
   end
 
-  local function _defer_update()
+  local function defer_update()
     vim.defer_fn(function()
       update_symbols(buf, ttl - 1)
     end, configs.opts.sources.lsp.request.interval)
   end
 
-  local client = vim.tbl_filter(
-    function(client)
-      return client:supports_method('textDocument/documentSymbol')
-    end,
-    vim.lsp.get_clients({
-      bufnr = buf,
-    })
-  )[1]
+  ---@type vim.lsp.Client
+  local client = vim.lsp.get_clients({
+    bufnr = buf,
+    method = 'textDocument/documentSymbol',
+  })[1]
   if not client then
-    _defer_update()
+    defer_update()
     return
   end
 
-  client:request(
+  ---@diagnostic disable: param-type-mismatch, inject-field
+  -- Cancel previous request before making new request since
+  -- responses from outdated requests are not helpful, fix
+  -- https://github.com/Bekaboo/dropbar.nvim/issues/249
+  if client._winbar_request_id then
+    client:cancel_request(client._winbar_request_id)
+  end
+
+  local _, request_id = client:request(
     'textDocument/documentSymbol',
     { textDocument = vim.lsp.util.make_text_document_params(buf) },
     function(err, symbols, _)
       if err or not symbols or vim.tbl_isempty(symbols) then
-        _defer_update()
+        defer_update()
         return
       end
+
+      -- Unify symbols to common format and sort by position since LSP
+      -- responses can be disordered i.e. later symbols can appear first
       lsp_buf_symbols[buf] = unify(symbols)
+
+      ---@param s1 lsp_document_symbol_t
+      ---@param s2 lsp_document_symbol_t
+      ---@return boolean precedes true if `s1` appears before `s2`
+      table.sort(lsp_buf_symbols[buf], function(s1, s2)
+        local l1, l2, c1, c2 =
+          s1.range.start.line,
+          s2.range.start.line,
+          s1.range.start.character,
+          s2.range.start.character
+
+        return l1 < l2 or l1 == l2 and c1 <= c2
+      end)
     end,
     buf
   )
+  client._winbar_request_id = request_id
+  ---@diagnostic enable: param-type-mismatch, inject-field
 end
 
 ---Attach LSP symbol getter to buffer
 ---@param buf integer buffer handler
 local function attach(buf)
+  if not vim.api.nvim_buf_is_valid(buf) then
+    return
+  end
+
   if vim.b[buf].winbar_lsp_attached then
     return
   end
@@ -279,8 +311,8 @@ local function attach(buf)
     vim.api.nvim_create_autocmd(configs.opts.bar.update_events.buf, {
       group = groupid,
       buffer = buf,
-      callback = function(info)
-        update_symbols(info.buf)
+      callback = function(args)
+        update_symbols(args.buf)
       end,
     })
 end
@@ -288,6 +320,10 @@ end
 ---Detach LSP symbol getter from buffer
 ---@param buf integer buffer handler
 local function detach(buf)
+  if not vim.api.nvim_buf_is_valid(buf) then
+    return
+  end
+
   if vim.b[buf].winbar_lsp_attached then
     vim.api.nvim_del_autocmd(vim.b[buf].winbar_lsp_attached)
     vim.b[buf].winbar_lsp_attached = nil
@@ -305,43 +341,50 @@ local function init()
     return
   end
   initialized = true
+
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    local clients = vim.tbl_filter(function(client)
-      return client:supports_method('textDocument/documentSymbol')
-    end, vim.lsp.get_clients({ bufnr = buf }))
-    if not vim.tbl_isempty(clients) then
+    if
+      not vim.tbl_isempty(vim.lsp.get_clients({
+        bufnr = buf,
+        method = 'textDocument/documentSymbol',
+      }))
+    then
       attach(buf)
     end
   end
+
   vim.api.nvim_create_autocmd({ 'LspAttach' }, {
     desc = 'Attach LSP symbol getter to buffer when an LS that supports documentSymbol attaches.',
     group = groupid,
-    callback = function(info)
-      local client = vim.lsp.get_client_by_id(info.data.client_id)
+    callback = function(args)
+      local client = vim.lsp.get_client_by_id(args.data.client_id)
       if client and client:supports_method('textDocument/documentSymbol') then
-        attach(info.buf)
+        attach(args.buf)
       end
     end,
   })
+
   vim.api.nvim_create_autocmd({ 'LspDetach' }, {
     desc = 'Detach LSP symbol getter from buffer when no LS supporting documentSymbol is attached.',
     group = groupid,
-    callback = function(info)
+    -- Schedule to wait for lsp that triggers `LspDetach` to actually detach
+    callback = vim.schedule_wrap(function(args)
       if
-        vim.tbl_isempty(vim.tbl_filter(function(client)
-          return client:supports_method('textDocument/documentSymbol')
-            and client.id ~= info.data.client_id
-        end, vim.lsp.get_clients({ bufnr = info.buf })))
+        vim.tbl_isempty(vim.lsp.get_clients({
+          bufnr = args.buf,
+          method = 'textDocument/documentSymbol',
+        }))
       then
-        detach(info.buf)
+        detach(args.buf)
       end
-    end,
+    end),
   })
+
   vim.api.nvim_create_autocmd({ 'BufDelete', 'BufUnload', 'BufWipeOut' }, {
     desc = 'Detach LSP symbol getter from buffer on buffer delete/unload/wipeout.',
     group = groupid,
-    callback = function(info)
-      detach(info.buf)
+    callback = function(args)
+      detach(args.buf)
     end,
   })
 end
@@ -361,6 +404,4 @@ local function get_symbols(buf, win, cursor)
   return result
 end
 
-return {
-  get_symbols = get_symbols,
-}
+return { get_symbols = get_symbols }

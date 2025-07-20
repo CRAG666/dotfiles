@@ -42,35 +42,36 @@ M.config = {
   -- Works with go.mod packages and sub packages
   {
     type = 'delve',
-    name = 'Debug test (go.mod)',
+    name = 'Debug test (file)',
     request = 'launch',
     mode = 'test',
     program = './${relativeFileDirname}',
   },
   {
     type = 'delve',
-    name = 'Debug test (single test func)',
+    name = 'Debug test (single method)',
     request = 'launch',
     mode = 'test',
     program = './${relativeFileDirname}',
     args = function()
-      local test_fn = vim.fn.expand('<cword>') ---@type string
-      if not vim.startswith(test_fn, 'Test') then
-        test_fn = vim.api.nvim_get_current_line():match('func%s+(Test%w*)')
-          or ''
+      local test_cmd = require('utils.test').get_test_cmd()
+      if not test_cmd then
+        return
       end
-      if not vim.startswith(test_fn, 'Test') then
-        vim.ui.input({
-          prompt = 'Enter test function name: ',
-        }, function(input)
-          test_fn = input
-        end)
-      end
-      return {
-        '-test.v',
-        '-test.run',
-        test_fn,
-      }
+      -- Transform "go test -v -failfast -run 'TestMain$' ./."
+      -- to { '-test.v', '-test.failfast', '-test.run', 'TestMain$', './.' }
+      -- See https://stackoverflow.com/a/67421231
+      --
+      -- HACK: this only split the command on spaces and does not handle args
+      -- with escaped spaces or quoted args
+      return vim.split(
+        test_cmd
+          :gsub("'", '')
+          :gsub('.*go test%s+', '')
+          :gsub('%-(%w+)', '-test.%1'),
+        ' ',
+        { trimempty = true }
+      )
     end,
   },
 }

@@ -227,8 +227,8 @@ local function attach(buf)
       desc = 'Update markdown heading symbols on buffer change.',
       group = groupid,
       buffer = buf,
-      callback = function(info)
-        parse_buf(info.buf)
+      callback = function(args)
+        parse_buf(args.buf)
       end,
     })
   parse_buf(buf)
@@ -262,20 +262,20 @@ local function init()
   vim.api.nvim_create_autocmd({ 'FileType' }, {
     desc = 'Attach markdown heading parser to markdown buffers.',
     group = groupid,
-    callback = function(info)
-      if info.match == 'markdown' then
-        attach(info.buf)
+    callback = function(args)
+      if args.match == 'markdown' then
+        attach(args.buf)
       else
-        detach(info.buf)
+        detach(args.buf)
       end
     end,
   })
   vim.api.nvim_create_autocmd({ 'BufDelete', 'BufUnload', 'BufWipeOut' }, {
     desc = 'Detach markdown heading parser from buffer on buffer delete/unload/wipeout.',
     group = groupid,
-    callback = function(info)
-      if vim.bo[info.buf].filetype == 'markdown' then
-        detach(info.buf)
+    callback = function(args)
+      if vim.bo[args.buf].filetype == 'markdown' then
+        detach(args.buf)
       end
     end,
   })
@@ -324,6 +324,4 @@ local function get_symbols(buf, win, cursor)
   return result
 end
 
-return {
-  get_symbols = get_symbols,
-}
+return { get_symbols = get_symbols }

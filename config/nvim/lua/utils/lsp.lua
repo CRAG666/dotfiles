@@ -33,13 +33,16 @@ M.default_config = {
 ---@field requires? string[] additional executables required to start the language server
 ---@field buf_support? boolean whether the language server works on buffers without corresponding files
 
+-- Avoid recursion after overriding
+local lsp_start = vim.lsp.start
+
 ---Wrapper of `vim.lsp.start()`, starts and attaches LSP client for
 ---the current buffer
 ---@param config lsp_client_config_t
 ---@param opts table?
 ---@return integer? client_id id of attached client or nil if failed
 function M.start(config, opts)
-  if vim.b.bigfile or vim.bo.bt == 'nofile' or vim.g.vscode then
+  if not config or vim.b.bigfile or vim.bo.bt == 'nofile' or vim.g.vscode then
     return
   end
 
@@ -68,6 +71,7 @@ function M.start(config, opts)
     -- For some special buffers like `fugitive:///xxx`, `vim.fs.root()`
     -- returns '.' as result, which is NOT a valid directory
     return dir ~= nil
+        and dir ~= ''
         and dir ~= '.'
         and vim.fn.isdirectory(dir) == 1
         -- Some language servers e.g. lua-language-server, refuse
@@ -78,18 +82,20 @@ function M.start(config, opts)
       or nil
   end
 
-  return vim.lsp.start(
+  local root_dir = validate(
+    require('utils.fs').root(
+      bufname,
+      vim.list_extend(
+        config.root_markers or {},
+        M.default_config.root_markers or {}
+      )
+    )
+  ) or validate(vim.fs.dirname(bufname)) or vim.fn.getcwd(0)
+
+  return lsp_start(
     vim.tbl_deep_extend('keep', config or {}, {
       name = name,
-      root_dir = validate(
-        vim.fs.root(
-          bufname,
-          vim.list_extend(
-            config.root_markers or {},
-            M.default_config.root_markers or {}
-          )
-        )
-      ),
+      root_dir = root_dir,
     }, M.default_config),
     opts
   )
@@ -179,45 +185,45 @@ function M.range_contains(range1, range2, strict)
   local end_char2 = range2['end'].character
   -- stylua: ignore start
   return (
-    start_line2 > start_line1
-    or (start_line2 == start_line1
-        and (
-          start_char2 > start_char1
-          or not strict and start_char2 == start_char1
+        start_line2 > start_line1
+        or (start_line2 == start_line1
+          and (
+            start_char2 > start_char1
+            or not strict and start_char2 == start_char1
+          )
         )
       )
-    )
-    and (
-      start_line2 < end_line1
-      or (
-        start_line2 == end_line1
+      and (
+        start_line2 < end_line1
+        or (
+          start_line2 == end_line1
           and (
             start_char2 < end_char1
             or not strict and start_char2 == end_char1
           )
         )
       )
-    and (
-      end_line2 > start_line1
-      or (
-        end_line2 == start_line1
+      and (
+        end_line2 > start_line1
+        or (
+          end_line2 == start_line1
           and (
             end_char2 > start_char1
             or not strict and end_char2 == start_char1
           )
         )
       )
-    and (
-      end_line2 < end_line1
-      or (
-        end_line2 == end_line1
+      and (
+        end_line2 < end_line1
+        or (
+          end_line2 == end_line1
           and (
             end_char2 < end_char1
             or not strict and end_char2 == end_char1
           )
         )
       )
-  -- stylua: ignore off
+  -- stylua: ignore end
 end
 
 ---Check if cursor is in range

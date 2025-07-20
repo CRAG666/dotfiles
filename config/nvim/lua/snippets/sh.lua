@@ -1,7 +1,9 @@
 local M = {}
+local u = require('utils')
 local uf = require('utils.snippets.funcs')
 local un = require('utils.snippets.nodes')
 local us = require('utils.snippets.snips')
+local conds = require('utils.snippets.conds')
 local ls = require('luasnip')
 local sn = ls.snippet_node
 local t = ls.text_node
@@ -255,8 +257,8 @@ M.snippets = {
     },
     un.fmtad("echo '<line>'", {
       line = c(1, {
-        i(nil, '........................................'),
         i(nil, '----------------------------------------'),
+        i(nil, '........................................'),
         i(nil, '========================================'),
         i(nil, '########################################'),
       }),
@@ -351,10 +353,70 @@ M.snippets = {
       cmd = i(1, 'cleanup'),
       sig = c(2, {
         i(nil, 'EXIT'),
-        i(nil, 'SIGINT SIGTERM'),
+        i(nil, 'INT'),
+        i(nil, 'TERM'),
+        i(nil, 'QUIT'),
+        i(nil, 'HUP'),
         i(nil, 'ERR'),
       }),
     })
+  ),
+  us.sn(
+    {
+      trig = 'cd',
+      desc = 'cd with exit or return',
+    },
+    d(1, function()
+      if u.ts.find_node({ 'function_definition' }) then
+        return sn(
+          nil,
+          un.fmtad('cd <dir> || return', {
+            dir = i(1, 'dir'),
+          })
+        )
+      end
+      return sn(
+        nil,
+        un.fmtad('cd <dir> || exit', {
+          dir = i(1, 'dir'),
+        })
+      )
+    end)
+  ),
+  us.msn(
+    {
+      { trig = 'si' },
+      { trig = 'sil' },
+      common = { desc = 'Run command silently' },
+    },
+    c(1, {
+      t('>/dev/null 2>&1'), -- suppress stdout and error
+      t('2>/dev/null'), -- suppress error only
+      t('>/dev/null'), -- suppress stdout only
+    })
+  ),
+  us.msn({
+    { trig = 'ne' },
+    { trig = 'noe' },
+    { trig = 'noerr' },
+    common = { desc = 'Suppress error' },
+  }, t('2>/dev/null')),
+  us.sn(
+    {
+      trig = 'err',
+      desc = 'Print to stderr',
+    },
+    d(1, function()
+      if not conds.at_line_start() then
+        return sn(nil, t('>&2'))
+      end
+      return sn(
+        nil,
+        un.fmtad('echo "<msg>" >>&2', {
+          msg = i(1, 'msg'),
+        })
+      )
+    end)
   ),
 }
 

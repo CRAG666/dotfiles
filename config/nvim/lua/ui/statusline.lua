@@ -12,7 +12,7 @@ local diag_severity_map = {
   [4] = 'HINT',
   ERROR = 1,
   WARN = 2,
-  INFO = 3,
+  args = 3,
   HINT = 4,
 }
 
@@ -139,42 +139,23 @@ function _G._statusline.gitdiff()
     return ''
   end
 
-  local parts = {}
+  local icon_added = utils.stl.escape(vim.trim(icons.git.Added))
+  local icon_changed = utils.stl.escape(vim.trim(icons.git.Modified))
+  local icon_removed = utils.stl.escape(vim.trim(icons.git.Removed))
 
-  if added > 0 then
-    table.insert(
-      parts,
-      string.format(
-        '%s %d',
-        utils.stl.hl(tostring(icons.git.Added), 'StatusLineGitAdded'),
-        added
+  return vim.g.has_nf
+      and string.format(
+        '%s%s%s',
+        utils.stl.hl(icon_added, 'StatusLineGitAdded') .. " " .. added .. " ",
+        utils.stl.hl(icon_changed, 'StatusLineGitChanged') .. " " .. changed .. " ",
+        utils.stl.hl(icon_removed, 'StatusLineGitRemoved') .. " " .. removed
       )
-    )
-  end
-
-  if changed > 0 then
-    table.insert(
-      parts,
-      string.format(
-        '%s %d',
-        utils.stl.hl(tostring(icons.git.Modified), 'StatusLineGitChanged'),
-        changed
+      or string.format(
+        '%s%s%s',
+        icon_added .. utils.stl.hl(added, 'StatusLineGitAdded'),
+        icon_changed .. utils.stl.hl(changed, 'StatusLineGitChanged'),
+        icon_removed .. utils.stl.hl(removed, 'StatusLineGitRemoved')
       )
-    )
-  end
-
-  if removed > 0 then
-    table.insert(
-      parts,
-      string.format(
-        '%s %d',
-        utils.stl.hl(tostring(icons.git.Removed), 'StatusLineGitRemoved'),
-        removed
-      )
-    )
-  end
-
-  return table.concat(parts, ' ')
 end
 
 ---Get string representation of current git branch
@@ -365,8 +346,8 @@ vim.api.nvim_create_autocmd({ 'BufAdd', 'BufWinEnter', 'BufFilePost' }, {
   group = groupid,
   -- Delay adding buffer to fnames to ensure attributes, e.g.
   -- `bt`, are set for special buffers, for example, terminal buffers
-  callback = vim.schedule_wrap(function(info)
-    add_buf(info.buf)
+  callback = vim.schedule_wrap(function(args)
+    add_buf(args.buf)
     vim.cmd.redrawstatus({
       bang = true,
       mods = { emsg_silent = true },
@@ -378,8 +359,8 @@ vim.api.nvim_create_autocmd('OptionSet', {
   desc = 'Remove invisible buffer record.',
   group = groupid,
   pattern = 'buflisted',
-  callback = function(info)
-    remove_buf(info.buf, info.file)
+  callback = function(args)
+    remove_buf(args.buf, args.file)
     -- For some reason, invoking `:redrawstatus` directly makes oil.nvim open
     -- a floating window shortly before opening a file
     vim.schedule(function()
@@ -399,15 +380,15 @@ vim.api.nvim_create_autocmd({
 }, {
   desc = 'Remove invisible buffer from record.',
   group = groupid,
-  callback = vim.schedule_wrap(function(info)
-    remove_buf(info.buf, info.file)
+  callback = vim.schedule_wrap(function(args)
+    remove_buf(args.buf, args.file)
   end),
 })
 
 vim.api.nvim_create_autocmd('WinClosed', {
   group = groupid,
-  callback = function(info)
-    local win = tonumber(info.match)
+  callback = function(args)
+    local win = tonumber(args.match)
     if not win or not vim.api.nvim_win_is_valid(win) then
       return
     end
@@ -452,8 +433,9 @@ function _G._statusline.fname()
   end
 
   if vim.bo.bt == 'quickfix' then
-    return utils.stl.escape(str_shorten(vim.w.quickfix_title, fname_max_width))
-        or ''
+    return utils.stl.escape(
+      str_shorten(vim.w.quickfix_title, fname_special_max_width)
+    ) or ''
   end
 
   -- Terminal buffer, show terminal command and id
@@ -498,7 +480,12 @@ function _G._statusline.fname()
     )
   end
 
-  return utils.stl.escape(fname_short)
+  return utils.stl.escape(
+    str_shorten(
+      vim.api.nvim_eval_statusline('%F', {}).str,
+      fname_special_max_width
+    )
+  )
 end
 
 ---Name of python virtual environment
@@ -560,9 +547,9 @@ end
 vim.api.nvim_create_autocmd('DiagnosticChanged', {
   group = groupid,
   desc = 'Update diagnostics cache for the status line.',
-  callback = function(info)
-    vim.b[info.buf].diag_cnt_cache = vim.diagnostic.count(info.buf)
-    vim.b[info.buf].diag_str_cache = nil
+  callback = function(args)
+    vim.b[args.buf].diag_cnt_cache = vim.diagnostic.count(args.buf)
+    vim.b[args.buf].diag_str_cache = nil
     vim.cmd.redrawstatus({
       mods = { emsg_silent = true },
     })
@@ -577,7 +564,7 @@ function _G._statusline.diag()
   end
   local str = ''
   local buf_cnt = vim.b.diag_cnt_cache or {}
-  for serverity_nr, severity in ipairs({ 'Error', 'Warn', 'Info', 'Hint' }) do
+  for serverity_nr, severity in ipairs({ 'Error', 'Warn', 'INFO', 'Hint' }) do
     local cnt = buf_cnt[serverity_nr] ~= vim.NIL and buf_cnt[serverity_nr] or 0
     if cnt > 0 then
       local icon_text = get_diag_sign_text(serverity_nr)
@@ -602,19 +589,19 @@ local client_info = {}
 vim.api.nvim_create_autocmd('LspDetach', {
   desc = 'Clean up server info when client detaches.',
   group = groupid,
-  callback = function(info)
-    if info.data.client_id then
-      client_info[info.data.client_id] = nil
+  callback = function(args)
+    if args.data.client_id then
+      client_info[args.data.client_id] = nil
     end
   end,
 })
 
 vim.api.nvim_create_autocmd('LspProgress', {
-  desc = 'Update LSP progress info for the status line.',
+  desc = 'Update LSP progress args for the status line.',
   group = groupid,
-  callback = function(info)
+  callback = function(args)
     -- Update LSP progress data
-    local id = info.data.client_id
+    local id = args.data.client_id
     local bufs = vim.lsp.get_buffers_by_client_id(id)
     client_info[id] = {
       name = vim.lsp.get_client_by_id(id).name,
@@ -638,10 +625,10 @@ vim.api.nvim_create_autocmd('LspProgress', {
             spinner:spin()
           end
 
-          local type = info.data
-              and info.data.params
-              and info.data.params.value
-              and info.data.params.value.kind
+          local type = args.data
+              and args.data.params
+              and args.data.params.value
+              and args.data.params.value.kind
           if type == 'end' then
             spinner:finish()
           end
@@ -691,7 +678,7 @@ local components = {
   flag     = [[%{%&bt==#''?'':(&bt==#'help'?'%h ':(&pvw?'%w ':(&bt==#'quickfix'?'%q ':'')))%}]],
   diag     = [[%{%v:lua._statusline.diag()%}]],
   fname    = [[%{%v:lua._statusline.fname()%} ]],
-  info     = [[%{%v:lua._statusline.info()%}]],
+  args     = [[%{%v:lua._statusline.info()%}]],
   spinner  = [[%{%v:lua._statusline.spinner()%}]],
   mode     = [[%{%v:lua._statusline.mode()%}]],
   padding  = [[ ]],
@@ -704,7 +691,7 @@ local stl = table.concat({
   components.mode,
   components.flag,
   components.fname,
-  components.info,
+  components.args,
   components.align,
   components.truncate,
   components.spinner,
@@ -760,7 +747,7 @@ local function set_default_hlgroups()
   sethl('StatusLineDiagnosticError', { fg = 'DiagnosticSignError', ctermfg = 'DiagnosticSignError' })
   sethl('StatusLineHeader', { fg = 'TabLine', bg = 'fg', ctermfg = 'TabLine', ctermbg = 'fg', reverse = true })
   sethl('StatusLineHeaderModified', { fg = 'Special', bg = 'fg', ctermfg = 'Special', ctermbg = 'fg', reverse = true })
-  -- stylua: ignore off
+  -- stylua: ignore end
 end
 
 set_default_hlgroups()

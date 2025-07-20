@@ -34,9 +34,9 @@ setmetatable(_G._tabline, {
             '%%%dT %s %%X',
             tabnr,
             vim.t[tabid]._tabname
-            or vim.fs.basename(
-              vim.fn.getcwd(vim.api.nvim_tabpage_get_win(tabid), tabnr)
-            )
+              or vim.fs.basename(
+                vim.fn.getcwd(vim.api.nvim_tabpage_get_win(tabid), tabnr)
+              )
           ),
           tabid == tabidcur and 'TabLineSel' or 'TabLine'
         )
@@ -63,7 +63,7 @@ end
 vim.api.nvim_create_user_command('TabRename', function(opts)
   _G._tabline.rename(
     opts.count == -1 and vim.api.nvim_get_current_tabpage()
-    or vim.api.nvim_list_tabpages()[opts.count],
+      or vim.api.nvim_list_tabpages()[opts.count],
     opts.fargs[1]
   )
 end, {
@@ -108,8 +108,8 @@ vim.api.nvim_create_autocmd({ 'UIEnter', 'SessionLoadPost' }, {
 vim.api.nvim_create_autocmd('TabClosed', {
   desc = 'Clear global tab name variable for closed tabs.',
   group = groupid,
-  callback = function(info)
-    vim.g['Tabname' .. info.file] = nil
+  callback = function(args)
+    vim.g['Tabname' .. args.file] = nil
   end,
 })
 

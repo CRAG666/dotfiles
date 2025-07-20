@@ -24,8 +24,8 @@ M.snippets = {
     un.fmtad('echom <q><line><q>', {
       q = un.qt(),
       line = c(1, {
-        i(nil, '........................................'),
         i(nil, '----------------------------------------'),
+        i(nil, '........................................'),
         i(nil, '========================================'),
         i(nil, '########################################'),
       }),
@@ -91,6 +91,94 @@ M.snippets = {
         name = i(1, 'AugroupName'),
         body = un.body(2, 1),
         idnt = un.idnt(1),
+      }
+    )
+  ),
+  us.sn(
+    {
+      trig = 'if',
+      desc = 'if statement',
+    },
+    un.fmtad(
+      [[
+        if <cond>
+        <body>
+        endif
+      ]],
+      {
+        cond = i(1, 'v:true'),
+        body = un.body(2, 1),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'el' },
+      { trig = 'else' },
+      common = { desc = 'else statement' },
+    },
+    un.fmtad(
+      [[
+        else
+        <body>
+      ]],
+      {
+        body = un.body(1, 1),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'eli' },
+      { trig = 'elif' },
+      { trig = 'elsei' },
+      { trig = 'elseif' },
+      common = { desc = 'elseif statement' },
+    },
+    un.fmtad(
+      [[
+        elseif <cond>
+        <body>
+      ]],
+      {
+        cond = i(1, 'v:true'),
+        body = un.body(2, 1),
+      }
+    )
+  ),
+  us.sn(
+    {
+      trig = 'for',
+      desc = 'for loop (list)',
+    },
+    un.fmtad(
+      [[
+        for <var> in <list>
+        <body>
+        endfor
+      ]],
+      {
+        var = i(1, 'var'),
+        list = i(2, 'list'),
+        body = un.body(3, 1),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'wh' },
+      { trig = 'while' },
+      common = { desc = 'while loop' },
+    },
+    un.fmtad(
+      [[
+        while <cond>
+        <body>
+        endwhile
+      ]],
+      {
+        cond = i(1, 'v:true'),
+        body = un.body(2, 1),
       }
     )
   ),

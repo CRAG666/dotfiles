@@ -33,8 +33,8 @@ function M.auto_load_once(from, action)
   vim.api.nvim_create_autocmd('FileType', {
     desc = string.format('Load for filetypes from %s lazily.', from),
     group = vim.api.nvim_create_augroup('Load_' .. from, {}),
-    callback = function(info)
-      M.load_once(from, info.match, action)
+    callback = function(args)
+      M.load_once(from, args.match, action)
     end,
   })
 end

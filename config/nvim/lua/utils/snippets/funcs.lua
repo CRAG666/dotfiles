@@ -85,8 +85,8 @@ end
 local quotation_cache = {}
 vim.api.nvim_create_autocmd({ 'BufDelete', 'BufWipeOut', 'BufUnload' }, {
   group = vim.api.nvim_create_augroup('LuaSnipClearQuotationCache', {}),
-  callback = function(info)
-    quotation_cache[info.buf] = nil
+  callback = function(args)
+    quotation_cache[args.buf] = nil
   end,
 })
 

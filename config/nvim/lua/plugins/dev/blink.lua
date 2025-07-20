@@ -99,7 +99,6 @@ return {
         opts = {},
       },
       'mikavilpas/blink-ripgrep.nvim',
-      'Kaiser-Yang/blink-cmp-dictionary',
     },
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
@@ -154,7 +153,6 @@ return {
             'buffer',
             'ripgrep',
             'pandoc_references',
-            'dictionary',
           },
           norg = {
             'snippets',
@@ -162,7 +160,6 @@ return {
             'path',
             'buffer',
             'ripgrep',
-            'dictionary',
           },
           quarto = {
             'snippets',
@@ -171,7 +168,6 @@ return {
             'buffer',
             'ripgrep',
             'pandoc_references',
-            'dictionary',
           },
           tex = {
             'snippets',
@@ -180,15 +176,10 @@ return {
             'buffer',
             'ripgrep',
             'pandoc_references',
-            -- 'dictionary',
           },
         },
         -- cmdline = {},
         providers = {
-          dictionary = {
-            module = 'blink-cmp-dictionary',
-            name = 'Dict',
-          },
           ripgrep = {
             module = 'blink-ripgrep',
             name = 'Ripgrep',

@@ -2,8 +2,8 @@ local M = {}
 
 vim.api.nvim_create_autocmd('FileChangedShellPost', {
   group = vim.api.nvim_create_augroup('RefreshGitBranchCache', {}),
-  callback = function(info)
-    vim.b[info.buf].git_branch = nil
+  callback = function(args)
+    vim.b[args.buf].git_branch = nil
   end,
 })
 
@@ -39,8 +39,8 @@ end
 
 vim.api.nvim_create_autocmd({ 'BufWrite', 'FileChangedShellPost' }, {
   group = vim.api.nvim_create_augroup('RefreshGitDiffCache', {}),
-  callback = function(info)
-    vim.b[info.buf].git_diffstat = nil
+  callback = function(args)
+    vim.b[args.buf].git_diffstat = nil
   end,
 })
 

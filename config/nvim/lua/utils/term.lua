@@ -2,19 +2,27 @@ local M = {}
 
 ---Compiled vim regex that decides if a command is a TUI app
 M.TUI_REGEX = vim.regex(
-  [[\v^(sudo(\s+--?(\w|-)+((\s+|\=)\S+)?)*\s+)?\S*]]
-    .. [[(n?vim?|vimdiff|emacs(client)?|lem|nano|helix|kak|]]
-    .. [[tmux|vifm|yazi|ranger|lazygit|h?top|gdb|fzf|nmtui|]]
-    .. [[sudoedit|crontab|asciinema|w3m)]]
+  [[\v(sudo\s+)?(.*sh\s+-c\s+)?\S*]]
+    .. [[(n?vim?|vimdiff|emacs(client)?|lem|nano|h(eli)?x|kak|]]
+    .. [[tmux|vifm|yazi|ranger|lazygit|h?top|gdb|fzf|nmtui|.*/aider-chat/bin/python3?|opencode|]]
+    .. [[sudoedit|crontab|asciinema|w3m|python3?\s+-m)($|\s+)]]
 )
 
 ---Check if any of the processes in terminal buffer `buf` is a TUI app
 ---@param buf integer? buffer handler
 ---@return boolean?
 function M.running_tui(buf)
+  return M.running(M.TUI_REGEX, buf)
+end
+
+---Check if terminal buffer is running a specific command
+---@param regex vim.regex regex of command
+---@param buf? integer buffer handler
+---@return boolean
+function M.running(regex, buf)
   local cmds = M.fg_cmds(buf)
   for _, cmd in ipairs(cmds) do
-    if M.TUI_REGEX:match_str(cmd) then
+    if regex:match_str(cmd) then
       return true
     end
   end
@@ -35,17 +43,29 @@ function M.fg_cmds(buf)
     return {}
   end
 
+  local tty = (function()
+    local obj = vim.system({ 'ps', '-o', 'tty=', '-p', tostring(pid) }):wait()
+    if obj.code == 0 then
+      return vim.trim(obj.stdout)
+    end
+  end)()
+  if not tty or tty == '' then
+    return {}
+  end
+
+  local stat_cmds_str = (function()
+    local obj = vim.system({ 'ps', '-o', 'stat=,args=', '-t', tty }):wait()
+    if obj.code == 0 then
+      return obj.stdout
+    end
+  end)()
+  if not stat_cmds_str then
+    return {}
+  end
+
   local cmds = {}
-  for stat_cmd_str in
-    vim.gsplit(
-      vim
-        .system({ 'ps', 'h', '-o', 'stat,args', '-g', tostring(pid) })
-        :wait().stdout,
-      '\n',
-      { trimempty = true }
-    )
-  do
-    local stat, cmd = stat_cmd_str:match('(%S+)%s+(.*)')
+  for line in vim.gsplit(stat_cmds_str, '\n', { trimempty = true }) do
+    local stat, cmd = line:match('(%S+)%s+(.*)')
     if stat and stat:find('^%S+%+') then
       table.insert(cmds, cmd)
     end
@@ -81,11 +101,14 @@ function M.compose_name(bufname, opts)
 
   local path, pid, cmd, name = M.parse_name(bufname)
   return string.format(
-    'term://%s//%s:%s%s',
+    'term://%s//%s%s%s',
     vim.fn
       .fnamemodify(opts.path or path or vim.fn.getcwd(), ':~')
       :gsub('/+$', ''),
-    opts.pid or pid or '',
+    (function()
+      local term_pid = opts.pid or pid or ''
+      return tonumber(term_pid) and term_pid .. ':' or ''
+    end)(),
     opts.cmd or cmd or '',
     (function()
       local name_str = opts.name or name
@@ -94,8 +117,8 @@ function M.compose_name(bufname, opts)
   )
 end
 
-local bracket_paste_start = '\27[200~'
-local bracket_paste_end = '\27[201~'
+M.BRACKET_PASTE_START = '\27[200~'
+M.BRACKET_PASTE_END = '\27[201~'
 
 ---Send multi-line message to terminal
 ---@param msg string|string[] message
@@ -120,7 +143,7 @@ function M.send(msg, buf)
 
   vim.api.nvim_chan_send(
     chan,
-    bracket_paste_start .. table.concat(msg, '\n') .. bracket_paste_end
+    M.BRACKET_PASTE_START .. table.concat(msg, '\n') .. M.BRACKET_PASTE_END
   )
 end
 

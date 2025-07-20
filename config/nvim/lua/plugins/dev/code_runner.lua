@@ -30,6 +30,12 @@ return {
               { '--keep-intermediates', '--keep-logs' }
             )
           end,
+          ["Project Biber"] = function()
+            require('code_runner.hooks.tectonic').build(
+              preview_cmd,
+              { "biber", '--keep-intermediates', '--keep-logs' }
+            )
+          end,
           Single = function()
             require('code_runner.hooks.preview_pdf').run({
               command = 'tectonic',
@@ -78,9 +84,6 @@ return {
           end,
         })
       end,
-      javascript = 'node',
-      java = 'cd $dir && javac $fileName && java $fileNameWithoutExt',
-      kotlin = 'cd $dir && kotlinc-native $fileName -o $fileNameWithoutExt && ./$fileNameWithoutExt.kexe',
       c = function(...)
         c_base = {
           'cd $dir &&',
@@ -124,9 +127,7 @@ return {
       end,
       python = "python -u '$dir/$fileName'",
       sh = 'bash',
-      typescript = 'deno run',
       typescriptreact = 'yarn dev$end',
-      rust = 'cd $dir && rustc $fileName && $dir$fileNameWithoutExt',
     },
     project_path = vim.fn.expand('~/.config/nvim/project_manager.json'),
   },

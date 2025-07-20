@@ -1,5 +1,7 @@
 local M = {}
 
+local nvim_get_hl = vim.api.nvim_get_hl
+
 ---Wrapper of nvim_get_hl(), but does not create a highlight group
 ---if it doesn't exist (default to opts.create = false), and add
 ---new option opts.winhl_link to get highlight attributes without
@@ -16,7 +18,7 @@ function M.get(ns_id, opts)
   if no_winhl_link then
     while attr.link do
       opts.name = attr.link
-      attr = vim.api.nvim_get_hl(ns_id, opts)
+      attr = nvim_get_hl(ns_id, opts)
     end
   end
   return attr
@@ -149,13 +151,15 @@ function M.normalize(attr)
   return attr
 end
 
+local nvim_set_hl = vim.api.nvim_set_hl
+
 ---Wrapper of nvim_set_hl(), normalize highlight attributes before setting
 ---@param ns_id integer namespace id
 ---@param name string
 ---@param attr vim.api.keyset.highlight highlight attributes
 ---@return nil
 function M.set(ns_id, name, attr)
-  return vim.api.nvim_set_hl(ns_id, name, M.normalize(attr))
+  return nvim_set_hl(ns_id, name, M.normalize(attr))
 end
 
 ---Set default highlight attributes, normalize highlight attributes before setting
