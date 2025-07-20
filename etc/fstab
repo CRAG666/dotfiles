@@ -1,0 +1,15 @@
+
+/dev/archhomefs/home /mnt/home ext4 defaults 0 1
+
+# User folders
+/mnt/home/Documentos /home/think-crag/Documentos none bind 0 0
+/mnt/home/Escritorio /home/think-crag/Escritorio none bind 0 0
+/mnt/home/Imágenes /home/think-crag/Imágenes none bind 0 0
+/mnt/home/Música /home/think-crag/Música none bind 0 0
+/mnt/home/Vídeos /home/think-crag/Vídeos none bind 0 0
+/mnt/home/.fonts /home/think-crag/.fonts none bind 0 0
+/mnt/home/.icons /home/think-crag/.icons none bind 0 0
+/mnt/home/.password-store /home/think-crag/.password-store none bind 0 0
+/mnt/home/.gnupg /home/think-crag/.gnupg none bind 0 0
+/mnt/home/.ssh /home/think-crag/.ssh none bind 0 0
+/mnt/home/.themes /home/think-crag/.themes none bind 0 0

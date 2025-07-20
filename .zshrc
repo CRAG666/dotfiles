@@ -178,7 +178,7 @@ alias lo="/bin/libreoffice"
 alias music="termusic"
 alias rm='rm -i'
 alias dus='du -h --max-depth=1 2>/dev/null | sort -hr'
-alias du1='du -h -d 1'
+alias du1='du -h -d 1 2>/dev/null | sort -hr'
 alias rec="wl-screenrec --dri-device $MOZ_DRM_DEVICE -f $(date +'%s_grab.mp4')"
 alias neofetch="fastfetch -l ~/.config/fastfetch/thinkpad.txt --logo-color-1 white --logo-color-2 red --logo-color-3 '38;2;23;147;209'"
 alias freq="watch -n1 'grep Hz /proc/cpuinfo'"
@@ -235,7 +235,7 @@ export EDITOR=$VISUAL
 export PYTHONSTARTUP=~/.pyrc
 export BAT_THEME="Catppuccin-mocha"
 export USB="/run/media/$USER"
-export PATH="$PATH:$HOME/.dotnet/tools:$HOME/.local/share/bob/nvim-bin:$HOME/.local/share/nvim/mason/bin:$HOME/.local/bin:$HOME/.config/emacs/bin:$HOME/.npm-global/bin"
+export PATH="$HOME/.local/bin:$HOME/.dotnet/tools:$HOME/.local/share/bob/nvim-bin:$HOME/.local/share/nvim/mason/bin:$HOME/.config/emacs/bin:$HOME/.npm-global/bin:$PATH"
 export FZF_DEFAULT_COMMAND='fd . --type f --hidden --follow --exclude .git --no-ignore'
 export FZF_DEFAULT_OPTS=" --prompt='ﰉ ' --pointer='ﰊ' --height 40% --reverse --bind='?:toggle-preview' \
 --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
