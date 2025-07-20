@@ -53,6 +53,7 @@ local clients = {
   'emmet',
   -- 'nimls',
   -- 'v_analyzer',
+  "pyrefly"
 }
 require('config.lsp').setup()
 require('config.lsp.grammar').setup()

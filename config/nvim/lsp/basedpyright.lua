@@ -12,11 +12,13 @@ return {
   filetypes = { 'python' },
   settings = {
     basedpyright = {
+      disableOrganizeImports = true,
       analysis = {
         autoSearchPaths = true,
         autoImportCompletions = true,
+        typeCheckingMode = 'off',
         inlayHints = {
-          variableTypes = true,
+          variableTypes = false,
         }
       },
     },
