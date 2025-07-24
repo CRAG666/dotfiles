@@ -6,7 +6,11 @@ dir="$HOME/.config/rofi/text"
 BOOKMARKS="$HOME/.config/rofi/text/bookmarks"
 
 function rofi_main_window() {
-    rofi -dmenu -i -l 10 -p "$1" -theme "$dir/$theme"
+    rofi -dmenu -i -l 10 -p "$1" -theme "$dir/$theme" \
+        -kb-custom-2 'Alt+c' \
+        -kb-custom-3 'Alt+d' \
+        -kb-custom-4 'Alt+a' \
+        -kb-custom-5 'Alt+r'
 }
 
 function rofi_sub_window() {
@@ -52,13 +56,13 @@ function write_bookmark() {
 }
 
 function delete_bookmark() {
-    selected=$(awk -F '|' '{print $1 "  " $2}' "$BOOKMARKS" | rofi_main_window "Selecciona un bookmark para eliminar")
+    selected=$(awk -F '|' '{print $1 " \u03b1 " $2}' "$BOOKMARKS" | rofi_main_window "Selecciona un bookmark para eliminar")
 
     if [[ -z "$selected" ]]; then
         return
     fi
 
-    url=$(echo "$selected" | awk -F '  ' '{print $2}')
+    url=$(echo "$selected" | awk -F ' \u03b1 ' '{print $2}')
 
     if [[ -z "$url" ]]; then
         rofi_sub_window "Error: Bookmark not found" -width 20
@@ -84,24 +88,35 @@ function open_random_sites() {
 
 # Menú principal
 name=$(get_bookmarks 1 | rofi_main_window "Bookmarks")
+exit_code=$?
 
-if [[ "$name" == "+" ]]; then
-    write_bookmark
-elif [[ $name == "-" ]]; then
-    delete_bookmark
-elif [[ $name == "*" ]]; then
-    category=$(get_categories | rofi_main_window "Bookmarks" | awk '{print $2}')
-    [[ -n $category ]] || exit
-    grep "$category" "$BOOKMARKS" | cut -d '|' -f 2 | xargs -I {} $BROWSER "{}"
-elif [[ $name == ";"* ]]; then
-    number=$(echo "$name" | cut -d';' -f2 | xargs)
-    if [[ $number =~ ^[0-9]+$ ]]; then
-        open_random_sites "$number"
-    else
+case "$exit_code" in
+    0)
+        # Selección normal (Enter)
+        if [[ -n "$name" ]]; then
+            url=$(grep -F "$name" "$BOOKMARKS" | cut -d '|' -f 2)
+            $BROWSER "$url"
+        fi
+        ;;
+    11)
+        # Tecla 'Alt+c' presionada (custom-key-2)
+        category=$(get_categories | rofi_main_window "Bookmarks" | awk '{print $2}')
+        [[ -n "$category" ]] || exit
+        grep "$category" "$BOOKMARKS" | cut -d '|' -f 2 | xargs -I {} $BROWSER "{}"
+        ;;
+    12)
+        # Tecla 'Alt+d' presionada (custom-key-3)
+        delete_bookmark
+        ;;
+    13)
+        # Tecla 'Alt+a' presionada (custom-key-4)
+        write_bookmark
+        ;;
+    14)
+        # Tecla 'Alt+r' presionada (custom-key-5)
         open_random_sites
-    fi
-else
-    [[ -n $name ]] || exit
-    url=$(grep -F "$name" "$BOOKMARKS" | cut -d '|' -f 2)
-    $BROWSER "$url"
-fi
+        ;;
+    *)
+        exit
+        ;;
+esac
