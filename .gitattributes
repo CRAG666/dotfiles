@@ -1,4 +1,5 @@
 .zsh_history filter=git-crypt diff=git-crypt
 .gitconfig filter=git-crypt diff=git-crypt
 config/rofi/text/bookmarks filter=git-crypt diff=git-crypt
+config/rofi/text/prompt_gallery filter=git-crypt diff=git-crypt
 config/nushell/history.txt filter=git-crypt diff=git-crypt
