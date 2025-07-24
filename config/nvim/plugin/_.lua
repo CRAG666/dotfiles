@@ -44,6 +44,7 @@ local clients = {
   'jsonls',
   'lua_ls',
   'marksman',
+  'remark',
   'omnisharp',
   -- 'csharp_ls',
   'ruff_ls',

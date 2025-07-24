@@ -5,7 +5,7 @@ return {
   cmd = { "Template", "TemProject" },
   config = function()
     require("template").setup {
-      temp_dir = "~/.config/nvim/template",
+      temp_dir = "~/Plantillas",
       author = "Diego Crag",
       email = "dcrag@pm.me",
     }
