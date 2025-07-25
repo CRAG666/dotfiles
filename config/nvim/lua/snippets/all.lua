@@ -10,8 +10,8 @@ M.snippets = {
     {
       trig = 'date',
       desc = 'Current date and time',
-      condition = conds.in_tsnode({ 'comment', 'string', 'curly_group' }),
-      show_condition = conds.in_tsnode({ 'comment', 'string', 'curly_group' }),
+      condition = conds.in_tsnode({ 'comment', 'curly_group' }),
+      show_condition = conds.in_tsnode({ 'comment', 'curly_group' }),
     },
     c(1, {
       i(nil, os.date()),

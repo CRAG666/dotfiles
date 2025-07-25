@@ -564,12 +564,50 @@ M.snippets = {
   ),
   us.msn(
     {
-      { trig = 'fi' },
       { trig = 'fr' },
       { trig = 'forr' },
-      { trig = 'fori' },
       { trig = 'forange' },
       { trig = 'forrange' },
+      common = { desc = 'for ... in ... loop' },
+    },
+    c(1, {
+      un.fmtad(
+        [[
+          for <var> in <iterable>:
+            <body>
+        ]],
+        {
+          var = r(1, 'var'),
+          iterable = r(2, 'iterable'),
+          body = un.body(3, 1, 'pass'),
+        }
+      ),
+      un.fmtad(
+        [[
+          for <idx>, <var> in iter(<iterable>):
+          <body>
+        ]],
+        {
+          idx = i(1, 'i'),
+          var = r(2, 'var'),
+          iterable = r(3, 'iterable'),
+          body = un.body(4, 1, 'pass'),
+        }
+      ),
+    }),
+    {
+      common_opts = {
+        stored = {
+          var = i(nil, 'var'),
+          iterable = i(nil, 'iterable'),
+        },
+      }
+    }
+  ),
+  us.msn(
+    {
+      { trig = 'fi' },
+      { trig = 'fori' },
       common = { desc = 'for ... in range(...) loop' },
     },
     un.fmtad(

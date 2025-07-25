@@ -297,11 +297,12 @@ M.snippets = {
   us.msn(
     {
       { trig = 'fo' },
-      { trig = 'fit' },
       { trig = 'fof' },
-      { trig = 'forit' },
       { trig = 'forof' },
-      { trig = 'foriter' },
+      { trig = 'fr' },
+      { trig = 'forr' },
+      { trig = 'forange' },
+      { trig = 'forrange' },
       common = { desc = 'for ... of ... loop' },
     },
     un.fmtad(

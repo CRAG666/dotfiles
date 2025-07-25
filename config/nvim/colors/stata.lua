@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      BSD
--- Last Updated: Mon 28 Apr 2025 05:36:28 PM EDT
+-- Last Updated: Wed Jul 23 15:49:44 2025
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -53,7 +53,7 @@ if vim.go.bg == 'dark' then
   c_constant        = { '#cccccc', 251 }
   c_comment         = { '#777777', 243 }
   c_variable        = { '#7AB4DB', 74  }
-  c_generic         = { '#ffffff', 231 }
+  c_generic         = { '#dddddd', 231 }
   c_lightgreen      = { '#7ed07e', 46  }
   c_lightblue       = { '#c3cdff', 153 }
   c_lightred        = { '#ffa7ad', 210 }
@@ -61,9 +61,9 @@ if vim.go.bg == 'dark' then
 else
   c_background      = { '#ffffff', 231 }
   c_foreground      = { '#111111', 233 }
-  c_faded           = { '#f8fafa', 254 }
-  c_highlight       = { '#f4f5f5', 255 }
-  c_whitespace      = { '#e0e2e2', 250 }
+  c_faded           = { '#f6f6f6', 254 }
+  c_highlight       = { '#efefef', 255 }
+  c_whitespace      = { '#dedede', 250 }
   c_delimiter       = { '#888888', 245 }
   c_error           = { '#bc5555', 124 }
   c_warn            = { '#cba260', 137 }
@@ -136,7 +136,7 @@ local hlgroups = {
   CursorIM = { link = 'Cursor' },
   CursorLine = { bg = c_faded },
   CursorLineNr = { fg = c_foreground, bold = true },
-  DebugPC = { bg = c_lightgreen },
+  DebugPC = { bg = c_lightgreen, fg = c_background },
   DiffAdd = { bg = c_lightgreen, fg = c_background },
   DiffChange = { bg = c_variable, fg = c_background },
   DiffDelete = { fg = c_other },
@@ -146,8 +146,8 @@ local hlgroups = {
   ErrorMsg = { fg = c_error },
   FloatBorder = { fg = c_foreground, bg = c_highlight },
   FloatTitle = { fg = c_other, bg = c_highlight, bold = true },
-  FoldColumn = { fg = c_comment },
-  Folded = { fg = c_comment, bg = c_highlight },
+  FoldColumn = { fg = c_delimiter },
+  Folded = { fg = c_foreground, bg = c_faded },
   IncSearch = { fg = c_background, bg = c_other, bold = true },
   LineNr = { fg = c_comment },
   MatchParen = { bg = c_highlight, bold = true },
@@ -239,6 +239,7 @@ local hlgroups = {
   ['@string'] = { link = 'String' },
   ['@string.escape'] = { fg = c_other },
   ['@string.special'] = { link = 'SpecialChar' },
+  ['@string.yaml'] = { link = 'Normal' },
   ['@character'] = { link = 'Character' },
   ['@character.special'] = { link = 'SpecialChar' },
   ['@boolean'] = { link = 'Boolean' },
@@ -281,6 +282,7 @@ local hlgroups = {
   LspReferenceWrite = { link = 'LspReferenceText' },
   LspSignatureActiveParameter = { link = 'Search' },
   LspInfoBorder = { link = 'FloatBorder' },
+  LspInlayHint = { bg = c_faded, fg = c_delimiter },
   -- }}}2
 
   -- Diagnostic {{{2
@@ -309,7 +311,7 @@ local hlgroups = {
   DiagnosticSignWarn = { link = 'DiagnosticWarn' },
   DiagnosticSignInfo = { link = 'DiagnosticInfo' },
   DiagnosticSignHint = { link = 'DiagnosticHint' },
-  DiagnosticUnnecessary = { fg = c_comment, undercurl = true, sp = c_comment },
+  DiagnosticUnnecessary = { undercurl = true, sp = c_special },
   -- }}}2
 
   -- Filetype {{{2
@@ -329,6 +331,8 @@ local hlgroups = {
 
   -- Git
   gitHash = { fg = c_comment },
+  diffAdded = { fg = c_lightgreen },
+  diffRemoved = { fg = c_other },
   -- }}}2
 
   -- Plugins {{{2
@@ -386,6 +390,7 @@ local hlgroups = {
   StatusLineGitChanged = { fg = c_lightblue },
   StatusLineGitDeleted = { fg = c_lightred },
   StatusLineGitRemoved = { fg = c_lightred },
+  StatusLineDiagnosticInfo = { fg = c_lightblue },
   StatusLineDiagnosticHint = { fg = c_lightblue },
   StatusLineDiagnosticWarn = { fg = c_lightyellow },
   StatusLineDiagnosticError = { fg = c_lightred },
@@ -395,6 +400,7 @@ local hlgroups = {
 
 -- Highlight group overrides {{{1
 if vim.go.bg == 'light' then
+  hlgroups.DebugPC = { bg = c_lightgreen }
   hlgroups.Visual = { bg = c_whitespace }
   hlgroups.LineNr = { fg = c_foreground }
   hlgroups.NonText = { fg = c_delimiter }
@@ -404,10 +410,12 @@ if vim.go.bg == 'light' then
   hlgroups.DiffChange = { bg = c_keyword, fg = c_background }
   hlgroups.DiffText = { bg = c_special, fg = c_background }
   hlgroups.GitSignsAdd = { fg = c_special2 }
+  hlgroups.QuickFixLine = { bg = c_lightblue }
   hlgroups.StatusLine = { fg = c_background, bg = c_special }
   hlgroups.StatusLineNC = { fg = c_foreground, bg = c_whitespace }
   hlgroups.StatusLineHeader = { fg = c_background, bg = c_special2 }
   hlgroups.StatusLineHeaderModified = { fg = c_background, bg = c_error }
+  hlgroups.diffAdded = { fg = c_special2 }
   hlgroups.fugitiveStagedHeading = { fg = c_special2, bold = true }
   hlgroups.fugitiveStagedModifier = { fg = c_special2, bold = true }
 end

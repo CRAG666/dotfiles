@@ -14,14 +14,10 @@ local d = ls.dynamic_node
 ---Check if current file is bash
 ---@return boolean
 local function is_bash()
-  local filename = vim.api.nvim_buf_get_name(0)
-  if filename:match('%.bash$') then
-    return true
-  end
-
-  -- Check first line for bash shebang
-  local first_line = vim.api.nvim_buf_get_lines(0, 0, 1, false)[1] or ''
-  return first_line:match('^#!.*bash') ~= nil
+  return vim.bo.ft == 'bash'
+    or vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ':e') == 'bash'
+    or vim.api.nvim_buf_line_count(0) > 0
+      and vim.api.nvim_buf_get_lines(0, 0, 1, false)[1]:match('^#!.*bash') ~= nil
 end
 
 M.snippets = {
@@ -118,7 +114,10 @@ M.snippets = {
       ]],
       {
         var = i(1, 'item'),
-        items = i(2, '${items[@]}'),
+        items = d(2, function()
+          return is_bash() and sn(nil, i(1, '${items[@]}'))
+            or sn(nil, i(1, '$items'))
+        end),
         body = un.body(3, 1, ':'),
       }
     )
@@ -221,7 +220,10 @@ M.snippets = {
       ]],
       {
         var = i(1, 'item'),
-        items = i(2, '${items[@]}'),
+        items = d(2, function()
+          return is_bash() and sn(nil, i(1, '${items[@]}'))
+            or sn(nil, i(1, '$items'))
+        end),
         body = un.body(3, 1, ':'),
       }
     )
@@ -352,12 +354,13 @@ M.snippets = {
     un.fmtad('trap <cmd> <sig>', {
       cmd = i(1, 'cleanup'),
       sig = c(2, {
+        i(nil, 'EXIT INT TERM'), -- when script exits or terminates, useful for cleanup
+        i(nil, 'EXIT INT TERM HUP'), -- use for cleanup in scripts that needs a terminal/tty
         i(nil, 'EXIT'),
         i(nil, 'INT'),
         i(nil, 'TERM'),
-        i(nil, 'QUIT'),
-        i(nil, 'HUP'),
-        i(nil, 'ERR'),
+        i(nil, 'HUP'), -- disconnected from terminal, useful for interactive scripts that needs a terminal
+        i(nil, 'ERR'), -- not POSIX but available in bash
       }),
     })
   ),

@@ -577,12 +577,8 @@ M.snippets = {
   ),
   us.msn(
     {
-      { trig = 'fi' },
       { trig = 'fr' },
       { trig = 'forr' },
-      { trig = 'fori' },
-      { trig = 'forit' },
-      { trig = 'foriter' },
       { trig = 'forange' },
       { trig = 'forrange' },
       common = { desc = 'for key, val := range ... loop' },

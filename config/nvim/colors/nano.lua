@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Tue 06 May 2025 10:06:31 AM PDT
+-- Last Updated: Wed Jul 23 15:49:44 2025
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -151,7 +151,7 @@ local hlgroups = {
   PmenuSel = { fg = c_foreground, bg = c_subtle, bold = true },
   PmenuThumb = { bg = c_popout },
   Question = { fg = c_foreground },
-  QuickFixLine = { link = 'Visual' },
+  QuickFixLine = { bg = c_grass },
   Search = { bg = c_subtle },
   SignColumn = { fg = c_faded },
   SpecialKey = { fg = c_salient },
@@ -208,7 +208,7 @@ local hlgroups = {
   PreCondit = { link = 'PreProc' },
   Include = { link = 'PreProc' },
   Define = { link = 'PreProc' },
-  Macro = { fg = c_foreground },
+  Macro = { fg = c_faded },
   Type = { fg = c_salient },
   StorageClass = { link = 'Keyword' },
   Structure = { link = 'Type' },
@@ -239,8 +239,9 @@ local hlgroups = {
   ['@punctuation.bracket'] = { link = 'Bracket' },
   ['@markup.list'] = { link = 'Delimiter' },
   ['@string'] = { link = 'String' },
-  ['@string.regexp'] = { link = 'String' },
   ['@string.escape'] = { fg = c_critical },
+  ['@string.regexp'] = { fg = c_popout },
+  ['@string.yaml'] = { link = 'Normal' },
   ['@character'] = { link = 'Character' },
   ['@character.special'] = { link = 'SpecialChar' },
   ['@boolean'] = { link = 'Boolean' },

@@ -53,10 +53,11 @@ M.snippets = {
   ),
   us.msn(
     {
-      { trig = 'fit' },
-      { trig = 'forit' },
-      { trig = 'foriter' },
-      common = { desc = 'Iter loop' },
+      { trig = 'fr' },
+      { trig = 'forr' },
+      { trig = 'forange' },
+      { trig = 'forrange' },
+      common = { desc = 'Range-based loop' },
     },
     un.fmtad(
       [[

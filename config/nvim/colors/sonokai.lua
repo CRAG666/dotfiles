@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Sat 15 Mar 2025 12:38:31 AM EDT
+-- Last Updated: Wed Jul 23 15:49:44 2025
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -237,6 +237,7 @@ local hlgroups = {
   ['@punctuation'] = { link = 'Delimiter' },
   ['@string.special'] = { link = 'Special' },
   ['@string.special.url'] = { link = 'htmlLink' },
+  ['@string.yaml'] = { link = 'Normal' },
   ['@tag.builtin'] = { link = 'Special' },
   ['@text.diff.add'] = { link = 'DiffAdded' },
   ['@text.diff.delete'] = { link = 'DiffRemoved' },

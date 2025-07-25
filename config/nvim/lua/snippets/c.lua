@@ -400,10 +400,12 @@ M.snippets = {
       }
     )
   ),
-  us.sn(
+  us.msn(
     {
-      trig = 'for',
-      desc = 'for loop',
+      { trig = 'for' },
+      { trig = 'fi' },
+      { trig = 'fori' },
+      common = { desc = 'for loop' },
     },
     un.fmtad(
       [[

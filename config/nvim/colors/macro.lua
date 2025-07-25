@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Mon Mar 10 11:40:14 AM PDT 2025
+-- Last Updated: Wed Jul 23 15:49:44 2025
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -254,7 +254,7 @@ local hlgroups = {
   PmenuSel = { bg = c_macroBg4, fg = 'NONE' },
   PmenuThumb = { bg = c_macroBg5 },
   Question = { link = 'MoreMsg' },
-  QuickFixLine = { bg = c_macroBg3 },
+  QuickFixLine = { bg = c_winterGreen },
   Search = { bg = c_macroBg4 },
   SignColumn = { fg = c_macroGray2 },
   SpellBad = { underdashed = true },
@@ -321,6 +321,7 @@ local hlgroups = {
   ['@markup.list'] = { fg = c_macroTeal },
   ['@string.escape'] = { fg = c_macroOrange0 },
   ['@string.regexp'] = { fg = c_macroOrange0 },
+  ['@string.yaml'] = { link = 'Normal' },
   ['@markup.link.label.symbol'] = { fg = c_macroFg0 },
   ['@tag.attribute'] = { fg = c_macroFg0 },
   ['@tag.delimiter'] = { fg = c_macroGray1 },
@@ -575,6 +576,7 @@ local hlgroups = {
   StatusLineGitAdded = { bg = c_macroBg3, fg = c_macroGreen1 },
   StatusLineGitChanged = { bg = c_macroBg3, fg = c_carpYellow },
   StatusLineGitRemoved = { bg = c_macroBg3, fg = c_macroRed },
+  StatusLineGitBranch = { bg = c_macroBg3, fg = c_macroAsh },
   StatusLineHeader = { bg = c_macroBg5, fg = c_macroFg1 },
   StatusLineHeaderModified = { bg = c_macroRed, fg = c_macroBg1 },
 
@@ -602,6 +604,7 @@ if vim.go.bg == 'light' then
   hlgroups.StatusLineGitAdded = { bg = c_macroBg0, fg = c_macroGreen1 }
   hlgroups.StatusLineGitChanged = { bg = c_macroBg0, fg = c_autumnYellow }
   hlgroups.StatusLineGitRemoved = { bg = c_macroBg0, fg = c_macroRed }
+  hlgroups.StatusLineGitBranch = { bg = c_macroBg0, fg = c_macroAsh }
   hlgroups.StatusLineHeader = { bg = c_macroFg0, fg = c_macroBg0 }
   hlgroups.StatusLineHeaderModified = { bg = c_macroRed, fg = c_macroBg0 }
   hlgroups.Visual = { bg = c_macroBg3 }

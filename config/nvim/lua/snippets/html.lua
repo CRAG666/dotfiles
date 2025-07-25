@@ -1,1 +1,1 @@
-return require('snippets.markdown')
+markdown.lua
