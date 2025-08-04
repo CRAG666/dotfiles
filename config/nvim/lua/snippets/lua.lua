@@ -20,25 +20,14 @@ local function is_nvim_lua()
   end
 
   -- Check if the file or its cwd is in nvim runtime path
-  local rtp = vim.opt.rtp:get() --[=[@as string[]]=]
   local bufname = vim.api.nvim_buf_get_name(0)
-  local cwd = vim.fn.getcwd(0)
-  for _, path in ipairs(rtp) do
-    if u.fs.contains(path, bufname) or u.fs.contains(path, cwd) then
-      vim.b._ls_is_nvim_lua = true
-      return true
-    end
-  end
-
-  -- Check if the file contains 'vim.xxx' in surrounding 1000 lines
-  local lnum = vim.api.nvim_win_get_cursor(0)[1]
-  local content =
-    vim.api.nvim_buf_get_lines(0, math.max(0, lnum - 500), lnum + 500, false)
-  for _, line in ipairs(content) do
-    if line:match('vim%.') then
-      vim.b._ls_is_nvim_lua = true
-      return true
-    end
+  if
+    vim.iter(vim.api.nvim_list_runtime_paths()):any(function(rtp)
+      return u.fs.contains(rtp, bufname)
+    end)
+  then
+    vim.b._ls_is_nvim_lua = true
+    return true
   end
 
   return false
@@ -291,7 +280,7 @@ M.snippets = {
     }),
     {
       stored = {
-        idx = i(nil, 'i'),
+        idx = i(nil, '_'),
         val = i(nil, 'val'),
         iter = i(nil, 'iter'),
         start = i(nil, 'start'),

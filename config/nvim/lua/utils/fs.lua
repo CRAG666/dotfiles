@@ -173,15 +173,19 @@ function M.diff(paths)
 end
 
 ---Check if a given directory contains a file or subdirectory
----@param dir string directory path
+---@param parent string directory path
 ---@param sub string sub file or directory path
-function M.contains(dir, sub)
+---@param strict? boolean whether to return false if `parent` == `sub`, default false
+function M.contains(parent, sub, strict)
   -- `fnamemodify()` adds trailing `/` to directories
-  -- `dir` must end with `/`, else when `sub` is `/foo/bar-baz/file.txt` and
-  -- `dir` is `/foo/bar`, the function gives false positive
-  dir = vim.fn.fnamemodify(vim.fs.normalize(dir), ':p')
+  -- `parent` must end with `/`, else when `sub` is `/foo/bar-baz/file.txt` and
+  -- `parent` is `/foo/bar`, the function gives false positive
+  parent = vim.fn.fnamemodify(vim.fs.normalize(parent), ':p')
   sub = vim.fn.fnamemodify(vim.fs.normalize(sub), ':p')
-  return vim.startswith(sub, dir)
+  if strict and parent == sub then
+    return false
+  end
+  return vim.startswith(sub, parent)
 end
 
 ---Check if given directory is root directory

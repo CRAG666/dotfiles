@@ -1,3 +1,4 @@
+local icons = require('utils.static.icons')
 return {
   {
     'supermaven-inc/supermaven-nvim',
@@ -83,13 +84,34 @@ return {
                 active = {
                   virt_text = {
                     {
-                      utils.static.icons.ArrowUpDown,
+                      icons.ArrowUpDown,
                       'Number',
                     },
                   },
                 },
               },
             },
+          })
+
+          -- Unlink current snippet on leaving insert/select mode
+          -- https://github.com/L3MON4D3/LuaSnip/issues/258#issuecomment-1011938524
+          vim.api.nvim_create_autocmd('ModeChanged', {
+            desc = 'Unlink current snippet on leaving insert/selection mode.',
+            group = vim.api.nvim_create_augroup('LuaSnipModeChanged', {}),
+            pattern = '[si]*:[^si]*',
+            -- Blink.cmp will enter normal mode shortly on accepting snippet completion,
+            -- see https://github.com/Saghen/blink.cmp/issues/2035
+            -- We don't want to unlink the current snippet in that case, as a workaround
+            -- wait a short time after leaving insert/select mode and unlink current
+            -- snippet if still not inside insert/select mode
+            callback = vim.schedule_wrap(function(args)
+              if vim.fn.mode():match('^[si]') then -- still in insert/select mode
+                return
+              end
+              if ls.session.current_nodes[args.buf] and not ls.session.jump_active then
+                ls.unlink_current()
+              end
+            end),
           })
         end,
       },
@@ -103,16 +125,27 @@ return {
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
     opts = {
+      enabled = function()
+        return vim.fn.reg_recording() == '' and vim.fn.reg_executing() == ''
+      end,
       keymap = { preset = 'enter' },
       appearance = {
         use_nvim_cmp_as_default = true,
         nerd_font_variant = 'mono',
       },
       completion = {
-        documentation = { auto_show = true },
+        documentation = {
+          auto_show = true,
+          auto_show_delay_ms = 0,
+          window = {
+            border = 'solid',
+          },
+        },
         ghost_text = { enabled = false },
-        list = { selection = { preselect = false } },
+        list = { selection = { preselect = false, auto_insert = true, } },
         menu = {
+          -- min_width = math.floor(vim.go.pumwidth),
+          -- max_height = math.floor(vim.go.pumheight),
           draw = {
             columns = {
               { 'kind_icon' },
@@ -188,20 +221,9 @@ return {
             ---@module "blink-ripgrep"
             ---@type blink-ripgrep.Options
             opts = {
-              -- For many options, see `rg --help` for an exact description of
-              -- the values that ripgrep expects.
-
-              -- the minimum length of the current word to start searching
-              -- (if the word is shorter than this, the search will not start)
               prefix_min_len = 3,
 
-              -- The number of lines to show around each match in the preview window
               context_size = 5,
-
-              -- The maximum file size that ripgrep should include in its search.
-              -- Useful when your project contains large files that might cause
-              -- performance issues.
-              -- Examples: "1024" (bytes by default), "200K", "1M", "1G"
               max_filesize = '1G',
             },
           },
@@ -215,6 +237,78 @@ return {
           },
           lsp = {
             score_offset = 99,
+
+            -- Don't wait for LSP completions for a long time before fallback to
+            -- buffer completions
+            -- - https://github.com/Saghen/blink.cmp/issues/2042
+            -- - https://cmp.saghen.dev/configuration/sources.html#show-buffer-completions-with-lsp
+            timeout_ms = 500,
+          },
+          cmdline = {
+            -- Don't complete left parenthesis when calling functions or
+            -- expressions in cmdline, e.g. `:call func(...`
+            transform_items = function(_, items)
+              is_cmd_expr_compl = vim.tbl_contains(
+                { 'function', 'expression' },
+                require('blink.cmp.sources.lib.utils').get_completion_type(require(
+                  'blink.cmp.completion.trigger.context').get_mode())
+              )
+
+
+              if not is_cmd_expr_compl then
+                return items
+              end
+
+              for _, item in ipairs(items) do
+                item.textEdit.newText = item.textEdit.newText:gsub('%($', '')
+                item.label = item.textEdit.newText
+              end
+              return items
+            end,
+          },
+          buffer = {
+            -- Keep first letter capitalization on buffer source
+            -- https://cmp.saghen.dev/recipes.html#keep-first-letter-capitalization-on-buffer-source
+            transform_items = function(ctx, items)
+              local keyword = ctx.get_keyword()
+              if not (keyword:match('^%l') or keyword:match('^%u')) then
+                return items
+              end
+
+              local pattern ---@type string
+              local case_func ---@type function
+              if keyword:match('^%l') then
+                pattern = '^%u%l+$'
+                case_func = string.lower
+              else
+                pattern = '^%l+$'
+                case_func = string.upper
+              end
+
+              local seen = {}
+              local out = {}
+              for _, item in ipairs(items) do
+                if not item.insertText then
+                  goto continue
+                end
+
+                if item.insertText:match(pattern) then
+                  local text = case_func(item.insertText:sub(1, 1))
+                      .. item.insertText:sub(2)
+                  item.insertText = text
+                  item.label = text
+                end
+
+                if seen[item.insertText] then
+                  goto continue
+                end
+                seen[item.insertText] = true
+
+                table.insert(out, item)
+                ::continue::
+              end
+              return out
+            end,
           },
         },
       },

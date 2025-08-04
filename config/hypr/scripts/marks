@@ -59,20 +59,43 @@ show_marks() {
         wtype -k escape
         return
     fi
+
+    # Contar el número de elementos
+    num_items=$(echo "$data" | wc -l)
+
+    # Definir parámetros para el cálculo del alto
+    item_height=45                                    # Alto estimado por elemento en píxeles
+    base_height=50                                    # Alto base para la ventana
+    height=$((num_items * item_height + base_height)) # Calcular el alto total
+
+    # Establecer límites mínimo y máximo
+    min_height=150
+    max_height=800
+    if ((height < min_height)); then
+        height=$min_height
+    elif ((height > max_height)); then
+        height=$max_height
+    fi
+
+    # Construir los argumentos para YAD
     yad_args=()
     while IFS=$'\t' read -r mark title; do
         yad_args+=("$mark" "$title")
     done <<<"$data"
+
+    # Mostrar el diálogo con el alto calculado
     selected=$(yad --list \
         --title="Marks" \
         --text="Select a mark:" \
         --no-buttons \
         --bottom \
         --width=500 \
-        --height=950 \
+        --height=$height \
+        --fontname="Sans 30" \
         --column="Mark" \
         --column="Title" \
         "${yad_args[@]}")
+
     if [[ -n "$selected" ]]; then
         mark=$(echo "$selected" | awk -F'|' '{print $1}')
         hyprctl dispatch scroller:marksvisit "$mark"

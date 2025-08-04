@@ -2,9 +2,9 @@ local M = {}
 
 ---Compiled vim regex that decides if a command is a TUI app
 M.TUI_REGEX = vim.regex(
-  [[\v(sudo\s+)?(.*sh\s+-c\s+)?\S*]]
+  [[\v(sudo\s+)?(.*sh\s+-c\s+)?(.*python.*)?\S*]]
     .. [[(n?vim?|vimdiff|emacs(client)?|lem|nano|h(eli)?x|kak|]]
-    .. [[tmux|vifm|yazi|ranger|lazygit|h?top|gdb|fzf|nmtui|.*/aider-chat/bin/python3?|opencode|]]
+    .. [[tmux|vifm|yazi|ranger|lazygit|h?top|gdb|fzf|nmtui|opencode|]]
     .. [[sudoedit|crontab|asciinema|w3m|python3?\s+-m)($|\s+)]]
 )
 

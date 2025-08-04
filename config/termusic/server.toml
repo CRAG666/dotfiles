@@ -1,6 +1,8 @@
 version = "2"
 
 [com]
+protocol = "uds"
+socket_path = "/tmp/termusic.socket"
 port = 50101
 address = "::"
 
@@ -15,6 +17,7 @@ use_mediacontrols = true
 set_discord_status = false
 random_track_quantity = 20
 random_album_min_quantity = 1
+backend = "rusty"
 
 [player.remember_position]
 music = "no"
@@ -28,3 +31,8 @@ long_tracks = 30
 concurrent_downloads_max = 3
 max_download_retries = 3
 download_dir = "/home/think-crag/Música/podcast"
+
+[backends.rusty]
+soundtouch = true
+file_buffer_size = "4.0 MiB"
+decoded_buffer_size = "750.0 KiB"

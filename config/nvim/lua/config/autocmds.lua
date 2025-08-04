@@ -84,7 +84,7 @@ augroup('Formatting', {
     desc = 'Formatting',
     pattern = "*",
     callback = function(args)
-      require("conform").format({ bufnr = args.buf, lsp_format = "fallback" })
+      vim.lsp.buf.format({ bufnr = args.buf })
     end,
   },
 })

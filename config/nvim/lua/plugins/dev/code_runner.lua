@@ -26,11 +26,16 @@ return {
         require('code_runner.hooks.ui').select({
           Project = function()
             require('code_runner.hooks.tectonic').build(
-              preview_cmd,
-              { '--keep-intermediates', '--keep-logs' }
+              preview_cmd
             )
           end,
-          ["Project Biber"] = function()
+          ["Project + Biber"] = function()
+            require('code_runner.hooks.tectonic').build(
+              preview_cmd,
+              { "biber", '--keep-intermediates', '--keep-logs' }
+            )
+          end,
+          ["Project + intermediates"] = function()
             require('code_runner.hooks.tectonic').build(
               preview_cmd,
               { "biber", '--keep-intermediates', '--keep-logs' }

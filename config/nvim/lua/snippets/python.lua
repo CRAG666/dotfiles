@@ -601,7 +601,7 @@ M.snippets = {
           var = i(nil, 'var'),
           iterable = i(nil, 'iterable'),
         },
-      }
+      },
     }
   ),
   us.msn(

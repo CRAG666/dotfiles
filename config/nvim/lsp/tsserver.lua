@@ -1,15 +1,24 @@
----@type vim.lsp.Config
+---@type lsp_config_t
 return {
-  init_options = { hostInfo = "neovim" },
-  cmd = { "typescript-language-server", "--stdio" },
   filetypes = {
-    "javascript",
-    "javascriptreact",
-    "javascript.jsx",
-    "typescript",
-    "typescriptreact",
-    "typescript.tsx",
+    'typescript',
+    'javascript',
+    'typescriptreact',
+    'javascriptreact',
   },
-  root_markers = { "tsconfig.json", "jsconfig.json", "package.json"},
-  single_file_support = true,
+  cmd = {
+    'typescript-language-server',
+    '--stdio',
+  },
+  root_markers = {
+    {
+      'tsconfig.json',
+      'jsconfig.json',
+    },
+    { 'package.json' },
+  },
+  init_options = {
+    hostInfo = 'neovim',
+  },
 }
+

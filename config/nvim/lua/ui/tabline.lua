@@ -6,12 +6,14 @@ setmetatable(_G._tabline, {
   ---@return string
   __call = function()
     local tabnames = {}
-    local tabidcur = vim.api.nvim_get_current_tabpage()
+    local tabids = vim.api.nvim_list_tabpages()
+    local tabnrcur = vim.fn.tabpagenr()
+
     -- If tab-local tab name variable is not set but a global tab name variable
     -- exists for that tab, restore the tab-local tab name using the global tab
     -- name variable, this should only happen during or after session load once
     if not vim.g._tabline_name_restored then
-      for tabnr, tabid in ipairs(vim.api.nvim_list_tabpages()) do
+      for tabnr, tabid in ipairs(tabids) do
         local tabname_id = vim.t[tabid]._tabname
         local tabname_nr = vim.g['Tabname' .. tabnr]
         if not tabname_id and tabname_nr then
@@ -20,28 +22,62 @@ setmetatable(_G._tabline, {
       end
       vim.g._tabline_name_restored = true
     end
-    for tabnr, tabid in ipairs(vim.api.nvim_list_tabpages()) do
-      -- Save the tab-local name variable to the corresponding global variable
-      -- Tab names are saved in global variables by number instead of id
-      -- because tab ids are not preserved across sessions
+
+    -- Save the tab-local name variable to the corresponding global variable
+    -- Tab names are saved in global variables by number instead of id
+    -- because tab ids are not preserved across sessions
+    for tabnr, tabid in ipairs(tabids) do
       if vim.g._tabline_name_restored then
         vim.g['Tabname' .. tabnr] = vim.t[tabid]._tabname
       end
+    end
+
+    local leftpad, rightpad = ' ', ' '
+
+    for tabnr, tabid in ipairs(tabids) do
       table.insert(
         tabnames,
-        utils.stl.hl(
-          string.format(
-            '%%%dT %s %%X',
-            tabnr,
-            vim.t[tabid]._tabname
-              or vim.fs.basename(
-                vim.fn.getcwd(vim.api.nvim_tabpage_get_win(tabid), tabnr)
-              )
-          ),
-          tabid == tabidcur and 'TabLineSel' or 'TabLine'
+        string.format(
+          '%s%s%s',
+          leftpad,
+          vim.t[tabid]._tabname
+            or vim.fs.basename(
+              vim.fn.getcwd(vim.api.nvim_tabpage_get_win(tabid), tabnr)
+            ),
+          rightpad
         )
       )
     end
+
+    -- Shrink tabnames if tabline cannot fit into screen
+    if vim.fn.strdisplaywidth(table.concat(tabnames)) > vim.go.columns then
+      local ellipsis = vim.trim(utils.static.icons.Ellipsis)
+      local tabwidth = math.floor(vim.go.columns / vim.fn.tabpagenr('$'))
+      local tabnameshrinkwidth = math.max(
+        1,
+        tabwidth - vim.fn.strdisplaywidth(ellipsis .. leftpad .. rightpad)
+      )
+      for i, tabname in ipairs(tabnames) do
+        if vim.fn.strdisplaywidth(tabname) > tabwidth then
+          tabnames[i] = string.format(
+            '%s%s%s%s',
+            leftpad,
+            vim.fn.strcharpart(vim.trim(tabname), 0, tabnameshrinkwidth),
+            ellipsis,
+            rightpad
+          )
+        end
+      end
+    end
+
+    -- Colorize and add click response
+    for tabnr, tabname in ipairs(tabnames) do
+      tabnames[tabnr] = utils.stl.hl(
+        string.format('%%%dT%s%%X', tabnr, tabname),
+        tabnr == tabnrcur and 'TabLineSel' or 'TabLine'
+      )
+    end
+
     return table.concat(tabnames)
   end,
 })

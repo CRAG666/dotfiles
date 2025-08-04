@@ -1,1 +1,1 @@
-1|Catppuccin-Mocha|/mnt/home/Imágenes/wallpaperCicle/24.jpg
+1|Catppuccin-Mocha|/mnt/home/Imágenes/wallpaperCicle/26.jpg

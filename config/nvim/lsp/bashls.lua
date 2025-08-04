@@ -1,10 +1,16 @@
+---@type lsp_config_t
 return {
-  cmd = { 'bash-language-server', 'start' },
-  filetypes = { 'sh', 'bash' },
+  filetypes = { 'sh' },
+  cmd = {
+    'bash-language-server',
+    'start',
+  },
   settings = {
     bashIde = {
-      globPattern = '*@(.sh|.inc|.bash|.zsh|.command)',
+      globPattern = vim.env.GLOB_PATTERN or '*@(.sh|.inc|.bash|.command)',
+      shfmt = {
+        keepPadding = true,
+      },
     },
   },
-  single_file_support = true,
 }

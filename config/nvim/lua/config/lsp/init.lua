@@ -101,7 +101,7 @@ local function setup_lsp_overrides()
       opts.wrap = false
     end
     local floating_bufnr, floating_winnr =
-        _open_floating_preview(contents, syntax, opts)
+      _open_floating_preview(contents, syntax, opts)
     vim.wo[floating_winnr].concealcursor = 'nc'
     return floating_bufnr, floating_winnr
   end
@@ -181,23 +181,23 @@ local function setup_diagnostic_overrides()
     end)
 
     return vim
-        .iter(diags)
-        :filter(function(diag) ---@param diag diagnostic_t
-          ---@class diagnostic_t: vim.Diagnostic
-          ---@field _hidden boolean whether the diagnostic is shown as virtual text
+      .iter(diags)
+      :filter(function(diag) ---@param diag diagnostic_t
+        ---@class diagnostic_t: vim.Diagnostic
+        ---@field _hidden boolean whether the diagnostic is shown as virtual text
 
-          diag._hidden = vim
-              .iter(diags_cache[diag.bufnr][diag.lnum])
-              :any(function(d) ---@param d diagnostic_t
-                return not d._hidden
-                    and d.namespace ~= diag.namespace
-                    and d.severity <= diag.severity
-                    and d.col == diag.col
-              end)
+        diag._hidden = vim
+          .iter(diags_cache[diag.bufnr][diag.lnum])
+          :any(function(d) ---@param d diagnostic_t
+            return not d._hidden
+              and d.namespace ~= diag.namespace
+              and d.severity <= diag.severity
+              and d.col == diag.col
+          end)
 
-          return not diag._hidden
-        end)
-        :totable()
+        return not diag._hidden
+      end)
+      :totable()
   end
 
   ---Truncates multi-line diagnostic messages to their first line
@@ -205,17 +205,17 @@ local function setup_diagnostic_overrides()
   ---@return vim.Diagnostic[]
   local function truncate_multiline(diags)
     return vim
-        .iter(diags)
-        :map(function(d) ---@param d vim.Diagnostic
-          local first_line = vim.gsplit(d.message, '\n')()
-          if not first_line or first_line == d.message then
-            return d
-          end
-          return vim.tbl_extend('keep', {
-            message = first_line,
-          }, d)
-        end)
-        :totable()
+      .iter(diags)
+      :map(function(d) ---@param d vim.Diagnostic
+        local first_line = vim.gsplit(d.message, '\n')()
+        if not first_line or first_line == d.message then
+          return d
+        end
+        return vim.tbl_extend('keep', {
+          message = first_line,
+        }, d)
+      end)
+      :totable()
   end
 
   vim.diagnostic.handlers.virtual_text.show = (function(cb)
@@ -229,11 +229,33 @@ local function setup_diagnostic_overrides()
   end)(vim.diagnostic.handlers.virtual_text.show)
 end
 
-function M.setup()
+function M.setup(disable_list)
   local lu = require('config.lsp.utils')
   vim.lsp.config('*', {
     capabilities = lu.capabilities(),
     root_markers = require('utils.fs').root_markers,
+  })
+  vim.api.nvim_create_autocmd('FileType', {
+    once = true,
+    callback = function(args)
+      vim
+        .iter(vim.api.nvim__get_runtime({ 'lsp' }, true, {}))
+        :each(function(dir)
+          vim
+            .iter(vim.fs.dir(dir))
+            :map(function(config)
+              return vim.fn.fnamemodify(config, ':r')
+            end)
+            :each(function(config)
+              if not vim.tbl_contains(disable_list, config) then
+                vim.lsp.enable(config)
+              end
+            end)
+        end)
+      vim.api.nvim_exec_autocmds('FileType', {
+        pattern = args.match,
+      })
+    end,
   })
   lu.on_attach(function(client, bufnr)
     -- if vim.lsp.inlay_hint.is_enabled() ~= true then
@@ -247,5 +269,4 @@ function M.setup()
     setup_diagnostic_configs()
   end)
 end
-
 return M

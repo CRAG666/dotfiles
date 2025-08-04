@@ -10,6 +10,8 @@ return {
         'stylua',
         'shfmt',
         'lua-language-server',
+        'efm',
+        'luacheck',
       },
     },
     ---@param opts MasonSettings | {ensure_installed: string[]}
@@ -54,39 +56,6 @@ return {
     },
   },
   {
-    'stevearc/conform.nvim',
-    opts = {
-      formatters_by_ft = {
-        json = { 'jq' },
-        bib = { 'bibtex-tidy' },
-        tex = { 'tex-fmt' },
-      },
-      formatters = {
-        ["tex-fmt"] = {
-          args = {
-            "-s",
-            "--wraplen",
-            "112",
-          },
-        },
-        ["bibtex-tidy"] = {
-          args = {
-            "--curly",
-            "--numeric",
-            "--align=13",
-            "--blank-lines",
-            "--duplicates=key,doi,citation,abstract",
-            "--merge",
-            "--sort-fields",
-            "--remove-empty-fields",
-            "--wrap=106",
-            "$FILENAME"
-          },
-        },
-      },
-    },
-  },
-  {
     'rachartier/tiny-code-action.nvim',
     event = 'LspAttach',
     keys = {
@@ -100,18 +69,18 @@ return {
     },
     opts = {
       backend = 'delta',
-      picker = { "snacks" }
+      picker = { 'snacks' },
     },
     dependencies = {
       { 'nvim-lua/plenary.nvim' },
     },
   },
   {
-    "rachartier/tiny-inline-diagnostic.nvim",
-    event = "LspAttach",
+    'rachartier/tiny-inline-diagnostic.nvim',
+    event = 'LspAttach',
     config = function()
       require('tiny-inline-diagnostic').setup()
-    end
+    end,
   },
   {
     'folke/ts-comments.nvim',
@@ -119,7 +88,7 @@ return {
     opts = {},
   },
   {
-    "nvzone/minty",
-    cmd = { "Shades", "Huefy" },
-  }
+    'nvzone/minty',
+    cmd = { 'Shades', 'Huefy' },
+  },
 }

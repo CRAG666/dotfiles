@@ -12,8 +12,9 @@ return {
   filetypes = { 'python' },
   settings = {
     basedpyright = {
-      disableOrganizeImports = true,
+      disableOrganizeImports = false,
       analysis = {
+        diagnosticMode = 'openFilesOnly',
         autoSearchPaths = true,
         autoImportCompletions = true,
         typeCheckingMode = 'off',

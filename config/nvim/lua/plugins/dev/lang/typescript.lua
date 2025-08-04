@@ -15,6 +15,7 @@ return {
       opts.ensure_installed = opts.ensure_installed or {}
       table.insert(opts.ensure_installed, 'typescript-language-server')
       table.insert(opts.ensure_installed, 'emmet-language-server')
+      table.insert(opts.ensure_installed, 'prettierd')
     end,
   },
   {

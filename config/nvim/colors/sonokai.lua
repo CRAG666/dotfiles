@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Wed Jul 23 15:49:44 2025
+-- Last Updated: Mon 28 Jul 2025 02:19:38 AM PDT
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -413,40 +413,6 @@ local hlgroups = {
   -- }}}
 
   -- Plugins {{{2
-  -- nvim-cmp
-  CmpCompletion = { link = 'Pmenu' },
-  CmpCompletionSbar = { link = 'PmenuSbar' },
-  CmpCompletionThumb = { link = 'PmenuThumb' },
-  CmpDocumentation = { link = 'NormalFloat' },
-  CmpDocumentationBorder = { link = 'FloatBorder' },
-  CmpItemAbbrDeprecated = { fg = c_grey, strikethrough = true },
-  CmpItemAbbrMatch = { fg = c_red },
-  CmpItemAbbrMatchFuzzy = { link = 'CmpItemAbbrMatch' },
-  CmpItemKindClass = { link = 'Type' },
-  CmpItemKindConstant = { link = 'Constant' },
-  CmpItemKindConstructor = { link = '@constructor' },
-  CmpItemKindCopilot = { link = 'String' },
-  CmpItemKindDefault = { fg = c_purple },
-  CmpItemKindEnum = { link = 'Type' },
-  CmpItemKindEnumMember = { link = 'Constant' },
-  CmpItemKindField = { link = '@property' },
-  CmpItemKindFile = { link = 'Special' },
-  CmpItemKindFolder = { link = 'Directory' },
-  CmpItemKindFunction = { link = 'Function' },
-  CmpItemKindInterface = { link = 'Type' },
-  CmpItemKindKeyword = { link = '@keyword' },
-  CmpItemKindMethod = { link = 'Function' },
-  CmpItemKindModule = { link = '@keyword.import' },
-  CmpItemKindOperator = { link = 'Operator' },
-  CmpItemKindProperty = { link = '@property' },
-  CmpItemKindReference = { link = 'Type' },
-  CmpItemKindSnippet = { fg = c_yellow },
-  CmpItemKindStruct = { link = 'Type' },
-  CmpItemKindText = { link = 'String' },
-  CmpItemKindTypeParameter = { link = 'Type' },
-  CmpItemKindValue = { fg = c_purple },
-  CmpItemKindVariable = { fg = c_orange },
-
   -- gitsigns
   GitSignsAdd = { fg = c_green },
   GitSignsAddInline = { bg = c_green, fg = c_bg1 },

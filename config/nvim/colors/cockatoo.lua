@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Wed Jul 23 15:49:44 2025
+-- Last Updated: Mon 28 Jul 2025 02:19:38 AM PDT
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -211,6 +211,7 @@ local hlgroups = {
   MatchParen = { bg = c_thunder, bold = true },
   NonText = { fg = c_steel },
   Pmenu = { fg = c_smoke, bg = c_ocean },
+  PmenuExtra = { fg = c_steel },
   PmenuSbar = { bg = c_deepsea },
   PmenuSel = { fg = c_smoke, bg = c_thunder },
   PmenuThumb = { bg = c_orange },
@@ -504,40 +505,6 @@ local hlgroups = {
   -- Plugins {{{2
   -- netrw
   netrwClassify = { link = 'Directory' },
-
-  -- nvim-cmp
-  CmpItemAbbr = { fg = c_smoke },
-  CmpItemAbbrDeprecated = { strikethrough = true },
-  CmpItemAbbrMatch = { fg = c_smoke, bold = true },
-  CmpItemAbbrMatchFuzzy = { link = 'CmpItemAbbrMatch' },
-  CmpItemKindText = { link = 'String' },
-  CmpItemKindMethod = { link = 'Function' },
-  CmpItemKindFunction = { link = 'Function' },
-  CmpItemKindConstructor = { link = 'Function' },
-  CmpItemKindField = { fg = c_purple },
-  CmpItemKindProperty = { link = 'CmpItemKindField' },
-  CmpItemKindVariable = { fg = c_aqua },
-  CmpItemKindReference = { link = 'CmpItemKindVariable' },
-  CmpItemKindModule = { fg = c_magenta },
-  CmpItemKindEnum = { fg = c_ochre },
-  CmpItemKindEnumMember = { link = 'CmpItemKindEnum' },
-  CmpItemKindKeyword = { link = 'Keyword' },
-  CmpItemKindOperator = { link = 'Operator' },
-  CmpItemKindSnippet = { fg = c_tea },
-  CmpItemKindColor = { fg = c_pink },
-  CmpItemKindConstant = { link = 'Constant' },
-  CmpItemKindCopilot = { fg = c_magenta },
-  CmpItemKindValue = { link = 'Number' },
-  CmpItemKindClass = { link = 'Type' },
-  CmpItemKindStruct = { link = 'Type' },
-  CmpItemKindEvent = { fg = c_flashlight },
-  CmpItemKindInterface = { fg = c_flashlight },
-  CmpItemKindFile = { link = 'Special' },
-  CmpItemKindFolder = { link = 'Directory' },
-  CmpItemKindUnit = { fg = c_cerulean },
-  CmpItemKind = { fg = c_smoke },
-  CmpItemMenu = { link = 'Pmenu' },
-  CmpVirtualText = { fg = c_steel, italic = true },
 
   -- gitsigns
   GitSignsAdd = { fg = c_tea_blend },

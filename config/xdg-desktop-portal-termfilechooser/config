@@ -1,4 +1,4 @@
 [filechooser]
 cmd=~/.config/xdg-desktop-portal-termfilechooser/yazi-wrapper.sh
 default_dir=$HOME/Descargas/
-env=TERMCMD=kitty -T yazi
+env=TERMCMD=kitty --class dialog -T yazi

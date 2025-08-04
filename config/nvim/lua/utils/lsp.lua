@@ -6,30 +6,11 @@ M.default_config = {
   root_markers = require('utils.fs').root_markers,
 }
 
----@class vim.lsp.ClientConfig: lsp_client_config_t
----@class lsp_client_config_t
----@field cmd? (string[]|fun(dispatchers: table):table)
----@field cmd_cwd? string
----@field cmd_env? (table)
----@field detached? boolean
----@field workspace_folders? (table)
----@field capabilities? lsp.ClientCapabilities
----@field handlers? table<string,function>
----@field settings? table
----@field commands? table
----@field init_options? table
----@field name? string
----@field get_language_id? fun(bufnr: integer, filetype: string): string
----@field offset_encoding? string
----@field on_error? fun(code: integer)
----@field before_init? function
----@field on_init? function
----@field on_exit? fun(code: integer, signal: integer, client_id: integer)
----@field on_attach? fun(client: vim.lsp.Client, bufnr: integer)
----@field trace? 'off'|'messages'|'verbose'|nil
----@field flags? table
----@field root_dir? string
----@field root_markers? string[]
+---@class (partial) lsp_config_t : vim.lsp.Config
+---@field requires? string[] additional executables required to start the language server
+---@field buf_support? boolean whether the language server works on buffers without corresponding files
+
+---@class (partial) lsp_client_config_t : vim.lsp.ClientConfig
 ---@field requires? string[] additional executables required to start the language server
 ---@field buf_support? boolean whether the language server works on buffers without corresponding files
 
@@ -159,6 +140,7 @@ function M.restart(client_or_id, opts)
           return
         end
         vim.api.nvim_buf_call(buf, function()
+          ---@cast config lsp_client_config_t
           local id = M.start(config)
           if id and opts and opts.on_restart then
             opts.on_restart(id)

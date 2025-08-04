@@ -158,7 +158,7 @@ M.opts = {
           or utils.ts.is_active(buf)
           or not vim.tbl_isempty(vim.lsp.get_clients({
             bufnr = buf,
-            method = 'textDocument/documentSymbol',
+            method = vim.lsp.protocol.Methods.textDocument_documentSymbol,
           }))
         )
     end,

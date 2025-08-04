@@ -1,19 +1,20 @@
-local root_markers = {
-  'pyproject.toml',
-  'setup.py',
-  'setup.cfg',
-  'requirements.txt',
-  'Pipfile',
-  'pyrightconfig.json',
-}
+---@type lsp_config_t
 return {
-  cmd = { 'ruff', 'server' },
   filetypes = { 'python' },
-  single_file_support = true,
-  root_markers = root_markers,
-  init_options = {
-    settings = {
-      args = { '--line-length=180' },
+  cmd = { 'ruff', 'server' },
+  buf_support = false,
+  root_markers = {
+    { 'ruff.toml', '.ruff.toml' },
+    { 'pyproject.toml' },
+    {
+      'Pipfile',
+      'requirements.txt',
+      'setup.cfg',
+      'setup.py',
+      'tox.ini',
     },
+    { 'venv', 'env', '.venv', '.env' },
+    { '.python-version' },
   },
 }
+

@@ -14,10 +14,24 @@ local d = ls.dynamic_node
 ---Check if current file is bash
 ---@return boolean
 local function is_bash()
-  return vim.bo.ft == 'bash'
-    or vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ':e') == 'bash'
-    or vim.api.nvim_buf_line_count(0) > 0
-      and vim.api.nvim_buf_get_lines(0, 0, 1, false)[1]:match('^#!.*bash') ~= nil
+  if vim.bo.ft == 'bash' then
+    return true
+  end
+
+  local bufname = vim.api.nvim_buf_get_name(0)
+  if
+    vim.fn.fnamemodify(bufname, ':e') == 'bash'
+    or vim.tbl_contains(
+      { '.bashrc', '.bash_profile' },
+      vim.fn.fnamemodify(bufname, ':t')
+    )
+  then
+    return true
+  end
+
+  return vim.api.nvim_buf_line_count(0) > 0
+    and vim.api.nvim_buf_get_lines(0, 0, 1, false)[1]:match('^#!.*bash')
+      ~= nil
 end
 
 M.snippets = {

@@ -1,4 +1,5 @@
--- winbar
+vim.cmd.colorscheme('macro')
+
 vim.api.nvim_create_autocmd('FileType', {
   once = true,
   group = vim.api.nvim_create_augroup('WinBarSetup', {}),
@@ -34,30 +35,5 @@ load_ui('tabline')
 load_ui('statusline')
 load_ui('statuscolumn')
 
--- Lsp servers
-local clients = {
-  'basedpyright',
-  'bashls',
-  'clangd',
-  'cssls',
-  'dockerls',
-  'jsonls',
-  'lua_ls',
-  'marksman',
-  'remark',
-  'omnisharp',
-  -- 'csharp_ls',
-  'ruff_ls',
-  -- 'texlab',
-  'digestif',
-  'tsserver',
-  'emmet',
-  -- 'nimls',
-  -- 'v_analyzer',
-  "pyrefly"
-}
-require('config.lsp').setup()
-require('config.lsp.grammar').setup()
-for _, client in ipairs(clients) do
-  vim.lsp.enable(client)
-end
+require('config.defaults')
+require('config.keymappings')

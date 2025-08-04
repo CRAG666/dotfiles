@@ -100,33 +100,55 @@ function M.get(mode, lhs)
   }
 end
 
+---Cache key sequence to keycode mapping
+---@type table<string, string>
+local keycodes = {}
+
+---Feed keys with repeat
+---@param keys? string keys to be typed
+---@param modes string behavior flags, see `feedkeys()`
+---@param escape_ks boolean if true, escape `K_SPECIAL` bytes in `keys`
+function M.feed(keys, modes, escape_ks)
+  if not keys then
+    return
+  end
+
+  local keycode = keycodes[keys]
+  if not keycode then
+    keycode = vim.keycode(keys)
+    keycodes[keys] = keycode
+  end
+
+  vim.api.nvim_feedkeys(
+    vim.v.count > 0 and vim.v.count .. keycode or keycode,
+    modes,
+    escape_ks
+  )
+end
+
 ---@param def keymap_def_t
 ---@return function
 function M.fallback_fn(def)
   local modes = def.noremap and 'in' or 'im'
-  ---@param keys string
-  ---@return nil
-  local function feed(keys)
-    local keycode = vim.keycode(keys)
-    local keyseq = vim.v.count > 0 and vim.v.count .. keycode or keycode
-    vim.api.nvim_feedkeys(keyseq, modes, false)
-  end
+
   if not def.expr then
-    return def.callback or function()
-      feed(def.rhs)
-    end
+    return def.callback
+      or function()
+        M.feed(def.rhs, modes, false)
+      end
   end
+
   if def.callback then
     return function()
-      feed(def.callback())
+      M.feed(def.callback(), modes, false)
     end
-  else
-    -- Escape rhs to avoid nvim_eval() interpreting
-    -- special characters
-    local rhs = vim.fn.escape(def.rhs, '\\')
-    return function()
-      feed(vim.api.nvim_eval(rhs))
-    end
+  end
+
+  -- Escape rhs to avoid nvim_eval() interpreting
+  -- special characters
+  local rhs = vim.fn.escape(def.rhs, '\\')
+  return function()
+    M.feed(vim.api.nvim_eval(rhs), modes, false)
   end
 end
 
@@ -134,7 +156,7 @@ end
 ---Caveat: currently cannot amend keymap with <Cmd>...<CR> rhs
 ---@param modes string[]|string
 ---@param lhs string
----@param rhs function(fallback: function)
+---@param rhs fun(fallback: function)
 ---@param opts table?
 ---@return nil
 function M.amend(modes, lhs, rhs, opts)

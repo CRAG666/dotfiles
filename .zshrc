@@ -169,11 +169,10 @@ alias la="exa --icons -la"
 # alias cp='rsync --progress -avz'
 cd() { pushd $1 && ls; }
 alias tree="exa --icons --tree --level=4 --long --git"
-alias v="nvim"
-alias vi="nvim"
+alias vi="NVIM_APPNAME=nvim-minimal nvim"
 alias vim="nvim"
 alias zt="/bin/zathura --fork"
-alias zp="zen-browser"
+alias zb="zen-browser"
 alias lo="/bin/libreoffice"
 alias music="termusic"
 alias rm='rm -i'

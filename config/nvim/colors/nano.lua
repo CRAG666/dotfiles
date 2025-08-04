@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Wed Jul 23 15:49:44 2025
+-- Last Updated: Mon 28 Jul 2025 02:19:38 AM PDT
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -146,7 +146,8 @@ local hlgroups = {
   Normal = { fg = c_foreground, bg = c_background },
   NormalFloat = { fg = c_foreground, bg = c_subtle },
   NormalNC = { link = 'Normal' },
-  Pmenu = { fg = c_faded, bg = c_highlight },
+  Pmenu = { fg = c_foreground, bg = c_highlight },
+  PmenuExtra = { fg = c_faded },
   PmenuSbar = { bg = c_subtle },
   PmenuSel = { fg = c_foreground, bg = c_subtle, bold = true },
   PmenuThumb = { bg = c_popout },
@@ -441,39 +442,6 @@ local hlgroups = {
   -- Plugins {{{2
   -- netrw
   netrwClassify = { link = 'Directory' },
-
-  -- nvim-cmp
-  CmpItemAbbrDeprecated = { strikethrough = true },
-  CmpItemAbbrMatch = { fg = c_salient },
-  CmpItemAbbrMatchFuzzy = { link = 'CmpItemAbbrMatch' },
-  CmpItemKindText = { link = 'String' },
-  CmpItemKindMethod = { link = 'Function' },
-  CmpItemKindFunction = { link = 'Function' },
-  CmpItemKindConstructor = { link = 'Function' },
-  CmpItemKindField = { fg = c_salient },
-  CmpItemKindProperty = { link = 'CmpItemKindField' },
-  CmpItemKindVariable = { fg = c_popout },
-  CmpItemKindReference = { link = 'CmpItemKindVariable' },
-  CmpItemKindModule = { fg = c_salient },
-  CmpItemKindEnum = { fg = c_faded },
-  CmpItemKindEnumMember = { link = 'CmpItemKindEnum' },
-  CmpItemKindKeyword = { link = 'Keyword' },
-  CmpItemKindOperator = { link = 'Operator' },
-  CmpItemKindSnippet = { fg = c_pine },
-  CmpItemKindColor = { fg = c_faded },
-  CmpItemKindConstant = { link = 'Constant' },
-  CmpItemKindCopilot = { fg = c_salient },
-  CmpItemKindValue = { link = 'Number' },
-  CmpItemKindClass = { link = 'Type' },
-  CmpItemKindStruct = { link = 'Type' },
-  CmpItemKindEvent = { fg = c_pine },
-  CmpItemKindInterface = { fg = c_faded },
-  CmpItemKindFile = { link = 'Identifier' },
-  CmpItemKindFolder = { link = 'Directory' },
-  CmpItemKindUnit = { fg = c_salient },
-  CmpItemKind = { fg = c_foreground },
-  CmpItemMenu = { link = 'Pmenu' },
-  CmpVirtualText = { fg = c_faint, italic = true },
 
   -- gitsigns
   GitSignsAdd = { fg = c_pine },
