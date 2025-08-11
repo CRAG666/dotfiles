@@ -63,6 +63,7 @@ set.shiftwidth = 4
 set.softtabstop = 4
 set.ts = 4
 set.autoindent = true
+set.copyindent = true
 set.smartindent = true
 set.linebreak = true
 set.breakindent = true
@@ -81,7 +82,7 @@ set.incsearch = true
 -- Performance
 -- =============================
 set.timeoutlen = 300
-set.updatetime = 200
+set.updatetime = 500
 
 -- =============================
 -- Key Mappings
@@ -110,7 +111,7 @@ set.mouse = 'a'
 -- Diff and Git
 -- =============================
 set.diffopt =
-'filler,vertical,hiddenoff,linematch:60,foldcolumn:0,algorithm:minimal'
+  'filler,vertical,hiddenoff,linematch:60,foldcolumn:0,algorithm:minimal'
 
 -- =============================
 -- Wildcards and Paths
@@ -155,8 +156,8 @@ set.grepformat = '%f:%l:%c:%m'
 -- =============================
 -- Special Behaviors
 -- =============================
-set.ruler = false          -- Disable the default ruler
-set.inccommand = 'nosplit' -- preview incremental substitute
+set.ruler = false -- Disable the default ruler
+set.inccommand = 'split' -- preview incremental substitute
 set.jumpoptions = 'view'
 set.joinspaces = false
 set.virtualedit = 'block'

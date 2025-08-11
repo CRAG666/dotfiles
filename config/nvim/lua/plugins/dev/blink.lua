@@ -84,7 +84,7 @@ return {
                 active = {
                   virt_text = {
                     {
-                      icons.ArrowUpDown,
+                      utils.static.icons.ArrowUpDown,
                       'Number',
                     },
                   },
@@ -108,7 +108,10 @@ return {
               if vim.fn.mode():match('^[si]') then -- still in insert/select mode
                 return
               end
-              if ls.session.current_nodes[args.buf] and not ls.session.jump_active then
+              if
+                ls.session.current_nodes[args.buf]
+                and not ls.session.jump_active
+              then
                 ls.unlink_current()
               end
             end),
@@ -142,14 +145,14 @@ return {
           },
         },
         ghost_text = { enabled = false },
-        list = { selection = { preselect = false, auto_insert = true, } },
+        list = { selection = { preselect = false, auto_insert = true } },
         menu = {
           -- min_width = math.floor(vim.go.pumwidth),
           -- max_height = math.floor(vim.go.pumheight),
           draw = {
             columns = {
               { 'kind_icon' },
-              { 'label',    'label_description', gap = 1, 'kind' },
+              { 'label', 'label_description', gap = 1, 'kind' },
             },
             components = {
               kind_icon = {
@@ -250,10 +253,10 @@ return {
             transform_items = function(_, items)
               is_cmd_expr_compl = vim.tbl_contains(
                 { 'function', 'expression' },
-                require('blink.cmp.sources.lib.utils').get_completion_type(require(
-                  'blink.cmp.completion.trigger.context').get_mode())
+                require('blink.cmp.sources.lib.utils').get_completion_type(
+                  require('blink.cmp.completion.trigger.context').get_mode()
+                )
               )
-
 
               if not is_cmd_expr_compl then
                 return items
@@ -294,7 +297,7 @@ return {
 
                 if item.insertText:match(pattern) then
                   local text = case_func(item.insertText:sub(1, 1))
-                      .. item.insertText:sub(2)
+                    .. item.insertText:sub(2)
                   item.insertText = text
                   item.label = text
                 end
