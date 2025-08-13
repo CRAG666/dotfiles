@@ -14,3 +14,4 @@ require('refactoring').setup({
     java = true,
   },
 })
+

@@ -5,3 +5,4 @@ require('template').setup({
   author = 'Diego Crag',
   email = 'dcrag@pm.me',
 })
+

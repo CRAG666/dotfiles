@@ -1,10 +1,5 @@
-local utils = require('utils')
-local icons = utils.static.icons.diagnostics
-local boxes = require('utils.static.boxes')
-
 vim.pack.add({
   'https://github.com/DaikyXendo/nvim-material-icon',
-  'https://github.com/MunifTanjim/nui.nvim',
   'https://github.com/stevearc/dressing.nvim',
   'https://github.com/folke/which-key.nvim',
   'https://github.com/brenoprata10/nvim-highlight-colors',

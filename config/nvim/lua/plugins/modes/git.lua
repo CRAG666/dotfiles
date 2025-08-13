@@ -4,9 +4,13 @@ vim.pack.add({
   'https://github.com/chrisgrieser/nvim-tinygit',
 })
 
-require('fugit2').setup({
-  width = 100,
-})
-
-key.map('n', '<leader>gm', '<cmd>Fugit2<cr>', { desc = 'Git Mode' })
-key.map('n', '<leader>gg', '<cmd>Fugit2Graph<cr>', { desc = 'Git Graph' })
+key.maps_lazy(
+  'fugit2',
+  require('utils.fn').setup('fugit2', { width = 100 }),
+  'n',
+  '<leader>g',
+  {
+    { 'm', 'Fugit2', 'Git Mode' },
+    { 'g', 'Fugit2Graph', 'Git Graph' },
+  }
+)

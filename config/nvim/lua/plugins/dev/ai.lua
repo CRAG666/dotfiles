@@ -1,87 +1,87 @@
 local icons = require('utils.static.icons')
 local key = require('utils.keymap')
 vim.pack.add({ { src = 'https://github.com/olimorris/codecompanion.nvim' } })
-local codecompanion = require('codecompanion')
-codecompanion.setup({
-  opts = {
-    visible = true,
-    language = 'spanish',
-  },
-  adapters = {
-    deepseek = function()
-      return require('codecompanion.adapters').extend('deepseek', {
-        env = {
-          api_key = 'cmd:gak ai/deepseek',
-        },
-        schema = {
-          model = {
-            -- default = 'deepseek-reasoner',
-            default = 'deepseek-chat',
+local function setup()
+  require('codecompanion').setup({
+    opts = {
+      visible = true,
+      language = 'spanish',
+    },
+    adapters = {
+      deepseek = function()
+        return require('codecompanion.adapters').extend('deepseek', {
+          env = {
+            api_key = 'cmd:gak ai/deepseek',
+          },
+          schema = {
+            model = {
+              -- default = 'deepseek-reasoner',
+              default = 'deepseek-chat',
+            },
+          },
+        })
+      end,
+    },
+    prompt_library = {
+      ['My New Prompt'] = {
+        strategy = 'chat',
+        description = 'Some cool custom prompt you can do',
+        prompts = {
+          {
+            role = 'system',
+            content = 'You are an experienced developer with Lua and Neovim',
+          },
+          {
+            role = 'user',
+            content = 'Can you explain why ...',
           },
         },
-      })
-    end,
-  },
-  prompt_library = {
-    ['My New Prompt'] = {
-      strategy = 'chat',
-      description = 'Some cool custom prompt you can do',
-      prompts = {
-        {
-          role = 'system',
-          content = 'You are an experienced developer with Lua and Neovim',
-        },
-        {
-          role = 'user',
-          content = 'Can you explain why ...',
-        },
       },
     },
-  },
-  strategies = {
-    chat = {
-      adapter = 'deepseek',
-      keymaps = {
-        options = { modes = { n = 'g?' } },
-        close = { modes = { n = 'gX', i = '<M-C-X>' } },
-        stop = { modes = { n = '<C-c>' } },
-        codeblock = { modes = { n = 'cdb' } },
-        next_header = { modes = { n = ']#' } },
-        previous_header = { modes = { n = '[#' } },
-        next_chat = { modes = { n = ']}' } },
-        previous_chat = { modes = { n = '[{' } },
-        clear = { modes = { n = 'gC' } },
-        fold_code = { modes = { n = 'gF' } },
-        debug = { modes = { n = 'g<C-g>' } },
-        change_adapter = { modes = { n = 'gA' } },
-        system_prompt = { modes = { n = 'gS' } },
-        pin = {
-          modes = { n = 'g>' },
-          description = 'Pin Reference (resend whole contents on change)',
-        },
-        watch = {
-          modes = { n = 'g=' },
-          description = 'Watch Buffer (send diffs on change)',
-        },
-      },
-    },
-    inline = {
-      adapter = 'deepseek',
-      keymaps = {
-        accept_change = {
-          modes = { n = 'gA' },
-          callback = 'keymaps.accept_change',
-        },
-        reject_change = {
-          modes = { n = 'gX' },
-          callback = 'keymaps.reject_change',
+    strategies = {
+      chat = {
+        adapter = 'deepseek',
+        keymaps = {
+          options = { modes = { n = 'g?' } },
+          close = { modes = { n = 'gX', i = '<M-C-X>' } },
+          stop = { modes = { n = '<C-c>' } },
+          codeblock = { modes = { n = 'cdb' } },
+          next_header = { modes = { n = ']#' } },
+          previous_header = { modes = { n = '[#' } },
+          next_chat = { modes = { n = ']}' } },
+          previous_chat = { modes = { n = '[{' } },
+          clear = { modes = { n = 'gC' } },
+          fold_code = { modes = { n = 'gF' } },
+          debug = { modes = { n = 'g<C-g>' } },
+          change_adapter = { modes = { n = 'gA' } },
+          system_prompt = { modes = { n = 'gS' } },
+          pin = {
+            modes = { n = 'g>' },
+            description = 'Pin Reference (resend whole contents on change)',
+          },
+          watch = {
+            modes = { n = 'g=' },
+            description = 'Watch Buffer (send diffs on change)',
+          },
         },
       },
-      variables = {
-        ['wassistant'] = {
-          ---@return string
-          callback = function()
-            return [[
+      inline = {
+        adapter = 'deepseek',
+        keymaps = {
+          accept_change = {
+            modes = { n = 'gA' },
+            callback = 'keymaps.accept_change',
+          },
+          reject_change = {
+            modes = { n = 'gX' },
+            callback = 'keymaps.reject_change',
+          },
+        },
+        variables = {
+          ['wassistant'] = {
+            ---@return string
+            callback = function()
+              return [[
                 <prompt>
                   <role>
                     Actúa como un escritor experimentado en artículos científicos, especializado en la revisión y edición de textos académicos.
@@ -114,16 +114,16 @@ codecompanion.setup({
                   <format>Devuelve el texto revisado con correcciones y mejoras aplicadas.</format>
                 </prompt>
               ]]
-          end,
-          description = 'My Cientific Writting assistant',
-          opts = {
-            contains_code = true,
+            end,
+            description = 'My Cientific Writting assistant',
+            opts = {
+              contains_code = true,
+            },
           },
-        },
-        ['grammar'] = {
-          ---@return string
-          callback = function()
-            return [[
+          ['grammar'] = {
+            ---@return string
+            callback = function()
+              return [[
                 <prompt>
                   <instruction>
                     Analiza el siguiente <text-input>texto proporcionado</text-input> y corrige cualquier error <orthography>ortográfico</orthography> o <grammar>gramatical</grammar> que encuentres.
@@ -141,16 +141,16 @@ codecompanion.setup({
                   </output>
                 </prompt>
                 ]]
-          end,
-          description = 'Grammar Checker',
-          opts = {
-            contains_code = true,
+            end,
+            description = 'Grammar Checker',
+            opts = {
+              contains_code = true,
+            },
           },
-        },
-        ['translate'] = {
-          ---@return string
-          callback = function()
-            return [[
+          ['translate'] = {
+            ---@return string
+            callback = function()
+              return [[
                 <prompt>
                   <instruction>
                     Traduce el siguiente <text-input>texto proporcionado</text-input> al <target-language>inglés</target-language> de manera precisa y natural, evitando traducciones literales.
@@ -171,16 +171,16 @@ codecompanion.setup({
                   </output>
                 </prompt>
                 ]]
-          end,
-          description = 'Translate to English',
-          opts = {
-            contains_code = true,
+            end,
+            description = 'Translate to English',
+            opts = {
+              contains_code = true,
+            },
           },
-        },
-        ['traducir'] = {
-          ---@return string
-          callback = function()
-            return [[
+          ['traducir'] = {
+            ---@return string
+            callback = function()
+              return [[
                 <prompt>
                   <instruction>
                     Traduce el siguiente <text-input>texto proporcionado</text-input> al <target-language>español</target-language> de manera precisa y natural, evitando traducciones literales.
@@ -204,107 +204,94 @@ codecompanion.setup({
                   </output>
                 </prompt>
                 ]]
-          end,
-          description = 'Translate to English',
-          opts = {
-            contains_code = true,
+            end,
+            description = 'Translate to English',
+            opts = {
+              contains_code = true,
+            },
           },
         },
       },
-    },
-    cmd = {
-      adapter = 'deepseek',
-    },
-  },
-  display = {
-    chat = {
-      icons = {
-        pinned_buffer = icons.Pin,
-        watched_buffer = icons.Eye,
+      cmd = {
+        adapter = 'deepseek',
       },
-      intro_message = 'Welcome to CodeCompanion! Press `g?` for options',
-      window = {
-        layout = 'vertical',
-        opts = {
-          winbar = '', -- disable winbar in codecompanion chat buffers
-          statuscolumn = '',
-          foldcolumn = '0',
-          linebreak = true,
-          breakindent = true,
-          wrap = true,
-          spell = true,
-          number = false,
+    },
+    display = {
+      chat = {
+        icons = {
+          pinned_buffer = icons.Pin,
+          watched_buffer = icons.Eye,
+        },
+        intro_message = 'Welcome to CodeCompanion! Press `g?` for options',
+        window = {
+          layout = 'vertical',
+          opts = {
+            winbar = '', -- disable winbar in codecompanion chat buffers
+            statuscolumn = '',
+            foldcolumn = '0',
+            linebreak = true,
+            breakindent = true,
+            wrap = true,
+            spell = true,
+            number = false,
+          },
         },
       },
+      diff = {
+        close_chat_at = 0,
+        layout = 'horizontal',
+      },
+      inline = {
+        layout = 'vertical',
+      },
     },
-    diff = {
-      close_chat_at = 0,
-      layout = 'horizontal',
-    },
-    inline = {
-      layout = 'vertical',
-    },
-  },
-})
+  })
+end
 
-key.map('n', '<leader>aa', codecompanion.toggle, { desc = '[A]i: Toggle' })
-key.map(
-  'n',
-  '<leader>ap',
-  '[A]i: Action [P]alette',
-  { desc = '[A]i: Action [P]alette' }
-)
-key.map(
-  'n',
-  '<leader>ad',
-  '[A]i: [A]dd selection',
-  { desc = '[A]i: [A]dd selection' }
-)
-key.map(
-  'n',
-  '<leader>af',
-  ':CodeCompanion /fix ',
-  { desc = '[A]i: [F]ix code' }
-)
-key.map(
-  'n',
-  '<leader>ac',
-  ':CodeCompanion /explain ',
-  { desc = '[A]i: Explain [c]ode' }
-)
-key.map(
-  'n',
-  '<leader>at',
-  ':CodeCompanion /tests ',
-  { desc = '[A]i: [T]est code' }
-)
-key.map(
-  'n',
-  '<leader>aw',
-  ':CodeCompanion /buffer #wassistant <cr>',
-  { desc = '[A]i: Writting Assistant' }
-)
-key.map(
-  'n',
-  '<leader>ae',
-  ':CodeCompanion /buffer #translate <cr>',
-  { desc = '[A]i: Translate to [e]nglish' }
-)
-key.map(
-  'n',
-  '<leader>as',
-  ':CodeCompanion /buffer #traducir <cr>',
-  { desc = '[A]i: Translate to [s]panish' }
-)
-key.map(
-  'n',
-  '<leader>ag',
-  ':CodeCompanion /buffer #grammar <cr>',
-  { desc = '[A]i: [G]rammar fix' }
-)
-key.map(
-  'n',
-  '<leader>ab',
-  ':CodeCompanion /buffer ',
-  { desc = '[A]i: Add instructions' }
-)
+key.map_lazy('codecompanion', setup, 'n', '<leader>aa', function()
+  require('codecompanion').toggle()
+end, { desc = 'Tab [n]ew' })
+
+local maps = {
+  {
+    'f',
+    ':CodeCompanion /fix',
+    '[A]i: [A]dd selection',
+  },
+  {
+    'c',
+    ':CodeCompanion /explain',
+    '[A]i: Explain [c]ode',
+  },
+  {
+    't',
+    ':CodeCompanion /tests',
+    '[A]i: [T]est code',
+  },
+  {
+    'w',
+    ':CodeCompanion /buffer #wassistant',
+    '[A]i: Writting Assistant',
+  },
+  {
+    'e',
+    ':CodeCompanion /buffer #translate',
+    '[A]i: Translate to [e]nglish',
+  },
+  {
+    's',
+    ':CodeCompanion /buffer #traducir',
+    '[A]i: Translate to [s]panish',
+  },
+  {
+    'g',
+    ':CodeCompanion /buffer #grammar',
+    '[A]i: [G]rammar fix',
+  },
+  {
+    'b',
+    ':CodeCompanion /buffer',
+    '[A]i: Add instructions',
+  },
+}
+key.maps_lazy('codecompanion', setup, 'x', '<leader>a', maps)

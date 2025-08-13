@@ -4,8 +4,11 @@ vim.pack.add({
   'https://github.com/m4xshen/hardtime.nvim',
 })
 
-require('typr').setup()
-require('hardtime').setup()
+local fn = require('utils.fn')
+fn.lazy_load('UIEnter', 'typr', function()
+  require('typr').setup()
+  require('hardtime').setup()
+end)
 
 require('plugins.modes.database')
 require('plugins.modes.git')

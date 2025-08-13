@@ -7,4 +7,3 @@ require('plugins.general.autopair')
 require('plugins.general.harpoon')
 require('plugins.general.mini')
 require('plugins.general.search_and_replace')
-

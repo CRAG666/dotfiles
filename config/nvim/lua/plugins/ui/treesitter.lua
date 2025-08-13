@@ -6,163 +6,109 @@ vim.pack.add({
   'https://github.com/windwp/nvim-ts-autotag',
 })
 
-require('nvim-treesitter.query_predicates')
+local ts_configs = require('nvim-treesitter.configs')
+local ts_parsers = require('nvim-treesitter.parsers')
 
-local configs = require('nvim-treesitter.configs')
+-- HACK: improve file reading speed: first read the file then load modules
+ts_configs.reattach_module = vim.schedule_wrap(ts_configs.reattach_module)
+ts_configs.setup = vim.schedule_wrap(ts_configs.setup)
 
-configs.setup({
-  highlight = {
-    enable = true,
-    additional_vim_regex_highlighting = false,
-  },
-  indent = { enable = true },
+-- Fix: invalid buffer id cause by hack above
+ts_parsers.get_buf_lang = (function(cb)
+  ---@param buf number? or current buffer
+  ---@return string
+  return function(buf, ...)
+    if buf and not vim.api.nvim_buf_is_valid(buf) then
+      return ''
+    end
+    return cb(buf, ...)
+  end
+end)(ts_parsers.get_buf_lang)
+
+---@diagnostic disable-next-line: missing-fields
+ts_configs.setup({
+  -- Make sure that we install all parsers shipped with neovim so that we don't
+  -- end up with using nvim-treesitter's queries and neovim's shipped parsers,
+  -- which are incompatible with nvim-treesitter's
+  -- See https://github.com/nvim-treesitter/nvim-treesitter/issues/3092
   ensure_installed = {
-    'arduino',
-    'asm',
-    'bash',
-    'comment',
-    'css',
-    'csv',
-    'cuda',
-    'diff',
-    'dot',
-    'elixir',
-    'fennel',
-    'fortran',
-    'git_config',
-    'git_rebase',
-    'gitattributes',
-    'gitcommit',
-    'gitignore',
-    'go',
-    'gpg',
-    'graphql',
-    'hjson',
-    'html',
-    'http',
-    'hyprlang',
-    'ini',
-    'javascript',
-    'jsdoc',
-    'json',
-    'json5',
-    'jsonc',
+    -- Parsers shipped with neovim
+    'c',
     'lua',
-    'luadoc',
-    'luap',
-    'luau',
+    'vim',
+    'bash',
+    'query',
+    'python',
+    'vimdoc',
     'markdown',
     'markdown_inline',
-    'meson',
-    'ninja',
-    'nix',
-    'pem',
-    'perl',
-    'printf',
-    'query',
-    'rasi',
-    'regex',
-    'scss',
-    'sql',
-    'ssh_config',
-    'toml',
-    'tsx',
-    'typescript',
-    'udev',
-    'vim',
-    'vimdoc',
-    'xml',
-    'yaml',
-    'yuck',
-    'zathurarc',
-    -- "jsonet",
-    'qf',
+  },
+  auto_install = true,
+  sync_install = false,
+  ignore_install = {},
+  highlight = {
+    enable = not vim.g.vscode,
+    disable = function(lang, buf)
+      return vim.b[buf].bigfile
+        or vim.fn.win_gettype() == 'command'
+        or vim.b[buf].vimtex_id and lang == 'latex'
+        -- Tmux ts is buggy, comments highlighted as code, see:
+        -- - https://github.com/Freed-Wu/tree-sitter-tmux/issues/26
+        -- - https://github.com/Freed-Wu/tree-sitter-tmux/issues/25
+        or lang == 'tmux'
+    end,
   },
   incremental_selection = {
     enable = true,
     keymaps = {
-      init_selection = '<C-space>',
-      node_incremental = '<C-space>',
-      scope_incremental = false,
-      node_decremental = '<bs>',
+      init_selection = false,
+      node_incremental = 'an',
+      scope_incremental = 'aN',
+      node_decremental = 'in',
     },
   },
+})
+
+-- Text object for treesitter nodes
+vim.keymap.set('o', 'in', '<Cmd>silent! normal van<CR>', {
+  noremap = false,
+  desc = 'Inside named node',
+})
+vim.keymap.set('o', 'an', '<Cmd>silent! normal van<CR>', {
+  noremap = false,
+  desc = 'Around named node',
+})
+
+---@diagnostic disable-next-line: missing-fields
+require('nvim-treesitter.configs').setup({
   textobjects = {
     select = {
       enable = true,
       lookahead = true, -- Automatically jump forward to textobj
       keymaps = {
         -- You can use the capture groups defined in textobjects.scm
-        ['a='] = {
-          query = '@assignment.outer',
-          desc = 'Select outer part of an assignment',
-        },
-        ['i='] = {
-          query = '@assignment.inner',
-          desc = 'Select inner part of an assignment',
-        },
-        ['l='] = {
-          query = '@assignment.lhs',
-          desc = 'Select left hand side of an assignment',
-        },
-        ['r='] = {
-          query = '@assignment.rhs',
-          desc = 'Select right hand side of an assignment',
-        },
-
-        ['aa'] = {
-          query = '@parameter.outer',
-          desc = 'Select outer part of a parameter/argument',
-        },
-        ['ia'] = {
-          query = '@parameter.inner',
-          desc = 'Select inner part of a parameter/argument',
-        },
-
-        ['ai'] = {
-          query = '@conditional.outer',
-          desc = 'Select outer part of a conditional',
-        },
-        ['ii'] = {
-          query = '@conditional.inner',
-          desc = 'Select inner part of a conditional',
-        },
-
-        ['ao'] = {
-          query = '@loop.outer',
-          desc = 'Select outer part of a loop',
-        },
-        ['io'] = {
-          query = '@loop.inner',
-          desc = 'Select inner part of a loop',
-        },
-
-        ['af'] = {
-          query = '@call.outer',
-          desc = 'Select outer part of a function call',
-        },
-        ['if'] = {
-          query = '@call.inner',
-          desc = 'Select inner part of a function call',
-        },
-
-        ['am'] = {
-          query = '@function.outer',
-          desc = 'Select outer part of a method/function definition',
-        },
-        ['im'] = {
-          query = '@function.inner',
-          desc = 'Select inner part of a method/function definition',
-        },
-
-        ['ac'] = {
-          query = '@class.outer',
-          desc = 'Select outer part of a class',
-        },
-        ['ic'] = {
-          query = '@class.inner',
-          desc = 'Select inner part of a class',
-        },
+        ['am'] = '@function.outer',
+        ['im'] = '@function.inner',
+        ['ao'] = '@loop.outer',
+        ['io'] = '@loop.inner',
+        ['ak'] = '@class.outer',
+        ['ik'] = '@class.inner',
+        ['a,'] = '@parameter.outer',
+        ['i,'] = '@parameter.inner',
+        ['a/'] = '@comment.outer',
+        ['a*'] = '@comment.outer',
+        ['a.'] = '@block.outer',
+        ['i.'] = '@block.inner',
+        ['a?'] = '@conditional.outer',
+        ['i?'] = '@conditional.inner',
+        ['a='] = '@assignment.outer',
+        ['i='] = '@assignment.inner',
+        ['a#'] = '@header.outer',
+        ['i#'] = '@header.inner',
+        ['a3'] = '@header.outer',
+        ['i3'] = '@header.inner',
+        ['ar'] = '@return.inner',
+        ['ir'] = '@return.outer',
       },
       selection_modes = {
         ['@block.outer'] = 'V',
@@ -175,92 +121,59 @@ configs.setup({
       enable = true,
       set_jumps = true, -- whether to set jumps in the jumplist
       goto_next_start = {
+        [']m'] = '@function.outer',
+        [']o'] = '@loop.outer',
+        [']]'] = '@function.outer',
+        [']k'] = '@class.outer',
         ['],'] = '@parameter.outer',
-        [']g'] = '@block.outer',
+        ['].'] = '@block.outer',
+        [']?'] = '@conditional.outer',
         [']='] = '@assignment.inner',
         [']#'] = '@header.outer',
         [']3'] = '@header.outer',
-
-        [']f'] = { query = '@call.outer', desc = 'Next function call start' },
-        [']m'] = {
-          query = '@function.outer',
-          desc = 'Next method/function def start',
-        },
-        [']c'] = { query = '@class.outer', desc = 'Next class start' },
-        [']i'] = {
-          query = '@conditional.outer',
-          desc = 'Next conditional start',
-        },
-        [']l'] = { query = '@loop.outer', desc = 'Next loop start' },
-
-        -- ["]s"] = { query = "@scope", query_group = "locals", desc = "Next scope" },
-        [']z'] = { query = '@fold', query_group = 'folds', desc = 'Next fold' },
       },
       goto_next_end = {
+        [']M'] = '@function.outer',
+        [']O'] = '@loop.outer',
+        [']['] = '@function.outer',
+        [']K'] = '@class.outer',
         [']<'] = '@parameter.outer',
         [']/'] = '@comment.outer',
         [']*'] = '@comment.outer',
-        [']G'] = '@block.outer',
-
-        [']F'] = { query = '@call.outer', desc = 'Next function call end' },
-        [']M'] = {
-          query = '@function.outer',
-          desc = 'Next method/function def end',
-        },
-        [']C'] = { query = '@class.outer', desc = 'Next class end' },
-        [']I'] = {
-          query = '@conditional.outer',
-          desc = 'Next conditional end',
-        },
-        [']L'] = { query = '@loop.outer', desc = 'Next loop end' },
+        [']>'] = '@block.outer',
       },
       goto_previous_start = {
+        ['[m'] = '@function.outer',
+        ['[o'] = '@loop.outer',
+        ['[['] = '@function.outer',
+        ['[k'] = '@class.outer',
         ['[,'] = '@parameter.outer',
         ['[/'] = '@comment.outer',
         ['[*'] = '@comment.outer',
-        ['[g'] = '@block.outer',
+        ['[.'] = '@block.outer',
+        ['[?'] = '@conditional.outer',
         ['[='] = '@assignment.inner',
         ['[#'] = '@header.outer',
         ['[3'] = '@header.outer',
-
-        ['[f'] = { query = '@call.outer', desc = 'Prev function call start' },
-        ['[m'] = {
-          query = '@function.outer',
-          desc = 'Prev method/function def start',
-        },
-        ['[c'] = { query = '@class.outer', desc = 'Prev class start' },
-        ['[i'] = {
-          query = '@conditional.outer',
-          desc = 'Prev conditional start',
-        },
-        ['[l'] = { query = '@loop.outer', desc = 'Prev loop start' },
       },
       goto_previous_end = {
+        ['[M'] = '@function.outer',
+        ['[O'] = '@loop.outer',
+        ['[]'] = '@function.outer',
+        ['[K'] = '@class.outer',
         ['[<'] = '@parameter.outer',
-        ['[G'] = '@block.outer',
-
-        ['[F'] = { query = '@call.outer', desc = 'Prev function call end' },
-        ['[M'] = {
-          query = '@function.outer',
-          desc = 'Prev method/function def end',
-        },
-        ['[C'] = { query = '@class.outer', desc = 'Prev class end' },
-        ['[I'] = {
-          query = '@conditional.outer',
-          desc = 'Prev conditional end',
-        },
-        ['[L'] = { query = '@loop.outer', desc = 'Prev loop end' },
+        ['[>'] = '@block.outer',
       },
     },
     swap = {
       enable = true,
       swap_next = {
-        ['<leader>na'] = '@parameter.inner',
-        ['<leader>nm'] = '@function.outer',
+        ['<M-C-L>'] = '@parameter.inner',
+        ['<M-C-Right>'] = '@parameter.inner',
       },
       swap_previous = {
-        ['<leader>pa'] = '@parameter.inner',
-        ['<leader>pm'] = '@function.outer',
+        ['<M-C-H>'] = '@parameter.inner',
+        ['<M-C-Left>'] = '@parameter.inner',
       },
     },
     lsp_interop = {
@@ -271,40 +184,4 @@ configs.setup({
       },
     },
   },
-  endwise = {
-    enable = true,
-  },
 })
-local parser_configs = require('nvim-treesitter.parsers').get_parser_configs()
-
-parser_configs.qf = {
-  install_info = {
-    url = 'https://github.com/OXY2DEV/tree-sitter-qf',
-    files = { 'src/parser.c' },
-    branch = 'main',
-  },
-}
-local ts_repeat_move = require('nvim-treesitter.textobjects.repeatable_move')
-vim.keymap.set({ 'n', 'x', 'o' }, ';', ts_repeat_move.repeat_last_move_next)
-vim.keymap.set(
-  { 'n', 'x', 'o' },
-  ',',
-  ts_repeat_move.repeat_last_move_previous
-)
-local move = require('nvim-treesitter.textobjects.move') ---@type table<string,fun(...)>
-for name, fn in pairs(move) do
-  if name:find('goto') == 1 then
-    move[name] = function(q, ...)
-      if vim.wo.diff then
-        local config = configs.get_module('textobjects.move')[name] ---@type table<string,string>
-        for key, query in pairs(config or {}) do
-          if q == query and key:find('[%]%[][cC]') then
-            vim.cmd('normal! ' .. key)
-            return
-          end
-        end
-      end
-      return fn(q, ...)
-    end
-  end
-end
