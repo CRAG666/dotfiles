@@ -1,8 +1,9 @@
 local M = {}
-local dap_utils = require('utils.dap')
+
+local utils = require('utils')
 
 ---@type dapcache_t
-local cache = dap_utils.new_cache()
+local cache = utils.dap.new_cache()
 
 M.adapter = {
   type = 'server',
@@ -20,8 +21,8 @@ M.config = {
     request = 'launch',
     cwd = '${workspaceFolder}',
     stopOnEntry = false,
-    program = dap_utils.get_prog(cache),
-    args = dap_utils.get_args(cache),
+    program = utils.dap.get_prog(cache),
+    args = utils.dap.get_args(cache),
   },
 }
 

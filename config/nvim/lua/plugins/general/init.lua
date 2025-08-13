@@ -1,43 +1,10 @@
-return {
-  {
-    'chaoren/vim-wordmotion',
-    keys = {
-      { 'w' },
-      { 'W' },
-      { 'b' },
-      { 'B' },
-      { 'e' },
-      { 'E' },
-      { 'ge' },
-      { 'gE' },
-      { 'caw' },
-      { 'caW' },
-      { 'ciw' },
-      { 'ciW' },
-      { 'daw' },
-      { 'daW' },
-      { 'diw' },
-      { 'diW' },
-      { 'yaw' },
-      { 'daW' },
-      { 'yiw' },
-      { 'yiW' },
-    },
-  },
-  {
-    'kylechui/nvim-surround',
-    keys = {
-      { 'ys',     desc = 'Surround' },
-      { 'yss',    desc = 'Surround line' },
-      { 'yS',     desc = 'Surround in new lines' },
-      { 'ySS',    desc = 'Surround line in new lines' },
-      { 'ds',     desc = 'Delete surrounding' },
-      { 'cs',     desc = 'Change surrounding' },
-      { 'S',      mode = 'x',                         desc = 'Surround' },
-      { 'gS',     mode = 'x',                         desc = 'Surround in new lines' },
-      { '<C-g>s', mode = 'i',                         desc = 'Surround' },
-      { '<C-g>S', mode = 'i',                         desc = 'Surround' },
-    },
-    config = true,
-  },
-}
+vim.pack.add({ { src = 'https://github.com/chaoren/vim-wordmotion' } })
+vim.pack.add({ { src = 'https://github.com/kylechui/nvim-surround' } })
+
+require('nvim-surround').setup({})
+require('plugins.general.pickers')
+require('plugins.general.autopair')
+require('plugins.general.harpoon')
+require('plugins.general.mini')
+require('plugins.general.search_and_replace')
+

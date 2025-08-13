@@ -1,27 +1,5 @@
-return {
-  {
-    "kndndrj/nvim-dbee",
-    dependencies = {
-      "MunifTanjim/nui.nvim",
-    },
-    keys = {
-      {
-        ";dm",
-        function()
-          require("dbee").toggle()
-        end,
-        desc = "[d]atabse [m]ode",
-        -- icon = " ",
-      },
-    },
-    build = function()
-      -- Install tries to automatically detect the install method.
-      -- if it fails, try calling it with one of these parameters:
-      --    "curl", "wget", "bitsadmin", "go"
-      require("dbee").install()
-    end,
-    config = function()
-      require("dbee").setup(--[[optional config]])
-    end,
-  },
-}
+vim.pack.add({ 'https://github.com/kndndrj/nvim-dbee' })
+local key = require('utils.keymap')
+key.map('n', ';dm', require('dbee').toggle, { desc = '[d]atabase [m]ode' })
+-- require('dbee').install()
+require('dbee').setup()

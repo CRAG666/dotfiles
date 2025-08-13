@@ -1,8 +1,9 @@
 local M = {}
-local dap_utils = require('utils.dap')
+
+local utils = require('utils')
 
 ---@type dapcache_t
-local cache = dap_utils.new_cache()
+local cache = utils.dap.new_cache()
 
 M.adapter = {
   name = 'bashdb',
@@ -40,7 +41,7 @@ M.config = {
     pathPkill = 'pkill',
     env = {},
     terminalKind = 'integrated',
-    args = dap_utils.get_args(cache),
+    args = utils.dap.get_args(cache),
   },
 }
 

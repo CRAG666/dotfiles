@@ -2,6 +2,20 @@ local utils = require('utils')
 
 _G._tabline = {}
 
+---Get tab display name given tabpage id and number
+---@param tabnr integer
+---@param tabid integer
+---@return string
+local function tabgetname(tabnr, tabid)
+  if not vim.api.nvim_tabpage_is_valid(tabid) then
+    return ''
+  end
+  return vim.t[tabid]._tabname
+    or vim.fs.basename(
+      vim.fn.getcwd(vim.api.nvim_tabpage_get_win(tabid), tabnr)
+    )
+end
+
 setmetatable(_G._tabline, {
   ---@return string
   __call = function()
@@ -37,15 +51,7 @@ setmetatable(_G._tabline, {
     for tabnr, tabid in ipairs(tabids) do
       table.insert(
         tabnames,
-        string.format(
-          '%s%s%s',
-          leftpad,
-          vim.t[tabid]._tabname
-            or vim.fs.basename(
-              vim.fn.getcwd(vim.api.nvim_tabpage_get_win(tabid), tabnr)
-            ),
-          rightpad
-        )
+        string.format('%s%s%s', leftpad, tabgetname(tabnr, tabid), rightpad)
       )
     end
 
@@ -108,20 +114,15 @@ end, {
   addr = 'tabs',
   desc = 'Rename the current tab.',
   complete = function()
-    local tabnames = {}
-    for _, tabid in ipairs(vim.api.nvim_list_tabpages()) do
-      local name = vim.t[tabid]._tabname
-      if name then
-        tabnames[vim.t[tabid]._tabname] = true
-      end
-    end
+    local tabnrcur = vim.fn.tabpagenr()
+    local tabidcur = vim.api.nvim_get_current_tabpage()
 
-    local compl = {}
-    for name, _ in pairs(tabnames) do
-      if name == vim.t._tabname then
-        table.insert(compl, 1, name)
-      else
-        table.insert(compl, name)
+    -- Make current tab's name first in the completion menu
+    local compl = { tabgetname(tabnrcur, tabidcur) }
+
+    for tabnr, tabid in ipairs(vim.api.nvim_list_tabpages()) do
+      if tabnr ~= tabnrcur then
+        table.insert(compl, tabgetname(tabnr, tabid))
       end
     end
 

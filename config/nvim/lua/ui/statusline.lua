@@ -17,22 +17,23 @@ local diag_severity_map = {
 }
 
 -- Maximum widths
-local gitbranch_max_width = 0.3           -- maximum width of git branch name
-local wordcount_max_width = 0.2           -- maximum width of word count info
-local fname_max_width = 0.4               -- maximum width of buf/filename (without extension)
-local fname_special_max_width = 0.8       -- maximum width of special buf/filename
-local fname_ext_max_width = 0.2           -- maximum width of filename extension
+local gitbranch_max_width = 0.3 -- maximum width of git branch name
+local wordcount_max_width = 0.2 -- maximum width of word count info
+local fname_max_width = 0.4 -- maximum width of buf/filename (without extension)
+local fname_special_max_width = 0.8 -- maximum width of special buf/filename
+local fname_ext_max_width = 0.2 -- maximum width of filename extension
 local fname_prefix_suffix_max_width = 0.2 -- maximum width of filename prefix/suffix (extra info)
 
 ---Shorten string to a percentage of statusline width
 ---@param str string
 ---@param percent number
 ---@param str_alt? string alternate string to use when `str` exceeds max width
+---@return string
 local function str_shorten(str, percent, str_alt)
   str = tostring(str)
 
   local stl_width = vim.go.laststatus == 3 and vim.go.columns
-      or vim.api.nvim_win_get_width(0)
+    or vim.api.nvim_win_get_width(0)
   local max_width = math.ceil(stl_width * percent)
   local str_width = vim.fn.strdisplaywidth(str)
   if str_width <= max_width then
@@ -65,15 +66,15 @@ end
 local function get_diag_sign_text(severity)
   local diag_config = vim.diagnostic.config()
   local signs_text = diag_config
-      and diag_config.signs
-      and type(diag_config.signs) == 'table'
-      and diag_config.signs.text
+    and diag_config.signs
+    and type(diag_config.signs) == 'table'
+    and diag_config.signs.text
   return signs_text
       and (signs_text[severity] or signs_text[diag_severity_map[severity]])
-      or (
-        diag_signs_default_text[severity]
-        or diag_signs_default_text[diag_severity_map[severity]]
-      )
+    or (
+      diag_signs_default_text[severity]
+      or diag_signs_default_text[diag_severity_map[severity]]
+    )
 end
 
 -- stylua: ignore start
@@ -122,7 +123,7 @@ function _G._statusline.mode()
   local hl = vim.bo.mod and 'StatusLineHeaderModified' or 'StatusLineHeader'
   local mode = vim.fn.mode()
   local mode_str = (mode == 'n' and (vim.bo.ro or not vim.bo.ma)) and 'RO'
-      or modes[mode]
+    or modes[mode]
   return utils.stl.hl(string.format(' %s ', mode_str), hl) .. ' '
 end
 
@@ -146,22 +147,19 @@ function _G._statusline.gitdiff()
   return vim.g.has_nf
       and string.format(
         '%s%s%s',
-        utils.stl.hl(icon_added, 'StatusLineGitAdded') .. " " .. added .. " ",
-        utils.stl.hl(icon_changed, 'StatusLineGitChanged') .. " " .. changed .. " ",
-        utils.stl.hl(icon_removed, 'StatusLineGitRemoved') .. " " .. removed
+        utils.stl.hl(icon_added, 'StatusLineGitAdded') .. ' ' .. added .. ' ',
+        utils.stl.hl(icon_changed, 'StatusLineGitChanged')
+          .. ' '
+          .. changed
+          .. ' ',
+        utils.stl.hl(icon_removed, 'StatusLineGitRemoved') .. ' ' .. removed
       )
-      or string.format(
-        '%s%s%s',
-        icon_added .. utils.stl.hl(added, 'StatusLineGitAdded'),
-        icon_changed .. utils.stl.hl(changed, 'StatusLineGitChanged'),
-        icon_removed .. utils.stl.hl(removed, 'StatusLineGitRemoved')
-      )
-      or string.format(
-        '%s%s%s',
-        icon_added .. utils.stl.hl(added, 'StatusLineGitAdded'),
-        icon_changed .. utils.stl.hl(changed, 'StatusLineGitChanged'),
-        icon_removed .. utils.stl.hl(removed, 'StatusLineGitRemoved')
-      )
+    or string.format(
+      '%s%s%s',
+      icon_added .. utils.stl.hl(tostring(added), 'StatusLineGitAdded'),
+      icon_changed .. utils.stl.hl(tostring(changed), 'StatusLineGitChanged'),
+      icon_removed .. utils.stl.hl(tostring(removed), 'StatusLineGitRemoved')
+    )
 end
 
 ---Get string representation of current git branch
@@ -169,7 +167,7 @@ end
 function _G._statusline.gitbranch()
   ---@diagnostic disable-next-line: undefined-field
   local branch = vim.b.gitsigns_status_dict and vim.b.gitsigns_status_dict.head
-      or utils.git.branch()
+    or utils.git.branch()
   if branch == '' then
     return ''
   end
@@ -183,7 +181,7 @@ function _G._statusline.gitbranch()
   end
 
   return sign_gitbranch
-      .. utils.stl.escape(str_shorten(branch, gitbranch_max_width))
+    .. utils.stl.escape(str_shorten(branch, gitbranch_max_width))
 end
 
 ---Get current filetype
@@ -198,9 +196,9 @@ function _G._statusline.wordcount()
   local stats = nil
   local nwords, nchars = 0, 0 -- luacheck: ignore 311
   if
-      vim.b.wc_words
-      and vim.b.wc_chars
-      and vim.b.wc_changedtick == vim.b.changedtick
+    vim.b.wc_words
+    and vim.b.wc_chars
+    and vim.b.wc_changedtick == vim.b.changedtick
   then
     nwords = vim.b.wc_words
     nchars = vim.b.wc_chars
@@ -261,7 +259,7 @@ local function update_pdiffs(bufs)
   bufs = vim.tbl_filter(vim.api.nvim_buf_is_valid, bufs)
 
   local path_diffs =
-      utils.fs.diff(vim.tbl_map(vim.api.nvim_buf_get_name, bufs))
+    utils.fs.diff(vim.tbl_map(vim.api.nvim_buf_get_name, bufs))
 
   for i, buf in ipairs(bufs) do
     if path_diffs[i] ~= '' then
@@ -276,7 +274,7 @@ end
 ---@return boolean
 local function buf_visible(buf)
   return vim.api.nvim_buf_is_valid(buf)
-      and (vim.bo[buf].bl or vim.fn.bufwinid(buf) ~= -1)
+    and (vim.bo[buf].bl or vim.fn.bufwinid(buf) ~= -1)
 end
 
 ---Add a buffer to `fnames`, calc diff for buffer with non-unique file names
@@ -427,7 +425,7 @@ function _G._statusline.fname()
     -- Named normal buffer, show file name, if the file name is not unique,
     -- show local cwd (often project root) after the file name
     local pdiff_short = vim.b._stl_pdiff
-        and str_shorten(vim.b._stl_pdiff, fname_prefix_suffix_max_width)
+      and str_shorten(vim.b._stl_pdiff, fname_prefix_suffix_max_width)
     if pdiff_short then
       return string.format(
         '%s [%s]',
@@ -478,7 +476,7 @@ function _G._statusline.fname()
       string.format(
         '[%s] %s',
         str_shorten(
-          utils.str.snake_to_camel(vim.fs.basename(prefix)),
+          utils.str.snake_to_camel(vim.fs.basename(prefix)) --[[@as string]],
           fname_prefix_suffix_max_width
         ),
         str_shorten(main, fname_special_max_width)
@@ -499,7 +497,7 @@ end
 function _G._statusline.venv()
   local venv_name = vim.env.VIRTUAL_ENV
       and vim.fn.fnamemodify(vim.env.VIRTUAL_ENV, ':~:.')
-      or vim.env.CONDA_DEFAULT_ENV
+    or vim.env.CONDA_DEFAULT_ENV
   return venv_name and string.format('venv: %s', venv_name) or ''
 end
 
@@ -516,7 +514,7 @@ local is_text = {
 ---@return boolean
 local function is_python()
   return vim.startswith(vim.bo.ft, 'python')
-      or vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ':e') == 'ipynb'
+    or vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ':e') == 'ipynb'
 end
 
 ---Additional info for the current buffer enclosed in parentheses
@@ -547,7 +545,7 @@ function _G._statusline.info()
   add_section(_G._statusline.gitbranch())
   add_section(_G._statusline.gitdiff())
   return vim.tbl_isempty(info) and ''
-      or string.format('(%s) ', table.concat(info, ', '))
+    or string.format('(%s) ', table.concat(info, ', '))
 end
 
 vim.api.nvim_create_autocmd('DiagnosticChanged', {
@@ -576,9 +574,9 @@ function _G._statusline.diag()
       local icon_text = get_diag_sign_text(serverity_nr)
       local icon_hl = 'StatusLineDiagnostic' .. severity
       str = str
-          .. (str == '' and '' or ' ')
-          .. utils.stl.hl(icon_text, icon_hl)
-          .. cnt
+        .. (str == '' and '' or ' ')
+        .. utils.stl.hl(icon_text, icon_hl)
+        .. cnt
     end
   end
   if str:find('%S') then
@@ -615,30 +613,34 @@ vim.api.nvim_create_autocmd('LspProgress', {
     }
 
     vim
-        .iter(bufs)
-        :filter(function(buf)
-          -- No need to create and attach spinners to invisible bufs
-          return vim.fn.bufwinid(buf) ~= -1
-        end)
-        :each(function(buf)
-          local b = vim.b[buf]
-          if not utils.stl.spinner.id_is_valid(b.spinner_id) then
-            utils.stl.spinner:new():attach(buf)
-          end
+      .iter(bufs)
+      :filter(function(buf)
+        -- No need to create and attach spinners to invisible bufs
+        return vim.fn.bufwinid(buf) ~= -1
+      end)
+      :each(function(buf)
+        local b = vim.b[buf]
+        if not utils.stl.spinner.id_is_valid(b.spinner_id) then
+          utils.stl.spinner:new():attach(buf)
+        end
 
-          local spinner = utils.stl.spinner.get_by_id(b.spinner_id)
-          if spinner.status == 'idle' then
-            spinner:spin()
-          end
+        local spinner = utils.stl.spinner.get_by_id(b.spinner_id)
+        if not spinner then
+          return
+        end
 
-          local type = args.data
-              and args.data.params
-              and args.data.params.value
-              and args.data.params.value.kind
-          if type == 'end' then
-            spinner:finish()
-          end
-        end)
+        if spinner.status == 'idle' then
+          spinner:spin()
+        end
+
+        local type = args.data
+          and args.data.params
+          and args.data.params.value
+          and args.data.params.value.kind
+        if type == 'end' then
+          spinner:finish()
+        end
+      end)
   end,
 })
 
@@ -651,14 +653,14 @@ function _G._statusline.spinner()
 
   local buf = vim.api.nvim_get_current_buf()
   local progs = vim
-      .iter(vim.tbl_keys(client_info))
-      :filter(function(id)
-        return vim.tbl_contains(client_info[id].bufs, buf)
-      end)
-      :map(function(id)
-        return client_info[id].name
-      end)
-      :totable()
+    .iter(vim.tbl_keys(client_info))
+    :filter(function(id)
+      return vim.tbl_contains(client_info[id].bufs, buf)
+    end)
+    :map(function(id)
+      return client_info[id].name
+    end)
+    :totable()
 
   -- Extra progresses requiring spinner animation
   if vim.b.spinner_progs then
@@ -719,7 +721,7 @@ setmetatable(_G._statusline, {
   ---@return string
   __call = function()
     return vim.g.statusline_winid == vim.api.nvim_get_current_win() and stl
-        or stl_nc
+      or stl_nc
   end,
 })
 
@@ -743,16 +745,16 @@ local function set_default_hlgroups()
     utils.hl.set_default(0, hlgroup_name, merged_attr)
   end
   -- stylua: ignore start
-  sethl('StatusLineGitAdded', { fg = 'GitSignsAdd', ctermfg = 'GitSignsAdd' })
-  sethl('StatusLineGitChanged', { fg = 'GitSignsChange', ctermfg = 'GitSignsChange' })
-  sethl('StatusLineGitRemoved', { fg = 'GitSignsDelete', ctermfg = 'GitSignsDelete' })
-  sethl('StatusLineGitBranch', { fg = 'StatusLineGitChanged' })
-  sethl('StatusLineDiagnosticHint', { fg = 'DiagnosticSignHint', ctermfg = 'DiagnosticSignHint' })
-  sethl('StatusLineDiagnosticInfo', { fg = 'DiagnosticSignInfo', ctermfg = 'DiagnosticSignInfo' })
-  sethl('StatusLineDiagnosticWarn', { fg = 'DiagnosticSignWarn', ctermfg = 'DiagnosticSignWarn' })
+  sethl('StatusLineGitAdded',        { fg = 'GitSignsAdd',  ctermfg = 'GitSignsAdd' })
+  sethl('StatusLineGitChanged',      { fg = 'GitSignsChange', ctermfg = 'GitSignsChange' })
+  sethl('StatusLineGitRemoved',      { fg = 'GitSignsDelete', ctermfg = 'GitSignsDelete' })
+  sethl('StatusLineGitBranch',       { fg = 'StatusLineGitChanged' })
+  sethl('StatusLineDiagnosticHint',  { fg = 'DiagnosticSignHint', ctermfg = 'DiagnosticSignHint' })
+  sethl('StatusLineDiagnosticInfo',  { fg = 'DiagnosticSignInfo', ctermfg = 'DiagnosticSignInfo' })
+  sethl('StatusLineDiagnosticWarn',  { fg = 'DiagnosticSignWarn', ctermfg = 'DiagnosticSignWarn' })
   sethl('StatusLineDiagnosticError', { fg = 'DiagnosticSignError', ctermfg = 'DiagnosticSignError' })
-  sethl('StatusLineHeader', { fg = 'TabLine', bg = 'fg', ctermfg = 'TabLine', ctermbg = 'fg', reverse = true })
-  sethl('StatusLineHeaderModified', { fg = 'Special', bg = 'fg', ctermfg = 'Special', ctermbg = 'fg', reverse = true })
+  sethl('StatusLineHeader',          { fg = 'TabLine', bg = 'fg', ctermfg = 'TabLine', ctermbg = 'fg', reverse = true })
+  sethl('StatusLineHeaderModified',  { fg = 'Special', bg = 'fg', ctermfg = 'Special', ctermbg = 'fg', reverse = true })
   -- stylua: ignore end
 end
 
