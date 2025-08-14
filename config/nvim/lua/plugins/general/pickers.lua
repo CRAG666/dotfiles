@@ -19,28 +19,26 @@ snacks.setup({
   picker = {
     enabled = true,
     layout = {
+      preview = 'main',
       layout = {
-        backdrop = false,
-        row = 1,
-        width = 0.4,
-        min_width = 180,
-        min_height = 120,
-        height = 0.8,
-        border = 'none',
         box = 'vertical',
+        backdrop = false,
+        width = 0,
+        height = 0.4,
+        position = 'bottom',
+        border = 'top',
+        title = ' {title} {live} {flags}',
+        title_pos = 'left',
+        { win = 'input', height = 1, border = 'bottom' },
         {
-          win = 'preview',
-          title = '{preview}',
-          height = 0.5,
-          border = 'rounded',
-        },
-        {
-          box = 'vertical',
-          border = 'rounded',
-          title = '{title} {live} {flags}',
-          title_pos = 'center',
-          { win = 'input', height = 1, border = 'bottom' },
+          box = 'horizontal',
           { win = 'list', border = 'none' },
+          {
+            win = 'preview',
+            title = '{preview}',
+            width = 0.6,
+            border = 'left',
+          },
         },
       },
     },
@@ -62,6 +60,35 @@ snacks.setup({
     timeout = 3000,
   },
   words = { enabled = true },
+  dashboard = {
+    enabled = true,
+    sections = {
+      {
+        section = 'terminal',
+        cmd = 'npx oh-my-logo@latest "Aguilar" fire --filled',
+        height = 8,
+        padding = 1,
+      },
+      {
+        -- pane = 2,
+        { section = 'keys', gap = 1, padding = 1 },
+      },
+      {
+        icon = ' ',
+        title = 'Recent Files',
+        section = 'recent_files',
+        indent = 2,
+        padding = 1,
+      },
+      {
+        icon = ' ',
+        title = 'Projects',
+        section = 'projects',
+        indent = 2,
+        padding = 1,
+      },
+    },
+  },
 })
 
 -- ============================================================================

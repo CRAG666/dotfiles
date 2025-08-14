@@ -82,7 +82,7 @@ augroup('Formatting', {
   'BufWritePre',
   {
     desc = 'Formatting',
-    pattern = "*",
+    pattern = '*',
     callback = function(args)
       vim.lsp.buf.format({ bufnr = args.buf })
     end,

@@ -1,7 +1,7 @@
 local icons = require('utils.static.icons')
 local key = require('utils.keymap')
-vim.pack.add({ { src = 'https://github.com/olimorris/codecompanion.nvim' } })
 local function setup()
+  vim.pack.add({ { src = 'https://github.com/olimorris/codecompanion.nvim' } })
   require('codecompanion').setup({
     opts = {
       visible = true,

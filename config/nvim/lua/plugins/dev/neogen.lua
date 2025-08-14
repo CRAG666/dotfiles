@@ -1,7 +1,6 @@
 local key = require('utils.keymap')
-vim.pack.add({ { src = 'https://github.com/danymat/neogen' } })
-
 local function setup()
+  vim.pack.add({ { src = 'https://github.com/danymat/neogen' } })
   require('neogen').setup({
     enabled = true,
     languages = {

@@ -3,7 +3,6 @@ local current = 2
 
 local function load()
   vim.opt.runtimepath:prepend(vim.fn.expand('~/Git/betterTerm.nvim'))
-
   require('betterTerm').setup({
     -- position = 'vertical',
     -- size = 60,
@@ -13,6 +12,7 @@ local function load()
     new_tab_icon = require('utils.static.icons').git.Added,
   })
 end
+
 local open = {
   {
     ';>',

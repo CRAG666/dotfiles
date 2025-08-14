@@ -1,10 +1,13 @@
 local fn = require('utils.fn')
 
 require('plugins.ui.treesitter')
-vim.pack.add({ 'https://github.com/MunifTanjim/nui.nvim' })
+require('plugins.ui.catppuccin')
+vim.pack.add({
+  'https://github.com/MunifTanjim/nui.nvim',
+  'https://github.com/DaikyXendo/nvim-material-icon',
+})
+require('plugins.ui.base')
 fn.lazy_load('UIEnter', 'catppuccin', function()
-  require('plugins.ui.catppuccin')
-  require('plugins.ui.base')
   require('plugins.ui.noice')
   require('plugins.ui.gitsigns')
 end)

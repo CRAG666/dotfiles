@@ -1,26 +1,24 @@
 local fn = require('utils.fn')
 
 vim.pack.add({
-  'https://github.com/supermaven-inc/supermaven-nvim',
   {
     src = 'https://github.com/saghen/blink.cmp',
     version = vim.version.range('1.*'),
   },
-  'https://github.com/rafamadriz/friendly-snippets',
-  'https://github.com/jc-doyle/cmp-pandoc-references',
-  {
-    src = 'https://github.com/L3MON4D3/LuaSnip',
-    build = 'make install_jsregexp',
-  },
-  'https://github.com/iurimateus/luasnip-latex-snippets.nvim',
-  'https://github.com/saghen/blink.compat',
-  'https://github.com/mikavilpas/blink-ripgrep.nvim',
 })
 
-fn.lazy_load(
-  'InsertEnter',
-  'supermaven-nvim',
-  fn.setup('supermaven-nvim', {
+local function setup()
+  vim.pack.add({
+    'https://github.com/supermaven-inc/supermaven-nvim',
+    'https://github.com/rafamadriz/friendly-snippets',
+    {
+      src = 'https://github.com/L3MON4D3/LuaSnip',
+      build = 'make install_jsregexp',
+    },
+    'https://github.com/saghen/blink.compat',
+    'https://github.com/mikavilpas/blink-ripgrep.nvim',
+  })
+  require('supermaven-nvim').setup({
     keymaps = {
       accept_suggestion = '<C-CR>',
       clear_suggestion = '<C-BS>',
@@ -28,18 +26,8 @@ fn.lazy_load(
     },
     ignore_filetypes = { 'bigfile' },
   })
-)
+  require('luasnip.loaders.from_vscode').lazy_load()
 
-require('luasnip.loaders.from_vscode').lazy_load()
-
-fn.lazy_load(
-  'FileType',
-  'luasnip-latex-snippets',
-  fn.setup('luasnip-latex-snippets', { use_treesitter = true }),
-  { pattern = 'tex' }
-)
-
-fn.lazy_load('InsertEnter', 'luasnip', function()
   local ls = require('luasnip')
   local ls_types = require('luasnip.util.types')
   local ls_ft = require('luasnip.extras.filetype_functions')
@@ -107,14 +95,8 @@ fn.lazy_load('InsertEnter', 'luasnip', function()
       end
     end),
   })
-end)
-
-fn.lazy_load('InsertEnter', 'blink.compat', fn.setup('blink.compat', {}))
-
-fn.lazy_load(
-  'InsertEnter',
-  'blink.cmp',
-  fn.setup('blink.cmp', {
+  require('blink.compat').setup({})
+  require('blink.cmp').setup({
     enabled = function()
       return vim.fn.reg_recording() == '' and vim.fn.reg_executing() == ''
     end,
@@ -167,53 +149,16 @@ fn.lazy_load(
       },
       per_filetype = {
         codecompanion = { 'codecompanion' },
-        markdown = {
-          'snippets',
-          'lsp',
-          'path',
-          'buffer',
-          'ripgrep',
-          'pandoc_references',
-        },
-        norg = {
-          'snippets',
-          'lsp',
-          'path',
-          'buffer',
-          'ripgrep',
-        },
-        quarto = {
-          'snippets',
-          'lsp',
-          'path',
-          'buffer',
-          'ripgrep',
-          'pandoc_references',
-        },
-        tex = {
-          'snippets',
-          'lsp',
-          'path',
-          'buffer',
-          'ripgrep',
-          'pandoc_references',
-        },
       },
       providers = {
         ripgrep = {
           module = 'blink-ripgrep',
           name = 'Ripgrep',
-          score_offset = -4,
-          opts = {
-            prefix_min_len = 3,
-            context_size = 5,
-            max_filesize = '1G',
-          },
-        },
-        pandoc_references = {
-          name = 'pandoc_references',
-          module = 'blink.compat.source',
-          score_offset = -1,
+          score_offset = -2,
+          -- see the full configuration below for all available options
+          ---@module "blink-ripgrep"
+          ---@type blink-ripgrep.Options
+          opts = {},
         },
         snippets = {
           score_offset = 100,
@@ -289,4 +234,19 @@ fn.lazy_load(
     snippets = { preset = 'luasnip' },
     signature = { enabled = true },
   })
+end
+
+fn.lazy_load('InsertEnter', 'blink.cmp', setup)
+
+local function setup_tex()
+  vim.pack.add({
+    'https://github.com/iurimateus/luasnip-latex-snippets.nvim',
+  })
+  require('luasnip-latex-snippets').setup({ use_treesitter = true })
+end
+fn.lazy_load(
+  'FileType',
+  'luasnip-latex-snippets',
+  setup_tex,
+  { pattern = 'tex' }
 )

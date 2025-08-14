@@ -1,20 +1,13 @@
 local key = require('utils.keymap')
-local fn = require('utils.fn')
 
-vim.pack.add({ { src = 'https://github.com/AckslD/muren.nvim' } })
-vim.pack.add({ { src = 'https://github.com/cshuaimin/ssr.nvim' } })
+local function muren()
+  vim.pack.add({ { src = 'https://github.com/AckslD/muren.nvim' } })
+  require('muren').setup({})
+end
 
-key.map_lazy(
-  'muren',
-  fn.setup('muren', {}),
-  'n',
-  '<leader>rp',
-  'MurenToggle',
-  { desc = 'Search [r]eplace [p]attern' }
-)
-key.map_lazy(
-  'ssr',
-  fn.setup('ssr', {
+local function ssr()
+  vim.pack.add({ { src = 'https://github.com/cshuaimin/ssr.nvim' } })
+  require('ssr').setup({
     border = 'rounded',
     min_width = 50,
     min_height = 5,
@@ -28,12 +21,17 @@ key.map_lazy(
       replace_confirm = '<cr>',
       replace_all = '<leader><cr>',
     },
-  }),
-  { 'n', 'x' },
-  '<leader>rs',
-  function()
-    require('ssr').open()
-  end,
-  { desc = 'Search [r]eplace [s]tructure' }
-)
+  })
+end
 
+key.map_lazy(
+  'muren',
+  muren,
+  'n',
+  '<leader>rp',
+  'MurenToggle',
+  { desc = 'Search [r]eplace [p]attern' }
+)
+key.map_lazy('ssr', ssr, { 'n', 'x' }, '<leader>rs', function()
+  require('ssr').open()
+end, { desc = 'Search [r]eplace [s]tructure' })

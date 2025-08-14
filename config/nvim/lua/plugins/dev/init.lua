@@ -1,6 +1,8 @@
-local key = require('utils.keymap')
-
 -- Load base dependencies
+vim.pack.add({
+  { src = 'https://github.com/nvim-lua/plenary.nvim' },
+})
+
 require('plugins.dev.base')
 
 -- Load refactored plugins
