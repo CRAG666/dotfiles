@@ -7,9 +7,9 @@ require('plugins.dev.base')
 
 -- Load refactored plugins
 require('plugins.dev.ai')
-require('plugins.dev.betterTerm')
+require('plugins.dev.term')
 require('plugins.dev.blink')
-require('plugins.dev.code_runner')
+require('plugins.dev.run_code')
 -- require('plugins.dev.debug')
 require('plugins.dev.neogen')
 -- require('plugins.dev.refactoring')

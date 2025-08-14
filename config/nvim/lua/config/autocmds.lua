@@ -38,7 +38,7 @@ augroup('LspClearGroup', {
   {
     desc = 'Detener todos los servidores LSP al cerrar Neovim',
     callback = function()
-      local active_clients = vim.lsp.get_active_clients()
+      local active_clients = vim.lsp.get_clients()
       for _, client in ipairs(active_clients) do
         vim.lsp.stop_client(client.id)
       end
@@ -84,7 +84,12 @@ augroup('Formatting', {
     desc = 'Formatting',
     pattern = '*',
     callback = function(args)
-      vim.lsp.buf.format({ bufnr = args.buf })
+      vim.lsp.buf.format({
+        bufnr = args.buf,
+        filter = function(client)
+          return client.server_capabilities.documentFormattingProvider
+        end,
+      })
     end,
   },
 })
@@ -124,20 +129,6 @@ augroup('LastLoc', {
   },
 })
 
--- Auto toggle hlsearch
--- local ns = vim.api.nvim_create_namespace "toggle_hlsearch"
--- local function toggle_hlsearch(char)
---   if vim.fn.mode() == "n" then
---     local keys = { "<CR>", "n", "N", "*", "#", "?", "/" , "nzzzv", "Nzzzv"}
---     local new_hlsearch = vim.tbl_contains(keys, vim.fn.keytrans(char))
---
---     if vim.opt.hlsearch:get() ~= new_hlsearch then
---       vim.opt.hlsearch = new_hlsearch
---     end
---   end
--- end
--- vim.on_key(toggle_hlsearch, ns)
-
 vim.api.nvim_set_hl(0, 'TerminalCursorShape', { underline = true })
 augroup('TerminalCursorShape', {
   'TermEnter',
@@ -171,27 +162,16 @@ augroup('BufferConfig', {
   },
 })
 
--- don't auto comment new line
-
--- autocmd("CursorHold", {
---   buffer = bufnr,
---   callback = function()
---     local opts = {
---       focusable = false,
---       close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
---       border = "rounded",
---       source = "always",
---       prefix = " ",
---       scope = "cursor",
---     }
---     vim.diagnostic.open_float(nil, opts)
---   end,
--- })
-
-augroup('ManConfig', {
+augroup('EasyQuit', {
   'FileType',
   {
     pattern = 'man',
+    command = [[nnoremap <buffer><silent> q :quit<CR>]],
+  },
+}, {
+  'FileType',
+  {
+    pattern = 'nvim-pack',
     command = [[nnoremap <buffer><silent> q :quit<CR>]],
   },
 })

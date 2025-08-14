@@ -16,7 +16,7 @@ vim.keymap.set('n', 'i', function()
 end, { expr = true })
 key.map('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 key.map('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
-key.map('n', "'", [[printf('`%czz',getchar())]], { expr = true, silent = true })
+-- key.map('n', "'", [[printf('`%czz',getchar())]], { expr = true, silent = false })
 key.map('n', '<C-d>', '<C-d>zz')
 key.map('n', '<C-u>', '<C-u>zz')
 key.map('n', 'n', 'nzzzv')
@@ -24,9 +24,19 @@ key.map('n', 'N', 'Nzzzv')
 key.map('n', '<CR>', ':w<CR>')
 key.map('n', '<Tab>', vim.cmd.bnext)
 key.map('n', '<S-Tab>', vim.cmd.bprev)
-key.map("n", "yc", "yygccp", { remap = true })
-key.map('x', 'z/', '<C-\\><C-n>`</\\%V', { desc = 'Search forward within visual selection' })
-key.map('x', 'z?', '<C-\\><C-n>`>?\\%V', { desc = 'Search backward within visual selection' })
+key.map('n', 'yc', 'yygccp', { remap = true, desc = 'Yank [c]omment' })
+key.map(
+  'x',
+  'z/',
+  '<C-\\><C-n>`</\\%V',
+  { desc = 'Search forward within visual selection' }
+)
+key.map(
+  'x',
+  'z?',
+  '<C-\\><C-n>`>?\\%V',
+  { desc = 'Search backward within visual selection' }
+)
 
 -- No yank
 key.map('n', 'x', '"_x')
@@ -35,25 +45,25 @@ key.map('n', 'C', '"_C')
 key.map('v', 'p', '"_dP', opts)
 
 -- Better indent
-key.map("v", "<", "<gv", opts)
-key.map("v", ">", ">gv", opts)
+key.map('v', '<', '<gv', opts)
+key.map('v', '>', '>gv', opts)
 
 key.map('n', '<localleader>s', function()
   if vim.wo.spell then
     vim.wo.spell = false
     return
   end
-  vim.ui.select({ "es_mx", "en_us" }, {
-    prompt = "Toggle spell checker",
+  vim.ui.select({ 'es_mx', 'en_us' }, {
+    prompt = 'Toggle spell checker',
   }, function(lang)
     if lang then
       vim.wo.spell = true
       vim.bo.spelllang = lang
     else
-      print("language not selected")
+      print('language not selected')
     end
   end)
-end, { desc = "Toggle spell checker" })
+end, { desc = 'Toggle spell checker' })
 
 -- sudo
 -- vim.cmd [[cmap w!! w !sudo tee > /dev/null %]]
@@ -76,9 +86,9 @@ local maps = {
   {
     prefix = '<leader>t',
     maps = {
-      { 'n', vim.cmd.tabnew,    'Tab [n]ew' },
-      { 'o', vim.cmd.tabonly,   'Tab [o]nly' },
-      { 'c', vim.cmd.tabclose,  'Tab [c]lose' },
+      { 'n', vim.cmd.tabnew, 'Tab [n]ew' },
+      { 'o', vim.cmd.tabonly, 'Tab [o]nly' },
+      { 'c', vim.cmd.tabclose, 'Tab [c]lose' },
       { 'l', ':tabmove +1<CR>', 'Tab Move Right' },
       { 'h', ':tabmove -1<CR>', 'Tab Move Left' },
       {
@@ -91,25 +101,53 @@ local maps = {
   {
     prefix = '<leader>',
     maps = {
-      { 'cc', ':let @/=""<cr>', "Clear [c]hoose" },
+      { 'cc', ':let @/=""<cr>', 'Clear [c]hoose' },
     },
   },
   {
     prefix = '<leader>r',
     maps = {
-      { 'r', ':%s/',                                          'Search and [r]eplace',                         opts },
-      { 'l', ':s/',                                           'Search and [r]eplace [l]ine',                  opts },
-      { 'w', [[:%s/\<<C-r><C-w>\>/]],                         'Search and [r]eplace [w]ord',                  opts },
-      { 'e', [[:%s/\(.*\)/\1]],                               'Search and [r]eplace [e]xtend',                opts },
-      { 'n', [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]], 'Search and Replace word and nexts word with .' },
-      { 'N', [[?\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgN]], 'Search and Replace word and prevs word with .' },
+      {
+        'r',
+        ':%s/',
+        'Search and [r]eplace',
+        opts,
+      },
+      {
+        'l',
+        ':s/',
+        'Search and [r]eplace [l]ine',
+        opts,
+      },
+      {
+        'w',
+        [[:%s/\<<C-r><C-w>\>/]],
+        'Search and [r]eplace [w]ord',
+        opts,
+      },
+      {
+        'e',
+        [[:%s/\(.*\)/\1]],
+        'Search and [r]eplace [e]xtend',
+        opts,
+      },
+      {
+        'n',
+        [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]],
+        'Search and Replace word and nexts word with .',
+      },
+      {
+        'N',
+        [[?\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgN]],
+        'Search and Replace word and prevs word with .',
+      },
     },
   },
   {
     prefix = '<leader>r',
     mode = 'v',
     maps = {
-      { 'r', ':s/',            'Search and [r]eplace visual',          opts },
+      { 'r', ':s/', 'Search and [r]eplace visual', opts },
       { 'e', [[:s/\(.*\)/\1]], 'Search and [r]eplace [e]xtend visual', opts },
     },
   },

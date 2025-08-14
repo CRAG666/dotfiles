@@ -36,7 +36,7 @@ function M.map_lazy(module, setup, mode, lhs, rhs, opts)
     if not ok then
       setup()
     end
-    local fn = nil
+    local fn
     if type(rhs) == 'function' then
       fn = rhs
     else

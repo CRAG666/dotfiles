@@ -1,9 +1,8 @@
 local key = require('utils.keymap')
 
 local function load()
-  local preview_cmd = '/bin/zathura'
   vim.opt.runtimepath:prepend(vim.fn.expand('~/Git/code_runner.nvim'))
-
+  local preview_cmd = '/bin/zathura'
   require('code_runner').setup({
     mode = 'better_term',
     better_term = {

@@ -1,7 +1,8 @@
 local key = require('utils.keymap')
 local current = 2
 
-local function load()
+local function setup()
+  vim.print('BetterTerm setup')
   vim.opt.runtimepath:prepend(vim.fn.expand('~/Git/betterTerm.nvim'))
   require('betterTerm').setup({
     -- position = 'vertical',
@@ -30,7 +31,7 @@ local open = {
   },
 }
 
-key.maps_lazy('betterTerm', load, { 'n', 't' }, '<C-', open)
+key.maps_lazy('betterTerm', setup, { 'n', 't' }, '<C-', open)
 
 local more = {
   {
@@ -50,4 +51,4 @@ local more = {
   },
 }
 
-key.maps_lazy('betterTerm', load, 'n', '<leader>t', more)
+key.maps_lazy('betterTerm', setup, 'n', '<leader>t', more)

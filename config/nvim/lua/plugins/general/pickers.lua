@@ -21,25 +21,22 @@ snacks.setup({
     layout = {
       preview = 'main',
       layout = {
-        box = 'vertical',
         backdrop = false,
-        width = 0,
-        height = 0.4,
-        position = 'bottom',
-        border = 'top',
-        title = ' {title} {live} {flags}',
-        title_pos = 'left',
-        { win = 'input', height = 1, border = 'bottom' },
+        width = 40,
+        min_width = 40,
+        height = 0,
+        position = 'right',
+        border = 'none',
+        box = 'vertical',
         {
-          box = 'horizontal',
-          { win = 'list', border = 'none' },
-          {
-            win = 'preview',
-            title = '{preview}',
-            width = 0.6,
-            border = 'left',
-          },
+          win = 'input',
+          height = 1,
+          border = 'rounded',
+          title = '{title} {live} {flags}',
+          title_pos = 'center',
         },
+        { win = 'list', border = 'none' },
+        { win = 'preview', title = '{preview}', height = 0.4, border = 'top' },
       },
     },
     previewers = {
@@ -215,9 +212,9 @@ end, { desc = 'Marks' })
 key.map('n', '<leader>sM', function()
   snacks.picker.man()
 end, { desc = 'Man Pages' })
-key.map('n', '<leader>sp', function()
-  snacks.picker.lazy()
-end, { desc = 'Search for Plugin Spec' })
+-- key.map('n', '<leader>sp', function()
+--   snacks.picker.lazy()
+-- end, { desc = 'Search for Plugin Spec' })
 key.map('n', '<leader>sq', function()
   snacks.picker.qflist()
 end, { desc = 'Quickfix List' })

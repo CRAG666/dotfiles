@@ -70,6 +70,7 @@ function M.lazy_load(events, mod_name, load_fn, opts)
     vim.api.nvim_create_autocmd(event, {
       group = group_id,
       pattern = opts.pattern,
+      once = true,
       callback = callback,
       desc = opts.desc or ('Lazy load: ' .. mod_name),
     })
