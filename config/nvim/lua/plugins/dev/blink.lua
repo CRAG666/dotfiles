@@ -245,8 +245,8 @@ local function setup_tex()
   require('luasnip-latex-snippets').setup({ use_treesitter = true })
 end
 fn.lazy_load(
-  'FileType',
+  'InsertEnter',
   'luasnip-latex-snippets',
   setup_tex,
-  { pattern = 'tex' }
+  { pattern = '*.tex' }
 )

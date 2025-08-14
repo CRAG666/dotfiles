@@ -1,6 +1,9 @@
 local fn = require('utils.fn')
 
-require('plugins.ui.treesitter')
+fn.lazy_load('VimEnter', 'treesitter', function()
+  require('plugins.ui.treesitter')
+end)
+
 require('plugins.ui.catppuccin')
 vim.pack.add({
   'https://github.com/MunifTanjim/nui.nvim',

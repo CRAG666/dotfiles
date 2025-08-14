@@ -83,6 +83,7 @@ end, {
 -- Este es el lugar perfecto para cargar también dependencias como Plenary.
 fn.lazy_load('LspAttach', 'LSP_Utils', function()
   -- Se carga Plenary junto con los plugins que dependen de él. ¡No antes!
+  vim.pack.add({ { src = 'https://github.com/nvim-lua/plenary.nvim' } })
   vim.pack.add({
     { src = 'https://github.com/rachartier/tiny-code-action.nvim' },
     { src = 'https://github.com/VidocqH/lsp-lens.nvim' },

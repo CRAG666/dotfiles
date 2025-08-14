@@ -2,290 +2,537 @@ local icons = require('utils.static.icons')
 local key = require('utils.keymap')
 
 -- ============================================================================
--- SNACKS CONFIGURATION (Migrated from lazy.nvim structure)
+-- SNACKS LAZY-LOADING SETUP
 -- ============================================================================
-
--- Add Snacks plugin
-vim.pack.add({ { src = 'https://github.com/folke/snacks.nvim' } })
-local snacks = require('snacks')
-
--- Setup Snacks
-snacks.setup({
-  animate = { enabled = true },
-  indent = { enabled = true },
-  scope = { enabled = true },
-  bigfile = { enabled = true },
-  layout = { enabled = true },
-  picker = {
-    enabled = true,
-    layout = {
-      preview = 'main',
+local function setup_snacks()
+  if package.loaded['snacks'] then
+    return
+  end
+  vim.pack.add({ { src = 'https://github.com/folke/snacks.nvim' } })
+  require('snacks').setup({
+    animate = { enabled = true },
+    indent = { enabled = true },
+    scope = { enabled = true },
+    bigfile = { enabled = true },
+    layout = { enabled = true },
+    picker = {
+      enabled = true,
       layout = {
-        backdrop = false,
-        width = 40,
-        min_width = 40,
-        height = 0,
-        position = 'right',
-        border = 'none',
-        box = 'vertical',
-        {
-          win = 'input',
-          height = 1,
-          border = 'rounded',
-          title = '{title} {live} {flags}',
-          title_pos = 'center',
+        preview = 'main',
+        layout = {
+          backdrop = false,
+          width = 40,
+          min_width = 40,
+          height = 0,
+          position = 'right',
+          border = 'none',
+          box = 'vertical',
+          {
+            win = 'input',
+            height = 1,
+            border = 'rounded',
+            title = '{title} {live} {flags}',
+            title_pos = 'center',
+          },
+          { win = 'list', border = 'none' },
+          {
+            win = 'preview',
+            title = '{preview}',
+            height = 0.4,
+            border = 'top',
+          },
         },
-        { win = 'list', border = 'none' },
-        { win = 'preview', title = '{preview}', height = 0.4, border = 'top' },
+      },
+      previewers = {
+        diff = {
+          builtin = false,
+        },
+        git = {
+          builtin = false,
+        },
       },
     },
-    previewers = {
-      diff = {
-        builtin = false,
-      },
-      git = {
-        builtin = false,
-      },
+    image = { enabled = true },
+    explorer = { enabled = true },
+    quickfile = { enabled = false },
+    input = { enabled = true },
+    notifier = {
+      enabled = true,
+      timeout = 3000,
     },
-  },
-  image = { enabled = true },
-  explorer = { enabled = true },
-  quickfile = { enabled = false },
-  input = { enabled = true },
-  notifier = {
-    enabled = true,
-    timeout = 3000,
-  },
-  words = { enabled = true },
-  dashboard = {
-    enabled = true,
-    sections = {
-      {
-        section = 'terminal',
-        cmd = 'npx oh-my-logo@latest "Aguilar" fire --filled',
-        height = 8,
-        padding = 1,
+    words = { enabled = true },
+    dashboard = {
+      enabled = true,
+      sections = {
+        {
+          section = 'terminal',
+          cmd = 'npx oh-my-logo@latest "Aguilar" fire --filled',
+          height = 8,
+          padding = 1,
+        },
+        {
+          -- pane = 2,
+          { section = 'keys', gap = 1, padding = 1 },
+        },
+        {
+          icon = ' ',
+          title = 'Recent Files',
+          section = 'recent_files',
+          indent = 2,
+          padding = 1,
+        },
+        {
+          icon = ' ',
+          title = 'Projects',
+          section = 'projects',
+          indent = 2,
+          padding = 1,
+        },
       },
-      {
-        -- pane = 2,
-        { section = 'keys', gap = 1, padding = 1 },
-      },
-      {
-        icon = ' ',
-        title = 'Recent Files',
-        section = 'recent_files',
-        indent = 2,
-        padding = 1,
-      },
-      {
-        icon = ' ',
-        title = 'Projects',
-        section = 'projects',
-        indent = 2,
-        padding = 1,
-      },
-    },
-  },
-})
-
--- ============================================================================
--- SNACKS KEYMAPS
--- ============================================================================
-
--- Top Pickers & Explorer
-key.map('n', '<leader>,', function()
-  snacks.picker.buffers()
-end, { desc = 'Buffers' })
-key.map('n', '<leader>/', function()
-  snacks.picker.grep()
-end, { desc = 'Grep' })
-key.map('n', '<leader>:', function()
-  snacks.picker.command_history()
-end, { desc = 'Command History' })
-key.map('n', '<leader>.', function()
-  snacks.explorer()
-end, { desc = 'File Explorer' })
-
--- Find
-key.map('n', '<leader>fb', function()
-  snacks.picker.buffers()
-end, { desc = 'Buffers' })
-key.map('n', '<leader>fc', function()
-  snacks.picker.files({ cwd = vim.fn.stdpath('config') })
-end, { desc = 'Find Config File' })
-key.map('n', '<leader>fd', function()
-  snacks.picker.files()
-end, { desc = 'Find Files in directory' })
-key.map('n', '<leader>ff', function()
-  snacks.picker.files({ cwd = vim.lsp.buf.list_workspace_folders()[1] or '.' })
-end, { desc = 'Find Files in root path' })
-key.map('n', '<leader>fg', function()
-  snacks.picker.git_files()
-end, { desc = 'Find Git Files' })
-key.map('n', '<leader>fp', function()
-  snacks.picker.projects()
-end, { desc = 'Projects' })
-key.map('n', '<leader>fr', function()
-  snacks.picker.recent()
-end, { desc = 'Recent' })
-
--- Git
-key.map('n', '<leader>gb', function()
-  snacks.picker.git_branches()
-end, { desc = 'Git Branches' })
-key.map('n', '<leader>gl', function()
-  snacks.picker.git_log()
-end, { desc = 'Git Log' })
-key.map('n', '<leader>gL', function()
-  snacks.picker.git_log_line()
-end, { desc = 'Git Log Line' })
-key.map('n', '<leader>gs', function()
-  snacks.picker.git_status()
-end, { desc = 'Git Status' })
-key.map('n', '<leader>gS', function()
-  snacks.picker.git_stash()
-end, { desc = 'Git Stash' })
-key.map('n', '<leader>gd', function()
-  snacks.picker.git_diff()
-end, { desc = 'Git Diff (Hunks)' })
-key.map('n', '<leader>gf', function()
-  snacks.picker.git_log_file()
-end, { desc = 'Git Log File' })
-
--- Grep
-key.map('n', '<leader>sB', function()
-  snacks.picker.grep_buffers()
-end, { desc = 'Grep Open Buffers' })
-key.map('n', '<leader>sg', function()
-  snacks.picker.grep()
-end, { desc = 'Grep' })
-key.map({ 'n', 'x' }, '<leader>sw', function()
-  snacks.picker.grep_word()
-end, { desc = 'Visual selection or word' })
-
--- Search
-key.map('n', '<leader>s"', function()
-  snacks.picker.registers()
-end, { desc = 'Registers' })
-key.map('n', '<leader>s/', function()
-  snacks.picker.search_history()
-end, { desc = 'Search History' })
-key.map('n', '<leader>sa', function()
-  snacks.picker.autocmds()
-end, { desc = 'Autocmds' })
-key.map('n', '<leader>sb', function()
-  snacks.picker.lines()
-end, { desc = 'Buffer Lines' })
-key.map('n', '<leader>sc', function()
-  snacks.picker.command_history()
-end, { desc = 'Command History' })
-key.map('n', '<leader>sC', function()
-  snacks.picker.commands()
-end, { desc = 'Commands' })
-key.map('n', '<leader>sD', function()
-  snacks.picker.diagnostics()
-end, { desc = 'Diagnostics' })
-key.map('n', '<leader>sd', function()
-  snacks.picker.diagnostics_buffer()
-end, { desc = 'Buffer Diagnostics' })
-key.map('n', '<leader>sh', function()
-  snacks.picker.help()
-end, { desc = 'Help Pages' })
-key.map('n', '<leader>sH', function()
-  snacks.picker.highlights()
-end, { desc = 'Highlights' })
-key.map('n', '<leader>si', function()
-  snacks.picker.icons()
-end, { desc = 'Icons' })
-key.map('n', '<leader>sj', function()
-  snacks.picker.jumps()
-end, { desc = 'Jumps' })
-key.map('n', '<leader>sk', function()
-  snacks.picker.keymaps()
-end, { desc = 'Keymaps' })
-key.map('n', '<leader>sl', function()
-  snacks.picker.loclist()
-end, { desc = 'Location List' })
-key.map('n', '<leader>sm', function()
-  snacks.picker.marks()
-end, { desc = 'Marks' })
-key.map('n', '<leader>sM', function()
-  snacks.picker.man()
-end, { desc = 'Man Pages' })
--- key.map('n', '<leader>sp', function()
---   snacks.picker.lazy()
--- end, { desc = 'Search for Plugin Spec' })
-key.map('n', '<leader>sq', function()
-  snacks.picker.qflist()
-end, { desc = 'Quickfix List' })
-key.map('n', '<leader>sR', function()
-  snacks.picker.resume()
-end, { desc = 'Resume' })
-key.map('n', '<leader>su', function()
-  snacks.picker.undo()
-end, { desc = 'Undo History' })
-key.map('n', '<leader>uC', function()
-  snacks.picker.colorschemes()
-end, { desc = 'Colorschemes' })
-
--- LSP
-key.map('n', 'gd', function()
-  snacks.picker.lsp_definitions()
-end, { desc = 'Goto Definition' })
-key.map('n', 'gD', function()
-  snacks.picker.lsp_declarations()
-end, { desc = 'Goto Declaration' })
-key.map('n', 'gR', function()
-  snacks.picker.lsp_references()
-end, { desc = 'References', nowait = true })
-key.map('n', 'gI', function()
-  snacks.picker.lsp_implementations()
-end, { desc = 'Goto Implementation' })
-key.map('n', 'gy', function()
-  snacks.picker.lsp_type_definitions()
-end, { desc = 'Goto T[y]pe Definition' })
-key.map('n', '<leader>ss', function()
-  snacks.picker.lsp_symbols()
-end, { desc = 'LSP Symbols' })
-key.map('n', '<leader>sS', function()
-  snacks.picker.lsp_workspace_symbols()
-end, { desc = 'LSP Workspace Symbols' })
-
--- Other
-key.map('n', '<leader>x', function()
-  snacks.scratch()
-end, { desc = 'Toggle Scratch Buffer' })
-key.map('n', '<leader>S', function()
-  snacks.scratch.select()
-end, { desc = 'Select Scratch Buffer' })
-key.map('n', '<leader>bd', function()
-  snacks.bufdelete()
-end, { desc = 'Delete Buffer' })
-key.map('n', '<leader>cR', function()
-  snacks.rename.rename_file()
-end, { desc = 'Rename File' })
-key.map('n', '<leader>un', function()
-  snacks.notifier.hide()
-end, { desc = 'Dismiss All Notifications' })
-key.map({ 'n', 't' }, ']]', function()
-  snacks.words.jump(vim.v.count1)
-end, { desc = 'Next Reference' })
-key.map({ 'n', 't' }, '[[', function()
-  snacks.words.jump(-vim.v.count1)
-end, { desc = 'Prev Reference' })
-
--- Neovim News
-key.map('n', '<leader>N', function()
-  snacks.win({
-    file = vim.api.nvim_get_runtime_file('doc/news.txt', false)[1],
-    width = 0.6,
-    height = 0.6,
-    wo = {
-      spell = false,
-      wrap = false,
-      signcolumn = 'yes',
-      statuscolumn = ' ',
-      conceallevel = 3,
     },
   })
-end, { desc = 'Neovim News' })
+end
+
+-- ============================================================================
+-- SNACKS KEYMAPS (LAZY-LOADED & GROUPED)
+-- ============================================================================
+
+-- Top-level leader maps
+local top_leader_maps = {
+  {
+    ',',
+    function()
+      require('snacks').picker.buffers()
+    end,
+    'Buffers',
+  },
+  {
+    '/',
+    function()
+      require('snacks').picker.grep()
+    end,
+    'Grep',
+  },
+  {
+    ':',
+    function()
+      require('snacks').picker.command_history()
+    end,
+    'Command History',
+  },
+  {
+    '.',
+    function()
+      require('snacks').explorer()
+    end,
+    'File Explorer',
+  },
+  {
+    'x',
+    function()
+      require('snacks').scratch()
+    end,
+    'Toggle Scratch Buffer',
+  },
+  {
+    'S',
+    function()
+      require('snacks').scratch.select()
+    end,
+    'Select Scratch Buffer',
+  },
+  {
+    'bd',
+    function()
+      require('snacks').bufdelete()
+    end,
+    'Delete Buffer',
+  },
+  {
+    'cR',
+    function()
+      require('snacks').rename.rename_file()
+    end,
+    'Rename File',
+  },
+  {
+    'un',
+    function()
+      require('snacks').notifier.hide()
+    end,
+    'Dismiss All Notifications',
+  },
+  {
+    'N',
+    function()
+      require('snacks').win({
+        file = vim.api.nvim_get_runtime_file('doc/news.txt', false)[1],
+        width = 0.6,
+        height = 0.6,
+        wo = {
+          spell = false,
+          wrap = false,
+          signcolumn = 'yes',
+          statuscolumn = ' ',
+          conceallevel = 3,
+        },
+      })
+    end,
+    'Neovim News',
+  },
+}
+key.maps_lazy('snacks', setup_snacks, 'n', '<leader>', top_leader_maps)
+
+-- Find maps (<leader>f)
+local find_maps = {
+  {
+    'b',
+    function()
+      require('snacks').picker.buffers()
+    end,
+    'Buffers',
+  },
+  {
+    'c',
+    function()
+      require('snacks').picker.files({ cwd = vim.fn.stdpath('config') })
+    end,
+    'Find Config File',
+  },
+  {
+    'd',
+    function()
+      require('snacks').picker.files()
+    end,
+    'Find Files in directory',
+  },
+  {
+    'f',
+    function()
+      require('snacks').picker.files({
+        cwd = vim.lsp.buf.list_workspace_folders()[1] or '.',
+      })
+    end,
+    'Find Files in root path',
+  },
+  {
+    'g',
+    function()
+      require('snacks').picker.git_files()
+    end,
+    'Find Git Files',
+  },
+  {
+    'p',
+    function()
+      require('snacks').picker.projects()
+    end,
+    'Projects',
+  },
+  {
+    'r',
+    function()
+      require('snacks').picker.recent()
+    end,
+    'Recent',
+  },
+}
+key.maps_lazy('snacks', setup_snacks, 'n', '<leader>f', find_maps)
+
+-- Git maps (<leader>g)
+local git_maps = {
+  {
+    'b',
+    function()
+      require('snacks').picker.git_branches()
+    end,
+    'Git Branches',
+  },
+  {
+    'l',
+    function()
+      require('snacks').picker.git_log()
+    end,
+    'Git Log',
+  },
+  {
+    'L',
+    function()
+      require('snacks').picker.git_log_line()
+    end,
+    'Git Log Line',
+  },
+  {
+    's',
+    function()
+      require('snacks').picker.git_status()
+    end,
+    'Git Status',
+  },
+  {
+    'S',
+    function()
+      require('snacks').picker.git_stash()
+    end,
+    'Git Stash',
+  },
+  {
+    'd',
+    function()
+      require('snacks').picker.git_diff()
+    end,
+    'Git Diff (Hunks)',
+  },
+  {
+    'f',
+    function()
+      require('snacks').picker.git_log_file()
+    end,
+    'Git Log File',
+  },
+}
+key.maps_lazy('snacks', setup_snacks, 'n', '<leader>g', git_maps)
+
+-- Search maps (<leader>s)
+local search_maps = {
+  {
+    'B',
+    function()
+      require('snacks').picker.grep_buffers()
+    end,
+    'Grep Open Buffers',
+  },
+  {
+    'g',
+    function()
+      require('snacks').picker.grep()
+    end,
+    'Grep',
+  },
+  {
+    '"',
+    function()
+      require('snacks').picker.registers()
+    end,
+    'Registers',
+  },
+  {
+    '/',
+    function()
+      require('snacks').picker.search_history()
+    end,
+    'Search History',
+  },
+  {
+    'a',
+    function()
+      require('snacks').picker.autocmds()
+    end,
+    'Autocmds',
+  },
+  {
+    'b',
+    function()
+      require('snacks').picker.lines()
+    end,
+    'Buffer Lines',
+  },
+  {
+    'c',
+    function()
+      require('snacks').picker.command_history()
+    end,
+    'Command History',
+  },
+  {
+    'C',
+    function()
+      require('snacks').picker.commands()
+    end,
+    'Commands',
+  },
+  {
+    'D',
+    function()
+      require('snacks').picker.diagnostics()
+    end,
+    'Diagnostics',
+  },
+  {
+    'd',
+    function()
+      require('snacks').picker.diagnostics_buffer()
+    end,
+    'Buffer Diagnostics',
+  },
+  {
+    'h',
+    function()
+      require('snacks').picker.help()
+    end,
+    'Help Pages',
+  },
+  {
+    'H',
+    function()
+      require('snacks').picker.highlights()
+    end,
+    'Highlights',
+  },
+  {
+    'i',
+    function()
+      require('snacks').picker.icons()
+    end,
+    'Icons',
+  },
+  {
+    'j',
+    function()
+      require('snacks').picker.jumps()
+    end,
+    'Jumps',
+  },
+  {
+    'k',
+    function()
+      require('snacks').picker.keymaps()
+    end,
+    'Keymaps',
+  },
+  {
+    'l',
+    function()
+      require('snacks').picker.loclist()
+    end,
+    'Location List',
+  },
+  {
+    'm',
+    function()
+      require('snacks').picker.marks()
+    end,
+    'Marks',
+  },
+  {
+    'M',
+    function()
+      require('snacks').picker.man()
+    end,
+    'Man Pages',
+  },
+  {
+    'q',
+    function()
+      require('snacks').picker.qflist()
+    end,
+    'Quickfix List',
+  },
+  {
+    'R',
+    function()
+      require('snacks').picker.resume()
+    end,
+    'Resume',
+  },
+  {
+    'u',
+    function()
+      require('snacks').picker.undo()
+    end,
+    'Undo History',
+  },
+  {
+    's',
+    function()
+      require('snacks').picker.lsp_symbols()
+    end,
+    'LSP Symbols',
+  },
+  {
+    'S',
+    function()
+      require('snacks').picker.lsp_workspace_symbols()
+    end,
+    'LSP Workspace Symbols',
+  },
+}
+
+key.map_lazy('snacks', setup_snacks, { 'n', 'x' }, '<leader>sw', function()
+  require('snacks').picker.grep_word()
+end, { desc = 'Visual selection or word' })
+
+key.maps_lazy('snacks', setup_snacks, 'n', '<leader>s', search_maps)
+
+-- Other individual maps
+key.map_lazy('snacks', setup_snacks, 'n', '<leader>uC', function()
+  require('snacks').picker.colorschemes()
+end, { desc = 'Colorschemes' })
+
+-- LSP (no common prefix)
+
+local lsp_maps = {
+  {
+    'd',
+    function()
+      require('snacks').picker.lsp_definitions()
+    end,
+    'Goto Definition',
+  },
+  {
+    'D',
+    function()
+      require('snacks').picker.lsp_declarations()
+    end,
+    'Goto Declaration',
+  },
+  {
+    'R',
+    function()
+      require('snacks').picker.lsp_references()
+    end,
+    'References',
+    { nowait = true },
+  },
+  {
+    'I',
+    function()
+      require('snacks').picker.lsp_implementations()
+    end,
+    'Goto Implementation',
+  },
+  {
+    'y',
+    function()
+      require('snacks').picker.lsp_type_definitions()
+    end,
+    'Goto T[y]pe Definition',
+  },
+}
+
+key.maps_lazy('snacks', setup_snacks, 'n', 'g', lsp_maps)
+
+-- Word jump maps
+key.map_lazy('snacks', setup_snacks, { 'n', 't' }, ']]', function()
+  require('snacks').words.jump(vim.v.count1)
+end, { desc = 'Next Reference' })
+key.map_lazy('snacks', setup_snacks, { 'n', 't' }, '[[', function()
+  require('snacks').words.jump(-vim.v.count1)
+end, { desc = 'Prev Reference' })
+
+-- ============================================================================
+-- STARTUP HANDLER (Dashboard or Directory Explorer)
+-- ============================================================================
+local startup_augroup =
+  vim.api.nvim_create_augroup('snacks_startup', { clear = true })
+vim.api.nvim_create_autocmd('VimEnter', {
+  group = startup_augroup,
+  pattern = '*',
+  nested = true,
+  callback = function()
+    local arg = vim.fn.argv(0)
+    if arg == nil or arg == '' or vim.fn.isdirectory(arg) == 1 then
+      setup_snacks()
+    end
+  end,
+})

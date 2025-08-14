@@ -1,13 +1,10 @@
--- lua/plugins/ui/base.lua (Optimizado usando tu fn.lazy_load)
-
-vim.pack.add({
-  'https://github.com/stevearc/dressing.nvim',
-})
-
 local fn = require('utils.fn')
 
 -- Dressing.nvim: Tu configuración ya es perezosa. ¡Perfecto!
 vim.ui.select = function(...)
+  vim.pack.add({
+    'https://github.com/stevearc/dressing.nvim',
+  })
   require('lazy').load({ plugins = { 'dressing.nvim' } })
   return vim.ui.select(...)
 end

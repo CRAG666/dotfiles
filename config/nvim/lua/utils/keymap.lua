@@ -30,23 +30,23 @@ function M.maps(maps)
 end
 
 function M.map_lazy(module, setup, mode, lhs, rhs, opts)
-  M.map(mode, lhs, function()
-    local ok, _ = pcall(require, module)
-    vim.keymap.del(mode, lhs)
-    if not ok then
-      setup()
-    end
-    local fn
-    if type(rhs) == 'function' then
-      fn = rhs
-    else
-      fn = function()
-        vim.cmd(rhs)
+  local loaded = false
+
+  local function load_and_run()
+    if not loaded then
+      if not package.loaded[module] then
+        setup()
       end
+      loaded = true
     end
-    fn()
-    M.map(mode, lhs, fn, opts)
-  end, opts)
+
+    if type(rhs) == 'function' then
+      rhs()
+    else
+      vim.cmd(rhs)
+    end
+  end
+  M.map(mode, lhs, load_and_run, opts)
 end
 
 function M.maps_lazy(module, setup, mode, prefix, maps)

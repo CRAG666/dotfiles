@@ -33,7 +33,6 @@ end
 --   - desc (string): Descripción para el autocomando.
 --
 function M.lazy_load(events, mod_name, load_fn, opts)
-  -- Validación de entradas más estricta
   if not (events and mod_name and load_fn) then
     error(
       "lazy_load: los parámetros 'events', 'mod_name', y 'load_fn' son requeridos.",
@@ -48,29 +47,29 @@ function M.lazy_load(events, mod_name, load_fn, opts)
   local group_id = vim.api.nvim_create_augroup(group_name, { clear = true })
   local loaded = false
 
-  -- La función callback que se ejecutará
   local callback = function()
-    -- 💡 Previene ejecuciones múltiples si varios eventos se disparan rápidamente
     if loaded then
       return
     end
     loaded = true
-    load_fn()
-    -- 💡 Por defecto, limpia el grupo de autocomandos para evitar ejecuciones futuras.
-    -- Esto ahora funciona correctamente para múltiples eventos.
+
+    -- Solo si la limpieza está habilitada (comportamiento por defecto)
     if opts.once ~= false then
+      -- Elimina el grupo para que no se vuelva a ejecutar.
+      -- vim.schedule asegura que se haga de forma segura.
       vim.schedule(function()
         pcall(vim.api.nvim_del_augroup_by_id, group_id)
       end)
     end
+
+    -- Ejecuta la función de carga
+    load_fn()
   end
 
-  -- Crea un autocomando para cada evento especificado
   for _, event in ipairs(event_list) do
     vim.api.nvim_create_autocmd(event, {
       group = group_id,
       pattern = opts.pattern,
-      once = true,
       callback = callback,
       desc = opts.desc or ('Lazy load: ' .. mod_name),
     })
