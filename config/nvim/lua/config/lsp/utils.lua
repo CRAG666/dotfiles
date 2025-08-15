@@ -23,7 +23,11 @@ function M.capabilities()
     dynamicRegistration = false,
     lineFoldingOnly = true,
   }
-  return require('blink.cmp').get_lsp_capabilities(capabilities)
+  local ok, blink = pcall(require, 'blink.cmp')
+  if ok then
+    return blink.get_lsp_capabilities(capabilities)
+  end
+  return capabilities
 end
 
 function M.on_attach(on_attach)

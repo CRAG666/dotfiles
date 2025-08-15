@@ -12,9 +12,9 @@ vim.api.nvim_create_autocmd('FileType', {
     winbar.setup({ bar = { hover = false } })
 
     -- stylua: ignore start
-    vim.keymap.set('n', '<Leader>;', api.pick, { desc = 'Pick symbols in winbar' })
-    vim.keymap.set('n', '[;', api.goto_context_start, { desc = 'Go to start of current context' })
-    vim.keymap.set('n', '];', api.select_next_context, { desc = 'Select next context' })
+    vim.keymap.set('n', '<Leader>w', api.pick, { desc = 'Pick symbols in winbar' })
+    vim.keymap.set('n', '[w', api.goto_context_start, { desc = 'Go to start of current context' })
+    vim.keymap.set('n', ']w', api.select_next_context, { desc = 'Select next context' })
     -- stylua: ignore end
   end,
 })

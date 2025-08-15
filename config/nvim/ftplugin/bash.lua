@@ -1,1 +1,1 @@
-sh
+sh.lua

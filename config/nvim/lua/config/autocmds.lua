@@ -78,22 +78,6 @@ augroup('WritingAssistant', {
   },
 })
 
-augroup('Formatting', {
-  'BufWritePre',
-  {
-    desc = 'Formatting',
-    pattern = '*',
-    callback = function(args)
-      vim.lsp.buf.format({
-        bufnr = args.buf,
-        filter = function(client)
-          return client.server_capabilities.documentFormattingProvider
-        end,
-      })
-    end,
-  },
-})
-
 augroup('CursorLine', {
   { 'InsertLeave', 'WinEnter' },
   {

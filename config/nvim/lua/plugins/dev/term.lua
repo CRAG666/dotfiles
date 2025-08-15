@@ -2,13 +2,10 @@ local key = require('utils.keymap')
 local current = 2
 
 local function setup()
-  vim.print('BetterTerm setup')
   vim.opt.runtimepath:prepend(vim.fn.expand('~/Git/betterTerm.nvim'))
   require('betterTerm').setup({
-    -- position = 'vertical',
-    -- size = 60,
-    position = 'bot',
-    size = 25,
+    position = 'vert',
+    size = math.floor(vim.o.columns / 2),
     jump_tab_mapping = '<A-$tab>',
     new_tab_icon = require('utils.static.icons').git.Added,
   })
@@ -48,6 +45,13 @@ local more = {
       current = current + 1
     end,
     'Create new terminal',
+  },
+  {
+    'r',
+    function()
+      require('betterTerm').rename()
+    end,
+    'Rename terminal',
   },
 }
 

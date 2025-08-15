@@ -168,3 +168,5 @@ set.wrap = true
 set.errorbells = true
 set.shortmess:append({ W = true, I = true, c = true, C = true })
 set.showmode = false
+
+set.completeopt = { 'menuone', 'noselect', 'popup' }

@@ -5,3 +5,4 @@ vim.bo.expandtab = true
 vim.bo.textwidth = 80
 vim.bo.autoindent = true
 vim.bo.smartindent = true
+vim.g.mason = { 'basedpyright', 'ruff', 'pyrefly' }

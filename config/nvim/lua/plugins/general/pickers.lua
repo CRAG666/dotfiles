@@ -18,30 +18,8 @@ local function setup_snacks()
     picker = {
       enabled = true,
       layout = {
-        preview = 'main',
-        layout = {
-          backdrop = false,
-          width = 40,
-          min_width = 40,
-          height = 0,
-          position = 'right',
-          border = 'none',
-          box = 'vertical',
-          {
-            win = 'input',
-            height = 1,
-            border = 'rounded',
-            title = '{title} {live} {flags}',
-            title_pos = 'center',
-          },
-          { win = 'list', border = 'none' },
-          {
-            win = 'preview',
-            title = '{preview}',
-            height = 0.4,
-            border = 'top',
-          },
-        },
+        preset = 'sidebar',
+        layout = { position = 'right' },
       },
       previewers = {
         diff = {
@@ -57,8 +35,7 @@ local function setup_snacks()
     quickfile = { enabled = false },
     input = { enabled = true },
     notifier = {
-      enabled = true,
-      timeout = 3000,
+      enabled = false,
     },
     words = { enabled = true },
     dashboard = {
@@ -529,6 +506,7 @@ vim.api.nvim_create_autocmd('VimEnter', {
   group = startup_augroup,
   pattern = '*',
   nested = true,
+  once = true,
   callback = function()
     local arg = vim.fn.argv(0)
     if arg == nil or arg == '' or vim.fn.isdirectory(arg) == 1 then

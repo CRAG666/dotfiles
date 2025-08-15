@@ -2,8 +2,9 @@ vim.bo.sw = 4
 vim.bo.cindent = false
 vim.bo.smartindent = false
 vim.bo.commentstring = '<!-- %s -->'
+vim.g.mason = { 'marksman', 'remark-language-server' }
 
-vim.pack.add({ 'OXY2DEV/markview.nvim' })
+vim.pack.add({ 'https://github.com/OXY2DEV/markview.nvim' })
 
 require('markview.extras.checkboxes').setup()
 require('markview').setup({

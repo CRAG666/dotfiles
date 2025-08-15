@@ -125,12 +125,11 @@ local function setup_diagnostic_configs()
     jump = {
       float = true,
     },
-    -- underline = false,
-    -- virtual_text = {
-    --   spacing = 4,
-    --   prefix = vim.trim(utils.static.icons.AngleLeft),
-    -- },
-    virtual_text = false,
+    virtual_text = {
+      spacing = 4,
+      prefix = vim.trim(utils.static.icons.AngleLeft),
+    },
+    virtual_lines = true,
     signs = {
       text = {
         [vim.diagnostic.severity.ERROR] = icons.DiagnosticSignError,
@@ -235,38 +234,42 @@ function M.setup(disable_list)
     capabilities = lu.capabilities(),
     root_markers = require('utils.fs').root_markers,
   })
-  vim.api.nvim_create_autocmd('FileType', {
-    once = true,
-    callback = function(args)
-      vim
-        .iter(vim.api.nvim__get_runtime({ 'lsp' }, true, {}))
-        :each(function(dir)
-          vim
-            .iter(vim.fs.dir(dir))
-            :map(function(config)
-              return vim.fn.fnamemodify(config, ':r')
-            end)
-            :each(function(config)
-              if not vim.tbl_contains(disable_list, config) then
-                vim.lsp.enable(config)
-              end
-            end)
-        end)
-      vim.api.nvim_exec_autocmds('FileType', {
-        pattern = args.match,
-      })
-    end,
-  })
-  lu.on_attach(function(client, bufnr)
+
+  local lsp_configs = {}
+
+  for _, f in pairs(vim.api.nvim_get_runtime_file('lsp/*.lua', true)) do
+    local server_name = vim.fn.fnamemodify(f, ':t:r')
+    if not vim.tbl_contains(disable_list, server_name) then
+      table.insert(lsp_configs, server_name)
+    end
+  end
+
+  vim.lsp.enable(lsp_configs)
+
+  lu.on_attach(function(clients, bufnr)
     -- if vim.lsp.inlay_hint.is_enabled() ~= true then
     --   vim.lsp.inlay_hint.enable()
     -- end
     require('config.lsp.commands').setup()
-    require('config.lsp.keymaps').on_attach(client, bufnr)
+    require('config.lsp.keymaps').on_attach(clients, bufnr)
     setup_lsp_overrides()
     setup_lsp_stopdetached()
     setup_diagnostic_overrides()
     setup_diagnostic_configs()
   end)
+  require('config.lsp.format')
+  -- require('config.lsp.completion')
+  vim.api.nvim_create_autocmd('LspAttach', {
+    desc = 'Deshabilitar resaltado semántico',
+    callback = function(event)
+      local id = vim.tbl_get(event, 'data', 'client_id')
+      local client = id and vim.lsp.get_client_by_id(id)
+      if client == nil then
+        return
+      end
+
+      client.server_capabilities.semanticTokensProvider = nil
+    end,
+  })
 end
 return M
