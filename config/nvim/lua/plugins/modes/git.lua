@@ -4,6 +4,7 @@ key.maps_lazy(
   'fugit2',
   function()
     vim.pack.add({
+      'https://github.com/nvim-lua/plenary.nvim',
       'https://github.com/SuperBo/fugit2.nvim',
       'https://github.com/chrisgrieser/nvim-tinygit',
     })

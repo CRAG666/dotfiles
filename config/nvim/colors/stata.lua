@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      BSD
--- Last Updated: Mon 28 Jul 2025 02:19:38 AM PDT
+-- Last Updated: Wed Aug 20 12:21:51 2025
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -199,7 +199,7 @@ local hlgroups = {
   Number = { fg = c_number },
   Boolean = { fg = c_variable, bold = true },
   Float = { link = 'Number' },
-  Identifier = {},
+  Identifier = { fg = c_foreground },
   Function = { fg = c_generic, bold = true },
   Statement = { fg = c_keyword, bold = true },
   Conditional = { fg = c_keyword, bold = true },

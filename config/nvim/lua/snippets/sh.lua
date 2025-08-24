@@ -259,12 +259,8 @@ M.snippets = {
       }
     )
   ),
-  us.msn({
-    { trig = 'p' },
-    { trig = 'e' },
-    { trig = 'ech' },
-    { trig = 'echo' },
-  }, t('echo ')),
+  us.sn({ trig = 'eo' }, t('echo ')),
+  us.sn({ trig = 'pr' }, t('printf ')),
   us.msn(
     {
       { trig = 'pl' },
@@ -286,8 +282,8 @@ M.snippets = {
       { trig = 'eck' },
       common = { desc = 'Debug check expression value' },
     },
-    un.fmtad([[echo '<v_esc>:' <v>]], {
-      v = i(1, '"$var"'),
+    un.fmtad([[echo '<v_esc>:' "<v>"]], {
+      v = i(1, '$var'),
       v_esc = d(2, function(texts)
         local str = vim.fn.escape(texts[1][1], '\\'):gsub([[']], [['"'"']])
         return sn(nil, i(1, str))
@@ -300,18 +296,17 @@ M.snippets = {
       priority = 999,
       desc = 'Debug check expression value (cont.)',
     },
-    un.fmtad([['<v_esc>:' <v>]], {
-      v = i(1, '"$var"'),
+    un.fmtad([['<v_esc>:' "<v>"]], {
+      v = i(1, '$var'),
       v_esc = d(2, function(texts)
         local str = vim.fn.escape(texts[1][1], '\\'):gsub([[']], [['"'"']])
         return sn(nil, i(1, str))
       end, { 1 }),
     })
   ),
-  us.msn({
-    { trig = 'r' },
-    { trig = 'read' },
-    common = { desc = 'read input' },
+  us.sn({
+    trig = 'read',
+    desc = 'read input',
   }, {
     t('read '),
     c(1, {
@@ -330,6 +325,26 @@ M.snippets = {
         value = i(2, 'value'),
       }),
       un.fmtad('local <name>=<value>', {
+        name = i(1, 'var'),
+        value = i(2, 'value'),
+      }),
+      un.fmtad('local -r <name>=<value>', {
+        name = i(1, 'var'),
+        value = i(2, 'value'),
+      }),
+      un.fmtad('readonly <name>=<value>', {
+        name = i(1, 'var'),
+        value = i(2, 'value'),
+      }),
+    }),
+  }),
+  us.msn({
+    { trig = 'con' },
+    { trig = 'const' },
+    common = { desc = 'variable declaration' },
+  }, {
+    c(1, {
+      un.fmtad('local -r <name>=<value>', {
         name = i(1, 'var'),
         value = i(2, 'value'),
       }),
@@ -368,8 +383,8 @@ M.snippets = {
     un.fmtad('trap <cmd> <sig>', {
       cmd = i(1, 'cleanup'),
       sig = c(2, {
-        i(nil, 'EXIT INT TERM'), -- when script exits or terminates, useful for cleanup
-        i(nil, 'EXIT INT TERM HUP'), -- use for cleanup in scripts that needs a terminal/tty
+        i(nil, 'EXIT INT TERM HUP'), -- common signals that terminates a program by default, useful for most scripts
+        i(nil, 'EXIT INT TERM'), -- handle `HUP` in another trap, used in a daemon script
         i(nil, 'EXIT'),
         i(nil, 'INT'),
         i(nil, 'TERM'),

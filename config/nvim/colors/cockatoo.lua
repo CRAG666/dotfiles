@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Mon 28 Jul 2025 02:19:38 AM PDT
+-- Last Updated: Wed Aug 20 12:21:51 2025
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -250,7 +250,7 @@ local hlgroups = {
   Boolean = { fg = c_ochre },
   Array = { fg = c_orange },
   Float = { link = 'Number' },
-  Identifier = {},
+  Identifier = { fg = c_smoke },
   Builtin = { fg = c_pink },
   Field = { fg = c_pigeon },
   Enum = { fg = c_ochre },
@@ -327,15 +327,15 @@ local hlgroups = {
   ['@keyword.import'] = { link = 'Include' },
   ['@keyword.exception'] = { link = 'Exception' },
   ['@type'] = { link = 'Type' },
-  ['@type.Builtin'] = { link = 'Type' },
+  ['@type.builtin'] = { link = 'Type' },
   ['@type.qualifier'] = { link = 'Type' },
   ['@type.definition'] = { link = 'Typedef' },
   ['@keyword.storage'] = { link = 'StorageClass' },
   ['@attribute'] = { link = 'Label' },
   ['@variable'] = { link = 'Identifier' },
-  ['@variable.Builtin'] = { link = 'Builtin' },
+  ['@variable.builtin'] = { link = 'Builtin' },
   ['@constant'] = { link = 'Constant' },
-  ['@constant.Builtin'] = { link = 'Constant' },
+  ['@constant.builtin'] = { link = 'Constant' },
   ['@constant.macro'] = { link = 'Macro' },
   ['@module'] = { link = 'Namespace' },
   ['@markup.link.label.symbol'] = { link = 'Identifier' },

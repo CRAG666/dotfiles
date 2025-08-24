@@ -1,4 +1,3 @@
-local icons = require('utils.static.icons')
 local key = require('utils.keymap')
 
 -- ============================================================================
@@ -11,9 +10,12 @@ local function setup_snacks()
   vim.pack.add({ { src = 'https://github.com/folke/snacks.nvim' } })
   require('snacks').setup({
     animate = { enabled = true },
+    scroll = { enabled = true },
+    bigfile = { enabled = true },
+    statuscolumn = { enabled = false },
+    dim = { enabled = true },
     indent = { enabled = true },
     scope = { enabled = true },
-    bigfile = { enabled = true },
     layout = { enabled = true },
     picker = {
       enabled = true,
@@ -35,7 +37,7 @@ local function setup_snacks()
     quickfile = { enabled = false },
     input = { enabled = true },
     notifier = {
-      enabled = false,
+      enabled = true,
     },
     words = { enabled = true },
     dashboard = {
@@ -69,6 +71,8 @@ local function setup_snacks()
     },
   })
 end
+
+setup_snacks()
 
 -- ============================================================================
 -- SNACKS KEYMAPS (LAZY-LOADED & GROUPED)
@@ -158,7 +162,7 @@ local top_leader_maps = {
     'Neovim News',
   },
 }
-key.maps_lazy('snacks', setup_snacks, 'n', '<leader>', top_leader_maps)
+key.pmaps('n', '<leader>', top_leader_maps)
 
 -- Find maps (<leader>f)
 local find_maps = {
@@ -214,7 +218,7 @@ local find_maps = {
     'Recent',
   },
 }
-key.maps_lazy('snacks', setup_snacks, 'n', '<leader>f', find_maps)
+key.pmaps('n', '<leader>f', find_maps)
 
 -- Git maps (<leader>g)
 local git_maps = {
@@ -268,7 +272,7 @@ local git_maps = {
     'Git Log File',
   },
 }
-key.maps_lazy('snacks', setup_snacks, 'n', '<leader>g', git_maps)
+key.pmaps('n', '<leader>g', git_maps)
 
 -- Search maps (<leader>s)
 local search_maps = {
@@ -435,14 +439,14 @@ local search_maps = {
   },
 }
 
-key.map_lazy('snacks', setup_snacks, { 'n', 'x' }, '<leader>sw', function()
+key.map({ 'n', 'x' }, '<leader>sw', function()
   require('snacks').picker.grep_word()
 end, { desc = 'Visual selection or word' })
 
-key.maps_lazy('snacks', setup_snacks, 'n', '<leader>s', search_maps)
+key.pmaps('n', '<leader>s', search_maps)
 
 -- Other individual maps
-key.map_lazy('snacks', setup_snacks, 'n', '<leader>uC', function()
+key.map('n', '<leader>uC', function()
   require('snacks').picker.colorschemes()
 end, { desc = 'Colorschemes' })
 
@@ -487,30 +491,12 @@ local lsp_maps = {
   },
 }
 
-key.maps_lazy('snacks', setup_snacks, 'n', 'g', lsp_maps)
+key.pmaps('n', 'g', lsp_maps)
 
 -- Word jump maps
-key.map_lazy('snacks', setup_snacks, { 'n', 't' }, ']]', function()
+key.map({ 'n', 't' }, ']]', function()
   require('snacks').words.jump(vim.v.count1)
 end, { desc = 'Next Reference' })
-key.map_lazy('snacks', setup_snacks, { 'n', 't' }, '[[', function()
+key.map({ 'n', 't' }, '[[', function()
   require('snacks').words.jump(-vim.v.count1)
 end, { desc = 'Prev Reference' })
-
--- ============================================================================
--- STARTUP HANDLER (Dashboard or Directory Explorer)
--- ============================================================================
-local startup_augroup =
-  vim.api.nvim_create_augroup('snacks_startup', { clear = true })
-vim.api.nvim_create_autocmd('VimEnter', {
-  group = startup_augroup,
-  pattern = '*',
-  nested = true,
-  once = true,
-  callback = function()
-    local arg = vim.fn.argv(0)
-    if arg == nil or arg == '' or vim.fn.isdirectory(arg) == 1 then
-      setup_snacks()
-    end
-  end,
-})

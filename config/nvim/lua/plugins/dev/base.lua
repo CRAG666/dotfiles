@@ -40,10 +40,10 @@ key.map('n', '<leader>ut', function()
 end, { desc = '[U]ndotree' })
 
 -- Minty: Igual que undotree, simple y efectivo.
-key.map('n', '<leader>my', function()
-  vim.pack.add({ { src = 'https://github.com/nvzone/minty' } })
-  vim.cmd.Minty()
-end, { desc = '[M]int[y]' })
+-- key.map('n', '<leader>my', function()
+--   vim.pack.add({ { src = 'https://github.com/nvzone/minty' } })
+--   vim.cmd.Minty()
+-- end, { desc = '[M]int[y]' })
 
 --------------------------------------------------------------------------------
 -- Plugins cargados por eventos usando lazy_load
@@ -53,23 +53,16 @@ end, { desc = '[M]int[y]' })
 fn.lazy_load('FileType', 'ts-comments', function()
   vim.pack.add({ { src = 'https://github.com/folke/ts-comments.nvim' } })
   require('ts-comments').setup({})
-end, {
-  pattern = { 'typescript', 'javascript', 'lua', 'go', 'rust', 'python' },
-  desc = 'Carga ts-comments para tipos de archivo soportados',
-})
+end)
 
 -- ✅ Utilidades de LSP: Se cargan una sola vez cuando un servidor LSP se conecta.
 -- Este es el lugar perfecto para cargar también dependencias como Plenary.
-fn.lazy_load('LspAttach', 'LSP_Utils', function()
-  -- Se carga Plenary junto con los plugins que dependen de él. ¡No antes!
-  vim.pack.add({ { src = 'https://github.com/nvim-lua/plenary.nvim' } })
+fn.lazy_load('LspAttach', 'tiny-code-action', function()
   vim.pack.add({
     { src = 'https://github.com/rachartier/tiny-code-action.nvim' },
-    { src = 'https://github.com/VidocqH/lsp-lens.nvim' },
   })
 
-  require('lsp-lens').setup({})
-  require('tiny-code-action').setup({})
+  require('tiny-code-action').setup({ picker = 'snacks' })
 
   -- El mapeo se crea solo después de que el plugin ha sido cargado.
   key.map('n', '<C-.>', function()

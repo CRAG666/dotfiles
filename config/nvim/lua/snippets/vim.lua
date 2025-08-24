@@ -11,9 +11,9 @@ local d = ls.dynamic_node
 
 M.snippets = {
   us.msn({
-    { trig = 'p' },
-    { trig = 'e' },
-    { trig = 'ech' },
+    { trig = 'pr' },
+    { trig = 'ec' },
+    { trig = 'em' },
   }, t('echom ')),
   us.msn(
     {

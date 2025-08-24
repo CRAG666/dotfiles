@@ -23,8 +23,11 @@ M.snippets = {
         \usepackage[cssfile=<style>.sty]{<package>}
       ]],
       {
-        style = i(1, "table"),
-        package = i(2, "/home/think-crag/Documentos/Proyectos/Writings/utils/latex/htmltabs"),
+        style = i(1, 'table'),
+        package = i(
+          2,
+          '/home/think-crag/Documentos/Proyectos/Writings/utils/latex/htmltabs'
+        ),
       }
     )
   ),
@@ -57,9 +60,9 @@ M.snippets = {
         \end{table}
       ]],
       {
-        caption = i(1, "caption"),
-        label = i(2, "label"),
-        class = i(3, "Default"),
+        caption = i(1, 'caption'),
+        label = i(2, 'label'),
+        class = i(3, 'Default'),
       }
     )
   ),
@@ -92,9 +95,9 @@ M.snippets = {
         \end{center}
       ]],
       {
-        caption = i(1, "caption"),
-        label = i(2, "label"),
-        class = i(3, "Default"),
+        caption = i(1, 'caption'),
+        label = i(2, 'label'),
+        class = i(3, 'Default'),
       }
     )
   ),

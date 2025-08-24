@@ -61,7 +61,7 @@ M.snippets = {
     t('local '),
     i(1, 'var'),
     t(' = '),
-    i(0, 'value'),
+    un.body(2, 0, 'value'),
   }),
   us.msn({
     { trig = 'lf' },
@@ -414,7 +414,7 @@ M.snippets = {
   }, {
     t('return '),
   }),
-  us.sn({ trig = 'p' }, {
+  us.sn({ trig = 'pr' }, {
     t('print('),
     i(1),
     t(')'),
@@ -546,11 +546,10 @@ M.snippets = {
       { body = un.body(1, 0) }
     )
   ),
-  us.mssn(
+  us.ssn(
     {
-      { trig = 'M' },
-      { trig = 'mod' },
-      common = { desc = 'Define a module' },
+      trig = 'mod',
+      desc = 'Define a module',
     },
     un.fmtad(
       [[
@@ -579,7 +578,7 @@ M.snippets = {
         ---@class <class_name>
         local <class_name> = {}
 
-        function <class_name>.new(<opts>)
+        function <class_name>:new(<opts>)
         <body>
         end
       ]],

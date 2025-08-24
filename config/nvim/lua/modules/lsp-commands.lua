@@ -62,11 +62,11 @@ local subcommand_arg_handler = {
   ---@return table args
   range = function(args, tbl)
     args.range = args.range
-        or tbl.range > 0 and {
-          ['start'] = { tbl.line1, 0 },
-          ['end'] = { tbl.line2, 999 },
-        }
-        or nil
+      or tbl.range > 0 and {
+        ['start'] = { tbl.line1, 0 },
+        ['end'] = { tbl.line2, 999 },
+      }
+      or nil
     return args
   end,
   ---Extract the first item from a table, expand it to absolute path if possible
@@ -148,39 +148,7 @@ local subcommand_opt_vals = {
   lsp_clients = subcommand_completions.lsp_clients,
   lsp_client_ids = subcommand_completions.lsp_client_ids,
   lsp_client_names = subcommand_completions.lsp_client_names,
-  lsp_methods = {
-    'callHierarchy/incomingCalls',
-    'callHierarchy/outgoingCalls',
-    'textDocument/codeAction',
-    'textDocument/completion',
-    'textDocument/declaration',
-    'textDocument/definition',
-    'textDocument/diagnostic',
-    'textDocument/documentHighlight',
-    'textDocument/documentSymbol',
-    'textDocument/formatting',
-    'textDocument/hover',
-    'textDocument/implementation',
-    'textDocument/inlayHint',
-    'textDocument/publishDiagnostics',
-    'textDocument/rangeFormatting',
-    'textDocument/references',
-    'textDocument/rename',
-    'textDocument/semanticTokens/full',
-    'textDocument/semanticTokens/full/delta',
-    'textDocument/signatureHelp',
-    'textDocument/typeDefinition',
-    'window/logMessage',
-    'window/showMessage',
-    'window/showDocument',
-    'window/showMessageRequest',
-    'workspace/applyEdit',
-    'workspace/configuration',
-    'workspace/executeCommand',
-    'workspace/inlayHint/refresh',
-    'workspace/symbol',
-    'workspace/workspaceFolders',
-  },
+  lsp_methods = vim.lsp.protocol.Methods,
 }
 
 ---@alias subcommand_arg_handler_t fun(args: lsp_command_parsed_arg_t, tbl: table): ...?
@@ -232,7 +200,7 @@ local subcommands = {
             and vim.tbl_map(function(id)
               return vim.lsp.get_client_by_id(id)
             end, ids)
-            or vim.lsp.get_clients({ bufnr = 0 })
+          or vim.lsp.get_clients({ bufnr = 0 })
         for _, client in ipairs(clients) do
           utils.lsp.restart(client, {
             on_restart = function(new_client_id)
@@ -285,7 +253,7 @@ local subcommands = {
             and vim.tbl_map(function(id)
               return vim.lsp.get_client_by_id(id)
             end, ids)
-            or vim.lsp.get_clients({ bufnr = 0 })
+          or vim.lsp.get_clients({ bufnr = 0 })
         for _, client in ipairs(clients) do
           utils.lsp.soft_stop(client, {
             on_close = function()
@@ -396,7 +364,7 @@ local subcommands = {
             string.format(
               'enabled: %s',
               scope.lsp_autofmt_enabled ~= nil and scope.lsp_autofmt_enabled
-              or vim.g.lsp_autofmt_enabled
+                or vim.g.lsp_autofmt_enabled
             )
           )
           vim.notify(
@@ -404,7 +372,7 @@ local subcommands = {
               'opts: %s',
               vim.inspect(
                 scope.lsp_autofmt_opts ~= nil and scope.lsp_autofmt_opts
-                or vim.g.lsp_autofmt_opts
+                  or vim.g.lsp_autofmt_opts
               )
             )
           )
@@ -913,10 +881,10 @@ local subcommands = {
       ---@param args lsp_command_parsed_arg_t
       arg_handler = function(args)
         return args.str,
-            args.pat,
-            args.groups,
-            args.severity_map,
-            args.defaults
+          args.pat,
+          args.groups,
+          args.severity_map,
+          args.defaults
       end,
       opts = {
         'str',
@@ -1076,15 +1044,15 @@ local function command_meta(subcommand_info_list, fn_scope, fn_name_alt)
     end
     local fn = subcommand_info_list[fn_name]
         and subcommand_info_list[fn_name].fn_override
-        or type(fn_scope) == 'table' and fn_scope[fn_name]
-        or type(fn_scope) == 'function' and fn_scope(fn_name)
+      or type(fn_scope) == 'table' and fn_scope[fn_name]
+      or type(fn_scope) == 'function' and fn_scope(fn_name)
     if type(fn) ~= 'function' then
       return
     end
     local arg_handler = subcommand_info_list[fn_name].arg_handler
-        or function(...)
-          return ...
-        end
+      or function(...)
+        return ...
+      end
     fn(arg_handler(cmdline_args, tbl))
   end
 end
@@ -1111,7 +1079,7 @@ local function command_complete(meta, subcommand_info_list)
           return args
               and (args.arg_handler or args.params or args.opts or args.fn_override or args.completion)
               and true
-              or false
+            or false
         end, vim.tbl_keys(subcommand_info_list))
       )
     end
@@ -1165,7 +1133,7 @@ local function setup_commands(meta, subcommand_info_list, fn_scope)
   -- Format: MetaCommandSubcommand opts ...
   for subcommand, _ in pairs(subcommand_info_list) do
     vim.api.nvim_create_user_command(
-      meta .. utils.str.snake_to_camel(subcommand),
+      meta .. utils.str.snake_to_pascal(subcommand),
       command_meta(subcommand_info_list, fn_scope, subcommand),
       {
         bang = true,
@@ -1189,8 +1157,8 @@ local function setup_lsp_autoformat()
       local b = vim.b[args.buf]
       local g = vim.g
       if
-          b.lsp_autofmt_enabled
-          or (b.lsp_autofmt_enabled == nil and g.lsp_autofmt_enabled)
+        b.lsp_autofmt_enabled
+        or (b.lsp_autofmt_enabled == nil and g.lsp_autofmt_enabled)
       then
         vim.lsp.buf.format(b.lsp_autofmt_opts or g.lsp_autofmt_opts)
       end

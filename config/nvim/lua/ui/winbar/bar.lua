@@ -319,8 +319,25 @@ end
 ---Delete a winbar instance
 ---@return nil
 function winbar_t:del()
-  _G._winbar.bars[self.buf][self.win] = nil
-  _G._winbar.callbacks['buf' .. self.buf]['win' .. self.win] = nil
+  local buf = self.buf
+  local win = self.win
+
+  local cb_buf_idx = 'buf' .. buf -- index to get buf callbacks in global table
+  local cb_win_idx = 'win' .. win -- index to get win callbacks in global table
+
+  local bars = _G._winbar.bars
+  local callbacks = _G._winbar.callbacks
+
+  bars[buf][win] = nil
+  if vim.tbl_isempty(bars[buf]) then
+    bars[buf] = nil
+  end
+
+  callbacks[cb_buf_idx][cb_win_idx] = nil
+  if vim.tbl_isempty(callbacks[cb_buf_idx]) then
+    callbacks[cb_buf_idx] = nil
+  end
+
   for _, component in ipairs(self.components) do
     component:del()
   end

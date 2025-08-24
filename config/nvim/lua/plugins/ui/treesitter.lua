@@ -1,222 +1,161 @@
 vim.pack.add({
-  'https://github.com/nvim-treesitter/nvim-treesitter',
-  'https://github.com/nvim-treesitter/nvim-treesitter-textobjects',
+  {
+    src = 'https://github.com/nvim-treesitter/nvim-treesitter',
+    version = 'main',
+  },
+  {
+    src = 'https://github.com/nvim-treesitter/nvim-treesitter-textobjects',
+    version = 'main',
+  },
   'https://github.com/RRethy/nvim-treesitter-endwise',
-  'https://github.com/nushell/tree-sitter-nu',
-  'https://github.com/windwp/nvim-ts-autotag',
+  'https://github.com/tronikelis/ts-autotag.nvim',
 })
 
-local ts_configs = require('nvim-treesitter.configs')
-local ts_parsers = require('nvim-treesitter.parsers')
+require('nvim-treesitter').install({
+  'bash',
+  'bibtex',
+  'c',
+  'c_sharp',
+  'comment',
+  'cpp',
+  'css',
+  'csv',
+  'desktop',
+  'diff',
+  'dockerfile',
+  'dot',
+  'git_config',
+  'git_rebase',
+  'gitattributes',
+  'gitcommit',
+  'gitignore',
+  'gpg',
+  'html',
+  'hyprlang',
+  'javascript',
+  'json',
+  'jsonc',
+  'latex',
+  'lua',
+  'luadoc',
+  'markdown',
+  'markdown_inline',
+  'norg',
+  'norg_meta',
+  'nu',
+  'python',
+  'query',
+  'rasi',
+  'regex',
+  'requirements',
+  'sql',
+  'toml',
+  'typescript',
+  'udev',
+  'vim',
+  'vimdoc',
+  'xml',
+  'yaml',
+  'zathurarc',
+})
 
--- HACK: improve file reading speed: first read the file then load modules
-ts_configs.reattach_module = vim.schedule_wrap(ts_configs.reattach_module)
-ts_configs.setup = vim.schedule_wrap(ts_configs.setup)
-
--- Fix: invalid buffer id cause by hack above
-ts_parsers.get_buf_lang = (function(cb)
-  ---@param buf number? or current buffer
-  ---@return string
-  return function(buf, ...)
-    if buf and not vim.api.nvim_buf_is_valid(buf) then
-      return ''
-    end
-    return cb(buf, ...)
-  end
-end)(ts_parsers.get_buf_lang)
-
----@diagnostic disable-next-line: missing-fields
-ts_configs.setup({
-  -- Make sure that we install all parsers shipped with neovim so that we don't
-  -- end up with using nvim-treesitter's queries and neovim's shipped parsers,
-  -- which are incompatible with nvim-treesitter's
-  -- See https://github.com/nvim-treesitter/nvim-treesitter/issues/3092
-  ensure_installed = {
-    -- Parsers shipped with neovim
-    'bash',
-    'bibtex',
-    'c',
-    'c_sharp',
-    'comment',
-    'cpp',
-    'css',
-    'csv',
-    'desktop',
-    'diff',
-    'dockerfile',
-    'dot',
-    'git_config',
-    'git_rebase',
-    'gitattributes',
-    'gitcommit',
-    'gitignore',
-    'gpg',
-    'html',
-    'hyprlang',
-    'javascript',
-    'json',
-    'jsonc',
-    'latex',
-    'lua',
-    'luadoc',
-    'markdown',
-    'markdown_inline',
-    'norg',
-    'norg_meta',
-    'nu',
-    'python',
-    'query',
-    'rasi',
-    'requirements',
-    'sql',
-    'toml',
-    'typescript',
-    'udev',
-    'vim',
-    'vimdoc',
-    'xml',
-    'yaml',
-    'zathurarc',
-  },
-  auto_install = true,
-  sync_install = false,
-  ignore_install = {},
-  highlight = {
-    enable = not vim.g.vscode,
-    disable = function(lang, buf)
-      return vim.b[buf].bigfile
-        or vim.fn.win_gettype() == 'command'
-        or vim.b[buf].vimtex_id and lang == 'latex'
-        -- Tmux ts is buggy, comments highlighted as code, see:
-        -- - https://github.com/Freed-Wu/tree-sitter-tmux/issues/26
-        -- - https://github.com/Freed-Wu/tree-sitter-tmux/issues/25
-        or lang == 'tmux'
-    end,
-  },
-  incremental_selection = {
-    enable = true,
-    keymaps = {
-      init_selection = false,
-      node_incremental = 'an',
-      scope_incremental = 'aN',
-      node_decremental = 'in',
+require('nvim-treesitter-textobjects').setup({
+  select = {
+    lookahead = true,
+    selection_modes = {
+      ['@block.outer'] = 'V',
+      ['@block.inner'] = 'V',
+      ['@header.outer'] = 'V',
+      ['@header.inner'] = 'V',
     },
   },
 })
 
--- Text object for treesitter nodes
-vim.keymap.set('o', 'in', '<Cmd>silent! normal van<CR>', {
-  noremap = false,
-  desc = 'Inside named node',
-})
-vim.keymap.set('o', 'an', '<Cmd>silent! normal van<CR>', {
-  noremap = false,
-  desc = 'Around named node',
-})
+local sel = require('nvim-treesitter-textobjects.select').select_textobject
 
----@diagnostic disable-next-line: missing-fields
-require('nvim-treesitter.configs').setup({
-  textobjects = {
-    select = {
-      enable = true,
-      lookahead = true, -- Automatically jump forward to textobj
-      keymaps = {
-        -- You can use the capture groups defined in textobjects.scm
-        ['am'] = '@function.outer',
-        ['im'] = '@function.inner',
-        ['ao'] = '@loop.outer',
-        ['io'] = '@loop.inner',
-        ['ak'] = '@class.outer',
-        ['ik'] = '@class.inner',
-        ['a,'] = '@parameter.outer',
-        ['i,'] = '@parameter.inner',
-        ['a/'] = '@comment.outer',
-        ['a*'] = '@comment.outer',
-        ['a.'] = '@block.outer',
-        ['i.'] = '@block.inner',
-        ['a?'] = '@conditional.outer',
-        ['i?'] = '@conditional.inner',
-        ['a='] = '@assignment.outer',
-        ['i='] = '@assignment.inner',
-        ['a#'] = '@header.outer',
-        ['i#'] = '@header.inner',
-        ['a3'] = '@header.outer',
-        ['i3'] = '@header.inner',
-        ['ar'] = '@return.inner',
-        ['ir'] = '@return.outer',
-      },
-      selection_modes = {
-        ['@block.outer'] = 'V',
-        ['@block.inner'] = 'V',
-        ['@header.outer'] = 'V',
-        ['@header.inner'] = 'V',
-      },
-    },
-    move = {
-      enable = true,
-      set_jumps = true, -- whether to set jumps in the jumplist
-      goto_next_start = {
-        [']m'] = '@function.outer',
-        [']o'] = '@loop.outer',
-        [']]'] = '@function.outer',
-        [']k'] = '@class.outer',
-        ['],'] = '@parameter.outer',
-        ['].'] = '@block.outer',
-        [']?'] = '@conditional.outer',
-        [']='] = '@assignment.inner',
-        [']#'] = '@header.outer',
-        [']3'] = '@header.outer',
-      },
-      goto_next_end = {
-        [']M'] = '@function.outer',
-        [']O'] = '@loop.outer',
-        [']['] = '@function.outer',
-        [']K'] = '@class.outer',
-        [']<'] = '@parameter.outer',
-        [']/'] = '@comment.outer',
-        [']*'] = '@comment.outer',
-        [']>'] = '@block.outer',
-      },
-      goto_previous_start = {
-        ['[m'] = '@function.outer',
-        ['[o'] = '@loop.outer',
-        ['[['] = '@function.outer',
-        ['[k'] = '@class.outer',
-        ['[,'] = '@parameter.outer',
-        ['[/'] = '@comment.outer',
-        ['[*'] = '@comment.outer',
-        ['[.'] = '@block.outer',
-        ['[?'] = '@conditional.outer',
-        ['[='] = '@assignment.inner',
-        ['[#'] = '@header.outer',
-        ['[3'] = '@header.outer',
-      },
-      goto_previous_end = {
-        ['[M'] = '@function.outer',
-        ['[O'] = '@loop.outer',
-        ['[]'] = '@function.outer',
-        ['[K'] = '@class.outer',
-        ['[<'] = '@parameter.outer',
-        ['[>'] = '@block.outer',
-      },
-    },
-    swap = {
-      enable = true,
-      swap_next = {
-        ['<M-C-L>'] = '@parameter.inner',
-        ['<M-C-Right>'] = '@parameter.inner',
-      },
-      swap_previous = {
-        ['<M-C-H>'] = '@parameter.inner',
-        ['<M-C-Left>'] = '@parameter.inner',
-      },
-    },
-    lsp_interop = {
-      enable = true,
-      border = 'solid',
-      peek_definition_code = {
-        ['<C-k>'] = '@function.outer',
-      },
-    },
-  },
-})
+local goto_next_end = require('nvim-treesitter-textobjects.move').goto_next_end
+local goto_next_start =
+  require('nvim-treesitter-textobjects.move').goto_next_start
+local goto_previous_end =
+  require('nvim-treesitter-textobjects.move').goto_previous_end
+local goto_previous_start =
+  require('nvim-treesitter-textobjects.move').goto_previous_start
+
+local swap_next = require('nvim-treesitter-textobjects.swap').swap_next
+local swap_previous = require('nvim-treesitter-textobjects.swap').swap_previous
+
+-- stylua: ignore start
+vim.keymap.set({ 'x', 'o' }, 'am', function() sel('@function.outer') end)
+vim.keymap.set({ 'x', 'o' }, 'im', function() sel('@function.inner') end)
+vim.keymap.set({ 'x', 'o' }, 'ao', function() sel('@loop.outer') end)
+vim.keymap.set({ 'x', 'o' }, 'io', function() sel('@loop.inner') end)
+vim.keymap.set({ 'x', 'o' }, 'ak', function() sel('@class.outer') end)
+vim.keymap.set({ 'x', 'o' }, 'ik', function() sel('@class.inner') end)
+vim.keymap.set({ 'x', 'o' }, 'a,', function() sel('@parameter.outer') end)
+vim.keymap.set({ 'x', 'o' }, 'i,', function() sel('@parameter.inner') end)
+vim.keymap.set({ 'x', 'o' }, 'a/', function() sel('@comment.outer') end)
+vim.keymap.set({ 'x', 'o' }, 'a*', function() sel('@comment.outer') end)
+vim.keymap.set({ 'x', 'o' }, 'a.', function() sel('@block.outer') end)
+vim.keymap.set({ 'x', 'o' }, 'i.', function() sel('@block.inner') end)
+vim.keymap.set({ 'x', 'o' }, 'a?', function() sel('@conditional.outer') end)
+vim.keymap.set({ 'x', 'o' }, 'i?', function() sel('@conditional.inner') end)
+vim.keymap.set({ 'x', 'o' }, 'a=', function() sel('@assignment.outer') end)
+vim.keymap.set({ 'x', 'o' }, 'i=', function() sel('@assignment.inner') end)
+vim.keymap.set({ 'x', 'o' }, 'a#', function() sel('@header.outer') end)
+vim.keymap.set({ 'x', 'o' }, 'i#', function() sel('@header.inner') end)
+vim.keymap.set({ 'x', 'o' }, 'a3', function() sel('@header.outer') end)
+vim.keymap.set({ 'x', 'o' }, 'i3', function() sel('@header.inner') end)
+vim.keymap.set({ 'x', 'o' }, 'ar', function() sel('@return.inner') end)
+vim.keymap.set({ 'x', 'o' }, 'ir', function() sel('@return.outer') end)
+-- stylua: ignore end
+
+-- stylua: ignore start
+vim.keymap.set({ 'n', 'x', 'o' }, ']m', function() goto_next_start('@function.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, ']o', function() goto_next_start('@loop.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, ']]', function() goto_next_start('@function.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, ']k', function() goto_next_start('@class.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '],', function() goto_next_start('@parameter.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '].', function() goto_next_start('@block.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, ']?', function() goto_next_start('@conditional.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, ']=', function() goto_next_start('@assignment.inner') end)
+vim.keymap.set({ 'n', 'x', 'o' }, ']#', function() goto_next_start('@header.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, ']3', function() goto_next_start('@header.outer') end)
+
+vim.keymap.set({ 'n', 'x', 'o' }, ']M', function() goto_next_end('@function.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, ']O', function() goto_next_end('@loop.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '][', function() goto_next_end('@function.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, ']K', function() goto_next_end('@class.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, ']<', function() goto_next_end('@parameter.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, ']/', function() goto_next_end('@comment.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, ']>', function() goto_next_end('@block.outer') end)
+
+vim.keymap.set({ 'n', 'x', 'o' }, '[m', function() goto_previous_start('@function.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '[o', function() goto_previous_start('@loop.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '[[', function() goto_previous_start('@function.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '[k', function() goto_previous_start('@class.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '[,', function() goto_previous_start('@parameter.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '[.', function() goto_previous_start('@block.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '[?', function() goto_previous_start('@conditional.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '[=', function() goto_previous_start('@assignment.inner') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '[#', function() goto_previous_start('@header.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '[3', function() goto_previous_start('@header.outer') end)
+
+vim.keymap.set({ 'n', 'x', 'o' }, '[M', function() goto_previous_end('@function.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '[O', function() goto_previous_end('@loop.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '[]', function() goto_previous_end('@function.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '[K', function() goto_previous_end('@class.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '[<', function() goto_previous_end('@parameter.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '[/', function() goto_previous_end('@comment.outer') end)
+vim.keymap.set({ 'n', 'x', 'o' }, '[>', function() goto_previous_end('@block.outer') end)
+
+vim.keymap.set('n', '<M-C-h>',     function() swap_previous('@parameter.inner') end)
+vim.keymap.set('n', '<M-C-Left>',  function() swap_previous('@parameter.inner') end)
+vim.keymap.set('n', '<M-C-l>',     function() swap_next('@parameter.inner') end)
+vim.keymap.set('n', '<M-C-Right>', function() swap_next('@parameter.inner') end)
+-- stylua: ignore end
+
+local fn = require('utils.fn')
+fn.lazy_load('InsertEnter', 'treesitter_plugins', function()
+  require('ts-autotag').setup()
+  vim.api.nvim_exec_autocmds('FileType', {})
+end)

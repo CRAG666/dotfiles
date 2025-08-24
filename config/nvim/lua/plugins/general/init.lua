@@ -6,6 +6,7 @@ fn.lazy_load('CursorMoved', 'nvim-surround', function()
 end)
 
 require('plugins.general.pickers')
+
 fn.lazy_load('InsertEnter', 'ultimate-autopair', function()
   require('plugins.general.autopair')
 end)

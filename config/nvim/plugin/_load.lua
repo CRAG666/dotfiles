@@ -34,12 +34,17 @@ load_ui('tabline')
 load_ui('statusline')
 load_ui('statuscolumn')
 
--- Lsp servers
-local disable_clients = {
-  'csharp_ls',
-  'texlab',
-  'nimls',
-  'v_analyzer',
-}
-require('config.lsp').setup(disable_clients)
-require('config.lsp.grammar').setup()
+-- lsp & diagnostic commands
+vim.api.nvim_create_autocmd({
+  'Syntax',
+  'FileType',
+  'LspAttach',
+  'DiagnosticChanged',
+}, {
+  once = true,
+  desc = 'Apply lsp and diagnostic settings.',
+  group = vim.api.nvim_create_augroup('LspDiagnosticSetup', {}),
+  callback = function()
+    require('modules.lsp-commands').setup()
+  end,
+})

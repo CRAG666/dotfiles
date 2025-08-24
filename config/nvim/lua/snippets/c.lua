@@ -39,7 +39,7 @@ M.snippets = {
   }),
   us.sn(
     {
-      trig = 'p',
+      trig = 'pr',
       desc = 'printf()',
     },
     c(1, {

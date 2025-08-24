@@ -1,14 +1,11 @@
 local fn = require('utils.fn')
 
-vim.pack.add({
-  {
-    src = 'https://github.com/saghen/blink.cmp',
-    version = vim.version.range('1.*'),
-  },
-})
-
 local function setup()
   vim.pack.add({
+    {
+      src = 'https://github.com/saghen/blink.cmp',
+      version = vim.version.range('1.*'),
+    },
     'https://github.com/supermaven-inc/supermaven-nvim',
     'https://github.com/rafamadriz/friendly-snippets',
     {

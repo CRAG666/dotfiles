@@ -1,7 +1,6 @@
 -- =============================
 -- General Configuration
 -- =============================
-vim.loader.enable()
 local set = vim.opt
 
 set.encoding = 'utf-8'
@@ -13,7 +12,7 @@ set.backup = false
 set.writebackup = false
 set.undofile = true
 set.undodir = os.getenv('HOME') .. '/.vim/undodir'
-set.undolevels = 10000
+set.undolevels = 1000
 set.backupcopy = 'yes'
 set.fsync = false
 set.lazyredraw = false
@@ -53,7 +52,8 @@ set.listchars = {
   extends = '→',
   nbsp = '␣',
 }
-set.smoothscroll = false
+set.smoothscroll = true
+set.quickfixtextfunc = [[v:lua.require'utils.opts'.qftf]]
 
 -- =============================
 -- Text and Formatting
@@ -104,14 +104,22 @@ set.foldtext = ''
 -- =============================
 -- Clipboard and Mouse
 -- =============================
-set.clipboard:append('unnamedplus')
+vim.api.nvim_create_autocmd('UIEnter', {
+  once = true,
+  callback = vim.schedule_wrap(function()
+    set.clipboard:append('unnamedplus')
+  end),
+})
 set.mouse = 'a'
 
 -- =============================
 -- Diff and Git
 -- =============================
-set.diffopt =
-  'filler,vertical,hiddenoff,linematch:60,foldcolumn:0,algorithm:minimal'
+set.diffopt:append({
+  'algorithm:histogram',
+  'indent-heuristic',
+  'linematch:60',
+})
 
 -- =============================
 -- Wildcards and Paths
@@ -170,3 +178,26 @@ set.shortmess:append({ W = true, I = true, c = true, C = true })
 set.showmode = false
 
 set.completeopt = { 'menuone', 'noselect', 'popup' }
+
+-- Defer shada reading
+local shada_augroup = vim.api.nvim_create_augroup('OptShada', {})
+
+---Restore 'shada' option and read from shada once
+local function rshada()
+  pcall(vim.api.nvim_del_augroup_by_id, shada_augroup)
+
+  vim.opt.shada = vim.api.nvim_get_option_info2('shada', {}).default
+  pcall(vim.cmd.rshada)
+end
+
+vim.opt.shada = ''
+vim.api.nvim_create_autocmd('BufReadPre', {
+  group = shada_augroup,
+  once = true,
+  callback = rshada,
+})
+vim.api.nvim_create_autocmd('UIEnter', {
+  group = shada_augroup,
+  once = true,
+  callback = vim.schedule_wrap(rshada),
+})

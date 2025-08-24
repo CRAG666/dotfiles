@@ -849,7 +849,7 @@ return {
       dscr = 'Bayes Formula',
     },
     un.fmtad(
-      '\\frac{P(<cond_x> \\mid <cond_y>) P(<cond_y>)}{P(<cond_y>)}',
+      '\\frac{P(<cond_x> \\mid <cond_y>) P(<cond_y>)}{P(<cond_x>)}',
       { cond_x = i(2, 'X=x'), cond_y = i(1, 'Y=y') }
     )
   ),

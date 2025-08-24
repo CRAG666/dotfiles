@@ -169,8 +169,6 @@ alias la="exa --icons -la"
 # alias cp='rsync --progress -avz'
 cd() { pushd $1 && ls; }
 alias tree="exa --icons --tree --level=4 --long --git"
-alias vi="NVIM_APPNAME=nvim-minimal nvim"
-alias vim="nvim"
 alias zt="/bin/zathura --fork"
 alias zb="zen-browser"
 alias lo="/bin/libreoffice"
@@ -201,14 +199,17 @@ alias dnsc="nvim /etc/resolv.conf"
 alias nftc="nvim /etc/nftables.conf"
 alias starshipc="nvim ~/.config/starship.toml"
 # HACK: Config Nvim Aliases
+alias vi="NVIM_APPNAME=nvim-minimal nvim"
+alias vic='vi ~/.config/nvim-minimal/init.lua'
+alias vim="nvim"
 alias vimc='nvim ~/.config/nvim/init.lua'
 alias vimp='nvim ~/.config/nvim/lua/plugins/init.lua'
 alias vimk='nvim ~/.config/nvim/lua/config/keymappings.lua'
 alias vimd='nvim ~/.config/nvim/lua/config/defaults.lua'
 alias vima='nvim ~/.config/nvim/lua/config/autocmds.lua'
 alias viml='nvim ~/.config/nvim/lua/config/lsp/init.lua'
-alias vo='nvim -c "Neorg workspace notes"'
-alias vs='nvim -c "Neorg workspace state_art"'
+alias vo='ORG_WORKSPACE=notes nvim'
+alias vs='ORG_WORKSPACE=state_art nvim'
 # HACK: Jump alias
 alias Applications="cd /usr/share/applications"
 alias Desktop="cd /$HOME/Escritorio"

@@ -1,7 +1,10 @@
 local icons = require('utils.static.icons')
 local key = require('utils.keymap')
 local function setup()
-  vim.pack.add({ { src = 'https://github.com/olimorris/codecompanion.nvim' } })
+  vim.pack.add({
+    'https://github.com/olimorris/codecompanion.nvim',
+    'https://github.com/nvim-lua/plenary.nvim',
+  })
   require('codecompanion').setup({
     opts = {
       visible = true,
@@ -84,34 +87,34 @@ local function setup()
               return [[
                 <prompt>
                   <role>
-                    Actúa como un escritor experimentado en artículos científicos, especializado en la revisión y edición de textos académicos.
+                    Act as an experienced writer of scientific articles, specializing in the review and editing of academic texts.
                   </role>
                   <task>
-                    Realiza una revisión final del texto proporcionado, corrigiendo errores y mejorando su calidad para garantizar claridad, legibilidad y adherencia a estándares científicos.
+                    Conduct a final review of the provided text, correcting errors and enhancing its quality to ensure clarity, readability, and adherence to scientific standards.
                   </task>
                   <instructions>
                     <step1>
-                      Identifica y corrige errores tipográficos, gramaticales, de puntuación o de redacción inapropiada.
+                      Identify and correct typographical, grammatical, punctuation, or inappropriate wording errors.
                     </step1>
                     <step2>
-                      Simplifica el lenguaje, eliminando jerga innecesaria, palabras de relleno o construcciones complejas que dificulten la comprensión.
+                      Simplify the language, eliminating unnecessary jargon, filler words, or complex constructions that hinder comprehension.
                     </step2>
                     <step3>
-                      Mejora la claridad y legibilidad, asegurando que el texto sea accesible para una audiencia académica multidisciplinar sin comprometer su rigor científico.
+                      Enhance clarity and readability, ensuring the text is accessible to a multidisciplinary academic audience without compromising its scientific rigor.
                     </step3>
                     <step4>
-                      Asegúrate de que el texto cumpla con una guía de estilo científica coherente (por ejemplo, APA, AMA o la especificada por el usuario).
+                      Ensure the text adheres to a consistent scientific style guide (e.g., APA, AMA, or as specified by the user).
                     </step4>
                     <step5>
-                      Conserva el propósito original del contenido, manteniendo la precisión técnica y el enfoque científico.
+                      Preserve the original purpose of the content, maintaining technical accuracy and a scientific focus.
                     </step5>
                   </instructions>
                   <requirements>
-                    - Usa puntuación adecuada y consistente según la guía de estilo seleccionada.
-                    - Prioriza un lenguaje técnico preciso pero accesible, evitando ambigüedades.
-                    - Mantén el tono formal y objetivo propio de la escritura científica.
+                    - Use appropriate and consistent punctuation according to the selected style guide.
+                    - Prioritize precise yet accessible technical language, avoiding ambiguities.
+                    - Maintain a formal and objective tone typical of scientific writing.
                   </requirements>
-                  <format>Devuelve el texto revisado con correcciones y mejoras aplicadas.</format>
+                  <format>Return the revised text with corrections and improvements applied.</format>
                 </prompt>
               ]]
             end,
@@ -126,18 +129,18 @@ local function setup()
               return [[
                 <prompt>
                   <instruction>
-                    Analiza el siguiente <text-input>texto proporcionado</text-input> y corrige cualquier error <orthography>ortográfico</orthography> o <grammar>gramatical</grammar> que encuentres.
+                    Analyze the text and correct any <orthography>spelling</orthography> or <grammar>grammatical</grammar> errors found.
                   </instruction>
                   <guidelines>
                     <guideline>
-                      Mantén el <style>estilo</style> y el <tone>tono</tone> original del texto.
+                      Maintain the <style>style</style> and <tone>tone</tone> of the original text.
                     </guideline>
                     <guideline>
-                      Mejora la <clarity>claridad</clarity> y la <coherence>coherencia</coherence> del mensaje solo si es estrictamente necesario, sin alterar significativamente el <content>contenido original</content>.
+                      Improve the <clarity>clarity</clarity> and <coherence>coherence</coherence> of the message only if strictly necessary, without significantly altering the <content>original content</content>.
                     </guideline>
                   </guidelines>
                   <output>
-                    Devuelve el texto corregido.
+                    Provide the corrected text.
                   </output>
                 </prompt>
                 ]]
@@ -153,24 +156,27 @@ local function setup()
               return [[
                 <prompt>
                   <instruction>
-                    Traduce el siguiente <text-input>texto proporcionado</text-input> al <target-language>inglés</target-language> de manera precisa y natural, evitando traducciones literales.
+                    Translate into <target-language>English</target-language> accurately and naturally, avoiding literal translations.
                   </instruction>
                   <guidelines>
                     <guideline>
-                      Asegúrate de que la traducción sea <fluency>fluida</fluency> y utilice <idiomatic-expressions>expresiones idiomáticas propias del inglés</idiomatic-expressions>, respetando el <style>estilo</style> y el <tone>tono</tone> del texto original.
+                      Ensure the translation is <fluency>fluent</fluency> and uses <idiomatic-expressions>idiomatic expressions native to English</idiomatic-expressions>, respecting the <style>style</style> and <tone>tone</tone> of the original text.
                     </guideline>
                     <guideline>
-                      Garantiza que la traducción transmita correctamente el <meaning>significado</meaning> del texto original y mantenga su <intent>propósito comunicativo</intent>.
+                      Guarantee the translation accurately conveys the <meaning>meaning</meaning> of the original text and maintains its <intent>communicative purpose</intent>.
                     </guideline>
                     <guideline>
-                      Revisa la traducción para eliminar errores de <grammar>gramática</grammar>, <vocabulary>vocabulario</vocabulary> o <coherence>coherencia</coherence>, asegurando un resultado <professional>profesional</professional>.
+                      Review the translation to eliminate errors in <grammar>grammar</grammar>, <vocabulary>vocabulary</vocabulary>, or <coherence>coherence</coherence>, ensuring a <professional>professional</professional> result.
+                    </guideline>
+                    <guideline>
+                      Consider the <context>cultural context</context> of English to adapt terms or expressions when necessary, prioritizing natural and appropriate language for an American audience.
                     </guideline>
                   </guidelines>
                   <output>
-                    Proporciona la traducción final en inglés.
+                    Provide the final translation in English.
                   </output>
                 </prompt>
-                ]]
+              ]]
             end,
             description = 'Translate to English',
             opts = {
@@ -183,27 +189,27 @@ local function setup()
               return [[
                 <prompt>
                   <instruction>
-                    Traduce el siguiente <text-input>texto proporcionado</text-input> al <target-language>español</target-language> de manera precisa y natural, evitando traducciones literales.
+                    Translate into <target-language>Spanish</target-language> accurately and naturally, avoiding literal translations.
                   </instruction>
                   <guidelines>
                     <guideline>
-                      Asegúrate de que la traducción sea <fluency>fluida</fluency> y utilice <idiomatic-expressions>expresiones idiomáticas propias del español</idiomatic-expressions>, respetando el <style>estilo</style> y el <tone>tono</tone> del texto original.
+                      Ensure the translation is <fluency>fluent</fluency> and uses <idiomatic-expressions>idiomatic expressions native to Spanish</idiomatic-expressions>, respecting the <style>style</style> and <tone>tone</tone> of the original text.
                     </guideline>
                     <guideline>
-                      Garantiza que la traducción transmita correctamente el <meaning>significado</meaning> del texto original y mantenga su <intent>propósito comunicativo</intent>.
+                      Guarantee the translation accurately conveys the <meaning>meaning</meaning> of the original text and maintains its <intent>communicative purpose</intent>.
                     </guideline>
                     <guideline>
-                      Revisa la traducción para eliminar errores de <grammar>gramática</grammar>, <vocabulary>vocabulario</vocabulary> o <coherence>coherencia</coherence>, asegurando un resultado <professional>profesional</professional>.
+                      Review the translation to eliminate errors in <grammar>grammar</grammar>, <vocabulary>vocabulary</vocabulary>, or <coherence>coherence</coherence>, ensuring a <professional>professional</professional> result.
                     </guideline>
                     <guideline>
-                      Considera el <context>contexto cultural</context> del español para adaptar términos o expresiones cuando sea necesario, priorizando un lenguaje natural y apropiado para el público hispanohablante.
+                      Consider the <context>cultural context</context> of Spanish to adapt terms or expressions when necessary, prioritizing natural and appropriate language for an Mexican audience.
                     </guideline>
                   </guidelines>
                   <output>
-                    Proporciona la traducción final en español.
+                    Provide the final translation in Spanish.
                   </output>
                 </prompt>
-                ]]
+              ]]
             end,
             description = 'Translate to English',
             opts = {
@@ -252,10 +258,19 @@ key.map_lazy('codecompanion', setup, 'n', '<leader>aa', function()
   require('codecompanion').toggle()
 end, { desc = 'Tab [n]ew' })
 
+key.map_lazy(
+  'codecompanion',
+  setup,
+  'n',
+  '<leader>ap',
+  [[<Cmd>CodeCompanionActions<CR>]],
+  { desc = 'Tab [n]ew' }
+)
+
 local maps = {
   {
     'f',
-    ':CodeCompanion /fix',
+    [[:CodeCompanion /fix ]],
     '[A]i: [A]dd selection',
   },
   {
@@ -270,28 +285,29 @@ local maps = {
   },
   {
     'w',
-    ':CodeCompanion /buffer #wassistant',
+    ':CodeCompanion /buffer #wassistant<CR>',
     '[A]i: Writting Assistant',
   },
   {
     'e',
-    ':CodeCompanion /buffer #translate',
+    ':CodeCompanion /buffer #translate<CR>',
     '[A]i: Translate to [e]nglish',
   },
   {
     's',
-    ':CodeCompanion /buffer #traducir',
+    ':CodeCompanion /buffer #traducir<CR>',
     '[A]i: Translate to [s]panish',
   },
   {
     'g',
-    ':CodeCompanion /buffer #grammar',
+    ':CodeCompanion /buffer #grammar<CR>',
     '[A]i: [G]rammar fix',
   },
   {
     'b',
-    ':CodeCompanion /buffer',
+    [[:CodeCompanion /buffer ]],
     '[A]i: Add instructions',
   },
 }
-key.maps_lazy('codecompanion', setup, 'x', '<leader>a', maps)
+
+key.pmaps('x', '<leader>a', maps)

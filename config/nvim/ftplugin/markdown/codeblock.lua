@@ -25,7 +25,9 @@ local query = vim.F.npcall(
   ]]
 )
 
+---@param buf? integer
 local function refresh(buf)
+  buf = buf ~= 0 and buf or vim.api.nvim_get_current_buf()
   if not vim.api.nvim_buf_is_valid(buf) then
     return
   end
@@ -110,6 +112,8 @@ local function refresh(buf)
   end
 end
 
+refresh()
+
 local groupid = vim.api.nvim_create_augroup(ns_name, {})
 
 vim.api.nvim_create_autocmd({
@@ -147,6 +151,7 @@ local function set_default_hlgroups()
 end
 
 set_default_hlgroups()
+
 vim.api.nvim_create_autocmd('ColorScheme', {
   group = groupid,
   desc = 'Set default highlight groups for headlines.nvim.',

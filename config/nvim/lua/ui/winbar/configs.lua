@@ -141,7 +141,8 @@ M.opts = {
       local bt = vim.bo[buf].bt
       local ft = vim.bo[buf].ft
 
-      return not vim.w[win].winbar_no_attach
+      return vim.wo[win].winbar == ''
+        and not vim.w[win].winbar_no_attach
         and not vim.b[buf].winbar_no_attach
         and vim.fn.win_gettype(win) == ''
         and bt ~= 'terminal'
@@ -152,7 +153,6 @@ M.opts = {
         and ft ~= 'diff'
         and ft ~= 'gitcommit'
         and ft ~= 'gitrebase'
-        and not utils.opt.winbar:was_locally_set({ win = 0 })
         and (
           ft == 'markdown'
           or utils.ts.is_active(buf)
@@ -206,6 +206,9 @@ M.opts = {
     },
     pick = {
       pivots = 'abcdefghijklmnopqrstuvwxyz',
+    },
+    gc = {
+      interval = 60000,
     },
   },
   menu = {

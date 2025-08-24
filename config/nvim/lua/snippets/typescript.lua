@@ -68,7 +68,6 @@ M.snippets = {
   ),
   us.msn(
     {
-      { trig = 'v' },
       { trig = 'var' },
       { trig = 'let' },
       common = {

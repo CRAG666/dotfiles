@@ -2,11 +2,12 @@ local key = require('utils.keymap')
 
 local function setup()
   vim.pack.add({
-    { src = 'https://github.com/nvim-neorg/lua-utils.nvim' },
-    { src = 'https://github.com/pysan3/pathlib.nvim' },
-    { src = 'https://github.com/3rd/image.nvim' },
-    { src = 'https://github.com/nvim-neorg/neorg' },
-    { src = 'https://github.com/juniorsundar/neorg-extras' },
+    'https://github.com/nvim-neorg/lua-utils.nvim',
+    'https://github.com/pysan3/pathlib.nvim',
+    'https://github.com/3rd/image.nvim',
+    'https://github.com/nvim-neorg/neorg',
+    'https://github.com/juniorsundar/neorg-extras',
+    'https://github.com/nvim-neotest/nvim-nio',
   })
 
   require('neorg').setup({
@@ -97,3 +98,21 @@ key.maps_lazy('neorg', setup, 'n', '<leader>o', {
     'Toggle highlighting org',
   },
 })
+
+local function open_workspace(w)
+  vim.schedule(function()
+    setup()
+    vim.cmd('Neorg workspace ' .. w)
+  end)
+end
+
+local M = {}
+
+function M.open_workspace()
+  local org_workspace = os.getenv('ORG_WORKSPACE')
+  if org_workspace then
+    open_workspace(org_workspace)
+  end
+end
+
+return M

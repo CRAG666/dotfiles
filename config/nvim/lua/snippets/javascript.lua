@@ -27,7 +27,7 @@ M.snippets = {
     desc = 'Return statement',
   }, t('return ')),
   us.msn({
-    { trig = 'p' },
+    { trig = 'pr' },
     { trig = 'cl' },
     common = { desc = 'console.log()' },
   }, {
@@ -99,7 +99,6 @@ M.snippets = {
   ),
   us.msn(
     {
-      { trig = 'v' },
       { trig = 'var' },
       { trig = 'let' },
       common = { desc = 'Variable declaration' },

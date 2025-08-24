@@ -164,6 +164,95 @@ key.map(
   '<bs>',
   ":<c-u>exe v:count ? v:count . 'b' : 'b' . (bufloaded(0) ? '#' : 'n')<cr>"
 )
+
+key.map({ 'n', 'x' }, 'zV', function()
+  local lz = vim.go.lz
+  vim.go.lz = true
+  vim.cmd.normal({ 'zMzv', bang = true })
+  vim.go.lz = lz
+end, { desc = 'Close all folds except current' })
+
+key.map({ 'n', 'x' }, 'q', function()
+  require('utils.keys').close_floats('q')
+end, { desc = 'Close all floating windows or start recording macro' })
+key.map({ 'n' }, '<Esc>', function()
+  require('utils.keys').close_floats('<Esc>')
+end, { desc = 'Close all floating windows' })
+
+key.map(
+  'x',
+  'af',
+  ':<C-u>silent! keepjumps normal! ggVG<CR>',
+  { silent = true, noremap = false, desc = 'Select current buffer' }
+)
+key.map(
+  'x',
+  'if',
+  ':<C-u>silent! keepjumps normal! ggVG<CR>',
+  { silent = true, noremap = false, desc = 'Select current buffer' }
+)
+key.map(
+  'o',
+  'af',
+  '<Cmd>silent! normal m`Vaf<CR><Cmd>silent! normal! ``<CR>',
+  { silent = true, noremap = false, desc = 'Select current buffer' }
+)
+key.map(
+  'o',
+  'if',
+  '<Cmd>silent! normal m`Vif<CR><Cmd>silent! normal! ``<CR>',
+  { silent = true, noremap = false, desc = 'Select current buffer' }
+)
+
+key.map(
+  'x',
+  'iz',
+  [[':<C-u>silent! keepjumps normal! ' . v:lua.require'utils.keys'.textobj_fold('i') . '<CR>']],
+  {
+    silent = true,
+    expr = true,
+    noremap = false,
+    desc = 'Select inside current fold',
+  }
+)
+key.map(
+  'x',
+  'az',
+  [[':<C-u>silent! keepjumps normal! ' . v:lua.require'utils.keys'.textobj_fold('a') . '<CR>']],
+  {
+    silent = true,
+    expr = true,
+    noremap = false,
+    desc = 'Select around current fold',
+  }
+)
+key.map(
+  'o',
+  'iz',
+  '<Cmd>silent! normal Viz<CR>',
+  { silent = true, noremap = false, desc = 'Select inside current fold' }
+)
+key.map(
+  'o',
+  'az',
+  '<Cmd>silent! normal Vaz<CR>',
+  { silent = true, noremap = false, desc = 'Select around current fold' }
+)
+
+key.map('!a', 'ture', 'true')
+key.map('!a', 'Ture', 'True')
+key.map('!a', 'flase', 'false')
+key.map('!a', 'fasle', 'false')
+key.map('!a', 'Flase', 'False')
+key.map('!a', 'Fasle', 'False')
+key.map('!a', 'lcaol', 'local')
+key.map('!a', 'lcoal', 'local')
+key.map('!a', 'locla', 'local')
+key.map('!a', 'sahre', 'share')
+key.map('!a', 'saher', 'share')
+key.map('!a', 'balme', 'blame')
+key.map('!a', 'intall', 'install')
+
 vim.api.nvim_create_autocmd('CmdlineEnter', {
   once = true,
   callback = function()
@@ -173,9 +262,10 @@ vim.api.nvim_create_autocmd('CmdlineEnter', {
     key.command_abbrev('rm', '!rm')
     key.command_abbrev('mv', '!mv')
     key.command_abbrev('git', '!git')
-    key.command_abbrev('mkd', '!mkdir')
+    key.command_abbrev('tree', '!tree')
     key.command_abbrev('mkdir', '!mkdir')
     key.command_abbrev('touch', '!touch')
+    key.command_abbrev('chmod', '!chmod')
     return true
   end,
 })

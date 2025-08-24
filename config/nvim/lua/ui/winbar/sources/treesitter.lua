@@ -98,7 +98,7 @@ local function convert(ts_node, buf, win)
   if not valid_node(ts_node, buf) then
     return nil
   end
-  local kind = utils.str.snake_to_camel(get_node_short_type(ts_node))
+  local kind = utils.str.snake_to_pascal(get_node_short_type(ts_node))
   local range = { ts_node:range() }
   return bar.winbar_symbol_t:new(setmetatable({
     buf = buf,

@@ -1,16 +1,5 @@
 local M = {}
 
----Only checks whether treesitter highlighting is active in `buf`
----Should be faster than `utils.ts.is_active()`
----@param buf integer? default: current buffer
----@return boolean
-function M.hl_is_active(buf)
-  if not buf or buf == 0 then
-    buf = vim.api.nvim_get_current_buf()
-  end
-  return vim.treesitter.highlighter.active[buf] ~= nil
-end
-
 ---Returns whether treesitter is active in `buf`
 ---@param buf integer? default: current buffer
 ---@return boolean
@@ -21,14 +10,8 @@ function M.is_active(buf)
   if vim.treesitter.highlighter.active[buf] then
     return true
   end
-
   -- `vim.treesitter.get_parser()` can be slow for big files
-  if not vim.b.bigfile and (pcall(vim.treesitter.get_parser, buf)) then
-    return true
-  end
-
-  -- File is big or cannot get parser for buf
-  return false
+  return not vim.b.bigfile and (pcall(vim.treesitter.get_parser, buf))
 end
 
 local ts_get_node = vim.treesitter.get_node
