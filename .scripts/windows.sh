@@ -47,7 +47,23 @@ while true; do
         notify-send "VM Manager" "Abriendo Windows 10" --icon=q4wine --urgency=normal
 
         # Iniciar sesión RDP
-        sdl-freerdp3 +clipboard /u:$WIN_USER /p:$WIN_PASS /v:$WIN_IP /t:Windows /size:${WIDTH}x${HEIGHT} /drive:$GUEST_SHARE_NAME,$HOST_SHARE_PATH /sound:sys:alsa /microphone:sys:alsa
+        xfreerdp3 \
+            /u:$WIN_USER /p:$WIN_PASS /v:$WIN_IP \
+            /t:Windows \
+            /size:${WIDTH}x${HEIGHT} \
+            /drive:$GUEST_SHARE_NAME,$HOST_SHARE_PATH \
+            /sound:sys:alsa /microphone:sys:alsa \
+            +clipboard \
+            -grab-keyboard
+            # /gfx:AVC444:on,progressive:on
+            # /bpp:32
+            # /compression-level:0 \
+            # +async-channels \
+            # +wallpaper -themes -menu-anims -window-drag \
+            # -fonts
+            # /scale-desktop:100
+            # /shell:explorer.exe
+
         echo "Sesión RDP finalizada."
         break
     else

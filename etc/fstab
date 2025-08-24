@@ -1,4 +1,4 @@
-
+# User files
 /dev/archhomefs/home /mnt/home ext4 defaults 0 1
 
 # User folders
