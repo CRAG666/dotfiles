@@ -4,3 +4,4 @@ vim.bo.expandtab = true
 vim.bo.autoindent = true
 vim.bo.softtabstop = 2
 vim.bo.textwidth = 106
+vim.g.ts = { 'json', 'jsonc', 'json5' }

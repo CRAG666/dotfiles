@@ -13,7 +13,7 @@ return {
     languages = {
       tex = {
         {
-          formatCommand = 'tex-fmt --wraplen 120 -s -p',
+          formatCommand = 'tex-fmt -n -s -p',
           formatStdin = true,
           formatCanRange = true,
         },

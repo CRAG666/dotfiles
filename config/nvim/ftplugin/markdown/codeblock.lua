@@ -16,14 +16,6 @@ local ns = vim.api.nvim_create_namespace(ns_name)
 local has_quantified_captures = vim.fn.has('nvim-0.11.0') == 1
 
 local dash_string = '-'
-local query = vim.F.npcall(
-  vim.treesitter.query.parse,
-  ft,
-  [[
-    (thematic_break) @dash
-    (fenced_code_block) @codeblock
-  ]]
-)
 
 ---@param buf? integer
 local function refresh(buf)
@@ -35,12 +27,25 @@ local function refresh(buf)
   vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
 
   if
-    not query
-    or vim.b.bigfile
+    vim.b[buf].bigfile
     or vim.bo[buf].ft ~= ft
-    or vim.fn.win_gettype() ~= ''
     or not vim.api.nvim_buf_is_loaded(buf)
+    or vim.iter(vim.fn.win_findbuf(buf)):any(function(win)
+      return vim.fn.win_gettype(win) ~= ''
+    end)
   then
+    return
+  end
+
+  local query = vim.F.npcall(
+    vim.treesitter.query.parse,
+    ft,
+    [[
+      (thematic_break) @dash
+      (fenced_code_block) @codeblock
+    ]]
+  )
+  if not query then
     return
   end
 
@@ -54,62 +59,60 @@ local function refresh(buf)
     return
   end
 
-  local root = syntax_tree[1]:root()
-  local left_offset = vim.fn.winsaveview().leftcol
-  local width = vim.api.nvim_win_get_width(0)
+  vim.api.nvim_buf_call(buf, function()
+    for _, match, metadata in query:iter_matches(syntax_tree[1]:root(), buf) do
+      for id, node in pairs(match) do
+        if has_quantified_captures then
+          node = node[#node]
+        end
 
-  for _, match, metadata in query:iter_matches(root, buf) do
-    for id, node in pairs(match) do
-      if has_quantified_captures then
-        node = node[#node]
-      end
-
-      local capture = query.captures[id]
-      local start_row, _, end_row, _ = unpack(
-        vim.tbl_extend(
-          'force',
-          { node:range() },
-          (metadata[id] or {}).range or {}
+        local capture = query.captures[id]
+        local start_row, _, end_row, _ = unpack(
+          vim.tbl_extend(
+            'force',
+            { node:range() },
+            (metadata[id] or {}).range or {}
+          )
         )
-      )
 
-      if capture == 'dash' and dash_string then
-        pcall(vim.api.nvim_buf_set_extmark, buf, ns, start_row, 0, {
-          virt_text = {
-            { dash_string:rep(width), 'Dash' },
-          },
-          virt_text_pos = 'overlay',
-          hl_mode = 'combine',
-        })
-      end
+        if capture == 'dash' and dash_string then
+          pcall(vim.api.nvim_buf_set_extmark, buf, ns, start_row, 0, {
+            virt_text = {
+              { dash_string:rep(vim.go.columns), 'Dash' },
+            },
+            virt_text_pos = 'overlay',
+            hl_mode = 'combine',
+          })
+        end
 
-      if capture == 'codeblock' then
-        pcall(vim.api.nvim_buf_set_extmark, buf, ns, start_row, 0, {
-          end_col = 0,
-          end_row = end_row,
-          hl_group = 'CodeBlock',
-          hl_eol = true,
-        })
+        if capture == 'codeblock' then
+          pcall(vim.api.nvim_buf_set_extmark, buf, ns, start_row, 0, {
+            end_col = 0,
+            end_row = end_row,
+            hl_group = 'CodeBlock',
+            hl_eol = true,
+          })
 
-        local start_line =
-          vim.api.nvim_buf_get_lines(buf, start_row, start_row + 1, false)[1]
-        local _, padding = start_line:find('^ +')
-        local codeblock_padding = math.max((padding or 0) - left_offset, 0)
+          local start_line =
+            vim.api.nvim_buf_get_lines(buf, start_row, start_row + 1, false)[1]
+          local _, padding = start_line:find('^ +')
+          local codeblock_padding = math.max((padding or 0), 0)
 
-        if codeblock_padding > 0 then
-          for i = start_row, end_row - 1 do
-            pcall(vim.api.nvim_buf_set_extmark, buf, ns, i, 0, {
-              virt_text = {
-                { string.rep(' ', codeblock_padding - 2), 'Normal' },
-              },
-              virt_text_win_col = 0,
-              priority = 1,
-            })
+          if codeblock_padding > 0 then
+            for i = start_row, end_row - 1 do
+              pcall(vim.api.nvim_buf_set_extmark, buf, ns, i, 0, {
+                virt_text = {
+                  { string.rep(' ', codeblock_padding - 2), 'Normal' },
+                },
+                virt_text_win_col = 0,
+                priority = 1,
+              })
+            end
           end
         end
       end
     end
-  end
+  end)
 end
 
 refresh()
@@ -124,9 +127,6 @@ vim.api.nvim_create_autocmd({
   group = groupid,
   desc = 'Refresh headlines.',
   callback = function(args)
-    if vim.bo[args.buf].ft ~= ft then
-      return
-    end
     refresh(args.buf)
   end,
 })

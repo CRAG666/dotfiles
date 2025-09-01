@@ -192,7 +192,7 @@ M.snippets = {
     }
   ),
   us.sM({ trig = 'em' }, { t('\\emph{'), i(1), t('}') }),
-  us.sM({ trig = 'bf' }, { t('\\textbf{'), i(1), t('}') }),
+  us.sM({ trig = 'bb' }, { t('\\textbf{'), i(1), t('}') }),
   us.sM({ trig = 'ul' }, { t('\\underline{'), i(1), t('}') }),
   us.sM({ trig = 'tt' }, { t('\\texttt{'), i(1), t('}') }),
 }

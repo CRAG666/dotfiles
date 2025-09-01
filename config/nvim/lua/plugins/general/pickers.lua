@@ -9,8 +9,8 @@ local function setup_snacks()
   end
   vim.pack.add({ { src = 'https://github.com/folke/snacks.nvim' } })
   require('snacks').setup({
-    animate = { enabled = true },
-    scroll = { enabled = true },
+    animate = { enabled = false },
+    scroll = { enabled = false },
     bigfile = { enabled = true },
     statuscolumn = { enabled = false },
     dim = { enabled = true },

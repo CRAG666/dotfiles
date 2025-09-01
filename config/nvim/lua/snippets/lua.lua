@@ -30,6 +30,14 @@ local function is_nvim_lua()
     return true
   end
 
+  -- Check if the file contains 'vim.xxx'
+  for _, line in ipairs(vim.api.nvim_buf_get_lines(0, 0, -1, false)) do
+    if line:match('vim%.') then
+      vim.b._ls_is_nvim_lua = true
+      return true
+    end
+  end
+
   return false
 end
 

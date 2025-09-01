@@ -4,3 +4,4 @@ vim.g.mason = {
   'prettierd',
   'js-debug-adapter',
 }
+vim.g.ts = { 'typescript', 'javascript' }

@@ -148,6 +148,13 @@ local function setup()
         codecompanion = { 'codecompanion' },
       },
       providers = {
+        codecompanion = {
+          name = 'CodeCompanion',
+          module = 'codecompanion.providers.completion.blink',
+          enabled = true,
+          score_offset = 10,
+          async = true,
+        },
         ripgrep = {
           module = 'blink-ripgrep',
           name = 'Ripgrep',

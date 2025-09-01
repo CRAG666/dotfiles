@@ -9,3 +9,4 @@ vim.g.mason = {
   'ltex-ls-plus',
   'bibtex-tidy',
 }
+vim.g.ts = { 'latex', 'bibtex' }

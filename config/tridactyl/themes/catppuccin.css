@@ -1,105 +1,101 @@
-:root {    /* Catppuccin Colors */
-    --bg: #1e1e2e;
-    --currentline: #302D41;
-    --fg: #a0a0ff;
-    --comment: #575268;
-    --flamingo: #f2cdcd;
-    --mauve: #ddb6f2;
-    --pink: #f5c2e7;
-    --maroon: #e8a2af;
-    --red: #f28fad;
-    --peach: #f8bd96;
-    --yellow: #fae3b0;
-    --green: #abe9b3;
-    --teal: #b5e8e0;
-    --blue: #96cdfb;
-    --sky: #89dceb;
-    --lavender: #c9cbff;
-    --rosewater: #f5e0dc;
-    --font: "DankMono Nerd Font Mono";
-
-    /* vimium theme uses colors: flamingo, peach, rosewater, green, blue, lavender */
-    --tridactyl-fg: var(--fg);
-    --tridactyl-bg: var(--bg);
-    --tridactyl-url-fg: var(--rosewater);
-    --tridactyl-url-bg: var(--bg);
-    --tridactyl-highlight-box-bg: var(--currentline);
-    --tridactyl-highlight-box-fg: var(--fg);
-    --tridactyl-of-fg: var(--fg);
-    --tridactyl-of-bg: var(--currentline);
-    --tridactyl-cmdl-fg: var(--bg);
-    --tridactyl-cmdl-font-family: var(--font);
-    --tridactyl-cmplt-font-family: var(--font);
-    --tridactyl-hintspan-font-family: var(--font);
-
-    /* Hint character tags */
-    --tridactyl-hintspan-fg: var(--bg) !important;
-    --tridactyl-hintspan-bg: var(--green) !important;
-
-    /* Element Highlights */
-    --tridactyl-hint-active-fg: none;
-    --tridactyl-hint-active-bg: none;
-    --tridactyl-hint-active-outline: none;
-    --tridactyl-hint-bg: none;
-    --tridactyl-hint-outline: none;
+:root {
+  /* Catppuccin Colors */
+  --bg: #1e1e2e;
+  --currentline: #302d41;
+  --fg: #a0a0ff;
+  --comment: #575268;
+  --flamingo: #f2cdcd;
+  --mauve: #ddb6f2;
+  --pink: #f5c2e7;
+  --maroon: #e8a2af;
+  --red: #f28fad;
+  --peach: #f8bd96;
+  --yellow: #fae3b0;
+  --green: #abe9b3;
+  --teal: #b5e8e0;
+  --blue: #96cdfb;
+  --sky: #89dceb;
+  --lavender: #c9cbff;
+  --rosewater: #f5e0dc;
+  --font: "DankMono Nerd Font Mono";
+  /* vimium theme uses colors: flamingo, peach, rosewater, green, blue, lavender */
+  --tridactyl-fg: var(--fg);
+  --tridactyl-bg: var(--bg);
+  --tridactyl-url-fg: var(--rosewater);
+  --tridactyl-url-bg: var(--bg);
+  --tridactyl-highlight-box-bg: var(--currentline);
+  --tridactyl-highlight-box-fg: var(--fg);
+  --tridactyl-of-fg: var(--fg);
+  --tridactyl-of-bg: var(--currentline);
+  --tridactyl-cmdl-fg: var(--bg);
+  --tridactyl-cmdl-font-family: var(--font);
+  --tridactyl-cmplt-font-family: var(--font);
+  --tridactyl-hintspan-font-family: var(--font);
+  /* Hint character tags */
+  --tridactyl-hintspan-fg: var(--bg) !important;
+  --tridactyl-hintspan-bg: var(--green) !important;
+  /* Element Highlights */
+  --tridactyl-hint-active-fg: none;
+  --tridactyl-hint-active-bg: none;
+  --tridactyl-hint-active-outline: none;
+  --tridactyl-hint-bg: none;
+  --tridactyl-hint-outline: none;
 }
-
 #command-line-holder {
-    order: 1;
-    background: var(--tridactyl-bg);
+  order: 1;
+  background: var(--tridactyl-bg);
 }
-
 #tridactyl-input {
-    color: var(--tridactyl-fg);
-    border: 0px !important;
-    background: var(--tridactyl-bg);
+  color: var(--tridactyl-fg);
+  border: 0px !important;
+  background: var(--tridactyl-bg);
+  font-size: 20px !important;
 }
-
 /* COMPLETIONS */
-
 #completions {
-    color: var(--tridactyl-fg);
-    background: var(--tridactyl-bg);
-    overflow: auto;
-    order: 2;
+  color: var(--tridactyl-fg);
+  background: var(--tridactyl-bg);
+  overflow: auto;
+  order: 2;
+  font-size: 20px !important;
 }
-
-#completions table tr .title, #completions table tr td.excmd {
-    color: var(--blue);
+#completions table tr .title,
+#completions table tr td.excmd {
+  color: var(--blue);
+  font-size: 20px !important;
 }
-
 #completions .sectionHeader {
-    background: var(--tridactyl-bg);
-    border: 0px !important;
-    font-weight: bold;
-    color: var(--peach);
+  background: var(--tridactyl-bg);
+  border: 0px !important;
+  font-weight: bold;
+  color: var(--peach);
+  font-size: 20px !important;
 }
-
 #cmdline_iframe {
-    box-shadow: rgba(0, 0, 0, 0.5) 0px 0px 20px !important;
-    background: var(--tridactyl-bg) !important;
-    border: 0px !important;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 0px 20px !important;
+  background: var(--tridactyl-bg) !important;
+  border: 0px !important;
 }
-
 .TridactylStatusIndicator {
-    position: fixed !important;
-    bottom: 0 !important;
-    background: var(--tridactyl-bg) !important;
-    border: 0px !important;
-    font-size: 12pt !important;
-    font-weight: 200 !important;
+  position: fixed !important;
+  bottom: 0 !important;
+  background: var(--tridactyl-bg) !important;
+  border: 0px !important;
+  font-size: 12pt !important;
+  font-weight: 200 !important;
 }
-
 #completions .focused {
-    background: var(--bg);
-    color: var(--green);
-    font-weight: bold;
+  background: var(--bg);
+  color: var(--green);
+  font-weight: bold;
+  font-size: 20px !important;
 }
 #completions .focused td.title {
   color: var(--pink);
+  font-size: 20px !important;
 }
-
 #completions .focused .url {
-    background: var(--bg);
-    color: var(--green);
+  background: var(--bg);
+  color: var(--green);
+  font-size: 20px !important;
 }

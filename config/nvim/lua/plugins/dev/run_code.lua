@@ -13,7 +13,14 @@ local function load()
       tex = function(...)
         require('code_runner.hooks.ui').select({
           Project = function()
-            require('code_runner.hooks.tectonic').build(preview_cmd)
+            require('code_runner.commands').run_from_fn(
+              [[tectonic -X watch -x 'build']]
+            )
+          end,
+          ['Project + intermediates'] = function()
+            require('code_runner.commands').run_from_fn(
+              [[tectonic -X watch -x 'build --keep-intermediates --keep-logs']]
+            )
           end,
           ['Project + Biber'] = function()
             require('code_runner.hooks.tectonic').build(
@@ -21,19 +28,10 @@ local function load()
               { 'biber', '--keep-intermediates', '--keep-logs' }
             )
           end,
-          ['Project + intermediates'] = function()
-            require('code_runner.hooks.tectonic').build(
-              preview_cmd,
-              { 'biber', '--keep-intermediates', '--keep-logs' }
-            )
-          end,
           Single = function()
-            require('code_runner.hooks.preview_pdf').run({
-              command = 'tectonic',
-              args = { '$fileName', '-o', '/tmp' },
-              preview_cmd = preview_cmd,
-              overwrite_output = '/tmp',
-            })
+            require('code_runner.commands').run_from_fn(
+              [[tectonic -X watch -x 'compile $fileName']]
+            )
           end,
         })
       end,
@@ -116,6 +114,7 @@ local function load()
     },
     project_path = vim.fn.expand('~/.config/nvim/project_manager.json'),
   })
+  require('plugins.dev.term').setup()
 end
 
 key.map_lazy('code_runner', load, 'n', '<leader>e', function()

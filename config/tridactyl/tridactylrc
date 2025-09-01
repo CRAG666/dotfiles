@@ -38,7 +38,8 @@ set hintfiltermode vimperator-reflow
 "
 " Binds
 "
-bind yg composite js "git clone " + document.location.href.replace(/https?:\/\//,"git@").replace("/",":").replace(/$/,".git") | clipboard yank
+" bind yg composite js "git clone " + document.location.href.replace(/https?:\/\//,"git@").replace("/",":").replace(/$/,".git") | clipboard yank
+bind yg composite js "git clone " + document.location.href.replace(/\/$/,"") + ".git" | clipboard yank
 bind j scrollline 5
 bind k scrollline -5
 bind $ tablast
@@ -55,6 +56,8 @@ bind / fillcmdline find
 bind ? fillcmdline find -?
 bind n findnext 1
 bind N findnext -1
+bind << tabmove -1
+bind >> tabmove +1
 
 " Allow Ctrl-a to select all in the commandline
 unbind --mode=ex <C-a>
@@ -66,39 +69,45 @@ unbind --mode=ex <C-c>
 " Quickmarks
 "
 " quickmark t https://translate.google.com/
-quickmark c https://www.doubao.com/chat
-quickmark d https://chat.deepseek.com
-quickmark f https://relay.firefox.com/accounts/profile/
+quickmark d https://discord.com/channels/1339832223729193030/1339832224178114596
+quickmark f https://drive.google.com/drive/u/0/home
 quickmark g https://github.com/
 quickmark l http://localhost/
-quickmark m https://copilot.cloud.microsoft/
-quickmark n https://www.notion.so
-quickmark o https://chat.openai.com/chat
-quickmark p https://mail.proton.me/u/1/inbox
-quickmark q https://chat.qwenlm.ai
-quickmark r https://reddit.com/
-quickmark s https://claude.ai/new
-quickmark w https://web.whatsapp.com/
+quickmark m https://mail.proton.me/u/1/inbox
+quickmark n https://www.notion.so/16014572789580399978fbf7da3622f3?v=44e369be79784f879926b23197601fa4
+quickmark p https://catppuccin.com/palette/
+quickmark r https://relay.firefox.com
 quickmark y https://www.youtube.com/feed/subscriptions
 
 "
 " move in tabs
 "
 
-bind ;1 tab 1
-bind ;2 tab 2
-bind ;3 tab 3
-bind ;4 tab 4
-bind ;5 tab 5
-bind ;6 tab 6
-bind ;7 tab 7
-bind ;8 tab 8
-bind ;9 tab 9
-bind ;0 tab 10
+bind ;1 tab 13
+bind ;2 tab 14
+bind ;3 tab 15
+bind ;4 tab 16
+bind ;5 tab 17
+bind ;6 tab 18
+bind ;7 tab 19
+bind ;8 tab 20
+bind ;9 tab 21
+bind ;0 tab 22
 
 alias tabsort jsb browser.tabs.query({}).then(tabs => tabs.sort((t1, t2) => t1.url.localeCompare(t2.url)).forEach((tab, index) => browser.tabs.move(tab.id, {index})))
 
 alias tabuniq jsb browser.tabs.query({}).then(tabs => browser.tabs.remove(tabs.filter((tab, index) => tabs.slice(index + 1).find(t => t.url == tab.url)).map(tab => tab.id)))
+
+alias tabonly tabclose -o
+alias tabdetach winopen -c
+alias mksession-ts js tri.excmds.mksession(new Date().toISOString().slice(0,10))
+
+bind ]] !s wtype -M ctrl -M alt -k bracketleft
+bind [[ !s wtype -M ctrl -M alt -k bracketright
+
+bindurl web.whatsapp.com  --mode=normal <Escape> composite hint -f m2 ; fillcmdline ; ex.hide_and_clear
+bindurl web.whatsapp.com  --mode=insert <Escape> composite hint -f m2 ; fillcmdline ; ex.hide_and_clear
+bindurl web.whatsapp.com  --mode=input  <Escape> composite hint -f m2 ; fillcmdline ; ex.hide_and_clear
 
 " For syntax highlighting see https://github.com/tridactyl/vim-tridactyl
 " vim: set filetype=tridactyl

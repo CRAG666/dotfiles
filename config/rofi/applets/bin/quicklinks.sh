@@ -79,16 +79,18 @@ run_cmd() {
     elif [[ "$1" == '--opt4' ]]; then
         xdg-open 'https://www.github.com/'
     elif [[ "$1" == '--opt5' ]]; then
-        xdg-open 'https://chat.qwen.ai/'
-        xdg-open 'https://chat.deepseek.com'
-        xdg-open 'https://claude.ai/new'
         xdg-open 'https://grok.com/'
-        xdg-open 'https://www.kimi.com/'
-        xdg-open 'https://chat.openai.com/'
         xdg-open 'https://gemini.google.com/app?hl=es'
-        xdg-open 'https://www.doubao.com/chat'
-        xdg-open 'https://copilot.cloud.microsoft/'
+        xdg-open 'https://chat.qwen.ai/'
+        xdg-open 'https://chat.openai.com/'
+        xdg-open 'https://claude.ai/new'
+        xdg-open 'https://chat.minimax.io/'
+        xdg-open 'https://chat.mistral.ai/chat'
         xdg-open 'https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=1'
+        xdg-open 'https://chat.deepseek.com'
+        xdg-open 'https://www.kimi.com/'
+        xdg-open 'https://copilot.cloud.microsoft/'
+        xdg-open 'https://www.doubao.com/chat'
     elif [[ "$1" == '--opt6' ]]; then
         xdg-open 'https://entrepeliculasyseries.nz/'
     fi

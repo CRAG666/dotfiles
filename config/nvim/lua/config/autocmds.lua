@@ -612,6 +612,12 @@ augroup('EasyQuit', {
     pattern = 'nvim-pack',
     command = [[nnoremap <buffer><silent> q :quit<CR>]],
   },
+}, {
+  'FileType',
+  {
+    pattern = 'help',
+    command = [[nnoremap <buffer><silent> q :quit<CR>]],
+  },
 })
 
 -- Use vertical splits for help windows

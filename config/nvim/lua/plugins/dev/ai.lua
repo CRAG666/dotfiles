@@ -24,6 +24,71 @@ local function setup()
           },
         })
       end,
+      upstage = function()
+        return require('codecompanion.adapters').extend('openai_compatible', {
+          env = {
+            url = 'https://api.upstage.ai',
+            api_key = 'cmd:gak ai/upstage',
+            chat_url = '/v1/chat/completions',
+            models_endpoint = '/v1/models',
+          },
+          schema = {
+            model = {
+              default = 'solar-pro2',
+            },
+            temperature = {
+              order = 2,
+              mapping = 'parameters',
+              type = 'number',
+              optional = true,
+              default = 0.8,
+              desc = 'What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. We generally recommend altering this or top_p but not both.',
+              validate = function(n)
+                return n >= 0 and n <= 2, 'Must be between 0 and 2'
+              end,
+            },
+            max_completion_tokens = {
+              order = 3,
+              mapping = 'parameters',
+              type = 'integer',
+              optional = true,
+              default = nil,
+              desc = 'An upper bound for the number of tokens that can be generated for a completion.',
+              validate = function(n)
+                return n > 0, 'Must be greater than 0'
+              end,
+            },
+            stop = {
+              order = 4,
+              mapping = 'parameters',
+              type = 'string',
+              optional = true,
+              default = nil,
+              desc = 'Sets the stop sequences to use. When this pattern is encountered the LLM will stop generating text and return. Multiple stop patterns may be set by specifying multiple separate stop parameters in a modelfile.',
+              validate = function(s)
+                return s:len() > 0, 'Cannot be an empty string'
+              end,
+            },
+            logit_bias = {
+              order = 5,
+              mapping = 'parameters',
+              type = 'map',
+              optional = true,
+              default = nil,
+              desc = 'Modify the likelihood of specified tokens appearing in the completion. Maps tokens (specified by their token ID) to an associated bias value from -100 to 100. Use https://platform.openai.com/tokenizer to find token IDs.',
+              subtype_key = {
+                type = 'integer',
+              },
+              subtype = {
+                type = 'integer',
+                validate = function(n)
+                  return n >= -100 and n <= 100, 'Must be between -100 and 100'
+                end,
+              },
+            },
+          },
+        })
+      end,
     },
     prompt_library = {
       ['My New Prompt'] = {
@@ -43,7 +108,7 @@ local function setup()
     },
     strategies = {
       chat = {
-        adapter = 'deepseek',
+        adapter = 'upstage',
         keymaps = {
           options = { modes = { n = 'g?' } },
           close = { modes = { n = 'gX', i = '<M-C-X>' } },
@@ -85,37 +150,24 @@ local function setup()
             ---@return string
             callback = function()
               return [[
-                <prompt>
-                  <role>
-                    Act as an experienced writer of scientific articles, specializing in the review and editing of academic texts.
-                  </role>
-                  <task>
-                    Conduct a final review of the provided text, correcting errors and enhancing its quality to ensure clarity, readability, and adherence to scientific standards.
-                  </task>
-                  <instructions>
-                    <step1>
-                      Identify and correct typographical, grammatical, punctuation, or inappropriate wording errors.
-                    </step1>
-                    <step2>
-                      Simplify the language, eliminating unnecessary jargon, filler words, or complex constructions that hinder comprehension.
-                    </step2>
-                    <step3>
-                      Enhance clarity and readability, ensuring the text is accessible to a multidisciplinary academic audience without compromising its scientific rigor.
-                    </step3>
-                    <step4>
-                      Ensure the text adheres to a consistent scientific style guide (e.g., APA, AMA, or as specified by the user).
-                    </step4>
-                    <step5>
-                      Preserve the original purpose of the content, maintaining technical accuracy and a scientific focus.
-                    </step5>
-                  </instructions>
-                  <requirements>
-                    - Use appropriate and consistent punctuation according to the selected style guide.
-                    - Prioritize precise yet accessible technical language, avoiding ambiguities.
-                    - Maintain a formal and objective tone typical of scientific writing.
-                  </requirements>
-                  <format>Return the revised text with corrections and improvements applied.</format>
-                </prompt>
+                    Role: You are an experienced writer of scientific articles, specializing in reviewing and editing academic texts to ensure they meet high scholarly standards.
+                    Task: Conduct a comprehensive final review of the provided text, refining it to improve clarity, readability, and adherence to academic writing conventions while humanizing the tone to make it engaging and accessible to a broad academic audience.
+                    Instructions
+
+                    Correct Errors: Identify and correct any typographical, grammatical, punctuation, or wording errors to ensure the text is accurate and professional.
+                    Simplify Language: Streamline the text by eliminating unnecessary jargon, filler words, or complex phrasing to enhance comprehension without compromising precision.
+                    Enhance Clarity and Readability: Revise the text to ensure it is clear, concise, and engaging for a multidisciplinary academic audience, maintaining its scientific rigor.
+                    Humanize the Tone: Adjust the language to be natural and relatable, using active voice where appropriate, avoiding overly formal or rigid phrasing, and ensuring a professional yet approachable tone.
+                    Adhere to a Style Guide: Ensure the text follows a consistent scientific style guide (e.g., APA, AMA, or as specified by the user) for formatting, citations, and terminology.
+                    Preserve Intent: Maintain the text’s original purpose, ensuring technical accuracy and a focus on scientific content while incorporating humanized elements.
+
+                    Requirements:
+                    Use consistent and appropriate punctuation as per the chosen style guide.
+                    Employ precise, accessible technical language to avoid ambiguity.
+                    Maintain a formal yet approachable tone suitable for scientific writing, balancing objectivity with a natural, engaging style.
+                    Ensure humanization enhances readability by using concise, relatable language without sacrificing academic rigor.
+
+                    Format: Provide the revised text with all corrections, enhancements, and humanization applied.
               ]]
             end,
             description = 'My Cientific Writting assistant',
@@ -219,7 +271,7 @@ local function setup()
         },
       },
       cmd = {
-        adapter = 'deepseek',
+        adapter = 'upstage',
       },
     },
     display = {
@@ -267,22 +319,7 @@ key.map_lazy(
   { desc = 'Tab [n]ew' }
 )
 
-local maps = {
-  {
-    'f',
-    [[:CodeCompanion /fix ]],
-    '[A]i: [A]dd selection',
-  },
-  {
-    'c',
-    ':CodeCompanion /explain',
-    '[A]i: Explain [c]ode',
-  },
-  {
-    't',
-    ':CodeCompanion /tests',
-    '[A]i: [T]est code',
-  },
+local without_instructions = {
   {
     'w',
     ':CodeCompanion /buffer #wassistant<CR>',
@@ -303,11 +340,32 @@ local maps = {
     ':CodeCompanion /buffer #grammar<CR>',
     '[A]i: [G]rammar fix',
   },
+}
+
+local maps = {
+  {
+    'f',
+    [[:CodeCompanion /fix ]],
+    '[A]i: [A]dd selection',
+  },
+  {
+    'c',
+    ':CodeCompanion /explain',
+    '[A]i: Explain [c]ode',
+  },
+  {
+    't',
+    ':CodeCompanion /tests',
+    '[A]i: [T]est code',
+  },
   {
     'b',
     [[:CodeCompanion /buffer ]],
     '[A]i: Add instructions',
   },
 }
+
+-- key.maps_lazy('codecompanion', setup, 'x', '<leader>a', without_instructions)
+key.pmaps('x', '<leader>a', without_instructions)
 
 key.pmaps('x', '<leader>a', maps)

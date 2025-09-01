@@ -1,14 +1,18 @@
 local key = require('utils.keymap')
 local current = 2
 
-local function setup()
-  vim.opt.runtimepath:prepend(vim.fn.expand('~/Git/betterTerm.nvim'))
-  require('betterTerm').setup({
-    position = 'vert',
-    size = math.floor(vim.o.columns / 2),
-    jump_tab_mapping = '<A-$tab>',
-    new_tab_icon = require('utils.static.icons').git.Added,
-  })
+local M = {}
+
+function M.setup()
+  if not package.loaded['betterTerm'] then
+    vim.opt.runtimepath:prepend(vim.fn.expand('~/Git/betterTerm.nvim'))
+    require('betterTerm').setup({
+      position = 'vert',
+      size = math.floor(vim.o.columns / 2),
+      jump_tab_mapping = '<A-$tab>',
+      new_tab_icon = require('utils.static.icons').git.Added,
+    })
+  end
 end
 
 local open = {
@@ -28,7 +32,7 @@ local open = {
   },
 }
 
-key.maps_lazy('betterTerm', setup, { 'n', 't' }, '<C-', open)
+key.maps_lazy('betterTerm', M.setup, { 'n', 't' }, '<C-', open)
 
 local more = {
   {
@@ -55,4 +59,6 @@ local more = {
   },
 }
 
-key.maps_lazy('betterTerm', setup, 'n', '<leader>t', more)
+key.maps_lazy('betterTerm', M.setup, 'n', '<leader>t', more)
+
+return M

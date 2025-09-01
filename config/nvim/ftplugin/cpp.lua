@@ -7,6 +7,7 @@ set.cinoptions = ':0g0(0s'
 vim.bo.commentstring = '// %s'
 
 vim.g.mason = { 'codelldb', 'clangd' }
+vim.g.ts = { 'c', 'cpp' }
 
 -- Set ; to end line
 vim.keymap.set(
