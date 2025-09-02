@@ -1,7 +1,7 @@
 local utils = require('ui.winbar.utils')
 local configs = require('ui.winbar.configs')
 local bar = require('ui.winbar.bar')
-local groupid = vim.api.nvim_create_augroup('WinBarLsp', {})
+local groupid = vim.api.nvim_create_augroup('my.winbar.sources.lsp', {})
 local initialized = false
 
 ---@type table<integer, lsp_document_symbol_t[]>
@@ -408,9 +408,17 @@ end
 ---@param cursor integer[] cursor position
 ---@return winbar_symbol_t[] symbols winbar symbols
 local function get_symbols(buf, win, cursor)
+  buf = vim._resolve_bufnr(buf)
+  if
+    not vim.api.nvim_buf_is_valid(buf) or not vim.api.nvim_win_is_valid(win)
+  then
+    return {}
+  end
+
   if not initialized then
     init()
   end
+
   local result = {}
   convert_document_symbol_list(lsp_buf_symbols[buf], result, buf, win, cursor)
   utils.bar.set_min_widths(result, configs.opts.sources.lsp.min_widths)

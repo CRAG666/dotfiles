@@ -65,6 +65,10 @@ key.map('n', '<localleader>s', function()
   end)
 end, { desc = 'Toggle spell checker' })
 
+key.map('n', '<localleader>e', function()
+  require('modules.es_shortcuts')
+end, { desc = 'Spanish Shortcuts' })
+
 -- sudo
 -- vim.cmd [[cmap w!! w !sudo tee > /dev/null %]]
 
@@ -173,10 +177,10 @@ key.map({ 'n', 'x' }, 'zV', function()
 end, { desc = 'Close all folds except current' })
 
 key.map({ 'n', 'x' }, 'q', function()
-  require('utils.keys').close_floats('q')
+  require('utils.key').close_floats('q')
 end, { desc = 'Close all floating windows or start recording macro' })
 key.map({ 'n' }, '<Esc>', function()
-  require('utils.keys').close_floats('<Esc>')
+  require('utils.key').close_floats('<Esc>')
 end, { desc = 'Close all floating windows' })
 
 key.map(
@@ -207,7 +211,7 @@ key.map(
 key.map(
   'x',
   'iz',
-  [[':<C-u>silent! keepjumps normal! ' . v:lua.require'utils.keys'.textobj_fold('i') . '<CR>']],
+  [[':<C-u>silent! keepjumps normal! ' . v:lua.require'utils.key'.textobj_fold('i') . '<CR>']],
   {
     silent = true,
     expr = true,
@@ -218,7 +222,7 @@ key.map(
 key.map(
   'x',
   'az',
-  [[':<C-u>silent! keepjumps normal! ' . v:lua.require'utils.keys'.textobj_fold('a') . '<CR>']],
+  [[':<C-u>silent! keepjumps normal! ' . v:lua.require'utils.key'.textobj_fold('a') . '<CR>']],
   {
     silent = true,
     expr = true,

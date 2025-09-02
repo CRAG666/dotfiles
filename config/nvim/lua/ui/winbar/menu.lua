@@ -1,6 +1,6 @@
 local bar = require('ui.winbar.bar')
 local utils = require('ui.winbar.utils')
-local groupid = vim.api.nvim_create_augroup('WinBarMenu', {})
+local groupid = vim.api.nvim_create_augroup('my.winbar.menu', {})
 local configs = require('ui.winbar.configs')
 
 ---Lookup table for winbar menus

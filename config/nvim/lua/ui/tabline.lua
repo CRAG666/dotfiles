@@ -116,13 +116,18 @@ end, {
   complete = function()
     local tabnrcur = vim.fn.tabpagenr()
     local tabidcur = vim.api.nvim_get_current_tabpage()
+    local tabnamecur = tabgetname(tabnrcur, tabidcur)
+
+    local tabnames = {} ---@type table<string, true> deduplicated tab names
+    for tabnr, tabid in ipairs(vim.api.nvim_list_tabpages()) do
+      tabnames[tabgetname(tabnr, tabid)] = true
+    end
 
     -- Make current tab's name first in the completion menu
-    local compl = { tabgetname(tabnrcur, tabidcur) }
-
-    for tabnr, tabid in ipairs(vim.api.nvim_list_tabpages()) do
-      if tabnr ~= tabnrcur then
-        table.insert(compl, tabgetname(tabnr, tabid))
+    local compl = { tabnamecur } ---@type string[]
+    for tabname, _ in pairs(tabnames) do
+      if tabname ~= tabnamecur then
+        table.insert(compl, tabname)
       end
     end
 
@@ -133,7 +138,8 @@ end, {
 -- Preserve tab names across sessions
 vim.opt.sessionoptions:append('globals')
 
-local groupid = vim.api.nvim_create_augroup('TablineName', {})
+local groupid = vim.api.nvim_create_augroup('my.tabline.name', {})
+
 vim.api.nvim_create_autocmd({ 'UIEnter', 'SessionLoadPost' }, {
   desc = 'Set flag to enable tab name psersistence across sessions.',
   group = groupid,
@@ -142,6 +148,7 @@ vim.api.nvim_create_autocmd({ 'UIEnter', 'SessionLoadPost' }, {
     vim.g._tabline_name_restored = true
   end,
 })
+
 vim.api.nvim_create_autocmd('TabClosed', {
   desc = 'Clear global tab name variable for closed tabs.',
   group = groupid,

@@ -145,6 +145,13 @@ end
 ---@param cursor integer[] cursor position
 ---@return winbar_symbol_t[] symbols winbar symbols
 local function get_symbols(buf, win, cursor)
+  buf = vim._resolve_bufnr(buf)
+  if
+    not vim.api.nvim_buf_is_valid(buf) or not vim.api.nvim_win_is_valid(win)
+  then
+    return {}
+  end
+
   if not utils.ts.is_active(buf) then
     return {}
   end

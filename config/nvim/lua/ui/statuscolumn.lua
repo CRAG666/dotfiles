@@ -279,7 +279,8 @@ function _G._statuscolumn()
     .. (data.show_fdc and ' ' or '')
 end
 
-local augroup = vim.api.nvim_create_augroup('StatusColumn', {})
+local augroup = vim.api.nvim_create_augroup('my.statuscolumn', {})
+
 vim.api.nvim_create_autocmd('WinClosed', {
   group = augroup,
   desc = 'Clear per window shared data cache.',
@@ -287,6 +288,7 @@ vim.api.nvim_create_autocmd('WinClosed', {
     shared[tonumber(args.match)] = nil
   end,
 })
+
 vim.api.nvim_create_autocmd('BufDelete', {
   group = augroup,
   desc = 'Clear per buffer lnum width cache.',

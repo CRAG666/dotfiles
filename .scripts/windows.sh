@@ -20,53 +20,39 @@ HEIGHT=$((HEIGHT - 16))
 STATUS=$(podman ps -a --filter "name=$CONTAINER_NAME" --format "{{.Status}}")
 
 if [ -z "$STATUS" ]; then
-    echo "El contenedor no existe, iniciando..."
-    podman-compose --file "$COMPOSE_FILE" start
+    podman-compose --file "$COMPOSE_FILE" up -d
+    notify-send "Windows 11" "Powering on..." --icon=windows --urgency=normal
+    sleep 10
 elif [[ "$STATUS" == *"Paused"* ]]; then
-    echo "El contenedor está pausado, reanudando..."
     podman-compose --file "$COMPOSE_FILE" unpause
-elif [[ "$STATUS" == *"Exited"* ]]; then
-    echo "El contenedor está detenido, iniciando..."
+    notify-send "Windows 11" "Unpause..." --icon=windows --urgency=normal
+    sleep 5
+elif [[ "$STATUS" == *"Exited"* ]] || [[ "$STATUS" == *"Created"* ]]; then
     podman-compose --file "$COMPOSE_FILE" start
+    notify-send "Windows 11" "Powering on..." --icon=windows --urgency=normal
+    sleep 5
 else
-    echo "El contenedor ya está corriendo."
+    notify-send "Windows 11" "Abriendo..." --icon=windows --urgency=normal
 fi
 
-notify-send "Windows 11" "Intentando conectar vía RDP..." --icon=gnome-remote-desktop --urgency=normal
+notify-send "Windows 11" "Abriendo..." --icon=windows --urgency=normal
 
-while true; do
-    echo "Intentando conectar a $CONTAINER_NAME vía RDP..."
+# Iniciar sesión RDP
+xfreerdp3 \
+    /u:$WIN_USER /p:$WIN_PASS /v:$WIN_IP \
+    /t:Windows \
+    /drive:$GUEST_SHARE_NAME,$HOST_SHARE_PATH \
+    /sound:sys:alsa /microphone:sys:alsa \
+    +clipboard \
+    -grab-keyboard \
+    /size:${WIDTH}x${HEIGHT} \
+    /dynamic-resolution \
+    -themes -menu-anims -window-drag \
+    -fonts
+    # /bpp:32 \
+    # /gfx:AVC444:on,progressive:on \
+    # /compression-level:0 \
+    # +async-channels \
 
-    if timeout 5 bash -c "echo > /dev/tcp/$WIN_IP/3389" 2>/dev/null; then
-        echo "Puerto RDP disponible. Iniciando sesión..."
-
-        notify-send "Windows 11" "Abriendo..." --icon=windows --urgency=normal
-
-        # Iniciar sesión RDP
-        xfreerdp3 \
-            /u:$WIN_USER /p:$WIN_PASS /v:$WIN_IP \
-            /t:Windows \
-            /drive:$GUEST_SHARE_NAME,$HOST_SHARE_PATH \
-            /sound:sys:alsa /microphone:sys:alsa \
-            +clipboard \
-            -grab-keyboard \
-            /size:${WIDTH}x${HEIGHT} \
-            /dynamic-resolution \
-            -themes -menu-anims -window-drag \
-            -fonts
-            # /bpp:32 \
-            # /gfx:AVC444:on,progressive:on \
-            # /compression-level:0 \
-            # +async-channels \
-
-        echo "Sesión RDP finalizada."
-        break
-    else
-        echo "Conexión no disponible, reintentando en 3 segundos..."
-        sleep 3
-    fi
-done
-
-echo "Script finalizado."
 notify-send "Windows" "Saliendo..." --icon=wine-uninstaller --urgency=low
 podman-compose --file "$COMPOSE_FILE" pause

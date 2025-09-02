@@ -10,7 +10,7 @@ return setmetatable({
   hl = nil, ---@module 'utils.hl'
   json = nil, ---@module 'utils.json'
   key = nil, ---@module 'utils.key'
-  keys = nil, ---@module 'utils.keys'
+  keys = nil, ---@module 'utils.key'
   lsp = nil, ---@module 'utils.lsp'
   lua = nil, ---@module 'utils.lua'
   opt = nil, ---@module 'utils.opt'

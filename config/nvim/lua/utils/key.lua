@@ -209,4 +209,44 @@ function M.count_wrap(fn, count)
   end
 end
 
+---Wrap a function so that it runs with `lazyredraw=true`
+---@generic T
+---@param fn fun(): T?
+---@return fun(): T[]
+function M.with_lazyredraw(fn)
+  return function()
+    -- Avoid setting `lazyredraw` option and trigging `OptionSet` event
+    -- unnecessarily
+    if vim.go.lz then
+      return fn()
+    end
+    vim.go.lz = true
+    local result = { fn() }
+    vim.go.lz = false
+    return unpack(result)
+  end
+end
+
+---Wrap a function so that the cursor position remains after running the
+---function
+---@generic T
+---@param fn fun(): T?
+---@return fun(): T[]
+function M.with_cursorpos(fn)
+  return function()
+    local win = vim.api.nvim_get_current_win()
+    local cursor = vim.api.nvim_win_get_cursor(win)
+    local result = { fn() }
+    if
+      not vim.api.nvim_win_is_valid(win)
+      or vim.deep_equal(cursor, vim.api.nvim_win_get_cursor(win))
+    then
+      return
+    end
+    vim.api.nvim_set_current_win(win)
+    vim.api.nvim_win_set_cursor(win, cursor)
+    return unpack(result)
+  end
+end
+
 return M

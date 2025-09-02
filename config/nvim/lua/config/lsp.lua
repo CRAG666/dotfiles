@@ -34,22 +34,17 @@ local lsp = require('utils.lsp')
 
 vim.lsp.config('*', lsp.default_config)
 
-vim.api.nvim_create_autocmd('FileType', {
-  once = true,
-  callback = function(args)
-    for _, dir in ipairs(vim.api.nvim__get_runtime({ 'lsp' }, true, {})) do
-      for config_file in vim.fs.dir(dir) do
-        vim.lsp.enable(vim.fn.fnamemodify(config_file, ':r'))
-      end
-    end
-    vim.api.nvim_exec_autocmds('FileType', {
-      pattern = args.match,
-    })
-  end,
-})
-
 -- Override to perform additional checks on starting language servers
 vim.lsp.start = lsp.start
+
+-- Jdtls does not attach to the first opened java file without scheduling
+vim.schedule(function()
+  for _, dir in ipairs(vim.api.nvim__get_runtime({ 'lsp' }, true, {})) do
+    for config_file in vim.fs.dir(dir) do
+      vim.lsp.enable(vim.fn.fnamemodify(config_file, ':r'))
+    end
+  end
+end)
 
 -- Show notification if no references, definition, declaration,
 -- implementation or type definition is found
@@ -145,7 +140,7 @@ do
   local lsp_autostop_timeout_ms = 60000
 
   vim.api.nvim_create_autocmd('LspDetach', {
-    group = vim.api.nvim_create_augroup('LspAutoStop', {}),
+    group = vim.api.nvim_create_augroup('my.lsp.auto_stop', {}),
     desc = 'Automatically stop detached language servers.',
     callback = function()
       if lsp_autostop_pending then
@@ -198,10 +193,8 @@ do
   local key = require('utils.key')
 
   -- stylua: ignore start
-  key.amend({ 'n', 'x' }, 'gd', act_if_supports_method(vim.lsp.protocol.Methods.textDocument_definition, 'definition'),
-    { desc = 'Go to definition' })
-  key.amend({ 'n', 'x' }, 'gD', act_if_supports_method(vim.lsp.protocol.Methods.textDocument_declaration, 'declaration'),
-    { desc = 'Go to declaration' })
+  key.amend({ 'n', 'x' }, 'gd', act_if_supports_method(vim.lsp.protocol.Methods.textDocument_definition, 'definition'), { desc = 'Go to definition' })
+  key.amend({ 'n', 'x' }, 'gD', act_if_supports_method(vim.lsp.protocol.Methods.textDocument_declaration, 'declaration'), { desc = 'Go to declaration' })
   -- stylua: ignore end
 
   -- stylua: ignore start

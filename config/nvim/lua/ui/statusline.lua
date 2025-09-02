@@ -1,6 +1,6 @@
 local utils = require('utils')
 local icons = require('utils.static.icons')
-local groupid = vim.api.nvim_create_augroup('StatusLine', {})
+local groupid = vim.api.nvim_create_augroup('my.statusline', {})
 
 _G._statusline = {}
 
@@ -745,16 +745,16 @@ local function set_default_hlgroups()
     utils.hl.set_default(0, hlgroup_name, merged_attr)
   end
   -- stylua: ignore start
-  sethl('StatusLineGitAdded', { fg = 'GitSignsAdd', ctermfg = 'GitSignsAdd' })
-  sethl('StatusLineGitChanged', { fg = 'GitSignsChange', ctermfg = 'GitSignsChange' })
-  sethl('StatusLineGitRemoved', { fg = 'GitSignsDelete', ctermfg = 'GitSignsDelete' })
-  sethl('StatusLineGitBranch', { fg = 'StatusLineGitChanged' })
-  sethl('StatusLineDiagnosticHint', { fg = 'DiagnosticSignHint', ctermfg = 'DiagnosticSignHint' })
-  sethl('StatusLineDiagnosticInfo', { fg = 'DiagnosticSignInfo', ctermfg = 'DiagnosticSignInfo' })
-  sethl('StatusLineDiagnosticWarn', { fg = 'DiagnosticSignWarn', ctermfg = 'DiagnosticSignWarn' })
+  sethl('StatusLineGitAdded',        { fg = 'GitSignsAdd',  ctermfg = 'GitSignsAdd' })
+  sethl('StatusLineGitChanged',      { fg = 'GitSignsChange', ctermfg = 'GitSignsChange' })
+  sethl('StatusLineGitRemoved',      { fg = 'GitSignsDelete', ctermfg = 'GitSignsDelete' })
+  sethl('StatusLineGitBranch',       { fg = 'StatusLineGitChanged' })
+  sethl('StatusLineDiagnosticHint',  { fg = 'DiagnosticSignHint', ctermfg = 'DiagnosticSignHint' })
+  sethl('StatusLineDiagnosticInfo',  { fg = 'DiagnosticSignInfo', ctermfg = 'DiagnosticSignInfo' })
+  sethl('StatusLineDiagnosticWarn',  { fg = 'DiagnosticSignWarn', ctermfg = 'DiagnosticSignWarn' })
   sethl('StatusLineDiagnosticError', { fg = 'DiagnosticSignError', ctermfg = 'DiagnosticSignError' })
-  sethl('StatusLineHeader', { fg = 'TabLine', bg = 'fg', ctermfg = 'TabLine', ctermbg = 'fg', reverse = true })
-  sethl('StatusLineHeaderModified', { fg = 'Special', bg = 'fg', ctermfg = 'Special', ctermbg = 'fg', reverse = true })
+  sethl('StatusLineHeader',          { fg = 'TabLine', bg = 'fg', ctermfg = 'TabLine', ctermbg = 'fg', reverse = true })
+  sethl('StatusLineHeaderModified',  { fg = 'Special', bg = 'fg', ctermfg = 'Special', ctermbg = 'fg', reverse = true })
   -- stylua: ignore end
 end
 
