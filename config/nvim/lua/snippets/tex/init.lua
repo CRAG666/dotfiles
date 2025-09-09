@@ -7,11 +7,11 @@ local i = ls.insert_node
 local c = ls.choice_node
 local r = ls.restore_node
 
-M.math = require('snippets.tex.math')
+M.math = require('configs.luasnip.snippets.tex.math')
 
 M.snippets = {
   us.sn(
-    { trig = 'hti', desc = 'Import a HTML table' },
+    { trig = 'htablei', desc = 'Import a HTML table' },
     un.fmtad(
       [[
         \usepackage{xkeyval}
@@ -32,7 +32,7 @@ M.snippets = {
     )
   ),
   us.sn(
-    { trig = 'htt', desc = 'Create a HTML table' },
+    { trig = 'htable', desc = 'Create a HTML table' },
     un.fmtad(
       [[
         \begin{table}
@@ -67,7 +67,7 @@ M.snippets = {
     )
   ),
   us.sn(
-    { trig = 'htc', desc = 'Create a HTML table with cencer' },
+    { trig = 'htablec', desc = 'Create a HTML table with cencer' },
     un.fmtad(
       [[
         \begin{center}
@@ -194,7 +194,10 @@ M.snippets = {
   us.sM({ trig = 'em' }, { t('\\emph{'), i(1), t('}') }),
   us.sM({ trig = 'bb' }, { t('\\textbf{'), i(1), t('}') }),
   us.sM({ trig = 'ul' }, { t('\\underline{'), i(1), t('}') }),
-  us.sM({ trig = 'tt' }, { t('\\texttt{'), i(1), t('}') }),
+  us.msM(
+    { { trig = 'tt' }, { trig = 'cd' } },
+    { t('\\texttt{'), i(1), t('}') }
+  ),
 }
 
 return M

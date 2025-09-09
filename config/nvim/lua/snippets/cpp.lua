@@ -9,7 +9,7 @@ local c = ls.choice_node
 local d = ls.dynamic_node
 local r = ls.restore_node
 
-M.c = require('snippets.c').snippets
+M.c = require('configs.luasnip.snippets.c').snippets
 
 ---@param node TSNode
 ---@return string?

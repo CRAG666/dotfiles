@@ -121,6 +121,44 @@ M.snippets = {
     un.body(2, 1),
     t({ '', 'end' }),
   }),
+  us.mssn(
+    {
+      { trig = 'mn' },
+      { trig = 'main' },
+      common = { desc = 'main function' },
+    },
+    c(1, {
+      un.fmtad(
+        [[
+          local func main(<args>) {
+            <body>
+          }
+        ]],
+        {
+          args = r(1, 'args'),
+          body = un.body(2, 1),
+        }
+      ),
+      un.fmtad(
+        [[
+          func main(<args>) {
+            <body>
+          }
+        ]],
+        {
+          args = r(1, 'args'),
+          body = un.body(2, 1),
+        }
+      ),
+    }),
+    {
+      common_opts = {
+        stored = {
+          args = i(),
+        },
+      },
+    }
+  ),
   us.msn(
     {
       { trig = 'ifn' },

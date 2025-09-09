@@ -7,7 +7,7 @@ local i = ls.insert_node
 local c = ls.choice_node
 local r = ls.restore_node
 
-M.javascript = require('snippets.javascript').snippets
+M.javascript = require('configs.luasnip.snippets.javascript').snippets
 
 M.snippets = {
   us.msn(

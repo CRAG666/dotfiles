@@ -44,7 +44,7 @@ for _, buf in ipairs(vim.api.nvim_list_bufs()) do
 end
 
 vim.api.nvim_create_autocmd('FileType', {
-  group = vim.api.nvim_create_augroup('TSAutoStart', {}),
+  group = vim.api.nvim_create_augroup('my.ts.auto_start', {}),
   desc = 'Automatically start treesitter highlighting for buffers.',
   callback = function(args)
     enable_ts_hl(args.buf)
@@ -80,7 +80,7 @@ for _, buf in ipairs(vim.api.nvim_list_bufs()) do
 end
 
 vim.api.nvim_create_autocmd('FileType', {
-  group = vim.api.nvim_create_augroup('TSFolding', {}),
+  group = vim.api.nvim_create_augroup('my.ts.set_folding', {}),
   desc = 'Set treesitter folding.',
   callback = function(args)
     enable_ts_folding(args.buf)

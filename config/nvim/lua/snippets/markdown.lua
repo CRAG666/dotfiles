@@ -8,7 +8,7 @@ local t = ls.text_node
 local i = ls.insert_node
 local d = ls.dynamic_node
 
-M.math = require('snippets.tex.math')
+M.math = require('configs.luasnip.snippets.tex.math')
 
 M.snippets = {
   us.mssn({

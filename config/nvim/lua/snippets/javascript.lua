@@ -204,6 +204,24 @@ M.snippets = {
       },
     }
   ),
+  us.mssn(
+    {
+      { trig = 'mn' },
+      { trig = 'main' },
+      common = { desc = 'main function' },
+    },
+    un.fmtad(
+      [[
+        function main(<params>) {
+        <body>
+        }
+      ]],
+      {
+        params = i(1),
+        body = un.body(2, 1),
+      }
+    )
+  ),
   us.msn(
     {
       { trig = 'cls' },

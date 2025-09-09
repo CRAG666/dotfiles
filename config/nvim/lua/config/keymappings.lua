@@ -179,9 +179,6 @@ end, { desc = 'Close all folds except current' })
 key.map({ 'n', 'x' }, 'q', function()
   require('utils.key').close_floats('q')
 end, { desc = 'Close all floating windows or start recording macro' })
-key.map({ 'n' }, '<Esc>', function()
-  require('utils.key').close_floats('<Esc>')
-end, { desc = 'Close all floating windows' })
 
 key.map(
   'x',
@@ -242,6 +239,9 @@ key.map(
   '<Cmd>silent! normal Vaz<CR>',
   { silent = true, noremap = false, desc = 'Select around current fold' }
 )
+
+key.map('n', '<leader>pu', vim.pack.update, { desc = '[p]lugin [u]pdate' })
+key.map('n', '<leader>pi', vim.pack.get, { desc = '[p]lugins [i]nfo' })
 
 key.map('!a', 'ture', 'true')
 key.map('!a', 'Ture', 'True')

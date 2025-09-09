@@ -78,6 +78,24 @@ M.snippets = {
       }
     )
   ),
+  us.mssn(
+    {
+      { trig = 'mn' },
+      { trig = 'main' },
+      common = { desc = 'main function' },
+    },
+    un.fmtad(
+      [[
+        function! main(<args>) abort
+        <body>
+        endfunction
+      ]],
+      {
+        args = i(1),
+        body = un.body(2, 1),
+      }
+    )
+  ),
   us.sn(
     { trig = 'aug' },
     un.fmtad(
@@ -88,7 +106,7 @@ M.snippets = {
         augroup END
       ]],
       {
-        name = i(1, 'AugroupName'),
+        name = i(1, 'augroup_name'),
         body = un.body(2, 1),
         idnt = un.idnt(1),
       }
@@ -179,6 +197,79 @@ M.snippets = {
       {
         cond = i(1, 'v:true'),
         body = un.body(2, 1),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'tr' },
+      { trig = 'try' },
+      common = { desc = 'try...except statement' },
+    },
+    un.fmtad(
+      [[
+        try
+        <body>
+        catch /<pattern>/
+        <exc_body>
+        endtry
+      ]],
+      {
+        body = un.body(1, 1),
+        pattern = i(2),
+        exc_body = un.body(3, 1),
+      }
+    )
+  ),
+  us.sn(
+    {
+      trig = 'cat',
+      desc = 'catch statement',
+    },
+    un.fmtad(
+      [[
+        catch /<pattern>/
+        <exc_body>
+      ]],
+      {
+        pattern = i(1),
+        exc_body = un.body(2, 1),
+      }
+    )
+  ),
+  us.msnr(
+    {
+      { trig = '^(%s*)fin' },
+      { trig = '^(%s*)final' },
+      common = {
+        desc = 'finally statement',
+      },
+    },
+    un.fmtad(
+      [[
+        <ddnt>finally
+        <body>
+      ]],
+      {
+        ddnt = un.ddnt(1),
+        body = un.body(1, function(_, parent)
+          return math.max(0, uf.get_indent_depth(parent.snippet.captures[1]))
+        end),
+      }
+    )
+  ),
+  us.sn(
+    {
+      trig = 'finally',
+      desc = 'finally statement',
+    },
+    un.fmtad(
+      [[
+        finally
+        <body>
+      ]],
+      {
+        body = un.body(1, 1),
       }
     )
   ),

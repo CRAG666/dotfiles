@@ -14,12 +14,12 @@ local function load()
         require('code_runner.hooks.ui').select({
           Project = function()
             require('code_runner.commands').run_from_fn(
-              [[tectonic -X watch -x 'build']]
+              [[tectonic -X watch -x 'build$end']]
             )
           end,
           ['Project + intermediates'] = function()
             require('code_runner.commands').run_from_fn(
-              [[tectonic -X watch -x 'build --keep-intermediates --keep-logs']]
+              [[tectonic -X watch -x 'build --keep-intermediates --keep-logs', "$end"]]
             )
           end,
           ['Project + Biber'] = function()

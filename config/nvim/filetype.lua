@@ -21,6 +21,8 @@ vim.filetype.add({
 vim.treesitter.language.register('markdown', 'quarto')
 vim.treesitter.language.register('markdown', 'vimwiki')
 vim.treesitter.language.register('markdown', 'codecompanion')
+vim.treesitter.language.register('latex', 'tex')
+vim.treesitter.language.register('bibtex', 'bib')
 
 vim.filetype.add({
   pattern = { ['.*%.ipynb'] = 'jupyter' },

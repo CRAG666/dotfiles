@@ -173,6 +173,23 @@ M.snippets = {
       }
     )
   ),
+  us.mssn(
+    {
+      { trig = 'mn' },
+      { trig = 'main' },
+      common = { desc = 'main function' },
+    },
+    un.fmtad(
+      [[
+        main() {
+        <body>
+        }
+      ]],
+      {
+        body = un.body(1, 1),
+      }
+    )
+  ),
   us.msn(
     {
       { trig = 'ca' },
@@ -381,7 +398,10 @@ M.snippets = {
       desc = 'trap command',
     },
     un.fmtad('trap <cmd> <sig>', {
-      cmd = i(1, 'cleanup'),
+      cmd = c(1, {
+        i(nil, 'cleanup'),
+        i(nil, [['kill $(jobs -p) 2>/dev/null; wait']]),
+      }),
       sig = c(2, {
         i(nil, 'EXIT INT TERM HUP'), -- common signals that terminates a program by default, useful for most scripts
         i(nil, 'EXIT INT TERM'), -- handle `HUP` in another trap, used in a daemon script

@@ -340,6 +340,21 @@ return {
       }
     )
   ),
+  us.sam(
+    { trig = 'rot', desc = 'Rotation matrix' },
+    un.fmtad(
+      [[
+        \begin{bmatrix}
+        <idnt>\cos\left(<angle>\right) x & -\sin\left(<angle>\right) y \\
+        <idnt>\sin\left(<angle>\right) x &  \cos\left(<angle>\right) y \\
+        \end{bmatrix}
+      ]],
+      {
+        idnt = un.idnt(1),
+        angle = i(1, '\\theta'),
+      }
+    )
+  ),
   us.msam({
     { trig = 'prop' },
     { trig = 'oc' },
@@ -540,17 +555,17 @@ return {
 
   us.sam({ trig = 'sin', priority = 999 }, {
     t('\\sin\\left('),
-    i(1),
+    i(1, '\\theta'),
     t('\\right)'),
   }),
   us.sam({ trig = 'cos', priority = 999 }, {
     t('\\cos\\left('),
-    i(1),
+    i(1, '\\theta'),
     t('\\right)'),
   }),
   us.sam({ trig = 'tan', priority = 999 }, {
     t('\\tan\\left('),
-    i(1),
+    i(1, '\\theta'),
     t('\\right)'),
   }),
   us.sam({ trig = 'asin' }, {
@@ -570,7 +585,7 @@ return {
   }),
   us.sam({ trig = 'sc' }, {
     t('\\operatorname{sinc}\\left('),
-    i(1),
+    i(1, '\\theta'),
     t('\\right)'),
   }),
   us.sam({ trig = 'exp' }, {

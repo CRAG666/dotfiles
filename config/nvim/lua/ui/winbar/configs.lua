@@ -138,11 +138,12 @@ M.opts = {
   bar = {
     ---@type boolean|fun(buf: integer, win: integer): boolean
     enable = function(buf, win)
+      if not vim.api.nvim_win_is_valid(win) then
+        return false
+      end
+
       buf = vim._resolve_bufnr(buf)
-      if
-        not vim.api.nvim_buf_is_valid(buf)
-        or not vim.api.nvim_win_is_valid(win)
-      then
+      if not vim.api.nvim_buf_is_valid(buf) then
         return false
       end
 
@@ -174,6 +175,8 @@ M.opts = {
       'BufEnter',
       'BufWinEnter',
       'BufWritePost',
+      'FileType',
+      'LspAttach',
     },
     -- Wait for a short time before updating the winbar, if another update
     -- request is received within this time, the previous request will be

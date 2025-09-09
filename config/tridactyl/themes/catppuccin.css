@@ -31,6 +31,7 @@
   --tridactyl-cmdl-font-family: var(--font);
   --tridactyl-cmplt-font-family: var(--font);
   --tridactyl-hintspan-font-family: var(--font);
+  --tridactyl-hintspan-font-size: 18px;
   /* Hint character tags */
   --tridactyl-hintspan-fg: var(--bg) !important;
   --tridactyl-hintspan-bg: var(--green) !important;
@@ -41,6 +42,11 @@
   --tridactyl-hint-bg: none;
   --tridactyl-hint-outline: none;
 }
+
+.TridactylHint {
+  font-size: var(--tridactyl-hintspan-font-size) !important;
+}
+
 #command-line-holder {
   order: 1;
   background: var(--tridactyl-bg);
