@@ -4,3 +4,4 @@ if vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ':e') == 'wxml' then
 end
 
 vim.bo.commentstring = '<!-- %s -->'
+vim.g.ts = { 'html', 'css', 'scss' }
