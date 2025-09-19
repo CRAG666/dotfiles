@@ -1,9 +1,3 @@
---   __,
---  /  |       _|_  _   _           _|
--- |   |  |  |  |  / \_/   /|/|/|  / |
---  \_/\_/ \/|_/|_/\_/ \__/ | | |_/\/|_/
---
-
 ---@param group string
 ---@vararg { [1]: string|string[], [2]: vim.api.keyset.create_autocmd }
 ---@return nil
@@ -22,7 +16,7 @@ do
   vim.g.bigfile_max_size = vim.g.bigfile_max_size or 1048576
   vim.g.bigfile_max_lines = vim.g.bigfile_max_lines or 32768
 
-  augroup('BigFile', {
+  augroup('my.bigfile', {
     'BufReadPre',
     {
       desc = 'Detect big files.',
@@ -52,19 +46,16 @@ do
     'FileType',
     {
       once = true,
-      desc = 'Prevent treesitter and LSP from attaching to big files.',
+      desc = 'Prevent treesitter from attaching to big files.',
       callback = function(args)
         vim.api.nvim_del_autocmd(args.id)
 
         local ts_get_parser = vim.treesitter.get_parser
         local ts_foldexpr = vim.treesitter.foldexpr
-        local lsp_start = vim.lsp.start
 
         ---@diagnostic disable-next-line: duplicate-set-field
         function vim.treesitter.get_parser(buf, ...)
-          if buf == nil or buf == 0 then
-            buf = vim.api.nvim_get_current_buf()
-          end
+          buf = vim._resolve_bufnr(buf)
           -- HACK: Getting parser for a big buffer can freeze nvim, so return a
           -- fake parser on an empty buffer if current buffer is big
           if vim.api.nvim_buf_is_valid(buf) and vim.b[buf].bigfile then
@@ -82,14 +73,6 @@ do
             return
           end
           return ts_foldexpr(...)
-        end
-
-        ---@diagnostic disable-next-line: duplicate-set-field
-        function vim.lsp.start(...)
-          if vim.b.bigfile then
-            return
-          end
-          return lsp_start(...)
         end
       end,
     },
@@ -127,7 +110,7 @@ do
   })
 end
 
-augroup('YankHighlight', {
+augroup('my.yank_highlight', {
   'TextYankPost',
   {
     desc = 'Highlight the selection on yank.',
@@ -140,7 +123,33 @@ augroup('YankHighlight', {
   },
 })
 
-augroup('WinCloseJmp', {
+augroup('my.auto_save', {
+  { 'BufLeave', 'WinLeave', 'FocusLost' },
+  {
+    nested = true,
+    desc = 'Autosave on focus change.',
+    callback = function(args)
+      -- Don't auto-save non-file buffers
+      vim.uv.fs_stat(args.file, function(err, stat)
+        if err or not stat or stat.type ~= 'file' then
+          return
+        end
+        vim.schedule(function()
+          if not vim.api.nvim_buf_is_valid(args.buf) then
+            return
+          end
+          vim.api.nvim_buf_call(args.buf, function()
+            vim.cmd.update({
+              mods = { emsg_silent = true },
+            })
+          end)
+        end)
+      end)
+    end,
+  },
+})
+
+augroup('my.win_close_jmp', {
   'WinClosed',
   {
     nested = true,
@@ -149,22 +158,35 @@ augroup('WinCloseJmp', {
   },
 })
 
-augroup('LastPosJmp', {
-  'BufReadPost',
+augroup('my.last_pos_jmp', {
+  'BufReadPre',
   {
     desc = 'Last position jump.',
     callback = function(args)
+      -- `BufReadPre` can be triggered multiple times for the same buffer due
+      -- to lazy-loading
+      -- We should skip re-triggered events to prevent re-setting cursor pos
+      -- which can unexpectedly override target line number given in cmdline,
+      -- i.e. `nvim <file> +<linenr>`
+      if vim.b[args.buf].lpj then
+        return
+      end
+      vim.b[args.buf].lpj = true
+
       vim.api.nvim_create_autocmd('FileType', {
         once = true,
         buffer = args.buf,
-        callback = function(i)
-          local ft = vim.bo[i.buf].ft
-          if ft ~= 'gitcommit' and ft ~= 'gitrebase' then
-            vim.cmd.normal({
-              'g`"zvzz',
-              bang = true,
-              mods = { emsg_silent = true },
-            })
+        callback = function(a)
+          local ft = vim.bo[a.buf].ft
+          if ft == 'gitcommit' or ft == 'gitrebase' then
+            return
+          end
+          local last_pos = vim.api.nvim_buf_get_mark(a.buf, '"')
+          if vim.deep_equal(last_pos, { 0, 0 }) then
+            return
+          end
+          for _, win in ipairs(vim.fn.win_findbuf(a.buf)) do
+            vim.api.nvim_win_set_cursor(win, last_pos)
           end
         end,
       })
@@ -203,7 +225,7 @@ do
     end
   end
 
-  augroup('AutoCwd', {
+  augroup('my.auto_cwd', {
     'BufEnter',
     {
       desc = 'Automatically change local current directory.',
@@ -245,7 +267,19 @@ do
   })
 end
 
-augroup('QuickFixAutoOpen', {
+augroup('my.prompt_keymaps', {
+  'BufEnter',
+  {
+    desc = 'Undo automatic <C-w> remap in prompt buffers.',
+    callback = function(args)
+      if vim.bo[args.buf].buftype == 'prompt' then
+        vim.keymap.set('i', '<C-w>', '<C-S-W>', { buffer = args.buf })
+      end
+    end,
+  },
+})
+
+augroup('my.qf_auto_open', {
   'QuickFixCmdPost',
   {
     desc = 'Open quickfix window if there are results.',
@@ -259,7 +293,7 @@ augroup('QuickFixAutoOpen', {
 
 do
   local win_ratio = {}
-  augroup('KeepWinRatio', {
+  augroup('my.keep_win_ratio', {
     { 'VimResized', 'TabEnter' },
     {
       desc = 'Keep window ratio after resizing nvim.',
@@ -319,7 +353,7 @@ do
     )
   end
 
-  augroup('FixWinFixHeightWithWinBar', {
+  augroup('my.fix_winfixheight_with_winbar', {
     { 'WinNew', 'WinClosed' },
     {
       desc = 'Save heights for windows with a fixed height.',
@@ -374,7 +408,7 @@ do
   })
 end
 
-augroup('FixCmdLineIskeyword', {
+augroup('my.fix_cmdline_iskeyword', {
   'CmdLineEnter',
   {
     desc = 'Have consistent &iskeyword and &lisp in Ex command-line mode.',
@@ -411,15 +445,68 @@ augroup('FixCmdLineIskeyword', {
   },
 })
 
-do
-  ---Set default value for `hl-NormalSpecial`
-  local function set_default_hlgroups()
-    local hl = require('utils.hl')
-    local blended = hl.blend('Normal', 'CursorLine')
-    hl.set_default(0, 'NormalSpecial', blended)
-  end
+-- Make `colorcolumn` follow `textwidth` automatically
+augroup('my.dynamic_cc', {
+  { 'BufNew', 'BufEnter' },
+  {
+    desc = 'Set `colorcolumn` to follow `textwidth` in new buffers.',
+    callback = function(args)
+      if vim.bo[args.buf].textwidth == 0 then
+        return
+      end
 
-  augroup('SpecialBufHl', {
+      for _, win in ipairs(vim.fn.win_findbuf(args.buf)) do
+        if vim.wo[win].colorcolumn:find('+', 1, true) then
+          goto continue
+        end
+        vim.b[args.buf].cc = vim.wo[win].colorcolumn
+        vim.wo[win][0].colorcolumn = '+1'
+        ::continue::
+      end
+    end,
+  },
+}, {
+  'OptionSet',
+  {
+    desc = 'Set `colorcolumn` to follow `textwidth` when `textwidth` is set.',
+    pattern = 'textwidth',
+    callback = function()
+      if vim.v.option_command == 'setglobal' then
+        return
+      end
+
+      local cc_is_relative = vim.wo.colorcolumn:find('+', 1, true)
+      local wins = vim.fn.win_findbuf(vim.api.nvim_get_current_buf())
+
+      -- `textwidth` is set, make `colorcolumn` follow it
+      if vim.v.option_new > 0 and not cc_is_relative then
+        vim.b.cc = vim.wo.colorcolumn
+        for _, win in ipairs(wins) do
+          vim.wo[win][0].colorcolumn = '+1'
+        end
+        return
+      end
+
+      -- `textwidth` is unset, restore `colorcolumn`
+      if vim.v.option_new == 0 and cc_is_relative and vim.b.cc then
+        for _, win in ipairs(wins) do
+          vim.wo[win][0].colorcolumn = vim.b.cc
+        end
+        vim.b.cc = nil
+      end
+    end,
+  },
+})
+
+do
+  local hl = require('utils.hl')
+
+  ---Set default value for `hl-NormalSpecial`
+  hl.persist(function()
+    hl.set_default(0, 'NormalSpecial', hl.blend('Normal', 'CursorLine'))
+  end)
+
+  augroup('my.special_buf_hl', {
     { 'BufEnter', 'BufNew', 'FileType', 'TermOpen' },
     {
       desc = 'Set background color for special buffers.',
@@ -443,25 +530,17 @@ do
           return
         end
         vim.api.nvim_win_call(winid, function()
+          -- Don't remap `hl-Normal` to `NormalSpecial` if it is already mapped
+          -- to another hlgroup
+          if vim.opt_local.winhighlight:get().Normal then
+            return
+          end
           vim.opt_local.winhighlight:append({
             Normal = 'NormalSpecial',
             EndOfBuffer = 'NormalSpecial',
           })
         end)
       end),
-    },
-  }, {
-    'ColorScheme',
-    {
-      desc = 'Set special buffer normal hl.',
-      callback = set_default_hlgroups,
-    },
-  }, {
-    'OptionSet',
-    {
-      desc = 'Set special buffer normal hl.',
-      pattern = 'background',
-      callback = set_default_hlgroups,
     },
   })
 end
@@ -484,7 +563,7 @@ do
       :totable()
   end
 
-  augroup('SessionWipeEmptyBufs', {
+  augroup('my.session_wipe_empty_bufs', {
     'SessionLoadPost',
     {
       desc = 'Wipe empty buffers after loading session.',
@@ -532,103 +611,87 @@ do
   })
 end
 
-augroup('WritingAssistant', {
-  'FileType',
-  {
-    desc = 'Writing Assistant',
-    pattern = {
-      'tex',
-      'latex',
-      'text',
-      'txt',
-      'markdown',
-      'md',
-      'org',
-      'pandoc',
-      'norg',
-      'quarto',
+do
+  local colors_file =
+    vim.fs.joinpath(vim.fn.stdpath('state') --[[@as string]], 'colors.json')
+
+  ---@param colors_name string
+  ---@return nil
+  local function load_colorscheme(colors_name)
+    local colors_path = vim.fs.joinpath(
+      vim.fn.stdpath('config') --[[@as string]],
+      'colors',
+      colors_name .. '.lua'
+    )
+    if vim.fn.filereadable(colors_path) == 1 then
+      dofile(colors_path)
+      vim.schedule(function()
+        vim.api.nvim_exec_autocmds('ColorScheme', {})
+      end)
+    else
+      vim.cmd.colorscheme({
+        args = { colors_name },
+        mods = { emsg_silent = true },
+      })
+    end
+  end
+
+  ---Restore dark/light background and colorscheme from json so that nvim
+  ---'remembers' the background and colorscheme when it is restarted.
+  local function restore_colorscheme()
+    local c = require('utils.json').read(colors_file)
+    c.colors_name = c.colors_name or 'macro'
+    if c.bg then
+      vim.go.bg = c.bg
+    end
+    if c.colors_name and c.colors_name ~= vim.g.colors_name then
+      load_colorscheme(c.colors_name)
+    end
+  end
+
+  augroup('my.colorscheme_restore', {
+    'UIEnter',
+    {
+      nested = true, -- invoke Colorscheme event for winbar plugin to clear bg for nvim < 0.11
+      callback = restore_colorscheme,
     },
-    callback = function()
-      vim.keymap.set(
-        'n',
-        '<leader>fa',
-        require('modules.writing_assistant').tags,
-        { noremap = true, silent = true, buffer = true }
-      )
-    end,
-  },
-})
+  }, {
+    'OptionSet',
+    {
+      nested = true,
+      pattern = 'termguicolors',
+      callback = restore_colorscheme,
+    },
+  }, {
+    'Colorscheme',
+    {
+      nested = true,
+      desc = 'Spawn setbg/setcolors on colorscheme change.',
+      callback = function()
+        if vim.g.script_set_bg or vim.g.script_set_colors then
+          return
+        end
 
-augroup('CursorLine', {
-  { 'InsertLeave', 'WinEnter' },
-  {
-    pattern = '*',
-    command = 'set cursorline',
-  },
-})
+        vim.schedule(function()
+          local json_utils = require('utils.json')
 
-vim.api.nvim_set_hl(0, 'TerminalCursorShape', { underline = true })
-augroup('TerminalCursorShape', {
-  'TermEnter',
-  {
-    callback = function()
-      vim.cmd([[setlocal winhighlight=TermCursor:TerminalCursorShape]])
-    end,
-  },
-})
+          local d = json_utils.read(colors_file)
+          if d.colors_name == vim.g.colors_name and d.bg == vim.go.bg then
+            return
+          end
 
-augroup('BufferConfig', {
-  'BufWritePre',
-  {
-    command = [[%s/\s\+$//e]],
-  },
-}, {
-  'BufEnter',
-  {
-    command = [[let @/=""]],
-  },
-}, {
-  'BufEnter',
-  {
-    command = 'silent! lcd %:p:h',
-  },
-}, {
-  { 'BufRead', 'BufEnter' },
-  {
-    pattern = '*.tex',
-    command = [[set filetype=tex]],
-  },
-})
+          if d.colors_name ~= vim.g.colors_name then
+            d.colors_name = vim.g.colors_name
+            pcall(vim.system, { 'setcolor', vim.g.colors_name })
+          end
+          if d.bg ~= vim.go.bg and vim.go.termguicolors then
+            d.bg = vim.go.bg
+            pcall(vim.system, { 'setbg', vim.go.bg })
+          end
 
-augroup('EasyQuit', {
-  'FileType',
-  {
-    pattern = 'man',
-    command = [[nnoremap <buffer><silent> q :quit<CR>]],
-  },
-}, {
-  'FileType',
-  {
-    pattern = 'nvim-pack',
-    command = [[nnoremap <buffer><silent> q :quit<CR>]],
-  },
-}, {
-  'FileType',
-  {
-    pattern = 'help',
-    command = [[nnoremap <buffer><silent> q :quit<CR>]],
-  },
-})
-
--- Use vertical splits for help windows
-augroup('HelpConfig', {
-  'FileType',
-  {
-    pattern = 'help',
-    callback = function()
-      vim.bo.bufhidden = 'unload'
-      vim.cmd.wincmd('L')
-      vim.cmd.wincmd('=')
-    end,
-  },
-})
+          json_utils.write(colors_file, d)
+        end)
+      end,
+    },
+  })
+end
