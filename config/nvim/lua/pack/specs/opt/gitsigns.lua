@@ -117,7 +117,7 @@ return {
       ':<C-u>Gitsigns select_hunk<CR>',
       { silent = true, desc = 'Select git hunk' }
     )
-  end,
-    end,
-  },
+  end
+end
+}
 }
