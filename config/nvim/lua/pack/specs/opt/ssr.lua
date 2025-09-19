@@ -5,6 +5,7 @@ return {
       {
         mode = { 'n', 'x' },
         lhs = '<leader>rs',
+        opts = {{ desc = 'Search [r]eplace [s]tructure' }}
       },
     },
     postload = function()
@@ -25,7 +26,7 @@ return {
       })
       vim.keymap.set({ 'n', 'x' }, '<leader>rs', function()
         require('ssr').open()
-      end, { desc = 'Search [r]eplace [s]tructure' })
+      end)
     end,
   },
 }

@@ -4,6 +4,10 @@ return {
     deps = {
       { src = 'https://github.com/nvim-lua/plenary.nvim' },
       { src = 'https://github.com/chrisgrieser/nvim-tinygit' },
+      {
+        src = 'https://github.com/kyazdani42/nvim-web-devicons',
+        data = { optional = true },
+      },
     },
     keys = {
       { mode = 'n', lhs = '<leader>gm' },

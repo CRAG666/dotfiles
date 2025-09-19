@@ -1,6 +1,12 @@
 return {
   src = 'https://github.com/folke/noice.nvim',
   data = {
+    deps = {
+      {
+        src = 'MunifTanjim/nui.nvim',
+        data = { optional = false },
+      },
+    },
     events = { 'VimEnter' },
     postload = function()
       require('noice').setup({

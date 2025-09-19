@@ -5,10 +5,12 @@ return {
       {
         mode = 'n',
         lhs = '<leader>ut',
-        rhs = '<cmd>UndotreeToggle<cr>',
         opts = { desc = '[U]ndotree' },
       },
     },
     cmds = { 'UndotreeToggle' },
+    postload = function()
+      vim.keymap.set('n', 'ut','<cmd>UndotreeToggle<cr>')
+    end
   },
 }

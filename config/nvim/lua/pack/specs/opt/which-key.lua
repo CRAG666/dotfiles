@@ -19,8 +19,35 @@ return {
       local wk_win = require('which-key.win')
       local wk_trig = require('which-key.triggers')
 
+      -- Hijack `which-key.win.show()` to fix gap to the right of which-key window
+      -- when using helix preset
+      wk_win.show = (function(show_fn)
+        return function(self, opts, ...)
+          if opts and opts.col then
+            opts.col = opts.col + 1
+          end
+          return show_fn(self, opts, ...)
+        end
+      end)(wk_win.show)
+
+      -- `<M->` will be added as a trigger if keymap `<M->>` (aka alt + left-angle)
+      -- is set, conflicting with the default visual mode keymap `<`
+      -- TODO: report to upstream
+      ---@param add_fn function
+      wk_trig.add = (function(add_fn)
+        ---@param trig wk.Trigger
+        return function(trig)
+          if trig.keys == '<M->' then
+            return
+          end
+          add_fn(trig)
+        end
+      end)(wk_trig.add)
+
+      local wk = require('which-key')
+
       wk.setup({
-        preset = 'modern',
+        preset = 'helix',
         delay = function(ctx)
           return ctx.plugin and 0 or 640
         end,

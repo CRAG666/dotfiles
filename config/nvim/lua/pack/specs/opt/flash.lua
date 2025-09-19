@@ -3,10 +3,10 @@ return {
   data = {
     keys = {
       { mode = { 'n', 'x', 'o' }, lhs = 's', opts = { desc = 'Flash' }},
-      -- { mode = { 'n', 'x', 'o' }, lhs = 'S' },
-      -- { mode = 'o', lhs = 'r' },
-      -- { mode = { 'o', 'x' }, lhs = 'R' },
-      -- { mode = 'c', lhs = '<c-s>' },
+      { mode = { 'n', 'x', 'o' }, lhs = 'S' },
+      { mode = 'o', lhs = 'r' },
+      { mode = { 'o', 'x' }, lhs = 'R' },
+      { mode = 'c', lhs = '<c-s>' },
     },
     postload = function()
       require('flash').setup({})

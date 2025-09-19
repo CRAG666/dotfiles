@@ -87,9 +87,8 @@ return {
             max_height = vim.go.pumheight,
             draw = {
               columns = not vim.g.has_nf and {
-                { 'label' },
-                { 'kind_icon' },
-                { 'label_description' },
+            { 'kind_icon' },
+            { 'label', 'label_description', gap = 1, 'kind' },
               } or nil,
               components = {
                 kind_icon = {
@@ -98,20 +97,20 @@ return {
                   -- nvim-web-devicons to show filetype icons if possible
                   text = function(ctx)
                     if not is_file_compl(ctx) then
-                      return icons[ctx.kind] --[[@as string]]
+                      return " " .. icons[ctx.kind] .. " " --[[@as string]]
                     end
 
                     if is_directory(ctx.item.label) then
-                      return icons.Folder
+                      return " " .. icons.Folder .. " "
                     end
 
                     return has_devicons
-                        and (devicons.get_icon(
+                        and (" " .. devicons.get_icon(
                           ctx.item.label,
                           vim.fn.fnamemodify(ctx.item.label, ':e'),
                           { default = true }
-                        ))
-                      or icons.File
+                        ).. " ")
+                      or " " .. icons.File .. " "
                   end,
                   highlight = function(ctx)
                     if not is_file_compl(ctx) then

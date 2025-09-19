@@ -3,6 +3,9 @@ vim.g.has_gui = vim.fn.has('gui_running') == 1
 vim.g.has_display = vim.g.has_ui and vim.env.DISPLAY ~= nil
 vim.g.has_nf = vim.env.TERM ~= 'linux' and vim.env.NVIM_NF and true or false
 
+vim.opt.encoding = 'utf-8'
+vim.opt.fileformat = 'unix'
+vim.opt.syntax = 'ON'
 vim.opt.exrc = true
 vim.opt.confirm = true
 vim.opt.timeout = false
@@ -31,6 +34,7 @@ vim.opt.smartcase = true
 vim.opt.completeopt = 'menuone'
 vim.opt.selection = 'old'
 vim.opt.tabclose = 'uselast'
+vim.opt.relativenumber = true
 
 -- Defer shada reading
 do

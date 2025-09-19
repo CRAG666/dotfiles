@@ -86,17 +86,6 @@ return {
         vim.cmd('Neorg toc')
         vim.cmd('vert resize 60')
       end, { desc = 'Toggle highlighting org' })
-
-      local function open_workspace(w)
-        vim.schedule(function()
-          vim.cmd('Neorg workspace ' .. w)
-        end)
-      end
-
-      local org_workspace = os.getenv('ORG_WORKSPACE')
-      if org_workspace then
-        open_workspace(org_workspace)
-      end
     end,
   },
 }

@@ -1,6 +1,12 @@
 return {
   src = 'https://github.com/folke/snacks.nvim',
   data = {
+    deps = {
+      {
+        src = 'https://github.com/kyazdani42/nvim-web-devicons',
+        data = { optional = true },
+      },
+    },
     postload = function()
       require('snacks').setup({
         animate = { enabled = false },

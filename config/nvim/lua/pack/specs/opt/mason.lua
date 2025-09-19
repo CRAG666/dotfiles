@@ -1,8 +1,8 @@
 return {
-  src = 'https://github.com/williamboman/mason.nvim',
+    src = 'https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim',
   data = {
     deps = {
-      { src = 'https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim' },
+      {src = 'https://github.com/williamboman/mason.nvim'}
     },
     cmds = { 'Mason', 'MasonInstall', 'MasonUninstall', 'MasonLog' },
     postload = function()
