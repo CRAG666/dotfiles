@@ -134,4 +134,15 @@ function M.complete(params, opts)
   end
 end
 
+---Split string using shell-like syntax
+---
+---@param str string command string to split
+---@param notify boolean? whether to notify on exceptions
+---@return string[]
+function M.split(str, notify)
+  ---Wrapper of vimscript function `utils#cmd#split()`, as lua does not have
+  ---an interface to pass local variables to python
+  return vim.fn['utils#cmd#split'](str, notify)
+end
+
 return M

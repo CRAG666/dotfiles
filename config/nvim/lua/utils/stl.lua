@@ -7,7 +7,7 @@ local M = {}
 ---@return string sign string representation of the sign with highlight
 function M.hl(str, hl, restore)
   hl = hl or ''
-  str = str and tostring(str) or ''
+  str = str or ''
   restore = restore == nil or restore
   return restore and table.concat({ '%#', hl, '#', str, '%*' })
     or table.concat({ '%#', hl, '#', str })
@@ -203,7 +203,7 @@ end
 --- - A buffer can only have at most one spinner attached
 ---@param buf? integer
 function M.spinner:attach(buf)
-  buf = buf or vim.api.nvim_get_current_buf()
+  buf = vim._resolve_bufnr(buf)
 
   local b = vim.b[buf]
   if b.spinner_id == self.id then

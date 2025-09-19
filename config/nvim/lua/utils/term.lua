@@ -2,7 +2,7 @@ local M = {}
 
 ---Compiled vim regex that decides if a command is a TUI app
 M.TUI_REGEX = vim.regex(
-  [[\v(sudo\s+)?(.*sh\s+-c\s+)?(.*python.*)?\S*]]
+  [[\v(sudo.*\s+)?(.*sh\s+-c\s+)?(.*python.*)?\S*]]
     .. [[(n?vim?|vimdiff|emacs(client)?|lem|nano|h(eli)?x|kak|]]
     .. [[tmux|vifm|yazi|ranger|lazygit|h?top|gdb|fzf|nmtui|opencode|]]
     .. [[sudoedit|crontab|asciinema|w3m|python3?\s+-m)($|\s+)]]
@@ -33,7 +33,7 @@ end
 ---@param buf integer? terminal buffer handler, default to 0 (current)
 ---@return string[]: command running in the foreground
 function M.fg_cmds(buf)
-  buf = buf or 0
+  buf = vim._resolve_bufnr(buf)
   if not vim.api.nvim_buf_is_valid(buf) or vim.bo[buf].bt ~= 'terminal' then
     return {}
   end
@@ -124,7 +124,7 @@ M.BRACKET_PASTE_END = '\27[201~'
 ---@param msg string|string[] message
 ---@param buf? integer terminal buffer, default to current buffer
 function M.send(msg, buf)
-  buf = buf or vim.api.nvim_get_current_buf()
+  buf = vim._resolve_bufnr(buf)
   if not vim.api.nvim_buf_is_valid(buf) or vim.bo[buf].bt ~= 'terminal' then
     return
   end

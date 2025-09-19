@@ -3,7 +3,7 @@ local M = {}
 ---@param buf? integer default to current buffer
 ---@return boolean
 function M.is_active(buf)
-  buf = buf or 0
+  buf = vim._resolve_bufnr(buf)
   return vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].syntax ~= ''
 end
 
@@ -16,7 +16,7 @@ end
 ---@return integer?
 function M.find_group(names, opts)
   opts = opts or {}
-  opts.bufnr = opts.bufnr or 0
+  opts.bufnr = vim._resolve_bufnr(opts.bufnr)
   opts.depth = opts.depth or math.huge
 
   if not M.is_active(opts.bufnr) then

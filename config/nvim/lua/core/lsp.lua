@@ -1,35 +1,3 @@
-local fmt_group =
-  vim.api.nvim_create_augroup('autoformat_cmds', { clear = true })
-
-local function format_on_save(event)
-  local id = vim.tbl_get(event, 'data', 'client_id')
-  local client = id and vim.lsp.get_client_by_id(id)
-  if client == nil then
-    return
-  end
-
-  vim.api.nvim_clear_autocmds({ group = fmt_group, buffer = event.buf })
-
-  local buf_format = function(e)
-    vim.lsp.buf.format({
-      bufnr = e.buf,
-      async = false,
-    })
-  end
-
-  vim.api.nvim_create_autocmd('BufWritePre', {
-    buffer = event.buf,
-    group = fmt_group,
-    desc = 'Formatear archivo',
-    callback = buf_format,
-  })
-end
-
-vim.api.nvim_create_autocmd('LspAttach', {
-  desc = 'Configurar formatear al guardar',
-  callback = format_on_save,
-})
-
 local lsp = require('utils.lsp')
 
 vim.lsp.config('*', lsp.default_config)
@@ -37,14 +5,11 @@ vim.lsp.config('*', lsp.default_config)
 -- Override to perform additional checks on starting language servers
 vim.lsp.start = lsp.start
 
--- Jdtls does not attach to the first opened java file without scheduling
-vim.schedule(function()
-  for _, dir in ipairs(vim.api.nvim__get_runtime({ 'lsp' }, true, {})) do
-    for config_file in vim.fs.dir(dir) do
-      vim.lsp.enable(vim.fn.fnamemodify(config_file, ':r'))
-    end
+for _, dir in ipairs(vim.api.nvim__get_runtime({ 'lsp' }, true, {})) do
+  for config_file in vim.fs.dir(dir) do
+    vim.lsp.enable(vim.fn.fnamemodify(config_file, ':r'))
   end
-end)
+end
 
 -- Show notification if no references, definition, declaration,
 -- implementation or type definition is found
@@ -199,10 +164,16 @@ do
 
   -- stylua: ignore start
   vim.keymap.set({ 'n' }, 'gq;', function() vim.lsp.buf.format() end, { desc = 'Format buffer' })
+  vim.keymap.set({ 'i' }, '<M-a>', function() vim.lsp.buf.code_action() end, { desc = 'Show code actions' })
+  vim.keymap.set({ 'i' }, '<C-_>', function() vim.lsp.buf.code_action() end, { desc = 'Show code actions' })
   vim.keymap.set({ 'n', 'x' }, 'g/', function() vim.lsp.buf.references() end, { desc = 'Go to references' })
   vim.keymap.set({ 'n', 'x' }, 'g.', function() vim.lsp.buf.implementation() end, { desc = 'Go to implementation' })
   vim.keymap.set({ 'n', 'x' }, 'gb', function() vim.lsp.buf.type_definition() end, { desc = 'Go to type definition' })
+  vim.keymap.set({ 'n', 'x' }, '<Leader>r', function() vim.lsp.buf.rename() end, { desc = 'Rename symbol' })
+  vim.keymap.set({ 'n', 'x' }, '<Leader>a', function() vim.lsp.buf.code_action() end, { desc = 'Show code actions' })
   vim.keymap.set({ 'n', 'x' }, '<Leader><', function() vim.lsp.buf.incoming_calls() end, { desc = 'Show incoming calls' })
   vim.keymap.set({ 'n', 'x' }, '<Leader>>', function() vim.lsp.buf.outgoing_calls() end, { desc = 'Show outgoing calls' })
+  vim.keymap.set({ 'n', 'x' }, '<Leader>s', function() vim.lsp.buf.document_symbol() end, { desc = 'Show document symbols' })
+  vim.keymap.set({ 'n', 'x' }, '<Leader>S', function() vim.lsp.buf.workspace_symbol() end, { desc = 'Show workspace symbols' })
   -- stylua: ignore end
 end

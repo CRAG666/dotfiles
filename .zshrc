@@ -247,6 +247,8 @@ alias pandock='podman run --rm -v "$(pwd):/data" pandoc/extra'
 export MARPT=~/Documentos/Proyectos/Writings/utils/marp/themes
 export IEEESTL=~/Documentos/Proyectos/Writings/utils/latex/ieee.csl
 export LCOLORCATPPUCCIN=~/Documentos/Proyectos/Writings/utils/latex/catppuccin
+export PASSWORD_STORE_ENABLE_EXTENSIONS=true
+export NVIM_NF=true
 
 # BEGIN_KITTY_SHELL_INTEGRATION
 export TERM="xterm-kitty"
@@ -263,7 +265,5 @@ alias s="kitten ssh"
 # END_KITTY_SHELL_INTEGRATION
 
 source ~/.zshfunc
-export PASSWORD_STORE_ENABLE_EXTENSIONS=true
-export NVM_NF=true
 # FPATH="/usr/share/zsh/site-functions:${FPATH}"
 source ~/.env

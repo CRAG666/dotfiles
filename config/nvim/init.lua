@@ -33,9 +33,9 @@ for _, plugin in ipairs(disabled_built_ins) do
   vim.g['loaded_' .. plugin] = 1
 end
 
-require('config.defaults')
-require('config.autocmds')
-require('config.keymappings')
+require('core.defaults')
+require('core.autocmds')
+require('core.keymappings')
 
 require('plugins.ui')
 require('plugins.dev')
@@ -47,24 +47,14 @@ vim.api.nvim_create_autocmd('FileType', {
   desc = 'Apply treesitter settings.',
   callback = function()
     require('plugins.ui.treesitter')
-    require('config.treesitter')
+    require('core.treesitter')
   end,
 })
 
-vim.api.nvim_create_autocmd({ 'FileType', 'LspAttach' }, {
-  once = true,
-  desc = 'Apply lsp settings.',
-  callback = function()
-    require('config.lsp')
-  end,
-})
+local load = require('utils.load')
 
-vim.api.nvim_create_autocmd('DiagnosticChanged', {
-  once = true,
-  desc = 'Apply diagnostic settings.',
-  callback = function()
-    require('config.diagnostic')
-  end,
-})
+-- load.on_events('FileType', 'core.treesitter')
+load.on_events('DiagnosticChanged', 'core.diagnostic')
+load.on_events({ 'FileType', 'LspAttach' }, 'core.lsp')
 
 require('plugins.modes.org').open_workspace()

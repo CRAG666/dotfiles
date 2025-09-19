@@ -1,7 +1,7 @@
 local M = {}
 
 vim.api.nvim_create_autocmd('FileChangedShellPost', {
-  group = vim.api.nvim_create_augroup('RefreshGitBranchCache', {}),
+  group = vim.api.nvim_create_augroup('my.git.refresh_branch', {}),
   callback = function(args)
     vim.b[args.buf].git_branch = nil
   end,
@@ -11,7 +11,7 @@ vim.api.nvim_create_autocmd('FileChangedShellPost', {
 ---@param buf integer? defaults to the current buffer
 ---@return string branch name
 function M.branch(buf)
-  buf = buf or vim.api.nvim_get_current_buf()
+  buf = vim._resolve_bufnr(buf)
   if not vim.api.nvim_buf_is_valid(buf) then
     return ''
   end
@@ -38,7 +38,7 @@ function M.branch(buf)
 end
 
 vim.api.nvim_create_autocmd({ 'BufWrite', 'FileChangedShellPost' }, {
-  group = vim.api.nvim_create_augroup('RefreshGitDiffCache', {}),
+  group = vim.api.nvim_create_augroup('my.git.refresh_diff', {}),
   callback = function(args)
     vim.b[args.buf].git_diffstat = nil
   end,
@@ -48,7 +48,7 @@ vim.api.nvim_create_autocmd({ 'BufWrite', 'FileChangedShellPost' }, {
 ---@param buf integer? buffer handler, defaults to the current buffer
 ---@return {added: integer?, removed: integer?, changed: integer?} diff stats
 function M.diffstat(buf)
-  buf = buf or vim.api.nvim_get_current_buf()
+  buf = vim._resolve_bufnr(buf)
   if not vim.api.nvim_buf_is_valid(buf) then
     return {}
   end

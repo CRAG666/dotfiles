@@ -4,7 +4,7 @@ local M = {}
 ---@param buf integer? default to current buffer
 ---@return boolean
 function M.is_empty(buf)
-  buf = buf or vim.api.nvim_get_current_buf()
+  buf = vim._resolve_bufnr(buf)
   if not vim.api.nvim_buf_is_valid(buf) then
     return true
   end
@@ -21,7 +21,7 @@ end
 ---@param finish integer[] 0-based (line, col), end-exclusive
 ---@return string[] lines text in range
 function M.range(buf, start, finish)
-  buf = buf or vim.api.nvim_get_current_buf()
+  buf = vim._resolve_bufnr(buf)
   if not vim.api.nvim_buf_is_valid(buf) then
     return {}
   end

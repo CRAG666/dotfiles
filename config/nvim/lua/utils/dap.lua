@@ -26,11 +26,14 @@ function M.get_args(cache)
       completion = 'file',
       default = cache.args[bufname],
     }, function(input)
-      cache.args[bufname] = input
+      if input and input ~= '' then
+        cache.args[bufname] = input
+      end
       vim.cmd.stopinsert()
     end)
 
-    return cache.args[bufname] and vim.split(cache.args[bufname], ' ') or nil
+    return cache.args[bufname]
+      and require('utils.cmd').split(cache.args[bufname])
   end
 end
 

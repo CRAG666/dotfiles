@@ -136,7 +136,7 @@ function M.lang(pos, buf)
     return
   end
 
-  buf = buf or vim.api.nvim_get_current_buf()
+  buf = vim._resolve_bufnr(buf)
   local has_parser, parser = pcall(
     vim.treesitter.get_parser,
     buf,

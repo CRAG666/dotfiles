@@ -286,13 +286,25 @@ end
 ---@param alpha number? between 0~1, weight of the first color, default to 0.5
 ---@return table: merged color or highlight attributes
 function M.blend(h1, h2, alpha)
-  -- stylua: ignore start
-  h1 = type(h1) == 'table' and h1 or M.get(0, { name = h1, winhl_link = false })
-  h2 = type(h2) == 'table' and h2 or M.get(0, { name = h2, winhl_link = false })
-  local fg = h1.fg and h2.fg and M.cblend(h1.fg, h2.fg, alpha).dec or h1.fg or h2.fg
-  local bg = h1.bg and h2.bg and M.cblend(h1.bg, h2.bg, alpha).dec or h1.bg or h2.bg
+  h1 = type(h1) == 'table' and h1
+    or M.get(0, {
+      name = h1,
+      winhl_link = false,
+    })
+  h2 = type(h2) == 'table' and h2
+    or M.get(0, {
+      name = h2,
+      winhl_link = false,
+    })
+
+  local fg = h1.fg and h2.fg and M.cblend(h1.fg, h2.fg, alpha).dec
+    or h1.fg
+    or h2.fg
+  local bg = h1.bg and h2.bg and M.cblend(h1.bg, h2.bg, alpha).dec
+    or h1.bg
+    or h2.bg
+
   return vim.tbl_deep_extend('force', h1, h2, { fg = fg, bg = bg })
-  -- stylua: ignore end
 end
 
 ---Separate two colors, e.g.
@@ -336,15 +348,52 @@ end
 ---@param h1 string|table the first hlgroup name or highlight attribute table
 ---@param h2 string|table the second hlgroup name or highlight attribute table
 ---@param alpha number? between 0~1, weight of the first color, default to 0.5
----@return table: merged color or highlight attributes
+---@return table: color or highlight attributes
 function M.separate(h1, h2, alpha)
-  -- stylua: ignore start
-  h1 = type(h1) == 'table' and h1 or M.get(0, { name = h1, winhl_link = false })
-  h2 = type(h2) == 'table' and h2 or M.get(0, { name = h2, winhl_link = false })
-  local fg = h1.fg and h2.fg and M.cseparate(h1.fg, h2.fg, alpha).dec or h1.fg or h2.fg
-  local bg = h1.bg and h2.bg and M.cseparate(h1.bg, h2.bg, alpha).dec or h1.bg or h2.bg
+  h1 = type(h1) == 'table' and h1
+    or M.get(0, {
+      name = h1,
+      winhl_link = false,
+    })
+  h2 = type(h2) == 'table' and h2
+    or M.get(0, {
+      name = h2,
+      winhl_link = false,
+    })
+
+  local fg = h1.fg and h2.fg and M.cseparate(h1.fg, h2.fg, alpha).dec
+    or h1.fg
+    or h2.fg
+  local bg = h1.bg and h2.bg and M.cseparate(h1.bg, h2.bg, alpha).dec
+    or h1.bg
+    or h2.bg
+
   return vim.tbl_deep_extend('force', h1, h2, { fg = fg, bg = bg })
-  -- stylua: ignore end
+end
+
+---Persist hlgroup settings across different colorschemes/bg settings
+---by re-applying them when colorscheme/bg changes
+---@param cb function
+function M.persist(cb)
+  cb()
+
+  local group = vim.api.nvim_create_augroup(
+    string.format('my.hl.persist.%d', vim.uv.hrtime()),
+    {}
+  )
+  vim.api.nvim_create_autocmd('ColorScheme', {
+    group = group,
+    callback = function()
+      cb()
+    end,
+  })
+  vim.api.nvim_create_autocmd('OptionSet', {
+    group = group,
+    pattern = 'background',
+    callback = function()
+      cb()
+    end,
+  })
 end
 
 return M

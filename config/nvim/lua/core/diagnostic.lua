@@ -9,7 +9,6 @@ vim.diagnostic.config({
   float = {
     source = true,
   },
-  virtual_lines = false,
   virtual_text = {
     spacing = 4,
     prefix = vim.trim(icons.AngleLeft),
@@ -25,7 +24,7 @@ vim.diagnostic.config({
       [vim.diagnostic.severity.ERROR] = 'DiagnosticSignError',
       [vim.diagnostic.severity.WARN] = 'DiagnosticSignWarn',
       [vim.diagnostic.severity.INFO] = 'DiagnosticSignInfo',
-      [vim.diagnostic.severity.HINT] = 'DiagnosticSignHin',
+      [vim.diagnostic.severity.HINT] = 'DiagnosticSignHint',
     },
   },
 })
@@ -142,10 +141,13 @@ end
 
 -- stylua: ignore start
 -- nvim's default mapping
+vim.keymap.set({ 'n', 'x' }, '<M-d>', diagnostic_open_float, { desc = 'Open diagnostic floating window' })
 vim.keymap.set({ 'n', 'x' }, '<C-w>d', diagnostic_open_float, { desc = 'Open diagnostic floating window' })
+vim.keymap.set({ 'n', 'x' }, '<C-w><C-d>', diagnostic_open_float, { desc = 'Open diagnostic floating window' })
+vim.keymap.set({ 'n', 'x' }, '<Leader>i', diagnostic_open_float, { desc = 'Open diagnostic floating window' })
 -- stylua: ignore end
 
-vim.keymap.set('n', 'dy', function()
+vim.keymap.set('n', 'yd', function()
   local diags = vim.diagnostic.get(0, { lnum = vim.fn.line('.') - 1 })
   local n_diags = #diags
   if n_diags == 0 then
