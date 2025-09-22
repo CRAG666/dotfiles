@@ -203,11 +203,10 @@ alias vi="NVIM_APPNAME=nvim-minimal nvim"
 alias vic='vi ~/.config/nvim-minimal/init.lua'
 alias vim="nvim"
 alias vimc='nvim ~/.config/nvim/init.lua'
-alias vimp='nvim ~/.config/nvim/lua/plugins/init.lua'
-alias vimk='nvim ~/.config/nvim/lua/config/keymappings.lua'
-alias vimd='nvim ~/.config/nvim/lua/config/defaults.lua'
-alias vima='nvim ~/.config/nvim/lua/config/autocmds.lua'
-alias viml='nvim ~/.config/nvim/lua/config/lsp/init.lua'
+alias vimk='nvim ~/.config/nvim/lua/core/keymaps.lua'
+alias vimd='nvim ~/.config/nvim/lua/core/opts.lua'
+alias vima='nvim ~/.config/nvim/lua/core/autocmds.lua'
+alias viml='nvim ~/.config/nvim/lua/core/lsp.lua'
 alias vo='ORG_WORKSPACE=notes nvim'
 alias vs='ORG_WORKSPACE=state_art nvim'
 # HACK: Jump alias
