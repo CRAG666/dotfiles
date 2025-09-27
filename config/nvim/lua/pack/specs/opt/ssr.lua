@@ -5,7 +5,7 @@ return {
       {
         mode = { 'n', 'x' },
         lhs = '<leader>rs',
-        opts = {{ desc = 'Search [r]eplace [s]tructure' }}
+        opts = { { desc = 'Search [r]eplace [s]tructure' } },
       },
     },
     postload = function()

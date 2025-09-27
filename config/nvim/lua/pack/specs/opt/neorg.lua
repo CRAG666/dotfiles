@@ -80,8 +80,18 @@ return {
         },
       })
 
-      vim.keymap.set('n', '<leader>oo', '<cmd>Neorg workspace notes<cr>', { desc = 'Toggle org notes' })
-      vim.keymap.set('n', '<leader>oc', '<cmd>Neorg toggle-concealer<cr>', { desc = 'Toggle highlighting org' })
+      vim.keymap.set(
+        'n',
+        '<leader>oo',
+        '<cmd>Neorg workspace notes<cr>',
+        { desc = 'Toggle org notes' }
+      )
+      vim.keymap.set(
+        'n',
+        '<leader>oc',
+        '<cmd>Neorg toggle-concealer<cr>',
+        { desc = 'Toggle highlighting org' }
+      )
       vim.keymap.set('n', '<leader>ot', function()
         vim.cmd('Neorg toc')
         vim.cmd('vert resize 60')

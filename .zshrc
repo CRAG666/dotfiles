@@ -186,29 +186,29 @@ alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 # alias don='sudo nft -f /etc/nftables-docker.conf && sudo systemctl start docker'
 # alias doff='sudo systemctl stop docker.service docker.socket && sudo nft -f /etc/nftables.conf && sudo ip l d docker0'
 # alias dor='doff && don'
-# HACK: Config alias
-alias grubc="sudo -e /etc/default/grub"
-alias newmc="nvim ~/.config/newm/config.py"
-alias hyprc="nvim ~/.config/hypr/hyprland.conf"
-alias owlc="nvim ~/.config/owl/owl.conf"
-alias keydc="nvim ~/Git/dotfiles/etc/keyd/default.conf"
-alias zshc="nvim ~/.zshrc"
-alias zshf="nvim ~/.zshfunc"
-alias zimc="nvim ~/.zimrc"
-alias dnsc="nvim /etc/resolv.conf"
-alias nftc="nvim /etc/nftables.conf"
-alias starshipc="nvim ~/.config/starship.toml"
 # HACK: Config Nvim Aliases
 alias vi="NVIM_APPNAME=nvim-minimal nvim"
 alias vic='vi ~/.config/nvim-minimal/init.lua'
-alias vim="nvim"
-alias vimc='nvim ~/.config/nvim/init.lua'
-alias vimk='nvim ~/.config/nvim/lua/core/keymaps.lua'
-alias vimd='nvim ~/.config/nvim/lua/core/opts.lua'
-alias vima='nvim ~/.config/nvim/lua/core/autocmds.lua'
-alias viml='nvim ~/.config/nvim/lua/core/lsp.lua'
-alias vo='ORG_WORKSPACE=notes nvim'
-alias vs='ORG_WORKSPACE=state_art nvim'
+alias vim="NVIM_NF=true nvim"
+alias vimc='vim ~/.config/nvim/init.lua'
+alias vimk='vim ~/.config/nvim/lua/core/keymaps.lua'
+alias vimd='vim ~/.config/nvim/lua/core/opts.lua'
+alias vima='vim ~/.config/nvim/lua/core/autocmds.lua'
+alias viml='vim ~/.config/nvim/lua/core/lsp.lua'
+alias vo='vim -c "Neorg workspace notes"'
+alias vs='vim -c "Neorg workspace state_art"'
+# HACK: Config alias
+alias grubc="sudo -e /etc/default/grub"
+alias newmc="vim ~/.config/newm/config.py"
+alias hyprc="vim ~/.config/hypr/hyprland.conf"
+alias owlc="vim ~/.config/owl/owl.conf"
+alias keydc="vim ~/Git/dotfiles/etc/keyd/default.conf"
+alias zshc="vim ~/.zshrc"
+alias zshf="vim ~/.zshfunc"
+alias zimc="vim ~/.zimrc"
+alias dnsc="vim /etc/resolv.conf"
+alias nftc="vim /etc/nftables.conf"
+alias starshipc="vim ~/.config/starship.toml"
 # HACK: Jump alias
 alias Applications="cd /usr/share/applications"
 alias Desktop="cd /$HOME/Escritorio"
@@ -247,7 +247,6 @@ export MARPT=~/Documentos/Proyectos/Writings/utils/marp/themes
 export IEEESTL=~/Documentos/Proyectos/Writings/utils/latex/ieee.csl
 export LCOLORCATPPUCCIN=~/Documentos/Proyectos/Writings/utils/latex/catppuccin
 export PASSWORD_STORE_ENABLE_EXTENSIONS=true
-export NVIM_NF=true
 
 # BEGIN_KITTY_SHELL_INTEGRATION
 export TERM="xterm-kitty"

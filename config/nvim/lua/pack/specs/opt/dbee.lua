@@ -2,8 +2,8 @@ return {
   src = 'https://github.com/kndndrj/nvim-dbee',
   data = {
     keys = {
-        mode = 'n',
-        lhs = ';dm',
+      mode = 'n',
+      lhs = ';dm',
     },
     cmds = { 'Dbee' },
     postload = function()

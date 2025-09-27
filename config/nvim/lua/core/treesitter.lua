@@ -1,10 +1,5 @@
 local ts = require('utils.ts')
 
--- Async parsing causes tons of issues, including invalid tree in insert mode
--- (which affects snippet region check), invalid range after deletion, etc.
--- e.g. https://github.com/neovim/neovim/issues/35814
-vim.g._ts_force_sync_parsing = true
-
 -- Fix treesitter bug: when `vim.treesitter.start/stop` is called with a
 -- different `buf` from current buffer, it can affect current buffer's
 -- language tree

@@ -2,7 +2,7 @@ return {
   src = 'https://github.com/folke/flash.nvim',
   data = {
     keys = {
-      { mode = { 'n', 'x', 'o' }, lhs = 's', opts = { desc = 'Flash' }},
+      { mode = { 'n', 'x', 'o' }, lhs = 's', opts = { desc = 'Flash' } },
       { mode = { 'n', 'x', 'o' }, lhs = 'S' },
       { mode = 'o', lhs = 'r' },
       { mode = { 'o', 'x' }, lhs = 'R' },

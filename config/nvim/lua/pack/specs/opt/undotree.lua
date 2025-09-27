@@ -10,7 +10,7 @@ return {
     },
     cmds = { 'UndotreeToggle' },
     postload = function()
-      vim.keymap.set('n', 'ut','<cmd>UndotreeToggle<cr>')
-    end
+      vim.keymap.set('n', 'ut', '<cmd>UndotreeToggle<cr>')
+    end,
   },
 }

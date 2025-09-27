@@ -1,5 +1,5 @@
 vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
+vim.g.maplocalleader = '\\'
 
 vim.api.nvim_create_autocmd('UIEnter', {
   once = true,
@@ -111,7 +111,6 @@ vim.api.nvim_create_autocmd('UIEnter', {
         .. (motion == 'i' and '[zjV]zk' or '[zV]z')
     end
 
-
     -- Mappings from keymappings.lua
     local opts = { noremap = true, silent = false }
 
@@ -199,22 +198,65 @@ vim.api.nvim_create_autocmd('UIEnter', {
     map('n', '<leader>tc', vim.cmd.tabclose, { desc = 'Tab [c]lose' })
     map('n', '<leader>tl', ':tabmove +1<CR>', { desc = 'Tab Move Right' })
     map('n', '<leader>th', ':tabmove -1<CR>', { desc = 'Tab Move Left' })
-    map('n', '<leader>ts', [[:execute 'set showtabline=' . (&showtabline ==# 0 ? 2 : 0)<CR>]], { desc = 'Toggle Tabs' })
+    map(
+      'n',
+      '<leader>ts',
+      [[:execute 'set showtabline=' . (&showtabline ==# 0 ? 2 : 0)<CR>]],
+      { desc = 'Toggle Tabs' }
+    )
 
     -- prefix = '<leader>', mode = 'n'
     map('n', '<leader>cc', ':let @/=""<cr>', { desc = 'Clear [c]hoose' })
 
     -- prefix = '<leader>r', mode = 'n'
-    map('n', '<leader>rr', ':%s/', { desc = 'Search and [r]eplace', noremap = true, silent = false })
-    map('n', '<leader>rl', ':s/', { desc = 'Search and [r]eplace [l]ine', noremap = true, silent = false })
-    map('n', '<leader>rw', [[:%s/\<C-r><C-w>\>/]], { desc = 'Search and [r]eplace [w]ord', noremap = true, silent = false })
-    map('n', '<leader>re', [[:%s/\(.*\)/\1]], { desc = 'Search and [r]eplace [e]xtend', noremap = true, silent = false })
-    map('n', '<leader>rn', [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]], { desc = 'Search and Replace word and nexts word with .' })
-    map('n', '<leader>rN', [[?\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgN]], { desc = 'Search and Replace word and prevs word with .' })
+    map(
+      'n',
+      '<leader>rr',
+      ':%s/',
+      { desc = 'Search and [r]eplace', noremap = true, silent = false }
+    )
+    map(
+      'n',
+      '<leader>rl',
+      ':s/',
+      { desc = 'Search and [r]eplace [l]ine', noremap = true, silent = false }
+    )
+    map(
+      'n',
+      '<leader>rw',
+      [[:%s/\<C-r><C-w>\>/]],
+      { desc = 'Search and [r]eplace [w]ord', noremap = true, silent = false }
+    )
+    map('n', '<leader>re', [[:%s/\(.*\)/\1]], {
+      desc = 'Search and [r]eplace [e]xtend',
+      noremap = true,
+      silent = false,
+    })
+    map(
+      'n',
+      '<leader>rn',
+      [[/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgn]],
+      { desc = 'Search and Replace word and nexts word with .' }
+    )
+    map(
+      'n',
+      '<leader>rN',
+      [[?\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgN]],
+      { desc = 'Search and Replace word and prevs word with .' }
+    )
 
     -- prefix = '<leader>r', mode = 'v'
-    map('v', '<leader>rr', ':s/', { desc = 'Search and [r]eplace visual', noremap = true, silent = false })
-    map('v', '<leader>re', [[:s/\(.*\)/\1]], { desc = 'Search and [r]eplace [e]xtend visual', noremap = true, silent = false })
+    map(
+      'v',
+      '<leader>rr',
+      ':s/',
+      { desc = 'Search and [r]eplace visual', noremap = true, silent = false }
+    )
+    map('v', '<leader>re', [[:s/\(.*\)/\1]], {
+      desc = 'Search and [r]eplace [e]xtend visual',
+      noremap = true,
+      silent = false,
+    })
 
     --Esc in terminal mode
     -- map('t', '<Esc>', '<C-\><C-n>')
@@ -234,7 +276,9 @@ vim.api.nvim_create_autocmd('UIEnter', {
       vim.go.lz = lz
     end, { desc = 'Close all folds except current' })
 
-    map({ 'n', 'x' }, 'q', function() close_floats('q') end, { desc = 'Close all floating windows or start recording macro' })
+    map({ 'n', 'x' }, 'q', function()
+      close_floats('q')
+    end, { desc = 'Close all floating windows or start recording macro' })
 
     map(
       'x',

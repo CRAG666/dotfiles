@@ -14,7 +14,6 @@ function M.setup()
       new_tab_icon = require('utils.static.icons').git.Added,
     })
     load = true
-    vim.print("Entre")
   end
 end
 

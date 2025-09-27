@@ -20,39 +20,39 @@ HEIGHT=$((HEIGHT - 16))
 STATUS=$(podman ps -a --filter "name=$CONTAINER_NAME" --format "{{.Status}}")
 
 if [ -z "$STATUS" ]; then
-    podman-compose --file "$COMPOSE_FILE" up -d
-    notify-send "Windows 11" "Powering on..." --icon=windows --urgency=normal
-    sleep 10
+	podman-compose --file "$COMPOSE_FILE" up -d
+	notify-send "Windows 11" "Powering on..." --icon=windows --urgency=normal
+	sleep 10
 elif [[ "$STATUS" == *"Paused"* ]]; then
-    podman-compose --file "$COMPOSE_FILE" unpause
-    notify-send "Windows 11" "Unpause..." --icon=windows --urgency=normal
-    sleep 5
+	podman-compose --file "$COMPOSE_FILE" unpause
+	notify-send "Windows 11" "Unpause..." --icon=windows --urgency=normal
+	sleep 5
 elif [[ "$STATUS" == *"Exited"* ]] || [[ "$STATUS" == *"Created"* ]]; then
-    podman-compose --file "$COMPOSE_FILE" start
-    notify-send "Windows 11" "Powering on..." --icon=windows --urgency=normal
-    sleep 5
+	podman-compose --file "$COMPOSE_FILE" start
+	notify-send "Windows 11" "Powering on..." --icon=windows --urgency=normal
+	sleep 5
 else
-    notify-send "Windows 11" "Abriendo..." --icon=windows --urgency=normal
+	notify-send "Windows 11" "Abriendo..." --icon=windows --urgency=normal
 fi
 
 notify-send "Windows 11" "Abriendo..." --icon=windows --urgency=normal
 
 # Iniciar sesión RDP
 xfreerdp3 \
-    /u:$WIN_USER /p:$WIN_PASS /v:$WIN_IP \
-    /t:Windows \
-    /drive:$GUEST_SHARE_NAME,$HOST_SHARE_PATH \
-    /sound:sys:alsa /microphone:sys:alsa \
-    +clipboard \
-    -grab-keyboard \
-    /size:${WIDTH}x${HEIGHT} \
-    /dynamic-resolution \
-    -themes -menu-anims -window-drag \
-    -fonts
-    # /bpp:32 \
-    # /gfx:AVC444:on,progressive:on \
-    # /compression-level:0 \
-    # +async-channels \
+	/u:$WIN_USER /p:$WIN_PASS /v:$WIN_IP \
+	/t:Windows \
+	/drive:$GUEST_SHARE_NAME,$HOST_SHARE_PATH \
+	/sound:sys:pulse /microphone:sys:pulse \
+	+clipboard \
+	-grab-keyboard \
+	/size:${WIDTH}x${HEIGHT} \
+	/dynamic-resolution \
+	-themes -menu-anims -window-drag \
+	-fonts
+# /bpp:32 \
+# /gfx:AVC444:on,progressive:on \
+# /compression-level:0 \
+# +async-channels \
 
 notify-send "Windows" "Saliendo..." --icon=wine-uninstaller --urgency=low
 podman-compose --file "$COMPOSE_FILE" pause

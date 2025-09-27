@@ -199,14 +199,22 @@ M.math = {
   us.samW({ trig = 'abs' }, { t('\\left\\vert '), i(1), t(' \\right\\vert') }),
   us.samW({ trig = 'lrv' }, { t('\\left\\vert '), i(1), t(' \\right\\vert') }),
   us.samW({ trig = 'lrb' }, { t('\\left('), i(1), t('\\right)') }),
-  us.samW({ trig = 'lr)' }, { t('\\left('), i(1), t('\\right)') }),
   us.samW({ trig = 'lr]' }, { t('\\left['), i(1), t('\\right]') }),
-  us.samW({ trig = 'lrB' }, { t('\\left{'), i(1), t('\\right}') }),
-  us.samW({ trig = 'lr}' }, { t('\\left{'), i(1), t('\\right}') }),
-  us.samW({ trig = 'lr>' }, { t('\\left<'), i(1), t('\\right>') }),
   us.samW(
     { trig = 'norm' },
     { t('\\left\\lVert '), i(1), t(' \\right\\rVert') }
+  ),
+  us.msamW(
+    { { trig = 'lr}' }, { trig = 'lrB' } },
+    { t('\\left{'), i(1), t('\\right}') }
+  ),
+  us.msamW(
+    { { trig = 'lr)' }, { trig = 'lrb' } },
+    { t('\\left('), i(1), t('\\right)') }
+  ),
+  us.msamW(
+    { { trig = 'lr>' }, { trig = 'lra' } },
+    { t('\\left<'), i(1), t('\\right>') }
   ),
 
   us.sambW({ trig = 'ks' }, t('^{*}')),
@@ -258,7 +266,7 @@ M.math = {
   us.samWr({ trig = '(\\?%w*_*%w*)vv' }, un.sdn(1, '\\vec{', '}')),
   us.samWr({ trig = '(\\?%w*_*%w*)hat' }, un.sdn(1, '\\hat{', '}')),
   us.samWr({ trig = '(\\?%w*_*%w*)bar' }, un.sdn(1, '\\bar{', '}')),
-  us.samWr({ trig = '(\\?%w*_*%w*)td' }, un.sdn(1, '\\tilde{', '}')),
+  us.samWr({ trig = '(\\?%w*_*%w*)tld' }, un.sdn(1, '\\tilde{', '}')),
   us.samWr(
     { trig = '(\\?%w*_*%w*)dot', priority = 999 },
     un.sdn(1, '\\dot{', '}')

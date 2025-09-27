@@ -123,32 +123,6 @@ augroup('my.yank_highlight', {
   },
 })
 
-augroup('my.auto_save', {
-  { 'BufLeave', 'WinLeave', 'FocusLost' },
-  {
-    nested = true,
-    desc = 'Autosave on focus change.',
-    callback = function(args)
-      -- Don't auto-save non-file buffers
-      vim.uv.fs_stat(args.file, function(err, stat)
-        if err or not stat or stat.type ~= 'file' then
-          return
-        end
-        vim.schedule(function()
-          if not vim.api.nvim_buf_is_valid(args.buf) then
-            return
-          end
-          vim.api.nvim_buf_call(args.buf, function()
-            vim.cmd.update({
-              mods = { emsg_silent = true },
-            })
-          end)
-        end)
-      end)
-    end,
-  },
-})
-
 augroup('my.win_close_jmp', {
   'WinClosed',
   {
@@ -193,79 +167,6 @@ augroup('my.last_pos_jmp', {
     end,
   },
 })
-
-do
-  ---Set cwd to `root_dir` for all windows for given buffer `buf`
-  ---@param buf integer
-  ---@param root_dir string
-  local function buf_lcd(buf, root_dir)
-    if not vim.api.nvim_buf_is_valid(buf) then
-      return
-    end
-
-    if vim.b[buf]._root_dir ~= root_dir then
-      vim.b[buf]._root_dir = root_dir
-    end
-
-    for _, win in ipairs(vim.fn.win_findbuf(buf)) do
-      vim.api.nvim_win_call(win, function()
-        -- Prevent unnecessary directory change, which triggers
-        -- DirChanged autocmds that may update winbar unexpectedly
-        if root_dir == vim.fn.getcwd(0) then
-          return
-        end
-        pcall(vim.cmd.lcd, {
-          root_dir,
-          mods = {
-            silent = true,
-            emsg_silent = true,
-          },
-        })
-      end)
-    end
-  end
-
-  augroup('my.auto_cwd', {
-    'BufEnter',
-    {
-      desc = 'Automatically change local current directory.',
-      nested = true,
-      callback = function(args)
-        local file = args.file
-        local buf = args.buf
-
-        local root_dir_cached = vim.b[buf]._root_dir
-        if root_dir_cached and vim.fn.isdirectory(root_dir_cached) == 1 then
-          buf_lcd(buf, root_dir_cached)
-          return
-        end
-
-        -- Don't automatically change cwd in special buffers, e.g. help buffers
-        -- or oil preview buffers
-        if file == '' or vim.bo[buf].bt ~= '' then
-          return
-        end
-
-        local fs_utils = require('utils.fs')
-        local root_dir = fs_utils.root(file, fs_utils.root_markers)
-
-        if
-          not root_dir
-          or fs_utils.is_home_dir(root_dir)
-          or fs_utils.is_root_dir(root_dir)
-        then
-          root_dir = vim.fs.dirname(file)
-        end
-
-        if not root_dir then
-          return
-        end
-
-        buf_lcd(buf, root_dir)
-      end,
-    },
-  })
-end
 
 augroup('my.prompt_keymaps', {
   'BufEnter',
@@ -499,53 +400,6 @@ augroup('my.dynamic_cc', {
 })
 
 do
-  local hl = require('utils.hl')
-
-  ---Set default value for `hl-NormalSpecial`
-  hl.persist(function()
-    hl.set_default(0, 'NormalSpecial', hl.blend('Normal', 'CursorLine'))
-  end)
-
-  augroup('my.special_buf_hl', {
-    { 'BufEnter', 'BufNew', 'FileType', 'TermOpen' },
-    {
-      desc = 'Set background color for special buffers.',
-      -- Schedule for window to open for the newly created special buffer
-      callback = vim.schedule_wrap(function(args)
-        local buf = args.buf
-        if not vim.api.nvim_buf_is_valid(buf) or vim.bo[buf].bt == '' then
-          return
-        end
-        -- Current window isn't necessarily the window of the buffer that
-        -- triggered the event, use `bufwinid()` to get the first window of
-        -- the triggering buffer. We can also use `win_findbuf()` to get all
-        -- windows that display the triggering buffer, but it is slower and using
-        -- `bufwinid()` is enough for our purpose.
-        local winid = vim.fn.bufwinid(buf)
-        if winid == -1 then
-          return
-        end
-        local wintype = vim.fn.win_gettype(winid)
-        if wintype == 'popup' or wintype == 'autocmd' then
-          return
-        end
-        vim.api.nvim_win_call(winid, function()
-          -- Don't remap `hl-Normal` to `NormalSpecial` if it is already mapped
-          -- to another hlgroup
-          if vim.opt_local.winhighlight:get().Normal then
-            return
-          end
-          vim.opt_local.winhighlight:append({
-            Normal = 'NormalSpecial',
-            EndOfBuffer = 'NormalSpecial',
-          })
-        end)
-      end),
-    },
-  })
-end
-
-do
   ---Check if a window is normal (has empty win type)
   ---@param win integer
   ---@return boolean
@@ -611,87 +465,40 @@ do
   })
 end
 
-do
-  local colors_file =
-    vim.fs.joinpath(vim.fn.stdpath('state') --[[@as string]], 'colors.json')
+-- Use vertical splits for help windows
+augroup('HelpConfig', {
+  'FileType',
+  {
+    pattern = 'help',
+    callback = function()
+      vim.bo.bufhidden = 'unload'
+      vim.cmd.wincmd('L')
+      vim.cmd.wincmd('=')
+    end,
+  },
+})
 
-  ---@param colors_name string
-  ---@return nil
-  local function load_colorscheme(colors_name)
-    local colors_path = vim.fs.joinpath(
-      vim.fn.stdpath('config') --[[@as string]],
-      'colors',
-      colors_name .. '.lua'
-    )
-    if vim.fn.filereadable(colors_path) == 1 then
-      dofile(colors_path)
-      vim.schedule(function()
-        vim.api.nvim_exec_autocmds('ColorScheme', {})
-      end)
-    else
-      vim.cmd.colorscheme({
-        args = { colors_name },
-        mods = { emsg_silent = true },
-      })
-    end
-  end
+augroup('EasyQuit', {
+  'FileType',
+  {
+    pattern = {'man', 'nvim-pack', 'help'},
+    command = [[nnoremap <buffer><silent> q :quit<CR>]],
+  },
+})
 
-  ---Restore dark/light background and colorscheme from json so that nvim
-  ---'remembers' the background and colorscheme when it is restarted.
-  local function restore_colorscheme()
-    local c = require('utils.json').read(colors_file)
-    c.colors_name = c.colors_name or 'macro'
-    if c.bg then
-      vim.go.bg = c.bg
-    end
-    if c.colors_name and c.colors_name ~= vim.g.colors_name then
-      load_colorscheme(c.colors_name)
-    end
-  end
-
-  augroup('my.colorscheme_restore', {
-    'UIEnter',
-    {
-      nested = true, -- invoke Colorscheme event for winbar plugin to clear bg for nvim < 0.11
-      callback = restore_colorscheme,
-    },
-  }, {
-    'OptionSet',
-    {
-      nested = true,
-      pattern = 'termguicolors',
-      callback = restore_colorscheme,
-    },
-  }, {
-    'Colorscheme',
-    {
-      nested = true,
-      desc = 'Spawn setbg/setcolors on colorscheme change.',
-      callback = function()
-        if vim.g.script_set_bg or vim.g.script_set_colors then
-          return
-        end
-
-        vim.schedule(function()
-          local json_utils = require('utils.json')
-
-          local d = json_utils.read(colors_file)
-          if d.colors_name == vim.g.colors_name and d.bg == vim.go.bg then
-            return
-          end
-
-          if d.colors_name ~= vim.g.colors_name then
-            d.colors_name = vim.g.colors_name
-            pcall(vim.system, { 'setcolor', vim.g.colors_name })
-          end
-          if d.bg ~= vim.go.bg and vim.go.termguicolors then
-            d.bg = vim.go.bg
-            pcall(vim.system, { 'setbg', vim.go.bg })
-          end
-
-          json_utils.write(colors_file, d)
-        end)
-      end,
-    },
-  })
-end
+augroup('BufferConfig', {
+  'BufWritePre',
+  {
+    command = [[%s/\s\+$//e]],
+  },
+}, {
+  'BufEnter',
+  {
+    command = [[let @/=""]],
+  },
+}, {
+  'BufEnter',
+  {
+    command = 'silent! lcd %:p:h',
+  },
+})

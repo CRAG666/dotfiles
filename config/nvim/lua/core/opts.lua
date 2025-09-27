@@ -124,14 +124,6 @@ do
   })
 end
 
--- Cursor shape
-vim.opt.gcr = {
-  'i-c-ci-ve:blinkoff500-blinkon500-block-TermCursor',
-  'n-v:block-Curosr/lCursor',
-  'o:hor50-Curosr/lCursor',
-  'r-cr:hor20-Curosr/lCursor',
-}
-
 -- Use histogram algorithm for diffing, generates more readable diffs in
 -- situations where two lines are swapped
 vim.opt.diffopt:append({

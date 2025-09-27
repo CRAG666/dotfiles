@@ -728,10 +728,8 @@ setmetatable(_G._statusline, {
 -- Prevent statusline from being overridden by qf ftplugin in quickfix windows
 vim.g.qf_disable_statusline = true
 
----Set default highlight groups for statusline components
----@return  nil
-local function set_default_hlgroups()
-  local default_attr = utils.hl.get(0, {
+utils.hl.persist(function()
+  local bg = utils.hl.get(0, {
     name = 'StatusLine',
     link = false,
     winhl_link = false,
@@ -740,28 +738,27 @@ local function set_default_hlgroups()
   ---@param hlgroup_name string
   ---@param attr table
   ---@return nil
-  local function sethl(hlgroup_name, attr)
-    local merged_attr = vim.tbl_deep_extend('keep', attr, default_attr)
-    utils.hl.set_default(0, hlgroup_name, merged_attr)
+  local function set_stl_hl(hlgroup_name, attr)
+    utils.hl.set_default(
+      0,
+      hlgroup_name,
+      vim.tbl_deep_extend('keep', attr, bg)
+    )
   end
-  -- stylua: ignore start
-  sethl('StatusLineGitAdded',        { fg = 'GitSignsAdd',  ctermfg = 'GitSignsAdd' })
-  sethl('StatusLineGitChanged',      { fg = 'GitSignsChange', ctermfg = 'GitSignsChange' })
-  sethl('StatusLineGitRemoved',      { fg = 'GitSignsDelete', ctermfg = 'GitSignsDelete' })
-  sethl('StatusLineGitBranch',       { fg = 'StatusLineGitChanged' })
-  sethl('StatusLineDiagnosticHint',  { fg = 'DiagnosticSignHint', ctermfg = 'DiagnosticSignHint' })
-  sethl('StatusLineDiagnosticInfo',  { fg = 'DiagnosticSignInfo', ctermfg = 'DiagnosticSignInfo' })
-  sethl('StatusLineDiagnosticWarn',  { fg = 'DiagnosticSignWarn', ctermfg = 'DiagnosticSignWarn' })
-  sethl('StatusLineDiagnosticError', { fg = 'DiagnosticSignError', ctermfg = 'DiagnosticSignError' })
-  sethl('StatusLineHeader',          { fg = 'TabLine', bg = 'fg', ctermfg = 'TabLine', ctermbg = 'fg', reverse = true })
-  sethl('StatusLineHeaderModified',  { fg = 'Special', bg = 'fg', ctermfg = 'Special', ctermbg = 'fg', reverse = true })
-  -- stylua: ignore end
-end
 
-set_default_hlgroups()
-vim.api.nvim_create_autocmd('ColorScheme', {
-  group = groupid,
-  callback = set_default_hlgroups,
-})
+  -- stylua: ignore start
+  set_stl_hl('StatusLineGitBranch',       { fg = 'StatusLineGitChanged' })
+  set_stl_hl('StatusLineGitAdded',        { fg = 'GitSignsAdd',         ctermfg = 'GitSignsAdd'         })
+  set_stl_hl('StatusLineGitChanged',      { fg = 'GitSignsChange',      ctermfg = 'GitSignsChange'      })
+  set_stl_hl('StatusLineGitRemoved',      { fg = 'GitSignsDelete',      ctermfg = 'GitSignsDelete'      })
+  set_stl_hl('StatusLineDiagnosticHint',  { fg = 'DiagnosticSignHint',  ctermfg = 'DiagnosticSignHint'  })
+  set_stl_hl('StatusLineDiagnosticInfo',  { fg = 'DiagnosticSignInfo',  ctermfg = 'DiagnosticSignInfo'  })
+  set_stl_hl('StatusLineDiagnosticWarn',  { fg = 'DiagnosticSignWarn',  ctermfg = 'DiagnosticSignWarn'  })
+  set_stl_hl('StatusLineDiagnosticError', { fg = 'DiagnosticSignError', ctermfg = 'DiagnosticSignError' })
+
+  set_stl_hl('StatusLineHeader',          { fg = 'TabLine', bg = 'fg', ctermfg = 'TabLine', ctermbg = 'fg', reverse = true })
+  set_stl_hl('StatusLineHeaderModified',  { fg = 'Special', bg = 'fg', ctermfg = 'Special', ctermbg = 'fg', reverse = true })
+  -- stylua: ignore end
+end)
 
 return _G._statusline

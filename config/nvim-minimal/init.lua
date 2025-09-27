@@ -40,8 +40,8 @@ vim.api.nvim_create_autocmd("FileType", {
 			return
 		end
 
-		local winbar = require("ui.winbar")
-		local api = require("ui.winbar.api")
+		local winbar = require("plugin.winbar")
+		local api = require("plugin.winbar.api")
 		winbar.setup({ bar = { hover = false } })
 
     -- stylua: ignore start
@@ -60,26 +60,17 @@ local function load_ui(name)
 		return
 	end
 	vim.g[loaded_flag] = true
-	vim.opt[name] = string.format("%%!v:lua.require'ui.%s'()", name)
+	vim.opt[name] = string.format("%%!v:lua.require'plugin.%s'()", name)
 end
 
 load_ui("tabline")
 load_ui("statusline")
 load_ui("statuscolumn")
 
-require("config.defaults")
-require("config.keymappings")
-require("plugins.dev.term")
-require("plugins.dev.run_code")
-require('plugins.general.mini')
+require("core.keymaps")
+require("plugin.term")
+require("plugin.run_code")
 
-local fn = require('utils.fn')
-fn.lazy_load('CursorMoved', 'nvim-surround', function()
   vim.pack.add({ { src = 'https://github.com/chaoren/vim-wordmotion' } })
   vim.pack.add({ { src = 'https://github.com/kylechui/nvim-surround' } })
   require('nvim-surround').setup({})
-end)
-
-fn.lazy_load('InsertEnter', 'ultimate-autopair', function()
-  require('plugins.general.autopair')
-end)

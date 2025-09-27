@@ -1,1 +1,0 @@
-../../../nvim/lua/config/keymappings.lua

@@ -4,7 +4,7 @@ return {
     deps = {
       {
         src = 'https://github.com/kyazdani42/nvim-web-devicons',
-        data = { optional = true },
+        data = { optional = false },
       },
     },
     postload = function()

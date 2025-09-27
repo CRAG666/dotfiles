@@ -3,16 +3,19 @@ return {
   data = {
     events = {
       event = 'FileType',
-      pattern = { 'markdown', 'vimwiki', 'codecompanion' },
+      pattern = { 'markdown', 'vimwiki', 'codecompanion', 'quarto' },
     },
     postload = function()
       local function render()
         require('render-markdown').setup({
-          file_types = { 'markdown', 'vimwiki', 'codecompanion' },
-          completions = { blink = { enabled = true }, lsp = { enabled = true } },
+          file_types = { 'markdown', 'vimwiki', 'codecompanion', 'quarto' },
+          completions = {
+            blink = { enabled = true },
+            lsp = { enabled = true },
+          },
         })
       end
-      if vim.bo.ft == 'markdown' then
+      if vim.bo.ft == 'markdown' or vim.bo.ft == 'quarto' then
         vim.schedule(render)
       else
         render()

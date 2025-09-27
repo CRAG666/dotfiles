@@ -17,70 +17,53 @@ return {
           language = 'spanish',
         },
         adapters = {
-          deepseek = function()
-            return require('codecompanion.adapters').extend('deepseek', {
-              env = {
-                -- api_key = 'cmd:gak ai/deepseek',
-                api_key = 'DEEPSEEK_API_KEY',
-              },
-              schema = {
-                model = {
-                  default = 'deepseek-reasoner',
-                  -- default = 'deepseek-chat',
+          http = {
+            deepseek = function()
+              return require('codecompanion.adapters').extend('deepseek', {
+                env = {
+                  api_key = 'cmd:gak ai/deepseek',
+                  -- api_key = 'DEEPSEEK_API_KEY',
                 },
-              },
-            })
-          end,
-          upstage = function()
-            return require('codecompanion.adapters').extend('openai_compatible', {
-              env = {
-                url = 'https://api.upstage.ai',
-                api_key = 'cmd:gak ai/upstage',
-                chat_url = '/v1/chat/completions',
-                models_endpoint = '/v1/models',
-              },
-              schema = {
-                model = {
-                  default = 'solar-pro2',
+                schema = {
+                  model = {
+                    default = 'deepseek-reasoner',
+                    -- default = 'deepseek-chat',
+                  },
                 },
-              },
-            })
-          end,
-          minimax = function()
-            return require('codecompanion.adapters').extend('openai_compatible', {
-              env = {
-                url = 'https://api.minimax.io',
-                api_key = 'MINIMAX_API_KEY',
-                chat_url = '/v1/text/chatcompletion_v2',
-                models_endpoint = '/v1/models',
-              },
-              schema = {
-                model = {
-                  default = 'MiniMax-M1',
+              })
+            end,
+            upstage = function()
+              return require('codecompanion.adapters').extend(
+                'openai_compatible',
+                {
+                  env = {
+                    url = 'https://api.upstage.ai',
+                    api_key = 'cmd:gak ai/upstage',
+                    chat_url = '/v1/chat/completions',
+                    models_endpoint = '/v1/models',
+                  },
+                  schema = {
+                    model = {
+                      default = 'solar-pro2',
+                    },
+                  },
+                }
+              )
+            end,
+          },
+          acp = {
+            gemini_cli = function()
+              return require('codecompanion.adapters').extend('gemini_cli', {
+                env = {
+                  api_key = 'GEMINI_API_KEY',
                 },
-              },
-            })
-          end,
-        },
-        prompt_library = {
-          ['My New Prompt'] = {
-            strategy = 'chat',
-            description = 'Some cool custom prompt you can do',
-            prompts = {
-              {
-                role = 'system',
-                content = 'You are an experienced developer with Lua and Neovim',
-              },
-              {
-                role = 'user',
-                content = 'Can you explain why ...',
-              },
-            },
+              })
+            end,
           },
         },
         strategies = {
           chat = {
-            adapter = 'minimax',
+            adapter = 'deepseek',
             keymaps = {
               options = { modes = { n = 'g?' } },
               close = { modes = { n = 'gX', i = '<M-C-X>' } },
@@ -106,7 +89,7 @@ return {
             },
           },
           inline = {
-            adapter = 'minimax',
+            adapter = 'upstage',
             keymaps = {
               accept_change = {
                 modes = { n = 'gA' },
@@ -246,6 +229,22 @@ return {
             adapter = 'upstage',
           },
         },
+        prompt_library = {
+          ['My New Prompt'] = {
+            strategy = 'chat',
+            description = 'Some cool custom prompt you can do',
+            prompts = {
+              {
+                role = 'system',
+                content = 'You are an experienced developer with Lua and Neovim',
+              },
+              {
+                role = 'user',
+                content = 'Can you explain why ...',
+              },
+            },
+          },
+        },
         display = {
           chat = {
             icons = {
@@ -283,7 +282,12 @@ return {
         require('codecompanion').toggle()
       end, { desc = 'Toggle CodeCompanion' })
 
-      key.map('n', '<leader>ap', [[<Cmd>CodeCompanionActions<CR>]], { desc = 'CodeCompanion Actions' })
+      key.map(
+        'n',
+        '<leader>ap',
+        [[<Cmd>CodeCompanionActions<CR>]],
+        { desc = 'CodeCompanion Actions' }
+      )
 
       local without_instructions = {
         {
