@@ -35,6 +35,7 @@ vim.opt.completeopt = 'menuone'
 vim.opt.selection = 'old'
 vim.opt.tabclose = 'uselast'
 vim.opt.relativenumber = true
+vim.opt.cmdheight = 0
 
 -- Defer shada reading
 do

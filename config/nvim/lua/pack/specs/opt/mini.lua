@@ -15,7 +15,6 @@ return {
           line_up = '<A-k>',
         },
       })
-      require('mini.splitjoin').setup({})
       require('mini.ai').setup({})
     end,
   },

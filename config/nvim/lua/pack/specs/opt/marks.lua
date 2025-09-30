@@ -1,10 +1,12 @@
 return {
-  src = 'https://github.com/chentoast/marks.nvim',
+  src = 'https://github.com/dimtion/guttermarks.nvim',
   data = {
-    events = { 'VimEnter' },
+    event = { 'BufReadPost', 'BufNewFile', 'BufWritePre' },
     postload = function()
-      require('marks').setup({})
+      require('guttermarks').setup({
+        global_mark = { enabled = true },
+        special_mark = { enabled = true },
+      })
     end,
   },
 }
-
