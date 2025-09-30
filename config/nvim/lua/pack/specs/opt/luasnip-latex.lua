@@ -4,7 +4,7 @@ return {
     deps = {
       {
         src = 'https://github.com/L3MON4D3/LuaSnip',
-        data = { optional = true },
+        data = { optional = false },
       },
     },
     events = {
@@ -12,9 +12,7 @@ return {
       pattern = 'tex',
     },
     postload = function()
-      vim.schedule(function()
-        require('luasnip-latex-snippets').setup({ use_treesitter = true })
-      end)
+      require('luasnip-latex-snippets').setup({ use_treesitter = true })
     end,
   },
 }

@@ -3,7 +3,7 @@ return {
   data = {
     deps = {
       {
-        src = 'MunifTanjim/nui.nvim',
+        src = 'https://github.com/MunifTanjim/nui.nvim',
         data = { optional = false },
       },
     },

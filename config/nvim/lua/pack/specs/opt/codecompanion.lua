@@ -1,14 +1,76 @@
+local p = '<leader>a'
+local keys = {
+  {
+    mode = 'n',
+    lhs = p .. 'a',
+    rhs = function()
+      require('codecompanion').toggle()
+    end,
+    opts = { desc = 'Toggle CodeCompanion' },
+  },
+  {
+    mode = 'n',
+    lhs = p .. 'p',
+    rhs = '<Cmd>CodeCompanionActions<CR>',
+    opts = { desc = 'CodeCompanion Actions' },
+  },
+  {
+    mode = 'x',
+    lhs = p .. 'w',
+    rhs = ':CodeCompanion /buffer #wassistant<CR>',
+    opts = { desc = '[A]i: Writting Assistant' },
+  },
+  {
+    mode = 'x',
+    lhs = p .. 'e',
+    rhs = ':CodeCompanion /buffer #translate<CR>',
+    opts = { desc = '[A]i: Translate to [e]nglish' },
+  },
+  {
+    mode = 'x',
+    lhs = p .. 's',
+    rhs = ':CodeCompanion /buffer #traducir<CR>',
+    opts = { desc = '[A]i: Translate to [s]panish' },
+  },
+  {
+    mode = 'x',
+    lhs = p .. 'g',
+    rhs = ':CodeCompanion /buffer #grammar<CR>',
+    opts = { desc = '[A]i: [G]rammar fix' },
+  },
+  {
+    mode = 'x',
+    lhs = p .. 'f',
+    rhs = [[:CodeCompanion /fix ]],
+    opts = { desc = '[A]i: [A]dd selection' },
+  },
+  {
+    mode = 'x',
+    lhs = p .. 'c',
+    rhs = ':CodeCompanion /explain',
+    opts = { desc = '[A]i: Explain [c]ode' },
+  },
+  {
+    mode = 'x',
+    lhs = p .. 't',
+    rhs = ':CodeCompanion /tests',
+    opts = { desc = '[A]i: [T]est code' },
+  },
+  {
+    mode = 'x',
+    lhs = p .. 'b',
+    rhs = [[:CodeCompanion /buffer ]],
+    opts = { desc = '[A]i: Add instructions' },
+  },
+}
+
 return {
   src = 'https://github.com/olimorris/codecompanion.nvim',
   data = {
     deps = {
       { src = 'https://github.com/nvim-lua/plenary.nvim' },
     },
-    keys = {
-      { mode = 'n', lhs = '<leader>aa' },
-      { mode = 'n', lhs = '<leader>ap' },
-      { mode = 'x', lhs = '<leader>aw' },
-    },
+    keys = keys,
     postload = function()
       local icons = require('utils.static.icons')
       require('codecompanion').setup({
@@ -276,67 +338,9 @@ return {
         },
       })
 
-      local key = require('utils.keymap')
-
-      key.map('n', '<leader>aa', function()
-        require('codecompanion').toggle()
-      end, { desc = 'Toggle CodeCompanion' })
-
-      key.map(
-        'n',
-        '<leader>ap',
-        [[<Cmd>CodeCompanionActions<CR>]],
-        { desc = 'CodeCompanion Actions' }
-      )
-
-      local without_instructions = {
-        {
-          'w',
-          ':CodeCompanion /buffer #wassistant<CR>',
-          '[A]i: Writting Assistant',
-        },
-        {
-          'e',
-          ':CodeCompanion /buffer #translate<CR>',
-          '[A]i: Translate to [e]nglish',
-        },
-        {
-          's',
-          ':CodeCompanion /buffer #traducir<CR>',
-          '[A]i: Translate to [s]panish',
-        },
-        {
-          'g',
-          ':CodeCompanion /buffer #grammar<CR>',
-          '[A]i: [G]rammar fix',
-        },
-      }
-
-      local maps = {
-        {
-          'f',
-          [[:CodeCompanion /fix ]],
-          '[A]i: [A]dd selection',
-        },
-        {
-          'c',
-          ':CodeCompanion /explain',
-          '[A]i: Explain [c]ode',
-        },
-        {
-          't',
-          ':CodeCompanion /tests',
-          '[A]i: [T]est code',
-        },
-        {
-          'b',
-          [[:CodeCompanion /buffer ]],
-          '[A]i: Add instructions',
-        },
-      }
-
-      key.pmaps('x', '<leader>a', without_instructions)
-      key.pmaps('x', '<leader>a', maps)
+      for _, k in ipairs(keys) do
+        vim.keymap.set(k.mode, k.lhs, k.rhs)
+      end
     end,
   },
 }

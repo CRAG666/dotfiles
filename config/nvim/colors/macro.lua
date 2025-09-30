@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Wed Aug 20 12:21:51 2025
+-- Last Updated: Sat 27 Sep 2025 02:30:15 AM EDT
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -341,6 +341,8 @@ local hlgroups = {
   ['@markup.heading.4.marker.markdown'] = { link = 'Delimiter' },
   ['@markup.heading.5.marker.markdown'] = { link = 'Delimiter' },
   ['@markup.heading.6.marker.markdown'] = { link = 'Delimiter' },
+  ['@markup.heading.1.delimiter.vimdoc'] = { link = 'helpSectionDelim' },
+  ['@markup.heading.2.delimiter.vimdoc'] = { link = 'helpSectionDelim' },
   ['@comment.todo.checked'] = { fg = c_macroAsh },
   ['@comment.todo.unchecked'] = { fg = c_macroRed },
   ['@markup.link.label.markdown_inline'] = { link = 'htmlLink' },
@@ -371,7 +373,6 @@ local hlgroups = {
   ['@lsp.typemod.operator.injected'] = { link = 'Operator' },
   ['@lsp.typemod.string.injected'] = { link = 'String' },
   ['@lsp.typemod.variable.defaultLibrary'] = { link = '@variable.builtin' },
-  ['@lsp.typemod.variable.global'] = { link = 'Constant' },
   ['@lsp.typemod.variable.injected'] = { link = '@variable' },
   ['@lsp.typemod.variable.static'] = { link = 'Constant' },
   -- }}}
@@ -479,8 +480,12 @@ local hlgroups = {
   -- fugitive
   fugitiveHash = { link = 'gitHash' },
   fugitiveHeader = { link = 'Title' },
+  fugitiveHeading = { link = 'Title' },
+  fugitiveStagedHeading = { fg = c_autumnGreen, bold = true },
   fugitiveStagedModifier = { fg = c_autumnGreen },
+  fugitiveUnStagedHeading = { fg = c_autumnYellow, bold = true },
   fugitiveUnstagedModifier = { fg = c_autumnYellow },
+  fugitiveUntrackedHeading = { fg = c_macroAqua, bold = true },
   fugitiveUntrackedModifier = { fg = c_macroAqua },
 
   -- telescope

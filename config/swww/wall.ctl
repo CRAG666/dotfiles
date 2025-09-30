@@ -1,1 +1,1 @@
-1|Catppuccin-Mocha|/mnt/home/Imágenes/wallpaperCicle/linuxfu.jpeg
+1|Catppuccin-Mocha|/mnt/home/Imágenes/wallpaperCicle/hollow-knight-wallpapers10.jpg

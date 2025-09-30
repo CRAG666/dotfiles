@@ -1,6 +1,10 @@
 return {
   src = 'supermaven-inc/supermaven-nvim',
   events = { 'InsertEnter' },
+  keys = {
+    { mode = 'i', lhs = '<C-J>', opts = { desc = 'accept word' } },
+    { mode = 'i', lhs = '<C-I>', opts = { desc = 'accept suggestion' } },
+  },
   postload = function()
     require('supermaven-nvim').setup({
       keymaps = {

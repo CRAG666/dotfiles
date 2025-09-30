@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Wed Aug 20 12:21:51 2025
+-- Last Updated: Sat 27 Sep 2025 01:37:57 AM EDT
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -296,6 +296,8 @@ local hlgroups = {
   ['@markup.heading.4.marker.markdown'] = { link = 'markdownH4Delimiter' },
   ['@markup.heading.5.marker.markdown'] = { link = 'markdownH5Delimiter' },
   ['@markup.heading.6.marker.markdown'] = { link = 'markdownH6Delimiter' },
+  ['@markup.heading.1.delimiter.vimdoc'] = { link = 'helpSectionDelim' },
+  ['@markup.heading.2.delimiter.vimdoc'] = { link = 'helpSectionDelim' },
   ['@comment.todo'] = { link = 'Todo' },
   ['@comment.todo.unchecked'] = { link = 'Todo' },
   ['@comment.todo.checked'] = { link = 'Done' },

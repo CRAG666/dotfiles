@@ -2,11 +2,9 @@ return {
   src = 'https://github.com/cshuaimin/ssr.nvim',
   data = {
     keys = {
-      {
-        mode = { 'n', 'x' },
-        lhs = '<leader>rs',
-        opts = { { desc = 'Search [r]eplace [s]tructure' } },
-      },
+      mode = { 'n', 'x' },
+      lhs = '<leader>rs',
+      opts = { desc = 'Search [r]eplace [s]tructure' },
     },
     postload = function()
       require('ssr').setup({

@@ -24,11 +24,13 @@ password=$(printf '%s\n' "${password_files[@]}" | rofi -dmenu "$@" -l 10 -p "Con
 
 # pass -c copia la contraseña en el portapapeles. La salida adicional de pass se redirige a /dev/null
 if [[ $typeit -eq 0 ]]; then
-	msg=$(CLIPBOARD_STATE=sensitive pass show -c "$password" | head -n1 2>/dev/null)
 	# msg=$(PASSWORD_STORE_ENABLE_EXTENSIONS=true pass copyq "$password")
-
-	# Muestra una notificación con notify-send
-	notify-send -i "passwordsafe" "$msg"
+	msg=$(pass show "$password" | head -n1 2>/dev/null)
+	wl-copy "$msg"
+	notify-send -i "passwordsafe" "Password copied for 30 seconds"
+	sleep 30s
+	cliphist delete-query "$msg"
+	notify-send -i "passwordsafe" "Password deleted from clipboard history"
 else
 	# Si se desea utilizar el autotipeo, guarda el nombre de usuario y la contraseña en variables
 	# Los archivos de contraseñas son archivos de texto simples.

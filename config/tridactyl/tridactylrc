@@ -26,7 +26,7 @@ set newtab about:blank
 colorscheme catppuccin
 
 " Clipboard configuration
-set externalclipboardcmd wl-copy
+" set externalclipboardcmd wl-copy
 set yankto both
 
 " ============================================================================

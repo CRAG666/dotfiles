@@ -7,14 +7,28 @@ return {
       { src = 'https://github.com/3rd/image.nvim' },
       { src = 'https://github.com/juniorsundar/neorg-extras' },
       { src = 'https://github.com/nvim-neotest/nvim-nio' },
+      {
+        src = 'https://github.com/nvim-treesitter/nvim-treesitter',
+      },
     },
     keys = {
-      { mode = 'n', lhs = '<leader>oo' },
-      { mode = 'n', lhs = '<leader>oc' },
-      { mode = 'n', lhs = '<leader>ot' },
+      { mode = 'n', lhs = '<leader>oo', opts = { desc = 'Toggle org notes' } },
+      {
+        mode = 'n',
+        lhs = '<leader>oc',
+        opts = { desc = 'Toggle highlighting org' },
+      },
+      {
+        mode = 'n',
+        lhs = '<leader>ot',
+        opts = { desc = 'Toggle toc org' },
+      },
     },
     cmds = { 'Neorg' },
-    ft = { 'norg' },
+    events = {
+      event = 'Filetype',
+      pattern = 'norg',
+    },
     postload = function()
       require('neorg').setup({
         load = {
@@ -80,22 +94,12 @@ return {
         },
       })
 
-      vim.keymap.set(
-        'n',
-        '<leader>oo',
-        '<cmd>Neorg workspace notes<cr>',
-        { desc = 'Toggle org notes' }
-      )
-      vim.keymap.set(
-        'n',
-        '<leader>oc',
-        '<cmd>Neorg toggle-concealer<cr>',
-        { desc = 'Toggle highlighting org' }
-      )
+      vim.keymap.set('n', '<leader>oo', '<cmd>Neorg workspace notes<cr>')
+      vim.keymap.set('n', '<leader>oc', '<cmd>Neorg toggle-concealer<cr>')
       vim.keymap.set('n', '<leader>ot', function()
         vim.cmd('Neorg toc')
         vim.cmd('vert resize 60')
-      end, { desc = 'Toggle highlighting org' })
+      end)
     end,
   },
 }

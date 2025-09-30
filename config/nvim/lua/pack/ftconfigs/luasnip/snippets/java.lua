@@ -594,6 +594,29 @@ M.snippets = {
       }
     )
   ),
+  us.msn(
+    {
+      { trig = 'tr' },
+      { trig = 'try' },
+      common = { desc = 'try...except statement' },
+    },
+    un.fmtad(
+      [[
+        try {
+        <body>
+        } catch (<exc> <e>) {
+        <idnt><exc_body>
+        }
+      ]],
+      {
+        body = un.body(1, 1),
+        exc = i(2, 'Exception'),
+        e = i(3, 'e'),
+        idnt = un.idnt(1),
+        exc_body = i(4),
+      }
+    )
+  ),
 }
 
 return M

@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      BSD
--- Last Updated: Wed Aug 20 12:21:51 2025
+-- Last Updated: Sat 27 Sep 2025 01:37:57 AM EDT
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -267,6 +267,8 @@ local hlgroups = {
   ['@markup.raw'] = { link = 'String' },
   ['@markup.link'] = { fg = c_variable, underline = true },
   ['@markup.link.url'] = { fg = c_special, underline = true },
+  ['@markup.heading.1.delimiter.vimdoc'] = { link = 'helpSectionDelim' },
+  ['@markup.heading.2.delimiter.vimdoc'] = { link = 'helpSectionDelim' },
   ['@markup.list'] = { fg = c_keyword },
   ['@markup.strong'] = { bold = true },
   ['@markup.emphasis'] = { italic = true },

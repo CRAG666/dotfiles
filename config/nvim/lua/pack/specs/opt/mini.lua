@@ -1,5 +1,5 @@
 return {
-  src = 'https://github.com/echasnovski/mini.nvim',
+  src = 'https://github.com/nvim-mini/mini.nvim',
   data = {
     events = { 'CursorMoved' },
     postload = function()

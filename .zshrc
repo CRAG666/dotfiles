@@ -166,7 +166,7 @@ alias js="/usr/bin/node ~/.noderc"
 alias ls="exa --icons"
 alias la="exa --icons -la"
 # alias grep='grep --color=auto'
-# alias cp='rsync --progress -avz'
+alias cp='fcp'
 cd() { pushd $1 && ls; }
 alias tree="exa --icons --tree --level=4 --long --git"
 alias zt="/bin/zathura --fork"
@@ -182,6 +182,7 @@ alias freq="watch -n1 'grep Hz /proc/cpuinfo'"
 alias fm="yazi"
 alias help="cht.sh"
 alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
+alias aicli='eval $(gum choose "gemini" "qwen" "crush")'
 # HACK: docker Nftables
 # alias don='sudo nft -f /etc/nftables-docker.conf && sudo systemctl start docker'
 # alias doff='sudo systemctl stop docker.service docker.socket && sudo nft -f /etc/nftables.conf && sudo ip l d docker0'
@@ -247,6 +248,7 @@ export MARPT=~/Documentos/Proyectos/Writings/utils/marp/themes
 export IEEESTL=~/Documentos/Proyectos/Writings/utils/latex/ieee.csl
 export LCOLORCATPPUCCIN=~/Documentos/Proyectos/Writings/utils/latex/catppuccin
 export PASSWORD_STORE_ENABLE_EXTENSIONS=true
+export NVIM_NF=true
 
 # BEGIN_KITTY_SHELL_INTEGRATION
 export TERM="xterm-kitty"
