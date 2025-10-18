@@ -108,9 +108,7 @@ end
 ---@return nil
 local function jupytext_convert(buf)
   buf = vim._resolve_bufnr(buf)
-
-  -- If filetype if markdown, the buf is already converted, so early return
-  if not vim.api.nvim_buf_is_valid(buf) or vim.bo[buf].ft == 'markdown' then
+  if not vim.api.nvim_buf_is_valid(buf) then
     return
   end
 
@@ -214,6 +212,7 @@ local function jupytext_convert(buf)
     if undolevels then
       vim.bo[buf].undolevels = undolevels
     end
+    vim.bo[buf].modified = false
   end
 
   -- Original buffer can be deleted in the previous code after we read the
@@ -248,17 +247,11 @@ local function jupytext_convert(buf)
   })
 end
 
----@param buf integer?
-local function setup(buf)
+local function setup()
   if vim.g.loaded_jupytext ~= nil then
     return
   end
   vim.g.loaded_jupytext = true
-
-  buf = vim._resolve_bufnr(buf)
-  if vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ':e') == 'ipynb' then
-    jupytext_convert(buf)
-  end
 
   vim.api.nvim_create_autocmd('BufReadCmd', {
     group = vim.api.nvim_create_augroup('my.jupytext', {}),

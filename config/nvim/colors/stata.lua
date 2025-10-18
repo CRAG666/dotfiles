@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      BSD
--- Last Updated: Sat 27 Sep 2025 01:37:57 AM EDT
+-- Last Updated: Wed 01 Oct 2025 01:33:37 AM EDT
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -274,9 +274,17 @@ local hlgroups = {
   ['@markup.emphasis'] = { italic = true },
   ['@markup.strikethrough'] = { strikethrough = true },
   ['@markup.underline'] = { underline = true },
+  ['@comment.todo'] = { fg = c_background, bg = c_keyword, bold = true },
+  ['@comment.note'] = { fg = c_background, bg = c_special, bold = true },
+  ['@comment.warning'] = { fg = c_background, bg = c_warn, bold = true },
+  ['@comment.error'] = { fg = c_background, bg = c_error, bold = true },
   ['@tag'] = { fg = c_keyword },
   ['@tag.attribute'] = { fg = c_variable },
   ['@tag.delimiter'] = { fg = c_foreground },
+  -- }}}2
+
+  -- LSP semantic {{{2
+  ['@lsp.type.comment'] = {}, -- avoid interfere with `@comment.note/todo/warning/error`
   -- }}}2
 
   -- LSP {{{2

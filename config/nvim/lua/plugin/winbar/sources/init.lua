@@ -1,7 +1,7 @@
----@class winbar_source_t
----@field get_symbols fun(buf: integer, win: integer, cursor: integer[]): winbar_symbol_t[]
+---@class winbar.source
+---@field get_symbols fun(buf: integer, win: integer, cursor: integer[]): winbar.symbol[]
 
----@type table<string, winbar_source_t>
+---@type table<string, winbar.source>
 return setmetatable({}, {
   __index = function(_, key)
     return require('plugin.winbar.sources.' .. key)

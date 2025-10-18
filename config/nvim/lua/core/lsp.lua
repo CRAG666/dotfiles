@@ -15,11 +15,11 @@ end
 -- implementation or type definition is found
 do
   local methods = {
-    vim.lsp.protocol.Methods.textDocument_references,
-    vim.lsp.protocol.Methods.textDocument_definition,
-    vim.lsp.protocol.Methods.textDocument_declaration,
-    vim.lsp.protocol.Methods.textDocument_implementation,
-    vim.lsp.protocol.Methods.textDocument_typeDefinition,
+    'textDocument/references',
+    'textDocument/definition',
+    'textDocument/declaration',
+    'textDocument/implementation',
+    'textDocument/typeDefinition',
   }
 
   for _, method in ipairs(methods) do
@@ -158,8 +158,8 @@ do
   local key = require('utils.key')
 
   -- stylua: ignore start
-  key.amend({ 'n', 'x' }, 'gd', act_if_supports_method(vim.lsp.protocol.Methods.textDocument_definition, 'definition'), { desc = 'Go to definition' })
-  key.amend({ 'n', 'x' }, 'gD', act_if_supports_method(vim.lsp.protocol.Methods.textDocument_declaration, 'declaration'), { desc = 'Go to declaration' })
+  key.amend({ 'n', 'x' }, 'gd', act_if_supports_method('textDocument/definition', 'definition'), { desc = 'Go to definition' })
+  key.amend({ 'n', 'x' }, 'gD', act_if_supports_method('textDocument/declaration', 'declaration'), { desc = 'Go to declaration' })
   -- stylua: ignore end
 
   -- stylua: ignore start

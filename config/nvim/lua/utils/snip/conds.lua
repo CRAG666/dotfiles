@@ -1,15 +1,15 @@
 local lsconds = require('luasnip.extras.conditions')
 local utils = require('utils')
 
----@class snip_cond_t
+---@class snip.cond
 ---@operator call: boolean
----@operator unm: snip_cond_t
----@operator add: snip_cond_t
----@operator mul: snip_cond_t
----@operator pow: snip_cond_t
----@operator mod: snip_cond_t
+---@operator unm: snip.cond
+---@operator add: snip.cond
+---@operator mul: snip.cond
+---@operator pow: snip.cond
+---@operator mod: snip.cond
 
----@alias snip_conds_t table<string, fun(...): (fun(...): boolean)>
+---@alias snip.conds table<string, fun(...): (fun(...): boolean)>
 
 ---Snippet condition functions
 ---Fields are automatically wrapped with `lsconds.make_condition()` so that
@@ -21,7 +21,7 @@ local utils = require('utils')
 ---with the operators unless taking `line_to_cursor`, `matched_trigger`, and
 ---`captures` (passed in by luasnip) as arguments, see
 ---`LuaSnip/lua/luasnip/extras/conditions/init.lua`
----@type snip_conds_t
+---@type snip.conds
 local M = setmetatable({}, {
   __newindex = function(self, cond_name, cond_fn)
     rawset(
@@ -88,7 +88,7 @@ end
 
 ---Returns whether current cursor is in the given types of treesitter node
 ---@param type string|string[]
----@param opts ts_find_node_opts_t?
+---@param opts ts.get_node.opts?
 ---@return fun(): boolean
 function M.in_tsnode(type, opts)
   return function()
@@ -98,7 +98,7 @@ end
 
 ---Returns whether current cursor is in the given names of syntax group
 ---@param name string|string[]|fun(types: string|string[]): boolean type of node, or function to check node type
----@param opts? syn_find_group_opts_t
+---@param opts? syn.get_group.opts
 ---@return fun(): boolean
 function M.in_syngroup(name, opts)
   return function()
@@ -156,7 +156,7 @@ end
 
 ---Returns whether the cursor is after a pattern
 ---@param pattern string lua pattern
----@return snip_cond_t
+---@return snip.cond
 function M.after_pattern(pattern)
   ---@param matched_trigger string the fully matched trigger
   return function(_, matched_trigger)

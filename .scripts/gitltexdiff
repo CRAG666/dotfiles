@@ -1,0 +1,95 @@
+#!/bin/bash
+
+# Script para generar un diff en PDF entre dos versiones de un archivo LaTeX en Git
+# Uso: ./script.sh <archivo.tex> <commit-anterior> [archivo-salida.pdf]
+
+set -euo pipefail  # Salir en errores, variables no definidas y errores en pipes
+
+# Colores para output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Función para mostrar uso
+usage() {
+    echo "Uso: $0 <archivo.tex> <commit-anterior> [archivo-salida.pdf]"
+    echo ""
+    echo "Ejemplo: $0 documento.tex HEAD~1"
+    echo "         $0 documento.tex abc123 diff_output.pdf"
+    exit 1
+}
+
+# Función para limpiar archivos temporales
+cleanup() {
+    rm -f /tmp/current_tex.tex /tmp/before_tex.tex ./diff.tex ./diff.aux ./diff.log ./diff.out
+    echo -e "${GREEN}✓ Archivos temporales eliminados${NC}"
+}
+
+# Trap para asegurar limpieza en caso de error o interrupción
+trap cleanup EXIT INT TERM
+
+# Validar argumentos
+if [ $# -lt 2 ]; then
+    echo -e "${RED}Error: Argumentos insuficientes${NC}"
+    usage
+fi
+
+FILE="$1"
+COMMIT="$2"
+OUTPUT="${3:-diff.pdf}"  # Por defecto diff.pdf si no se especifica
+
+# Validar que el archivo existe en HEAD
+if ! git cat-file -e HEAD:"$FILE" 2>/dev/null; then
+    echo -e "${RED}Error: El archivo '$FILE' no existe en HEAD${NC}"
+    exit 1
+fi
+
+# Validar que el archivo existe en el commit anterior
+if ! git cat-file -e "$COMMIT":"$FILE" 2>/dev/null; then
+    echo -e "${RED}Error: El archivo '$FILE' no existe en el commit '$COMMIT'${NC}"
+    exit 1
+fi
+
+# Validar que latexdiff está instalado
+if ! command -v latexdiff-git &>/dev/null; then
+    echo -e "${RED}Error: latexdiff no está instalado${NC}"
+    echo "Instálalo con: sudo apt install latexdiff (Debian/Ubuntu) o texlive-extra-utils"
+    exit 1
+fi
+
+# Validar que tectonic está instalado
+if ! command -v tectonic &>/dev/null; then
+    echo -e "${RED}Error: tectonic no está instalado${NC}"
+    echo "Instálalo desde: https://tectonic-typesetting.github.io/"
+    exit 1
+fi
+
+echo -e "${YELLOW}Generando diff entre $COMMIT y HEAD para $FILE...${NC}"
+
+# Extraer versiones del archivo (corregido typo: berfore -> before)
+git show HEAD:"$FILE" >/tmp/current_tex.tex
+git show "$COMMIT":"$FILE" >/tmp/before_tex.tex
+
+# Generar diff con latexdiff
+if ! latexdiff-git /tmp/before_tex.tex /tmp/current_tex.tex >./diff.tex; then
+    echo -e "${RED}Error: latexdiff falló${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✓ Diff generado${NC}"
+
+# Compilar con tectonic
+echo -e "${YELLOW}Compilando PDF...${NC}"
+if ! tectonic -X compile ./diff.tex; then
+    echo -e "${RED}Error: La compilación con tectonic falló${NC}"
+    echo "Revisa el archivo diff.tex para ver posibles errores"
+    exit 1
+fi
+
+# Renombrar si se especificó un nombre diferente
+if [ "$OUTPUT" != "diff.pdf" ]; then
+    mv diff.pdf "$OUTPUT"
+fi
+
+echo -e "${GREEN}✓ PDF generado exitosamente: $OUTPUT${NC}"

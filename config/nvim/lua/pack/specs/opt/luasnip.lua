@@ -1,3 +1,4 @@
+---@type pack.spec
 return {
   src = 'https://github.com/L3MON4D3/LuaSnip',
   data = {
@@ -6,8 +7,13 @@ return {
     postload = function()
       local ls = require('luasnip')
       local ls_types = require('luasnip.util.types')
+      local ls_vim_version = require('luasnip.util.vimversion')
       local ls_ft = require('luasnip.extras.filetype_functions')
       local utils = require('utils')
+
+      -- Cache `ge()` to fix performance issue:
+      -- https://github.com/L3MON4D3/LuaSnip/issues/1393
+      ls_vim_version.ge = utils.lua.cache(ls_vim_version.ge, {})
 
       ---Load snippets for a given filetype
       ---@param ft string?
@@ -15,7 +21,7 @@ return {
         ft = ft or vim.bo.ft
         utils.load.ft_load_once(
           ft,
-          'pack.ftconfigs.luasnip.snippets',
+          'pack.res.luasnip.snippets',
           function(_, snips)
             if not snips or vim.tbl_isempty(snips) then
               return
@@ -105,39 +111,44 @@ return {
         end,
       })
 
-      ---Choose the closer destination between two destinations
-      ---@param dest1 number[]?
-      ---@param dest2 number[]?
-      ---@return number[]|nil
-      local function choose_closer(dest1, dest2)
-        if not dest1 then
-          return dest2
+      ---Choose between snippet and tabout destinations
+      ---
+      ---If the jump directions of the two destinations are the same, prefer
+      ---snippet jump; else choose the one that is closer to the current cursor
+      ---position
+      ---@param snip_dest number[]?
+      ---@param tabout_dest number[]?
+      ---@return number[]?
+      local function coalesce(snip_dest, tabout_dest)
+        if not snip_dest then
+          return tabout_dest
         end
-        if not dest2 then
-          return dest1
+        if not tabout_dest then
+          return snip_dest
         end
 
         local current_pos = vim.api.nvim_win_get_cursor(0)
-        local line_width = vim.api.nvim_win_get_width(0)
-        local dist1 = math.abs(dest1[2] - current_pos[2])
-          + math.abs(dest1[1] - current_pos[1]) * line_width
-        local dist2 = math.abs(dest2[2] - current_pos[2])
-          + math.abs(dest2[1] - current_pos[1]) * line_width
-        if dist1 <= dist2 then
-          return dest1
-        else
-          return dest2
+        local snip_dist = (snip_dest[2] - current_pos[2])
+          + (snip_dest[1] - current_pos[1]) * vim.v.maxcol
+        local tabout_dist = (tabout_dest[2] - current_pos[2])
+          + (tabout_dest[1] - current_pos[1]) * vim.v.maxcol
+
+        if snip_dist * tabout_dist < 0 then
+          return snip_dest
         end
+
+        return math.abs(snip_dist) < math.abs(tabout_dist) and snip_dest
+          or tabout_dest
       end
 
-      ---Jump to the closer destination between a snippet and tabout
-      ---@param snip_dest number[]?
-      ---@param tabout_dest number[]?
-      ---@param direction number 1 or -1
-      ---@return boolean true if a jump is performed
-      local function jump_to_closer(snip_dest, tabout_dest, direction)
+      ---Jump to a snippet or tabout destination
+      ---@param snip_dest number[]? jump destination given by snippet engine
+      ---@param tabout_dest number[]? jump destination given by tabout plugin
+      ---@param direction 1|-1 direction of the jump, `1` for forward, `-1` for backward
+      ---@return boolean # whether a jump is performed
+      local function jump_coalesce(snip_dest, tabout_dest, direction)
         direction = direction or 1
-        local dest = choose_closer(snip_dest, tabout_dest)
+        local dest = coalesce(snip_dest, tabout_dest)
         if not dest then
           return false
         end
@@ -152,7 +163,7 @@ return {
 
       ---Convert a range into lsp format range
       ---@param range integer[][] 0-based range
-      ---@return lsp_range_t
+      ---@return winbar.sources.lsp.range
       local function range_convert(range)
         local s = range[1]
         local e = range[2]
@@ -263,8 +274,8 @@ return {
         end)()
 
         -- Jump to tabout or snippet destination depending on their distance
-        -- from cursor, prefer snippet jump to break ties
-        jump_to_closer(snip_dest, tabout_dest, 1)
+        -- and direction from cursor, prefer snippet jump to break ties
+        jump_coalesce(snip_dest, tabout_dest, 1)
       end
 
       ---Expand current snippet if expandable or jump backward to previous snippet
@@ -286,7 +297,7 @@ return {
           dest[1] = dest[1] + 1 -- (1, 0) indexed
           return dest
         end)()
-        if not jump_to_closer(snip_dest, tabout_dest, -1) then
+        if not jump_coalesce(snip_dest, tabout_dest, -1) then
           fallback()
         end
       end

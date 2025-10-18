@@ -1,7 +1,7 @@
 local M = {}
 
----@param sources winbar_source_t[]
----@return winbar_source_t
+---@param sources winbar.source[]
+---@return winbar.source
 function M.fallback(sources)
   return {
     get_symbols = function(buf, win, cursor)

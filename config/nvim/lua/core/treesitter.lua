@@ -22,25 +22,14 @@ vim.treesitter.stop = ts_buf_call_wrap(vim.treesitter.stop)
 ---Enable treesitter highlighting for given buffer
 ---@param buf integer
 local function enable_ts_hl(buf)
-  if
-    -- Don't re-enable in the same buffer, else buffers loaded from session
-    -- can have blank highlighting
-    not ts.is_active(buf)
-    -- Don't enable treesitter highlighting if buffer is a command window
-    -- vimscript buffer as it can get very long over time and make treesitter
-    -- very slow
-    or vim.iter(vim.fn.win_findbuf(buf)):any(function(win)
-      return vim.fn.win_gettype(win) == 'command'
-    end)
-  then
+  -- Don't start treesitter in bufs without filetype to avoid unnecessary calls
+  -- to `vim.treesitter.start()` and improve startup time
+  -- Don't re-enable in the same buffer, else buffers loaded from session can
+  -- have blank highlighting
+  if vim.b[buf].ft == '' or ts.is_active(buf) then
     return
   end
   pcall(vim.treesitter.start, buf)
-end
-
--- Automatically start treesitter highlighting for buffers
-for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-  enable_ts_hl(buf)
 end
 
 vim.api.nvim_create_autocmd('FileType', {
@@ -73,10 +62,6 @@ local function enable_ts_folding(buf)
     wo.foldmethod = 'expr'
     ::continue::
   end
-end
-
-for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-  enable_ts_folding(buf)
 end
 
 vim.api.nvim_create_autocmd('FileType', {

@@ -4,14 +4,7 @@ local M = {}
 ---@param buf integer? default: current buffer
 ---@return boolean
 function M.is_active(buf)
-  if not buf or buf == 0 then
-    buf = vim.api.nvim_get_current_buf()
-  end
-  if vim.treesitter.highlighter.active[buf] then
-    return true
-  end
-  -- `vim.treesitter.get_parser()` can be slow for big files
-  return not vim.b.bigfile and (pcall(vim.treesitter.get_parser, buf))
+  return vim.treesitter.highlighter.active[vim._resolve_bufnr(buf)] ~= nil
 end
 
 local ts_get_node = vim.treesitter.get_node
@@ -61,12 +54,12 @@ function M.get_node(opts)
   return ts_get_node(opts)
 end
 
----@class ts_find_node_opts_t : vim.treesitter.get_node.Opts
+---@class ts.get_node.opts : vim.treesitter.get_node.Opts
 ---@field depth? integer
 
 ---Returns whether cursor is in a specific type of treesitter node
 ---@param types string|string[]|fun(types: string|string[]): boolean type of node, or function to check node type
----@param opts ts_find_node_opts_t?
+---@param opts ts.get_node.opts?
 ---@return TSNode?
 function M.find_node(types, opts)
   local buf = opts and opts.bufnr

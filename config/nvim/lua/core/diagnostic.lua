@@ -61,13 +61,13 @@ do
 
     return vim
       .iter(diags)
-      :filter(function(diag) ---@param diag diagnostic_t
-        ---@class diagnostic_t: vim.Diagnostic
+      :filter(function(diag) ---@param diag diagnostic
+        ---@class diagnostic : vim.Diagnostic
         ---@field _hidden boolean whether the diagnostic is shown as virtual text
 
         diag._hidden = vim
           .iter(diags_cache[diag.bufnr][diag.lnum])
-          :any(function(d) ---@param d diagnostic_t
+          :any(function(d) ---@param d diagnostic
             return not d._hidden
               and d.namespace ~= diag.namespace
               and d.severity <= diag.severity

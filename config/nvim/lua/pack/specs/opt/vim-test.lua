@@ -1,3 +1,4 @@
+---@type pack.spec
 return {
   src = 'https://github.com/vim-test/vim-test',
   data = {
@@ -30,7 +31,7 @@ return {
     postload = function()
       local strategies = vim.g['test#custom_strategies'] or {}
 
-      -- Modify & confirm test command before running
+      ---Modify & confirm test command before running
       strategies.confirm = function(cmd)
         vim.ui.input(
           { prompt = 'Test command: ', default = cmd },
@@ -46,6 +47,19 @@ return {
         )
       end
 
+      ---Yank instead of run the test command
+      strategies.yank = function(cmd)
+        vim.fn.setreg('"', cmd)
+        vim.fn.setreg(vim.v.register, cmd)
+        vim.notify(
+          string.format(
+            "[vim-test] yanked '%s' to register '%s'",
+            cmd,
+            vim.v.register
+          )
+        )
+      end
+
       vim.g['test#custom_strategies'] = strategies
 
       vim.g['test#strategy'] = 'dispatch'
@@ -53,7 +67,7 @@ return {
 
       -- Lazy-load test configs for each filetype
       require('utils.load').ft_auto_load_once(
-        'pack.ftconfigs.vim-test.tests',
+        'pack.res.vim-test.tests',
         function(ft, configs)
           if not configs then
             return

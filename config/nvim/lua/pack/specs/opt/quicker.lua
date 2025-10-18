@@ -1,18 +1,25 @@
+---@type pack.spec
 return {
   src = 'https://github.com/stevearc/quicker.nvim',
   data = {
-    ---@param spec vim.pack.Spec
-    load = function(spec)
+    load = function(spec, path)
       local load = require('utils.load')
 
-      load.on_events(
-        'UIEnter',
-        'quicker',
-        vim.schedule_wrap(function()
-          load.load('quicker.nvim')
-          spec.data.postload()
-        end)
-      )
+      local function load_quicker()
+        if spec.data and spec.data.preload then
+          spec.data.preload(spec, path)
+        end
+        load.load('quicker.nvim')
+        if spec.data and spec.data.postload then
+          spec.data.postload(spec, path)
+        end
+      end
+
+      if vim.v.vim_did_enter then
+        vim.schedule(load_quicker)
+      else
+        load.on_events('UIEnter', 'quicker', vim.schedule_wrap(load_quicker))
+      end
     end,
     postload = function()
       local icons = require('utils.static.icons')

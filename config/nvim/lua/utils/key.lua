@@ -33,7 +33,7 @@ function M.command_map(trig, command, opts)
   end, vim.tbl_deep_extend('keep', { expr = true }, opts or {}))
 end
 
----@class keymap_def_t
+---@class key.def
 ---@field lhs string
 ---@field lhsraw string
 ---@field rhs string?
@@ -50,7 +50,7 @@ end
 ---Get keymap definition
 ---@param mode string
 ---@param lhs string
----@return keymap_def_t
+---@return key.def
 function M.get(mode, lhs)
   local lhs_keycode = vim.keycode(lhs)
   for _, map in ipairs(vim.api.nvim_buf_get_keymap(0, mode)) do
@@ -126,7 +126,7 @@ function M.feed(keys, modes, escape_ks)
   )
 end
 
----@param def keymap_def_t
+---@param def key.def
 ---@return function
 function M.fallback_fn(def)
   local modes = def.noremap and 'in' or 'im'
@@ -212,7 +212,7 @@ end
 ---Wrap a function so that it runs with `lazyredraw=true`
 ---@generic T
 ---@param fn fun(): T?
----@return fun(): T[]
+---@return fun(): T?
 function M.with_lazyredraw(fn)
   return function()
     -- Avoid setting `lazyredraw` option and trigging `OptionSet` event
@@ -231,7 +231,7 @@ end
 ---function
 ---@generic T
 ---@param fn fun(): T?
----@return fun(): T[]
+---@return fun(): T?
 function M.with_cursorpos(fn)
   return function()
     local win = vim.api.nvim_get_current_win()
@@ -245,6 +245,24 @@ function M.with_cursorpos(fn)
     end
     vim.api.nvim_set_current_win(win)
     vim.api.nvim_win_set_cursor(win, cursor)
+    return unpack(result)
+  end
+end
+
+---Wrap a function so that current window view is kept after running it
+---@generic T
+---@param cb fun(): T?
+---@return fun(): T?
+function M.with_winview(cb)
+  return function()
+    local win = vim.api.nvim_get_current_win()
+    local view = vim.fn.winsaveview()
+    local result = { cb() }
+    if vim.api.nvim_win_is_valid(win) then
+      vim.api.nvim_win_call(win, function()
+        vim.fn.winrestview(view)
+      end)
+    end
     return unpack(result)
   end
 end

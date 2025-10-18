@@ -38,7 +38,7 @@ local function has_valid_buf()
   return vim.iter(vim.api.nvim_list_bufs()):any(buf_valid)
 end
 
----@class session_opts_t
+---@class session.opts
 M.opts = {
   dir = vim.fs.joinpath(vim.fn.stdpath('data') --[[@as string]], 'session'),
   ---Given path, return project root, used to determine the name of the session
@@ -310,7 +310,7 @@ local function check_enabled(opts)
   return opts and opts.enabled and not vim.tbl_isempty(opts.events)
 end
 
----@param opts? session_opts_t
+---@param opts? session.opts
 function M.setup(opts)
   M.opts = vim.tbl_deep_extend('force', M.opts, opts or {})
   M.opts.dir = vim.fn.fnamemodify(M.opts.dir, ':p')

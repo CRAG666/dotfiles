@@ -1,6 +1,6 @@
 local M = {}
 
----@class parsed_arg_t table
+---@class cmd.parsed_args table
 
 ---Parse arguments from the command line into a table
 ---@param fargs string[] list of arguments
@@ -45,11 +45,11 @@ end
 
 ---options command accepts, in the format of <optkey>=<candicate_optvals>
 ---or <optkey>
----@alias opts_t table
----@alias params_t string[]
+---@alias cmd.opts table
+---@alias cmd.params string[]
 
 ---Get option keys / option names from opts table
----@param opts opts_t
+---@param opts cmd.opts
 ---@return string[]
 function M.optkeys(opts)
   local optkeys = {}
@@ -65,7 +65,7 @@ end
 
 ---Returns a function that can be used to complete the options of a command
 ---An option must be in the format of --<opt> or --<opt>=<val>
----@param opts opts_t?
+---@param opts cmd.opts?
 ---@return fun(arglead: string, cmdline: string, cursorpos: integer): string[]
 function M.complete_opts(opts)
   ---@param arglead string leading portion of the argument being completed
@@ -109,7 +109,7 @@ function M.complete_opts(opts)
 end
 
 ---Returns a function that can be used to complete the arguments of a command
----@param params params_t?
+---@param params cmd.params?
 ---@return fun(arglead: string, cmdline: string, cursorpos: integer): string[]
 function M.complete_params(params)
   return function(arglead, _, _)
@@ -121,16 +121,15 @@ end
 
 ---Returns a function that can be used to complete the arguments and options
 ---of a command
----@param params params_t?
----@param opts opts_t?
+---@param params cmd.params?
+---@param opts cmd.opts?
 ---@return fun(arglead: string, cmdline: string, cursorpos: integer): string[]
 function M.complete(params, opts)
-  local fn_compl_params = M.complete_params(params)
-  local fn_compl_opts = M.complete_opts(opts)
   return function(arglead, cmdline, cursorpos)
-    local param_completions = fn_compl_params(arglead, cmdline, cursorpos)
-    local opt_completions = fn_compl_opts(arglead, cmdline, cursorpos)
-    return vim.list_extend(param_completions, opt_completions)
+    return vim.list_extend(
+      M.complete_params(params)(arglead, cmdline, cursorpos),
+      M.complete_opts(opts)(arglead, cmdline, cursorpos)
+    )
   end
 end
 

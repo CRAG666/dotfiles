@@ -1,24 +1,24 @@
 local fmt = string.format
 
----@class fallbak_tbl_t each key shares a default / fallback pattern table
+---@class fallback_tbl each key shares a default / fallback pattern table
 ---that can be used for pattern matching if corresponding key is not present
 ---or non patterns stored in the key are matched
 ---@field __content table closing patterns for each filetype
 ---@field __default table
-local fallback_tbl_t = {}
+local fallback_tbl = {}
 
-function fallback_tbl_t:__index(k)
-  return fallback_tbl_t[k] or self:fallback(k)
+function fallback_tbl:__index(k)
+  return fallback_tbl[k] or self:fallback(k)
 end
 
-function fallback_tbl_t:__newindex(k, v)
+function fallback_tbl:__newindex(k, v)
   self.__content[k] = v
 end
 
 ---Get the table with the fallback patterns for kdest
 ---@param k string key
 ---@return table concatenated table
-function fallback_tbl_t:fallback(k)
+function fallback_tbl:fallback(k)
   local dest = self.__content[k]
   local default = self.__default
   if dest and default then
@@ -38,18 +38,16 @@ end
 
 ---Create a new shared table
 ---@param args table
----@return fallbak_tbl_t
-function fallback_tbl_t:new(args)
-  args = args or {}
-  local fallback_tbl = {
-    __content = args.content or {},
-    __default = args.default or {},
-  }
-  return setmetatable(fallback_tbl, self)
+---@return fallback_tbl
+function fallback_tbl:new(args)
+  return setmetatable({
+    __content = args and args.content or {},
+    __default = args and args.default or {},
+  }, self)
 end
 
 -- stylua: ignore start
-local closing_patterns = fallback_tbl_t:new({
+local closing_patterns = fallback_tbl:new({
   default = {
     '\\%)',
     '\\%)',

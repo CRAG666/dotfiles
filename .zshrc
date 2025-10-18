@@ -251,7 +251,6 @@ export PASSWORD_STORE_ENABLE_EXTENSIONS=true
 export NVIM_NF=true
 
 # BEGIN_KITTY_SHELL_INTEGRATION
-export TERM="xterm-kitty"
 custom_autocomplete() {
     zle fzf-tab-complete
     printf "\x1b_Ga=d,d=A\x1b\\"

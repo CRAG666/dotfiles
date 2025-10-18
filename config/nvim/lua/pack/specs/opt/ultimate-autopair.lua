@@ -1,3 +1,4 @@
+---@type pack.spec
 return {
   src = 'https://github.com/altermo/ultimate-autopair.nvim',
   data = {

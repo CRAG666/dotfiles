@@ -56,6 +56,7 @@ local hlgroups = {
   WinBarIconKindRepeat            = { link = 'Repeat' },
   WinBarIconKindReturnStatement   = { link = '@keyword.return' },
   WinBarIconKindRpc               = { link = 'Function' },
+  WinBarIconKindRule              = { link = '@lsp.type.namespace' },
   WinBarIconKindRuleSet           = { link = '@lsp.type.namespace' },
   WinBarIconKindScope             = { link = '@lsp.type.namespace' },
   WinBarIconKindSection           = { link = 'Title' },

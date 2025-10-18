@@ -22,7 +22,7 @@ local function cc_resolve(cc)
 end
 
 ---Default options
----@class cc_opts_t
+---@class cc.opts
 local opts = {
   scope = function()
     return vim.fn.strdisplaywidth(vim.fn.getline('.'))
@@ -184,7 +184,7 @@ local function cc_update(winid)
 end
 
 ---Setup colorcolumn
----@param o cc_opts_t?
+---@param o cc.opts?
 local function setup(o)
   if vim.g.loaded_colorcolumn ~= nil then
     return
@@ -232,6 +232,12 @@ local function setup(o)
   vim.api.nvim_create_autocmd('ColorScheme', {
     desc = 'Update base colors.',
     group = id,
+    callback = update_hl_hex,
+  })
+  vim.api.nvim_create_autocmd('OptionSet', {
+    desc = 'Update base colors.',
+    group = id,
+    pattern = 'background',
     callback = update_hl_hex,
   })
 

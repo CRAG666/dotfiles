@@ -5,10 +5,10 @@ return {
       { src = 'https://github.com/nvim-neorg/lua-utils.nvim' },
       { src = 'https://github.com/pysan3/pathlib.nvim' },
       { src = 'https://github.com/3rd/image.nvim' },
-      { src = 'https://github.com/juniorsundar/neorg-extras' },
       { src = 'https://github.com/nvim-neotest/nvim-nio' },
       {
         src = 'https://github.com/nvim-treesitter/nvim-treesitter',
+        data = { optional = false },
       },
     },
     keys = {
@@ -25,10 +25,10 @@ return {
       },
     },
     cmds = { 'Neorg' },
-    events = {
-      event = 'Filetype',
-      pattern = 'norg',
-    },
+    -- events = {
+    --   event = 'FileType',
+    --   pattern = 'norg',
+    -- },
     postload = function()
       require('neorg').setup({
         load = {
@@ -84,13 +84,6 @@ return {
           ['core.summary'] = {},
           ['core.ui.calendar'] = {},
           ['core.latex.renderer'] = {},
-          ['external.many-mans'] = {
-            config = {
-              metadata_fold = true,
-              code_fold = true,
-            },
-          },
-          ['external.agenda'] = {},
         },
       })
 

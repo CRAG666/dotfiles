@@ -1,3 +1,4 @@
+---@type pack.spec
 -- Python dependencies:
 -- - pynvim
 -- - ipykernel
@@ -14,7 +15,10 @@
 return {
   src = 'https://github.com/benlubas/molten-nvim',
   data = {
-    build = ':UpdateRemotePlugins',
+    build = function()
+      vim.cmd.packadd('molten-nvim')
+      vim.cmd.UpdateRemotePlugins()
+    end,
     -- No need to lazy load on molten's builtin commands (e.g. `:MoltenInit`)
     -- since they are already registered in rplugin manifest,
     -- see `:h $NVIM_RPLUGIN_MANIFEST`
@@ -27,8 +31,6 @@ return {
       'MoltenNotebookRunVisual',
       'MoltenNotebookRunOperator',
     },
-    ---@param spec vim.pack.Spec
-    ---@param path string
     init = function(spec, path)
       vim.api.nvim_create_autocmd('FileType', {
         pattern = { 'python', 'markdown' },
@@ -153,7 +155,7 @@ return {
       })
 
       ---Send code cell to molten
-      ---@param cell code_cell_t
+      ---@param cell molten.code_cell
       ---@return nil
       local function send(cell)
         local range = cell.range
@@ -161,27 +163,27 @@ return {
       end
 
       ---Code range, 0-based, end-exclusive
-      ---@class code_range_t
+      ---@class molten.code_range
       ---@field from integer[] 0-based (row, col) array
       ---@field to integer[] 0-based (row, col) array
 
-      ---@class code_cell_t
+      ---@class molten.code_cell
       ---@field lang string?
       ---@field text table<string>
-      ---@field range code_range_t
+      ---@field range molten.code_range
 
       ---Check if two ranges are overlapped
-      ---@param r1 code_range_t
-      ---@param r2 code_range_t
+      ---@param r1 molten.code_range
+      ---@param r2 molten.code_range
       ---@return boolean
       local function is_overlapped(r1, r2)
         return r1.from[1] <= r2.to[1] and r2.from[1] <= r1.to[1]
       end
 
       ---Get the overlap between two (line) ranges
-      ---@param r1 code_range_t
-      ---@param r2 code_range_t
-      ---@return code_range_t?
+      ---@param r1 molten.code_range
+      ---@param r2 molten.code_range
+      ---@return molten.code_range?
       local function get_overlap(r1, r2)
         if is_overlapped(r1, r2) then
           return {
@@ -194,10 +196,10 @@ return {
       ---Extract code cells that overlap the given range,
       ---removes cells with a language that's in the ignore list
       ---@param lang string
-      ---@param code_chunks table<string, code_cell_t>
-      ---@param range code_range_t
+      ---@param code_chunks table<string, molten.code_cell>
+      ---@param range molten.code_range
       ---@param partial boolean?
-      ---@return code_cell_t[]
+      ---@return molten.code_cell[]
       local function extract_cells(lang, code_chunks, range, partial)
         if not code_chunks[lang] then
           return {}
@@ -267,7 +269,7 @@ return {
       ---
       ---Code are run in chunks (cells) , i.e. the whole chunk will be sent to
       ---REPL even when there are only partial overlap between the chunk and `range`
-      ---@param range code_range_t a range, for with any overlapping code cells are run
+      ---@param range molten.code_range a range, for with any overlapping code cells are run
       ---@return nil
       local function run_cell(range)
         if not otk then
@@ -331,7 +333,7 @@ return {
         local buf = vim.api.nvim_get_current_buf()
         local pos = vim.api.nvim_win_get_cursor(0)
 
-        ---@type code_cell_t
+        ---@type molten.code_cell
         local cell = {
           lang = lang,
           range = { from = { pos[1] - 1, 0 }, to = { pos[1], 0 } },
@@ -346,7 +348,7 @@ return {
       ---Code are run in lines, i.e. only code lines in `range` will be sent to REPL,
       ---if there is a partial overlap between `range` and a code chunk,
       ---only the lines inside `range` will be run
-      ---@param range code_range_t
+      ---@param range molten.code_range
       ---@return nil
       local function run_range(range)
         if not otk then

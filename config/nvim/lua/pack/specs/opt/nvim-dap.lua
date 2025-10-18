@@ -1,7 +1,11 @@
+---@type pack.spec
 return {
   src = 'https://github.com/mfussenegger/nvim-dap',
   data = {
-    deps = 'https://github.com/rcarriga/nvim-dap-ui',
+    exts = {
+      src = 'https://github.com/rcarriga/nvim-dap-ui',
+      data = { optional = true },
+    },
     cmds = {
       'DapContinue',
       'DapLoadLaunchJSON',
@@ -189,7 +193,7 @@ return {
       dap.configurations = {}
 
       require('utils.load').ft_auto_load_once(
-        'pack.ftconfigs.nvim-dap.dap',
+        'pack.res.nvim-dap.dap',
         function(ft, spec)
           if not spec then
             return

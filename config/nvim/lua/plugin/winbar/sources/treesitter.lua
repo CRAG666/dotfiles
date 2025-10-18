@@ -93,14 +93,14 @@ end
 ---@param ts_node TSNode
 ---@param buf integer buffer handler
 ---@param win integer window handler
----@return winbar_symbol_t?
+---@return winbar.symbol?
 local function convert(ts_node, buf, win)
   if not valid_node(ts_node, buf) then
     return nil
   end
   local kind = utils.str.snake_to_pascal(get_node_short_type(ts_node))
   local range = { ts_node:range() }
-  return bar.winbar_symbol_t:new(setmetatable({
+  return bar.winbar_symbol:new(setmetatable({
     buf = buf,
     win = win,
     name = get_node_short_name(ts_node, buf),
@@ -117,7 +117,7 @@ local function convert(ts_node, buf, win)
       },
     },
   }, {
-    ---@param self winbar_symbol_t
+    ---@param self winbar.symbol
     ---@param k string|number
     __index = function(self, k)
       if k == 'children' then
@@ -143,7 +143,7 @@ end
 ---@param buf integer buffer handler
 ---@param win integer window handler
 ---@param cursor integer[] cursor position
----@return winbar_symbol_t[] symbols winbar symbols
+---@return winbar.symbol[] symbols winbar symbols
 local function get_symbols(buf, win, cursor)
   buf = vim._resolve_bufnr(buf)
   if
@@ -156,7 +156,7 @@ local function get_symbols(buf, win, cursor)
     return {}
   end
 
-  local symbols = {} ---@type winbar_symbol_t[]
+  local symbols = {} ---@type winbar.symbol[]
 
   -- Prevent errors when getting node from filetypes without a parser
   local node = vim.F.npcall(vim.treesitter.get_node, {

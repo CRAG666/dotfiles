@@ -1,18 +1,29 @@
+---@type pack.spec
 return {
   src = 'https://github.com/folke/which-key.nvim',
   data = {
-    ---@param spec vim.pack.Spec
-    load = function(spec)
+    load = function(spec, path)
       local load = require('utils.load')
 
-      load.on_events(
-        'UIEnter',
-        'which-key',
-        vim.schedule_wrap(function()
-          load.load('which-key.nvim')
-          spec.data.postload()
-        end)
-      )
+      local function load_wk()
+        if spec.data and spec.data.preload then
+          spec.data.preload(spec, path)
+        end
+        load.load('which-key.nvim')
+        if spec.data and spec.data.postload then
+          spec.data.postload(spec, path)
+        end
+      end
+
+      if vim.v.vim_did_enter then
+        vim.schedule(load_wk)
+      else
+        load.on_events(
+          'UIEnter',
+          'which-key',
+          vim.schedule_wrap(load_wk)
+        )
+      end
     end,
     postload = function()
       local icons = require('utils.static.icons')

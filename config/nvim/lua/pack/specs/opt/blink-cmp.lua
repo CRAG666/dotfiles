@@ -1,6 +1,8 @@
+---@type pack.spec
 return {
   src = 'https://github.com/saghen/blink.cmp',
   data = {
+    optional = vim.g.vscode,
     deps = {
       {
         src = 'https://github.com/L3MON4D3/LuaSnip',
@@ -13,7 +15,12 @@ return {
     },
     -- https://github.com/Saghen/blink.cmp/issues/145#issuecomment-2483686337
     -- https://github.com/Saghen/blink.cmp/issues/145#issuecomment-2492759016
-    build = 'cargo build --release',
+    build = string.format(
+      '%s cargo build --release',
+      vim.env.TERMUX_VERSION
+          and 'RUSTC_BOOTSTRAP=1 RUSTFLAGS="-C link-args=-lluajit"'
+        or ''
+    ),
     events = { 'InsertEnter', 'CmdlineEnter' },
     postload = function()
       local icons = require('utils.static.icons')
@@ -78,8 +85,8 @@ return {
             },
           },
           menu = {
-            min_width = vim.go.pumwidth,
-            max_height = vim.go.pumheight,
+            min_width = vim.go.pumwidth > 0 and vim.go.pumwidth or nil, ---@diagnostic disable-line: assign-type-mismatch
+            max_height = vim.go.pumheight > 0 and vim.go.pumheight or nil, ---@diagnostic disable-line: assign-type-mismatch
             draw = {
               columns = not vim.g.has_nf
                   and {

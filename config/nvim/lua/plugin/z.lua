@@ -41,13 +41,13 @@ local function z_args_esc(args)
   )
 end
 
----@class z_cmds_t
+---@class z.cmd
 ---@field jump fun(trig?: string[]): string[]
 ---@field list fun(trig?: string[]): string[]
 ---@field add fun(dir: string): string[]
 
----@alias z_backend_t { cmds: z_cmds_t, exists: fun(): boolean }
----@type table<string, z_backend_t>
+---@alias z.backend { cmd: z.cmd, exists: fun(): boolean }
+---@type table<string, z.backend>
 local z_backends = {
   z = {
     exists = function()
@@ -55,7 +55,7 @@ local z_backends = {
         and vim.fn.executable(vim.env.SHELL) == 1
         and vim.system({ vim.env.SHELL, '-c', 'type z' }):wait().code == 0
     end,
-    cmds = {
+    cmd = {
       jump = function(trig)
         return { vim.env.SHELL, '-c', 'z -e ' .. z_args_esc(trig) }
       end,
@@ -71,7 +71,7 @@ local z_backends = {
     exists = function()
       return vim.fn.executable('zoxide') == 1
     end,
-    cmds = {
+    cmd = {
       jump = function(trig)
         return { 'zoxide', 'query', unpack(z_args_norm(trig)) }
       end,
@@ -85,7 +85,7 @@ local z_backends = {
   },
 }
 
----@type z_backend_t
+---@type z.backend
 local z = (function()
   for _, backend in pairs(z_backends) do
     if backend.exists() then
@@ -168,7 +168,7 @@ end
 ---@param input string[]
 function M.jump(input)
   ---@diagnostic disable-next-line: need-check-nil
-  vim.system(z.cmds.jump(input), { text = true }, function(obj)
+  vim.system(z.cmd.jump(input), { text = true }, function(obj)
     if obj.code ~= 0 then
       vim.schedule(function()
         vim.notify('[z] ' .. (obj.stderr or obj.stdout))
@@ -196,7 +196,7 @@ end
 ---@return string[]
 function M.list(input)
   ---@diagnostic disable-next-line: need-check-nil
-  local o = vim.system(z.cmds.list(input)):wait()
+  local o = vim.system(z.cmd.list(input)):wait()
   if o.code ~= 0 then
     vim.notify('[z] ' .. o.stderr or o.stdout)
     return {}
@@ -249,7 +249,7 @@ function M.setup()
       group = vim.api.nvim_create_augroup('my.z.record_dir', {}),
       callback = function(args)
         local dir = args.file
-        vim.system(z.cmds.add(dir))
+        vim.system(z.cmd.add(dir))
         if cmp_list_cache and not vim.tbl_contains(cmp_list_cache, dir) then
           cmp_list_cache = nil
         end

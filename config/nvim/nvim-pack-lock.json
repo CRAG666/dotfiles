@@ -1,0 +1,67 @@
+{
+  "plugins": {
+    "LuaSnip": [],
+    "blink.cmp": [],
+    "codecompanion.nvim": [],
+    "flash.nvim": [],
+    "fugit2.nvim": [],
+    "gitsigns.nvim": [],
+    "guttermarks.nvim": [],
+    "image.nvim": [],
+    "lua-utils.nvim": [],
+    "luasnip-latex-snippets.nvim": [],
+    "mason-tool-installer.nvim": [],
+    "mason.nvim": [],
+    "mini.nvim": [],
+    "molten-nvim": [],
+    "muren.nvim": [],
+    "neogen": [],
+    "neorg": {
+      "rev": "5f61d8b8",
+      "src": "https://github.com/nvim-neorg/neorg"
+    },
+    "neorg-extras": [],
+    "nui.nvim": [],
+    "nvim": [],
+    "nvim-colorizer.lua": [],
+    "nvim-dap": [],
+    "nvim-dap-ui": [],
+    "nvim-dbee": [],
+    "nvim-nio": [],
+    "nvim-surround": [],
+    "nvim-tinygit": [],
+    "nvim-treesitter": {
+      "version": "'main'"
+    },
+    "nvim-treesitter-endwise": [],
+    "nvim-treesitter-incremental-selection": {
+      "rev": "896a87b",
+      "src": "https://github.com/shushtain/nvim-treesitter-incremental-selection"
+    },
+    "nvim-treesitter-textobjects": {
+      "version": "'main'"
+    },
+    "nvim-web-devicons": [],
+    "one-small-step-for-vimkind": [],
+    "otter.nvim": [],
+    "pathlib.nvim": [],
+    "plenary.nvim": [],
+    "quicker.nvim": [],
+    "render-markdown.nvim": [],
+    "snacks.nvim": [],
+    "ssr.nvim": [],
+    "supermaven-nvim": [],
+    "tiny-code-action.nvim": [],
+    "ts-autotag.nvim": [],
+    "ts-comments.nvim": [],
+    "ultimate-autopair.nvim": [],
+    "undotree": [],
+    "vim-conjoin": [],
+    "vim-dispatch": [],
+    "vim-easy-align": [],
+    "vim-sleuth": [],
+    "vim-test": [],
+    "vimtex": [],
+    "which-key.nvim": []
+  }
+}

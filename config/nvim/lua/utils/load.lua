@@ -57,45 +57,38 @@ function M.load(name)
   pcall(require, name)
 end
 
----@class (partial) load_event_spec_structured_t : vim.api.keyset.create_autocmd
+---@class (partial) load.event.structured_spec : vim.api.keyset.create_autocmd
 ---@field event string
 
----@alias load_event_spec_t load_event_spec_structured_t|string
----@alias load_event_loader_t fun(args: vim.api.keyset.create_autocmd.callback_args): boolean?
+---@alias load.event.spec load.event.structured_spec|string
+---@alias load.event.handler fun(args: vim.api.keyset.create_autocmd.callback_args): boolean?
 
 ---Plugin loaders grouped by event, pattern, and buffers
----@type table<string, { all: load_event_loader_t[], pats: table<string, load_event_loader_t[]>, bufs: table<string, load_event_loader_t[]> }>
+---@type table<string, { all: load.event.handler[], pats: table<string, load.event.handler[]>, bufs: table<string, load.event.handler[]> }>
 local event_loaders = vim.defaulttable()
 
 ---Helper function that returns a function as event callback to trigger
 ---loaders given by `loaders`
----@param loaders load_event_loader_t[]
----@return load_event_loader_t
+---@param loaders load.event.handler[]
+---@return load.event.handler
 local function trig_loaders_fn(loaders)
   return function(args)
     for i, loader in ipairs(loaders) do
       loader(args)
       loaders[i] = nil
     end
-
-    vim.schedule(function()
-      if not vim.api.nvim_buf_is_valid(args.buf) then
-        return
-      end
-      vim.api.nvim_buf_call(args.buf, function()
-        vim.api.nvim_exec_autocmds(
-          args.event,
-          { pattern = args.match, data = args.data }
-        )
-      end)
+    vim.api.nvim_buf_call(args.buf, function()
+      vim.api.nvim_exec_autocmds(
+        args.event,
+        { pattern = args.match, data = args.data }
+      )
     end)
-
     return true
   end
 end
 
 ---Load plugin once on given events
----@param event_specs load_event_spec_t|load_event_spec_t[] event/list of events to load the plugin
+---@param event_specs load.event.spec|load.event.spec[] event/list of events to load the plugin
 ---@param name string unique name of the plugin, also used as a namespace to prevent setting duplicated lazy-loading handlers for the same plugin/module
 ---@param load? fun(args: vim.api.keyset.create_autocmd.callback_args) function to load the plugin
 function M.on_events(event_specs, name, load)
@@ -131,7 +124,7 @@ function M.on_events(event_specs, name, load)
   -- }
   ---@diagnostic disable-next-line: param-type-mismatch
   if not vim.islist(event_specs) then
-    event_specs = { event_specs } ---@cast event_specs load_event_spec_t[]
+    event_specs = { event_specs } ---@cast event_specs load.event.spec[]
   end
   for i, spec in ipairs(event_specs) do
     if type(spec) == 'string' then
@@ -141,7 +134,7 @@ function M.on_events(event_specs, name, load)
 
   -- Register loader so that the group of loaders for the same event, pattern,
   -- and buffers are triggered once together
-  ---@cast event_specs load_event_spec_structured_t[]
+  ---@cast event_specs load.event.structured_spec[]
   for _, spec in ipairs(event_specs) do
     if spec.buffer then
       local loaders = event_loaders[spec.event].bufs[spec.buffer]
@@ -174,7 +167,7 @@ function M.on_events(event_specs, name, load)
         if vim.tbl_isempty(loaders) then
           vim.api.nvim_create_autocmd(spec.event, {
             once = true,
-            pattern = spec.pattern,
+            pattern = pat,
             group = vim.api.nvim_create_augroup(
               string.format(
                 'my.load.on_events.event.%s.pat.%s',
@@ -212,8 +205,10 @@ function M.on_events(event_specs, name, load)
   end
 end
 
+---@alias load.cmd.spec string
+
 ---Load plugin once on given commands
----@param cmds string|string[] command/list of commands to load the plugin
+---@param cmds load.cmd.spec|load.cmd.spec[] command/list of commands to load the plugin
 ---@param name string unique name of the plugin, also used as a namespace to prevent setting duplicated lazy-loading handlers for the same plugin/module
 ---@param load? function function to load the plugin
 function M.on_cmds(cmds, name, load)
@@ -285,19 +280,19 @@ function M.on_cmds(cmds, name, load)
   end
 end
 
----@class load_key_spec_structured_t
+---@class load.key.structured_spec
 ---@field mode? string|string[]
 ---@field lhs string
 ---@field opts? vim.keymap.set.Opts
 
----@alias load_key_spec_t load_key_spec_structured_t|string
+---@alias load.key.spec load.key.structured_spec|string
 
 ---Mapping from plugin/module name to triggering keys
----@type table<string, load_key_spec_t[]>
+---@type table<string, load.key.spec[]>
 local keys = {}
 
 ---Load plugin once on given keys
----@param key_specs load_key_spec_t|load_key_spec_t[]
+---@param key_specs load.key.spec|load.key.spec[]
 ---@param name string unique name of the plugin, also used as a namespace to prevent setting duplicated lazy-loading handlers for the same plugin/module
 ---@param load? function function to load the plugin
 function M.on_keys(key_specs, name, load)
@@ -307,9 +302,9 @@ function M.on_keys(key_specs, name, load)
 
   ---@diagnostic disable-next-line: param-type-mismatch
   if not vim.islist(key_specs) then
-    key_specs = { key_specs } ---@cast key_specs load_key_spec_t[]
+    key_specs = { key_specs } ---@cast key_specs load.key.spec[]
   end
-  ---@cast key_specs load_key_spec_structured_t[]
+  ---@cast key_specs load.key.structured_spec[]
   for i, spec in ipairs(key_specs) do
     if type(spec) == 'string' then
       key_specs[i] = { mode = { 'n' }, lhs = spec }

@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Sat 27 Sep 2025 01:37:57 AM EDT
+-- Last Updated: Wed 01 Oct 2025 01:33:37 AM EDT
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -284,7 +284,7 @@ local hlgroups = {
   Underlined = { underline = true },
   Ignore = { fg = c_iron },
   Error = { fg = c_scarlet },
-  Todo = { fg = c_black, bg = c_beige, bold = true },
+  Todo = { fg = c_beige },
   -- }}}2
 
   -- Treesitter syntax {{{2
@@ -362,9 +362,7 @@ local hlgroups = {
   ['@markup.heading.1.delimiter.vimdoc'] = { link = 'helpSectionDelim' },
   ['@markup.heading.2.delimiter.vimdoc'] = { link = 'helpSectionDelim' },
   ['@comment.todo'] = { link = 'Todo' },
-  ['@comment.todo.unchecked'] = { link = 'Todo' },
-  ['@comment.todo.checked'] = { link = 'Done' },
-  ['@comment.info'] = { link = 'SpecialComment' },
+  ['@comment.note'] = { link = 'SpecialComment' },
   ['@comment.warning'] = { link = 'WarningMsg' },
   ['@comment.error'] = { link = 'ErrorMsg' },
   ['@diff.delta'] = { link = 'DiffChanged' },
@@ -387,8 +385,7 @@ local hlgroups = {
   ['@lsp.type.struct'] = { link = 'Structure' },
   ['@lsp.type.macro'] = { link = 'Macro' },
   ['@lsp.type.method'] = { link = 'Function' },
-  ['@lsp.type.comment'] = { link = 'Comment' },
-  ['@lsp.type.function'] = { link = 'Function' },
+  ['@lsp.type.comment'] = {}, -- avoid interfere with `@comment.note/todo/warning/error`
   ['@lsp.type.property'] = { link = 'Field' },
   ['@lsp.type.variable'] = { link = 'Variable' },
   ['@lsp.type.decorator'] = { link = 'Label' },

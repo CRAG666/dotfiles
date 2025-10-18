@@ -29,11 +29,11 @@ function M.escape(str)
   return (str:gsub('%%', '%%%%'))
 end
 
----@type stl_spinner_t[]
+---@type stl.spinner[]
 local spinners = {}
 
----@class stl_spinner_t
----@field opts stl_spinner_opts_t
+---@class stl.spinner
+---@field opts stl.spinner.opts
 ---@field id integer
 ---@field timer uv.uv_timer_t
 ---@field icon string icon of the spinner
@@ -43,14 +43,14 @@ local spinners = {}
 ---@field attached_autocmd? integer autocmd for the attach
 M.spinner = {}
 
----@class stl_spinner_opts_t
+---@class stl.spinner.opts
 ---@field frame_interval? integer time interval between spinner frames (ms)
 ---@field finish_timeout? integer time to show finish icon before clearing (ms)
 ---@field icons? { progress: string[], finish: string }
----@field on_spin? fun(spinner: stl_spinner_t) function to execute on each update
----@field on_finish? fun(spinner: stl_spinner_t) function to execute on stop
+---@field on_spin? fun(spinner: stl.spinner) function to execute on each update
+---@field on_finish? fun(spinner: stl.spinner) function to execute on stop
 
----@type stl_spinner_opts_t
+---@type stl.spinner.opts
 M.spinner.default_opts = {
   frame_interval = 80,
   finish_timeout = 1000,
@@ -74,8 +74,8 @@ M.spinner.default_opts = {
 local spinner_id = -1
 
 ---Create a new spinner instance
----@param opts stl_spinner_opts_t?
----@return stl_spinner_t
+---@param opts stl.spinner.opts?
+---@return stl.spinner
 function M.spinner:new(opts)
   spinner_id = spinner_id + 1
 
@@ -106,7 +106,7 @@ function M.spinner:del()
 end
 
 ---Start or continue spinning animation
----@param on_spin? fun(spinner: stl_spinner_t)
+---@param on_spin? fun(spinner: stl.spinner)
 function M.spinner:spin(on_spin)
   on_spin = on_spin or self.opts.on_spin
 
@@ -146,7 +146,7 @@ function M.spinner:spin(on_spin)
 end
 
 ---Show finish icon and stop spinning
----@param on_finish? fun(spinner: stl_spinner_t)
+---@param on_finish? fun(spinner: stl.spinner)
 function M.spinner:finish(on_finish)
   on_finish = on_finish or self.opts.on_finish
 
@@ -267,7 +267,7 @@ function M.spinner:detach(del)
 end
 
 ---@param id? integer
----@return stl_spinner_t?
+---@return stl.spinner?
 function M.spinner.get_by_id(id)
   if not id then
     return

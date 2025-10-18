@@ -4,7 +4,7 @@ local bar = require('plugin.winbar.bar')
 local groupid = vim.api.nvim_create_augroup('my.winbar.sources.lsp', {})
 local initialized = false
 
----@type table<integer, lsp_document_symbol_t[]>
+---@type table<integer, winbar.sources.lsp.document_symbol[]>
 local lsp_buf_symbols = {}
 setmetatable(lsp_buf_symbols, {
   __index = function(_, k)
@@ -13,40 +13,36 @@ setmetatable(lsp_buf_symbols, {
   end,
 })
 
----@alias lsp_client_t table
+---@alias winbar.sources.lsp.client table
 
----@class lsp_range_t
----@field start {line: integer, character: integer}
----@field end {line: integer, character: integer}
-
----@class lsp_location_t
+---@class winbar.sources.lsp.loc
 ---@field uri string
----@field range lsp_range_t
+---@field range lsp.range
 
----@class lsp_document_symbol_t
+---@class winbar.sources.lsp.document_symbol
 ---@field name string
 ---@field kind integer
 ---@field tags? table
 ---@field deprecated? boolean
 ---@field detail? string
----@field range? lsp_range_t
----@field selectionRange? lsp_range_t
----@field children? lsp_document_symbol_t[]
+---@field range? lsp.range
+---@field selectionRange? lsp.range
+---@field children? winbar.sources.lsp.document_symbol[]
 
----@class lsp_symbol_information_t
+---@class winbar.sources.lsp.symbol_info
 ---@field name string
 ---@field kind integer
 ---@field tags? table
 ---@field deprecated? boolean
----@field location? lsp_location_t
+---@field location? winbar.sources.lsp.loc
 ---@field containerName? string
 
----@class lsp_symbol_information_tree_t: lsp_symbol_information_t
----@field parent? lsp_symbol_information_tree_t
----@field children? lsp_symbol_information_tree_t[]
----@field siblings? lsp_symbol_information_tree_t[]
+---@class winbar.sources.lsp.symbol_info_tree : winbar.sources.lsp.symbol_info
+---@field parent? winbar.sources.lsp.symbol_info_tree
+---@field children? winbar.sources.lsp.symbol_info_tree[]
+---@field siblings? winbar.sources.lsp.symbol_info_tree[]
 
----@alias lsp_symbol_t lsp_document_symbol_t|lsp_symbol_information_t
+---@alias winbar.sources.lsp.symbol winbar.sources.lsp.document_symbol|winbar.sources.lsp.symbol_info
 
 -- Map symbol number to symbol kind
 -- stylua: ignore start
@@ -84,11 +80,11 @@ local symbol_kind_names = setmetatable({
 })
 -- stylua: ignore end
 
----@alias lsp_symbol_type_t 'SymbolInformation'|'DocumentSymbol'
+---@alias winbar.sources.lsp.symbol_type 'SymbolInformation'|'DocumentSymbol'
 
 ---Return type of the symbol table
----@param symbols lsp_symbol_t[] symbol table
----@return lsp_symbol_type_t? type symbol type
+---@param symbols winbar.sources.lsp.symbol[] symbol table
+---@return winbar.sources.lsp.symbol_type? type symbol type
 local function symbol_type(symbols)
   if symbols[1] and symbols[1].location then
     return 'SymbolInformation'
@@ -99,12 +95,12 @@ local function symbol_type(symbols)
 end
 
 ---Convert LSP DocumentSymbol into winbar symbol
----@param document_symbol lsp_document_symbol_t LSP DocumentSymbol
+---@param document_symbol winbar.sources.lsp.document_symbol LSP DocumentSymbol
 ---@param buf integer buffer number
 ---@param win integer window number
----@param siblings lsp_document_symbol_t[]? siblings of the symbol
+---@param siblings winbar.sources.lsp.document_symbol[]? siblings of the symbol
 ---@param idx integer? index of the symbol in siblings
----@return winbar_symbol_t
+---@return winbar.symbol
 local function convert_document_symbol(
   document_symbol,
   buf,
@@ -113,7 +109,7 @@ local function convert_document_symbol(
   idx
 )
   local kind = symbol_kind_names[document_symbol.kind]
-  return bar.winbar_symbol_t:new(setmetatable({
+  return bar.winbar_symbol:new(setmetatable({
     buf = buf,
     win = win,
     name = document_symbol.name,
@@ -149,8 +145,8 @@ end
 ---Convert LSP DocumentSymbol[] into a list of winbar symbols
 ---Side effect: change winbar_symbols
 ---LSP Specification document: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/
----@param lsp_symbols lsp_document_symbol_t[]
----@param winbar_symbols winbar_symbol_t[] (reference to) winbar symbols
+---@param lsp_symbols winbar.sources.lsp.document_symbol[]
+---@param winbar_symbols winbar.symbol[] (reference to) winbar symbols
 ---@param buf integer buffer number
 ---@param win integer window number
 ---@param cursor integer[] cursor position
@@ -195,8 +191,8 @@ local function convert_document_symbol_list(
 end
 
 ---Convert LSP SymbolInformation[] into DocumentSymbol[]
----@param symbols lsp_symbol_t LSP symbols
----@return lsp_document_symbol_t[]
+---@param symbols winbar.sources.lsp.symbol LSP symbols
+---@return winbar.sources.lsp.document_symbol[]
 local function unify(symbols)
   if symbol_type(symbols) == 'DocumentSymbol' or vim.tbl_isempty(symbols) then
     return symbols
@@ -211,7 +207,7 @@ local function unify(symbols)
   -- symbol can only be a child or a sibling of the previous symbol in the
   -- same list
   for list_idx, sym in vim.iter(symbols):enumerate():skip(1) do
-    local prev = symbols[list_idx - 1] --[[@as lsp_symbol_information_tree_t]]
+    local prev = symbols[list_idx - 1] --[[@as winbar.sources.lsp.symbol_info_tree]]
     -- If the symbol is a child of the previous symbol
     if utils.lsp.range_contains(prev.location.range, sym.location.range) then
       sym.parent = prev
@@ -248,7 +244,7 @@ local function update_symbols(buf, ttl)
   ---@type vim.lsp.Client
   local client = vim.lsp.get_clients({
     bufnr = buf,
-    method = vim.lsp.protocol.Methods.textDocument_documentSymbol,
+    method = 'textDocument/documentSymbol',
   })[1]
   if not client then
     defer_update()
@@ -264,7 +260,7 @@ local function update_symbols(buf, ttl)
   end
 
   local _, request_id = client:request(
-    vim.lsp.protocol.Methods.textDocument_documentSymbol,
+    'textDocument/documentSymbol',
     { textDocument = vim.lsp.util.make_text_document_params(buf) },
     function(err, symbols, _)
       if err or not symbols or vim.tbl_isempty(symbols) then
@@ -276,8 +272,8 @@ local function update_symbols(buf, ttl)
       -- responses can be disordered i.e. later symbols can appear first
       lsp_buf_symbols[buf] = unify(symbols)
 
-      ---@param s1 lsp_document_symbol_t
-      ---@param s2 lsp_document_symbol_t
+      ---@param s1 winbar.sources.lsp.document_symbol
+      ---@param s2 winbar.sources.lsp.document_symbol
       ---@return boolean precedes true if `s1` appears before `s2`
       table.sort(lsp_buf_symbols[buf], function(s1, s2)
         local l1, l2, c1, c2 =
@@ -354,7 +350,7 @@ local function init()
     if
       not vim.tbl_isempty(vim.lsp.get_clients({
         bufnr = buf,
-        method = vim.lsp.protocol.Methods.textDocument_documentSymbol,
+        method = 'textDocument/documentSymbol',
       }))
     then
       attach(buf)
@@ -366,12 +362,7 @@ local function init()
     group = groupid,
     callback = function(args)
       local client = vim.lsp.get_client_by_id(args.data.client_id)
-      if
-        client
-        and client:supports_method(
-          vim.lsp.protocol.Methods.textDocument_documentSymbol
-        )
-      then
+      if client and client:supports_method('textDocument/documentSymbol') then
         attach(args.buf)
       end
     end,
@@ -385,7 +376,7 @@ local function init()
       if
         vim.tbl_isempty(vim.lsp.get_clients({
           bufnr = args.buf,
-          method = vim.lsp.protocol.Methods.textDocument_documentSymbol,
+          method = 'textDocument/documentSymbol',
         }))
       then
         detach(args.buf)
@@ -406,7 +397,7 @@ end
 ---@param buf integer buffer handler
 ---@param win integer window handler
 ---@param cursor integer[] cursor position
----@return winbar_symbol_t[] symbols winbar symbols
+---@return winbar.symbol[] symbols winbar symbols
 local function get_symbols(buf, win, cursor)
   buf = vim._resolve_bufnr(buf)
   if

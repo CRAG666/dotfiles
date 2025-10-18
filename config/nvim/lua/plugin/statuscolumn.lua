@@ -6,13 +6,13 @@ local utils = require('utils')
 ---@param hl? string name of the highlight group
 ---@param restore? boolean restore highlight after the sign, default true
 local function make_hl(str, hl, restore)
-  return utils.stl.hl(str, hl, restore, true)
+  return utils.stl.hl(str, hl, restore)
 end
 
 ---@type table<integer, integer>
 local lnumw_cache = {}
 
----@class stc_shared_data_t
+---@class stc.shared_data
 ---@field win integer
 ---@field wp ffi.cdata* winpos_T C struct for window attributes
 ---@field display_tick? integer display tick
@@ -36,26 +36,26 @@ local lnumw_cache = {}
 ---@field foldopen? string fold open sign
 ---@field foldclose? string fold close sign
 ---@field foldsep? string fold separator sign
----@field extsigns? extmark_sign_t[] extmark signs, see `:h extmarks`
+---@field extsigns? extmark.sign[] extmark signs, see `:h extmarks`
 ---@field lnum? integer v:lnum
 ---@field relnum? integer v:relnum
 ---@field virtnum? integer v:virtnum
 
----@class extmark_sign_t
+---@class extmark.sign
 ---@field [1] integer extmark_id
 ---@field [2] integer row, 0-indexed
 ---@field [3] integer col, 0-indexed
----@field [4] extmark_sign_details_t details
+---@field [4] extmark.spec details
 
----@class extmark_sign_details_t: vim.api.keyset.set_extmark
+---@class extmark.spec: vim.api.keyset.set_extmark
 ---@field sign_name string? only set when sign is defined using legacy `sign_define()`
 ---@field ns_id integer
 
 ---Shared data in each window
----@type table<string, stc_shared_data_t>
+---@type table<string, stc.shared_data>
 local shared = {}
 
----@type table<string, fun(data: stc_shared_data_t, ...): string>
+---@type table<string, fun(data: stc.shared_data, ...): string>
 local builders = {}
 
 ffi.cdef([[
@@ -75,8 +75,8 @@ ffi.cdef([[
 ]])
 
 ---Returns the string representation of sign column to be shown
----@param data stc_shared_data_t
----@param filter fun(sign: extmark_sign_t, data: stc_shared_data_t): boolean
+---@param data stc.shared_data
+---@param filter fun(sign: extmark.sign, data: stc.shared_data): boolean
 ---@param virtual boolean whether to draw sign in virtual line
 ---@return string
 function builders.signcol(data, filter, virtual)
@@ -87,7 +87,7 @@ function builders.signcol(data, filter, virtual)
     goto signcol_ret_default
   end
   do
-    ---@type extmark_sign_details_t?
+    ---@type extmark.spec?
     local sign_details
     for _, sign in ipairs(data.extsigns) do
       local lnum = sign[2] + 1 -- 0-indexed to 1-indexed
@@ -119,7 +119,7 @@ function builders.signcol(data, filter, virtual)
   return make_hl(' ', data.culhl and 'CursorLineSign' or 'SignColumn')
 end
 
----@param data stc_shared_data_t
+---@param data stc.shared_data
 ---@return string
 function builders.lnum(data)
   local result = '' ---@type string|integer
@@ -152,7 +152,7 @@ function builders.lnum(data)
   )
 end
 
----@param data stc_shared_data_t
+---@param data stc.shared_data
 ---@return string
 function builders.foldcol(data)
   if not data.show_fdc then
@@ -168,15 +168,15 @@ function builders.foldcol(data)
 end
 
 ---Get a valid name of an extmark sign
----@param sign extmark_sign_t
+---@param sign extmark.sign
 ---@return string
 local function extsign_get_name(sign)
   local details = sign[4]
   return details.sign_name or details.sign_hl_group or '' --[[@as string]]
 end
 
----@param sign extmark_sign_t
----@param data stc_shared_data_t
+---@param sign extmark.sign
+---@param data stc.shared_data
 ---@return boolean
 local function gitsigns_filter(sign, data)
   local name = extsign_get_name(sign)
@@ -189,7 +189,7 @@ local function gitsigns_filter(sign, data)
   return true
 end
 
----@param sign extmark_sign_t
+---@param sign extmark.sign
 ---@return boolean
 local function nongitsigns_filter(sign)
   return not extsign_get_name(sign):find('^Git')

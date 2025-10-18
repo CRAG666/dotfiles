@@ -27,7 +27,7 @@ end
 ---Highlight text in buffer, clear previous highlight if any exists
 ---@param buf integer
 ---@param hlgroup string
----@param range winbar_symbol_range_t?
+---@param range winbar.symbol.range?
 function M.range_single(buf, hlgroup, range)
   if not vim.api.nvim_buf_is_valid(buf) then
     return
@@ -160,16 +160,6 @@ local nvim_set_hl = vim.api.nvim_set_hl
 ---@return nil
 function M.set(ns_id, name, attr)
   return nvim_set_hl(ns_id, name, M.normalize(attr))
-end
-
----Set default highlight attributes, normalize highlight attributes before setting
----@param ns_id integer namespace id
----@param name string
----@param attr vim.api.keyset.highlight highlight attributes
----@return nil
-function M.set_default(ns_id, name, attr)
-  attr.default = true
-  return vim.api.nvim_set_hl(ns_id, name, M.normalize(attr))
 end
 
 local todec = {

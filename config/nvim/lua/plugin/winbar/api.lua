@@ -3,13 +3,13 @@ local utils = require('plugin.winbar.utils')
 
 ---Get the winbar
 ---@param opts {win: integer?, buf: integer?}?
----@return winbar_t?|table<integer, winbar_t>|table<integer, table<integer, winbar_t>>
+---@return winbar.bar?|table<integer, winbar.bar>|table<integer, table<integer, winbar.bar>>
 function M.get_winbar(opts)
   return utils.bar.get(opts)
 end
 
 ---Get current winbar
----@return winbar_t?
+---@return winbar.bar?
 function M.get_current_winbar()
   return utils.bar.get_current()
 end
@@ -18,13 +18,13 @@ end
 --- - If `opts.win` is specified, return the winbar menu attached the window;
 --- - If `opts.win` is not specified, return all opened winbar menus
 ---@param opts {win: integer?}?
----@return winbar_menu_t?
+---@return winbar.menu?
 function M.get_winbar_menu(opts)
   return utils.menu.get(opts)
 end
 
 ---Get current winbar menu
----@return winbar_menu_t?
+---@return winbar.menu?
 function M.get_current_winbar_menu()
   return utils.menu.get_current()
 end

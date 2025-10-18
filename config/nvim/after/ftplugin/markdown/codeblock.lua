@@ -143,8 +143,8 @@ vim.api.nvim_create_autocmd('Syntax', {
 local hl = require('utils.hl')
 
 hl.persist(function()
-  hl.set_default(0, 'CodeBlock', { link = 'CursorLine' })
-  hl.set_default(0, 'Dash', { link = 'LineNr' })
+  hl.set(0, 'CodeBlock', { link = 'CursorLine',  default = true  })
+  hl.set(0, 'Dash', { link = 'LineNr', default = true })
   hl.set(0, 'markdownCode', { bg = 'CodeBlock' })
   hl.set(0, 'markdownCodeDelimiter', { bg = 'CodeBlock' })
 

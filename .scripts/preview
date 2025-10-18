@@ -61,7 +61,20 @@ archive() {
 
 draw() {
     if [ -f "$1" ]; then
-        kitty +kitten icat --transfer-mode=memory --stdin=no --place="${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}@0x0" "$1"
+        if command -v kitty >/dev/null 2>&1 && [ -n "$KITTY_WINDOW_ID" ]; then
+            kitty +kitten icat --transfer-mode=memory --stdin=no --place="${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}@0x0" "$1"
+        elif command -v img2sixel >/dev/null 2>&1; then
+            case "$TERM" in
+                mlterm*|foot*|wezterm*|xterm*|st*|contour*|ghostty*)
+                    img2sixel -w "10" -h "10" "$1"
+                    ;;
+                *)
+                    echo "Sixel preview not enabled for this terminal."
+                    ;;
+            esac
+        else
+            echo "Preview not available: kitty or img2sixel not found"
+        fi
     else
         echo "Preview not available"
     fi

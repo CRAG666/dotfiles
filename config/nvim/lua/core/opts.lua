@@ -1,7 +1,5 @@
 vim.g.has_ui = #vim.api.nvim_list_uis() > 0
-vim.g.has_gui = vim.fn.has('gui_running') == 1
-vim.g.has_display = vim.g.has_ui and vim.env.DISPLAY ~= nil
-vim.g.has_nf = vim.env.TERM ~= 'linux' and vim.env.NVIM_NF and true or false
+vim.g.has_nf = vim.env.TERM ~= 'linux' and vim.env.NVIM_NF ~= nil
 
 vim.opt.encoding = 'utf-8'
 vim.opt.fileformat = 'unix'
@@ -39,27 +37,20 @@ vim.opt.cmdheight = 0
 
 -- Defer shada reading
 do
-  local group = vim.api.nvim_create_augroup('my.opt.shada', {})
+  vim.opt.shada = ''
 
   ---Restore 'shada' option and read from shada once
   local function rshada()
-    pcall(vim.api.nvim_del_augroup_by_id, group)
-
     vim.opt.shada = vim.api.nvim_get_option_info2('shada', {}).default
     pcall(vim.cmd.rshada)
   end
 
-  vim.opt.shada = ''
-  vim.api.nvim_create_autocmd('BufReadPre', {
-    group = group,
-    once = true,
-    callback = rshada,
-  })
-  vim.api.nvim_create_autocmd('UIEnter', {
-    group = group,
-    once = true,
-    callback = vim.schedule_wrap(rshada),
-  })
+  require('utils.load').on_events('BufReadPre', 'my.opt.shada', rshada)
+  require('utils.load').on_events(
+    'UIEnter',
+    'my.opt.shada',
+    vim.schedule_wrap(rshada)
+  )
 end
 
 -- Folding
@@ -86,43 +77,33 @@ do
   vim.opt.spelllang = 'en,cjk'
   vim.opt.spelloptions = 'camel'
 
-  local group = vim.api.nvim_create_augroup('my.opt.spell', {})
+  require('utils.load').on_events(
+    'UIEnter',
+    'my.opt.spell',
+    vim.schedule_wrap(function()
+      ---Buffers where spellcheck is enabled
+      ---@type table<integer, true>
+      local bufs = {}
 
-  ---Set spell check options
-  ---@return nil
-  local function spellcheck()
-    pcall(vim.api.nvim_del_augroup_by_id, group)
-
-    for _, win in ipairs(vim.api.nvim_list_wins()) do
-      if not require('utils.opt').spell:was_locally_set({ win = win }) then
+      for _, win in ipairs(vim.api.nvim_list_wins()) do
+        if require('utils.opt').spell:was_locally_set({ win = win }) then
+          goto continue
+        end
         vim.api.nvim_win_call(win, function()
           vim.opt.spell = true
         end)
+        bufs[vim.fn.winbufnr(win)] = true
+        ::continue::
       end
-    end
-  end
 
-  vim.api.nvim_create_autocmd('FileType', {
-    group = group,
-    once = true,
-    callback = function()
-      vim.treesitter.start = (function(ts_start)
-        return function(...)
-          -- Ensure spell check settings are set before starting treesitter
-          -- to avoid highlighting `@nospell` nodes
-          spellcheck()
-          vim.treesitter.start = ts_start
-          return vim.treesitter.start(...)
+      -- Restart treesitter to correctly apply `@spell` nodes
+      for buf, _ in pairs(bufs) do
+        if require('utils.ts').is_active(buf) then
+          pcall(vim.treesitter.start, buf)
         end
-      end)(vim.treesitter.start)
-    end,
-  })
-
-  vim.api.nvim_create_autocmd('UIEnter', {
-    group = group,
-    once = true,
-    callback = vim.schedule_wrap(spellcheck),
-  })
+      end
+    end)
+  )
 end
 
 -- Use histogram algorithm for diffing, generates more readable diffs in
@@ -364,41 +345,28 @@ vim.g.loaded_tutor_mode_plugin = 0
 vim.g.loaded_zip = 0
 vim.g.loaded_zipPlugin = 0
 
-----Return function to lazy-load runtime files
-----@param runtime string
-----@param flag string
-----@return function
-local function load_runtime(runtime, flag)
-  return function()
-    if vim.g[flag] ~= nil and vim.g[flag] ~= 0 then
-      return
-    end
-    vim.g[flag] = nil
-    vim.cmd.runtime(runtime)
-  end
-end
+-- Lazy-load some runtime files
+vim.g.loaded_remote_plugins = 0
+vim.g.loaded_python3_provider = 0
 
 require('utils.load').on_events(
-  {
-    'FileType',
-    'BufNew',
-    'BufWritePost',
-    'BufReadPre',
-    { event = 'CmdUndefined', pattern = 'UpdateRemotePlugins' },
-  },
-  'rplugin/rplugin.nvim',
-  load_runtime('rplugin/rplugin.vim', 'loaded_remote_plugins')
+  { 'FileType', 'BufReadPre', 'BufWritePost' },
+  'my.load_runtime',
+  function()
+    vim.g.loaded_python3_provider = nil
+    vim.g.loaded_remote_plugins = nil
+    vim.cmd.runtime('provider/python3.vim')
+    vim.cmd.runtime('plugin/rplugin.vim')
+  end
 )
 
-require('utils.load').on_events(
-  {
-    { event = 'FileType', pattern = 'python' },
-    { event = 'BufNew', pattern = { '*.py', '*.ipynb' } },
-    { event = 'BufEnter', pattern = { '*.py', '*.ipynb' } },
-    { event = 'BufWritePost', pattern = { '*.py', '*.ipynb' } },
-    { event = 'BufReadPre', pattern = { '*.py', '*.ipynb' } },
-    { event = 'CmdUndefined', pattern = 'UpdateRemotePlugins' },
-  },
-  'provider/python3.vim',
-  load_runtime('provider/python3.vim', 'loaded_python3_provider')
+require('utils.load').on_cmds(
+  'UpdateRemotePlugins',
+  'my.load_runtime',
+  function()
+    vim.g.loaded_python3_provider = nil
+    vim.g.loaded_remote_plugins = nil
+    vim.cmd.runtime('provider/python3.vim')
+    vim.cmd.runtime('plugin/rplugin.vim')
+  end
 )

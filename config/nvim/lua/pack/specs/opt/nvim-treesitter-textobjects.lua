@@ -1,3 +1,4 @@
+---@type pack.spec
 return {
   src = 'https://github.com/nvim-treesitter/nvim-treesitter-textobjects',
   -- 'main' branch uses `vim.treesitter` module and does not depend on
@@ -44,6 +45,8 @@ return {
       vim.keymap.set({ 'x', 'o' }, 'i,', function() sel('@parameter.inner') end,   { desc = 'Select inside parameter' })
       vim.keymap.set({ 'x', 'o' }, 'a/', function() sel('@comment.outer') end,     { desc = 'Select around comment' })
       vim.keymap.set({ 'x', 'o' }, 'a*', function() sel('@comment.outer') end,     { desc = 'Select inside comment' })
+      vim.keymap.set({ 'x', 'o' }, 'i/', function() sel('@comment.inner') end,     { desc = 'Select around comment' })
+      vim.keymap.set({ 'x', 'o' }, 'i*', function() sel('@comment.inner') end,     { desc = 'Select inside comment' })
       vim.keymap.set({ 'x', 'o' }, 'a.', function() sel('@block.outer') end,       { desc = 'Select around block' })
       vim.keymap.set({ 'x', 'o' }, 'i.', function() sel('@block.inner') end,       { desc = 'Select inside block' })
       vim.keymap.set({ 'x', 'o' }, 'a?', function() sel('@conditional.outer') end, { desc = 'Select around conditional' })

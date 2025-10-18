@@ -18,8 +18,9 @@ local function collect_specs(path)
   return specs
 end
 
--- Load and manage all plugin specs on startup upon opening a file
-if vim.fn.argc(-1) > 0 then
+-- Load and manage all plugin specs on startup if a file is provided to nvim
+-- or plugin dir does not exist (fresh install)
+if vim.fn.argc(-1) > 0 or not vim.uv.fs_stat(utils.pack.root()) then
   utils.pack.add(
     vim.list_extend(
       collect_specs(specs_start_path),

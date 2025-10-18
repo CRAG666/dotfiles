@@ -1,6 +1,7 @@
+---@type pack.spec
 return {
   src = 'https://github.com/nvim-treesitter/nvim-treesitter',
-  version = 'main',
+  version = 'main', -- master branch is deprecated
   data = {
     build = function()
       vim.cmd.packadd('nvim-treesitter')

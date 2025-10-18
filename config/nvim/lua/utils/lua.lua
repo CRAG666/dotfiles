@@ -39,4 +39,23 @@ function M.unnest(input, delim)
   return result
 end
 
+---Cache a function output for the same param
+---NOTE: don't use for functions that takes table as arguments
+---(need to be 'hashable') or functions that has side effects
+---@generic T
+---@param cb fun(...): T?
+---@param cache table<string, { val: any }>
+---@return fun(...): T?
+function M.cache(cb, cache)
+  return function(...)
+    local params = vim.fn.sha256(
+      vim.iter({ ... }):map(tostring):map(vim.fn.sha256):join('')
+    )
+    if not cache[params] then
+      cache[params] = { val = cb(...) }
+    end
+    return cache[params].val
+  end
+end
+
 return M

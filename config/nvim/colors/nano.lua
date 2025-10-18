@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Sat 27 Sep 2025 01:37:57 AM EDT
+-- Last Updated: Wed 01 Oct 2025 01:33:37 AM EDT
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -78,7 +78,7 @@ if vim.go.bg == 'dark' then
   vim.g.terminal_color_5  = c_strong[1]
   vim.g.terminal_color_6  = c_salient[1]
   vim.g.terminal_color_7  = c_faded[1]
-  vim.g.terminal_color_8  = c_faded[1]
+  vim.g.terminal_color_8  = c_faint[1]
   vim.g.terminal_color_9  = c_popout[1]
   vim.g.terminal_color_10 = c_pine[1]
   vim.g.terminal_color_11 = c_critical[1]
@@ -95,7 +95,7 @@ else
   vim.g.terminal_color_5  = c_strong[1]
   vim.g.terminal_color_6  = c_salient[1]
   vim.g.terminal_color_7  = c_faded[1]
-  vim.g.terminal_color_8  = c_faded[1]
+  vim.g.terminal_color_8  = c_faint[1]
   vim.g.terminal_color_9  = c_critical[1]
   vim.g.terminal_color_10 = c_pine[1]
   vim.g.terminal_color_11 = c_popout[1]
@@ -224,7 +224,7 @@ local hlgroups = {
   Underlined = { underline = true },
   Ignore = { fg = c_subtle },
   Error = { fg = c_popout },
-  Todo = { fg = c_background, bg = c_popout, bold = true },
+  Todo = { fg = c_foreground, bg = c_highlight, bold = true },
   -- }}}2
 
   -- Treesitter syntax {{{2
@@ -239,6 +239,8 @@ local hlgroups = {
   ['@punctuation.delimiter'] = { link = 'Delimiter' },
   ['@punctuation.bracket'] = { link = 'Bracket' },
   ['@markup.list'] = { link = 'Delimiter' },
+  ['@markup.list.checked'] = { link = 'DiagnosticOk' },
+  ['@markup.list.unchecked'] = { link = 'DiagnosticWarn' },
   ['@string'] = { link = 'String' },
   ['@string.escape'] = { fg = c_critical },
   ['@string.regexp'] = { fg = c_popout },
@@ -298,18 +300,18 @@ local hlgroups = {
   ['@markup.heading.6.marker.markdown'] = { link = 'markdownH6Delimiter' },
   ['@markup.heading.1.delimiter.vimdoc'] = { link = 'helpSectionDelim' },
   ['@markup.heading.2.delimiter.vimdoc'] = { link = 'helpSectionDelim' },
-  ['@comment.todo'] = { link = 'Todo' },
-  ['@comment.todo.unchecked'] = { link = 'Todo' },
-  ['@comment.todo.checked'] = { link = 'Done' },
-  ['@comment.info'] = { link = 'SpecialComment' },
-  ['@comment.warning'] = { link = 'WarningMsg' },
-  ['@comment.error'] = { link = 'ErrorMsg' },
+  ['@comment.todo'] = { fg = c_foreground, bg = c_highlight, bold = true },
+  ['@comment.note'] = { fg = c_salient, bg = c_highlight, bold = true },
+  ['@comment.warning'] = { fg = c_popout, bg = c_highlight, bold = true },
+  ['@comment.error'] = { fg = c_critical, bg = c_highlight, bold = true },
   ['@diff.delta'] = { link = 'DiffChanged' },
   ['@diff.minus'] = { link = 'DiffRemoved' },
   ['@diff.plus'] = { link = 'DiffAdded' },
   ['@tag'] = { link = 'Tag' },
   ['@tag.attribute'] = { link = 'Identifier' },
   ['@tag.delimiter'] = { link = 'Delimiter' },
+  ['@text.todo.unchecked'] = { link = 'DiagnosticWarn' },
+  ['@text.todo.checked'] = { link = 'DiagnosticOk' },
   ['@markup.strong'] = { bold = true },
   ['@markup.strike'] = { strikethrough = true },
   ['@markup.emphasis'] = { fg = c_popout, bold = true },
@@ -324,7 +326,7 @@ local hlgroups = {
   ['@lsp.type.struct'] = { link = 'Structure' },
   ['@lsp.type.macro'] = { link = 'Macro' },
   ['@lsp.type.method'] = { link = 'Function' },
-  ['@lsp.type.comment'] = { link = 'Comment' },
+  ['@lsp.type.comment'] = {}, -- avoid interfere with `@comment.note/todo/warning/error`
   ['@lsp.type.function'] = { link = 'Function' },
   ['@lsp.type.property'] = { link = 'Field' },
   ['@lsp.type.variable'] = { link = 'Variable' },
