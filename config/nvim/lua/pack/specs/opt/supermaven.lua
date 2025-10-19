@@ -1,5 +1,5 @@
 return {
-  src = 'supermaven-inc/supermaven-nvim',
+  src = 'https://github.com/supermaven-inc/supermaven-nvim',
   data = {
     events = { 'InsertEnter' },
     keys = {

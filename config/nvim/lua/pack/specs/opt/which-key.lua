@@ -18,11 +18,7 @@ return {
       if vim.v.vim_did_enter then
         vim.schedule(load_wk)
       else
-        load.on_events(
-          'UIEnter',
-          'which-key',
-          vim.schedule_wrap(load_wk)
-        )
+        load.on_events('UIEnter', 'which-key', vim.schedule_wrap(load_wk))
       end
     end,
     postload = function()
@@ -126,6 +122,9 @@ return {
       })
 
       wk.add({
+        { 'gs', group = 'Text split/swap' },
+        { 'gq', group = 'Format' },
+        { 'gr', group = 'LSP' },
         { '<Leader>g', group = 'Git' },
         { '<Leader>f', group = 'Find' },
         { '<Leader>fg', group = 'Git' },

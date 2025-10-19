@@ -116,9 +116,9 @@ return {
       ---If the jump directions of the two destinations are the same, prefer
       ---snippet jump; else choose the one that is closer to the current cursor
       ---position
-      ---@param snip_dest number[]?
-      ---@param tabout_dest number[]?
-      ---@return number[]?
+      ---@param snip_dest integer[]?
+      ---@param tabout_dest integer[]?
+      ---@return integer[]?
       local function coalesce(snip_dest, tabout_dest)
         if not snip_dest then
           return tabout_dest
@@ -142,8 +142,8 @@ return {
       end
 
       ---Jump to a snippet or tabout destination
-      ---@param snip_dest number[]? jump destination given by snippet engine
-      ---@param tabout_dest number[]? jump destination given by tabout plugin
+      ---@param snip_dest integer[]? jump destination given by snippet engine
+      ---@param tabout_dest integer[]? jump destination given by tabout plugin
       ---@param direction 1|-1 direction of the jump, `1` for forward, `-1` for backward
       ---@return boolean # whether a jump is performed
       local function jump_coalesce(snip_dest, tabout_dest, direction)
@@ -163,7 +163,7 @@ return {
 
       ---Convert a range into lsp format range
       ---@param range integer[][] 0-based range
-      ---@return winbar.sources.lsp.range
+      ---@return lsp.range
       local function range_convert(range)
         local s = range[1]
         local e = range[2]

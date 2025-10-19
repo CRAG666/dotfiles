@@ -1,7 +1,10 @@
 {
   "plugins": {
     "LuaSnip": [],
-    "blink.cmp": [],
+    "blink.cmp": {
+      "rev": "a4ab037",
+      "src": "https://github.com/saghen/blink.cmp"
+    },
     "codecompanion.nvim": [],
     "flash.nvim": [],
     "fugit2.nvim": [],
@@ -50,7 +53,10 @@
     "render-markdown.nvim": [],
     "snacks.nvim": [],
     "ssr.nvim": [],
-    "supermaven-nvim": [],
+    "supermaven-nvim": {
+      "rev": "07d20fc",
+      "src": "https://github.com/supermaven-inc/supermaven-nvim"
+    },
     "tiny-code-action.nvim": [],
     "ts-autotag.nvim": [],
     "ts-comments.nvim": [],

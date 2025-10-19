@@ -555,3 +555,5 @@ btop.log
 **/lazy-lock.json
 **/marks.json
 config/yazi/plugins
+config/nushell/plugin*
+config/nushell/history.txt

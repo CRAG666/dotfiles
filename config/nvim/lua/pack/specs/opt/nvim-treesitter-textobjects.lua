@@ -100,10 +100,10 @@ return {
       vim.keymap.set({ 'n', 'x', 'o' }, '[/', function() goto_previous_end('@comment.outer') end,       { desc = 'Go to previous end of comment' })
       vim.keymap.set({ 'n', 'x', 'o' }, '[>', function() goto_previous_end('@block.outer') end,         { desc = 'Go to previous end of block' })
 
-      vim.keymap.set('n', '<M-C-h>',     function() swap_previous('@parameter.inner') end, { desc = 'Swap with previous parameter' })
-      vim.keymap.set('n', '<M-C-Left>',  function() swap_previous('@parameter.inner') end, { desc = 'Swap with previous parameter' })
-      vim.keymap.set('n', '<M-C-l>',     function() swap_next('@parameter.inner') end,     { desc = 'Swap with next parameter' })
-      vim.keymap.set('n', '<M-C-Right>', function() swap_next('@parameter.inner') end,     { desc = 'Swap with next parameter' })
+      vim.keymap.set('n', 'gsh',       function() swap_previous('@parameter.inner') end, { desc = 'Swap with previous parameter' })
+      vim.keymap.set('n', 'gs<Left>',  function() swap_previous('@parameter.inner') end, { desc = 'Swap with previous parameter' })
+      vim.keymap.set('n', 'gsl',       function() swap_next('@parameter.inner') end,     { desc = 'Swap with next parameter' })
+      vim.keymap.set('n', 'gs<Right>', function() swap_next('@parameter.inner') end,     { desc = 'Swap with next parameter' })
       -- stylua: ignore end
     end,
   },
