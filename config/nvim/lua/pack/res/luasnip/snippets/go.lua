@@ -137,7 +137,7 @@ M.snippets = {
   ),
   us.sn(
     {
-      trig = 'lg',
+      trig = 'll',
       desc = 'testing.T.Log()',
     },
     un.fmtad('t.Log("<str>"<args>)', {

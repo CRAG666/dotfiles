@@ -46,6 +46,10 @@
     },
     "nvim-web-devicons": [],
     "one-small-step-for-vimkind": [],
+    "opencode.nvim": {
+      "rev": "0f2d1e5",
+      "src": "https://github.com/sudo-tee/opencode.nvim"
+    },
     "otter.nvim": [],
     "pathlib.nvim": [],
     "plenary.nvim": [],

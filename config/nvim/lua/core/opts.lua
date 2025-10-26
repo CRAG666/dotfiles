@@ -1,6 +1,6 @@
 vim.g.has_ui = #vim.api.nvim_list_uis() > 0
 vim.g.has_nf = vim.env.TERM ~= 'linux' and vim.env.NVIM_NF ~= nil
-
+vim.o.shell = "/bin/nu"
 vim.opt.encoding = 'utf-8'
 vim.opt.fileformat = 'unix'
 vim.opt.syntax = 'ON'

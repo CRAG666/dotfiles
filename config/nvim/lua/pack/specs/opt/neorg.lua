@@ -93,6 +93,17 @@ return {
         vim.cmd('Neorg toc')
         vim.cmd('vert resize 60')
       end)
+
+      vim.api.nvim_create_autocmd('User', {
+        pattern = 'TSUpdate',
+        callback = function()
+          require('nvim-treesitter.parsers').norg = {
+            install_info = {
+              url = 'https://github.com/nvim-neorg/tree-sitter-norg',
+            },
+          }
+        end,
+      })
     end,
   },
 }

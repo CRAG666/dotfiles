@@ -19,13 +19,7 @@ local function load()
           end,
           ['Project + intermediates'] = function()
             require('code_runner.commands').run_from_fn(
-              [[tectonic -X watch -x 'build --keep-intermediates --keep-logs', "$end"]]
-            )
-          end,
-          ['Project + Biber'] = function()
-            require('code_runner.hooks.tectonic').build(
-              preview_cmd,
-              { 'biber', '--keep-intermediates', '--keep-logs' }
+              [[tectonic -X watch -x 'build --keep-intermediates --keep-logs'$end]]
             )
           end,
           Single = function()
@@ -44,11 +38,6 @@ local function load()
       markdown = function(...)
         local hook = require('code_runner.hooks.preview_pdf')
         require('code_runner.hooks.ui').select({
-          Marp = function()
-            require('code_runner').run_from_fn(
-              'marp --theme-set $MARPT -w -p . &$end'
-            )
-          end,
           Latex = function()
             hook.run({
               command = 'pandoc',

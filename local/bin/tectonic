@@ -1,43 +1,36 @@
 #!/usr/bin/env bash
-if [ "$1" = "-X" ] && [ "$2" = "build" ]; then
-    shift 2
-    args=("$@")
-    use_docker=false
-    filtered_args=()
 
-    for arg in "${args[@]}"; do
-        if [ "$arg" = "biber" ]; then
-            use_docker=true
-        else
-            filtered_args+=("$arg")
-        fi
-    done
+workdir="$PWD"
+dir="$PWD"
+project_mode=false
 
-    if [ "$use_docker" = true ]; then
-        workdir="$PWD"
-        dir="$PWD"
-        for _ in 1 2 3; do
-            if [ -f "$dir/Tectonic.toml" ]; then
-                workdir="$dir"
-                break
-            fi
-            dir="$(dirname "$dir")"
-        done
-
-        if [ ! -f "$workdir/Tectonic.toml" ]; then
-            echo "❌ Tectonic.toml not found in the last 3 levels." >&2
-            exit 1
-        fi
-
-        podman run --rm -it \
-            -v "$HOME/.cache/tectonic:/root/.cache" \
-            -v "$workdir:/data" \
-            -w /data \
-            dxjoke/tectonic-docker \
-            tectonic -X build "${filtered_args[@]}"
-    else
-        /bin/tectonic -X build "${args[@]}"
+# Buscar Tectonic.toml en los últimos 3 niveles
+for _ in 1 2 3; do
+    if [ -f "$dir/Tectonic.toml" ]; then
+        workdir="$dir"
+        project_mode=true
+        break
     fi
+    dir="$(dirname "$dir")"
+done
+
+# Determinar el comando según el modo
+if [ "$project_mode" = true ]; then
+    # Modo proyecto: usar -X build
+    podman run --rm -it \
+        -v "$HOME/.cache/Tectonic:/root/.cache/Tectonic" \
+        -v "$HOME/Documentos/Proyectos/Writings/utils/latex:/latex" \
+        -v "$workdir:/data" \
+        -w /data \
+        dxjoke/tectonic-docker \
+        tectonic "$@"
 else
-    /bin/tectonic "$@"
+    # Modo archivo único: compilar directamente
+    podman run --rm -it \
+        -v "$HOME/.cache/Tectonic:/root/.cache/Tectonic" \
+        -v "$HOME/Documentos/Proyectos/Writings/utils/latex:/latex" \
+        -v "$PWD:/data" \
+        -w /data \
+        dxjoke/tectonic-docker \
+        tectonic -Zsearch-path=/latex "$@"
 fi

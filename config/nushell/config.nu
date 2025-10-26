@@ -71,6 +71,37 @@ alias gbc = git switch -c
 alias kittyc = nvim ~/.config/kitty/kitty.conf
 alias icat = kitten icat
 alias s = kitten ssh
+def pps [] {
+  podman ps --format json
+  | from json
+  | flatten Names
+  | select Names Image Status Ports
+}
+
+def ppsa [] {
+  podman ps -a --format json
+  | from json
+  | flatten Names
+  | select Names Image Status Created
+}
+
+def pimg [] {
+  podman images --format json
+  | from json
+  | flatten Names
+  | select Names Id Created Size Containers
+}
+
+def pnet [] {
+  podman network ls --format json
+  | from json
+  | select name driver id created
+}
+
+def pstats [] {
+  podman stats --no-stream --format json
+  | from json
+}
 
 def pclean [] {
     podman rm (podman ps -aq)
@@ -226,7 +257,12 @@ def ci [] { ^bash -c "{ find . -xdev -printf '%h\n' | sort | uniq -c | sort -k 1
 def fontl [] { ^bash -c "fc-list | cut -d ':' -f2 | sort | uniq" }
 # def atm [flag: string] { ^bash -c $'atm "($flag)"' }
 
+
+
 source $"($nu.cache-dir)/carapace.nu"
+let carapace_completer = {|spans|
+    carapace $spans.0 nushell ...$spans | from json
+}
 source ~/.zoxide.nu
 source ~/.local/share/atuin/init.nu
 source ~/.config/nushell/catppuccin_mocha.nu
