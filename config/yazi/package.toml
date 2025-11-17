@@ -9,21 +9,6 @@ rev = "8f1d971"
 hash = "3996fc74044bc44144b323686f887e1"
 
 [[plugin.deps]]
-use = "kirasok/epub-preview"
-rev = "521feb1"
-hash = "9aed469134b5c89fc4014ce278307ae3"
-
-[[plugin.deps]]
-use = "yazi-rs/plugins:toggle-pane"
-rev = "aeca767"
-hash = "d5d4f3527592da5fbe77fd6f51815f80"
-
-[[plugin.deps]]
-use = "yazi-rs/plugins:mount"
-rev = "aeca767"
-hash = "277ba273e5d3d647feb5808d0fe4e4e0"
-
-[[plugin.deps]]
 use = "Sonico98/exifaudio"
 rev = "e766cd2"
 hash = "5fd39bf4e88d6a046d4b81691a38d615"
@@ -37,6 +22,21 @@ hash = "1adc12c2b2b025411ab61eb8f0879574"
 use = "Rolv-Apneseth/starship"
 rev = "a63550b"
 hash = "c2021386289a0cbb3e152a052f67c177"
+
+[[plugin.deps]]
+use = "kirasok/epub-preview"
+rev = "2e8079e"
+hash = "92d5044ae6cd823443b180477cb60733"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:toggle-pane"
+rev = "8f1d971"
+hash = "8a7c58225816a163a6e8730c0adafbc8"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:mount"
+rev = "8f1d971"
+hash = "4fccaaf10c36dc2466e2438a386ff017"
 
 [[flavor.deps]]
 use = "yazi-rs/flavors:catppuccin-mocha"

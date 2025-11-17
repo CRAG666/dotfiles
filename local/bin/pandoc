@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# A pandoc script using podman
+
+if [ $# -eq 0 ]; then
+    echo "Uso: $(basename "$0") [opciones de pandoc]"
+    exit 1
+fi
+
+podman run --rm \
+    -v "$(pwd):/data" \
+    -v "$HOME/Documentos/Proyectos/Writings/utils/latex:/latex" \
+    -v "$HOME/.cache/Tectonic:/root/.cache/Tectonic" \
+    pandoc/extra "$@"

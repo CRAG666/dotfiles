@@ -102,15 +102,6 @@ return {
         vim.cmd.redraw()
       end
 
-      -- Molten is lazy-loaded, so we need to re-generate and source rplugin manifest
-      if not pcall(vim.fn.MoltenStatusLineInit) then
-        vim.cmd.UpdateRemotePlugins()
-        local manifest = vim.g.loaded_remote_plugins
-        if manifest and vim.fn.filereadable(manifest) == 1 then
-          vim.cmd.source(manifest)
-        end
-      end
-
       local groupid = vim.api.nvim_create_augroup('my.molten', {})
       vim.api.nvim_create_autocmd('BufEnter', {
         desc = 'Change the configuration when editing a python file.',

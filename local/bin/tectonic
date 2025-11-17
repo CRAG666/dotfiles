@@ -4,7 +4,6 @@ workdir="$PWD"
 dir="$PWD"
 project_mode=false
 
-# Buscar Tectonic.toml en los últimos 3 niveles
 for _ in 1 2 3; do
     if [ -f "$dir/Tectonic.toml" ]; then
         workdir="$dir"
@@ -14,9 +13,7 @@ for _ in 1 2 3; do
     dir="$(dirname "$dir")"
 done
 
-# Determinar el comando según el modo
 if [ "$project_mode" = true ]; then
-    # Modo proyecto: usar -X build
     podman run --rm -it \
         -v "$HOME/.cache/Tectonic:/root/.cache/Tectonic" \
         -v "$HOME/Documentos/Proyectos/Writings/utils/latex:/latex" \
@@ -25,7 +22,6 @@ if [ "$project_mode" = true ]; then
         dxjoke/tectonic-docker \
         tectonic "$@"
 else
-    # Modo archivo único: compilar directamente
     podman run --rm -it \
         -v "$HOME/.cache/Tectonic:/root/.cache/Tectonic" \
         -v "$HOME/Documentos/Proyectos/Writings/utils/latex:/latex" \

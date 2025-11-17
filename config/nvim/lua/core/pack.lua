@@ -32,6 +32,7 @@ end
 
 -- Defer loading plugin specs in `opt` if no files are given
 -- Specs under `start` are always loaded on startup
+vim.print(collect_specs(specs_start_path))
 utils.pack.add(collect_specs(specs_start_path))
 utils.load.on_events(
   'UIEnter',

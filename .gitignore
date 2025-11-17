@@ -556,4 +556,4 @@ btop.log
 **/marks.json
 config/yazi/plugins
 config/nushell/plugin*
-config/nushell/history.txt
+config/nushell/history.*

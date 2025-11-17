@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+LATEX_UTILS="$HOME/Documentos/Proyectos/Writings/utils/latex"
+COMPILER="${1:-lualatex}"  # lualatex, pdflatex, xelatex
+FILE="$2"
+
+# Validar argumentos
+if [ -z "$FILE" ]; then
+  echo "Uso: $0 [compilador] archivo.tex"
+  echo "Ejemplo: $0 pdflatex documento.tex"
+  exit 1
+fi
+
+# Validar que el archivo existe
+if [ ! -f "$FILE" ]; then
+  echo "Error: El archivo '$FILE' no existe"
+  exit 1
+fi
+
+# Función para limpiar archivos intermedios
+cleanup() {
+  local base="${FILE%.tex}"
+  echo "Limpiando archivos intermedios..."
+
+  # Archivos generados por LaTeX/latexmk
+  rm -f "${base}.aux" "${base}.log" "${base}.out" "${base}.toc" \
+        "${base}.lof" "${base}.lot" "${base}.fls" "${base}.fdb_latexmk" \
+        "${base}.synctex.gz" "${base}.bbl" "${base}.blg" "${base}.bcf" \
+        "${base}.run.xml" "${base}.nav" "${base}.snm" "${base}.vrb" \
+        "${base}.idx" "${base}.ind" "${base}.ilg" "${base}.glo" \
+        "${base}.gls" "${base}.glg" "${base}.acn" "${base}.acr" \
+        "${base}.alg" "${base}.xdv" "${base}.dvi" "${base}.ps" "${base}.spl"
+
+  echo "Limpieza completada."
+}
+
+# Compilar con latexmk
+echo "Compilando con $COMPILER..."
+podman run --rm -ti \
+  -v "$(pwd)":/work \
+  -v "$LATEX_UTILS":/latex-utils:ro \
+  -w /work \
+  -e TEXINPUTS="/latex-utils//:" \
+  texlive/texlive:latest \
+  latexmk -pdf -"$COMPILER" -interaction=nonstopmode -f "$FILE"
+
+COMPILE_STATUS=$?
+
+# Limpiar archivos intermedios independientemente del resultado
+cleanup
+
+# Reportar resultado
+if [ $COMPILE_STATUS -eq 0 ]; then
+  echo "✓ Compilación finalizada exitosamente."
+else
+  echo "✗ Compilación finalizada con errores (código: $COMPILE_STATUS)"
+  exit $COMPILE_STATUS
+fi

@@ -50,7 +50,7 @@ function write_prompt() {
     TMP_FILE=$(mktemp /tmp/rofi_prompt_write_XXXXXX.md)
 
     # Abrir Neovim para escribir
-    kitty nvim "$TMP_FILE"
+    kitty $HOME/.local/share/bob/nvim-bin/nvim "$TMP_FILE"
 
     # Leer el contenido escrito en Neovim
     prompt_content=$(cat "$TMP_FILE")
@@ -168,7 +168,7 @@ case "$exit_code" in
             printf "%s" "$current_content" > "$TMP_FILE"
 
             # Abrir Neovim para ver (no para editar y guardar)
-            kitty nvim "$TMP_FILE"
+            kitty $HOME/.local/share/bob/nvim-bin/nvim "$TMP_FILE"
 
             # Eliminar el archivo temporal
             rm "$TMP_FILE"

@@ -172,13 +172,26 @@ function M.after_pattern(pattern)
 end
 
 ---Returns whether the cursor is at the start of a line
----@param matched_trigger string the fully matched trigger
+---@param trig string the fully matched trigger
 ---@return boolean
-function M.at_line_start(_, matched_trigger)
+function M.at_line_start(_, trig)
   return vim.api
     .nvim_get_current_line()
     :sub(1, vim.fn.col('.') - 1)
-    :gsub(matched_trigger or '%S*', '') == ''
+    :gsub(trig or '%S*', '') == ''
+end
+
+---Returns whether the cursor is at the start of a line after removing
+---indentation
+---@param trig string the fully matched trigger
+---@return boolean
+function M.at_line_start_with_indent(_, trig)
+  return vim.trim(
+    vim.api
+      .nvim_get_current_line()
+      :sub(1, vim.fn.col('.') - 1)
+      :gsub(trig or '%S*', '')
+  ) == ''
 end
 
 ---Returns whether the cursor is at the end of a line

@@ -366,6 +366,10 @@ M.math = {
   ),
   us.msam({ { trig = 'prop' }, { trig = 'oc' } }, t('\\propto ')),
   us.msam({ { trig = 'cop' }, { trig = 'perp' } }, t('\\perp ')),
+  us.msam(
+    { { trig = 'op' }, { trig = 'fn' }, { trig = 'sym' } },
+    { t('\\operatorname{'), i(1), t('}') }
+  ),
   us.sam({ trig = 'deg' }, t('\\degree')),
   us.sam({ trig = 'ang' }, t('\\angle ')),
   us.sam({ trig = 'mcal' }, { t('\\mathcal{'), i(1), t('}') }),
@@ -375,7 +379,6 @@ M.math = {
   us.sam({ trig = 'mff' }, { t('\\mff{'), i(1), t('}') }),
   us.sam({ trig = 'mrm' }, { t('\\mathrm{'), i(1), t('}') }),
   us.sam({ trig = 'mit' }, { t('\\mathit{'), i(1), t('}') }),
-  us.sam({ trig = 'op' }, { t('\\operatorname{'), i(1), t('}') }),
   us.sam({ trig = 'xx' }, t('\\times ')),
   us.sam({ trig = 'o*' }, t('\\circledast ')),
   us.sam({ trig = 'o.' }, t('\\odot ')),

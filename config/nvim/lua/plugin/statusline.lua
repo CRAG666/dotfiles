@@ -140,16 +140,19 @@ function _G._statusline.gitdiff()
     return ''
   end
 
-  local icon_added = utils.stl.escape(vim.trim(icons.GitIconAdd))
-  local icon_changed = utils.stl.escape(vim.trim(icons.GitIconChange))
-  local icon_removed = utils.stl.escape(vim.trim(icons.GitIconDelete))
+  local icon_added = utils.stl.escape(vim.trim(icons.git.Added))
+  local icon_changed = utils.stl.escape(vim.trim(icons.git.Modified))
+  local icon_removed = utils.stl.escape(vim.trim(icons.git.Removed))
 
   return vim.g.has_nf
       and string.format(
         '%s%s%s',
-        utils.stl.hl(icon_added, 'StatusLineGitAdded') .. added,
-        utils.stl.hl(icon_changed, 'StatusLineGitChanged') .. changed,
-        utils.stl.hl(icon_removed, 'StatusLineGitRemoved') .. removed
+        utils.stl.hl(icon_added, 'StatusLineGitAdded') .. ' ' .. added .. ' ',
+        utils.stl.hl(icon_changed, 'StatusLineGitChanged')
+          .. ' '
+          .. changed
+          .. ' ',
+        utils.stl.hl(icon_removed, 'StatusLineGitRemoved') .. ' ' .. removed
       )
     or string.format(
       '%s%s%s',
@@ -169,6 +172,14 @@ function _G._statusline.gitbranch()
     return ''
   end
 
+  -- TODO: support falling back to non-standard git dirs for branch, git dir
+  -- and diff info in `utils.git`
+  local gitdir = vim.b.gitsigns_status_dict
+    and vim.b.gitsigns_status_dict.gitdir
+  if gitdir then
+    branch = string.format('%s/%s', vim.fs.basename(gitdir), branch)
+  end
+
   local sign_gitbranch = utils.stl.hl(
     utils.stl.escape(vim.trim(icons.GitBranch)),
     'StatusLineGitBranch'
@@ -184,7 +195,8 @@ end
 ---Get current filetype
 ---@return string
 function _G._statusline.ft()
-  return vim.bo.ft == '' and '' or vim.bo.ft:gsub('^%l', string.upper)
+  local ft = vim.bo.ft == '' and '' or vim.bo.ft:gsub('^%l', string.upper)
+  return utils.stl.hl(ft, 'StatuslineItalic')
 end
 
 ---@return string
@@ -667,7 +679,11 @@ function _G._statusline.spinner()
     return ''
   end
 
-  return string.format('%s %s ', table.concat(progs, ', '), spinner.icon)
+  return string.format(
+    '%s %s ',
+    utils.stl.hl(table.concat(progs, ', '), 'StatuslineItalic'),
+    utils.stl.hl(spinner.icon, 'StatuslineSpinner')
+  )
 end
 
 -- stylua: ignore start

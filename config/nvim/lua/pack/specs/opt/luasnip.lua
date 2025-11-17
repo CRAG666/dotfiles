@@ -111,11 +111,7 @@ return {
         end,
       })
 
-      ---Choose between snippet and tabout destinations
-      ---
-      ---If the jump directions of the two destinations are the same, prefer
-      ---snippet jump; else choose the one that is closer to the current cursor
-      ---position
+      ---Choose the closer destination between two destinations
       ---@param snip_dest integer[]?
       ---@param tabout_dest integer[]?
       ---@return integer[]?
@@ -132,10 +128,6 @@ return {
           + (snip_dest[1] - current_pos[1]) * vim.v.maxcol
         local tabout_dist = (tabout_dest[2] - current_pos[2])
           + (tabout_dest[1] - current_pos[1]) * vim.v.maxcol
-
-        if snip_dist * tabout_dist < 0 then
-          return snip_dest
-        end
 
         return math.abs(snip_dist) < math.abs(tabout_dist) and snip_dest
           or tabout_dest
@@ -223,6 +215,38 @@ return {
         return start_pos[1] ~= end_pos[1] or start_pos[2] ~= end_pos[2]
       end
 
+      ---Check if a node has length larger than 0
+      ---@param node? table
+      ---@return integer[][]?
+      local function snip_node_get_range(node)
+        if not node then
+          return
+        end
+        local parent = snip_node_find_parent(node)
+        return snip_node_has_length(node) and { node:get_buf_position() }
+          or parent and { parent:get_buf_position() }
+      end
+
+      ---Get current snippet node
+      ---@return table?
+      local function get_current_snip_node()
+        return ls.session
+          and ls.session.current_nodes
+          and ls.session.current_nodes[vim.api.nvim_get_current_buf()]
+      end
+
+      ---Get jump destination of current snippet
+      ---@param direction -1|1
+      ---@return integer[]
+      local function get_current_snip_dest(direction)
+        local _, dest = ls.jump_destination(direction):get_buf_position()
+        -- Destination is (1,0) indexed
+        return {
+          dest[1] + 1,
+          dest[2],
+        }
+      end
+
       ---Expand current snippet if expandable or jump backward to next snippet
       ---jump point or tab-out parenthesis
       ---@param fallback function
@@ -238,18 +262,7 @@ return {
         end
 
         local tabout_dest = tabout.get_jump_pos(1)
-        local snip_range = (function()
-          local buf = vim.api.nvim_get_current_buf()
-          local node = ls.session
-            and ls.session.current_nodes
-            and ls.session.current_nodes[buf]
-          if not node then
-            return
-          end
-          local parent = snip_node_find_parent(node)
-          return snip_node_has_length(node) and { node:get_buf_position() }
-            or parent and { parent:get_buf_position() }
-        end)()
+        local snip_range = snip_node_get_range(get_current_snip_node())
 
         -- Don't tabout if it jumps out current snippet range
         if
@@ -268,10 +281,7 @@ return {
         -- |<------ current node range ----->|
         -- |.... ) .... ] ............ } ....|
         --        1      2              3      (tabout jump positions)
-        local snip_dest = (function()
-          local dest = ls.jump_destination(1):get_buf_position()
-          return { dest[1] + 1, dest[2] } -- convert to (1,0) index
-        end)()
+        local snip_dest = get_current_snip_dest(1)
 
         -- Jump to tabout or snippet destination depending on their distance
         -- and direction from cursor, prefer snippet jump to break ties
@@ -288,15 +298,19 @@ return {
         end
 
         local tabout_dest = tabout.get_jump_pos(-1)
-        local snip_dest = (function()
-          local prev = ls.jump_destination(-1)
-          if not prev then
-            return
-          end
-          local _, dest = prev:get_buf_position()
-          dest[1] = dest[1] + 1 -- (1, 0) indexed
-          return dest
-        end)()
+        local snip_range = snip_node_get_range(get_current_snip_node())
+
+        -- Don't tabout if it jumps out current snippet range
+        if
+          not tabout_dest
+          or not snip_range
+          or not range_contains_cursor(snip_range, tabout_dest)
+        then
+          ls.jump(-1)
+          return
+        end
+
+        local snip_dest = get_current_snip_dest(-1)
         if not jump_coalesce(snip_dest, tabout_dest, -1) then
           fallback()
         end

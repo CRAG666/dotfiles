@@ -225,7 +225,7 @@ sort_reverse 	 = false
 sort_translit  = false
 
 [[plugin.prepend_previewers]]
-name = "*.epub"
+mime = "application/epub+zip"
 run = "epub-preview"
 
 [[plugin.prepend_previewers]]

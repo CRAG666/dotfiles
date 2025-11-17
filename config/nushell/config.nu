@@ -9,7 +9,8 @@ $env.config.hooks = ($env.config.hooks | upsert env_change {
 $env.config.buffer_editor = "nvim"
 $env.config.use_kitty_protocol = true
 $env.config.show_banner = false
-$env.config.history.max_size = 0
+$env.config.history.file_format = "sqlite"
+$env.config.history.sync_on_enter = true
 
 
 alias ip = ip -color=auto
@@ -71,6 +72,7 @@ alias gbc = git switch -c
 alias kittyc = nvim ~/.config/kitty/kitty.conf
 alias icat = kitten icat
 alias s = kitten ssh
+
 def pps [] {
   podman ps --format json
   | from json
@@ -88,7 +90,11 @@ def ppsa [] {
 def pimg [] {
   podman images --format json
   | from json
+  | sort-by Created -r
   | flatten Names
+  | update Id { |r| $r.Id | str substring 0..12 }
+  | update Created { |r| $r.Created | into datetime | date humanize }
+  | update Size { |r| $r.Size | into filesize }
   | select Names Id Created Size Containers
 }
 

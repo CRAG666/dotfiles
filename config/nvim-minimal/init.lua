@@ -71,6 +71,7 @@ require("core.keymaps")
 require("plugin.term")
 require("plugin.run_code")
 
-  vim.pack.add({ { src = 'https://github.com/chaoren/vim-wordmotion' } })
-  vim.pack.add({ { src = 'https://github.com/kylechui/nvim-surround' } })
-  require('nvim-surround').setup({})
+vim.pack.add({ { src = "https://github.com/chaoren/vim-wordmotion" } })
+vim.pack.add({ { src = "https://github.com/kylechui/nvim-surround" } })
+require("nvim-surround").setup({})
+

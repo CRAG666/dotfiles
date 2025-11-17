@@ -8,7 +8,6 @@ address = "::"
 
 [player]
 music_dirs = ["/home/think-crag/Música"]
-library_scan_depth = 10
 loop_mode = "random"
 volume = 100
 speed = 10
@@ -36,3 +35,11 @@ download_dir = "/home/think-crag/Música/podcast"
 soundtouch = true
 file_buffer_size = "4.0 MiB"
 decoded_buffer_size = "750.0 KiB"
+output_sample_rate = 48000
+
+[backends.mpv]
+audio_device = "auto"
+
+[metadata]
+directory_scan_depth = 10
+artist_separators = [",", ";", "&", "ft.", "feat.", "/", "|", "×", "、", " x "]

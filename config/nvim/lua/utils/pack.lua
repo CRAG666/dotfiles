@@ -39,6 +39,10 @@ local M = {}
 ---be loaded on specific keys, events, commands, or manually using
 ---`utils.pack.load()`
 ---@field lazy? boolean
+---Whether the plugin is registered as a dependency/extension of another plugin
+---Plugins that are both explicitly registered as stand-alone and as deps/exts
+---have `asdeps=false`
+---@field asdeps? boolean
 ---@field keys? load.key.spec|load.key.spec[] Keys that lazy-load the plugin
 ---@field events? load.event.spec|load.event.spec[] Events that lazy-load the plugin
 ---@field cmds? load.cmd.spec|load.cmd.spec[] Commands that lazy-load the plugin
@@ -163,7 +167,7 @@ function M.lazy_load(spec, path)
     ::continue::
   end
 
-  if not lazy then
+  if not lazy and not (spec.data and spec.data.asdeps) then
     M.load(spec, path)
   end
 end
@@ -185,6 +189,7 @@ function M.register(specs, default)
     end
   end
 
+  -- Set default fields in the spec, prepare for merging and registration
   for _, spec in ipairs(specs) do
     local existing_spec = specs_registry[spec.src]
 
@@ -205,24 +210,37 @@ function M.register(specs, default)
     end
   end
 
+  -- Actual registration
   for _, spec in ipairs(specs) do
+    -- First register dependencies/Extensions
     if spec.data then
       if spec.data.deps then
         M.register(spec.data.deps, {
-          data = { lazy = true },
+          data = { asdeps = true },
         })
       end
       if spec.data.exts then
         M.register(spec.data.exts, {
-          data = { lazy = true },
+          data = { asdeps = true },
         })
       end
     end
-    specs_registry[spec.src] = vim.tbl_deep_extend(
-      'force',
-      specs_registry[spec.src] or default or {},
-      spec
-    )
+
+    -- Then register self
+    local existing_spec = specs_registry[spec.src]
+    local asdeps = existing_spec
+      and existing_spec.data
+      and existing_spec.data.asdeps
+      and spec.data
+      and spec.data.asdeps
+
+    specs_registry[spec.src] =
+      vim.tbl_deep_extend('force', existing_spec or default or {}, spec)
+
+    -- `asdeps` in the existing and new spec should be `AND`ed together
+    if specs_registry[spec.src].data then
+      specs_registry[spec.src].data.asdeps = asdeps
+    end
   end
 end
 

@@ -13,16 +13,15 @@ NC='\033[0m' # No Color
 
 # Función para mostrar uso
 usage() {
-    echo "Uso: $0 <archivo.tex> <commit-anterior> [archivo-salida.pdf]"
+    echo "Uso: $0 <archivo.tex> <commit-anterior>"
     echo ""
     echo "Ejemplo: $0 documento.tex HEAD~1"
-    echo "         $0 documento.tex abc123 diff_output.pdf"
     exit 1
 }
 
 # Función para limpiar archivos temporales
 cleanup() {
-    rm -f /tmp/current_tex.tex /tmp/before_tex.tex ./diff.tex ./diff.aux ./diff.log ./diff.out
+    rm -f ./current_tex.tex ./before_tex.tex ./diff.aux ./diff.log ./diff.out
     echo -e "${GREEN}✓ Archivos temporales eliminados${NC}"
 }
 
@@ -37,7 +36,6 @@ fi
 
 FILE="$1"
 COMMIT="$2"
-OUTPUT="${3:-diff.pdf}"  # Por defecto diff.pdf si no se especifica
 
 # Validar que el archivo existe en HEAD
 if ! git cat-file -e HEAD:"$FILE" 2>/dev/null; then
@@ -52,7 +50,7 @@ if ! git cat-file -e "$COMMIT":"$FILE" 2>/dev/null; then
 fi
 
 # Validar que latexdiff está instalado
-if ! command -v latexdiff-git &>/dev/null; then
+if ! command -v latexdiff &>/dev/null; then
     echo -e "${RED}Error: latexdiff no está instalado${NC}"
     echo "Instálalo con: sudo apt install latexdiff (Debian/Ubuntu) o texlive-extra-utils"
     exit 1
@@ -68,28 +66,13 @@ fi
 echo -e "${YELLOW}Generando diff entre $COMMIT y HEAD para $FILE...${NC}"
 
 # Extraer versiones del archivo (corregido typo: berfore -> before)
-git show HEAD:"$FILE" >/tmp/current_tex.tex
-git show "$COMMIT":"$FILE" >/tmp/before_tex.tex
+git show HEAD:"$FILE" >current_tex.tex
+git show "$COMMIT":"$FILE" >before_tex.tex
 
 # Generar diff con latexdiff
-if ! latexdiff-git /tmp/before_tex.tex /tmp/current_tex.tex >./diff.tex; then
+if ! latexdiff before_tex.tex current_tex.tex >./diff.tex; then
     echo -e "${RED}Error: latexdiff falló${NC}"
     exit 1
 fi
 
 echo -e "${GREEN}✓ Diff generado${NC}"
-
-# Compilar con tectonic
-echo -e "${YELLOW}Compilando PDF...${NC}"
-if ! tectonic -X compile ./diff.tex; then
-    echo -e "${RED}Error: La compilación con tectonic falló${NC}"
-    echo "Revisa el archivo diff.tex para ver posibles errores"
-    exit 1
-fi
-
-# Renombrar si se especificó un nombre diferente
-if [ "$OUTPUT" != "diff.pdf" ]; then
-    mv diff.pdf "$OUTPUT"
-fi
-
-echo -e "${GREEN}✓ PDF generado exitosamente: $OUTPUT${NC}"

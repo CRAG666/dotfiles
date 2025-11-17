@@ -15,7 +15,12 @@ return {
     },
     -- https://github.com/Saghen/blink.cmp/issues/145#issuecomment-2483686337
     -- https://github.com/Saghen/blink.cmp/issues/145#issuecomment-2492759016
-    build = '%s cargo build --release',
+    build = string.format(
+      '%s cargo build --release',
+      vim.env.TERMUX_VERSION
+          and 'RUSTC_BOOTSTRAP=1 RUSTFLAGS="-C link-args=-lluajit"'
+        or ''
+    ),
     events = { 'InsertEnter', 'CmdlineEnter' },
     postload = function()
       local icons = require('utils.static.icons')
@@ -224,50 +229,6 @@ return {
                   item.label = item.textEdit.newText
                 end
                 return items
-              end,
-            },
-            buffer = {
-              -- Keep first letter capitalization on buffer source
-              -- https://cmp.saghen.dev/recipes.html#keep-first-letter-capitalization-on-buffer-source
-              transform_items = function(ctx, items)
-                local keyword = ctx.get_keyword()
-                if not (keyword:match('^%l') or keyword:match('^%u')) then
-                  return items
-                end
-
-                local pattern ---@type string
-                local case_func ---@type function
-                if keyword:match('^%l') then
-                  pattern = '^%u%l+$'
-                  case_func = string.lower
-                else
-                  pattern = '^%l+$'
-                  case_func = string.upper
-                end
-
-                local seen = {}
-                local out = {}
-                for _, item in ipairs(items) do
-                  if not item.insertText then
-                    goto continue
-                  end
-
-                  if item.insertText:match(pattern) then
-                    local text = case_func(item.insertText:sub(1, 1))
-                      .. item.insertText:sub(2)
-                    item.insertText = text
-                    item.label = text
-                  end
-
-                  if seen[item.insertText] then
-                    goto continue
-                  end
-                  seen[item.insertText] = true
-
-                  table.insert(out, item)
-                  ::continue::
-                end
-                return out
               end,
             },
           },
