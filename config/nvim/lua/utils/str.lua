@@ -200,4 +200,11 @@ for _, target_case_type in ipairs({ 'snake', 'lisp', 'pascal', 'camel', 'dot' })
   end
 end
 
+---Escape all magic characters in lua pattern-matching syntax
+---@param str string string to escape
+---@return string
+function M.escape_magic(str)
+  return (str:gsub('[$^()%%.%[%]*+-?]', '%%%1'))
+end
+
 return M

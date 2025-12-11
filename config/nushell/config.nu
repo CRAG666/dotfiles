@@ -208,10 +208,16 @@ def gbs [] {
 }
 
 def fkill [signal: int = 9] {
-  let pid = (pgrep . -l | gum filter --no-limit --height=25 | lines | split column " " pid name | get pid)
-  if $pid != "" {
-    kill --signal $signal $pid
-  }
+    pgrep . -l
+    | gum filter --no-limit --height=25
+    | lines
+    | parse "{pid} {name}"
+    | get pid
+    | each { |pid|
+        try {
+            kill --signal $signal ($pid | into int)
+        }
+    }
 }
 
 def fapp [] {

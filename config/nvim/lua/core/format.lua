@@ -14,7 +14,7 @@ local function setup(event)
     vim.lsp.buf.format({
       bufnr = e.buf,
       async = false,
-      timeout_ms = 2000,
+      timeout_ms = 5000,
     })
   end
 

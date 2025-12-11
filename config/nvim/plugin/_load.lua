@@ -134,5 +134,6 @@ if vim.g.loaded_session == nil then
   }, 'plugin.session', setup)
 end
 
-require("plugin.term").setup()
-require("plugin.run_code")
+require('plugin.term').setup()
+require('plugin.run_code')
+require('plugin.texlab')

@@ -24,7 +24,7 @@ local function load()
           end,
           Single = function()
             require('code_runner.commands').run_from_fn(
-              [[tectonic -X watch -x 'compile $fileName']]
+              [[tectonic -X watch -x 'compile $fileName --synctex --keep-logs --keep-intermediates -Zsearch-path=/latex']]
             )
           end,
         })

@@ -25,10 +25,7 @@ function M.find_group(names, opts)
 
   ---Check if given syntax group name matches any of the names given in `names`
   ---@type fun(name: string): boolean?
-  local check_name_match = vim.is_callable(names)
-      and function(name)
-        return names(name)
-      end
+  local check_name_match = vim.is_callable(names) and names --[[@as function]]
     or function(name)
       if type(names) == 'string' then
         names = { names }

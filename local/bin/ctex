@@ -42,7 +42,7 @@ podman run --rm -ti \
   -w /work \
   -e TEXINPUTS="/latex-utils//:" \
   texlive/texlive:latest \
-  latexmk -pdf -"$COMPILER" -interaction=nonstopmode -f "$FILE"
+  latexmk -pdf -"$COMPILER" -interaction=nonstopmode -synctex=1 -f "$FILE"
 
 COMPILE_STATUS=$?
 

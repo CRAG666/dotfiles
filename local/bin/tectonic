@@ -2,31 +2,19 @@
 
 workdir="$PWD"
 dir="$PWD"
-project_mode=false
 
 for _ in 1 2 3; do
     if [ -f "$dir/Tectonic.toml" ]; then
         workdir="$dir"
-        project_mode=true
         break
     fi
     dir="$(dirname "$dir")"
 done
 
-if [ "$project_mode" = true ]; then
-    podman run --rm -it \
-        -v "$HOME/.cache/Tectonic:/root/.cache/Tectonic" \
-        -v "$HOME/Documentos/Proyectos/Writings/utils/latex:/latex" \
-        -v "$workdir:/data" \
-        -w /data \
-        dxjoke/tectonic-docker \
-        tectonic "$@"
-else
-    podman run --rm -it \
-        -v "$HOME/.cache/Tectonic:/root/.cache/Tectonic" \
-        -v "$HOME/Documentos/Proyectos/Writings/utils/latex:/latex" \
-        -v "$PWD:/data" \
-        -w /data \
-        dxjoke/tectonic-docker \
-        tectonic -Zsearch-path=/latex "$@"
-fi
+podman run --rm -it \
+    -v "$HOME/.cache/Tectonic:/root/.cache/Tectonic" \
+    -v "$HOME/Documentos/Proyectos/Writings/utils/latex:/latex" \
+    -v "$workdir:/data" \
+    -w /data \
+    dxjoke/tectonic-docker \
+    tectonic "$@"

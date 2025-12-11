@@ -1,4 +1,4 @@
-local fmt = string.format
+local utils = require('utils')
 
 ---@class fallback_tbl each key shares a default / fallback pattern table
 ---that can be used for pattern matching if corresponding key is not present
@@ -191,7 +191,19 @@ local function get_tabout_pos()
   local leading = current_line:sub(1, cursor[2])
 
   -- Do not jump if the cursor is at the beginning of the current line
-  if leading:match('^%s*$') then
+  -- or behind a starting comment marker
+  if
+    ''
+    == vim.trim(
+      leading:gsub(
+        '^%s*'
+          .. utils.str.escape_magic(
+            vim.trim(vim.bo.commentstring:gsub('%%s.*', ''))
+          ),
+        ''
+      )
+    )
+  then
     return
   end
 
@@ -251,11 +263,12 @@ local function get_tabin_offset_with_closing_pattern(leading, closing_pattern)
   local opening_pattern = opening_pattern_lookup_tbl[closing_pattern]
 
   -- Case 1
-  local _, _, content, closing, trailing =
-    leading:find(fmt('%s(%%s*)(%s)(.*)$', opening_pattern, closing_pattern))
+  local _, _, content, closing, trailing = leading:find(
+    string.format('%s(%%s*)(%s)(.*)$', opening_pattern, closing_pattern)
+  )
   if content == nil or closing == nil then
     _, _, content, closing, trailing =
-      leading:find(fmt('^(%%s*)(%s)(.*)$', closing_pattern))
+      leading:find(string.format('^(%%s*)(%s)(.*)$', closing_pattern))
   end
 
   if content and closing then
@@ -265,12 +278,12 @@ local function get_tabin_offset_with_closing_pattern(leading, closing_pattern)
 
   -- Case 2
   _, _, _, closing, trailing = leading:find(
-    fmt('%s%%s*.*%%S(%%s*%s)(.*)$', opening_pattern, closing_pattern)
+    string.format('%s%%s*.*%%S(%%s*%s)(.*)$', opening_pattern, closing_pattern)
   )
 
   if content == nil or closing == nil then
     _, _, closing, trailing =
-      leading:find(fmt('%%S(%%s*%s)(.*)$', closing_pattern))
+      leading:find(string.format('%%S(%%s*%s)(.*)$', closing_pattern))
   end
 
   return slen(trailing) + slen(closing), slen(closing)
@@ -394,15 +407,13 @@ local function setup()
   end
   vim.g.loaded_tabout = true
 
-  local key = require('utils.key')
-
-  key.amend('i', '<Tab>', function(fallback)
+  utils.key.amend('i', '<Tab>', function(fallback)
     if not jump(1) then
       fallback()
     end
   end, { desc = 'Tab out' })
 
-  key.amend('i', '<S-Tab>', function(fallback)
+  utils.key.amend('i', '<S-Tab>', function(fallback)
     if not jump(-1) then
       fallback()
     end
