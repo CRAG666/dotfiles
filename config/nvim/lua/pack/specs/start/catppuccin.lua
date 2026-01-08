@@ -51,7 +51,9 @@ return {
           alpha = false,
           barbar = false,
           beacon = false,
-          blink_cmp = true,
+          blink_cmp = {
+            style = 'bordered',
+          },
           cmp = false,
           coc_nvim = false,
           dap = true,
@@ -216,4 +218,3 @@ return {
     end,
   },
 }
-

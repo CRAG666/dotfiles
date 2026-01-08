@@ -34,6 +34,10 @@ return {
         load = {
           ['core.defaults'] = {},
           ['core.keybinds'] = {},
+          ['core.autocommands'] = {},
+          ['core.highlights'] = {},
+          ['core.integrations.treesitter'] = {},
+          ['core.neorgcmd'] = {},
           ['core.concealer'] = {
             config = {
               dim_code_blocks = { conceal = false },
@@ -83,7 +87,7 @@ return {
           ['core.export'] = {},
           ['core.summary'] = {},
           ['core.ui.calendar'] = {},
-          ['core.latex.renderer'] = {},
+          -- ['core.latex.renderer'] = {},
         },
       })
 
@@ -100,6 +104,9 @@ return {
           require('nvim-treesitter.parsers').norg = {
             install_info = {
               url = 'https://github.com/nvim-neorg/tree-sitter-norg',
+              location = 'parser', -- only needed if the parser is in subdirectory of a "monorepo"
+              -- generate = true, -- only needed if repo does not contain pre-generated `src/parser.c`
+              -- generate_from_json = false, -- only needed if repo does not contain `src/grammar.json` either
             },
           }
         end,

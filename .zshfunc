@@ -7,7 +7,8 @@ pclean(){
 
 # User Functions
 sar(){
-  rg "$1" -l | xargs sed -i -e "s/$1/$2/g"
+  rg "$1" -l -0 | xargs -0 sed -i -e "s/$1/$2/g"
+  # perl -pi -e "s/$1/$2/g" .
 }
 
 atm() {

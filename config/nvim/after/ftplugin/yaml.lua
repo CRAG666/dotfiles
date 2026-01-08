@@ -12,3 +12,5 @@ for _, dir in ipairs({ 'workflows', 'actions' }) do
     break
   end
 end
+
+vim.g.ts = { 'yaml' }

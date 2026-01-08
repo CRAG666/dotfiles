@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Wed 01 Oct 2025 01:33:37 AM EDT
+-- Last Updated: Mon 06 Oct 2025 11:42:27 AM EDT
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -240,7 +240,7 @@ local hlgroups = {
   ['@punctuation.bracket'] = { link = 'Bracket' },
   ['@markup.list'] = { link = 'Delimiter' },
   ['@markup.list.checked'] = { link = 'DiagnosticOk' },
-  ['@markup.list.unchecked'] = { link = 'DiagnosticWarn' },
+  ['@markup.list.unchecked'] = { link = '@markup.link.markdown_inline' },
   ['@string'] = { link = 'String' },
   ['@string.escape'] = { fg = c_critical },
   ['@string.regexp'] = { fg = c_popout },

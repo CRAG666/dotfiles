@@ -79,9 +79,9 @@ function delete_bookmark() {
 }
 
 function open_random_sites() {
-    local count=${1:-8}
+    local count=${1:-40}
     for ((i = 1; i <= count; i++)); do
-        $BROWSER "https://wiby.me/surprise/" &
+        # $BROWSER "https://wiby.me/surprise/" &
         $BROWSER "https://searchmysite.net/search/random" &
     done
 }

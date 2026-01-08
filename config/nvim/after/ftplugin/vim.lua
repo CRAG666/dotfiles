@@ -8,3 +8,6 @@ if vim.fn.win_gettype() == 'command' then
   vim.opt_local.signcolumn = 'no'
   vim.opt_local.statuscolumn = ''
 end
+
+vim.g.ts = { 'vim', 'vimdoc' }
+

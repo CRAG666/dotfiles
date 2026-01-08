@@ -88,8 +88,14 @@ local function format_title()
     return
   end
 
-  local word = line:sub(1, cursor[2]):match('[%w_]+$')
+  local prefix = line:sub(1, cursor[2])
+  local word = prefix:match('[%w_]+$')
   if word == nil then
+    return
+  end
+
+  -- Don't capitalize after apostrophe, e.g. "We're", "I'm", etc.
+  if prefix:sub(#prefix - #word - 1, #prefix - #word):match("%S'") then
     return
   end
 

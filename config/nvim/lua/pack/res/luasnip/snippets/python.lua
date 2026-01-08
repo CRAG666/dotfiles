@@ -705,17 +705,92 @@ M.snippets = {
       { trig = 'class' },
       common = { desc = 'Class definition' },
     },
+    c(1, {
+      un.fmtad(
+        [[
+          class <name>:
+          <idnt>def __init__(self<args>):
+          <body>
+        ]],
+        {
+          name = r(1, 'name'),
+          args = i(2),
+          idnt = un.idnt(1),
+          body = un.body(3, 2, 'pass'),
+        }
+      ),
+      un.fmtad(
+        [[
+          class <name>:
+          <body>
+        ]],
+        {
+          name = r(1, 'name'),
+          body = un.body(2, 1, 'pass'),
+        }
+      ),
+      un.fmtad(
+        [[
+          @dataclass<opt>
+          class <name>:
+          <body>
+        ]],
+        {
+          opt = i(1, '(frozen=True)'),
+          name = r(2, 'name'),
+          body = un.body(3, 1, 'pass'),
+        }
+      ),
+      un.fmtad(
+        [[
+          class <name>(TypedDict):
+          <body>
+        ]],
+        {
+          name = r(1, 'name'),
+          body = un.body(2, 1, 'pass'),
+        }
+      ),
+    }),
+    {
+      common_opts = {
+        stored = {
+          name = i(nil, 'ClassName'),
+        },
+      }
+    }
+  ),
+  us.sn(
+    {
+      trig = 'dc',
+      desc = 'Dataclass definition',
+    },
     un.fmtad(
       [[
+        @dataclass<opt>
         class <name>:
-        <idnt>def __init__(self<args>):
+        <body>
+      ]],
+      {
+        opt = i(1, '(frozen=True)'),
+        name = i(2, 'ClassName'),
+        body = un.body(3, 1, 'pass'),
+      }
+    )
+  ),
+  us.sn(
+    {
+      trig = 'td',
+      desc = 'TypedDict definition',
+    },
+    un.fmtad(
+      [[
+        class <name>(TypedDict):
         <body>
       ]],
       {
         name = i(1, 'ClassName'),
-        args = i(2),
-        idnt = un.idnt(1),
-        body = un.body(3, 2, 'pass'),
+        body = un.body(2, 1, 'pass'),
       }
     )
   ),
@@ -749,9 +824,11 @@ M.snippets = {
       ),
     }),
     {
-      stored = {
-        expr = i(1),
-      },
+      common_opts = {
+        stored = {
+          expr = i(1),
+        },
+      }
     }
   ),
   us.msn(

@@ -10,12 +10,12 @@ vim.g.mason = { 'codelldb', 'clangd' }
 vim.g.ts = { 'c', 'cpp' }
 
 -- Set ; to end line
-vim.keymap.set(
-  'n',
-  '<leader>;',
-  '<esc>mzA;<esc>`z',
-  { noremap = true, silent = true }
-)
+-- vim.keymap.set(
+--   'n',
+--   '<leader>;',
+--   '<esc>mzA;<esc>`z',
+--   { noremap = true, silent = true }
+-- )
 
 -- vim.pack.add({
 --   'https://github.com/p00f/clangd_extensions.nvim',

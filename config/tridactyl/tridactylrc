@@ -40,7 +40,8 @@ set modeindicatormodes.ignore false
 " HINTS CONFIGURATION
 " ============================================================================
 set hintfiltermode vimperator-reflow
-set hintchars qwerasdfzxcv
+" set hintchars qwerasdfzxcv
+set hintchars fjdkslaghrueiwoq
 set hintdelay 100
 
 " ============================================================================
