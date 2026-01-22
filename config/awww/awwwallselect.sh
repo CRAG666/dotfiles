@@ -188,7 +188,7 @@ readonly ROFI_LAYOUT_OVERRIDE=$(printf "window{width:100%%;} listview{columns:%s
 
 #// Determinar el fondo de pantalla actual para preselección en Rofi
 current_wall_basename=""
-current_wall_symlink="${HOME}/.config/swww/wall.set"
+current_wall_symlink="${HOME}/.config/awww/wall.set"
 if [[ -L "$current_wall_symlink" ]]; then
     target_wall_path=$(readlink -f "$current_wall_symlink")
     if [[ -n "$target_wall_path" && -f "$target_wall_path" ]]; then
@@ -251,7 +251,7 @@ if [[ -n "$selected_basename" ]]; then
 
     if [[ -n "$selected_full_path" && -f "$selected_full_path" ]]; then
         # Llamar al script para cambiar el fondo
-        if "${SCR_DIR}/swwwallpaper.sh" -s "${selected_full_path}"; then
+        if "${SCR_DIR}/awwwallpaper.sh" -s "${selected_full_path}"; then
             # Enviar notificación
             selected_hash=$(set_file_hash "$selected_full_path") # Re-hashear o buscar en wall_hashes_list
             notify-send -a "HyDE Alert" -i "${THUMB_DIR}/${selected_hash}.sqre" "Fondo cambiado a: ${selected_basename}"

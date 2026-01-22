@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Sun 16 Nov 2025 12:32:12 AM EST
+-- Last Updated: Sun 18 Jan 2026 06:19:57 PM PST
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -237,6 +237,7 @@ local hlgroups = {
   ['@markup.raw'] = { fg = c_yellow },
   ['@markup.strikethrough'] = { strikethrough = true },
   ['@module.builtin'] = { link = 'Special' },
+  ['@property.yaml'] = { link = 'Special' },
   ['@punctuation'] = { link = 'Delimiter' },
   ['@string.special'] = { link = 'Special' },
   ['@string.special.url'] = { link = 'htmlLink' },
@@ -316,7 +317,7 @@ local hlgroups = {
   DiagnosticVirtualTextWarn = { fg = c_grey },
   -- }}}
 
-  -- Filetype {{{2
+  -- FileType {{{2
   -- Git
   gitHash = { fg = c_grey },
 

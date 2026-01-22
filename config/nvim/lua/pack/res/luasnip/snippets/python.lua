@@ -26,6 +26,14 @@ M.snippets = {
     trig = 'ret',
     desc = 'return statement',
   }, t('return')),
+  us.sn({
+    trig = 'cont',
+    desc = 'continue statement',
+  }, t('continue')),
+  us.sn({
+    trig = 'brk',
+    desc = 'break statement',
+  }, t('break')),
   us.sn(
     {
       trig = 'pr',
@@ -757,7 +765,7 @@ M.snippets = {
         stored = {
           name = i(nil, 'ClassName'),
         },
-      }
+      },
     }
   ),
   us.sn(
@@ -828,7 +836,7 @@ M.snippets = {
         stored = {
           expr = i(1),
         },
-      }
+      },
     }
   ),
   us.msn(

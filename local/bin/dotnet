@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Usar variable de entorno o valor por defecto
+DOTNET_VERSION="${DOTNET_VERSION:-10.0}"
+
+podman run -it --rm \
+  --network=host \
+  --name dotnet-dev \
+  -v "${PWD}:/app" \
+  -v "dotnet${DOTNET_VERSION}:/root/.dotnet" \
+  -v "nuget-cache${DOTNET_VERSION}:/root/.nuget/packages" \
+  -w /app \
+  --env "PATH=/root/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+  "mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}" \
+  dotnet "$@"

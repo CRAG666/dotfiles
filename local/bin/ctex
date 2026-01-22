@@ -1,41 +1,145 @@
 #!/usr/bin/env bash
 
 LATEX_UTILS="$HOME/Documentos/Proyectos/Writings/utils/latex"
-COMPILER="${1:-lualatex}"  # lualatex, pdflatex, xelatex
-FILE="$2"
 
-# Validar argumentos
-if [ -z "$FILE" ]; then
-  echo "Uso: $0 [compilador] archivo.tex"
-  echo "Ejemplo: $0 pdflatex documento.tex"
+show_usage() {
+  cat << EOF
+Uso: $0 [OPCIÓN] [compilador] archivo.tex
+
+Opciones:
+  cleanup [archivo.tex]    Limpia archivos intermedios sin compilar
+  --help, -h               Muestra esta ayuda
+
+Compilación:
+  archivo.tex              Compila con lualatex (por defecto)
+  compilador archivo.tex   Compila con el compilador especificado
+
+Compiladores soportados:
+  - lualatex (por defecto)
+  - pdflatex
+  - xelatex
+  - latex
+
+Ejemplos:
+  $0 documento.tex                    # Compila con lualatex
+  $0 pdflatex documento.tex           # Compila con pdflatex
+  $0 cleanup documento.tex            # Solo limpia archivos intermedios
+  $0 cleanup                          # Limpia todos los .tex en el directorio
+
+EOF
   exit 1
+}
+
+# Función de limpieza
+cleanup() {
+  local file="$1"
+
+  if [ -z "$file" ]; then
+    # Si no se especifica archivo, limpiar todos los .tex del directorio
+    echo "Limpiando archivos intermedios de todos los .tex en $(pwd)..."
+    local tex_files=(*.tex)
+
+    if [ ! -e "${tex_files[0]}" ]; then
+      echo "No se encontraron archivos .tex en el directorio actual"
+      return 0
+    fi
+
+    for tex in "${tex_files[@]}"; do
+      local base="${tex%.tex}"
+      cleanup_file "$base"
+    done
+  else
+    # Limpiar archivo específico
+    if [[ ! "$file" =~ \.tex$ ]]; then
+      file="${file}.tex"
+    fi
+
+    if [ ! -f "$file" ]; then
+      echo "Advertencia: '$file' no existe, pero se limpiarán sus archivos auxiliares si existen"
+    fi
+
+    local base="${file%.tex}"
+    echo "Limpiando archivos intermedios de: $file"
+    cleanup_file "$base"
+  fi
+
+  echo "✓ Limpieza completada."
+}
+
+cleanup_file() {
+  local base="$1"
+  local files_removed=0
+
+  local extensions=(
+    "aux" "log" "out" "toc" "lof" "lot" "fls" "fdb_latexmk"
+    "synctex.gz" "bbl" "blg" "bcf" "run.xml" "nav" "snm" "vrb"
+    "idx" "ind" "ilg" "glo" "gls" "glg" "acn" "acr" "alg"
+    "xdv" "dvi" "ps" "spl"
+  )
+
+  for ext in "${extensions[@]}"; do
+    if [ -f "${base}.${ext}" ]; then
+      rm -f "${base}.${ext}"
+      ((files_removed++))
+    fi
+  done
+
+  if [ $files_removed -gt 0 ]; then
+    echo "  → Eliminados $files_removed archivo(s) de: ${base}"
+  else
+    echo "  → No hay archivos que limpiar para: ${base}"
+  fi
+}
+
+if [ $# -eq 0 ]; then
+  show_usage
 fi
 
-# Validar que el archivo existe
+if [ "$1" = "cleanup" ]; then
+  cleanup "$2"
+  exit 0
+fi
+
+if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+  show_usage
+fi
+
+if [ $# -eq 1 ]; then
+  COMPILER="lualatex"
+  FILE="$1"
+elif [ $# -eq 2 ]; then
+  COMPILER="$1"
+  FILE="$2"
+else
+  echo "Error: Demasiados argumentos"
+  show_usage
+fi
+
+if [[ ! "$FILE" =~ \.tex$ ]]; then
+  echo "Error: '$FILE' no parece ser un archivo .tex"
+  show_usage
+fi
+
 if [ ! -f "$FILE" ]; then
   echo "Error: El archivo '$FILE' no existe"
   exit 1
 fi
 
-# Función para limpiar archivos intermedios
-cleanup() {
-  local base="${FILE%.tex}"
-  echo "Limpiando archivos intermedios..."
+case "$COMPILER" in
+  lualatex|pdflatex|xelatex|latex)
+    ;;
+  *)
+    echo "Error: Compilador '$COMPILER' no soportado"
+    echo "Compiladores válidos: lualatex, pdflatex, xelatex, latex"
+    exit 1
+    ;;
+esac
 
-  # Archivos generados por LaTeX/latexmk
-  rm -f "${base}.aux" "${base}.log" "${base}.out" "${base}.toc" \
-        "${base}.lof" "${base}.lot" "${base}.fls" "${base}.fdb_latexmk" \
-        "${base}.synctex.gz" "${base}.bbl" "${base}.blg" "${base}.bcf" \
-        "${base}.run.xml" "${base}.nav" "${base}.snm" "${base}.vrb" \
-        "${base}.idx" "${base}.ind" "${base}.ilg" "${base}.glo" \
-        "${base}.gls" "${base}.glg" "${base}.acn" "${base}.acr" \
-        "${base}.alg" "${base}.xdv" "${base}.dvi" "${base}.ps" "${base}.spl"
+echo "=========================================="
+echo "Compilando: $FILE"
+echo "Compilador: $COMPILER"
+echo "=========================================="
 
-  echo "Limpieza completada."
-}
-
-# Compilar con latexmk
-echo "Compilando con $COMPILER..."
 podman run --rm -ti \
   -v "$(pwd)":/work \
   -v "$LATEX_UTILS":/latex-utils:ro \
@@ -46,13 +150,17 @@ podman run --rm -ti \
 
 COMPILE_STATUS=$?
 
-# Limpiar archivos intermedios independientemente del resultado
-cleanup
-
-# Reportar resultado
+echo "=========================================="
 if [ $COMPILE_STATUS -eq 0 ]; then
-  echo "✓ Compilación finalizada exitosamente."
+  PDF_FILE="${FILE%.tex}.pdf"
+  echo "✓ Compilación exitosa"
+  if [ -f "$PDF_FILE" ]; then
+    PDF_SIZE=$(du -h "$PDF_FILE" | cut -f1)
+    echo "✓ PDF generado: $PDF_FILE ($PDF_SIZE)"
+  fi
 else
-  echo "✗ Compilación finalizada con errores (código: $COMPILE_STATUS)"
+  echo "✗ Compilación falló (código: $COMPILE_STATUS)"
+  echo "Revisa los errores arriba"
   exit $COMPILE_STATUS
 fi
+echo "=========================================="

@@ -1,0 +1,81 @@
+# Firejail profile for libreoffice
+# Description: Office productivity suite
+# This file is overwritten after every install/update
+# Persistent local customizations
+include libreoffice.local
+# Persistent global definitions
+include globals.local
+
+noblacklist ${HOME}/.config/libreoffice
+noblacklist ${HOME}/.local/share/gvfs-metadata
+noblacklist /usr/local/sbin
+
+# libreoffice can sign documents with GPG
+noblacklist ${HOME}/.gnupg
+read-only ${HOME}/.gnupg/pubring.kbx
+read-only ${HOME}/.gnupg/trustdb.gpg
+blacklist ${HOME}/.gnupg/crls.d
+blacklist ${HOME}/.gnupg/openpgp-revocs.d
+blacklist ${HOME}/.gnupg/private-keys-v1.d
+blacklist ${HOME}/.gnupg/pubring.kbx~
+blacklist ${HOME}/.gnupg/random_seed
+
+whitelist /mnt/home/.icons
+whitelist /mnt/home/.themes
+whitelist ${HOME}/.themes
+whitelist ${HOME}/.icons
+
+noblacklist /mnt/home/.icons
+noblacklist /mnt/home/.themes
+noblacklist ${HOME}/.themes
+noblacklist ${HOME}/.icons
+
+# libreoffice uses java for some functionality.
+# Add 'ignore include allow-java.inc' to your libreoffice.local if you don't need that functionality.
+# Allow java (blacklisted by disable-devel.inc)
+include allow-java.inc
+
+# uses libgdk-pixbuf and/or glycin - see #6906
+#blacklist /usr/libexec
+
+include disable-common.inc
+include disable-devel.inc
+include disable-exec.inc
+include disable-programs.inc
+
+include whitelist-run-common.inc
+include whitelist-var-common.inc
+
+# Debian 10/Ubuntu 18.04 come with their own apparmor profile, but it is not in enforce mode.
+# Add the next lines to your libreoffice.local to use the Ubuntu profile instead of firejail's apparmor profile.
+#ignore apparmor
+#ignore nonewprivs
+#ignore protocol
+#ignore seccomp
+#ignore tracelog
+
+apparmor
+caps.drop all
+netfilter
+nodvd
+nogroups
+noinput
+nonewprivs
+noroot
+notv
+nou2f
+novideo
+protocol unix,inet,inet6
+seccomp
+tracelog
+
+#private-bin libreoffice,sh,uname,dirname,grep,sed,basename,ls
+private-cache
+private-dev
+private-etc @tls-ca,@x11,cups,gnupg,libreoffice,papersize,ssh
+private-tmp
+
+dbus-system none
+
+restrict-namespaces
+join-or-start libreoffice

@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      BSD
--- Last Updated: Wed 01 Oct 2025 01:33:37 AM EDT
+-- Last Updated: Sat 17 Jan 2026 09:14:34 PM PST
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -240,7 +240,6 @@ local hlgroups = {
   ['@string'] = { link = 'String' },
   ['@string.escape'] = { fg = c_other },
   ['@string.special'] = { link = 'SpecialChar' },
-  ['@string.yaml'] = { link = 'Normal' },
   ['@character'] = { link = 'Character' },
   ['@character.special'] = { link = 'SpecialChar' },
   ['@boolean'] = { link = 'Boolean' },
@@ -325,7 +324,7 @@ local hlgroups = {
   DiagnosticUnnecessary = { undercurl = true, sp = c_special },
   -- }}}2
 
-  -- Filetype {{{2
+  -- FileType {{{2
   -- Markdown
   markdownBold = { bold = true },
   markdownBoldItalic = { bold = true, italic = true },

@@ -57,15 +57,15 @@ alias dnsc = nvim /etc/resolv.conf
 alias nftc = nvim /etc/nftables.conf
 alias starshipc = nvim ~/.config/starship.toml
 
-def Applications [] { cd /usr/share/applications }
-def Desktop [] { cd $"($env.HOME)/Escritorio" }
-def Download [] { cd $"($env.HOME)/Descargas" }
-def Document [] { cd $"($env.HOME)/Documentos" }
-def Images [] { cd $"($env.HOME)/Imágenes" }
-def Music [] { cd $"($env.HOME)/Música" }
-def Videos [] { cd $"($env.HOME)/Vídeos" }
-def Git [] { cd $"($env.HOME)/Git" }
-def Usb [] { cd $env.USB }
+alias Applications = cd /usr/share/applications
+alias Desktop = cd $"($env.HOME)/Escritorio"
+alias Download = cd $"($env.HOME)/Descargas"
+alias Document = cd $"($env.HOME)/Documentos"
+alias Images = cd $"($env.HOME)/Imágenes"
+alias Music = cd $"($env.HOME)/Música"
+alias Videos = cd $"($env.HOME)/Vídeos"
+alias Git = cd $"($env.HOME)/Git"
+alias Usb = cd $env.USB
 
 alias gbc = git switch -c
 

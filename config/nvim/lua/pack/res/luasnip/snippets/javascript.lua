@@ -26,6 +26,14 @@ M.snippets = {
     trig = 'ret',
     desc = 'Return statement',
   }, t('return')),
+  us.sn({
+    trig = 'cont',
+    desc = 'continue statement',
+  }, t('continue')),
+  us.sn({
+    trig = 'brk',
+    desc = 'break statement',
+  }, t('break')),
   us.msn({
     { trig = 'pr' },
     { trig = 'cl' },

@@ -10,6 +10,18 @@ local t = ls.text_node
 local d = ls.dynamic_node
 
 M.snippets = {
+  us.sn({
+    trig = 'ret',
+    desc = 'return statement',
+  }, t('return')),
+  us.sn({
+    trig = 'cont',
+    desc = 'continue statement',
+  }, t('continue')),
+  us.sn({
+    trig = 'brk',
+    desc = 'break statement',
+  }, t('break')),
   us.msn({
     { trig = 'pr' },
     { trig = 'ec' },

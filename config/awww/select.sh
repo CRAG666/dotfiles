@@ -53,7 +53,7 @@ generate_thumbnail() {
 }
 
 # Ruta actual del fondo de pantalla
-currentWall="$(basename "$(readlink -f "${HOME}/.config/swww/wall.set")")"
+currentWall="$(basename "$(readlink -f "${HOME}/.config/awww/wall.set")")"
 
 # Directorio de fondos de pantalla
 wallDir="${HOME}/Imágenes/wallpaperCicle"
@@ -144,7 +144,7 @@ wallDir="${HOME}/Imágenes/wallpaperCicle"
         done
 
         if [ -n "${setWall}" ]; then
-            "${scrDir}/swwwallpaper.sh" -s "${setWall}"
+            "${scrDir}/awwwallpaper.sh" -s "${setWall}"
             notify-send -a "HyDE Alert" -i "${thmbDir}/${wallHash}.sqre" " ${rofiSel}"
         else
             notify-send -a "HyDE Alert" "Wallpaper not found"

@@ -2,14 +2,16 @@ return {
   src = 'https://github.com/nvim-neorg/neorg',
   data = {
     deps = {
-      { src = 'https://github.com/nvim-neorg/lua-utils.nvim' },
-      { src = 'https://github.com/pysan3/pathlib.nvim' },
-      { src = 'https://github.com/3rd/image.nvim' },
-      { src = 'https://github.com/nvim-neotest/nvim-nio' },
       {
         src = 'https://github.com/nvim-treesitter/nvim-treesitter',
         data = { optional = false },
       },
+      { src = 'https://github.com/nvim-neorg/lua-utils.nvim' },
+      { src = 'https://github.com/pysan3/pathlib.nvim' },
+      { src = 'https://github.com/3rd/image.nvim' },
+      { src = 'https://github.com/nvim-neotest/nvim-nio' },
+      { src = 'https://github.com/MunifTanjim/nui.nvim' },
+      { src = 'https://github.com/nvim-lua/plenary.nvim' },
     },
     keys = {
       { mode = 'n', lhs = '<leader>oo', opts = { desc = 'Toggle org notes' } },
@@ -98,19 +100,19 @@ return {
         vim.cmd('vert resize 60')
       end)
 
-      vim.api.nvim_create_autocmd('User', {
-        pattern = 'TSUpdate',
-        callback = function()
-          require('nvim-treesitter.parsers').norg = {
-            install_info = {
-              url = 'https://github.com/nvim-neorg/tree-sitter-norg',
-              location = 'parser', -- only needed if the parser is in subdirectory of a "monorepo"
-              -- generate = true, -- only needed if repo does not contain pre-generated `src/parser.c`
-              -- generate_from_json = false, -- only needed if repo does not contain `src/grammar.json` either
-            },
-          }
-        end,
-      })
+      -- vim.api.nvim_create_autocmd('User', {
+      --   pattern = 'TSUpdate',
+      --   callback = function()
+      --     require('nvim-treesitter.parsers').norg = {
+      --       install_info = {
+      --         url = 'https://github.com/nvim-neorg/tree-sitter-norg',
+      --         location = 'parser', -- only needed if the parser is in subdirectory of a "monorepo"
+      --         -- generate = true, -- only needed if repo does not contain pre-generated `src/parser.c`
+      --         -- generate_from_json = false, -- only needed if repo does not contain `src/grammar.json` either
+      --       },
+      --     }
+      --   end,
+      -- })
     end,
   },
 }

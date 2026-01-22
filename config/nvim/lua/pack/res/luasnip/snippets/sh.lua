@@ -183,6 +183,14 @@ M.snippets = {
     end),
   }),
   us.sn({
+    trig = 'cont',
+    desc = 'continue statement',
+  }, t('continue')),
+  us.sn({
+    trig = 'brk',
+    desc = 'break statement',
+  }, t('break')),
+  us.sn({
     trig = 'ex',
     desc = 'exit statement',
   }, t('exit')),

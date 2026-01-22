@@ -41,7 +41,7 @@ Wall_Set() {
     : "${xtrans:=grow}"  # Valor predeterminado si xtrans está vacío
     : "${xpos:=center}"  # Valor predeterminado si xpos está vacío
 
-    swww img "$wallPath" \
+    awww img "$wallPath" \
         --transition-bezier .43,1.19,1,.4 \
         --transition-type "$xtrans" \
         --transition-duration 1 \
@@ -107,10 +107,10 @@ case $1 in
     4) xpos="bottom-left" ;;
 esac
 
-## check swww daemon
+## check awww daemon
 
-if ! swww query > /dev/null 2>&1; then
-    swww-daemon
+if ! awww query > /dev/null 2>&1; then
+    awww-daemon
 fi
 
 ## set wallpaper

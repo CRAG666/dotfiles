@@ -460,6 +460,14 @@ M.snippets = {
   }, {
     t('return'),
   }),
+  us.sn({
+    trig = 'brk',
+    desc = 'break statement',
+  }, t('break')),
+  us.sn({
+    trig = 'cont',
+    desc = 'continue statement',
+  }, t('goto continue')),
   us.sn({ trig = 'pr' }, {
     t('print('),
     i(1),

@@ -3,7 +3,7 @@
 -- Author:       Bekaboo <kankefengjing@gmail.com>
 -- Maintainer:   Bekaboo <kankefengjing@gmail.com>
 -- License:      GPL-3.0
--- Last Updated: Wed 01 Oct 2025 01:33:37 AM EDT
+-- Last Updated: Sat 17 Jan 2026 09:14:34 PM PST
 
 -- Clear hlgroups and set colors_name {{{
 vim.cmd.hi('clear')
@@ -441,7 +441,7 @@ local hlgroups = {
   },
   -- }}}2
 
-  -- Filetype {{{2
+  -- FileType {{{2
   -- HTML
   htmlArg = { fg = c_pigeon },
   htmlBold = { bold = true },
