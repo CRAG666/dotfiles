@@ -4,3 +4,4 @@ vim.opt.conceallevel = 2
 -- vim.opt_local.wrap = true
 vim.o.textwidth = 106
 vim.g.ts = { 'norg', 'norg_meta' }
+vim.o.wrap = true

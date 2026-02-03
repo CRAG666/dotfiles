@@ -1,7 +1,7 @@
 local M = {}
 
 vim.api.nvim_create_autocmd({ 'BufWrite', 'FileChangedShellPost' }, {
-  group = vim.api.nvim_create_augroup('my.git.refresh_writetick', {}),
+  group = vim.api.nvim_create_augroup('git.refresh_writetick', {}),
   callback = function(args)
     vim.b[args.buf].git_writetick = vim.uv.hrtime()
   end,

@@ -115,10 +115,14 @@ M.snippets = {
       }
     )
   ),
-  us.sn(
+  us.msn(
     {
-      trig = 'for',
-      desc = 'for loop',
+      { trig = 'for' },
+      { trig = 'fr' },
+      { trig = 'forr' },
+      { trig = 'forange' },
+      { trig = 'forrange' },
+      common = { desc = 'for loop' },
     },
     un.fmtad(
       [[
@@ -131,6 +135,78 @@ M.snippets = {
         items = d(2, function()
           return is_bash() and sn(nil, i(1, '${items[@]}'))
             or sn(nil, i(1, '$items'))
+        end),
+        body = un.body(3, 1, ':'),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'fi' },
+      { trig = 'fori' },
+      common = { desc = 'for i loop' },
+    },
+    un.fmtad(
+      [[
+        for <idx> in <seq>; do
+        <body>
+        done
+      ]],
+      {
+        idx = i(1, 'i'),
+        seq = d(2, function()
+          return is_bash()
+              and sn(
+                nil,
+                un.fmtad('{<s>..<e>}', {
+                  s = i(1, '1'),
+                  e = i(2, '10'),
+                })
+              )
+            or sn(
+              nil,
+              un.fmtad('$(seq <s> <e>)', {
+                s = i(1, '1'),
+                e = i(2, '10'),
+              })
+            )
+        end),
+        body = un.body(3, 1, ':'),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'f_' },
+      { trig = 'f-' },
+      { trig = 'for_' },
+      { trig = 'for-' },
+      common = { desc = 'for _ loop' },
+    },
+    un.fmtad(
+      [[
+        for <idx> in <seq>; do
+        <body>
+        done
+      ]],
+      {
+        idx = i(1, '_'),
+        seq = d(2, function()
+          return is_bash()
+              and sn(
+                nil,
+                un.fmtad('{<s>..<e>}', {
+                  s = i(1, '1'),
+                  e = i(2, '10'),
+                })
+              )
+            or sn(
+              nil,
+              un.fmtad('$(seq <s> <e>)', {
+                s = i(1, '1'),
+                e = i(2, '10'),
+              })
+            )
         end),
         body = un.body(3, 1, ':'),
       }
@@ -415,14 +491,38 @@ M.snippets = {
   ),
   us.sn(
     {
+      trig = 'clean',
+      desc = 'cleanup function',
+    },
+    un.fmtad(
+      [[
+        <cleanup>() {
+        <body>
+        }
+      ]],
+      {
+        cleanup = i(1, 'cleanup'),
+        body = un.body(2, 1, 'kill $(jobs -p) 2>/dev/null; wait'),
+      }
+    )
+  ),
+  us.sn(
+    {
       trig = 'trap',
       desc = 'trap command',
     },
     un.fmtad('trap <cmd> <sig>', {
-      cmd = c(1, {
-        i(nil, 'cleanup'),
-        i(nil, [['kill $(jobs -p) 2>/dev/null; wait']]),
-      }),
+      cmd = d(1, function()
+        for _, line in
+          ipairs(vim.api.nvim_buf_get_lines(0, 0, vim.fn.line('.'), false))
+        do
+          local cleanup_func = line:match('(clean[%w_]*)%(%)')
+          if cleanup_func then
+            return sn(nil, i(1, cleanup_func))
+          end
+        end
+        return sn(nil, i(1, [['kill $(jobs -p) 2>/dev/null; wait']]))
+      end),
       sig = c(2, {
         i(nil, 'EXIT INT TERM HUP'), -- common signals that terminates a program by default, useful for most scripts
         i(nil, 'EXIT INT TERM'), -- handle `HUP` in another trap, used in a daemon script

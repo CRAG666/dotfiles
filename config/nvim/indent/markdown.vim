@@ -8,13 +8,13 @@ setlocal indentexpr=GetMarkdownIndent()
 setlocal indentkeys=!^F,o,O,0&,<Space>
 
 function! s:ts_is_active() abort
-  return luaeval('require("utils.ts").is_active()')
+  return luaeval('require("my.utils.ts").is_active()')
 endfunction
 
 function! s:in_codeblock() abort
   return s:ts_is_active()
-        \ ? luaeval('require("utils.ts").find_node("fence") ~= nil')
-        \ : luaeval('require("utils.syn").find_group("CodeBlock") ~= nil')
+        \ ? luaeval('require("my.utils.ts").find_node("fence") ~= nil')
+        \ : luaeval('require("my.utils.syn").find_group("CodeBlock") ~= nil')
 endfunction
 
 " Find the first previous non-blank line that matches the given pattern if

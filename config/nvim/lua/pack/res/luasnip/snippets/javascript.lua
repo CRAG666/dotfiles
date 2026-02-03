@@ -9,6 +9,7 @@ local i = ls.insert_node
 local c = ls.choice_node
 local d = ls.dynamic_node
 local r = ls.restore_node
+local f = ls.function_node
 
 M.snippets = {
   us.msns({
@@ -180,7 +181,69 @@ M.snippets = {
     c(1, {
       un.fmtad(
         [[
-          function <name>(<params>) {
+          <func> <name>(<params>) {
+          <body>
+          }
+        ]],
+        {
+          ---@param args string[][]
+          func = f(function(args)
+            for _, line in ipairs(args[1] or {}) do
+              if line:match('%f[%w]await%f[%W]') then
+                return 'async function'
+              end
+            end
+            return 'function'
+          end, 3),
+          name = r(1, 'name'),
+          params = r(2, 'params'),
+          body = un.body(3, 1),
+        }
+      ),
+      un.fmtad(
+        [[
+          const <name> = <async>(<params>) =>> {
+          <body>
+          }
+        ]],
+        {
+          name = r(1, 'name'),
+          ---@param args string[][]
+          async = f(function(args)
+            for _, line in ipairs(args[1] or {}) do
+              if line:match('%f[%w]await%f[%W]') then
+                return 'async '
+              end
+            end
+            return ''
+          end, 3),
+          params = r(2, 'params'),
+          body = un.body(3, 1),
+        }
+      ),
+    }),
+    {
+      common_opts = {
+        stored = {
+          name = i(nil, 'functionName'),
+          params = i(nil),
+        },
+      },
+    }
+  ),
+  us.msn(
+    {
+      { trig = 'afn' },
+      { trig = 'afun' },
+      { trig = 'afunc' },
+      { trig = 'ame' },
+      { trig = 'ameth' },
+      common = { desc = 'Async function definition' },
+    },
+    c(1, {
+      un.fmtad(
+        [[
+          async function <name>(<params>) {
           <body>
           }
         ]],
@@ -192,7 +255,7 @@ M.snippets = {
       ),
       un.fmtad(
         [[
-          const <name> = (<params>) =>> {
+          const <name> = async (<params>) =>> {
           <body>
           }
         ]],
@@ -220,7 +283,33 @@ M.snippets = {
     },
     un.fmtad(
       [[
-        function main(<params>) {
+        <func> main(<params>) {
+        <body>
+        }
+      ]],
+      {
+        func = f(function(args)
+          for _, line in ipairs(args[1] or {}) do
+            if line:match('%f[%w]await%f[%W]') then
+              return 'async function'
+            end
+          end
+          return 'function'
+        end, 2),
+        params = i(1),
+        body = un.body(2, 1),
+      }
+    )
+  ),
+  us.mssn(
+    {
+      { trig = 'amn' },
+      { trig = 'amain' },
+      common = { desc = 'Async main function' },
+    },
+    un.fmtad(
+      [[
+        async function main(<params>) {
         <body>
         }
       ]],
@@ -313,6 +402,41 @@ M.snippets = {
         ]],
         {
           idx = i(1, 'i'),
+          len = i(2, 'array.length - 1'),
+          body = un.body(3, 1),
+        }
+      ),
+    })
+  ),
+  us.msn(
+    {
+      { trig = 'f_' },
+      { trig = 'f-' },
+      { trig = 'for_' },
+      { trig = 'for-' },
+      common = { desc = 'for _ ... loop' },
+    },
+    c(1, {
+      un.fmtad(
+        [[
+          for (let <idx> = 0; <idx> << <len>; <idx>++) {
+            <body>
+          }
+        ]],
+        {
+          idx = i(1, '_'),
+          len = i(2, 'array.length'),
+          body = un.body(3, 1),
+        }
+      ),
+      un.fmtad(
+        [[
+          for (let <idx> = <len>; <idx> >>= 0; <idx>--) {
+            <body>
+          }
+        ]],
+        {
+          idx = i(1, '_'),
           len = i(2, 'array.length - 1'),
           body = un.body(3, 1),
         }

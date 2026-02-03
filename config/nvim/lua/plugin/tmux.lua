@@ -270,7 +270,7 @@ local function setup()
   -- in a vim/nvim session
   if tmux_get_pane_opt('@is_vim') == '' then
     tmux_set_pane_opt('@is_vim', 'yes')
-    local groupid = vim.api.nvim_create_augroup('my.tmux.set_isvim', {})
+    local groupid = vim.api.nvim_create_augroup('tmux.set_isvim', {})
     vim.api.nvim_create_autocmd('VimResume', {
       desc = 'Set @is_vim in tmux pane options after vim resumes.',
       group = groupid,

@@ -43,7 +43,7 @@ function M.ft_auto_load_once(from, after_load)
 
   vim.api.nvim_create_autocmd('FileType', {
     desc = string.format('Load for filetypes from %s lazily.', from),
-    group = vim.api.nvim_create_augroup('my.ft_load.' .. from, {}),
+    group = vim.api.nvim_create_augroup('ft_load.' .. from, {}),
     callback = function(args)
       M.ft_load_once(args.match, from, after_load)
     end,
@@ -144,7 +144,7 @@ function M.on_events(event_specs, name, load)
           buffer = spec.buffer,
           group = vim.api.nvim_create_augroup(
             string.format(
-              'my.load.on_events.event.%s.buf.%d',
+              'load.on_events.event.%s.buf.%d',
               spec.event,
               spec.buffer
             ),
@@ -170,7 +170,7 @@ function M.on_events(event_specs, name, load)
             pattern = pat,
             group = vim.api.nvim_create_augroup(
               string.format(
-                'my.load.on_events.event.%s.pat.%s',
+                'load.on_events.event.%s.pat.%s',
                 spec.event,
                 pat
               ),
@@ -193,7 +193,7 @@ function M.on_events(event_specs, name, load)
         vim.api.nvim_create_autocmd(spec.event, {
           once = true,
           group = vim.api.nvim_create_augroup(
-            string.format('my.load.on_events.event.%s', spec.event),
+            string.format('load.on_events.event.%s', spec.event),
             {}
           ),
           callback = trig_loaders_fn(loaders),

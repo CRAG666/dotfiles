@@ -279,7 +279,7 @@ function _G._statuscolumn()
     .. (data.show_fdc and ' ' or '')
 end
 
-local augroup = vim.api.nvim_create_augroup('my.statuscolumn', {})
+local augroup = vim.api.nvim_create_augroup('statuscolumn', {})
 
 vim.api.nvim_create_autocmd('WinClosed', {
   group = augroup,

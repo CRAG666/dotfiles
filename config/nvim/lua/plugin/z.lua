@@ -246,7 +246,7 @@ function M.setup()
   if z.exists() then
     vim.api.nvim_create_autocmd('DirChanged', {
       desc = 'Record nvim path in z.',
-      group = vim.api.nvim_create_augroup('my.z.record_dir', {}),
+      group = vim.api.nvim_create_augroup('z.record_dir', {}),
       callback = function(args)
         local dir = args.file
         vim.system(z.cmd.add(dir))

@@ -196,8 +196,8 @@ alias vimk='vim ~/.config/nvim/lua/core/keymaps.lua'
 alias vimd='vim ~/.config/nvim/lua/core/opts.lua'
 alias vima='vim ~/.config/nvim/lua/core/autocmds.lua'
 alias viml='vim ~/.config/nvim/lua/core/lsp.lua'
-alias vo='vim -c "Neorg workspace notes"'
-alias vs='vim -c "Neorg workspace state_art"'
+alias vl='vim -c "Neorg workspace life"'
+alias va='vim -c "Neorg workspace academic"'
 # HACK: Config alias
 alias grubc="sudo -e /etc/default/grub"
 alias newmc="vim ~/.config/newm/config.py"

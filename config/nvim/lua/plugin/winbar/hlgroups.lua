@@ -225,7 +225,7 @@ end
 
 ---Initialize highlight groups for winbar
 local function init()
-  local groupid = vim.api.nvim_create_augroup('my.winbar.hl', {})
+  local groupid = vim.api.nvim_create_augroup('winbar.hl', {})
 
   set_hlgroups()
   vim.api.nvim_create_autocmd('ColorScheme', {

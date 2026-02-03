@@ -9,6 +9,21 @@ local i = ls.insert_node
 local c = ls.choice_node
 local d = ls.dynamic_node
 local r = ls.restore_node
+local f = ls.function_node
+
+---Get the name of the logger in current file
+---@return string
+local function get_logger()
+  for _, line in
+    ipairs(vim.api.nvim_buf_get_lines(0, 0, vim.fn.line('.'), false))
+  do
+    local logger = line:match('([%w_]+)%s*=.*getLogger')
+    if logger then
+      return logger
+    end
+  end
+  return 'logger'
+end
 
 M.snippets = {
   us.msns({
@@ -48,12 +63,28 @@ M.snippets = {
       trig = 'op',
       desc = 'open()',
     },
-    un.fmtad('<fd> = open(<q><file><q>, encoding=<q><encoding><q><kwargs>)', {
+    un.fmtad('<fd> = open(<q><file><q>, mode=<q><mode><q><encoding>)', {
       fd = i(1, 'fd'),
       q = un.qt('"'),
       file = i(2, 'file'),
-      encoding = i(3, 'utf-8'),
-      kwargs = i(4),
+      mode = i(3, 'w'),
+      ---@param ref_texts string[][]
+      encoding = d(4, function(ref_texts)
+        for _, line in ipairs(ref_texts[1] or {}) do
+          -- Binary mode doesn't take an encoding argument
+          if line:match('b') then
+            return sn(nil, i(1))
+          end
+        end
+        return sn(
+          nil,
+          un.fmtad(', encoding=<q><enc><q><kwargs>', {
+            q = un.qt('"'),
+            enc = i(1, 'utf-8'),
+            kwargs = i(2),
+          })
+        )
+      end, 3),
     })
   ),
   us.msn(
@@ -65,14 +96,30 @@ M.snippets = {
     },
     un.fmtad(
       [[
-        with open(<q><file><q>, encoding=<q><encoding><q><kwargs>) as <fd>:
+        with open(<q><file><q>, mode=<q><mode><q><encoding>) as <fd>:
         <body>
       ]],
       {
         q = un.qt('"'),
         file = i(1, 'file'),
-        encoding = i(2, 'utf-8'),
-        kwargs = i(3),
+        mode = i(2, 'w'),
+        ---@param ref_texts string[][]
+        encoding = d(3, function(ref_texts)
+          for _, line in ipairs(ref_texts[1] or {}) do
+            -- Binary mode doesn't take an encoding argument
+            if line:match('b') then
+              return sn(nil, i(1))
+            end
+          end
+          return sn(
+            nil,
+            un.fmtad(', encoding=<q><enc><q><kwargs>', {
+              q = un.qt('"'),
+              enc = i(1, 'utf-8'),
+              kwargs = i(2),
+            })
+          )
+        end, 2),
         fd = i(4, 'fd'),
         body = un.body(5, 1, 'pass'),
       }
@@ -163,9 +210,10 @@ M.snippets = {
       trig = 'lg',
       desc = 'Create a new logger',
     },
-    un.fmtad('logger = logging.getLogger(<name><e>)', {
-      name = i(1, '__name__'),
-      e = i(2),
+    un.fmtad('<logger> = logging.getLogger(<name><e>)', {
+      logger = f(get_logger),
+      name = i(2, '__name__'),
+      e = i(3),
     })
   ),
   us.sn(
@@ -174,7 +222,8 @@ M.snippets = {
       desc = 'Logger log',
     },
     c(1, {
-      un.fmtad('logger.<level>(<msg><e>)', {
+      un.fmtad('<logger>.<level>(<msg><e>)', {
+        logger = f(get_logger),
         level = c(1, {
           i(nil, 'info'),
           i(nil, 'warning'),
@@ -194,7 +243,8 @@ M.snippets = {
         }),
         e = i(3),
       }),
-      un.fmtad('logger.log(<level>, <msg><e>)', {
+      un.fmtad('<logger>.log(<level>, <msg><e>)', {
+        logger = f(get_logger),
         level = c(1, {
           i(2, 'logging.INFO'),
           i(2, 'logging.WARNING'),
@@ -227,7 +277,8 @@ M.snippets = {
       trig = 'li',
       desc = 'logger.info()',
     },
-    un.fmtad('logger.info(<msg><e>)', {
+    un.fmtad('<logger>.info(<msg><e>)', {
+      logger = f(get_logger),
       msg = c(1, {
         un.fmtad('<q><m><q>', {
           q = un.qt('"'),
@@ -251,7 +302,8 @@ M.snippets = {
       trig = 'lw',
       desc = 'logger.warning()',
     },
-    un.fmtad('logger.warning(<msg><e>)', {
+    un.fmtad('<logger>.warning(<msg><e>)', {
+      logger = f(get_logger),
       msg = c(1, {
         un.fmtad('<q><m><q>', {
           q = un.qt('"'),
@@ -275,7 +327,8 @@ M.snippets = {
       trig = 'le',
       desc = 'logger.error()',
     },
-    un.fmtad('logger.error(<msg><e>)', {
+    un.fmtad('<logger>.error(<msg><e>)', {
+      logger = f(get_logger),
       msg = c(1, {
         un.fmtad('<q><m><q>', {
           q = un.qt('"'),
@@ -299,7 +352,8 @@ M.snippets = {
       trig = 'lc',
       desc = 'logger.critical()',
     },
-    un.fmtad('logger.critical(<msg><e>)', {
+    un.fmtad('<logger>.critical(<msg><e>)', {
+      logger = f(get_logger),
       msg = c(1, {
         un.fmtad('<q><m><q>', {
           q = un.qt('"'),
@@ -323,7 +377,8 @@ M.snippets = {
       trig = 'ld',
       desc = 'logger.debug()',
     },
-    un.fmtad('logger.debug(<msg><e>)', {
+    un.fmtad('<logger>.debug(<msg><e>)', {
+      logger = f(get_logger),
       msg = c(1, {
         un.fmtad('<q><m><q>', {
           q = un.qt('"'),
@@ -347,7 +402,8 @@ M.snippets = {
       trig = 'll',
       desc = 'Log a line',
     },
-    un.fmtad('logger.debug(<q><line><q><e>)', {
+    un.fmtad('<logger>.debug(<q><line><q><e>)', {
+      logger = f(get_logger),
       q = un.qt('"'),
       line = c(1, {
         i(nil, '----------------------------------------'),
@@ -363,7 +419,8 @@ M.snippets = {
       trig = 'lck',
       desc = 'Check a value of a variable through logger.debug()',
     },
-    un.fmtad('logger.debug(f<q><expr_escaped>: {<expr>}<q><e>)', {
+    un.fmtad('<logger>.debug(f<q><expr_escaped>: {<expr>}<q><e>)', {
+      logger = f(get_logger),
       q = un.qt('"'),
       expr = i(1),
       expr_escaped = d(2, function(texts)
@@ -599,7 +656,7 @@ M.snippets = {
     {
       { trig = 'fi' },
       { trig = 'fori' },
-      common = { desc = 'for ... in range(...) loop' },
+      common = { desc = 'for i in range(...) loop' },
     },
     un.fmtad(
       [[
@@ -608,6 +665,26 @@ M.snippets = {
       ]],
       {
         var = i(1, 'i'),
+        range = i(2),
+        body = un.body(3, 1, 'pass'),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'f_' },
+      { trig = 'f-' },
+      { trig = 'for_' },
+      { trig = 'for-' },
+      common = { desc = 'for _ in range(...) loop' },
+    },
+    un.fmtad(
+      [[
+        for <var> in range(<range>):
+        <body>
+      ]],
+      {
+        var = i(1, '_'),
         range = i(2),
         body = un.body(3, 1, 'pass'),
       }
@@ -660,7 +737,37 @@ M.snippets = {
     },
     un.fmtad(
       [[
-        def <name>(<args>)<ret>:
+        <def> <name>(<args>)<ret>:
+        <body>
+      ]],
+      {
+        ---@param args string[][]
+        def = f(function(args)
+          for _, line in ipairs(args[1] or {}) do
+            if line:match('%f[%w]await%f[%W]') then
+              return 'async def'
+            end
+          end
+          return 'def'
+        end, 4),
+        name = i(1, 'func'),
+        args = i(2),
+        ret = i(3),
+        body = un.body(4, 1, 'pass'),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'afn' },
+      { trig = 'afun' },
+      { trig = 'afunc' },
+      { trig = 'adef' },
+      common = { desc = 'Async function definition' },
+    },
+    un.fmtad(
+      [[
+        async def <name>(<args>)<ret>:
         <body>
       ]],
       {
@@ -673,16 +780,43 @@ M.snippets = {
   ),
   us.mssn(
     {
+      { trig = 'amn' },
+      { trig = 'amain' },
+      common = { desc = 'Async main function' },
+    },
+    un.fmtad(
+      [[
+        async def amain(<args>)<ret>:
+        <body>
+      ]],
+      {
+        args = i(1),
+        ret = i(2),
+        body = un.body(3, 1, 'pass'),
+      }
+    )
+  ),
+  us.mssn(
+    {
       { trig = 'mn' },
       { trig = 'main' },
       common = { desc = 'main function' },
     },
     un.fmtad(
       [[
-        def main(<args>)<ret>:
+        <def> main(<args>)<ret>:
         <body>
       ]],
       {
+        ---@param args string[][]
+        def = f(function(args)
+          for _, line in ipairs(args[1] or {}) do
+            if line:match('%f[%w]await%f[%W]') then
+              return 'async def'
+            end
+          end
+          return 'def'
+        end, 3),
         args = i(1),
         ret = i(2),
         body = un.body(3, 1, 'pass'),
@@ -698,6 +832,24 @@ M.snippets = {
     un.fmtad(
       [[
         def <name>(self<args>):
+        <body>
+      ]],
+      {
+        name = i(1, 'method_name'),
+        args = i(2),
+        body = un.body(3, 1, 'pass'),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'ame' },
+      { trig = 'ameth' },
+      common = { desc = 'Async method definition' },
+    },
+    un.fmtad(
+      [[
+        async def <name>(self<args>):
         <body>
       ]],
       {

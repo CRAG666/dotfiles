@@ -368,7 +368,7 @@ function M.persist(cb)
   cb()
 
   local group = vim.api.nvim_create_augroup(
-    string.format('my.hl.persist.%d', vim.uv.hrtime()),
+    string.format('hl.persist.%d', vim.uv.hrtime()),
     {}
   )
   vim.api.nvim_create_autocmd('ColorScheme', {

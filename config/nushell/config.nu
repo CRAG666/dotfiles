@@ -42,8 +42,8 @@ alias vimk = nvim ~/.config/nvim/lua/core/keymaps.lua
 alias vimd = nvim ~/.config/nvim/lua/core/opts.lua
 alias vima = nvim ~/.config/nvim/lua/core/autocmds.lua
 alias viml = nvim ~/.config/nvim/lua/core/lsp.lua
-alias vo = nvim -c "Neorg workspace notes"
-alias vs = nvim -c "Neorg workspace state_art"
+alias vl = nvim -c "Neorg workspace life"
+alias va = nvim -c "Neorg workspace academic"
 
 alias grubc = sudo -e /etc/default/grub
 alias newmc = nvim ~/.config/newm/config.py

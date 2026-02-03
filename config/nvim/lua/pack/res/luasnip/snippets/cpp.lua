@@ -75,29 +75,6 @@ M.snippets = {
   ),
   us.msn(
     {
-      { trig = 'fi' },
-      { trig = 'fori' },
-      common = {
-        desc = 'For i loop',
-        priority = 1001,
-      },
-    },
-    un.fmtad(
-      [[
-        for (<init>; <cond>; <inc>) {
-        <body>
-        }
-      ]],
-      {
-        init = i(1),
-        cond = i(2),
-        inc = i(3),
-        body = un.body(4, 1),
-      }
-    )
-  ),
-  us.msn(
-    {
       { trig = 'cls' },
       { trig = 'class' },
       common = { desc = 'Class definition' },

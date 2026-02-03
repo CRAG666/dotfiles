@@ -331,7 +331,7 @@ function M.setup(opts)
     end)
 
     vim.api.nvim_create_autocmd(M.opts.autosave.events, {
-      group = vim.api.nvim_create_augroup('my.session.auto_save', {}),
+      group = vim.api.nvim_create_augroup('session.auto_save', {}),
       desc = 'Automatically save session.',
       -- `BufDelete` event triggers just before the buffers is actually deleted from
       -- the buffer list, delay to ensure that the buffer is deleted before checking
@@ -345,7 +345,7 @@ function M.setup(opts)
   end
 
   if check_enabled(M.opts.autoload) then
-    local groupid = vim.api.nvim_create_augroup('my.session.auto_load', {})
+    local groupid = vim.api.nvim_create_augroup('session.auto_load', {})
     vim.api.nvim_create_autocmd({ 'StdinReadPre', 'SessionLoadPost' }, {
       desc = 'Detect stdin or manual session loading to disable automatic session loading.',
       group = groupid,
@@ -376,7 +376,7 @@ function M.setup(opts)
 
   if check_enabled(M.opts.autoremove) then
     vim.api.nvim_create_autocmd(M.opts.autoremove.events, {
-      group = vim.api.nvim_create_augroup('my.session.auto_remove', {}),
+      group = vim.api.nvim_create_augroup('session.auto_remove', {}),
       desc = 'Automatically remove sessions.',
       callback = vim.schedule_wrap(function()
         if M.opts.autoremove.cond() then

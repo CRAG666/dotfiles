@@ -138,7 +138,7 @@ end, {
 -- Preserve tab names across sessions
 vim.opt.sessionoptions:append('globals')
 
-local groupid = vim.api.nvim_create_augroup('my.tabline.name', {})
+local groupid = vim.api.nvim_create_augroup('tabline.name', {})
 
 vim.api.nvim_create_autocmd({ 'UIEnter', 'SessionLoadPost' }, {
   desc = 'Set flag to enable tab name psersistence across sessions.',

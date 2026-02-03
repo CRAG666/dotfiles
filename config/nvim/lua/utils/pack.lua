@@ -161,9 +161,13 @@ function M.lazy_load(spec, path)
       goto continue
     end
     lazy = true
-    require('utils.load')['on_' .. trig](spec.data[trig], spec.src, function()
-      M.load(spec, path)
-    end)
+    require('utils.load')['on_' .. trig](
+      spec.data[trig],
+      spec.src,
+      function()
+        M.load(spec, path)
+      end
+    )
     ::continue::
   end
 
@@ -311,7 +315,7 @@ function M.add(specs)
 
   -- Set autocmd to build plugin on pack changed (installed/updated)
   vim.api.nvim_create_autocmd('PackChanged', {
-    group = vim.api.nvim_create_augroup('my.pack.build', { clear = false }),
+    group = vim.api.nvim_create_augroup('pack.build', { clear = false }),
     callback = function(args)
       if args.data.kind == 'delete' then
         return

@@ -3,7 +3,7 @@ local bar = require('plugin.winbar.bar')
 local utils = require('plugin.winbar.utils')
 
 local initialized = false
-local groupid = vim.api.nvim_create_augroup('my.winbar.sources.markdown', {})
+local groupid = vim.api.nvim_create_augroup('winbar.sources.markdown', {})
 
 ---@class winbar.sources.markdown.symbol
 ---@field name string

@@ -68,6 +68,10 @@
       "rev": "59775af2fadb85cec6bff08a584c2c98a1694ea6",
       "src": "https://github.com/nvim-neorg/neorg"
     },
+    "neorg-extras": {
+      "rev": "6e5f33c6e3be0a72134dde576fd95c8ca018f531",
+      "src": "https://github.com/juniorsundar/neorg-extras"
+    },
     "nui.nvim": {
       "rev": "de740991c12411b663994b2860f1a4fd0937c130",
       "src": "https://github.com/MunifTanjim/nui.nvim"

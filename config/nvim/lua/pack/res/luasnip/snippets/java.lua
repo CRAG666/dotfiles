@@ -325,15 +325,41 @@ M.snippets = {
     },
     un.fmtad(
       [[
-        for (<init>; <cond>; <update>) {
+        for (<type> <i> = <init>; <cond>; <inc>) {
         <body>
         }
       ]],
       {
-        init = i(1),
-        cond = i(2),
-        update = i(3),
-        body = un.body(4, 1),
+        type = i(1, 'int'),
+        i = i(2, 'i'),
+        init = i(3, '0'),
+        cond = i(4),
+        inc = i(5),
+        body = un.body(6, 1),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'f_' },
+      { trig = 'f-' },
+      { trig = 'for_' },
+      { trig = 'for-' },
+      common = { desc = 'for _ loop' },
+    },
+    un.fmtad(
+      [[
+        for (<type> <i> = <init>; <cond>; <inc>) {
+        <body>
+        }
+      ]],
+      {
+        type = i(1, 'int'),
+        i = i(2, '_'),
+        init = i(3, '0'),
+        cond = i(4),
+        inc = i(5),
+        body = un.body(6, 1),
       }
     )
   ),

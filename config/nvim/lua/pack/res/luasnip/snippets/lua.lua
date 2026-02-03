@@ -439,6 +439,53 @@ M.snippets = {
       },
     }
   ),
+  us.msn(
+    {
+      { trig = 'f_' },
+      { trig = 'f-' },
+      { trig = 'for_' },
+      { trig = 'for-' },
+      common = { desc = 'for _ = ... loop' },
+    },
+    c(1, {
+      un.fmtad(
+        [[
+          for <idx> = <start>, <stop> do
+          <body>
+          end
+        ]],
+        {
+          idx = r(1, 'idx'),
+          start = r(2, 'start'),
+          stop = r(3, 'stop'),
+          body = un.body(4, 1),
+        }
+      ),
+      un.fmtad(
+        [[
+          for <idx> = <start>, <stop>, <step> do
+          <body>
+          end
+        ]],
+        {
+          idx = r(1, 'idx'),
+          start = r(2, 'start'),
+          stop = r(3, 'stop'),
+          step = i(4, 'step'),
+          body = un.body(5, 1),
+        }
+      ),
+    }),
+    {
+      common_opts = {
+        stored = {
+          idx = i(nil, '_'),
+          start = i(nil, 'start'),
+          stop = i(nil, 'stop'),
+        },
+      },
+    }
+  ),
   us.msn({
     { trig = 'wh' },
     { trig = 'while' },

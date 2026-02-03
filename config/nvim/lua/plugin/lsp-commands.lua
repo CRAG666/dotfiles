@@ -54,7 +54,7 @@ local function parse_cmdline_args(fargs, fn_name_alt)
   return fn_name, parsed
 end
 
----@type string<table, my.lsp.cmd.arg_handler>
+---@type string<table, lsp.cmd.arg_handler>
 local subcommand_arg_handler = {
   ---LSP command argument handler for functions that receive a range
   ---@param args lsp.cmd.parsed_args
@@ -93,7 +93,7 @@ local subcommand_arg_handler = {
   end,
 }
 
----@type table<string, my.lsp.cmd.completion>
+---@type table<string, lsp.cmd.completion>
 local subcommand_completions = {
   bufs = function()
     return vim.tbl_map(function(buf)
@@ -184,18 +184,18 @@ local subcommand_opt_vals = {
   },
 }
 
----@alias my.lsp.cmd.arg_handler fun(args: lsp.cmd.parsed_args, tbl: table): ...?
----@alias my.lsp.cmd.params string[]
----@alias my.lsp.cmd.opts table
----@alias my.lsp.cmd.fn fun(...?): ...?
----@alias my.lsp.cmd.completion fun(arglead: string, cmdline: string, cursorpos: integer): string[]
+---@alias lsp.cmd.arg_handler fun(args: lsp.cmd.parsed_args, tbl: table): ...?
+---@alias lsp.cmd.params string[]
+---@alias lsp.cmd.opts table
+---@alias lsp.cmd.fn fun(...?): ...?
+---@alias lsp.cmd.completion fun(arglead: string, cmdline: string, cursorpos: integer): string[]
 
 ---@class lsp.cmd.info
----@field arg_handler my.lsp.cmd.arg_handler?
----@field params my.lsp.cmd.params?
----@field opts my.lsp.cmd.opts?
----@field fn_override my.lsp.cmd.fn?
----@field completion my.lsp.cmd.completion?
+---@field arg_handler lsp.cmd.arg_handler?
+---@field params lsp.cmd.params?
+---@field opts lsp.cmd.opts?
+---@field fn_override lsp.cmd.fn?
+---@field completion lsp.cmd.completion?
 
 local subcommands = {
   ---LSP subcommands
@@ -1191,7 +1191,7 @@ local function setup_lsp_autoformat()
   -- Automatically format code on buf save and insert leave
   vim.api.nvim_create_autocmd('BufWritePre', {
     desc = 'LSP auto format.',
-    group = vim.api.nvim_create_augroup('my.lsp.auto_fmt', {}),
+    group = vim.api.nvim_create_augroup('lsp.auto_fmt', {}),
     callback = function(args)
       local b = vim.b[args.buf]
       local g = vim.g

@@ -8,7 +8,7 @@ local t = ls.text_node
 local i = ls.insert_node
 local d = ls.dynamic_node
 
-M.math = require('pack.res.luasnip.snippets.tex').math
+M.math = require('pack.res.luasnip.snippets.tex').mathathathathath
 
 M.snippets = {
   us.mssn({

@@ -12,14 +12,14 @@ error_symbol = "[ﰉ](fg:red)"
 disabled = false
 
 [directory.substitutions]
-"~/Escritorio" = " "
-"~/Descargas" = " "
-"~/Documentos" = " "
-"~/Imágenes" = " "
-"~/Música" = " "
-"~/Vídeos" = " "
-"~/Git" = " "
-"/run/media/$USER" = "禍"
+"~/Escritorio" = "󰇄"
+"~/Descargas" = ""
+"~/Documentos" = ""
+"~/Imágenes" = ""
+"~/Música" = ""
+"~/Vídeos" = ""
+"~/Git" = ""
+"/run/media/$USER" = "󱊞"
 
 [palettes.catppuccin_mocha]
 rosewater = "#f5e0dc"

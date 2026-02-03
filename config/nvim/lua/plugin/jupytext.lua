@@ -241,7 +241,7 @@ local function jupytext_convert(buf)
   vim.bo[buf].bt = 'acwrite'
   vim.bo[buf].ft = 'markdown'
   vim.api.nvim_create_autocmd({ 'BufWriteCmd', 'FileWriteCmd' }, {
-    group = vim.api.nvim_create_augroup('my.jupytext.buf.' .. buf, {}),
+    group = vim.api.nvim_create_augroup('jupytext.buf.' .. buf, {}),
     buffer = buf,
     callback = write_cb,
   })
@@ -254,7 +254,7 @@ local function setup()
   vim.g.loaded_jupytext = true
 
   vim.api.nvim_create_autocmd('BufReadCmd', {
-    group = vim.api.nvim_create_augroup('my.jupytext', {}),
+    group = vim.api.nvim_create_augroup('jupytext', {}),
     pattern = '*.ipynb',
     callback = function(args)
       jupytext_convert(args.buf)

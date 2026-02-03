@@ -12,6 +12,7 @@ return {
       { src = 'https://github.com/nvim-neotest/nvim-nio' },
       { src = 'https://github.com/MunifTanjim/nui.nvim' },
       { src = 'https://github.com/nvim-lua/plenary.nvim' },
+      -- { src = 'https://github.com/juniorsundar/neorg-extras' },
     },
     keys = {
       { mode = 'n', lhs = '<leader>oo', opts = { desc = 'Toggle org notes' } },
@@ -27,10 +28,10 @@ return {
       },
     },
     cmds = { 'Neorg' },
-    -- events = {
-    --   event = 'FileType',
-    --   pattern = 'norg',
-    -- },
+    events = {
+      event = 'FileType',
+      pattern = 'norg',
+    },
     postload = function()
       require('neorg').setup({
         load = {
@@ -80,8 +81,10 @@ return {
           ['core.dirman'] = {
             config = {
               workspaces = {
-                notes = '~/Documentos/Org/Notes',
-                state_art = '~/Documentos/Org/Estado_Arte/',
+                life = '~/Documentos/Org/Life/',
+                work = '~/Documentos/Org/Work/',
+                master = '~/Documentos/Proyectos/Writings/Maestria/Notes/',
+                phd = '~/Documentos/Proyectos/Writings/Doctorado/Notes/',
               },
             },
           },
@@ -89,30 +92,16 @@ return {
           ['core.export'] = {},
           ['core.summary'] = {},
           ['core.ui.calendar'] = {},
-          -- ['core.latex.renderer'] = {},
+          ['core.latex.renderer'] = {},
         },
       })
 
-      vim.keymap.set('n', '<leader>oo', '<cmd>Neorg workspace notes<cr>')
+      vim.keymap.set('n', '<leader>oo', '<cmd>Neorg workspace life<cr>')
       vim.keymap.set('n', '<leader>oc', '<cmd>Neorg toggle-concealer<cr>')
       vim.keymap.set('n', '<leader>ot', function()
         vim.cmd('Neorg toc')
         vim.cmd('vert resize 60')
       end)
-
-      -- vim.api.nvim_create_autocmd('User', {
-      --   pattern = 'TSUpdate',
-      --   callback = function()
-      --     require('nvim-treesitter.parsers').norg = {
-      --       install_info = {
-      --         url = 'https://github.com/nvim-neorg/tree-sitter-norg',
-      --         location = 'parser', -- only needed if the parser is in subdirectory of a "monorepo"
-      --         -- generate = true, -- only needed if repo does not contain pre-generated `src/parser.c`
-      --         -- generate_from_json = false, -- only needed if repo does not contain `src/grammar.json` either
-      --       },
-      --     }
-      --   end,
-      -- })
     end,
   },
 }

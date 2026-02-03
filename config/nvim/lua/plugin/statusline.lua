@@ -1,6 +1,6 @@
 local utils = require('utils')
 local icons = require('utils.static.icons')
-local groupid = vim.api.nvim_create_augroup('my.statusline', {})
+local groupid = vim.api.nvim_create_augroup('statusline', {})
 
 _G._statusline = {}
 

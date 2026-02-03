@@ -228,7 +228,7 @@ local function get_tabout_pos()
   -- cursor, this is useful to jump out curly braces that takes a seprate lien
   -- in C-style languages, e.g.
   --
-  -- int my_func(void) {
+  -- int func(void) {
   --   ...|
   -- } <- jump to here
   local next_nonblank_linenr = vim.fn.nextnonblank(cursor[1] + 1) -- 1-based line number

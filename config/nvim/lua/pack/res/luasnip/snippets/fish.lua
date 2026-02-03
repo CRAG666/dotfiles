@@ -90,10 +90,14 @@ M.snippets = {
       }
     )
   ),
-  us.sn(
+  us.msn(
     {
-      trig = 'for',
-      desc = 'for loop',
+      { trig = 'for' },
+      { trig = 'fr' },
+      { trig = 'forr' },
+      { trig = 'forange' },
+      { trig = 'forrange' },
+      common = { desc = 'for loop' },
     },
     un.fmtad(
       [[
@@ -105,6 +109,48 @@ M.snippets = {
         var = i(1, 'item'),
         items = i(2, '$items'),
         body = un.body(3, 1),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'fi' },
+      { trig = 'fori' },
+      common = { desc = 'for i loop' },
+    },
+    un.fmtad(
+      [[
+        for <idx> in (seq <s> <e>)
+        <body>
+        end
+      ]],
+      {
+        idx = i(1, 'i'),
+        s = i(2, '1'),
+        e = i(3, '10'),
+        body = un.body(4, 1),
+      }
+    )
+  ),
+  us.msn(
+    {
+      { trig = 'f_' },
+      { trig = 'f-' },
+      { trig = 'for_' },
+      { trig = 'for-' },
+      common = { desc = 'for _ loop' },
+    },
+    un.fmtad(
+      [[
+        for <idx> in (seq <s> <e>)
+        <body>
+        end
+      ]],
+      {
+        idx = i(1, '_'),
+        s = i(2, '1'),
+        e = i(3, '10'),
+        body = un.body(4, 1),
       }
     )
   ),
@@ -397,14 +443,38 @@ M.snippets = {
   ),
   us.sn(
     {
+      trig = 'clean',
+      desc = 'cleanup function',
+    },
+    un.fmtad(
+      [[
+        function <cleanup> {
+        <body>
+        }
+      ]],
+      {
+        cleanup = i(1, 'cleanup'),
+        body = un.body(2, 1, 'kill (jobs -p) 2>/dev/null; wait'),
+      }
+    )
+  ),
+  us.sn(
+    {
       trig = 'trap',
       desc = 'trap command',
     },
     un.fmtad('trap <cmd> <sig>', {
-      cmd = c(1, {
-        i(nil, 'cleanup'),
-        i(nil, [['kill (jobs -p) 2>/dev/null; wait']]),
-      }),
+      cmd = d(1, function()
+        for _, line in
+          ipairs(vim.api.nvim_buf_get_lines(0, 0, vim.fn.line('.'), false))
+        do
+          local cleanup_func = line:match('function (clean[%w_]*)')
+          if cleanup_func then
+            return sn(nil, i(1, cleanup_func))
+          end
+        end
+        return sn(nil, i(1, [['kill (jobs -p) 2>/dev/null; wait']]))
+      end),
       sig = c(2, {
         i(nil, 'EXIT INT TERM HUP'), -- common signals that terminates a program by default, useful for most scripts
         i(nil, 'EXIT INT TERM'), -- handle `HUP` in another trap, used in a daemon script
