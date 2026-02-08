@@ -1,7 +1,8 @@
+source ~/.config/nushell/utils.nu
 $env.config.hooks = ($env.config.hooks | upsert env_change {
     PWD: [
         {|before, after|
-            print (ls | table)
+            print (ls -t | table)
         }
     ]
 })
@@ -11,7 +12,16 @@ $env.config.use_kitty_protocol = true
 $env.config.show_banner = false
 $env.config.history.file_format = "sqlite"
 $env.config.history.sync_on_enter = true
-
+$env.config.table = {
+    mode: rounded
+    index_mode: auto
+    show_empty: true
+    trim: {
+        methodology: wrapping
+        wrapping_try_keep_words: true
+        truncating_suffix: "..."
+    }
+}
 
 alias ip = ip -color=auto
 alias ping = prettyping
@@ -72,49 +82,6 @@ alias kittyc = nvim ~/.config/kitty/kitty.conf
 alias icat = kitten icat
 alias s = kitten ssh
 
-def pps [] {
-  podman ps --format json
-  | from json
-  | flatten Names
-  | select Names Image Status Ports
-}
-
-def ppsa [] {
-  podman ps -a --format json
-  | from json
-  | flatten Names
-  | select Names Image Status Created
-}
-
-def pimg [] {
-  podman images --format json
-  | from json
-  | sort-by Created -r
-  | flatten Names
-  | update Id { |r| $r.Id | str substring 0..12 }
-  | update Created { |r| $r.Created | into datetime | date humanize }
-  | update Size { |r| $r.Size | into filesize }
-  | select Names Id Created Size Containers
-}
-
-def pnet [] {
-  podman network ls --format json
-  | from json
-  | select name driver id created
-}
-
-def pstats [] {
-  podman stats --no-stream --format json
-  | from json
-}
-
-def pclean [] {
-    podman rm (podman ps -aq)
-    podman rmi (podman images -q)
-    podman volume prune
-    podman network prune
-}
-
 def sar [find_text: string, replace_text: string] {
     let files_to_change = (rg -l $find_text | lines)
 
@@ -156,32 +123,6 @@ def gac [] {
     }
 }
 
-def acp [] {
-    let commit_info = (get_commit_info)
-    if (gum confirm "Hacer commit de los cambios?") {
-        git add .
-        git commit -m $commit_info.summary -m $commit_info.description
-        git push
-    }
-}
-
-def dhg [commit_message: string] {
-    git checkout --orphan latest_branch
-    git add -A
-    git commit -am $commit_message
-    git branch -D main
-    git branch -m main
-    git push -f origin main
-}
-
-def gitignore [framework: string] {
-    try {
-        http get $"https://www.gitignore.io/api/($framework)" | save .gitignore
-    } catch {
-        print "Error: No se pudo obtener el gitignore. Uso: gitignore <framework>"
-    }
-}
-
 def vims [pattern: string] {
     let files = (rg $pattern -l | lines)
     if not ($files | is-empty) {
@@ -194,18 +135,6 @@ def vims [pattern: string] {
 def uuid [count: int = 1] {
     for i in 1..$count {
         python -c "import uuid; print(uuid.uuid4())"
-    }
-}
-
-def gb [] {
-    git for-each-ref --color=always --sort=-committerdate refs/heads/ --format=' %(color:green)%(committerdate:relative)%(color:reset)%09%(HEAD) %(color:yellow)%(refname:short)%(color:reset) %(color:magenta)%(authorname)%(color:reset) • %(contents:subject)'
-}
-
-def gbs [] {
-    let branch = (gb | gum filter --no-limit --height=25 --placeholder 'switch branch <choose branch>' | split row ' ' | get 3)
-
-    if ($branch | is-not-empty) {
-        ^git switch $branch
     }
 }
 
@@ -266,15 +195,6 @@ def dirsum [directory?: string] {
     | get 0
 }
 
-def glog [commit?: int] {
-    let count = if ($commit == null) { 10 } else { $commit }
-    git log --pretty=%h»¦«%aN»¦«%s»¦«%aD | lines | split column "»¦«" sha1 committer desc merged_at | first $count
-}
-
-def ghgram [] {
-    git log --pretty=%h»¦«%aN»¦«%s»¦«%aD | lines | split column "»¦«" sha1 committer desc merged_at | histogram committer merger | sort-by merger | reverse
-}
-
 def du1 [] { du --max-depth=1 | sort-by apparent -r }
 def aicli [] { ^bash -c 'eval $(gum choose "gemini" "qwen" "crush")' }
 def paci [] { ^bash -c "pacman -Slq | fzf --multi --preview 'pacman -Si {1}' | xargs -ro sudo pacman -S" }
@@ -288,8 +208,6 @@ def polars-open [file: path] {
     polars open $file | polars into-nu
 }
 
-
-
 source $"($nu.cache-dir)/carapace.nu"
 let carapace_completer = {|spans|
     carapace $spans.0 nushell ...$spans | from json
@@ -297,3 +215,5 @@ let carapace_completer = {|spans|
 source ~/.zoxide.nu
 source ~/.local/share/atuin/init.nu
 source ~/.config/nushell/catppuccin_mocha.nu
+source ~/.config/nushell/podman.nu
+source ~/.config/nushell/git.nu
