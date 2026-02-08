@@ -15,16 +15,15 @@ $env.config.history.sync_on_enter = true
 
 alias ip = ip -color=auto
 alias ping = prettyping
-alias js = /usr/bin/node ~/.noderc
 alias cp = fcp
 alias tree = exa --icons --tree --level=4 --long --git
 alias zt = /bin/zathura --fork
 alias zb = zen-browser
 alias lo = /bin/libreoffice
 alias music = termusic
-alias rm = rm -i
+alias rm = rm -ti
 alias fm = yazi
-alias help = cht.sh
+# alias help = cht.sh
 alias update-grub = sudo grub-mkconfig -o /boot/grub/grub.cfg
 alias neofetch = fastfetch -l ~/.config/fastfetch/thinkpad.txt --logo-color-1 white --logo-color-2 red --logo-color-3 '38;2;23;147;209'
 alias la = ls -la
@@ -117,15 +116,18 @@ def pclean [] {
 }
 
 def sar [find_text: string, replace_text: string] {
-    let files_to_change = (rg $find_text -l)
+    let files_to_change = (rg -l $find_text | lines)
+
     if ($files_to_change | is-empty) {
         print "No se encontraron archivos."
         return
     }
-    for file in $files_to_change {
+
+    for $file in $files_to_change {
         let content = (open $file | str replace -a $find_text $replace_text)
         $content | save -f $file
     }
+
     print $"Cambiado en ($files_to_change | length) archivos."
 }
 
@@ -208,15 +210,29 @@ def gbs [] {
 }
 
 def fkill [signal: int = 9] {
-    pgrep . -l
-    | gum filter --no-limit --height=25
-    | lines
-    | parse "{pid} {name}"
+    let processes = (
+        ps
+        | where pid != 1
+        | select pid name
+    )
+
+    let selection = (
+        $processes
+        | each { |p| $p.name }
+        | uniq
+        | str join "\n"
+        | ^gum filter --no-limit --height 25
+    )
+
+    if ($selection | is-empty) {
+        return
+    }
+
+    $processes
+    | where name in ($selection | lines)
     | get pid
     | each { |pid|
-        try {
-            kill --signal $signal ($pid | into int)
-        }
+        kill --signal $signal ($pid | into int)
     }
 }
 
@@ -259,8 +275,7 @@ def ghgram [] {
     git log --pretty=%h»¦«%aN»¦«%s»¦«%aD | lines | split column "»¦«" sha1 committer desc merged_at | histogram committer merger | sort-by merger | reverse
 }
 
-def dus [] { ^bash -c 'du -h --max-depth=1 2>/dev/null | sort -hr' }
-def du1 [] { ^bash -c 'du -h -d 1 2>/dev/null | sort -hr' }
+def du1 [] { du --max-depth=1 | sort-by apparent -r }
 def aicli [] { ^bash -c 'eval $(gum choose "gemini" "qwen" "crush")' }
 def paci [] { ^bash -c "pacman -Slq | fzf --multi --preview 'pacman -Si {1}' | xargs -ro sudo pacman -S" }
 def pacr [] { ^bash -c "pacman -Qq | fzf --multi --preview 'pacman -Qi {1}' | xargs -ro sudo pacman -Rns" }
@@ -268,6 +283,10 @@ def ys [] { ^bash -c "yay -Slq | fzf --multi --preview 'yay -Si {1}' | xargs -ro
 def ci [] { ^bash -c "{ find . -xdev -printf '%h\n' | sort | uniq -c | sort -k 1 -n; } 2>/dev/null" }
 def fontl [] { ^bash -c "fc-list | cut -d ':' -f2 | sort | uniq" }
 # def atm [flag: string] { ^bash -c $'atm "($flag)"' }
+
+def polars-open [file: path] {
+    polars open $file | polars into-nu
+}
 
 
 

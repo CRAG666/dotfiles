@@ -8,6 +8,6 @@ fi
 
 podman run --rm \
     -v "$(pwd):/data" \
-    -v "$HOME/Documentos/Proyectos/Writings/utils/latex:/latex" \
+    -v "$HOME/Documentos/Proyectos/utils/latex:/latex" \
     -v "$HOME/.cache/Tectonic:/root/.cache/Tectonic" \
     pandoc/extra "$@"

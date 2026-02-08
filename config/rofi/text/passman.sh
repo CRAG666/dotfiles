@@ -19,7 +19,7 @@ password_files=("${password_files[@]#"$prefix"/}")
 password_files=("${password_files[@]%.gpg}")
 
 # muestra una lista de todos los archivos de contraseñas y guarda el seleccionado en una variable
-password=$(printf '%s\n' "${password_files[@]}" | rofi -dmenu "$@" -l 10 -p "Contraseña" -theme "$dir/$theme")
+password=$(printf '%s\n' "${password_files[@]}" | rofi -dmenu "$@" -matching fuzzy -l 10 -p "Contraseña" -theme "$dir/$theme")
 [[ -n $password ]] || exit
 
 # pass -c copia la contraseña en el portapapeles. La salida adicional de pass se redirige a /dev/null

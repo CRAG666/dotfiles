@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-LATEX_UTILS="$HOME/Documentos/Proyectos/Writings/utils/latex"
+LATEX_UTILS="$HOME/Documentos/Proyectos/utils/latex"
 
 show_usage() {
   cat << EOF

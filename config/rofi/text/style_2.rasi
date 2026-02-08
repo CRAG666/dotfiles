@@ -1,4 +1,5 @@
 configuration {
+    case-sensitive:                false;
     font: 							"SFProDisplay Nerd Font 16";
     fixed-num-lines: 				true;
     show-icons: 					  false;
