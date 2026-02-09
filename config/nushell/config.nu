@@ -1,4 +1,5 @@
-source ~/.config/nushell/utils.nu
+$env.LSI_THEME_PATH = $"($env.HOME)/.config/yazi/theme.toml"
+source ~/.config/nushell/lsi.nu
 $env.config.hooks = ($env.config.hooks | upsert env_change {
     PWD: [
         {|before, after|

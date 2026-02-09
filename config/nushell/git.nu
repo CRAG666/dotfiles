@@ -50,32 +50,6 @@ def ghgram [] {
     git log --pretty=%h»¦«%aN»¦«%s»¦«%aD | lines | split column "»¦«" sha1 committer desc merged_at | histogram committer merger | sort-by merger | reverse
 }
 
-def gst [] {
-  git status --short --porcelain
-  | lines
-  | each { |line|
-      let status = ($line | str substring 0..1)  # Solo 2 caracteres
-      let file = ($line | str substring 3..)
-      {status: $status, file: $file}
-  }
-  | update status { |row|
-      match $row.status {
-        " M" => $"(ansi yellow)(ansi reset)",
-        "A " => $"(ansi green)(ansi reset)",
-        " D" => $"(ansi red)(ansi reset)",
-        "??" => $"(ansi cyan)(ansi reset)",,
-        "MM" => $"(ansi yellow)(ansi reset)",
-        "AM" => $"(ansi green)(ansi yellow)(ansi reset)",
-        "M " => "Modified (staged)",
-        "D " => "Deleted (staged)",
-        "R " => $"(ansi purple)﯇(ansi reset)",
-        "UD" | "DU" => $"(ansi red)(ansi reset)",
-        _ => $row.status
-      }
-  }
-  | update file { |row| decorate-file $row.file }
-}
-
 def gdiff [commit1: string, commit2: string = "HEAD", --full(-f)] {
   if $full {
     git diff $commit1 $commit2 | delta
