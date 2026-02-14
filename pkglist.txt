@@ -4,7 +4,6 @@ ananicy-cpp
 # Basic security
 nftables
 iptables-nft
-firejail
 pass
 
 # Controls
@@ -18,7 +17,6 @@ bluetui
 # CLI tools
 hyperfine
 perl-image-exiftool
-epub-thumbnailer-git
 atuin
 zsh
 yt-dlp
@@ -37,7 +35,6 @@ git-delta
 topgrade
 ttyper
 rsync
-# rm-improved
 glow
 prettyping
 bob
@@ -59,8 +56,11 @@ mmv-c-git
 ripdrag
 rclone
 bc
-# carapace-bin
-nvidia-container-toolkit
+carapace-bin
+quarto-cli-bin
+gnome-epub-thumbnailer
+gitleaks
+fcp-bin
 
 # Monitoring
 btop
@@ -70,7 +70,6 @@ fastfetch
 duf
 progress
 s-tui
-lazyjournal
 
 # Audio
 pipewire
@@ -84,20 +83,17 @@ pwvucontrol
 
 # Disk Utilities
 gnome-disk-utility
-gpart
 
 # Fonts
 ttf-nerd-fonts-symbols
 ttf-nerd-fonts-symbols-common
 nerd-fonts-apple
-noto-fonts-cjk
 ttf-apple-emoji
 
 # Basic
 ntfs-3g
 
 # Text edition
-tectonic
 tree-sitter
 tree-sitter-cli
 
@@ -113,17 +109,19 @@ telegram-desktop
 nicotine+
 
 # Edition
-audacity
-gimp-devel
+# audacity
+# gimp-devel
 lunacy-bin
 
 # Players
 mpv
+mpv-modernz-git
+mpv-mpris
+mpv-thumbfast-git
 termusic
+tidal-dl
 
 # Web Browsers
-microsoft-edge-stable-bin
-librewolf-bin
 zen-browser-bin
 firefox-tridactyl-native
 
@@ -148,3 +146,16 @@ libva-utils
 vdpauinfo
 vulkan-tools
 clinfo
+
+# Utilities
+podman
+podman-compose
+podman-tui
+parallel
+pacman-contrib
+nushell
+libreoffice-still
+gopreload-git
+freerdp
+age
+keyd

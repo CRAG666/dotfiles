@@ -209,6 +209,46 @@ def polars-open [file: path] {
     polars open $file | polars into-nu
 }
 
+def hyprctl-monitors [] {
+    hyprctl monitors -j | from json
+}
+
+def hyprctl-clients [] {
+    hyprctl clients -j | from json
+}
+
+def hyprctl-workspaces [] {
+    hyprctl workspaces -j | from json
+}
+
+def hyprctl-activewindow [] {
+    hyprctl activewindow -j | from json
+}
+
+def hyprctl-devices [] {
+    hyprctl devices -j | from json
+}
+
+def hyprctl-layers [] {
+    hyprctl layers -j | from json
+}
+
+def hyprctl-animations [] {
+    hyprctl animations -j | from json
+}
+
+def hyprctl-cursorpos [] {
+    hyprctl cursorpos -j | from json
+}
+
+def hyprctl-plugins [] {
+    hyprctl plugin list -j | from json
+}
+
+def hyprctl-activeworkspace [] {
+    hyprctl activeworkspace -j | from json
+}
+
 source $"($nu.cache-dir)/carapace.nu"
 let carapace_completer = {|spans|
     carapace $spans.0 nushell ...$spans | from json

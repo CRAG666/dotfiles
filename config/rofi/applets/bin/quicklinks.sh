@@ -86,11 +86,11 @@ run_cmd() {
         xdg-open 'https://claude.ai/new'
         xdg-open 'https://chat.minimax.io/'
         xdg-open 'https://chat.mistral.ai/chat'
-        xdg-open 'https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=1'
+        xdg-open 'https://duck.ai/'
         xdg-open 'https://chat.deepseek.com'
         xdg-open 'https://www.kimi.com/'
         xdg-open 'https://copilot.cloud.microsoft/'
-        xdg-open 'https://www.doubao.com/chat'
+        xdg-open 'https://www.dola.com/chat'
     elif [[ "$1" == '--opt6' ]]; then
         xdg-open 'https://entrepeliculasyseries.nz/'
     fi

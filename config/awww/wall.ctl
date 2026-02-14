@@ -1,1 +1,1 @@
-1|Catppuccin-Mocha|/mnt/home/Imágenes/wallpaperCicle/death_bird.jpg
+1|Catppuccin-Mocha|/mnt/home/Imágenes/wallpaperCicle/36.jpg

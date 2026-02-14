@@ -1,97 +1,143 @@
 export PATH := ${HOME}/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/bin/core_perl
 export GOPATH := ${HOME}
 
-HYPR_PKGS	    := hyprland grimblast-git xdg-desktop-portal-hyprland dunst swww
-WAYLAND_PKGS	:= wl-clipboard wluma swaylock-effects polkit-gnome rofi-wayland qt6-wayland imv foot egl-wayland cliphist greetd-regreet xdg-desktop-portal-termfilechooser-hunkyburrito-git xdg-desktop-portal-gtk
-NVIDIA_PKGS	    := nvidia nvidia-prime nvidia-settings nvidia-utils cuda libva-nvidia-driver opencl-nvidia nvtop
-SYSTEMD_ENABLE	:= sudo systemctl --now enable
-SYSTEMD_ENABLE_USER	:= systemctl --user --now enable
+# Paquetes organizados por categoría
+HYPR_PKGS := hyprland grimblast-git xdg-desktop-portal-hyprland dunst awww-git \
+             hyprland-guiutils hyprland-qt-support hyprpolkitagent hyprshot \
+             hyprsunset hyprtoolkit hyprutils
+
+WAYLAND_PKGS := wl-kbptr wlrctl wl-clipboard swaylock-effects rofi qt6-wayland \
+                imv kitty egl-wayland cliphist greetd-regreet \
+                xdg-desktop-portal-termfilechooser-hunkyburrito-git \
+                xdg-desktop-portal-gtk xdg-desktop-portal-hyprland
+
+NVIDIA_PKGS := nvidia nvidia-prime nvidia-settings nvidia-utils cuda \
+               libva-nvidia-driver opencl-nvidia nvtop nvidia-container-toolkit
+
+LAPTOP_PKGS := thermald auto-cpufreq
+
+THINKPAD_PKGS := zcfan acpi_call throttled
+
+# Comandos systemd
+SYSTEMD_ENABLE := sudo systemctl --now enable
+SYSTEMD_ENABLE_USER := systemctl --user --now enable
 
 .DEFAULT_GOAL := help
-.PHONY: allinstall nextinstall
+.PHONY: help install init wayland hypr laptop thinkpad nvidia dnscrypt-proxy \
+        podman_image test testpath hyprinstall p53 p53nvidia clean
 
-help:
+help: ## Muestra esta ayuda
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 	| sort \
 	| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-install: ## Install arch linux packages using yay
-	sudo pacman -S --needed --noconfirm yay
-	cat ${PWD}/pkglist.txt | grep -v "^#" | grep -v "^$" | xargs -L 1 yay -S --needed --noconfirm
-	$(SYSTEMD_ENABLE) ananicy-cpp
-	bob use nightly
-
-etc: ## Add system settings
-	yay -S --needed --noconfirm keyd nftables
-	test -L /etc/keyd || rm -rf /etc/keyd
-	ln -vsfn ${PWD}/etc/keyd /etc
-	test -L /etc/nftables.conf|| rm -rf /etc/nftables.conf
-	ln -vsfn ${PWD}/etc/nftables.conf /etc
-	sudo cp ${PWD}/etc/makepkg.conf /etc
-	sudo cp ${PWD}/etc/sysctl.d/99-sysctl.conf /etc/sysctl.d
+install: ## Instala paquetes de Arch Linux usando yay
+	@echo "==> Instalando yay si es necesario..."
+	@sudo pacman -S --needed --noconfirm yay || { echo "Error instalando yay"; exit 1; }
+	@echo "==> Instalando paquetes desde pkglist.txt..."
+	@cat ${PWD}/pkglist.txt | grep -v "^#" | grep -v "^$$" | xargs -r yay -S --needed --noconfirm
+	@echo "==> Habilitando servicios..."
+	$(SYSTEMD_ENABLE) ananicy-cpp gopreload
+	@echo "==> Configurando keyd..."
+	@if [ -L /etc/keyd ]; then sudo rm /etc/keyd; fi
+	@if [ -d /etc/keyd ] && [ ! -L /etc/keyd ]; then sudo rm -rf /etc/keyd; fi
+	sudo cp -r ${PWD}/etc/keyd /etc/
+	@echo "==> Configurando nftables..."
+	@if [ -L /etc/nftables.conf ]; then sudo rm /etc/nftables.conf; fi
+	sudo cp ${PWD}/etc/nftables.conf /etc/
+	@echo "==> Configurando sysctl..."
+	sudo cp ${PWD}/etc/sysctl.d/99-sysctl.conf /etc/sysctl.d/
 	$(SYSTEMD_ENABLE) keyd nftables
+	@echo "==> Configurando bob (neovim version manager)..."
+	@command -v bob >/dev/null 2>&1 && bob use nightly || echo "bob no instalado, saltando..."
 
-init: ## Initial deploy dotfiles
-	@echo "Creating symbolic links in the HOME directory"
-	@SRC_DIR=$$PWD; \
+init: ## Despliega los dotfiles iniciales
+	@echo "==> Creando enlaces simbólicos en el directorio HOME"
+	@SRC_DIR=${PWD}; \
 	DOTFILES=$$(find $$SRC_DIR -maxdepth 1 -type f -name ".*" -exec basename {} \;); \
 	CONFIGS=$$(find $$SRC_DIR/config -mindepth 1 -maxdepth 1 -exec basename {} \;); \
+	echo "==> Procesando dotfiles..."; \
 	for file in $$DOTFILES; do \
-		if [ ! -e "$$GOPATH/$$file" ]; then \
-			ln -vfs "$$SRC_DIR/$$file" "$$GOPATH/$$file"; \
+		if [ -L "${HOME}/$$file" ]; then \
+			echo "El enlace $$file ya existe, saltando..."; \
+		elif [ -e "${HOME}/$$file" ]; then \
+			echo "ADVERTENCIA: $$file existe pero no es un enlace simbólico. Haz backup manualmente."; \
 		else \
-			echo "The file $$file already exists in $$GOPATH, skipping"; \
+			ln -vfs "$$SRC_DIR/$$file" "${HOME}/$$file"; \
 		fi; \
 	done; \
+	echo "==> Procesando configs..."; \
+	mkdir -p "${HOME}/.config"; \
 	for config in $$CONFIGS; do \
-		if [ ! -e "$$GOPATH/.config/$$config" ]; then \
-			mkdir -p "$$GOPATH/.config"; \
-			ln -vfs "$$SRC_DIR/config/$$config" "$$GOPATH/.config/$$config"; \
+		if [ -L "${HOME}/.config/$$config" ]; then \
+			echo "El enlace $$config ya existe, saltando..."; \
+		elif [ -e "${HOME}/.config/$$config" ]; then \
+			echo "ADVERTENCIA: $$config existe pero no es un enlace simbólico. Haz backup manualmente."; \
 		else \
-			echo "The file $$config already exists in $$GOPATH/.config, skipping"; \
+			ln -vfs "$$SRC_DIR/config/$$config" "${HOME}/.config/$$config"; \
 		fi; \
 	done
 
-wayland: ## Wayland packages needs
-	sudo cp ${PWD}/etc/greetd /etc/
+wayland: ## Instala paquetes necesarios para Wayland
+	@echo "==> Configurando greetd..."
+	sudo cp -r ${PWD}/etc/greetd /etc/
+	@echo "==> Instalando paquetes Wayland..."
 	yay -S --needed --noconfirm $(WAYLAND_PKGS)
 	$(SYSTEMD_ENABLE) greetd
-	$(SYSTEMD_ENABLE_USER) xdg-desktop-portal-gtk
 
-hypr: wayland ## config for hyprland(wayland)
-	sudo cp ${PWD}/wayland/scripts/hypr-run.sh /usr/local/bin/
+hypr: wayland ## Configura Hyprland (Wayland)
+	@echo "==> Instalando script hypr-run..."
+	sudo install -m 755 ${PWD}/wayland/scripts/hypr-run.sh /usr/local/bin/
+	@echo "==> Instalando paquetes Hyprland..."
 	yay -S --needed --noconfirm $(HYPR_PKGS)
 
-thinkpad: ## Config for thinkpad(power management, battery thresholds and fan control)
-	yay -S --needed --noconfirm zcfan acpi_call throttled
-	sudo cp ${PWD}/$@/etc/zcfan.conf /etc/
-	$(SYSTEMD_ENABLE) zcfan throttled
-	$(SYSTEMD_ENABLE_USER) xdg-desktop-portal-hyprland
+laptop: ## Configura laptop (gestión de energía)
+	@echo "==> Instalando herramientas de gestión de energía..."
+	yay -S --needed --noconfirm $(LAPTOP_PKGS)
+	sudo cp ${PWD}/etc/auto-cpufreq.conf /etc/
+	$(SYSTEMD_ENABLE) thermald auto-cpufreq
 
-nvidia: ## Nvidia config
+thinkpad: laptop ## Configuración específica para ThinkPad
+	@echo "==> Instalando herramientas específicas de ThinkPad..."
+	yay -S --needed --noconfirm $(THINKPAD_PKGS)
+	sudo cp ${PWD}/thinkpad/etc/zcfan.conf /etc/
+	$(SYSTEMD_ENABLE) zcfan throttled
+
+nvidia: ## Configura drivers NVIDIA
+	@echo "==> Instalando paquetes NVIDIA..."
 	yay -S --needed --noconfirm $(NVIDIA_PKGS)
 
-dnscrypt-proxy:
-	ln -vsf ${PWD}/etc/resolv.conf /etc/
-	yay -S --needed --noconfirm $@
-	ln -vsf ${PWD}/etc/$@/* /etc/$@/
+dnscrypt-proxy: ## Configura dnscrypt-proxy
+	@echo "==> Configurando dnscrypt-proxy..."
+	sudo ln -vsf ${PWD}/etc/resolv.conf /etc/resolv.conf
+	yay -S --needed --noconfirm dnscrypt-proxy
+	sudo ln -vsf ${PWD}/etc/dnscrypt-proxy/* /etc/dnscrypt-proxy/
+	$(SYSTEMD_ENABLE) dnscrypt-proxy
 
-podman_image:
+podman_image: ## Construye imagen de Podman para testing
 	podman build -t dotfiles ${PWD}
 
-test: podman_image ## Test this Makefile with docker without backup directory
-	# podman run -it --name make$@ -d dotfiles:latest /bin/bash
-	# for target in install etc init wayland newm thinkpad dnscrypt-proxy; do\
-	for target in thinkpad; do\
-		podman exec -it make$@ sh -c "cd ${PWD}; make $${target}";\
+test: podman_image ## Prueba el Makefile con Podman
+	@echo "==> Iniciando contenedor de prueba..."
+	podman run -it --name maketest -d dotfiles:latest /bin/bash || true
+	@for target in install init wayland hypr thinkpad; do \
+		echo "==> Probando target: $$target"; \
+		podman exec -it maketest sh -c "cd ${PWD}; make $$target"; \
 	done
+	@echo "==> Limpiando contenedor de prueba..."
+	@podman stop maketest && podman rm maketest || true
 
-testpath: ## Echo PATH
-	PATH=$$PATH
-	@echo $$PATH
-	GOPATH=$$GOPATH
-	@echo $$GOPATH
+testpath: ## Muestra las variables PATH y GOPATH
+	@echo "PATH: $$PATH"
+	@echo "GOPATH: $(GOPATH)"
 
-hyprinstall: install etc init hypr
-nextinstall: docker
-thinkpadnvidia: nvidia thinkpad
+clean: ## Limpia contenedores de prueba
+	@podman stop maketest 2>/dev/null || true
+	@podman rm maketest 2>/dev/null || true
+
+# Targets combinados
+hyprinstall: install init hypr ## Instalación completa de Hyprland
+
+p53: install init thinkpad hypr ## Instalación para ThinkPad P53
+
+p53nvidia: p53 nvidia ## Instalación para ThinkPad P53 con NVIDIA
