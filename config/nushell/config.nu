@@ -26,7 +26,7 @@ $env.config.table = {
 
 alias ip = ip -color=auto
 alias ping = prettyping
-alias cp = fcp
+alias cp = cpx
 alias tree = exa --icons --tree --level=4 --long --git
 alias zt = /bin/zathura --fork
 alias zb = zen-browser
@@ -52,12 +52,10 @@ alias vimk = nvim ~/.config/nvim/lua/core/keymaps.lua
 alias vimd = nvim ~/.config/nvim/lua/core/opts.lua
 alias vima = nvim ~/.config/nvim/lua/core/autocmds.lua
 alias viml = nvim ~/.config/nvim/lua/core/lsp.lua
-alias vl = nvim -c "Neorg workspace life"
-alias va = nvim -c "Neorg workspace academic"
-
 alias grubc = sudo -e /etc/default/grub
 alias newmc = nvim ~/.config/newm/config.py
 alias hyprc = nvim ~/.config/hypr/hyprland.conf
+alias scrollc = nvim ~/.config/scroll/config
 alias owlc = nvim ~/.config/owl/owl.conf
 alias keydc = nvim ~/Git/dotfiles/etc/keyd/default.conf
 alias zshc = nvim ~/.zshrc
@@ -82,6 +80,7 @@ alias gbc = git switch -c
 alias kittyc = nvim ~/.config/kitty/kitty.conf
 alias icat = kitten icat
 alias s = kitten ssh
+alias v = nvim
 
 def sar [find_text: string, replace_text: string] {
     let files_to_change = (rg -l $find_text | lines)
@@ -247,6 +246,12 @@ def hyprctl-plugins [] {
 
 def hyprctl-activeworkspace [] {
     hyprctl activeworkspace -j | from json
+}
+
+def norg [
+    workspace: string  # Nombre del workspace (ej: academic, personal, work)
+] {
+    nvim -c $"Neorg workspace ($workspace)"
 }
 
 source $"($nu.cache-dir)/carapace.nu"

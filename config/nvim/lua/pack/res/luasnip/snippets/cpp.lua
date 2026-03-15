@@ -1,6 +1,6 @@
 local M = {}
-local un = require('utils.snip.nodes')
-local us = require('utils.snip.snips')
+local un = require('my.utils.snip.nodes')
+local us = require('my.utils.snip.snips')
 local ls = require('luasnip')
 local sn = ls.snippet_node
 local t = ls.text_node
@@ -9,7 +9,7 @@ local c = ls.choice_node
 local d = ls.dynamic_node
 local r = ls.restore_node
 
-M.c = require('pack.res.luasnip.snippets.c').snippets
+M.c = require('my.pack.res.luasnip.snippets.c').snippets
 
 ---@param node TSNode
 ---@return string?
@@ -126,7 +126,7 @@ M.snippets = {
     d(1, function()
       -- Inside class definition
       if
-        require('utils.ts').find_node(
+        require('my.utils.ts').find_node(
           'class_specifier',
           { ignore_injections = false }
         )
@@ -200,7 +200,7 @@ M.snippets = {
       common = { desc = 'C++ constructor definition' },
     },
     d(1, function()
-      local class_node = require('utils.ts').find_node('class_specifier', {
+      local class_node = require('my.utils.ts').find_node('class_specifier', {
         ignore_injections = false,
       })
 
@@ -275,7 +275,7 @@ M.snippets = {
       common = { desc = 'C++ destructor definition' },
     },
     d(1, function()
-      local class_node = require('utils.ts').find_node('class_specifier', {
+      local class_node = require('my.utils.ts').find_node('class_specifier', {
         ignore_injections = false,
       })
 

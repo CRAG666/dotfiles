@@ -6,7 +6,7 @@ return {
     postload = function()
       local ap_utils = require('ultimate-autopair.utils')
 
-      ---Filetype options memoization
+      ---FileType options memoization
       ---@type table<string, table<string, string|integer|boolean|table>>
       local ft_opts = vim.defaulttable(function()
         return {}
@@ -45,7 +45,7 @@ return {
       vim.api.nvim_create_autocmd('CmdlineChanged', {
         desc = 'Record cmd compltype to determine whether to autopair.',
         group = vim.api.nvim_create_augroup(
-          'my.ultimate-autopair.record_cmdcompltype',
+          'ultimate-autopair.record_cmdcompltype',
           {}
         ),
         callback = function()

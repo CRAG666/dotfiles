@@ -1,14 +1,14 @@
 local M = {}
-local un = require('utils.snip.nodes')
-local us = require('utils.snip.snips')
-local conds = require('utils.snip.conds')
+local un = require('my.utils.snip.nodes')
+local us = require('my.utils.snip.snips')
+local conds = require('my.utils.snip.conds')
 local ls = require('luasnip')
 local sn = ls.snippet_node
 local t = ls.text_node
 local i = ls.insert_node
 local d = ls.dynamic_node
 
-M.math = require('pack.res.luasnip.snippets.tex').mathathathathath
+M.math = require('my.pack.res.luasnip.snippets.tex').math
 
 M.snippets = {
   us.mssn({

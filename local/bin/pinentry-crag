@@ -1,0 +1,2 @@
+#!/bin/bash
+exec /usr/bin/pinentry-rofi -- -theme ~/.config/rofi/text/confirm.rasi "$@"

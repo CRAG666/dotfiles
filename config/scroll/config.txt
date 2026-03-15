@@ -1,0 +1,225 @@
+# vim: ft=swayconfig
+#
+# Default config for scroll
+#
+# Copy this to ~/.config/scroll/config and edit it to your liking.
+#
+# Read `man 5 scroll` for a complete reference.
+
+### Key bindings
+#
+# Basics:
+#
+    # Kill focused window
+    bindsym $mod+Shift+Backspace kill unfocused
+
+#
+# Workspaces:
+#
+
+    bindsym $mod+Ctrl+Shift+$left move workspace to output left
+    bindsym $mod+Ctrl+Shift+$right move workspace to output right
+
+
+    # Split a workspace in two
+mode "wssplit" {
+    bindsym 1 workspace split v 0.25 10; mode default
+    bindsym Shift+1 workspace split h 0.25 10; mode default
+    bindsym 2 workspace split v 0.333333333 10; mode default
+    bindsym Shift+2 workspace split h 0.333333333 10; mode default
+    bindsym 3 workspace split v 0.5 10; mode default
+    bindsym Shift+3 workspace split h 0.5 10; mode default
+    bindsym 4 workspace split v 0.66666667 10; mode default
+    bindsym Shift+4 workspace split h 0.6666667 10; mode default
+    bindsym 5 workspace split v 0.75 10; mode default
+    bindsym Shift+5 workspace split h 0.75 10; mode default
+    bindsym r workspace split reset; mode default;
+
+    # Return to default mode
+    bindsym Escape mode "default"
+}
+bindsym $mod+Shift+backslash mode "wssplit"
+
+# Scaling
+    # Content
+    bindsym $mod+comma scale_content incr -0.05
+    bindsym --whole-window $mod+button4 scale_content incr -0.05
+    bindsym $mod+period scale_content incr 0.05
+    bindsym --whole-window $mod+button5 scale_content incr 0.05
+    bindsym $mod+Ctrl+period scale_content reset
+
+#
+# Layout stuff:
+#
+    # Make the current focus fullscreen
+    bindsym $mod+Alt+f fullscreen application
+
+    # Toggle the current focus between tiling and floating mode
+    bindsym $mod+y focus mode_toggle
+    # Toggle layout type (h<->v)
+    bindsym $mod+Shift+y layout_transpose
+
+    # Float a window
+    bindsym $mod+Shift+f floating toggle
+
+    # Toggle sticky
+    bindsym $mod+Shift+Ctrl+a sticky toggle
+
+    # Selection
+    bindsym --no-repeat $mod+Insert selection toggle
+    bindsym --no-repeat $mod+Ctrl+Insert selection reset
+    bindsym --no-repeat $mod+Shift+Insert selection move
+    bindsym --no-repeat $mod+Ctrl+Shift+Insert selection workspace
+    bindsym --no-repeat $mod+Alt+Insert selection to_trail
+
+    # Marks
+    # bindsym $mod+m exec scroll-mark-toggle.sh
+    # bindsym $mod+Shift+m exec scroll-mark-remove.sh
+    # bindsym $mod+apostrophe exec scroll-mark-switch.sh
+
+#
+# Scratchpad:
+#
+    # Scroll has a "scratchpad", which is a bag of holding for windows.
+    # You can send windows there and get them back later.
+
+    # Move the currently focused window to the scratchpad
+
+    # Show the next scratchpad window or hide the focused scratchpad window.
+    # If there are multiple scratchpad windows, this command cycles through them.
+    bindsym --no-repeat $mod+Alt+z scratchpad jump
+
+    bindsym $mod+Ctrl+z workspace back_and_forth
+
+#
+# Resizing containers:
+#
+
+mode "floating" {
+    bindsym $left move left 50px
+    bindsym $down move down 50px
+    bindsym $up move up 50px
+    bindsym $right move right 50px
+    bindsym Shift+$left resize shrink right 50px
+    bindsym Shift+$down resize grow down 50px
+    bindsym Shift+$up resize shrink down 50px
+    bindsym Shift+$right resize grow right 50px
+    bindsym Ctrl+$left resize grow left 50px
+    bindsym Ctrl+$down resize shrink up 50px
+    bindsym Ctrl+$up resize grow up 50px
+    bindsym Ctrl+$right resize shrink left 50px
+
+    # Return to default mode
+    bindsym Escape mode "default"
+}
+bindsym $mod+Ctrl+r mode "floating"
+
+# Toggle Size (and maximize)
+bindsym $mod+t toggle_size this 1.0 1.0
+bindsym $mod+Shift+t toggle_size active 1.0 1.0
+
+mode "align" {
+    bindsym c align center; mode default
+    bindsym m align middle; mode default
+    bindsym r align reset; mode default
+    bindsym $left align left; mode default
+    bindsym $right align right; mode default
+    bindsym $up align up; mode default
+    bindsym $down align down; mode default
+    bindsym Escape mode "default"
+}
+bindsym $mod+c mode "align"
+
+mode "fit_size" {
+    bindsym w fit_size h visible proportional; mode default
+    bindsym Shift+w fit_size v visible proportional; mode default
+    bindsym Ctrl+w fit_size h visible equal; mode default
+    bindsym Ctrl+Shift+w fit_size v visible equal; mode default
+
+    bindsym $right fit_size h toend proportional; mode default
+    bindsym Shift+$right fit_size v toend proportional; mode default
+    bindsym Ctrl+$right fit_size h toend equal; mode default
+    bindsym Ctrl+Shift+$right fit_size v toend equal; mode default
+
+    bindsym $left fit_size h tobeg proportional; mode default
+    bindsym Shift+$left fit_size v tobeg proportional; mode default
+    bindsym Ctrl+$left fit_size h tobeg equal; mode default
+    bindsym Ctrl+Shift+$left fit_size v tobeg equal; mode default
+
+    bindsym $up fit_size h active proportional; mode default
+    bindsym Shift+$up fit_size v active proportional; mode default
+    #bindsym Ctrl+$up fit_size h active equal; mode default
+    #bindsym Ctrl+Shift+$up fit_size v active equal; mode default
+
+    bindsym $down fit_size h all proportional; mode default
+    bindsym Shift+$down fit_size v all proportional; mode default
+    bindsym Ctrl+$down fit_size h all equal; mode default
+    bindsym Ctrl+Shift+$down fit_size v all equal; mode default
+    bindsym Escape mode "default"
+}
+bindsym $mod+w mode "fit_size"
+
+mode "trailmark" {
+    bindsym bracketright trailmark next
+    bindsym bracketleft trailmark prev
+    bindsym semicolon trailmark toggle; mode default
+    bindsym --no-repeat slash trailmark jump; mode default
+    bindsym Escape mode "default"
+}
+bindsym $mod+semicolon mode "trailmark"
+
+mode "trail" {
+    bindsym bracketright trail next
+    bindsym bracketleft trail prev
+    bindsym 0 trail number 0; mode default
+    bindsym 1 trail number 1; mode default
+    bindsym 2 trail number 2; mode default
+    bindsym 3 trail number 3; mode default
+    bindsym 4 trail number 4; mode default
+    bindsym 5 trail number 5; mode default
+    bindsym 6 trail number 6; mode default
+    bindsym 7 trail number 7; mode default
+    bindsym 8 trail number 8; mode default
+    bindsym 9 trail number 9; mode default
+    bindsym semicolon trail new; mode default
+    bindsym d trail delete; mode default
+    bindsym c trail clear; mode default
+    bindsym insert trail to_selection; mode default
+    bindsym Escape mode "default"
+}
+bindsym $mod+Shift+semicolon mode "trail"
+
+mode "spaces" {
+    bindsym 1 space load 1; mode default
+    bindsym 2 space load 2; mode default
+    bindsym 3 space load 3; mode default
+    bindsym 4 space load 4; mode default
+    bindsym 5 space load 5; mode default
+    bindsym 6 space load 6; mode default
+    bindsym 7 space load 7; mode default
+    bindsym 8 space load 8; mode default
+    bindsym 9 space load 9; mode default
+    bindsym 0 space load 0; mode default
+    bindsym Shift+1 space save 1; mode default
+    bindsym Shift+2 space save 2; mode default
+    bindsym Shift+3 space save 3; mode default
+    bindsym Shift+4 space save 4; mode default
+    bindsym Shift+5 space save 5; mode default
+    bindsym Shift+6 space save 6; mode default
+    bindsym Shift+7 space save 7; mode default
+    bindsym Shift+8 space save 8; mode default
+    bindsym Shift+9 space save 9; mode default
+    bindsym Shift+0 space save 0; mode default
+    bindsym Ctrl+1 space restore 1; mode default
+    bindsym Ctrl+2 space restore 2; mode default
+    bindsym Ctrl+3 space restore 3; mode default
+    bindsym Ctrl+4 space restore 4; mode default
+    bindsym Ctrl+5 space restore 5; mode default
+    bindsym Ctrl+6 space restore 6; mode default
+    bindsym Ctrl+7 space restore 7; mode default
+    bindsym Ctrl+8 space restore 8; mode default
+    bindsym Ctrl+9 space restore 9; mode default
+    bindsym Ctrl+0 space restore 0; mode default
+    bindsym Escape mode "default"
+}
+bindsym $mod+g mode "spaces"

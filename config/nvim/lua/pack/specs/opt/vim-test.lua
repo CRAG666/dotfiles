@@ -77,7 +77,12 @@ return {
           -- the test global variable.
           -- Also see: https://www.reddit.com/r/neovim/comments/jwd0qx/how_do_i_define_vim_variable_in_lua/
           vim
-            .iter(require('utils.lua').unnest({ test = { [ft] = configs } }, '#'))
+            .iter(
+              require('utils.lua').unnest(
+                { test = { [ft] = configs } },
+                '#'
+              )
+            )
             :each(function(name, val)
               vim.g[name] = val
             end)

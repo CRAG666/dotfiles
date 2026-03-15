@@ -1,0 +1,17 @@
+# vim: ft=swayconfig
+#
+# Default config for scroll
+#
+#
+#
+
+output * bg #1e1e2e solid_color
+
+default_border none
+
+# Lanzar gtkgreet y salir cuando termine
+exec "regreet; scrollmsg exit"
+
+input type:touchpad {
+    tap enabled
+}

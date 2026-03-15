@@ -152,7 +152,7 @@ function M.save(session, notify)
 
   if notify then
     vim.notify(
-      '[session] saved current session to '
+      '[plugin.session] saved current session to '
         .. string.format("'%s'", vim.fn.fnamemodify(session, ':~:.'))
     )
   end
@@ -178,7 +178,7 @@ function M.load(session, notify)
   if not vim.uv.fs_stat(session) then
     if notify then
       vim.notify(
-        string.format("[session] session '%s' does not exist", session),
+        string.format("[plugin.session] session '%s' does not exist", session),
         vim.log.levels.WARN
       )
     end
@@ -188,7 +188,7 @@ function M.load(session, notify)
   if has_valid_buf() then
     local response = vim.fn.confirm(
       string.format(
-        "[session] non-empty buffers exist, confirm loading new session from '%s'?",
+        "[plugin.session] non-empty buffers exist, confirm loading new session from '%s'?",
         vim.fn.fnamemodify(session, ':~:.')
       ),
       '&Yes\n&No',

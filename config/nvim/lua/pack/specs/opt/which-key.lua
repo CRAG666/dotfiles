@@ -132,6 +132,7 @@ return {
         { '<Leader>fS', group = 'LSP' },
         { '<Leader>G', group = 'Debug' },
         { '<Leader>t', group = 'Test' },
+        { '<Leader>P', group = 'Plugin' },
         { '<Leader><Tab>', group = 'Table mode' },
         { '<Leader><Tab>d', group = 'Delete' },
         { '<Leader><Tab>i', group = 'Insert' },
@@ -160,7 +161,7 @@ return {
       vim.api.nvim_create_autocmd('ModeChanged', {
         desc = 'Redraw statusline shortly after mode change to ensure correct mode display after enting visual mode when which-key.nvim is enabled.',
         group = vim.api.nvim_create_augroup(
-          'my.which-key.redraw_statusline',
+          'which-key.redraw_statusline',
           {}
         ),
         callback = vim.schedule_wrap(function()

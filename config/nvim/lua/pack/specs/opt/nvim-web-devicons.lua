@@ -5,7 +5,7 @@ return {
     lazy = true,
     optional = not vim.g.has_nf,
     postload = function()
-      local icons = require('utils.static').icons
+      local icons = require('utils.static.icons')
 
       require('nvim-web-devicons').setup({
         override = {

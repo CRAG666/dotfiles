@@ -1,42 +1,37 @@
 [[plugin.deps]]
 use = "yazi-rs/plugins:no-status"
-rev = "88990a6"
+rev = "1962818"
 hash = "3e023d31f29201efdac2a6ae35fedb78"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:full-border"
-rev = "88990a6"
-hash = "3996fc74044bc44144b323686f887e1"
-
-[[plugin.deps]]
-use = "Sonico98/exifaudio"
-rev = "e766cd2"
-hash = "5fd39bf4e88d6a046d4b81691a38d615"
+rev = "1962818"
+hash = "6fa6a05a81c98dd000fbca3cca6e9682"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:chmod"
-rev = "de53d90"
-hash = "1adc12c2b2b025411ab61eb8f0879574"
+rev = "1962818"
+hash = "f0c8c378184d5f8abd1b095a443d336d"
 
 [[plugin.deps]]
 use = "Rolv-Apneseth/starship"
-rev = "a63550b"
-hash = "c2021386289a0cbb3e152a052f67c177"
-
-[[plugin.deps]]
-use = "kirasok/epub-preview"
-rev = "2e8079e"
-hash = "92d5044ae6cd823443b180477cb60733"
+rev = "eca1861"
+hash = "e519d894e94ded741e06aae4d4775981"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:toggle-pane"
-rev = "8f1d971"
-hash = "8a7c58225816a163a6e8730c0adafbc8"
+rev = "1962818"
+hash = "4c0260feb50ea2437380690ffc241da7"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:mount"
-rev = "8f1d971"
-hash = "4fccaaf10c36dc2466e2438a386ff017"
+rev = "1962818"
+hash = "91937a4a9b779eabc6983e258befdfe9"
+
+[[plugin.deps]]
+use = "AminurAlam/yazi-plugins:preview-audio"
+rev = "1d28640"
+hash = "e8a166503389d5a2165762daedb54821"
 
 [[flavor.deps]]
 use = "yazi-rs/flavors:catppuccin-mocha"

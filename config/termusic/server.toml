@@ -7,7 +7,7 @@ port = 50101
 address = "::"
 
 [player]
-music_dirs = ["/home/think-crag/Música"]
+music_dirs = ["/home/think-crag/Music"]
 loop_mode = "random"
 volume = 100
 speed = 10
@@ -29,7 +29,7 @@ long_tracks = 30
 [podcast]
 concurrent_downloads_max = 3
 max_download_retries = 3
-download_dir = "/home/think-crag/Música/podcast"
+download_dir = "/home/think-crag/Music/podcast"
 
 [backends.rusty]
 soundtouch = true

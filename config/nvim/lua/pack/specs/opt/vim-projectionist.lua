@@ -19,12 +19,14 @@ return {
         endif
 
         " Remove first slash separated component
-        function! g:projectionist_transformations.tail(input, o) abort
+        " a/b/c -> b/c
+        function! g:projectionist_transformations.longtail(input, o) abort
           return substitute(a:input, '\(\/\)*[^/]\+\/*', '\1', '')
         endfunction
 
-        " Remove all but first slash separated component
-        function! g:projectionist_transformations.head(input, o) abort
+        " Remove all but first slash separated component (project root)
+        " a/b/c -> a
+        function! g:projectionist_transformations.projroot(input, o) abort
           return matchstr(a:input, '\(\/\)*[^/]\+')
         endfunction
 

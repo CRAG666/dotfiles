@@ -11,10 +11,10 @@ for _ in 1 2 3; do
     dir="$(dirname "$dir")"
 done
 
-podman run --rm -it \
+podman run --rm \
     -v "$HOME/.cache/Tectonic:/root/.cache/Tectonic" \
-    -v "$HOME/Documentos/Proyectos/utils/latex:/latex" \
-    -v "$workdir:/data" \
-    -w /data \
+    -v "$HOME/Documents/Proyectos/utils/latex:/latex" \
+    -v "$workdir:$workdir" \
+    -w "$workdir" \
     dxjoke/tectonic-docker \
     tectonic "$@"

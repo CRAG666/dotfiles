@@ -29,9 +29,9 @@ return {
       require('mason').setup()
       vim.g.mason = vim.g.mason or {}
       require('mason-tool-installer').setup({ ensure_installed = vim.g.mason })
-      vim.cmd.MasonToolsInstallSync()
       vim.keymap.set('n', '<leader>pm', ':Mason<CR>')
       vim.keymap.set('n', '<leader>ps', ':MasonToolsInstallSync<CR>')
+      vim.cmd.MasonToolsInstallSync()
     end,
   },
 }

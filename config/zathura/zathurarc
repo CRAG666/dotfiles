@@ -6,7 +6,8 @@ set page-padding 1
 set guioptions none
 map <C-;> toggle_statusbar
 set synctex true
-set synctex-editor-command "texlab inverse-search -i %{input} -l %{line}"
+# set synctex-editor-command "nvim --server /tmp/nvim-latex.sock --remote-send ':VimtexInverseSearch %{line} \"%{input}\"<CR>'"
+set synctex-editor-command "nvim --server $NVIM --remote-send ':VimtexInverseSearch %{line} %{input}<CR>'"
 set selection-clipboard "clipboard"
 set window-title-home-tilde "true"
 set window-title-basename "true"

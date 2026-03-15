@@ -16,7 +16,7 @@ do
   vim.g.bigfile_max_size = vim.g.bigfile_max_size or 1048576
   vim.g.bigfile_max_lines = vim.g.bigfile_max_lines or 32768
 
-  augroup('my.bigfile', {
+  augroup('bigfile', {
     'BufReadPre',
     {
       desc = 'Detect big files.',
@@ -109,12 +109,12 @@ do
   })
 end
 
-augroup('my.yank_highlight', {
+augroup('yank_highlight', {
   'TextYankPost',
   {
     desc = 'Highlight the selection on yank.',
     callback = function()
-      pcall(vim.hl.on_yank, {
+      pcall(vim.highlight.on_yank, {
         higroup = 'Visual',
         timeout = 200,
       })
@@ -122,7 +122,7 @@ augroup('my.yank_highlight', {
   },
 })
 
-augroup('my.win_close_jmp', {
+augroup('win_close_jmp', {
   'WinClosed',
   {
     nested = true,
@@ -131,7 +131,7 @@ augroup('my.win_close_jmp', {
   },
 })
 
-augroup('my.last_pos_jmp', {
+augroup('last_pos_jmp', {
   'BufReadPre',
   {
     desc = 'Last position jump.',
@@ -167,7 +167,60 @@ augroup('my.last_pos_jmp', {
   },
 })
 
-augroup('my.prompt_keymaps', {
+do
+  augroup('auto_cwd', {
+    'BufEnter',
+    {
+      desc = 'Automatically change local current directory.',
+      nested = true,
+      callback = function(args)
+        local file = args.file
+        local buf = args.buf
+
+        -- Don't automatically change cwd in special buffers, e.g. help buffers
+        -- or oil preview buffers
+        if file == '' or vim.bo[buf].bt ~= '' then
+          return
+        end
+
+        local fs_utils = require('utils.fs')
+        local root_dir =
+          fs_utils.root(file, vim.b.root_markers or fs_utils.root_markers)
+
+        if
+          not root_dir
+          or fs_utils.is_home_dir(root_dir)
+          or fs_utils.is_root_dir(root_dir)
+        then
+          root_dir = vim.fs.dirname(file)
+        end
+
+        if not root_dir then
+          return
+        end
+
+        for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+          vim.api.nvim_win_call(win, function()
+            -- Prevent unnecessary directory change, which triggers
+            -- DirChanged autocmds that may update winbar unexpectedly
+            if root_dir == vim.fn.getcwd(0) then
+              return
+            end
+            pcall(vim.cmd.lcd, {
+              root_dir,
+              mods = {
+                silent = true,
+                emsg_silent = true,
+              },
+            })
+          end)
+        end
+      end,
+    },
+  })
+end
+
+augroup('prompt_keymaps', {
   'BufEnter',
   {
     desc = 'Undo automatic <C-w> remap in prompt buffers.',
@@ -181,7 +234,7 @@ augroup('my.prompt_keymaps', {
 
 do
   local win_ratio = {}
-  augroup('my.keep_win_ratio', {
+  augroup('keep_win_ratio', {
     { 'VimResized', 'TabEnter' },
     {
       desc = 'Keep window ratio after resizing nvim.',
@@ -241,7 +294,7 @@ do
     )
   end
 
-  augroup('my.fix_winfixheight_with_winbar', {
+  augroup('fix_winfixheight_with_winbar', {
     { 'WinNew', 'WinClosed' },
     {
       desc = 'Save heights for windows with a fixed height.',
@@ -296,7 +349,7 @@ do
   })
 end
 
-augroup('my.fix_cmdline_iskeyword', {
+augroup('fix_cmdline_iskeyword', {
   'CmdLineEnter',
   {
     desc = 'Have consistent &iskeyword and &lisp in Ex command-line mode.',
@@ -334,7 +387,7 @@ augroup('my.fix_cmdline_iskeyword', {
 })
 
 -- Make `colorcolumn` follow `textwidth` automatically
-augroup('my.dynamic_cc', {
+augroup('dynamic_cc', {
   { 'BufNew', 'BufEnter' },
   {
     desc = 'Set `colorcolumn` to follow `textwidth` in new buffers.',
@@ -408,7 +461,7 @@ do
       :totable()
   end
 
-  augroup('my.session_wipe_empty_bufs', {
+  augroup('session_wipe_empty_bufs', {
     'SessionLoadPost',
     {
       desc = 'Wipe empty buffers after loading session.',
@@ -444,11 +497,12 @@ do
           if bufname:match('://') then
             goto continue
           end
-          vim.uv.fs_stat(bufname, function(err, stat)
-            if err or not stat then
-              pcall(vim.api.nvim_buf_delete, buf, {})
-            end
-          end)
+          -- Don't use async fs_stat and delete the buffer in callback here,
+          -- else the buffer won't be deleted because nvim api cannot be called
+          -- in a fast event context, see `:h E5560`
+          if not vim.uv.fs_stat(bufname) then
+            pcall(vim.api.nvim_buf_delete, buf, {})
+          end
           ::continue::
         end
       end,
@@ -486,11 +540,6 @@ augroup('BufferConfig', {
   'BufEnter',
   {
     command = [[let @/=""]],
-  },
-}, {
-  'BufEnter',
-  {
-    command = 'silent! lcd %:p:h',
   },
 }, {
   { 'BufRead', 'BufEnter' },

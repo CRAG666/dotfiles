@@ -102,7 +102,7 @@ return {
         vim.cmd.redraw()
       end
 
-      local groupid = vim.api.nvim_create_augroup('my.molten', {})
+      local groupid = vim.api.nvim_create_augroup('molten', {})
       vim.api.nvim_create_autocmd('BufEnter', {
         desc = 'Change the configuration when editing a python file.',
         pattern = '*.py',
@@ -446,7 +446,7 @@ return {
           vim.api.nvim_create_autocmd('WinScrolled', {
             desc = 'Close molten output win when src win is scrolled.',
             group = vim.api.nvim_create_augroup(
-              'my.molten.close_output_win.buf.' .. buf,
+              'molten.close_output_win.buf.' .. buf,
               {}
             ),
             buffer = buf,

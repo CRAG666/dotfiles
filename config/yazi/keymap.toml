@@ -421,5 +421,5 @@ desc = "Go USB"
 
 [[mgr.prepend_keymap]]
 on = [ "g", "w" ]
-run = "cd ~/Documentos/Proyectos"
+run = "cd ~/Documents/Proyectos"
 desc = "Go Proyectos"

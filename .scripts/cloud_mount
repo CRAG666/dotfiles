@@ -13,9 +13,9 @@ MOUNT_OPTIONS="--vfs-cache-mode full \
   --allow-non-empty"
 
 MOUNT_POINTS=(
-	"Drive:/ $HOME/Público/Drive"
-	"InaoeDrive:/ $HOME/Público/InaoeDrive"
-	"InaoeOneDrive:/ $HOME/Público/InaoeOneDrive"
+	"Drive:/ $HOME/Public/Drive"
+	"InaoeDrive:/ $HOME/Public/InaoeDrive"
+	"InaoeOneDrive:/ $HOME/Public/InaoeOneDrive"
 )
 
 MAX_RETRIES=5
@@ -69,7 +69,7 @@ done
 
 echo "Todos los puntos de montaje están listos."
 
-LOCAL_FOLDER="$HOME/Documentos/Org"
+LOCAL_FOLDER="$HOME/Documents/Org"
 
 echo "Iniciando sincronización con rsync..."
 

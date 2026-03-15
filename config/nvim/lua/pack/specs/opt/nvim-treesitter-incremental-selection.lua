@@ -45,7 +45,7 @@ return {
       vim.api.nvim_create_autocmd('ModeChanged', {
         desc = 'Clear treesitter selection range after exiting visual mode.',
         group = vim.api.nvim_create_augroup(
-          'my.nvim-treesitter-incremental-selection.clear_selection',
+          'nvim-treesitter-incremental-selection.clear_selection',
           {}
         ),
         pattern = '[vV\x16]:*',

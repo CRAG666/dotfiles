@@ -23,7 +23,6 @@ yt-dlp
 starship
 reflector
 quarto-cli-bin
-pandoc-bin
 less
 gum
 graphviz

@@ -32,5 +32,10 @@ autocorrect_normalzone('flase', 'False')
 -- Don't auto-wrap in source code
 vim.opt_local.formatoptions:remove('t')
 
+-- Black formatter use a line width of 88 by default
+if vim.wo.cc:match('^[0-9]+$') and tonumber(vim.wo.cc) < 89 then
+  vim.wo.cc = '89'
+end
+
 vim.g.mason = { 'basedpyright', 'ruff', 'pyrefly' }
 vim.g.ts = { 'python', 'requirements' }

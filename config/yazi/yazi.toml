@@ -242,8 +242,24 @@ sort_translit  = false
 
 [[plugin.prepend_previewers]]
 mime = "application/epub+zip"
-run = "epub-preview"
+run = "preview-epub"
+
+[[plugin.prepend_preloaders]]
+mime = "application/epub+zip"
+run = "preview-epub"
+
+[[plugin.prepend_previewers]]
+mime = "audio/mpegurl"
+run = "code"
 
 [[plugin.prepend_previewers]]
 mime = "audio/*"
-run = "exifaudio"
+run = "preview-audio"
+
+[[plugin.prepend_preloaders]]
+mime = "audio/mpegurl"
+run = "code"
+
+[[plugin.prepend_preloaders]]
+mime = "audio/*"
+run = "preview-audio"

@@ -166,7 +166,7 @@ alias js="/usr/bin/node ~/.noderc"
 alias ls="exa --icons"
 alias la="exa --icons -la"
 # alias grep='grep --color=auto'
-alias cp='fcp'
+alias cp='cpx'
 cd() { pushd $1 && ls; }
 alias tree="exa --icons --tree --level=4 --long --git"
 alias zt="/bin/zathura --fork"
@@ -201,7 +201,7 @@ alias va='vim -c "Neorg workspace academic"'
 alias grubc="sudo -e /etc/default/grub"
 alias newmc="vim ~/.config/newm/config.py"
 alias hyprc="vim ~/.config/hypr/hyprland.conf"
-alias owlc="vim ~/.config/owl/owl.conf"
+alias scrollc="vim ~/.config/scroll/config"
 alias keydc="vim ~/Git/dotfiles/etc/keyd/default.conf"
 alias zshc="vim ~/.zshrc"
 alias zshf="vim ~/.zshfunc"

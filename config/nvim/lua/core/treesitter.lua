@@ -33,7 +33,7 @@ local function enable_ts_hl(buf)
 end
 
 vim.api.nvim_create_autocmd('FileType', {
-  group = vim.api.nvim_create_augroup('my.ts.auto_start', {}),
+  group = vim.api.nvim_create_augroup('ts.auto_start', {}),
   desc = 'Automatically start treesitter highlighting for buffers.',
   callback = function(args)
     enable_ts_hl(args.buf)
@@ -65,7 +65,7 @@ local function enable_ts_folding(buf)
 end
 
 vim.api.nvim_create_autocmd('FileType', {
-  group = vim.api.nvim_create_augroup('my.ts.set_folding', {}),
+  group = vim.api.nvim_create_augroup('ts.set_folding', {}),
   desc = 'Set treesitter folding.',
   callback = function(args)
     enable_ts_folding(args.buf)

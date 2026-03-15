@@ -3,7 +3,7 @@ return {
   src = 'https://github.com/jmbuhr/otter.nvim',
   data = {
     events = {
-      event = 'Filetype',
+      event = 'FileType',
       pattern = 'markdown',
     },
     postload = function()
@@ -15,6 +15,7 @@ return {
       -- Buffer with this name already exists'
       local ot_activate = ot.activate
 
+      ---@diagnostic disable-next-line: duplicate-set-field
       function ot.activate(...)
         pcall(ot_activate, ...)
       end
@@ -31,7 +32,7 @@ return {
 
       vim.api.nvim_create_autocmd('FileType', {
         desc = 'Activate otter for filetypes with injections.',
-        group = vim.api.nvim_create_augroup('my.otter.activate', {}),
+        group = vim.api.nvim_create_augroup('otter.activate', {}),
         pattern = { 'markdown', 'norg', 'org' },
         callback = function(args)
           local buf = args.buf

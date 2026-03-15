@@ -56,7 +56,7 @@ generate_thumbnail() {
 currentWall="$(basename "$(readlink -f "${HOME}/.config/awww/wall.set")")"
 
 # Directorio de fondos de pantalla
-wallDir="${HOME}/Imágenes/wallpaperCicle"
+wallDir="${HOME}/Pictures/wallpaperCicle"
 
 # Usar find una sola vez y procesar en paralelo
 {

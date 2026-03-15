@@ -10,26 +10,38 @@ function get_volume {
 }
 
 function send_notification {
-	volume=$(get_volume)
-	volume_integer=$(echo "($volume * 100)" | bc | awk '{printf "%d\n", $1}')
-	echo $volume_integer
-	notify-send -i audio-volume-medium -h int:value:$volume_integer "Volume"
+    volume=$(get_volume)
+    volume_integer=$(awk "BEGIN {printf \"%d\n\", $volume * 100}")
+
+    if [ "$volume_integer" -eq 0 ]; then
+        icon="audio-volume-muted"
+    elif [ "$volume_integer" -le 33 ]; then
+        icon="audio-volume-low"
+    elif [ "$volume_integer" -le 66 ]; then
+        icon="audio-volume-medium"
+    else
+        icon="audio-volume-high"
+    fi
+
+    notify-send -i "$icon" \
+        -h int:value:$volume_integer \
+        -h string:x-dunst-stack-tag:volume \
+        "Volume"
 }
 
 case $1 in
 up)
 	wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+ >/dev/null
-	canberra-gtk-play -i audio-volume-change -d "changeVolume"
+	aplay ~/.config/dunst/vol.wav
 	send_notification
 	;;
 down)
 	wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%- >/dev/null
-	canberra-gtk-play -i audio-volume-change -d "changeVolume"
+	aplay ~/.config/dunst/vol.wav
 	send_notification
 	;;
 mute)
 	# Toggle mute
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
-	canberra-gtk-play -i audio-volume-change -d "changeVolume"
 	;;
 esac

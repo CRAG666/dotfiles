@@ -14,7 +14,7 @@ return {
         languages = {
           lua = {
             template = {
-              annotation_convention = 'emmylua',
+              annotation_convention = 'emua',
             },
           },
           cs = {

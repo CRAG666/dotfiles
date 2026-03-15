@@ -23,9 +23,26 @@ local function load()
             )
           end,
           Single = function()
-            require('code_runner.commands').run_from_fn(
-              [[tectonic -X watch -x 'compile $fileName --synctex --keep-logs --keep-intermediates -Zsearch-path=/latex']]
+            local root = vim.fn.expand('%:p')
+            vim.notify('Compiling ' .. root, vim.log.levels.INFO)
+            local job_id = vim.fn.jobstart(
+              "tectonic -X watch -x 'compile "
+                .. root
+                .. " --synctex --keep-logs -Zsearch-path=/latex'",
+              {
+                on_exit = function()
+                  vim.notify('Compile finished', vim.log.levels.INFO)
+                end,
+              }
             )
+            vim.api.nvim_create_autocmd('BufDelete', {
+              buffer = 0,
+              once = true,
+              callback = function()
+                vim.fn.jobstop(job_id)
+              end,
+            })
+            vim.cmd.VimtexView()
           end,
         })
       end,

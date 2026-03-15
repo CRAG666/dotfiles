@@ -8,8 +8,8 @@ return {
       alternate = {
         'tests/{}_spec.lua',
         'tests/{dirname}_spec.lua', -- module test
-        'tests/{dirname|tail}/{basename}_spec.lua',
-        'tests/{dirname|tail}_spec.lua', -- module test
+        'tests/{dirname|longtail}/{basename}_spec.lua',
+        'tests/{dirname|longtail}_spec.lua', -- module test
       },
       type = 'source',
     },

@@ -8,6 +8,10 @@ return {
   data = {
     events = { event = 'FileType', pattern = '[^_]\\+' },
     postload = function()
+      -- Prevent ftplugin mappings, e.g. `]]`, `]m` from overriding those provided
+      -- by nvim-treesitter-textobjects, see `:h no_plugin_maps`
+      vim.g.no_plugin_maps = true
+
       require('nvim-treesitter-textobjects').setup({
         select = {
           lookahead = true,

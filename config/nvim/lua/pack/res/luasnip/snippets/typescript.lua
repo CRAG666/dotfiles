@@ -1,13 +1,13 @@
 local M = {}
-local un = require('utils.snip.nodes')
-local us = require('utils.snip.snips')
+local un = require('my.utils.snip.nodes')
+local us = require('my.utils.snip.snips')
 local ls = require('luasnip')
 local t = ls.text_node
 local i = ls.insert_node
 local c = ls.choice_node
 local r = ls.restore_node
 
-M.javascript = require('pack.res.luasnip.snippets.javascript').snippets
+M.javascript = require('my.pack.res.luasnip.snippets.javascript').snippets
 
 M.snippets = {
   us.msn(

@@ -1,6 +1,6 @@
 [background]
 # Path to the background image
-path = "/mnt/home/Imágenes/P53s.png"
+path = "/mnt/home/Pictures/P53s.png"
 
 # How the background image covers the screen if the aspect ratio doesn't match
 # Available values: "Fill", "Contain", "Cover", "ScaleDown"

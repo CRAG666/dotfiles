@@ -68,7 +68,7 @@ return {
       -- https://github.com/L3MON4D3/LuaSnip/issues/258#issuecomment-1011938524
       vim.api.nvim_create_autocmd('ModeChanged', {
         desc = 'Unlink current snippet on leaving insert/selection mode.',
-        group = vim.api.nvim_create_augroup('my.luasnip.unlink', {}),
+        group = vim.api.nvim_create_augroup('luasnip.unlink', {}),
         pattern = '[si]*:[^si]*',
         -- Blink.cmp will enter normal mode shortly on accepting snippet completion,
         -- see https://github.com/Saghen/blink.cmp/issues/2035

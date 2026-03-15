@@ -1,7 +1,8 @@
 local M = {}
-local uf = require('utils.snip.funcs')
-local un = require('utils.snip.nodes')
-local us = require('utils.snip.snips')
+local u = require('my.utils')
+local uf = require('my.utils.snip.funcs')
+local un = require('my.utils.snip.nodes')
+local us = require('my.utils.snip.snips')
 local ls = require('luasnip')
 local sn = ls.snippet_node
 local t = ls.text_node
@@ -751,7 +752,18 @@ M.snippets = {
           return 'def'
         end, 4),
         name = i(1, 'func'),
-        args = i(2),
+        args = d(2, function()
+          -- Add `self` as first arg if inside a class definition
+          if
+            u.ts.find_node('class_definition', {
+              ignore_injections = false,
+              depth = 2,
+            })
+          then
+            return sn(nil, { t('self'), i(1) })
+          end
+          return sn(nil, { i(1) })
+        end),
         ret = i(3),
         body = un.body(4, 1, 'pass'),
       }

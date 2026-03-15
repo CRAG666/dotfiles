@@ -2,12 +2,25 @@
 
 # Salir inmediatamente si un comando falla, si se usan variables no definidas,
 # y propagar el código de salida en pipelines.
-set -euo pipefail
+# set -euo pipefail
 
 #// Función para verificar dependencias
 check_dependencies() {
     local missing_deps=0
-    local deps=("realpath" "mkdir" "hyprctl" "jq" "fd" "parallel" "magick" "md5sum" "rofi" "notify-send" "basename" "readlink" "dirname" "cut" "awk" "paste" "printf" "xargs")
+    local deps=("realpath" "mkdir" "jq" "fd" "parallel" "magick" "md5sum" "rofi" "notify-send" "basename" "readlink" "dirname" "cut" "awk" "paste" "printf" "xargs")
+
+    # Verificar compositor disponible y agregar su herramienta
+    if [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]] && command -v hyprctl &>/dev/null; then
+        deps+=("hyprctl")
+        readonly DETECTED_COMPOSITOR="hyprland"
+    elif command -v scrollmsg &>/dev/null; then
+        deps+=("scrollmsg")
+        readonly DETECTED_COMPOSITOR="sway"
+    else
+        echo "Error: No se detectó Hyprland ni Sway. Este script requiere uno de los dos." >&2
+        exit 1
+    fi
+
     for dep in "${deps[@]}"; do
         if ! command -v "$dep" &>/dev/null; then
             echo "Error: Dependencia requerida '$dep' no encontrada." >&2
@@ -19,6 +32,7 @@ check_dependencies() {
     fi
 }
 
+
 #// Definir variables y constantes
 readonly SCR_DIR="$(dirname "$(realpath "$0")")"
 readonly CONF_DIR="${HOME}/.config/rofi"
@@ -27,8 +41,8 @@ readonly THUMB_DIR="${HOME}/.cache/wallpapers/thumbnails"
 readonly HYPR_BORDER_DEFAULT=2 # Valor predeterminado para el borde de Hyprland
 
 # Directorios de búsqueda de fondos de pantalla (puede ser una lista separada por espacios o una ruta única)
-# Ejemplo: WALLPAPER_PATHS=("${HOME}/Imágenes/Fondos" "${HOME}/OtrosFondos")
-WALLPAPER_PATHS=("/mnt/home/Imágenes/wallpaperCicle") # Original
+# Ejemplo: WALLPAPER_PATHS=("${HOME}/Pictures/Fondos" "${HOME}/OtrosFondos")
+WALLPAPER_PATHS=("/mnt/home/Pictures/wallpaperCicle") # Original
 
 #// Crear directorio de miniaturas si no existe
 mkdir -p "${THUMB_DIR}"
@@ -160,7 +174,20 @@ readonly ROFI_ELEMENT_BORDER=$((HYPR_BORDER * 3))
 
 #// Adaptar Rofi al tamaño del monitor
 # Obtener resolución X del monitor enfocado, o usar 1920 por defecto
-mon_x_res_raw=$(hyprctl -j monitors | jq '.[] | select(.focused == true) | (.width / .scale)' || echo "null")
+get_focused_monitor_width() {
+    case "${DETECTED_COMPOSITOR}" in
+        hyprland)
+            hyprctl -j monitors 2>/dev/null | jq -r '.[] | select(.focused == true) | ((.width / .scale) | floor)'
+            ;;
+        sway)
+	    scrollmsg -t get_outputs | jq '.[] | select(.focused) | .current_mode.width'
+            ;;
+        *)
+            echo "1920"
+            ;;
+    esac
+}
+mon_x_res_raw=$(get_focused_monitor_width)
 if [[ "$mon_x_res_raw" == "null" ]] || [[ -z "$mon_x_res_raw" ]] || ! [[ "$mon_x_res_raw" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
     echo "Advertencia: No se pudo obtener la resolución del monitor X o no es válida. Usando 1920." >&2
     mon_x_res=1920

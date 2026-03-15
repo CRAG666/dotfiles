@@ -141,7 +141,7 @@ end
 function M.split(str, notify)
   ---Wrapper of vimscript function `utils#cmd#split()`, as lua does not have
   ---an interface to pass local variables to python
-  return vim.fn['utils#cmd#split'](str, notify)
+  return vim.fn['my#utils#cmd#split'](str, notify)
 end
 
 return M

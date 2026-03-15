@@ -1,6 +1,6 @@
 local M = {}
 
----@type lsp.client_config
+---@type lsp.config
 ---@diagnostic disable-next-line: missing-fields
 M.default_config = {
   root_markers = require('utils.fs').root_markers,
@@ -10,16 +10,12 @@ M.default_config = {
 ---@field requires? string[] additional executables required to start the language server
 ---@field buf_support? boolean whether the language server works on buffers without corresponding files
 
----@class (partial) lsp.client_config : vim.lsp.ClientConfig
----@field requires? string[] additional executables required to start the language server
----@field buf_support? boolean whether the language server works on buffers without corresponding files
-
 -- Avoid recursion after overriding
 local lsp_start = vim.lsp.start
 
 ---Wrapper of `vim.lsp.start()`, starts and attaches LSP client for
 ---the current buffer
----@param config lsp.client_config
+---@param config lsp.config
 ---@param opts table?
 ---@return integer? client_id id of attached client or nil if failed
 function M.start(config, opts)
@@ -140,7 +136,7 @@ function M.restart(client_or_id, opts)
           return
         end
         vim.api.nvim_buf_call(buf, function()
-          ---@cast config lsp.client_config
+          ---@cast config lsp.config
           local id = M.start(config)
           if id and opts and opts.on_restart then
             opts.on_restart(id)
@@ -156,60 +152,33 @@ end
 ---@field end {line: integer, character: integer}
 
 ---Check if `range1` contains `range2`
----@param range1 lsp.range 0-based range
----@param range2 lsp.range 0-based range
+---@param r1 lsp.range 0-based range
+---@param r2 lsp.range 0-based range
 ---@param strict boolean? only return true if `range1` fully contains `range2` (no overlapping boundaries), default false
 ---@return boolean
-function M.range_contains(range1, range2, strict)
-  local start_line1 = range1.start.line
-  local start_char1 = range1.start.character
-  local end_line1 = range1['end'].line
-  local end_char1 = range1['end'].character
-  local start_line2 = range2.start.line
-  local start_char2 = range2.start.character
-  local end_line2 = range2['end'].line
-  local end_char2 = range2['end'].character
-  -- stylua: ignore start
+function M.range_contains(r1, r2, strict)
   return (
-        start_line2 > start_line1
-        or (start_line2 == start_line1
-          and (
-            start_char2 > start_char1
-            or not strict and start_char2 == start_char1
-          )
-        )
-      )
+    r2.start.line > r1.start.line
+    or (
+      r2.start.line == r1.start.line
       and (
-        start_line2 < end_line1
-        or (
-          start_line2 == end_line1
-          and (
-            start_char2 < end_char1
-            or not strict and start_char2 == end_char1
-          )
+        r2.start.character > r1.start.character
+        or not strict and r2.start.character == r1.start.character
+      )
+    )
+  )
+    and (r2.start.line < r1['end'].line or (r2.start.line == r1['end'].line and (r2.start.character < r1['end'].character or not strict and r2.start.character == r1['end'].character)))
+    and (r2['end'].line > r1.start.line or (r2['end'].line == r1.start.line and (r2['end'].character > r1.start.character or not strict and r2['end'].character == r1.start.character)))
+    and (
+      r2['end'].line < r1['end'].line
+      or (
+        r2['end'].line == r1['end'].line
+        and (
+          r2['end'].character < r1['end'].character
+          or not strict and r2['end'].character == r1['end'].character
         )
       )
-      and (
-        end_line2 > start_line1
-        or (
-          end_line2 == start_line1
-          and (
-            end_char2 > start_char1
-            or not strict and end_char2 == start_char1
-          )
-        )
-      )
-      and (
-        end_line2 < end_line1
-        or (
-          end_line2 == end_line1
-          and (
-            end_char2 < end_char1
-            or not strict and end_char2 == end_char1
-          )
-        )
-      )
-  -- stylua: ignore end
+    )
 end
 
 ---Check if cursor is in range
@@ -221,22 +190,24 @@ function M.range_contains_cursor(range, cursor, strict)
   cursor = cursor or vim.api.nvim_win_get_cursor(0)
   local line = cursor[1] - 1
   local char = cursor[2]
-  local start_line = range.start.line
-  local start_char = range.start.character
-  local end_line = range['end'].line
-  local end_char = range['end'].character
   return (
-    line > start_line
+    line > range.start.line
     or (
-      line == start_line
-      and (char > start_char or not strict and char == start_char)
+      line == range.start.line
+      and (
+        char > range.start.character
+        or not strict and char == range.start.character
+      )
     )
   )
     and (
-      line < end_line
+      line < range['end'].line
       or (
-        line == end_line
-        and (char < end_char or not strict and char == end_char)
+        line == range['end'].line
+        and (
+          char < range['end'].character
+          or not strict and char == range['end'].character
+        )
       )
     )
 end

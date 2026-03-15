@@ -95,7 +95,7 @@ local function write_cb(args)
           return
         end
         vim.notify(
-          '[jupytext] error writing to notebook: ' .. obj2.stderr,
+          '[plugin.jupytext] error writing to notebook: ' .. obj2.stderr,
           vim.log.levels.ERROR
         )
       end)
@@ -124,7 +124,7 @@ local function jupytext_convert(buf)
 
   if not vim.uv.fs_stat(cache_dir) and not vim.uv.fs_mkdir(cache_dir, 511) then
     vim.notify(
-      '[jupytext] cannot create cache dir ' .. cache_dir,
+      '[plugin.jupytext] cannot create cache dir ' .. cache_dir,
       vim.log.levels.ERROR
     )
     return
@@ -163,7 +163,7 @@ local function jupytext_convert(buf)
     else
       vim.schedule(function()
         vim.notify(
-          '[jupytext] error converting notebook: ' .. obj.stderr,
+          '[plugin.jupytext] error converting notebook: ' .. obj.stderr,
           vim.log.levels.ERROR
         )
       end)

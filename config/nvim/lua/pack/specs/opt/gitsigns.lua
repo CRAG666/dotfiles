@@ -4,9 +4,9 @@ return {
   data = {
     events = { 'BufReadPre', 'SessionLoadPost' },
     cmds = 'Gitsigns',
-    keys = { lhs = '<Leader>gG', opts = { desc = 'Git list repo hunks' } },
+    keys = { lhs = '<Leader>gH', opts = { desc = 'Git list repo hunks' } },
     postload = function()
-      local icons = require('utils').static.icons
+      local icons = require('utils.static.icons')
       local gs = require('gitsigns')
 
       gs.setup({
@@ -59,8 +59,8 @@ return {
       vim.keymap.set('n', '<Leader>gR', gs.reset_buffer, { desc = 'Git reset current buffer' })
       vim.keymap.set('n', '<Leader>gp', gs.preview_hunk, { desc = 'Git preview current hunk' })
       vim.keymap.set('n', '<Leader>gb', gs.blame_line, { desc = 'Git blame current line' })
-      vim.keymap.set('n', '<Leader>gg', gs.setloclist, { desc = 'Git list file hunks' })
-      vim.keymap.set('n', '<Leader>gG', function() gs.setqflist('all') end, { desc = 'Git list repo hunks' })
+      vim.keymap.set('n', '<Leader>gh', gs.setloclist, { desc = 'Git list file hunks' })
+      vim.keymap.set('n', '<Leader>gH', function() gs.setqflist('all') end, { desc = 'Git list repo hunks' })
       vim.keymap.set('x', '<Leader>gs', function() gs.stage_hunk({ vim.fn.line('.'), vim.fn.line('v'), }) end, { desc = 'Git stage current selection' })
       vim.keymap.set('x', '<Leader>gr', function() gs.reset_hunk({ vim.fn.line('.'), vim.fn.line('v'), }) end, { desc = 'Git reset current selection' })
       vim.keymap.set('n', '<Leader>g<Esc>', '<Nop>')
@@ -78,7 +78,7 @@ return {
         pattern = 'GitSignsChanged',
         desc = 'Automatically refresh fugitive buffers on staging/unstaging hunks.',
         group = vim.api.nvim_create_augroup(
-          'my.gitsigns.fugitive_integration',
+          'gitsigns.fugitive_integration',
           {}
         ),
         callback = function(args)

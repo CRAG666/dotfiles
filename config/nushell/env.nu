@@ -12,6 +12,7 @@ $env.BAT_THEME = "Catppuccin-mocha"
 $env.USB = $"/run/media/($env.USER)"
 $env.PASSWORD_STORE_ENABLE_EXTENSIONS = true
 $env.NVIM_NF = true
+$env.GEMINI_API_KEY = "AIzaSyDIdWM0gZ6a4AMyzVoogXWV5UeqFt3Dx8o"
 
 # Variables de entorno para FZF
 $env.FZF_DEFAULT_COMMAND = 'fd . --type f --hidden --follow --exclude .git --no-ignore'

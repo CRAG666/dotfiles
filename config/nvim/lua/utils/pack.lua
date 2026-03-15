@@ -299,7 +299,11 @@ function M.build(spec, path)
     )
   else
     vim.notify(
-      string.format('[utils.pack] Error building plugin %s: %s', spec.src, err),
+      string.format(
+        '[utils.pack] Error building plugin %s: %s',
+        spec.src,
+        err
+      ),
       vim.log.levels.ERROR
     )
   end

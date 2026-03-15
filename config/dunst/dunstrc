@@ -3,8 +3,8 @@ corner_radius = 10
 icon_corner_radius = 10
 dmenu = /usr/bin/rofi -config "~/.config/rofi/notification.rasi" -dmenu -p dunst:
 icon_theme = Macjaro
-frame_color = "#89b4fa"
-highlight = "#89b4fa"
+frame_color = "#f38ba8"
+highlight = "#f38ba8"
 
 [Type-1]
 appname = "t1"
@@ -19,6 +19,7 @@ background = "#1e1e2e"
 foreground = "#cdd6f4"
 frame_color = "#fab387"
 timeout = 0
+script = ~/.config/dunst/notify-critical.sh
 
 # ------------------------------------------------------------------------------
 
@@ -92,8 +93,14 @@ new_icon = skype
     background = "#1e1e2e"
     foreground = "#cdd6f4"
     timeout = 5
+    script = ~/.config/dunst/notify-sound.sh
 
 [urgency_normal]
     background = "#1e1e2e"
     foreground = "#cdd6f4"
     timeout = 5
+    script = ~/.config/dunst/notify-sound.sh
+
+[volume]
+    stack_tag = "volume"
+    script = ""
