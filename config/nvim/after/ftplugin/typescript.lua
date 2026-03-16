@@ -5,4 +5,4 @@ vim.g.mason = {
   'js-debug-adapter',
 }
 vim.bo.commentstring = '// %s'
-vim.g.ts = { 'typescript', 'javascript' }
+vim.g.ts = { 'typescript', 'javascript', 'tsx' }

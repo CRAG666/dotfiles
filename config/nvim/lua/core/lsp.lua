@@ -126,42 +126,6 @@ end
 
 -- Keymaps
 do
-  ---Check if there exists an LS that supports the given method
-  ---for the given buffer
-  ---@param method string the method to check for
-  ---@param bufnr number buffer handler
-  local function buf_supports_method(method, bufnr)
-    local clients = vim.lsp.get_clients({ bufnr = bufnr })
-    for _, client in ipairs(clients) do
-      if client:supports_method(method) then
-        return true
-      end
-    end
-    return false
-  end
-
-  ---Returns a function that takes an LSP action if given method is supported,
-  ---else fallback
-  ---@param method string lsp method to check
-  ---@param action string action callback name
-  ---@return fun(fallback: function)
-  local function act_if_supports_method(method, action)
-    return function(fallback)
-      if buf_supports_method(method, 0) then
-        vim.lsp.buf[action]()
-        return
-      end
-      fallback()
-    end
-  end
-
-  local key = require('utils.key')
-
-  -- stylua: ignore start
-  key.amend({ 'n', 'x' }, 'gd', act_if_supports_method('textDocument/definition', 'definition'), { desc = 'Go to definition' })
-  key.amend({ 'n', 'x' }, 'gD', act_if_supports_method('textDocument/declaration', 'declaration'), { desc = 'Go to declaration' })
-  -- stylua: ignore end
-
   -- stylua: ignore start
   vim.keymap.set({ 'n' }, 'gq;', function() vim.lsp.buf.format() end, { desc = 'Format buffer' })
   vim.keymap.set({ 'n', 'x' }, '<Leader><', function() vim.lsp.buf.incoming_calls() end, { desc = 'Show incoming calls' })

@@ -1,4 +1,4 @@
----@type lsp_config_t
+---@type lsp.config
 return {
   filetypes = {
     'typescript',
@@ -21,4 +21,3 @@ return {
     hostInfo = 'neovim',
   },
 }
-

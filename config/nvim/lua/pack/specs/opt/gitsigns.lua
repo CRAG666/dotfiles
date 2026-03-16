@@ -58,7 +58,7 @@ return {
       vim.keymap.set('n', '<Leader>gS', gs.stage_buffer, { desc = 'Git stage current buffer' })
       vim.keymap.set('n', '<Leader>gR', gs.reset_buffer, { desc = 'Git reset current buffer' })
       vim.keymap.set('n', '<Leader>gp', gs.preview_hunk, { desc = 'Git preview current hunk' })
-      vim.keymap.set('n', '<Leader>gb', gs.blame_line, { desc = 'Git blame current line' })
+      vim.keymap.set('n', '<Leader>gB', gs.blame_line, { desc = 'Git blame current line' })
       vim.keymap.set('n', '<Leader>gh', gs.setloclist, { desc = 'Git list file hunks' })
       vim.keymap.set('n', '<Leader>gH', function() gs.setqflist('all') end, { desc = 'Git list repo hunks' })
       vim.keymap.set('x', '<Leader>gs', function() gs.stage_hunk({ vim.fn.line('.'), vim.fn.line('v'), }) end, { desc = 'Git stage current selection' })

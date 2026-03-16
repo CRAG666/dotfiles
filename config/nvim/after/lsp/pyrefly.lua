@@ -11,7 +11,7 @@ return {
       'setup.py',
       'tox.ini',
     },
-    { 'venv',           'env', '.venv', '.env' },
+    { 'venv', 'env', '.venv', '.env' },
     { '.python-version' },
   },
 }

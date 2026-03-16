@@ -259,9 +259,9 @@ vim.api.nvim_create_autocmd('UIEnter', {
     })
 
     --Esc in terminal mode
-    -- map('t', '<Esc>', '<C-\><C-n>')
-    -- map('t', '<M-[>', '<Esc>')
-    -- map('t', '<C-v><Esc>', '<Esc>')
+    map('t', '<Esc>', [[<C-\><C-n>']])
+    map('t', '<M-[>', '<Esc>')
+    map('t', '<C-v><Esc>', '<Esc>')
 
     map(
       'n',

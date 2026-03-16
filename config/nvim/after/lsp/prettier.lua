@@ -22,7 +22,7 @@ local prettier_lang_settings = {
   },
 }
 
----@type lsp_config_t
+---@type lsp.config
 return {
   filetypes = {
     'typescript',

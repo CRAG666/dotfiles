@@ -11,18 +11,19 @@ return {
       require('snacks').setup({
         animate = { enabled = false },
         scroll = { enabled = false },
-        bigfile = { enabled = true },
+        quickfile = { enabled = false },
         statuscolumn = { enabled = false },
+        bigfile = { enabled = true },
         dim = { enabled = true },
         indent = { enabled = true },
         scope = { enabled = true },
         layout = { enabled = true },
         picker = {
           enabled = true,
-          layout = {
-            preset = 'sidebar',
-            layout = { position = 'right' },
-          },
+          -- layout = {
+          --   preset = 'sidebar',
+          --   layout = { position = 'right' },
+          -- },
           previewers = {
             diff = {
               builtin = false,
@@ -34,7 +35,6 @@ return {
         },
         image = { enabled = true },
         explorer = { enabled = true },
-        quickfile = { enabled = false },
         input = { enabled = true },
         notifier = {
           enabled = true,
@@ -101,6 +101,13 @@ return {
             require('snacks').explorer()
           end,
           'File Explorer',
+        },
+        {
+          "'",
+          function()
+            require('snacks').picker.marks()
+          end,
+          'Marks',
         },
         {
           'x',
@@ -236,14 +243,14 @@ return {
           'Git Log Line',
         },
         {
-          's',
+          't',
           function()
             require('snacks').picker.git_status()
           end,
           'Git Status',
         },
         {
-          'S',
+          'T',
           function()
             require('snacks').picker.git_stash()
           end,
@@ -275,13 +282,6 @@ return {
           'Grep Open Buffers',
         },
         {
-          'g',
-          function()
-            require('snacks').picker.grep()
-          end,
-          'Grep',
-        },
-        {
           '"',
           function()
             require('snacks').picker.registers()
@@ -308,13 +308,6 @@ return {
             require('snacks').picker.lines()
           end,
           'Buffer Lines',
-        },
-        {
-          'c',
-          function()
-            require('snacks').picker.command_history()
-          end,
-          'Command History',
         },
         {
           'C',
@@ -381,13 +374,6 @@ return {
         },
         {
           'm',
-          function()
-            require('snacks').picker.marks()
-          end,
-          'Marks',
-        },
-        {
-          'M',
           function()
             require('snacks').picker.man()
           end,
@@ -478,7 +464,6 @@ return {
           'Goto T[y]pe Definition',
         },
       }
-
       key.pmaps('n', 'g', lsp_maps)
 
       key.map({ 'n', 't' }, ']]', function()

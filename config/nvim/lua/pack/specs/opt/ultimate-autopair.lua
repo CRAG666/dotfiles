@@ -32,10 +32,22 @@ return {
 
       ap_utils.getsmartft = (function(cb)
         return function(o, notree, ...)
-          return cb(o, vim.b.bigfile or notree, ...)
+          local ok, result = pcall(cb, o, vim.b.bigfile or notree, ...)
+          if ok then
+            return result
+          end
+          return { vim.bo.filetype }
         end
       end)(ap_utils.getsmartft)
-
+      ap_utils.gettsnode = (function(cb)
+        return function(...)
+          local ok, result = pcall(cb, ...)
+          if ok then
+            return result
+          end
+          return nil
+        end
+      end)(ap_utils.gettsnode)
       ---Record previous cmdline completion types,
       ---`cmdcompltype[1]` is the current completion type,
       ---`cmdcompltype[2]` is the previous completion type
@@ -67,6 +79,7 @@ return {
           cond = {
             cond = function(f)
               return not f.in_macro()
+                and not vim.bo.filetype:match('^snacks')
                 and (
                   not f.in_cmdline()
                   -- Disable autopairs when inserting a regex, e.g.

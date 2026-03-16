@@ -650,7 +650,7 @@ function _G._statusline.diag()
 end
 
 ---Id and additional info about LSP clients
----@type table<integer, { name: string, bufs: integer[] }>
+---@type table<integer, { name: string, bufs: table<integer, true> }>
 local client_info = {}
 
 vim.api.nvim_create_autocmd('LspDetach', {
@@ -669,14 +669,14 @@ vim.api.nvim_create_autocmd('LspProgress', {
   callback = function(args)
     -- Update LSP progress data
     local id = args.data.client_id
-    local bufs = vim.lsp.get_buffers_by_client_id(id)
+    local bufs = vim.lsp.get_client_by_id(id).attached_buffers
     client_info[id] = {
       name = vim.lsp.get_client_by_id(id).name,
       bufs = bufs,
     }
 
     vim
-      .iter(bufs)
+      .iter(vim.tbl_keys(bufs))
       :filter(function(buf)
         -- No need to create and attach spinners to invisible bufs
         return vim.fn.bufwinid(buf) ~= -1
@@ -718,7 +718,7 @@ function _G._statusline.spinner()
   local progs = vim
     .iter(vim.tbl_keys(client_info))
     :filter(function(id)
-      return vim.tbl_contains(client_info[id].bufs, buf)
+      return client_info[id].bufs[buf]
     end)
     :map(function(id)
       return client_info[id].name

@@ -3,7 +3,7 @@ vim.bo.cindent = false
 vim.bo.smartindent = false
 vim.bo.commentstring = '<!-- %s -->'
 vim.o.wrap = true
-vim.g.mason = { 'marksman', 'remark-language-server' }
+vim.g.mason = { 'marksman', 'markdown-oxide' }
 vim.g.ts = { 'markdown', 'markdown_inline' }
 
 ---Don't join title/first line of list item with previous lines when yanking

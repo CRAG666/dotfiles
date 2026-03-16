@@ -109,8 +109,8 @@ do
 end
 
 -- stylua: ignore start
-vim.keymap.set({ 'n', 'x' }, '<Leader>d', function() vim.diagnostic.setloclist() end, { desc = 'Show document diagnostics' })
-vim.keymap.set({ 'n', 'x' }, '<Leader>D', function() vim.diagnostic.setqflist() end, { desc = 'Show workspace diagnostics' })
+vim.keymap.set({ 'n', 'x' }, '<leader>dl', function() vim.diagnostic.setloclist() end, { desc = 'Show document diagnostics' })
+vim.keymap.set({ 'n', 'x' }, '<leader>dq', function() vim.diagnostic.setqflist() end, { desc = 'Show workspace diagnostics' })
 -- stylua: ignore end
 
 ---Open diagnostic floating window, jump to existing window if possible
@@ -141,10 +141,7 @@ end
 
 -- stylua: ignore start
 -- nvim's default mapping
-vim.keymap.set({ 'n', 'x' }, '<M-d>', diagnostic_open_float, { desc = 'Open diagnostic floating window' })
-vim.keymap.set({ 'n', 'x' }, '<C-w>d', diagnostic_open_float, { desc = 'Open diagnostic floating window' })
-vim.keymap.set({ 'n', 'x' }, '<C-w><C-d>', diagnostic_open_float, { desc = 'Open diagnostic floating window' })
-vim.keymap.set({ 'n', 'x' }, '<Leader>i', diagnostic_open_float, { desc = 'Open diagnostic floating window' })
+vim.keymap.set({ 'n', 'x' }, '<leader>df', diagnostic_open_float, { desc = 'Open diagnostic floating window' })
 -- stylua: ignore end
 
 vim.keymap.set('n', 'yd', function()

@@ -178,7 +178,10 @@ function M.load(session, notify)
   if not vim.uv.fs_stat(session) then
     if notify then
       vim.notify(
-        string.format("[plugin.session] session '%s' does not exist", session),
+        string.format(
+          "[plugin.session] session '%s' does not exist",
+          session
+        ),
         vim.log.levels.WARN
       )
     end

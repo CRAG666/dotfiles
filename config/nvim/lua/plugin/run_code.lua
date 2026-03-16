@@ -6,42 +6,23 @@ local function load()
   require('code_runner').setup({
     mode = 'better_term',
     better_term = {
-      number = 1,
+      number = 0,
     },
     filetype = {
       v = 'v run',
       tex = function(...)
+        local hook = require('code_runner.hooks.tectonic')
         require('code_runner.hooks.ui').select({
           Project = function()
-            require('code_runner.commands').run_from_fn(
-              [[tectonic -X watch -x 'build$end']]
-            )
+            hook.build()
+            vim.cmd.VimtexView()
           end,
-          ['Project + intermediates'] = function()
-            require('code_runner.commands').run_from_fn(
-              [[tectonic -X watch -x 'build --keep-intermediates --keep-logs'$end]]
-            )
+          ['Project + logs'] = function()
+            hook.build('--synctex --keep-logs')
+            vim.cmd.VimtexView()
           end,
           Single = function()
-            local root = vim.fn.expand('%:p')
-            vim.notify('Compiling ' .. root, vim.log.levels.INFO)
-            local job_id = vim.fn.jobstart(
-              "tectonic -X watch -x 'compile "
-                .. root
-                .. " --synctex --keep-logs -Zsearch-path=/latex'",
-              {
-                on_exit = function()
-                  vim.notify('Compile finished', vim.log.levels.INFO)
-                end,
-              }
-            )
-            vim.api.nvim_create_autocmd('BufDelete', {
-              buffer = 0,
-              once = true,
-              callback = function()
-                vim.fn.jobstop(job_id)
-              end,
-            })
+            hook.single('--synctex --keep-logs -Zsearch-path=/latex')
             vim.cmd.VimtexView()
           end,
         })
@@ -80,7 +61,7 @@ local function load()
         })
       end,
       c = function(...)
-        c_base = {
+        local c_base = {
           'cd $dir &&',
           'gcc $fileName -o',
           '/tmp/$fileNameWithoutExt',
@@ -97,7 +78,7 @@ local function load()
         end)
       end,
       cpp = function(...)
-        cpp_base = {
+        local cpp_base = {
           [[cd '$dir' &&]],
           'g++ $fileName -o',
           '/tmp/$fileNameWithoutExt',

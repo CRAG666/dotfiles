@@ -1,10 +1,14 @@
+-- A language server for Dockerfiles powered by Node.js, TypeScript, and VSCode
+-- technologies
+--
+-- https://github.com/rcjsuen/dockerfile-language-server
+
+---@type lsp.config
 return {
-  cmd = { 'docker-langserver', '--stdio' },
-  root_markers = {
-    'Dockerfile',
+  filetypes = { 'dockerfile' },
+  cmd = {
+    'docker-langserver',
+    '--stdio',
   },
-  filetypes = {
-    'dockerfile',
-  },
-  single_file_support = true,
+  root_markers = { 'Dockerfile' },
 }

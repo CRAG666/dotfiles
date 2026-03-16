@@ -1,4 +1,4 @@
----@type lsp_config_t
+---@type lsp.config
 return {
   filetypes = { 'lua' },
   cmd = { 'efm-langserver' },

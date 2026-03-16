@@ -35,8 +35,16 @@ return {
 
       ls.setup({
         ft_func = function()
+          -- No activar en buffers de snacks
+          if vim.bo.filetype:match('^snacks') then
+            return {}
+          end
+
           load_snippets('all')
-          local langs = ls_ft.from_pos_or_filetype()
+          local ok, langs = pcall(ls_ft.from_pos_or_filetype)
+          if not ok or not langs then
+            langs = { vim.bo.filetype }
+          end
           for _, lang in ipairs(langs) do
             load_snippets(lang)
           end
