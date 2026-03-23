@@ -2,6 +2,7 @@ return {
   src = 'https://github.com/catppuccin/nvim',
   data = {
     postload = function()
+      local util = require('catppuccin.utils.colors')
       local transparent_background = false
       local clear = {}
 
@@ -157,37 +158,126 @@ return {
               ['@neorg.headings.6.prefix'] = { fg = C.lavender },
               ['@neorg.headings.6.prefix.norg'] = { fg = C.lavender },
               ['@neorg.links.location.heading.6.norg'] = { fg = C.lavender },
-              BlinkCmpMenu = { bg = C.base, italic = true },
-              BlinkCmpCustomType = { bg = C.base, fg = C.lavender },
+              BlinkCmpMenu = { italic = true, bg = C.surface0 },
               BlinkCmpMenuBorder = { fg = C.crust, bg = C.crust },
-              BlinkCmpKindCodeium = { fg = C.base, bg = C.green },
-              BlinkCmpKindSupermaven = { fg = C.base, bg = C.pink },
-              BlinkCmpKindClass = { fg = C.base, bg = C.yellow },
-              BlinkCmpKindColor = { fg = C.base, bg = C.red },
-              BlinkCmpKindConstant = { fg = C.base, bg = C.peach },
-              BlinkCmpKindConstructor = { fg = C.base, bg = C.blue },
-              BlinkCmpKindCopilot = { fg = C.base, bg = C.teal },
-              BlinkCmpKindEnum = { fg = C.base, bg = C.green },
-              BlinkCmpKindEnumMember = { fg = C.base, bg = C.red },
-              BlinkCmpKindEvent = { fg = C.base, bg = C.blue },
-              BlinkCmpKindField = { fg = C.base, bg = C.green },
-              BlinkCmpKindFile = { fg = C.base, bg = C.blue },
-              BlinkCmpKindFolder = { fg = C.base, bg = C.blue },
-              BlinkCmpKindFunction = { fg = C.base, bg = C.blue },
-              BlinkCmpKindInterface = { fg = C.base, bg = C.yellow },
-              BlinkCmpKindKeyword = { fg = C.base, bg = C.red },
-              BlinkCmpKindMethod = { fg = C.base, bg = C.blue },
-              BlinkCmpKindModule = { fg = C.base, bg = C.blue },
-              BlinkCmpKindOperator = { fg = C.base, bg = C.blue },
-              BlinkCmpKindProperty = { fg = C.base, bg = C.green },
-              BlinkCmpKindReference = { fg = C.base, bg = C.red },
-              BlinkCmpKindSnippet = { fg = C.base, bg = C.mauve },
-              BlinkCmpKindStruct = { fg = C.base, bg = C.blue },
-              BlinkCmpKindText = { fg = C.base, bg = C.teal },
-              BlinkCmpKindTypeParameter = { fg = C.base, bg = C.blue },
-              BlinkCmpKindUnit = { fg = C.base, bg = C.green },
-              BlinkCmpKindValue = { fg = C.base, bg = C.peach },
-              BlinkCmpKindVariable = { fg = C.base, bg = C.flamingo },
+              BlinkCmpLabel = { fg = C.subtext0, bg = C.surface0 },
+              BlinkCmpLabelMatch = { fg = C.red, bg = C.surface0 },
+              BlinkCmpSource = { fg = C.surface2, bg = C.surface0 },
+              BlinkCmpMenuSelection = { fg = C.base, bg = C.red },
+              BlinkCmpCustomType = { fg = C.lavender, bg = C.surface0 },
+              BlinkCmpKindCodeium = {
+                fg = C.green,
+                bg = util.blend(C.green, C.surface0, 0.15),
+              },
+              BlinkCmpKindSupermaven = {
+                fg = C.pink,
+                bg = util.blend(C.pink, C.surface0, 0.15),
+              },
+              BlinkCmpKindClass = {
+                fg = C.yellow,
+                bg = util.blend(C.yellow, C.surface0, 0.15),
+              },
+              BlinkCmpKindColor = {
+                fg = C.red,
+                bg = util.blend(C.red, C.surface0, 0.15),
+              },
+              BlinkCmpKindConstant = {
+                fg = C.peach,
+                bg = util.blend(C.peach, C.surface0, 0.15),
+              },
+              BlinkCmpKindConstructor = {
+                fg = C.blue,
+                bg = util.blend(C.blue, C.surface0, 0.15),
+              },
+              BlinkCmpKindCopilot = {
+                fg = C.teal,
+                bg = util.blend(C.teal, C.surface0, 0.15),
+              },
+              BlinkCmpKindEnum = {
+                fg = C.green,
+                bg = util.blend(C.green, C.surface0, 0.15),
+              },
+              BlinkCmpKindEnumMember = {
+                fg = C.red,
+                bg = util.blend(C.red, C.surface0, 0.15),
+              },
+              BlinkCmpKindEvent = {
+                fg = C.blue,
+                bg = util.blend(C.blue, C.surface0, 0.15),
+              },
+              BlinkCmpKindField = {
+                fg = C.green,
+                bg = util.blend(C.green, C.surface0, 0.15),
+              },
+              BlinkCmpKindFile = {
+                fg = C.blue,
+                bg = util.blend(C.blue, C.surface0, 0.15),
+              },
+              BlinkCmpKindFolder = {
+                fg = C.blue,
+                bg = util.blend(C.blue, C.surface0, 0.15),
+              },
+              BlinkCmpKindFunction = {
+                fg = C.blue,
+                bg = util.blend(C.blue, C.surface0, 0.15),
+              },
+              BlinkCmpKindInterface = {
+                fg = C.yellow,
+                bg = util.blend(C.yellow, C.surface0, 0.15),
+              },
+              BlinkCmpKindKeyword = {
+                fg = C.red,
+                bg = util.blend(C.red, C.surface0, 0.15),
+              },
+              BlinkCmpKindMethod = {
+                fg = C.blue,
+                bg = util.blend(C.blue, C.surface0, 0.15),
+              },
+              BlinkCmpKindModule = {
+                fg = C.blue,
+                bg = util.blend(C.blue, C.surface0, 0.15),
+              },
+              BlinkCmpKindOperator = {
+                fg = C.blue,
+                bg = util.blend(C.blue, C.surface0, 0.15),
+              },
+              BlinkCmpKindProperty = {
+                fg = C.green,
+                bg = util.blend(C.green, C.surface0, 0.15),
+              },
+              BlinkCmpKindReference = {
+                fg = C.red,
+                bg = util.blend(C.red, C.surface0, 0.15),
+              },
+              BlinkCmpKindSnippet = {
+                fg = C.mauve,
+                bg = util.blend(C.mauve, C.surface0, 0.15),
+              },
+              BlinkCmpKindStruct = {
+                fg = C.blue,
+                bg = util.blend(C.blue, C.surface0, 0.15),
+              },
+              BlinkCmpKindText = {
+                fg = C.red,
+                bg = util.blend(C.red, C.surface0, 0.15),
+              },
+              BlinkCmpKindTypeParameter = {
+                fg = C.blue,
+                bg = util.blend(C.blue, C.surface0, 0.15),
+              },
+              BlinkCmpKindUnit = {
+                fg = C.green,
+                bg = util.blend(C.green, C.surface0, 0.15),
+              },
+              BlinkCmpKindValue = {
+                fg = C.peach,
+                bg = util.blend(C.peach, C.surface0, 0.15),
+              },
+              BlinkCmpKindVariable = {
+                fg = C.flamingo,
+                bg = util.blend(C.flamingo, C.surface0, 0.15),
+              },
+
               NormalFloat = {
                 fg = C.text,
                 bg = transparent_background and C.none or C.mantle,

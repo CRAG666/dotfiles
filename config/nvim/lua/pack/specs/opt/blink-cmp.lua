@@ -1,6 +1,7 @@
 ---@type pack.spec
 return {
   src = 'https://github.com/saghen/blink.cmp',
+  version = vim.version.range('^1'),
   data = {
     optional = vim.g.vscode,
     deps = {
@@ -90,12 +91,18 @@ return {
             min_width = vim.go.pumwidth > 0 and vim.go.pumwidth or nil, ---@diagnostic disable-line: assign-type-mismatch
             max_height = vim.go.pumheight > 0 and vim.go.pumheight or nil, ---@diagnostic disable-line: assign-type-mismatch
             draw = {
-              columns = not vim.g.has_nf
-                  and {
-                    { 'kind_icon' },
-                    { 'label', 'label_description', gap = 1, 'kind' },
-                  }
-                or nil,
+              padding = { 0, 1 }, -- padding only on right side
+              columns = vim.g.has_nf and {
+                { 'kind_icon' },
+                {
+                  'label',
+                  'label_description',
+                  'source_name',
+                },
+              } or {
+                { 'label' },
+                { 'source_name' },
+              },
               components = {
                 kind_icon = {
                   ellipsis = false,
@@ -103,11 +110,11 @@ return {
                   -- nvim-web-devicons to show filetype icons if possible
                   text = function(ctx)
                     if not is_file_compl(ctx) then
-                      return ' ' .. icons[ctx.kind] .. ' ' --[[@as string]]
+                      return ' ' .. icons[ctx.kind] --[[@as string]]
                     end
 
                     if is_directory(ctx.item.label) then
-                      return ' ' .. icons.Folder .. ' '
+                      return ' ' .. icons.Folder
                     end
 
                     return has_devicons
@@ -115,8 +122,8 @@ return {
                           ctx.item.label,
                           vim.fn.fnamemodify(ctx.item.label, ':e'),
                           { default = true }
-                        ) .. ' ')
-                      or ' ' .. icons.File .. ' '
+                        ))
+                      or ' ' .. icons.File
                   end,
                   highlight = function(ctx)
                     if not is_file_compl(ctx) then

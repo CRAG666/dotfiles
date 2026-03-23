@@ -29,6 +29,7 @@ return {
       if vim.env.TERM == 'linux' then
         vim.g.vimtex_syntax_conceal_disable = true
       end
+
       vim.g.vimtex_quickfix_mode = 0
       vim.g.vimtex_format_enabled = 1
       vim.g.vimtex_imaps_enabled = 0

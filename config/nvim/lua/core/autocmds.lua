@@ -541,10 +541,4 @@ augroup('BufferConfig', {
   {
     command = [[let @/=""]],
   },
-}, {
-  { 'BufRead', 'BufEnter' },
-  {
-    pattern = '*.tex',
-    command = [[set filetype=tex]],
-  },
 })

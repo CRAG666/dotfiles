@@ -160,10 +160,7 @@ return {
 
       vim.api.nvim_create_autocmd('ModeChanged', {
         desc = 'Redraw statusline shortly after mode change to ensure correct mode display after enting visual mode when which-key.nvim is enabled.',
-        group = vim.api.nvim_create_augroup(
-          'which-key.redraw_statusline',
-          {}
-        ),
+        group = vim.api.nvim_create_augroup('which-key.redraw_statusline', {}),
         callback = vim.schedule_wrap(function()
           vim.cmd.redrawstatus({
             mods = { emsg_silent = true },

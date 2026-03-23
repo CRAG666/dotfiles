@@ -15,8 +15,8 @@ hash = "f0c8c378184d5f8abd1b095a443d336d"
 
 [[plugin.deps]]
 use = "Rolv-Apneseth/starship"
-rev = "eca1861"
-hash = "e519d894e94ded741e06aae4d4775981"
+rev = "a837101"
+hash = "635b0feb9215772d22020eb0abf0bb34"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:toggle-pane"

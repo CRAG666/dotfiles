@@ -6,11 +6,12 @@ return {
         src = 'https://github.com/L3MON4D3/LuaSnip',
         data = { optional = false },
       },
+      {
+        src = 'https://github.com/lervag/vimtex',
+        data = { optional = false },
+      },
     },
-    events = {
-      event = 'Filetype',
-      pattern = 'tex',
-    },
+    events = { event = 'FileType', pattern = 'tex' },
     postload = function()
       require('luasnip-latex-snippets').setup({ use_treesitter = true })
     end,

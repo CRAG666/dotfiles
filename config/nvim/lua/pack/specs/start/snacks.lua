@@ -167,13 +167,6 @@ return {
 
       local find_maps = {
         {
-          'b',
-          function()
-            require('snacks').picker.buffers()
-          end,
-          'Buffers',
-        },
-        {
           'c',
           function()
             require('snacks').picker.files({ cwd = vim.fn.stdpath('config') })
@@ -183,7 +176,7 @@ return {
         {
           'd',
           function()
-            require('snacks').picker.files()
+            require('snacks').picker.files({ cwd = vim.fn.expand('%:p:h') })
           end,
           'Find Files in directory',
         },
@@ -282,7 +275,7 @@ return {
           'Grep Open Buffers',
         },
         {
-          '"',
+          "'",
           function()
             require('snacks').picker.registers()
           end,
@@ -310,7 +303,7 @@ return {
           'Buffer Lines',
         },
         {
-          'C',
+          'c',
           function()
             require('snacks').picker.commands()
           end,
@@ -387,7 +380,7 @@ return {
           'Quickfix List',
         },
         {
-          'R',
+          'r',
           function()
             require('snacks').picker.resume()
           end,
@@ -457,7 +450,7 @@ return {
           'Goto Implementation',
         },
         {
-          'y',
+          '-',
           function()
             require('snacks').picker.lsp_type_definitions()
           end,

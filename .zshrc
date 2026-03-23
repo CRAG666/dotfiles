@@ -264,4 +264,4 @@ alias s="kitten ssh"
 
 source ~/.zshfunc
 # FPATH="/usr/share/zsh/site-functions:${FPATH}"
-source ~/.env
+# source ~/.env

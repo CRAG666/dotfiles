@@ -17,11 +17,11 @@ return {
     },
     keys = {
       {
-        lhs = '<leader>pm',
+        lhs = '<leader>Pm',
         opts = { desc = '[m]ason' },
       },
       {
-        lhs = '<leader>ps',
+        lhs = '<leader>Ps',
         opts = { desc = '[m]ason [s]ync' },
       },
     },
@@ -29,8 +29,8 @@ return {
       require('mason').setup()
       vim.g.mason = vim.g.mason or {}
       require('mason-tool-installer').setup({ ensure_installed = vim.g.mason })
-      vim.keymap.set('n', '<leader>pm', ':Mason<CR>')
-      vim.keymap.set('n', '<leader>ps', ':MasonToolsInstallSync<CR>')
+      vim.keymap.set('n', '<leader>Pm', ':Mason<CR>')
+      vim.keymap.set('n', '<leader>Ps', ':MasonToolsInstallSync<CR>')
       vim.cmd.MasonToolsInstallSync()
     end,
   },

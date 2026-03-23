@@ -136,3 +136,4 @@ end
 
 require('plugin.term').setup()
 require('plugin.run_code')
+require('plugin.colorify').run()

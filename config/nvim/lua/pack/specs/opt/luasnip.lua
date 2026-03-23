@@ -42,7 +42,7 @@ return {
 
           load_snippets('all')
           local ok, langs = pcall(ls_ft.from_pos_or_filetype)
-          if not ok or not langs then
+          if not ok then
             langs = { vim.bo.filetype }
           end
           for _, lang in ipairs(langs) do

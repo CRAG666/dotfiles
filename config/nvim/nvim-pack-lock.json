@@ -10,7 +10,8 @@
     },
     "blink.cmp": {
       "rev": "b19413d214068f316c78978b08264ed1c41830ec",
-      "src": "https://github.com/saghen/blink.cmp"
+      "src": "https://github.com/saghen/blink.cmp",
+      "version": "1.0.0 - 2.0.0"
     },
     "flash.nvim": {
       "rev": "fcea7ff883235d9024dc41e638f164a450c14ca2",
@@ -79,10 +80,6 @@
     "nvim": {
       "rev": "da33755d00e09bff2473978910168ff9ea5dc453",
       "src": "https://github.com/catppuccin/nvim"
-    },
-    "nvim-colorizer.lua": {
-      "rev": "81e676d3203c9eb6e4c0ccf1eba1679296ef923f",
-      "src": "https://github.com/NvChad/nvim-colorizer.lua"
     },
     "nvim-dap": {
       "rev": "5860c7c501eb428d3137ee22c522828d20cca0b3",

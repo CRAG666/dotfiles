@@ -11,47 +11,54 @@ local function load()
     filetype = {
       v = 'v run',
       tex = function(...)
-        local hook = require('code_runner.hooks.tectonic')
+        local tectonic = require('code_runner.hooks.tectonic')
         require('code_runner.hooks.ui').select({
           Project = function()
-            hook.build()
-            vim.cmd.VimtexView()
+            tectonic.build()
           end,
           ['Project + logs'] = function()
-            hook.build('--synctex --keep-logs')
-            vim.cmd.VimtexView()
+            tectonic.build('--synctex --keep-logs')
           end,
           Single = function()
-            hook.single('--synctex --keep-logs -Zsearch-path=/latex')
-            vim.cmd.VimtexView()
+            tectonic.single('--synctex --keep-logs -Zsearch-path=/latex')
           end,
         })
       end,
-      quarto = {
-        'cd $dir &&',
-        'quarto preview $fileName',
-        '--no-browser',
-        '--port 4444',
-      },
+      quarto = function(...)
+        local quarto = require('code_runner.hooks.utils').create_job_runner({
+          label = 'Quarto',
+          stop_command = 'QuartoStop',
+        })
+        local root = vim.fn.expand('%:p')
+        quarto.start(
+          ('quarto preview %s --no-browser --port 4444'):format(root)
+        )
+        vim.defer_fn(function()
+          vim.fn.jobstart(
+            { 'xdg-open', 'http://localhost:4444' },
+            { detach = true }
+          )
+        end, 10000)
+      end,
       markdown = function(...)
-        local hook = require('code_runner.hooks.preview_pdf')
+        local hr_preview_pdf = require('code_runner.hooks.preview_pdf')
         require('code_runner.hooks.ui').select({
           Latex = function()
-            hook.run({
+            hr_preview_pdf.run({
               command = 'pandoc',
               args = { '$fileName', '-o', '$tmpFile', '-t pdf' },
               preview_cmd = preview_cmd,
             })
           end,
           Beamer = function()
-            hook.run({
+            hr_preview_pdf.run({
               command = 'pandoc',
               args = { '$fileName', '-o', '$tmpFile', '-t beamer' },
               preview_cmd = preview_cmd,
             })
           end,
           Eisvogel = function()
-            hook.run({
+            hr_preview_pdf.run({
               command = 'bash',
               args = { './build.sh' },
               preview_cmd = preview_cmd,

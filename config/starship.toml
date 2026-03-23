@@ -20,6 +20,12 @@ disabled = false
 "~/Vídeos" = ""
 "~/Git" = ""
 "/run/media/$USER" = "󱊞"
+"~/Desktop" = "󰇄"
+"~/Downloads" = ""
+"~/Documents" = ""
+"~/Pictures" = ""
+"~/Music" = ""
+"~/Videos" = ""
 
 [palettes.catppuccin_mocha]
 rosewater = "#f5e0dc"
