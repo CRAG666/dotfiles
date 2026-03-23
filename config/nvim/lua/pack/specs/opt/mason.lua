@@ -26,7 +26,12 @@ return {
       },
     },
     postload = function()
-      require('mason').setup()
+      require('mason').setup({
+        registries = {
+          'github:mason-org/mason-registry',
+          'github:Crashdummyy/mason-registry',
+        },
+      })
       vim.g.mason = vim.g.mason or {}
       require('mason-tool-installer').setup({ ensure_installed = vim.g.mason })
       vim.keymap.set('n', '<leader>Pm', ':Mason<CR>')

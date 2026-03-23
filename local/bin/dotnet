@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Usar variable de entorno o valor por defecto
-DOTNET_VERSION="${DOTNET_VERSION:-10.0}"
+DOTNET_VERSION="${DOTNET_VERSION:-9.0}"
 
 podman run -it --rm \
   --network=host \

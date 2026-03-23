@@ -45,7 +45,7 @@ return {
           sections = {
             {
               section = 'terminal',
-              cmd = 'npx oh-my-logo@latest "Aguilar" fire --filled',
+              cmd = 'oh-my-logo "Aguilar" fire --filled',
               height = 8,
               padding = 1,
             },

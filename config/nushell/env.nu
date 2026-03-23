@@ -18,11 +18,13 @@ let zsh_paths = [
     $"($env.HOME)/.dotnet/tools",
     $"($env.HOME)/.local/share/bob/nvim-bin",
     $"($env.HOME)/.local/share/nvim/mason/bin",
-    $"($env.HOME)/.config/emacs/bin",
-    $"($env.HOME)/.npm-global/bin",
+    # $"($env.HOME)/.config/emacs/bin",
 ]
 $env.PATH = ($zsh_paths | append $env.PATH)
 
 $env.CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense'
 mkdir $"($nu.cache-dir)"
 carapace _carapace nushell | save --force $"($nu.cache-dir)/carapace.nu"
+let mise_path = $nu.default-config-dir | path join mise.nu
+^mise activate nu | save $mise_path --force
+source ($nu.default-config-dir | path join mise.nu)

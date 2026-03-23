@@ -43,7 +43,6 @@ return {
         modifyLineBreaks = false,
       },
       bibtexFormatter = 'texlab',
-      formatterLineLength = 80,
     },
   },
 }
