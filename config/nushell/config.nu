@@ -1,5 +1,5 @@
-$env.LSI_THEME_PATH = $"($env.HOME)/.config/yazi/theme.toml"
-source ~/.config/nushell/lsi.nu
+# $env.LSI_THEME_PATH = $"($env.HOME)/.config/yazi/theme.toml"
+# source ~/.config/nushell/lsi.nu
 $env.config.hooks = ($env.config.hooks | upsert env_change {
     PWD: [
         {|before, after|
@@ -199,7 +199,20 @@ def du1 [] { du --max-depth=1 | sort-by apparent -r }
 def aicli [] { ^bash -c 'eval $(gum choose "gemini" "qwen" "crush")' }
 def paci [] { ^bash -c "pacman -Slq | fzf --multi --preview 'pacman -Si {1}' | xargs -ro sudo pacman -S" }
 def pacr [] { ^bash -c "pacman -Qq | fzf --multi --preview 'pacman -Qi {1}' | xargs -ro sudo pacman -Rns" }
-def ys [] { ^bash -c "yay -Slq | fzf --multi --preview 'yay -Si {1}' | xargs -ro yay -S" }
+def ys [] {
+    ^paru -Slq
+    | fzf --multi --preview 'paru -Si {1}'
+    | xargs -ro paru -S
+}
+def yclean [] {
+    let orphans = (paru -Qtdq | lines)
+    if ($orphans | is-empty) {
+        print "No hay paquetes huérfanos para limpiar."
+    } else {
+        paru -Rns $orphans
+    }
+    paru -Scc
+}
 def ci [] { ^bash -c "{ find . -xdev -printf '%h\n' | sort | uniq -c | sort -k 1 -n; } 2>/dev/null" }
 def fontl [] { ^bash -c "fc-list | cut -d ':' -f2 | sort | uniq" }
 # def atm [flag: string] { ^bash -c $'atm "($flag)"' }
@@ -263,3 +276,4 @@ source ~/.local/share/atuin/init.nu
 source ~/.config/nushell/catppuccin_mocha.nu
 source ~/.config/nushell/podman.nu
 source ~/.config/nushell/git.nu
+source ~/.config/nushell/eyes.nu

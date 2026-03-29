@@ -1,0 +1,85 @@
+/* ============================================================
+   userContent.css — Thunderbird 115+
+   Controla el cuerpo HTML de los mensajes
+   Misma carpeta que userChrome.css: <perfil>/chrome/
+   ============================================================ */
+
+/* ── Fuerza fondo claro en el cuerpo del mensaje ─────────── */
+/* Thunderbird renderiza el HTML del correo en un <browser>   */
+/* interno. Este archivo sobreescribe los colores del body.   */
+
+@-moz-document url-prefix("about:message"),
+               url-prefix("mailbox:"),
+               url-prefix("imap:"),
+               url-prefix("news:"),
+               url-prefix("snews:") {
+
+  /* Fondo y texto base */
+  html, body {
+    background-color: #add4a0 !important;
+    color: #222222 !important;
+  }
+
+  /* Emails que fuerzan fondo negro/oscuro explícitamente */
+  body[bgcolor],
+  body[style*="background-color"],
+  body[style*="background:#"],
+  [style*="background-color: #0"],
+  [style*="background-color:#0"],
+  [style*="background-color: black"],
+  [style*="background-color: rgb(0"],
+  [style*="background: #0"],
+  [style*="background:#0"] {
+    background-color: #add4a0 !important;
+    color: #222222 !important;
+  }
+
+  /* Tablas con fondo oscuro (muy común en newsletters) */
+  table[bgcolor^="#0"],
+  table[bgcolor^="#1"],
+  table[bgcolor^="#2"],
+  td[bgcolor^="#0"],
+  td[bgcolor^="#1"],
+  td[bgcolor^="#2"] {
+    background-color: #a4cc98 !important;
+    color: #222222 !important;
+  }
+
+  /* Divs con fondo oscuro inline */
+  div[style*="background-color:#0"],
+  div[style*="background-color: #0"],
+  div[style*="background:#0"],
+  div[style*="background: #0"],
+  div[style*="background-color:black"],
+  div[style*="background-color: black"] {
+    background-color: #9fc895 !important;
+    color: #222222 !important;
+  }
+
+  /* Links — teal oscuro */
+  a, a:visited {
+    color: #206860 !important;
+  }
+
+  a:hover {
+    color: #1e4a60 !important;
+  }
+}
+
+/* ── Barra de notificación (la amarilla de "blocked content") */
+notification,
+.notificationbox-stack notification,
+#remoteContentBar,
+#msgNotificationBar {
+  background-color: #d0c890 !important;
+  color: #786018 !important;
+  border-bottom: 1px solid #786018 !important;
+}
+
+notification button,
+#remoteContentBar button {
+  background-color: #c8be80 !important;
+  color: #786018 !important;
+  border: 1px solid #786018 !important;
+  border-radius: 4px !important;
+}

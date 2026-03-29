@@ -6,7 +6,7 @@ configuration {
     font:                        "SFProDisplay Nerd Font 9";
 }
 
-@theme "~/.config/rofi/colors/catppuccin.rasi"
+@theme "~/.config/rofi/colors/theme.rasi"
 
 
 // Main //

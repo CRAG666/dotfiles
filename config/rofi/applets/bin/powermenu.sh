@@ -90,13 +90,14 @@ confirm_run() {
 # Execute Command
 run_cmd() {
 	if [[ "$1" == '--opt1' ]]; then
-		hyprlock
+		# hyprlock
+		swaylock
 	elif [[ "$1" == '--opt2' ]]; then
-        if [[ "$XDG_CURRENT_DESKTOP" == 'Hyprland' ]]; then
-            confirm_run 'hyprctl dispatch exit'
-        elif [[ "$XDG_CURRENT_DESKTOP" == 'scroll' ]]; then
-            confirm_run 'scrollmsg exit'
-        fi
+		if [[ "$XDG_CURRENT_DESKTOP" == 'Hyprland' ]]; then
+			confirm_run 'hyprctl dispatch exit'
+		elif [[ "$XDG_CURRENT_DESKTOP" == 'scroll' ]]; then
+			confirm_run 'scrollmsg exit'
+		fi
 	elif [[ "$1" == '--opt3' ]]; then
 		confirm_run 'amixer set Master mute' 'systemctl suspend'
 	elif [[ "$1" == '--opt4' ]]; then

@@ -13,6 +13,8 @@ nm-connection-editor
 bluez-utils
 impala
 bluetui
+wiremix
+chawan
 
 # CLI tools
 hyperfine
@@ -23,7 +25,6 @@ yt-dlp
 starship
 reflector
 quarto-cli-bin
-less
 gum
 graphviz
 gocryptfs
@@ -59,7 +60,7 @@ carapace-bin
 quarto-cli-bin
 gnome-epub-thumbnailer
 gitleaks
-fcp-bin
+cpx-copy
 
 # Monitoring
 btop
@@ -78,10 +79,6 @@ pipewire-jack
 pipewire-pulse
 pipewire-zeroconf
 wireplumber
-pwvucontrol
-
-# Disk Utilities
-gnome-disk-utility
 
 # Fonts
 ttf-nerd-fonts-symbols
@@ -154,7 +151,6 @@ parallel
 pacman-contrib
 nushell
 libreoffice-still
-gopreload-git
 freerdp
 age
 keyd

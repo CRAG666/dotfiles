@@ -3,7 +3,10 @@
 # Default config for scroll
 #
 
-exec systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP && dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=scroll
+# exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+# exec dbus-update-activation-environment --systemd --all
+exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+exec systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 exec rofi-polkit-agent -theme $HOME/.config/rofi/text/confirm.rasi
 exec wl-paste --type text --watch cliphist store
 exec wl-paste --type image --watch cliphist store
@@ -13,13 +16,13 @@ exec systemctl --user start podman.socket
 exec ~/Git/selfhost/instances.sh
 exec ~/.scripts/check_battery.sh
 exec brightnessctl s 7272 && ddcutil setvcp 10 30
+exec rewaita -b &
 
-exec hyprctl setcursor catppuccin-mocha-red-cursors $CURSOR_SIZE
 exec gsettings set org.gnome.desktop.interface cursor-theme 'catppuccin-mocha-red-cursors'
-exec gsettings set org.gnome.desktop.interface cursor-size $CURSOR_SIZE
+exec gsettings set org.gnome.desktop.interface cursor-size 24
 
 exec gsettings set org.gnome.desktop.interface icon-theme 'Macjaro'
-exec gsettings set org.gnome.desktop.interface gtk-theme 'catppuccin-mocha-red-standard'
+exec gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita'
 exec gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 
 exec gsettings set org.gnome.desktop.interface font-name 'SFProDisplay Nerd Font 16'
@@ -28,7 +31,6 @@ exec gsettings set org.gnome.desktop.interface monospace-font-name 'SFProDisplay
 exec gsettings set org.gnome.desktop.interface font-antialiasing 'rgba'
 exec gsettings set org.gnome.desktop.interface font-hinting 'full'
 exec gsettings set org.gnome.desktop.wm.preferences button-layout :
-exec gsettings set org.gnome.desktop.wm.preferences theme 'catppuccin-mocha-red-standard'
 
 ### Outputs / Monitores ###
 
@@ -299,6 +301,8 @@ bindsym --no-repeat $mod+Shift+p pin end
 # APLICACIONES
 # =============================================================================
 
+bindsym $mod+space exec swaylock
+
 # Terminal
 bindsym $mod+t exec kitty
 
@@ -461,8 +465,8 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 # Control de brillo con repetición y funcional en pantalla de bloqueo
-bindsym --locked XF86MonBrightnessUp exec brightnessctl s +10% && ddcutil setvcp 10 + 10
-bindsym --locked XF86MonBrightnessDown exec brightnessctl s 10%- && ddcutil setvcp 10 - 10
+bindsym --locked XF86MonBrightnessUp exec brightnessctl s +5% && ddcutil setvcp 10 + 5
+bindsym --locked XF86MonBrightnessDown exec brightnessctl s 5%- && ddcutil setvcp 10 - 5
 
 focus_wrapping no
 

@@ -1,0 +1,115 @@
+:root {
+  --bg: #add4a0;
+  --currentline: #88b07e;
+  --fg: #222222;
+  --comment: #575268;
+  --flamingo: #d8a8a0;
+  --mauve: #4a3870;
+  --pink: #6a3868;
+  --maroon: #e8a2af;
+  --red: #8a2820;
+  --peach: #8a5820;
+  --yellow: #786018;
+  --green: #2e5a28;
+  --teal: #206860;
+  --blue: #2a5872;
+  --sky: #2a6868;
+  --lavender: #4a3870;
+  --rosewater: #8a2820;
+  --font: "DankMono Nerd Font Mono";
+  /* vimium theme uses colors: flamingo, peach, rosewater, green, blue, lavender */
+  --tridactyl-fg: var(--fg);
+  --tridactyl-bg: var(--bg);
+  --tridactyl-url-fg: var(--rosewater);
+  --tridactyl-url-bg: var(--bg);
+  --tridactyl-highlight-box-bg: var(--currentline);
+  --tridactyl-highlight-box-fg: var(--fg);
+  --tridactyl-of-fg: var(--fg);
+  --tridactyl-of-bg: var(--currentline);
+  --tridactyl-cmdl-fg: var(--bg);
+  --tridactyl-cmdl-font-family: var(--font);
+  --tridactyl-cmplt-font-family: var(--font);
+  --tridactyl-hintspan-font-family: var(--font);
+  --tridactyl-hintspan-font-size: 18px;
+  /* Hint character tags */
+  --tridactyl-hintspan-fg: var(--bg) !important;
+  --tridactyl-hintspan-bg: var(--green) !important;
+  /* Element Highlights */
+  --tridactyl-hint-active-fg: var(-currentline) !important;     /* texto del hint activo */
+  --tridactyl-hint-active-bg: var(--fg) !important;  /* fondo del hint activo */
+  --tridactyl-hint-active-outline: 2px solid var(--peach) !important; /* borde opcional, queda bonito */
+  --tridactyl-hint-bg: none;
+  --tridactyl-hint-outline: none;
+}
+
+.TridactylHint {
+  font-size: var(--tridactyl-hintspan-font-size) !important;
+}
+
+#command-line-holder {
+  order: 1;
+  background: var(--tridactyl-bg);
+}
+#tridactyl-input {
+  color: var(--tridactyl-fg);
+  border: 0px !important;
+  background: var(--tridactyl-bg);
+  font-size: 22px !important;
+}
+/* COMPLETIONS */
+#completions {
+  color: var(--tridactyl-fg);
+  background: var(--tridactyl-bg);
+  overflow: auto;
+  order: 2;
+  font-size: 22px !important;
+}
+#completions table tr .title,
+#completions table tr td.excmd {
+  color: var(--blue);
+  font-size: 22px !important;
+}
+#completions .sectionHeader {
+  background: var(--tridactyl-bg);
+  border: 0px !important;
+  font-weight: bold;
+  color: var(--peach);
+  font-size: 22px !important;
+}
+#cmdline_iframe {
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 0px 22px !important;
+  background: var(--tridactyl-bg) !important;
+  border: 0px !important;
+}
+.TridactylStatusIndicator {
+  position: fixed !important;
+  bottom: 0 !important;
+  background: var(--tridactyl-bg) !important;
+  border: 0px !important;
+  font-size: 12pt !important;
+  font-weight: 200 !important;
+}
+#completions .focused {
+  background: var(--bg);
+  color: var(--green);
+  font-weight: bold;
+  font-size: 22px !important;
+}
+#completions .focused td.title {
+  color: var(--pink);
+  font-size: 22px !important;
+}
+#completions .focused .url {
+  background: var(--bg);
+  color: var(--green);
+  font-size: 22px !important;
+}
+
+/* Hint activo cuando estás tecleando las letras (al presionar F y siguientes) */
+.TridactylHintActive {
+    color: var(--tridactyl-hint-active-fg) !important;
+    background-color: var(--tridactyl-hint-active-bg) !important;
+    outline: var(--tridactyl-hint-active-outline) !important;
+    font-weight: bold !important;
+    z-index: 10000 !important;
+}

@@ -1,10 +1,10 @@
 #!/bin/bash
 
-theme="$HOME/.config/rofi/colors/catppuccin.rasi"
+theme="$HOME/.config/rofi/colors/theme.rasi"
 get_random_color() {
 	current_color=$(awk '/selected:/ {print $2}' $theme)
 	while true; do
-		random_color=${colors[$RANDOM % ${#colors[@]}]}
+		random_color=${colors[$RANDOM%${#colors[@]}]}
 		if [ "$random_color" != "$current_color" ]; then
 			break
 		fi

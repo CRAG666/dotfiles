@@ -1,4 +1,4 @@
-vim.bo.textwidth = 106
+vim.bo.textwidth = 88
 vim.opt_local.wrap = true
 vim.bo.commentstring = '% %s'
 vim.g.mason = {

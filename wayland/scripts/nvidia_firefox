@@ -1,2 +1,0 @@
-#!/bin/bash
-NVD_BACKEND=direct MOZ_DISABLE_RDD_SANDBOX=1 LIBVA_DRIVER_NAME=nvidia prime-run /bin/firefox "$@"

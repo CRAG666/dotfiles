@@ -16,7 +16,7 @@ validate_mode() {
 }
 
 detect_power_mode() {
-    if command -v acpi &> /dev/null; then
+    if command -v acpi &>/dev/null; then
         if acpi -a | grep -q "on-line"; then
             echo "nvidia"
         else
@@ -61,7 +61,7 @@ set_default_env() {
     export CLUTTER_BACKEND=wayland
     export XCURSOR_THEME=catppuccin-mocha-red-cursors
     export XCURSOR_SIZE=30
-    export GTK_THEME=catppuccin-mocha-red-standard
+    export GTK_THEME=Adwaita
     export GPG_TTY=$(tty)
 }
 

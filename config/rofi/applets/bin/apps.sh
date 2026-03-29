@@ -24,7 +24,7 @@ fi
 # CMDs (add your apps here)
 music_cmd='kitty --class dialog -T termusic termusic'
 file_cmd='kitty --class dialog -T yazi yazi'
-disk_cmd='gnome-disks'
+vucontrol='kitty --class dialog -T wiremix wiremix'
 calendar_cmd="$HOME/.config/rofi/calendar/bin/calendar"
 wifi_cmd="kitty --class dialog -T impala impala"
 bluetooth_cmd="kitty --class dialog -T bluetui bluetui"
@@ -37,14 +37,14 @@ if [[ "$layout" == 'NO' ]]; then
     option_3=" Wifi <span weight='light' size='small'><i>($wifi_cmd)</i></span>"
     option_4=" Files <span weight='light' size='small'><i>($file_cmd)</i></span>"
     option_5=" Calendar <span weight='light' size='small'><i>($calendar_cmd)</i></span>"
-    option_6="󰋊 Disk <span weight='light' size='small'><i>($disk_cmd)</i></span>"
+    option_6="󱀞 VuControl <span weight='light' size='small'><i>($vucontrol)</i></span>"
 else
     option_1="󰝚"
     option_2="󰂰"
     option_3=""
     option_4=""
     option_5=""
-    option_6="󰋊"
+    option_6="󱀞"
 fi
 
 # Rofi CMD
@@ -76,7 +76,7 @@ run_cmd() {
     elif [[ "$1" == '--opt5' ]]; then
         ${calendar_cmd}
     elif [[ "$1" == '--opt6' ]]; then
-        ${disk_cmd}
+        ${vucontrol}
     fi
 }
 

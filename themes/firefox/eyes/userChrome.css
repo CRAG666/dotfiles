@@ -1,0 +1,141 @@
+@media (prefers-color-scheme: dark) {
+  :root {
+    --zen-colors-primary: #6a9060 !important;
+    --zen-primary-color: #8a2820 !important;
+    --zen-colors-secondary: #6a9060 !important;
+    --zen-colors-tertiary: #88b07e !important;
+    --zen-colors-border: #8a2820 !important;
+    --toolbarbutton-icon-fill: #8a2820 !important;
+
+    /* Textos principales en #222222 */
+    --lwt-text-color: #222222 !important;
+    --toolbar-field-color: #222222 !important;
+    --tab-selected-textcolor: #222222 !important;
+    --toolbar-field-focus-color: #222222 !important;
+    --toolbar-color: #222222 !important;
+    --newtab-text-primary-color: #222222 !important;
+    --arrowpanel-color: #222222 !important;
+    --sidebar-text-color: #222222 !important;
+    --lwt-sidebar-text-color: #222222 !important;
+
+    --arrowpanel-background: #add4a0 !important;
+    --lwt-sidebar-background-color: #96be8c !important;
+    --toolbar-bgcolor: #6a9060 !important;
+    --newtab-background-color: #add4a0 !important;
+    --zen-themed-toolbar-bg: #88b07e !important;
+    --zen-main-browser-background: #88b07e !important;
+    --toolbox-bgcolor-inactive: #88b07e !important;
+  }
+
+  /* ==================== TEXTO OSCURO GENERAL ==================== */
+  #TabsPanel, #alltabs-menu, .zen-tab-label, .tab-label,
+  menupopup, .content-context-menu, #contentAreaContextMenu,
+  .tab-context-menu, .bookmark-context-menu, .toolbar-context-menu,
+  menuitem, .menuitem, .subviewbutton, .menu-text, .menu-iconic-text,
+  .toolbarbutton-text {
+    color: #222222 !important;
+  }
+
+  /* Diálogos de permisos y notificaciones (el que aparece en tu imagen) */
+  #permission-popup,
+  .permission-popup,
+  #identity-popup,
+  #protections-popup,
+  dialog,
+  .dialogBox,
+  .popup-notification,
+  .permission-prompt {
+    color: #222222 !important;
+    background-color: #add4a0 !important;   /* Fondo claro para buen contraste */
+  }
+
+  /* Textos y enlaces dentro de los diálogos de permiso */
+  #permission-popup * ,
+  .permission-popup * ,
+  .popup-notification * ,
+  dialog * {
+    color: #222222 !important;
+  }
+
+  /* Botones dentro de los diálogos */
+  #permission-popup button,
+  .permission-popup button,
+  .popup-notification button {
+    color: #222222 !important;
+    background-color: #96be8c !important;
+  }
+
+  /* "Learn more" y otros enlaces */
+  #permission-popup a,
+  .permission-popup a,
+  .text-link {
+    color: #8a2820 !important;   /* Un rojo oscuro para que resalte */
+  }
+
+  /* Checkbox "Remember this decision" */
+  #permission-popup checkbox,
+  .permission-popup checkbox {
+    color: #222222 !important;
+  }
+
+  /* Fondo y texto en menús contextuales y panels */
+  menupopup > *,
+  .menupopup > * {
+    color: #222222 !important;
+  }
+
+  menuseparator {
+    border-color: #8a2820 !important;
+  }
+
+  /* Sidebar y otros elementos */
+  .sidebar-placesTree {
+    background-color: #add4a0 !important;
+    color: #222222 !important;
+  }
+
+  #zen-workspaces-button {
+    background-color: #add4a0 !important;
+    color: #222222 !important;
+  }
+
+  #TabsToolbar {
+    background-color: #88b07e !important;
+  }
+
+  .urlbar-background {
+    background-color: #add4a0 !important;
+  }
+
+  .content-shortcuts {
+    background-color: #add4a0 !important;
+    border-color: #8a2820 !important;
+  }
+
+  #zenEditBookmarkPanelFaviconContainer {
+    background: #96be8c !important;
+  }
+
+  #zen-media-controls-toolbar #zen-media-progress-bar::-moz-range-track {
+    background: #6a9060 !important;
+  }
+
+  toolbar .toolbarbutton-1:not([disabled]) {
+    color: #222222 !important;
+  }
+
+  /* Identidad de pestañas */
+  .identity-color-blue    { --identity-tab-color: #2a5872 !important; --identity-icon-color: #2a5872 !important; }
+  .identity-color-turquoise { --identity-tab-color: #206860 !important; --identity-icon-color: #206860 !important; }
+  .identity-color-green   { --identity-tab-color: #3a6832 !important; --identity-icon-color: #3a6832 !important; }
+  .identity-color-yellow  { --identity-tab-color: #786018 !important; --identity-icon-color: #786018 !important; }
+  .identity-color-orange  { --identity-tab-color: #7a4a18 !important; --identity-icon-color: #7a4a18 !important; }
+  .identity-color-red     { --identity-tab-color: #8a2820 !important; --identity-icon-color: #8a2820 !important; }
+  .identity-color-pink    { --identity-tab-color: #6a3868 !important; --identity-icon-color: #6a3868 !important; }
+  .identity-color-purple  { --identity-tab-color: #4a3870 !important; --identity-icon-color: #4a3870 !important; }
+
+  hbox#titlebar,
+  #zen-appcontent-navbar-container {
+    background-color: #88b07e !important;
+  }
+}

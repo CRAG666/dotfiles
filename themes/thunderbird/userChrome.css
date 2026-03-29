@@ -1,0 +1,874 @@
+/* ============================================================
+   userChrome.css — Thunderbird 115+ Supernova
+   Paleta: Verde natural / bosque
+   Perfil: <perfil>/chrome/userChrome.css
+   about:config → toolkit.legacyUserProfileCustomizations.stylesheets = true
+   ============================================================ */
+
+/* ── Variables de paleta ─────────────────────────────────── */
+:root {
+  --p-bg0:     #add4a0;
+  --p-bg1:     #a4cc98;
+  --p-bg2:     #9fc895;
+  --p-bg3:     #96be8c;
+  --p-bg4:     #88b07e;
+  --p-bg5:     #6a9060;
+
+  --p-fg0:     #222222;
+  --p-fg1:     #1e2e1c;
+  --p-fg2:     #4a6044;
+
+  --p-green0:  #3a6832;
+  --p-green1:  #2e5a28;
+  --p-teal:    #206860;
+  --p-blue0:   #2a5872;
+  --p-blue1:   #1e4a60;
+  --p-violet:  #4a3870;
+  --p-red:     #8a2820;
+  --p-yellow:  #786018;
+  --p-orange:  #7a4a18;
+
+  --p-wgreen:  #94cc88;
+  --p-wblue:   #90bcd0;
+  --p-wred:    #d8a8a0;
+  --p-wyellow: #d0c890;
+
+  --p-border:  #6a9060;
+  --p-shadow:  rgba(30, 46, 28, 0.18);
+}
+
+/* ══════════════════════════════════════════════════════════
+   VARIABLES INTERNAS DE THUNDERBIRD (Supernova 115+)
+   ══════════════════════════════════════════════════════════ */
+:root {
+  --layout-background-0:          var(--p-bg0) !important;
+  --layout-background-1:          var(--p-bg1) !important;
+  --layout-background-2:          var(--p-bg2) !important;
+  --layout-background-3:          var(--p-bg3) !important;
+  --sidebar-background-color:     var(--p-bg1) !important;
+  --sidebar-text-color:           var(--p-fg0) !important;
+  --sidebar-border-color:         var(--p-border) !important;
+  --tree-view-bg:                 var(--p-bg1) !important;
+  --tree-view-color:              var(--p-fg0) !important;
+  --listbox-selected-bg:          var(--p-bg4) !important;
+  --listbox-selected-color:       var(--p-fg1) !important;
+  --listbox-focused-selected-bg:  var(--p-bg4) !important;
+  --tree-row-hover-bg:            var(--p-bg2) !important;
+  --tree-row-odd-bg:              var(--p-bg1) !important;
+  --new-folder-color:             var(--p-blue0) !important;
+  --unread-messages-color:        var(--p-fg0) !important;
+  --color-on-primary:             var(--p-fg0) !important;
+  --treecol-background:           var(--p-bg2) !important;
+  --treecol-border-color:         var(--p-border) !important;
+  --toolbarbutton-hover-background:  var(--p-bg3) !important;
+  --toolbarbutton-active-background: var(--p-bg4) !important;
+  --tab-selected-bg:              var(--p-bg0) !important;
+  --tab-hover-bg:                 var(--p-bg3) !important;
+  --input-background:             var(--p-bg2) !important;
+  --input-border-color:           var(--p-bg4) !important;
+  --input-focus-border-color:     var(--p-teal) !important;
+  --input-color:                  var(--p-fg0) !important;
+  --menu-background-color:        var(--p-bg1) !important;
+  --menu-color:                   var(--p-fg0) !important;
+  --menuitem-hover-background:    var(--p-bg3) !important;
+  --splitter-color:               var(--p-border) !important;
+  /* Spaces toolbar */
+  --spaces-bg-color:              var(--p-bg1) !important;
+  --spaces-button-active-bg:      var(--p-bg4) !important;
+  --spaces-button-hover-bg:       var(--p-bg3) !important;
+  --spaces-border-color:          var(--p-border) !important;
+  /* Unified toolbar */
+  --toolbar-bgcolor:              var(--p-bg1) !important;
+  --toolbar-color:                var(--p-fg0) !important;
+  --lwt-toolbar-field-background-color:        var(--p-bg2) !important;
+  --lwt-toolbar-field-color:                   var(--p-fg0) !important;
+  --lwt-toolbar-field-border-color:            var(--p-bg4) !important;
+  --lwt-toolbar-field-focus:                   var(--p-bg2) !important;
+  --lwt-toolbar-field-focus-border-color:      var(--p-teal) !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   OVERRIDES DIRECTOS
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Ventana raíz ────────────────────────────────────────── */
+#messengerWindow,
+#mailWindow {
+  background-color: var(--p-bg0) !important;
+  color: var(--p-fg0) !important;
+}
+
+/* ── Spaces toolbar (barra izquierda de iconos TB115) ─────── */
+#spacesToolbar,
+#spacesToolbarContainer,
+.spaces-toolbar {
+  background-color: var(--p-bg1) !important;
+  border-inline-end: 1px solid var(--p-border) !important;
+  --spaces-bg-color:         var(--p-bg1) !important;
+  --spaces-button-active-bg: var(--p-bg4) !important;
+  --spaces-button-hover-bg:  var(--p-bg3) !important;
+  --spaces-border-color:     var(--p-border) !important;
+  --button-color:            var(--p-green1) !important;
+  --toolbar-bgcolor:         var(--p-bg1) !important;
+  /* Iconos: color visible sobre fondo verde */
+  --spaces-icon-color:       var(--p-green1) !important;
+}
+
+#spacesToolbar .spaces-toolbar-button,
+.spaces-toolbar-button {
+  background-color: transparent !important;
+  color: var(--p-green1) !important;
+  fill: var(--p-green1) !important;
+  border-radius: 6px !important;
+  border: none !important;
+  -moz-context-properties: fill, stroke !important;
+}
+
+#spacesToolbar .spaces-toolbar-button:hover,
+.spaces-toolbar-button:hover {
+  background-color: var(--p-bg3) !important;
+}
+
+#spacesToolbar .spaces-toolbar-button[aria-pressed="true"],
+.spaces-toolbar-button[aria-pressed="true"] {
+  background-color: var(--p-bg4) !important;
+  color: var(--p-fg1) !important;
+  fill: var(--p-fg1) !important;
+}
+
+/* Iconos SVG — usar verde oscuro para contraste sobre verde claro */
+#spacesToolbar .spaces-toolbar-button svg,
+#spacesToolbar .spaces-toolbar-button img,
+.spaces-toolbar-button svg,
+.spaces-toolbar-button img {
+  fill: var(--p-green1) !important;
+  color: var(--p-green1) !important;
+  stroke: var(--p-green1) !important;
+  -moz-context-properties: fill, stroke !important;
+}
+
+#spacesToolbar .spaces-toolbar-button[aria-pressed="true"] svg,
+.spaces-toolbar-button[aria-pressed="true"] svg {
+  fill: var(--p-fg1) !important;
+  stroke: var(--p-fg1) !important;
+}
+
+/* ── Pestaña activa / seleccionada (fondo blanco) ─────────── */
+/* El "Inbox" blanco es el tab activo o el folder-pane header  */
+#folderPane-toolbar,
+#folderPaneHeaderBar,
+.folder-pane-header {
+  background-color: var(--p-bg1) !important;
+  color: var(--p-fg0) !important;
+  border-bottom: 1px solid var(--p-border) !important;
+}
+
+/* Tab activo en la barra superior */
+.tabmail-tab[selected="true"],
+.tabmail-tab[selected="true"] .tab-background,
+tab[selected="true"],
+tab[selected="true"] .tab-background {
+  background-color: var(--p-bg0) !important;
+  color: var(--p-fg0) !important;
+}
+
+.tabmail-tab[selected="true"] .tab-text,
+tab[selected="true"] label {
+  color: var(--p-fg0) !important;
+}
+
+/* Header del inbox / título de carpeta seleccionada */
+#threadPaneHeaderBar,
+.thread-pane-header,
+#messagePaneHeaderBar {
+  background-color: var(--p-bg0) !important;
+  color: var(--p-fg0) !important;
+  border-bottom: 1px solid var(--p-border) !important;
+}
+
+/* ── Toolbox / barras superiores ─────────────────────────── */
+#navigation-toolbox,
+#mail-toolbar-menubar2,
+#tabs-toolbar {
+  background-color: var(--p-bg1) !important;
+  color: var(--p-fg0) !important;
+  border-bottom: 1px solid var(--p-border) !important;
+}
+
+/* ── Botones de herramienta ──────────────────────────────── */
+toolbarbutton {
+  color: var(--p-fg0) !important;
+  fill: var(--p-fg0) !important;
+  border-radius: 4px !important;
+}
+
+toolbarbutton:hover {
+  background-color: var(--p-bg3) !important;
+}
+
+toolbarbutton:active,
+toolbarbutton[checked="true"],
+toolbarbutton[open="true"] {
+  background-color: var(--p-bg4) !important;
+}
+
+toolbarbutton .toolbarbutton-icon,
+toolbarbutton image {
+  color: var(--p-fg0) !important;
+  fill: var(--p-fg0) !important;
+  -moz-context-properties: fill, stroke !important;
+}
+
+/* ── Menú superior ───────────────────────────────────────── */
+#mail-toolbar-menubar2 menu {
+  color: var(--p-fg0) !important;
+  border-radius: 4px !important;
+}
+
+#mail-toolbar-menubar2 menu:hover,
+#mail-toolbar-menubar2 menu[_moz-menuactive="true"] {
+  background-color: var(--p-bg3) !important;
+}
+
+/* ── Panel de carpetas ───────────────────────────────────── */
+#folderPane-toolbar {
+  background-color: var(--p-bg1) !important;
+  color: var(--p-fg0) !important;
+  border-bottom: 1px solid var(--p-border) !important;
+}
+
+#folderPane,
+#folderPaneBox,
+#accountCentralBox {
+  background-color: var(--p-bg1) !important;
+  color: var(--p-fg0) !important;
+  border-inline-end: 1px solid var(--p-border) !important;
+}
+
+#folderTree,
+.folderPane {
+  background-color: var(--p-bg1) !important;
+  color: var(--p-fg0) !important;
+}
+
+/* Filas del árbol de carpetas */
+#folderTree treechildren::-moz-tree-row,
+.folderPane treechildren::-moz-tree-row {
+  background-color: transparent !important;
+  min-height: 24px !important;
+}
+
+#folderTree treechildren::-moz-tree-row(hover),
+.folderPane treechildren::-moz-tree-row(hover) {
+  background-color: var(--p-bg2) !important;
+}
+
+#folderTree treechildren::-moz-tree-row(selected),
+.folderPane treechildren::-moz-tree-row(selected) {
+  background-color: var(--p-bg4) !important;
+}
+
+/* Texto carpetas */
+#folderTree treechildren::-moz-tree-cell-text,
+.folderPane treechildren::-moz-tree-cell-text {
+  color: var(--p-fg0) !important;
+}
+
+#folderTree treechildren::-moz-tree-cell-text(selected),
+.folderPane treechildren::-moz-tree-cell-text(selected) {
+  color: var(--p-fg1) !important;
+}
+
+/* No leídos → azul-oscuro, bold (como keywords en Neovim) */
+#folderTree treechildren::-moz-tree-cell-text(hasUnreadMessages-true),
+.folderPane treechildren::-moz-tree-cell-text(hasUnreadMessages-true) {
+  color: var(--p-blue0) !important;
+  font-weight: 700 !important;
+}
+
+/* Nombre de cuenta → verde oscuro (como headings) */
+#folderTree treechildren::-moz-tree-cell-text(isServer-true) {
+  color: var(--p-green0) !important;
+  font-weight: 700 !important;
+}
+
+/* ── Lista de mensajes (thread pane) ─────────────────────── */
+#threadTree {
+  background-color: var(--p-bg0) !important;
+  color: var(--p-fg0) !important;
+}
+
+#threadTree treecol,
+#threadCols treecol {
+  background-color: var(--p-bg2) !important;
+  color: var(--p-fg2) !important;
+  border-inline-end: 1px solid var(--p-border) !important;
+  padding: 0 6px !important;
+  font-size: 0.85em !important;
+}
+
+#threadTree treecol:hover {
+  background-color: var(--p-bg3) !important;
+}
+
+/* Fila par */
+#threadTree treechildren::-moz-tree-row {
+  background-color: var(--p-bg0) !important;
+  min-height: 22px !important;
+}
+
+/* Fila impar */
+#threadTree treechildren::-moz-tree-row(odd) {
+  background-color: var(--p-bg1) !important;
+}
+
+#threadTree treechildren::-moz-tree-row(hover) {
+  background-color: var(--p-bg2) !important;
+}
+
+#threadTree treechildren::-moz-tree-row(selected),
+#threadTree treechildren::-moz-tree-row(selected, focus) {
+  background-color: var(--p-bg4) !important;
+}
+
+/* Texto leído → tenue */
+#threadTree treechildren::-moz-tree-cell-text {
+  color: var(--p-fg2) !important;
+}
+
+/* No leído → oscuro + bold (pseudo-elemento clásico) */
+#threadTree treechildren::-moz-tree-cell-text(unread),
+#threadTree treechildren::-moz-tree-cell-text(unread, odd),
+#threadTree treechildren::-moz-tree-cell-text(unread, hover),
+#threadTree treechildren::-moz-tree-cell-text(unread, selected) {
+  color: var(--p-fg0) !important;
+  font-weight: 700 !important;
+}
+
+/* Remitente no leído */
+#threadTree treechildren::-moz-tree-cell-text(senderCol, unread),
+#threadTree treechildren::-moz-tree-cell-text(senderCol, unread, odd) {
+  color: var(--p-blue0) !important;
+  font-weight: 700 !important;
+}
+
+/* Seleccionado */
+#threadTree treechildren::-moz-tree-cell-text(selected) {
+  color: var(--p-fg1) !important;
+}
+
+/* Estrella */
+#threadTree treechildren::-moz-tree-cell-text(flagged) {
+  color: var(--p-yellow) !important;
+}
+
+/* ── TB115 Supernova: nuevo sistema de filas (card rows) ─── */
+/* En TB115+ el thread pane usa elementos HTML reales,       */
+/* no el sistema tree XUL. Los selectores van aquí.          */
+
+/* Contenedor de fila de mensaje */
+#threadTree .thread-card,
+.thread-pane-row,
+.message-list-row,
+[is="thread-row"],
+[is="thread-card"] {
+  background-color: var(--p-bg0) !important;
+  color: var(--p-fg2) !important;
+  transition: background-color 0.1s !important;
+}
+
+/* Hover — sistema HTML TB115 */
+#threadTree .thread-card:hover,
+.thread-pane-row:hover,
+.message-list-row:hover,
+[is="thread-row"]:hover,
+[is="thread-card"]:hover,
+#threadTree tbody tr:hover,
+#threadTree tr:hover {
+  background-color: var(--p-bg2) !important;
+  cursor: pointer !important;
+}
+
+/* Filas no leídas — el atributo clave es [data-properties~="unread"] */
+#threadTree .thread-card[data-properties~="unread"],
+.thread-pane-row[data-properties~="unread"],
+[is="thread-row"][data-properties~="unread"],
+[is="thread-card"][data-properties~="unread"],
+.message-list-row[unread],
+tr.unread,
+li.unread {
+  color: var(--p-fg0) !important;
+  font-weight: 700 !important;
+}
+
+/* Todos los spans/divs de texto dentro de fila no leída */
+#threadTree [data-properties~="unread"] .thread-card-subject,
+#threadTree [data-properties~="unread"] .correspondents,
+#threadTree [data-properties~="unread"] .date,
+#threadTree [data-properties~="unread"] span,
+#threadTree [data-properties~="unread"] div,
+.thread-pane-row[data-properties~="unread"] span,
+.thread-pane-row[data-properties~="unread"] div {
+  color: var(--p-fg0) !important;
+  font-weight: 700 !important;
+}
+
+/* ── Panel de lectura ────────────────────────────────────── */
+#messagepanebox,
+#messagePane {
+  background-color: var(--p-bg0) !important;
+}
+
+#msgHeaderView {
+  background-color: var(--p-bg1) !important;
+  color: var(--p-fg0) !important;
+  border-bottom: 1px solid var(--p-border) !important;
+  padding: 8px 12px !important;
+}
+
+/* Etiquetas de campo: De, Para, Asunto — como fg2/comentarios */
+.headerName,
+.message-header-label {
+  color: var(--p-fg2) !important;
+  font-size: 0.82em !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+}
+
+.headerValue,
+.message-header-value {
+  color: var(--p-fg0) !important;
+}
+
+/* Asunto → verde profundo, como strings en Neovim */
+#expandedsubjectBox .headerValue,
+.message-header-subject {
+  color: var(--p-green1) !important;
+  font-weight: 700 !important;
+  font-size: 1.05em !important;
+}
+
+/* Links → teal */
+#msgHeaderView a,
+.headerValue a {
+  color: var(--p-teal) !important;
+  text-decoration: none !important;
+}
+
+#msgHeaderView a:hover,
+.headerValue a:hover {
+  color: var(--p-blue1) !important;
+  text-decoration: underline !important;
+}
+
+/* ── Separadores ─────────────────────────────────────────── */
+splitter,
+#folderpane-splitter,
+#threadpane-splitter,
+#messagepane-splitter {
+  background-color: var(--p-border) !important;
+  border: none !important;
+  min-width: 1px !important;
+  width: 1px !important;
+  opacity: 0.6 !important;
+}
+
+splitter:hover {
+  background-color: var(--p-teal) !important;
+  opacity: 1 !important;
+}
+
+/* ── Pestañas ────────────────────────────────────────────── */
+.tabmail-tab {
+  background-color: var(--p-bg2) !important;
+  color: var(--p-fg2) !important;
+  border-radius: 6px 6px 0 0 !important;
+  margin-inline-end: 2px !important;
+}
+
+.tabmail-tab:hover:not([selected]) {
+  background-color: var(--p-bg3) !important;
+  color: var(--p-fg0) !important;
+}
+
+.tabmail-tab[selected="true"] {
+  background-color: var(--p-bg0) !important;
+  color: var(--p-fg0) !important;
+  border-bottom: 2px solid var(--p-teal) !important;
+}
+
+.tabmail-tab .tab-text {
+  color: inherit !important;
+}
+
+/* ── Búsqueda e inputs ───────────────────────────────────── */
+
+/* Unified toolbar de TB115 (contiene la barra de búsqueda global) */
+#unifiedToolbar,
+#unifiedToolbarContainer,
+.unified-toolbar,
+#navigation-toolbox > #unifiedToolbar,
+#messengerWindow #unifiedToolbar {
+  background-color: var(--p-bg1) !important;
+  background-image: none !important;
+  color: var(--p-fg0) !important;
+  border-bottom: 1px solid var(--p-border) !important;
+  --toolbar-bgcolor:              var(--p-bg1) !important;
+  --toolbar-color:                var(--p-fg0) !important;
+  --lwt-accent-color:             var(--p-bg1) !important;
+  --lwt-text-color:               var(--p-fg0) !important;
+  --lwt-toolbar-field-background-color:   var(--p-bg3) !important;
+  --lwt-toolbar-field-color:              var(--p-fg0) !important;
+  --lwt-toolbar-field-border-color:       var(--p-bg5) !important;
+  --lwt-toolbar-field-focus:              var(--p-bg3) !important;
+  --lwt-toolbar-field-focus-border-color: var(--p-teal) !important;
+  --lwt-header-image: none !important;
+}
+
+/* El inner container que a veces tiene el bg propio */
+#unifiedToolbar > *,
+#unifiedToolbarContainer > * {
+  background-color: transparent !important;
+}
+
+/* Campo de búsqueda dentro del unified toolbar */
+#unifiedToolbar .search-bar,
+#unifiedToolbar input,
+#unifiedToolbar input[type="search"],
+#unifiedToolbar [is="search-textbox"],
+#unifiedToolbar search-bar,
+.unified-toolbar-search,
+.search-bar,
+input[type="search"][aria-label="Search"],
+input[type="search"][placeholder=""] {
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-color: var(--p-bg3) !important;
+  color: var(--p-fg0) !important;
+  border: 1px solid var(--p-bg5) !important;
+  border-radius: 6px !important;
+}
+
+/* Placeholder */
+#unifiedToolbar .search-bar::placeholder,
+#unifiedToolbar input::placeholder,
+.search-bar::placeholder {
+  color: var(--p-fg2) !important;
+  opacity: 1 !important;
+}
+
+/* Atajos de teclado CTRL+K */
+#unifiedToolbar kbd,
+#unifiedToolbar .shortcut,
+.search-bar kbd,
+.search-bar .shortcut {
+  background-color: var(--p-bg4) !important;
+  color: var(--p-fg1) !important;
+  border: 1px solid var(--p-bg5) !important;
+  border-radius: 3px !important;
+  padding: 1px 4px !important;
+}
+
+#searchInput,
+[is="search-textbox"],
+input,
+textarea {
+  background-color: var(--p-bg2) !important;
+  color: var(--p-fg0) !important;
+  border: 1px solid var(--p-bg4) !important;
+  border-radius: 4px !important;
+}
+
+#searchInput:focus,
+input:focus,
+textarea:focus {
+  border-color: var(--p-teal) !important;
+  box-shadow: 0 0 0 2px rgba(32, 104, 96, 0.22) !important;
+  outline: none !important;
+}
+
+/* ── Menús desplegables ──────────────────────────────────── */
+menupopup {
+  background-color: var(--p-bg1) !important;
+  color: var(--p-fg0) !important;
+  border: 1px solid var(--p-border) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 16px var(--p-shadow) !important;
+  padding: 4px !important;
+}
+
+menuitem {
+  color: var(--p-fg0) !important;
+  border-radius: 4px !important;
+  padding: 4px 8px !important;
+}
+
+menuitem:hover,
+menuitem[_moz-menuactive="true"]:not([disabled]) {
+  background-color: var(--p-bg3) !important;
+  color: var(--p-fg0) !important;
+}
+
+menuitem[disabled="true"] {
+  color: var(--p-fg2) !important;
+  opacity: 0.55 !important;
+}
+
+menuseparator {
+  border-top: 1px solid var(--p-bg4) !important;
+  margin: 3px 6px !important;
+}
+
+/* ── Botones ─────────────────────────────────────────────── */
+button {
+  background-color: var(--p-bg3) !important;
+  color: var(--p-fg0) !important;
+  border: 1px solid var(--p-border) !important;
+  border-radius: 4px !important;
+}
+
+button:hover {
+  background-color: var(--p-bg4) !important;
+}
+
+button[default="true"],
+button.button-primary {
+  background-color: var(--p-green0) !important;
+  color: var(--p-wgreen) !important;
+  border-color: var(--p-green1) !important;
+  font-weight: 600 !important;
+}
+
+button[default="true"]:hover,
+button.button-primary:hover {
+  background-color: var(--p-green1) !important;
+}
+
+/* ── Status bar ──────────────────────────────────────────── */
+#status-bar,
+statusbar {
+  background-color: var(--p-bg3) !important;
+  color: var(--p-fg2) !important;
+  border-top: 1px solid var(--p-border) !important;
+  font-size: 0.82em !important;
+}
+
+statusbarpanel {
+  color: var(--p-fg2) !important;
+  border-inline-end: 1px solid var(--p-bg4) !important;
+}
+
+/* ── Badges / contadores ─────────────────────────────────── */
+.container-count-badge,
+.unread-count,
+.totalUnread {
+  background-color: var(--p-blue0) !important;
+  color: var(--p-wblue) !important;
+  border-radius: 10px !important;
+  padding: 1px 5px !important;
+  font-size: 0.75em !important;
+  font-weight: 700 !important;
+  min-width: 16px !important;
+  text-align: center !important;
+}
+
+/* ── Notificaciones ──────────────────────────────────────── */
+notification[type="info"]    { background-color: var(--p-wblue)   !important; color: var(--p-blue1)  !important; }
+notification[type="warning"] { background-color: var(--p-wyellow) !important; color: var(--p-yellow) !important; }
+notification[type="critical"],
+notification[type="error"]   { background-color: var(--p-wred)    !important; color: var(--p-red)    !important; }
+
+/* ── Etiquetas de color ──────────────────────────────────── */
+treechildren::-moz-tree-cell-text(lc-color1) { color: var(--p-red)    !important; }
+treechildren::-moz-tree-cell-text(lc-color2) { color: var(--p-orange) !important; }
+treechildren::-moz-tree-cell-text(lc-color3) { color: var(--p-yellow) !important; }
+treechildren::-moz-tree-cell-text(lc-color4) { color: var(--p-teal)   !important; }
+treechildren::-moz-tree-cell-text(lc-color5) { color: var(--p-violet) !important; }
+
+/* ── Scrollbars ──────────────────────────────────────────── */
+scrollbar {
+  background-color: var(--p-bg1) !important;
+}
+
+scrollbarbutton, thumb {
+  background-color: var(--p-bg5) !important;
+  border-radius: 4px !important;
+  border: none !important;
+}
+
+scrollbarbutton:hover, thumb:hover {
+  background-color: var(--p-teal) !important;
+}
+
+/* ── Quick Filter bar ────────────────────────────────────── */
+#quick-filter-bar {
+  background-color: var(--p-bg2) !important;
+  border-bottom: 1px solid var(--p-border) !important;
+  color: var(--p-fg0) !important;
+}
+
+/* ============================================================
+   ICONOS COLORIDOS DEL PANEL DE CARPETAS (Nuevo Folder Pane HTML)
+   ============================================================ */
+
+/* Regla base - todas las carpetas empiezan verdes por defecto */
+#folderPane .icon,
+#folderTree .icon {
+  --icon-color: var(--p-green1) !important;
+  fill: var(--p-green1) !important;
+  color: var(--p-green1) !important;
+}
+
+/* Servidor / Cuenta principal */
+#folderTree li[data-server-type] > .container > .icon {
+  --icon-color: var(--p-green0) !important;
+  fill: var(--p-green0) !important;
+  color: var(--p-green0) !important;
+}
+
+/* ── Carpetas especiales (usando selectores que sí funcionan en el HTML) ── */
+
+/* Inbox - Verde oscuro vibrante */
+#folderPane li[data-folder-type="inbox"] > .container > .icon,
+#folderTree li[data-folder-type="inbox"] .icon {
+  --icon-color: var(--p-green0) !important;
+  fill: var(--p-green0) !important;
+  color: var(--p-green0) !important;
+}
+
+/* Sent / Outbox - Teal */
+#folderPane li[data-folder-type="sent"] > .container > .icon,
+#folderPane li[data-folder-type="outbox"] > .container > .icon,
+#folderTree li[data-folder-type="sent"] .icon,
+#folderTree li[data-folder-type="outbox"] .icon {
+  --icon-color: var(--p-teal) !important;
+  fill: var(--p-teal) !important;
+  color: var(--p-teal) !important;
+}
+
+/* Drafts - Azul profundo */
+#folderPane li[data-folder-type="drafts"] > .container > .icon,
+#folderTree li[data-folder-type="drafts"] .icon {
+  --icon-color: var(--p-blue0) !important;
+  fill: var(--p-blue0) !important;
+  color: var(--p-blue0) !important;
+}
+
+/* Trash / Deleted - Rojo */
+#folderPane li[data-folder-type="trash"] > .container > .icon,
+#folderPane li[data-folder-type="deleted"] > .container > .icon,
+#folderTree li[data-folder-type="trash"] .icon,
+#folderTree li[data-folder-type="deleted"] .icon {
+  --icon-color: var(--p-red) !important;
+  fill: var(--p-red) !important;
+  color: var(--p-red) !important;
+}
+
+/* Junk / Spam - Naranja */
+#folderPane li[data-folder-type="junk"] > .container > .icon,
+#folderTree li[data-folder-type="junk"] .icon {
+  --icon-color: var(--p-orange) !important;
+  fill: var(--p-orange) !important;
+  color: var(--p-orange) !important;
+}
+
+/* Archives - Violeta */
+#folderPane li[data-folder-type="archive"] > .container > .icon,
+#folderTree li[data-folder-type="archive"] .icon {
+  --icon-color: var(--p-violet) !important;
+  fill: var(--p-violet) !important;
+  color: var(--p-violet) !important;
+}
+
+/* Templates - Amarillo */
+#folderPane li[data-folder-type="templates"] > .container > .icon,
+#folderTree li[data-folder-type="templates"] .icon {
+  --icon-color: var(--p-yellow) !important;
+  fill: var(--p-yellow) !important;
+  color: var(--p-yellow) !important;
+}
+
+/* Seleccionado - Contraste alto (último para que tenga prioridad) */
+#folderPane li[selected] > .container > .icon,
+#folderTree li[selected] .icon {
+  --icon-color: var(--p-fg1) !important;
+  fill: var(--p-fg1) !important;
+  color: var(--p-fg1) !important;
+}
+
+/* Variables de respaldo */
+:root {
+  --icon-color: var(--p-green1) !important;
+  --folder-icon-color: var(--p-green1) !important;
+}
+
+/* ============================================================
+   FIX COMPOSER - To/Cc/Bcc/Subject + From corregido
+   ============================================================ */
+
+/* Campos que queremos texto negro siempre */
+#To,
+#Cc,
+#Bcc,
+#subject,
+#msgSubject,
+.address-input,
+.recipient-input {
+  color: var(--p-fg0) !important;
+  background-color: var(--p-bg2) !important;
+  border: 1px solid var(--p-border) !important;
+  caret-color: var(--p-fg0) !important;
+}
+
+/* From (especial porque Thunderbird lo maneja diferente) */
+#fromMenu,
+#fromAddress,
+#msgIdentity,
+#identityMenu {
+  color: var(--p-fg0) !important;
+  background-color: var(--p-bg2) !important;
+}
+
+/* Hover y foco en campos editables (To, Cc, Bcc, Subject) */
+#To:hover,
+#Cc:hover,
+#Bcc:hover,
+#subject:hover,
+#To:focus,
+#Cc:focus,
+#Bcc:focus,
+#subject:focus {
+  background-color: var(--p-bg3) !important;
+  color: var(--p-fg0) !important;
+  border-color: var(--p-teal) !important;
+}
+
+/* Hover/foco en From - fondo más claro para que el texto negro se vea bien */
+#fromMenu:hover,
+#fromAddress:hover,
+#msgIdentity:hover,
+#identityMenu:hover,
+#fromMenu[open="true"],
+#identityMenu[open="true"] {
+  background-color: var(--p-bg3) !important;   /* más claro que bg2 */
+  color: var(--p-fg0) !important;
+}
+
+/* Placeholder */
+#To::placeholder,
+#Cc::placeholder,
+#Bcc::placeholder,
+#subject::placeholder {
+  color: var(--p-fg2) !important;
+}
+
+/* Cuerpo del mensaje */
+#messageEditor,
+#content-frame body {
+  background-color: var(--p-bg0) !important;
+  color: var(--p-fg0) !important;
+}
+
+
+/* ── Fin ─────────────────────────────────────────────────── */

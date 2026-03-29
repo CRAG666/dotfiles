@@ -21,3 +21,5 @@ load.on_events('FileType', 'core.treesitter')
 load.on_events('DiagnosticChanged', 'core.diagnostic')
 load.on_events('FileType', 'core.lsp')
 require('core.format')
+vim.o.background = 'light'
+vim.cmd.colorscheme('eyes')

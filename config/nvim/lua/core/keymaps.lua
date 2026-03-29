@@ -490,8 +490,6 @@ require('utils.load').on_events(
       )
     end
 
-    -- Unrolled maps
-    -- prefix = '<leader>t', mode = 'n'
     map('n', '<leader>tn', vim.cmd.tabnew, { desc = 'Tab [n]ew' })
     map('n', '<leader>to', vim.cmd.tabonly, { desc = 'Tab [o]nly' })
     map('n', '<leader>tc', vim.cmd.tabclose, { desc = 'Tab [c]lose' })
@@ -499,7 +497,7 @@ require('utils.load').on_events(
     map('n', '<leader>th', ':tabmove -1<CR>', { desc = 'Tab Move Left' })
     map(
       'n',
-      '<leader>ts',
+      '<leader>tS',
       [[:execute 'set showtabline=' . (&showtabline ==# 0 ? 2 : 0)<CR>]],
       { desc = 'Toggle Tabs' }
     )
@@ -523,7 +521,7 @@ require('utils.load').on_events(
     map(
       'n',
       '<leader>rw',
-      [[:%s/\<C-r><C-w>\>/]],
+      [[:%s/\<<C-r><C-w>\>/]],
       { desc = 'Search and [r]eplace [w]ord', noremap = true, silent = false }
     )
     map('n', '<leader>re', [[:%s/\(.*\)/\1]], {
@@ -565,7 +563,11 @@ require('utils.load').on_events(
     map(
       'n',
       '<bs>',
-      ":<c-u>exe v:count ? v:count . 'b' : 'b' . (bufloaded(0) ? '#' : 'n')<cr>"
+      ":<c-u>exe v:count ? v:count . 'b' : 'b' . (bufloaded(0) ? '#' : 'n')<cr>",
+      {
+        desc = 'Back previous buffer',
+        silent = true,
+      }
     )
   end)
 )

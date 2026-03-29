@@ -11,7 +11,7 @@ configuration {
 	sidebar-mode: 					false;
 }
 
-@import "~/.config/rofi/colors/catppuccin.rasi"
+@import "~/.config/rofi/colors/theme.rasi"
 
 * {
   background-color: @background;

@@ -6,6 +6,8 @@
 #
 
 output * bg #1e1e2e solid_color
+output * pos 0 0
+output * resolution 1920x1080
 
 default_border none
 
