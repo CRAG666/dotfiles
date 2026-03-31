@@ -1,1 +1,1 @@
-1|Catppuccin-Mocha|/mnt/home/Pictures/wallpaperCicle/china2.png
+1|Catppuccin-Mocha|/mnt/home/Pictures/wallpaperCicle/10.png

@@ -1,5 +1,6 @@
 vim.cmd.hi('clear')
-vim.g.colors_name = 'vistaverda'
+vim.g.colors_name = 'eyes'
+
 -- Palette {{{
 -- stylua: ignore start
 -- Base: fondo #add4a0 (verde salvia suave, ideal para protección visual)
@@ -46,81 +47,65 @@ local c_winterRed
 local c_winterYellow
 
 if vim.go.bg == 'dark' then
-  -- Versión oscura: fondo derivado del verde (#add4a0) muy oscurecido
-  c_bg0        = { '#1a211a', 234 }
-  c_bg1        = { '#202820', 235 }
-  c_bg2        = { '#263026', 236 }
-  c_bg3        = { '#2d382d', 237 }
-  c_bg4        = { '#3a463a', 238 }
-  c_bg5        = { '#536053', 240 }
-
-  c_fg0        = { '#d0dcc8', 251 }
-  c_fg1        = { '#b8c8b0', 249 }
-  c_fg2        = { '#9aab94', 247 }
-
-  c_green0     = { '#7aab72', 107 }
-  c_green1     = { '#82a870', 107 }
-  c_green2     = { '#6a9460', 101 }
-
-  c_teal       = { '#6aaa9a', 72  }
-  c_blue0      = { '#6a94a8', 67  }
-  c_blue1      = { '#82aab8', 109 }
-
-  c_violet     = { '#8a8aaa', 103 }
-  c_aqua       = { '#7aaaa8', 72  }
-
-  c_orange0    = { '#b89a6a', 137 }
-  c_orange1    = { '#c8a870', 137 }
-
-  c_red        = { '#b07868', 131 }
-  c_yellow     = { '#c8b070', 179 }
-  c_pink       = { '#a888a0', 139 }
-
-  c_ash        = { '#708070', 242 }
-  c_gray0      = { '#8a9a88', 244 }
-  c_gray1      = { '#7a8a78', 243 }
-  c_gray2      = { '#6a7868', 242 }
-
-  c_winterGreen  = { '#243224', 236 }
-  c_winterBlue   = { '#223040', 237 }
-  c_winterRed    = { '#402828', 52  }
-  c_winterYellow = { '#3a3420', 236 }
+-- Versión oscura corregida
+c_bg0        = { '#1a211a', 234 }
+c_bg1        = { '#202820', 235 }
+c_bg2        = { '#263026', 236 }
+c_bg3        = { '#2d382d', 237 }
+c_bg4        = { '#3a463a', 238 }
+c_bg5        = { '#536053', 240 }
+c_fg0        = { '#d0dcc8', 251 }
+c_fg1        = { '#b8c8b0', 249 }
+c_fg2        = { '#9aab94', 247 }
+c_green0     = { '#7aab72', 107 }
+c_green1     = { '#88b878', 107 }   -- ligeramente más claro que green0
+c_green2     = { '#6a9460', 101 }
+c_teal       = { '#5ab8a8', 72  }   -- más saturado, diferenciado
+c_blue0      = { '#6a94a8', 67  }
+c_blue1      = { '#82aab8', 109 }
+c_violet     = { '#9090b8', 103 }   -- más claro para destacar
+c_aqua       = { '#6ab8b0', 72  }   -- diferenciado del teal
+c_orange0    = { '#b89a6a', 137 }
+c_orange1    = { '#c8a870', 137 }
+c_red        = { '#c87868', 131 }   -- más vivo, errores más visibles
+c_yellow     = { '#d4b85a', 179 }   -- más saturado, warnings claros
+c_pink       = { '#b890b0', 139 }
+c_ash        = { '#7a8c72', 242 }
+c_gray0      = { '#8a9a88', 244 }
+c_gray1      = { '#7a8a78', 243 }
+c_gray2      = { '#6a7868', 242 }
+c_winterGreen  = { '#243224', 236 }
+c_winterBlue   = { '#223040', 237 }
+c_winterRed    = { '#402828', 52  }
+c_winterYellow = { '#3a3420', 236 }
 else
-  -- Versión clara: fondo exacto #add4a0
-  c_bg0        = { '#add4a0', 151 }   -- fondo principal (el color pedido)
-  c_bg1        = { '#a4cc98', 150 }   -- fondo alternativo
-  c_bg2        = { '#9fc895', 150 }   -- cursorline
-  c_bg3        = { '#96be8c', 149 }   -- statusline / pmenu
-  c_bg4        = { '#88b07e', 107 }   -- selección visual
-  c_bg5        = { '#6a9060', 65  }   -- separadores
-
-  c_fg0        = { '#222222', 234 }   -- texto principal
-  c_fg1        = { '#1e2e1c', 235 }   -- texto secundario
-  c_fg2        = { '#4a6044', 239 }   -- texto tenue
-
-  c_green0     = { '#3a6832', 28  }   -- comentarios
-  c_green1     = { '#2e5a28', 22  }   -- strings
-  c_green2     = { '#486040', 65  }   -- verde medio
-
-  c_teal       = { '#206860', 23  }   -- tipos / speciales
-  c_blue0      = { '#2a5872', 24  }   -- keywords
-  c_blue1      = { '#1e4a60', 23  }   -- funciones / dirs
-
-  c_violet     = { '#4a3870', 54  }   -- statements
-  c_aqua       = { '#2a6868', 23  }   -- constructores
-
-  c_orange0    = { '#7a4a18', 130 }   -- constantes
-  c_orange1    = { '#8a5820', 130 }   -- números
-
-  c_red        = { '#8a2820', 88  }   -- errores / operadores (rojo oscuro suave)
-  c_yellow     = { '#786018', 58  }   -- warnings
-  c_pink       = { '#6a3868', 90  }   -- macros / números especiales
-
-  c_ash        = { '#507848', 65  }   -- comentarios / info discreta
-  c_gray0      = { '#5a7052', 66  }   -- gris-verde medio
-  c_gray1      = { '#4a6044', 65  }   -- gris-verde oscuro
-  c_gray2      = { '#3a5038', 64  }   -- sigcolumn
-
+  -- Versión clara corregida (modo claro)
+  c_bg0        = { '#add4a0', 151 }
+  c_bg1        = { '#a4cc98', 150 }
+  c_bg2        = { '#9fc895', 150 }
+  c_bg3        = { '#96be8c', 149 }
+  c_bg4        = { '#88b07e', 107 }
+  c_bg5        = { '#6a9060', 65  }
+  c_fg0        = { '#1a1a1a', 234 }   -- negro puro, 9:1+
+  c_fg1        = { '#1e2e1c', 235 }
+  c_fg2        = { '#3d5c38', 239 }   -- subido para pasar AA
+  c_green0     = { '#2a5c22', 28  }   -- comentarios (más oscuro)
+  c_green1     = { '#1e4a18', 22  }   -- strings (más oscuro aún, separado)
+  c_green2     = { '#3a5030', 65  }
+  c_teal       = { '#145850', 23  }   -- tipos (más azulado-oscuro)
+  c_blue0      = { '#1e4868', 24  }   -- keywords
+  c_blue1      = { '#143c52', 23  }   -- funciones
+  c_violet     = { '#3a2860', 54  }   -- statements
+  c_aqua       = { '#1a5858', 23  }   -- constructores (diferenciado del teal)
+  c_orange0    = { '#6a3c10', 130 }   -- constantes
+  c_orange1    = { '#7a4a18', 130 }   -- números
+  c_red        = { '#7a1e18', 88  }   -- errores
+  c_yellow     = { '#5a4808', 58  }   -- warnings (corregido, pasa AA ~4.6:1)
+  c_pink       = { '#5a2858', 90  }   -- macros
+  c_ash        = { '#608858', 65  }   -- comentarios discretos (aclarado, separado de green1)
+  c_gray0      = { '#486040', 66  }
+  c_gray1      = { '#385030', 65  }
+  c_gray2      = { '#2c4028', 64  }
   c_winterGreen  = { '#94cc88', 150 }
   c_winterBlue   = { '#90bcd0', 110 }
   c_winterRed    = { '#d8a8a0', 174 }
@@ -171,6 +156,12 @@ else
 end
 -- stylua: ignore end
 --- }}}
+local hl = require('utils.hl')
+
+local function tint(color, alpha)
+  return { hl.cblend(color[1], c_bg0[1], alpha).hex, -1 }
+end
+
 -- Highlight groups {{{1
 local hlgroups = {
   -- UI {{{2
@@ -230,7 +221,7 @@ local hlgroups = {
   StatusLineNC = { bg = c_bg2, fg = c_bg5 },
   Substitute = { bg = c_violet, fg = c_bg0 },
   TabLine = { link = 'StatusLineNC' },
-  TabLineFill = { link = 'Normal' },
+  TabLineFill = { link = 'Normal', bg = c_bg5 },
   TabLineSel = { link = 'StatusLine' },
   TermCursor = { fg = c_bg0, bg = c_teal },
   Title = { bold = true, fg = c_blue1 },
@@ -488,9 +479,93 @@ local hlgroups = {
   StatusLineGitAdded = { bg = c_bg3, fg = c_green1 },
   StatusLineGitChanged = { bg = c_bg3, fg = c_yellow },
   StatusLineGitRemoved = { bg = c_bg3, fg = c_red },
-  StatusLineGitBranch = { bg = c_bg3, fg = c_ash },
+  StatusLineGitBranch = { bg = c_bg3, fg = c_red },
   StatusLineHeader = { bg = c_bg5, fg = c_fg1 },
   StatusLineHeaderModified = { bg = c_red, fg = c_bg0 },
+  StatuslineSpinner = { fg = c_green0 },
+  BetterTermSymbol = { fg = c_bg0, bg = c_green0 },
+  -- Snacks
+  SnacksTitle = { fg = c_red, bg = tint(c_red, 0.15) },
+  SnacksPickerTitle = { fg = c_red, bg = tint(c_red, 0.15) },
+  SnacksPickerPreviewTitle = { fg = c_green1, bg = tint(c_green1, 0.15) },
+  -- Blink completion menu
+  BlinkCmpMenu = { italic = true, bg = c_bg3 },
+  BlinkCmpMenuBorder = { fg = c_bg0, bg = c_bg0 },
+  BlinkCmpLabel = { fg = c_fg2, bg = c_bg3 },
+  BlinkCmpLabelMatch = { fg = c_red, bg = c_bg3 },
+  BlinkCmpSource = { fg = c_gray1, bg = c_bg3 },
+  BlinkCmpMenuSelection = { fg = c_bg0, bg = c_bg5 },
+  BlinkCmpCustomType = { fg = c_violet, bg = c_bg3 },
+  BlinkCmpKindCodeium = { fg = c_green1, bg = tint(c_green1, 0.15) },
+  BlinkCmpKindSupermaven = { fg = c_pink, bg = tint(c_pink, 0.15) },
+  BlinkCmpKindCopilot = { fg = c_teal, bg = tint(c_teal, 0.15) },
+  BlinkCmpKindArray = { fg = c_orange0, bg = tint(c_orange0, 0.15) },
+  BlinkCmpKindBoolean = { fg = c_orange0, bg = tint(c_orange0, 0.15) },
+  BlinkCmpKindClass = { fg = c_yellow, bg = tint(c_yellow, 0.15) },
+  BlinkCmpKindColor = { fg = c_red, bg = tint(c_red, 0.15) },
+  BlinkCmpKindConstant = { fg = c_orange0, bg = tint(c_orange0, 0.15) },
+  BlinkCmpKindConstructor = { fg = c_aqua, bg = tint(c_aqua, 0.15) },
+  BlinkCmpKindEnum = { fg = c_green1, bg = tint(c_green1, 0.15) },
+  BlinkCmpKindEnumMember = { fg = c_red, bg = tint(c_red, 0.15) },
+  BlinkCmpKindEvent = { fg = c_blue1, bg = tint(c_blue1, 0.15) },
+  BlinkCmpKindField = { fg = c_green1, bg = tint(c_green1, 0.15) },
+  BlinkCmpKindFile = { fg = c_blue1, bg = tint(c_blue1, 0.15) },
+  BlinkCmpKindFolder = { fg = c_blue1, bg = tint(c_blue1, 0.15) },
+  BlinkCmpKindFunction = { fg = c_blue1, bg = tint(c_blue1, 0.15) },
+  BlinkCmpKindInterface = { fg = c_yellow, bg = tint(c_yellow, 0.15) },
+  BlinkCmpKindKey = { fg = c_red, bg = tint(c_red, 0.15) },
+  BlinkCmpKindKeyword = { fg = c_red, bg = tint(c_red, 0.15) },
+  BlinkCmpKindMethod = { fg = c_blue1, bg = tint(c_blue1, 0.15) },
+  BlinkCmpKindModule = { fg = c_blue1, bg = tint(c_blue1, 0.15) },
+  BlinkCmpKindNamespace = { fg = c_orange0, bg = tint(c_orange0, 0.15) },
+  BlinkCmpKindNull = { fg = c_gray1, bg = tint(c_gray1, 0.15) },
+  BlinkCmpKindNumber = { fg = c_pink, bg = tint(c_pink, 0.15) },
+  BlinkCmpKindObject = { fg = c_aqua, bg = tint(c_aqua, 0.15) },
+  BlinkCmpKindOperator = { fg = c_teal, bg = tint(c_teal, 0.15) },
+  BlinkCmpKindPackage = { fg = c_blue1, bg = tint(c_blue1, 0.15) },
+  BlinkCmpKindProperty = { fg = c_green1, bg = tint(c_green1, 0.15) },
+  BlinkCmpKindReference = { fg = c_red, bg = tint(c_red, 0.15) },
+  BlinkCmpKindSnippet = { fg = c_violet, bg = tint(c_violet, 0.15) },
+  BlinkCmpKindString = { fg = c_green1, bg = tint(c_green1, 0.15) },
+  BlinkCmpKindStruct = { fg = c_aqua, bg = tint(c_aqua, 0.15) },
+  BlinkCmpKindText = { fg = c_pink, bg = tint(c_pink, 0.15) },
+  BlinkCmpKindTypeParameter = { fg = c_blue1, bg = tint(c_blue1, 0.15) },
+  BlinkCmpKindUnit = { fg = c_green1, bg = tint(c_green1, 0.15) },
+  BlinkCmpKindValue = { fg = c_orange0, bg = tint(c_orange0, 0.15) },
+  BlinkCmpKindVariable = { fg = c_orange1, bg = tint(c_orange1, 0.15) },
+  -- Neorg
+  ['@neorg.lists.unordered.prefix.norg'] = { fg = c_violet },
+  ['@neorg.anchors.declaration.norg'] = { fg = c_blue1 },
+
+  ['@neorg.headings.1.title.norg'] = { fg = c_blue0, bold = true },
+  ['@neorg.headings.1.prefix'] = { fg = c_blue0 },
+  ['@neorg.headings.1.prefix.norg'] = { fg = c_blue0 },
+  ['@neorg.links.location.heading.1.norg'] = { fg = c_blue0 },
+
+  ['@neorg.headings.2.title.norg'] = { fg = c_blue1, bold = true },
+  ['@neorg.headings.2.prefix'] = { fg = c_blue1 },
+  ['@neorg.headings.2.prefix.norg'] = { fg = c_blue1 },
+  ['@neorg.links.location.heading.2.norg'] = { fg = c_blue1 },
+
+  ['@neorg.headings.3.title.norg'] = { fg = c_teal, bold = true },
+  ['@neorg.headings.3.prefix'] = { fg = c_teal },
+  ['@neorg.headings.3.prefix.norg'] = { fg = c_teal },
+  ['@neorg.links.location.heading.3.norg'] = { fg = c_teal },
+
+  ['@neorg.headings.4.title.norg'] = { fg = c_green2, bold = true },
+  ['@neorg.headings.4.prefix'] = { fg = c_green2 },
+  ['@neorg.headings.4.prefix.norg'] = { fg = c_green2 },
+  ['@neorg.links.location.heading.4.norg'] = { fg = c_green2 },
+
+  ['@neorg.headings.5.title.norg'] = { fg = c_violet, bold = true },
+  ['@neorg.headings.5.prefix'] = { fg = c_violet },
+  ['@neorg.headings.5.prefix.norg'] = { fg = c_violet },
+  ['@neorg.links.location.heading.5.norg'] = { fg = c_violet },
+
+  ['@neorg.headings.6.title.norg'] = { fg = c_aqua, bold = true },
+  ['@neorg.headings.6.prefix'] = { fg = c_aqua },
+  ['@neorg.headings.6.prefix.norg'] = { fg = c_aqua },
+  ['@neorg.links.location.heading.6.norg'] = { fg = c_aqua },
   -- }}}
 }
 -- }}}1

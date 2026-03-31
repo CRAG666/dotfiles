@@ -1,26 +1,16 @@
-/* ============================================================
-   userContent.css — Thunderbird 115+
-   Controla el cuerpo HTML de los mensajes
-   Misma carpeta que userChrome.css: <perfil>/chrome/
-   ============================================================ */
-
-/* ── Fuerza fondo claro en el cuerpo del mensaje ─────────── */
-/* Thunderbird renderiza el HTML del correo en un <browser>   */
-/* interno. Este archivo sobreescribe los colores del body.   */
-
 @-moz-document url-prefix("about:message"),
                url-prefix("mailbox:"),
                url-prefix("imap:"),
                url-prefix("news:"),
                url-prefix("snews:") {
 
-  /* Fondo y texto base */
+  /* ── Fondo y texto base ──────────────────────────────── */
   html, body {
     background-color: #add4a0 !important;
-    color: #222222 !important;
+    color: #1a1a1a !important;
   }
 
-  /* Emails que fuerzan fondo negro/oscuro explícitamente */
+  /* ── Emails con fondo oscuro forzado ─────────────────── */
   body[bgcolor],
   body[style*="background-color"],
   body[style*="background:#"],
@@ -31,55 +21,142 @@
   [style*="background: #0"],
   [style*="background:#0"] {
     background-color: #add4a0 !important;
-    color: #222222 !important;
+    color: #1a1a1a !important;
   }
 
-  /* Tablas con fondo oscuro (muy común en newsletters) */
+  /* ── Tablas con fondo oscuro (newsletters) ───────────── */
+  /* bg2 — un paso sobre bg0, distinguible del folder pane */
   table[bgcolor^="#0"],
   table[bgcolor^="#1"],
   table[bgcolor^="#2"],
   td[bgcolor^="#0"],
   td[bgcolor^="#1"],
   td[bgcolor^="#2"] {
-    background-color: #a4cc98 !important;
-    color: #222222 !important;
+    background-color: #9fc895 !important;
+    color: #1a1a1a !important;
   }
 
-  /* Divs con fondo oscuro inline */
+  /* ── Divs con fondo oscuro inline ────────────────────── */
+  /* bg1 — nivel secundario, coherente con message pane */
   div[style*="background-color:#0"],
   div[style*="background-color: #0"],
   div[style*="background:#0"],
   div[style*="background: #0"],
   div[style*="background-color:black"],
   div[style*="background-color: black"] {
-    background-color: #9fc895 !important;
-    color: #222222 !important;
+    background-color: #a4cc98 !important;
+    color: #1a1a1a !important;
   }
 
-  /* Links — teal oscuro */
+  /* ── Links ───────────────────────────────────────────── */
   a, a:visited {
-    color: #206860 !important;
+    color: #145850 !important;   /* c_teal — coherente con userChrome */
   }
 
   a:hover {
-    color: #1e4a60 !important;
+    color: #1a5858 !important;   /* c_aqua — mismo hover que headerValue */
+    text-decoration: underline !important;
+  }
+
+  /* ── Texto inline con color claro forzado ────────────── */
+  /* Cubre spans/p con color:#fff o similares en newsletters */
+  [style*="color:#f"],
+  [style*="color: #f"],
+  [style*="color:#e"],
+  [style*="color: #e"],
+  [style*="color: white"],
+  [style*="color:white"],
+  [style*="color: rgb(255"] {
+    color: #1a1a1a !important;
+  }
+
+  /* ── Fondos blancos/gris muy claro → bg0 ────────────── */
+  /* Evita el parpadeo blanco en emails HTML bien formados */
+  [style*="background-color:#fff"],
+  [style*="background-color: #fff"],
+  [style*="background-color:#FFF"],
+  [style*="background-color: white"],
+  [style*="background-color:white"],
+  [style*="background:#fff"],
+  [style*="background: #fff"],
+  [style*="background-color: rgb(255, 255, 255)"],
+  [style*="background-color:rgb(255,255,255)"] {
+    background-color: #add4a0 !important;
+  }
+
+  /* ── Bordes en tablas ────────────────────────────────── */
+  table, td, th {
+    border-color: #6a9060 !important;   /* c_bg5 — mismo que --p-border */
+  }
+
+  /* ── Blockquotes (respuestas anidadas) ───────────────── */
+  blockquote {
+    border-left: 3px solid #145850 !important;  /* c_teal */
+    color: #3d5c38 !important;                  /* c_fg2 — tenue */
+    margin-left: 8px !important;
+    padding-left: 10px !important;
+  }
+
+  blockquote blockquote {
+    border-left-color: #1e4868 !important;  /* c_blue0 — segundo nivel */
+  }
+
+  blockquote blockquote blockquote {
+    border-left-color: #3a2860 !important;  /* c_violet — tercer nivel */
+  }
+
+  /* ── Firma (signature) ───────────────────────────────── */
+  .moz-signature,
+  .signature {
+    color: #608858 !important;   /* c_ash — discreta */
+    border-top: 1px solid #6a9060 !important;
+    margin-top: 12px !important;
+    padding-top: 6px !important;
+  }
+
+  /* ── Citas de texto plano (> estilo Thunderbird) ─────── */
+  .moz-cite-prefix {
+    color: #3d5c38 !important;   /* c_fg2 */
   }
 }
 
-/* ── Barra de notificación (la amarilla de "blocked content") */
+/* ══════════════════════════════════════════════════════════
+   BARRA DE NOTIFICACIÓN (blocked content, remote images)
+   ══════════════════════════════════════════════════════════ */
 notification,
 .notificationbox-stack notification,
 #remoteContentBar,
 #msgNotificationBar {
-  background-color: #d0c890 !important;
-  color: #786018 !important;
-  border-bottom: 1px solid #786018 !important;
+  background-color: #d0c890 !important;   /* c_winterYellow */
+  color: #5a4808 !important;              /* c_yellow corregido */
+  border-bottom: 1px solid #5a4808 !important;
 }
 
 notification button,
 #remoteContentBar button {
-  background-color: #c8be80 !important;
-  color: #786018 !important;
-  border: 1px solid #786018 !important;
+  background-color: #94cc88 !important;   /* c_winterGreen — contraste suave */
+  color: #1e4a18 !important;              /* c_green1 — texto oscuro legible */
+  border: 1px solid #2a5c22 !important;   /* c_green0 */
   border-radius: 4px !important;
+}
+
+notification button:hover,
+#remoteContentBar button:hover {
+  background-color: #88b07e !important;   /* c_bg4 */
+  color: #1a1a1a !important;
+}
+
+/* ── Notificación de error (ej: fallo de envío) ──────── */
+notification[type="critical"],
+notification[type="error"] {
+  background-color: #d8a8a0 !important;   /* c_winterRed */
+  color: #7a1e18 !important;              /* c_red */
+  border-bottom: 1px solid #7a1e18 !important;
+}
+
+/* ── Notificación de info ────────────────────────────── */
+notification[type="info"] {
+  background-color: #90bcd0 !important;   /* c_winterBlue */
+  color: #1e4868 !important;              /* c_blue0 */
+  border-bottom: 1px solid #1e4868 !important;
 }

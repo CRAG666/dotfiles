@@ -267,13 +267,24 @@ def norg [
     nvim -c $"Neorg workspace ($workspace)"
 }
 
+def ddl [
+    db_file: path,           # El archivo de la base de datos (.db)
+    table_name?: string      # Nombre de la tabla (opcional)
+] {
+    if ($table_name == null) {
+        open $db_file | query db "SELECT name, sql FROM sqlite_schema WHERE type = 'table'"
+    } else {
+        open $db_file | query db $"SELECT sql FROM sqlite_schema WHERE name = '($table_name)'"
+    }
+}
+
 source $"($nu.cache-dir)/carapace.nu"
 let carapace_completer = {|spans|
     carapace $spans.0 nushell ...$spans | from json
 }
 source ~/.zoxide.nu
 source ~/.local/share/atuin/init.nu
-source ~/.config/nushell/catppuccin_mocha.nu
+# source ~/.config/nushell/catppuccin_mocha.nu
+source ~/.config/nushell/eyes.nu
 source ~/.config/nushell/podman.nu
 source ~/.config/nushell/git.nu
-source ~/.config/nushell/eyes.nu

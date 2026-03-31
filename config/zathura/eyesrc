@@ -2,47 +2,47 @@
 # Theme — forest green (based on #add4a0)
 #
 
-set default-fg                rgba(34,34,34,1)        # c_fg0
+set default-fg                rgba(26,26,26,1)        # c_fg0
 set default-bg                rgba(173,212,160,1)     # c_bg0
 
-set completion-bg             rgba(150,190,140,1)     # c_bg3
-set completion-fg             rgba(34,34,34,1)        # c_fg0
-set completion-highlight-bg   rgba(74,56,112,1)       # c_violet
+set completion-bg             rgba(106,144,96,1)     # c_bg3
+set completion-fg             rgba(26,26,26,1)        # c_fg0
+set completion-highlight-bg   rgba(58,40,96,1)       # c_violet
 set completion-highlight-fg   rgba(173,212,160,1)     # c_bg0
 
-set completion-group-bg       rgba(136,176,126,1)     # c_bg4
+set completion-group-bg       rgba(150,190,140,1)     # c_bg4
 set completion-group-fg       rgba(30,46,28,1)        # c_fg1
 
 set statusbar-fg              rgba(30,46,28,1)        # c_fg1
-set statusbar-bg              rgba(150,190,140,1)     # c_bg3
+set statusbar-bg              rgba(159,200,149,1)     # c_bg3
 
-set inputbar-fg               rgba(34,34,34,1)        # c_fg0
+set inputbar-fg               rgba(26,26,26,1)        # c_fg0
 set inputbar-bg               rgba(164,204,152,1)     # c_bg1
 
 set notification-bg           rgba(164,204,152,1)     # c_bg1
-set notification-fg           rgba(34,34,34,1)        # c_fg0
+set notification-fg           rgba(26,26,26,1)        # c_fg0
 
 set notification-error-bg     rgba(164,204,152,1)     # c_bg1
-set notification-error-fg     rgba(138,40,32,1)       # c_red
+set notification-error-fg     rgba(122,30,24,1)       # c_red
 
 set notification-warning-bg   rgba(164,204,152,1)     # c_bg1
-set notification-warning-fg   rgba(120,96,24,1)       # c_yellow
+set notification-warning-fg   rgba(90,72,8,1)       # c_yellow
 
 set recolor                   "true"
 set recolor-lightcolor        rgba(173,212,160,1)     # c_bg0  — fondo del PDF
-set recolor-darkcolor         rgba(34,34,34,1)        # c_fg0  — texto del PDF
+set recolor-darkcolor         rgba(26,26,26,1)        # c_fg0  — texto del PDF
 
-set index-fg                  rgba(34,34,34,1)        # c_fg0
+set index-fg                  rgba(26,26,26,1)        # c_fg0
 set index-bg                  rgba(173,212,160,1)     # c_bg0
 set index-active-fg           rgba(173,212,160,1)     # c_bg0
-set index-active-bg           rgba(42,88,114,1)       # c_blue0
+set index-active-bg           rgba(30,72,104,1)       # c_blue0
 
 set render-loading-bg         rgba(173,212,160,1)     # c_bg0
-set render-loading-fg         rgba(80,120,72,1)       # c_ash
+set render-loading-fg         rgba(96,136,88,1)       # c_ash
 
 set highlight-color           rgba(136,176,126,0.45)  # c_bg4 semitransparente
-set highlight-fg              rgba(34,34,34,1)        # c_fg0
-set highlight-active-color    rgba(42,88,114,0.45)    # c_blue0 semitransparente
+set highlight-fg              rgba(26,26,26,1)        # c_fg0
+set highlight-active-color    rgba(30,72,104,0.45)    # c_blue0 semitransparente
 
 #
 # End Theme

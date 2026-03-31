@@ -19,7 +19,7 @@ export-env {
   
   'hide,DOTNET_MULTILEVEL_LOOKUP,
 hide,DOTNET_ROOT,
-set,PATH,/home/think-crag/.local/bin:/home/think-crag/.dotnet/tools:/home/think-crag/.local/share/bob/nvim-bin:/home/think-crag/.local/share/nvim/mason/bin:/home/think-crag/.config/carapace/bin:/home/think-crag/.local/bin:/home/think-crag/.dotnet/tools:/home/think-crag/.local/share/bob/nvim-bin:/home/think-crag/.local/share/nvim/mason/bin:/home/think-crag/.local/bin:/home/think-crag/.dotnet/tools:/home/think-crag/.local/share/bob/nvim-bin:/home/think-crag/.local/share/nvim/mason/bin:/home/think-crag/.local/bin:/home/think-crag/.dotnet/tools:/home/think-crag/.local/share/bob/nvim-bin:/home/think-crag/.local/share/nvim/mason/bin:/home/think-crag/.local/bin:/home/think-crag/.dotnet/tools:/home/think-crag/.local/share/bob/nvim-bin:/home/think-crag/.local/share/nvim/mason/bin:/home/think-crag/.config/emacs/bin:/home/think-crag/.npm-global/bin:/home/think-crag/.local/bin:/home/think-crag/.dotnet/tools:/home/think-crag/.local/share/bob/nvim-bin:/home/think-crag/.local/share/nvim/mason/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl
+set,PATH,/home/think-crag/.local/bin:/home/think-crag/.dotnet/tools:/home/think-crag/.local/share/bob/nvim-bin:/home/think-crag/.local/share/nvim/mason/bin:/home/think-crag/.config/carapace/bin:/home/think-crag/.local/bin:/home/think-crag/.dotnet/tools:/home/think-crag/.local/share/bob/nvim-bin:/home/think-crag/.local/share/nvim/mason/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl
 hide,MISE_SHELL,
 hide,__MISE_DIFF,
 hide,__MISE_DIFF,' | parse vars | update-env

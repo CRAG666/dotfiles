@@ -15,7 +15,7 @@ exec ~/.scripts/cloud_mount
 exec systemctl --user start podman.socket
 exec ~/Git/selfhost/instances.sh
 exec ~/.scripts/check_battery.sh
-exec brightnessctl s 7272 && ddcutil setvcp 10 30
+exec brightnessctl s 1212 && ddcutil setvcp 10 5
 exec rewaita -b &
 
 exec gsettings set org.gnome.desktop.interface cursor-theme 'catppuccin-mocha-red-cursors'
@@ -220,10 +220,19 @@ bindsym $mod+bracketright set_mode v
     # jump_labels_background #15309eFF
     # jump_labels_scale 0.9
     jump_labels_keys asdfqwer
-    bindsym --no-repeat $mod+slash jump
-    bindsym --no-repeat $mod+Shift+slash jump container
-    bindsym --no-repeat $mod+Ctrl+slash jump workspaces
-    bindsym --no-repeat $mod+Alt+slash jump floating
+    mode "jump" {
+        bindsym  slash jump; mode default
+        bindsym  c jump container; mode default
+        bindsym  w jump workspaces; mode default
+        bindsym  f jump floating; mode default
+        bindsym  a jump all; mode default
+        bindsym  s scratchpad jump; mode default
+        bindsym  t trailmark jump; mode default
+
+        # Return to default mode
+        bindsym Escape mode "default"
+    }
+    bindsym  $mod+slash mode "jump"
 
 #
 # Mode modifiers
@@ -296,12 +305,16 @@ bindsym $mod+Shift+S mode "setsizev"
 
 bindsym --no-repeat $mod+p pin beginning
 bindsym --no-repeat $mod+Shift+p pin end
+# Marks
+bindsym $mod+m exec ~/.config/scroll/scroll-mark-toggle.sh
+bindsym $mod+Shift+m exec ~/.config/scroll/scroll-mark-remove.sh
+bindsym $mod+apostrophe exec ~/.config/scroll/scroll-mark-switch.sh
 
 # =============================================================================
 # APLICACIONES
 # =============================================================================
 
-bindsym $mod+space exec swaylock
+bindsym Alt+space exec swaylock
 
 # Terminal
 bindsym $mod+t exec kitty
@@ -366,11 +379,19 @@ bindsym --locked XF86AudioMicMute exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ tog
 # (hyprshot no existe en scroll/sway, usar grim+slurp)
 # =============================================================================
 
-# Pantalla completa (output activo)
-bindsym $mod+Print exec grim ~/Screenshots/$(date +%Y%m%d_%H%M%S).png
+set $satty swappy -f -
+set $printscreen_mode 'printscreen (r:region f:full o:output w:window)'
+mode $printscreen_mode {
+    bindsym r exec grim -g "$(slurp -d)" - | $satty; mode default
+    bindsym f exec grim - | $satty; mode default
+    bindsym o exec grim -o "$(scrollmsg -t get_outputs | jq -r '.[] | select(.focused) | .name')" - | $satty; mode default
+    bindsym w exec scrollmsg -t get_tree | jq -r '.. | select(.focused?) | .rect | "\(.x),\(.y) \(.width)x\(.height)"' | grim -g - - | $satty; mode default
+    # The image is scaled like using fractional scaling
+    #bindsym w exec grim -T "$(scrollmsg -t get_tree | jq -j '.. | select(.type?) | select(.focused).foreign_toplevel_identifier')" - | $satty; mode default
 
-# Región seleccionada
-bindsym Print exec grim -g "$(slurp)" ~/Screenshots/$(date +%Y%m%d_%H%M%S).png
+    bindsym Escape mode "default"
+}
+bindsym Print mode $printscreen_mode
 
 # =============================================================================
 # VENTANAS
@@ -383,9 +404,11 @@ bindsym $mod+Shift+Backspace kill all
 # Fullscreen
 bindsym $mod+Shift+f fullscreen
 bindsym $mod+f toggle_size this 1.0 1.0
-bindsym $mod+Alt+f fullscreen layout
+bindsym $mod+Ctrl+f fullscreen layout
+bindsym $mod+Alt+f fullscreen application
 bindsym $mod+Ctrl+Alt+f fullscreen global
-bindsym $mod+Ctrl+f floating toggle
+bindsym $mod+Ctrl+Shift+f floating toggle
+bindsym $mod+Shift+T layout_transpose
 
 mode "togglesizeh" {
     bindsym 1 toggle_size all 0.125 1.0; mode default
@@ -465,8 +488,8 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 # Control de brillo con repetición y funcional en pantalla de bloqueo
-bindsym --locked XF86MonBrightnessUp exec brightnessctl s +5% && ddcutil setvcp 10 + 5
-bindsym --locked XF86MonBrightnessDown exec brightnessctl s 5%- && ddcutil setvcp 10 - 5
+bindsym --locked XF86MonBrightnessUp exec brightnessctl s +1% && ddcutil setvcp 10 + 1
+bindsym --locked XF86MonBrightnessDown exec brightnessctl s 1%- && ddcutil setvcp 10 - 1
 
 focus_wrapping no
 

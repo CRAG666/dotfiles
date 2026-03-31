@@ -59,32 +59,28 @@ crust = "#11111b"
 
 [palettes.eyes]
 rosewater = "#d8a8a0"  # c_winterRed
-flamingo  = "#6a3868"  # c_pink
-pink      = "#6a3868"  # c_pink
-mauve     = "#4a3870"  # c_violet
-red       = "#8a2820"  # c_red
-maroon    = "#7a4a18"  # c_orange0
-peach     = "#8a5820"  # c_orange1
-yellow    = "#786018"  # c_yellow
-green     = "#2e5a28"  # c_green1 (Strings)
-teal      = "#206860"  # c_teal
+flamingo  = "#5a2858"  # c_pink
+pink      = "#5a2858"  # c_pink
+mauve     = "#3a2860"  # c_violet
+red       = "#7a1e18"  # c_red
+maroon    = "#6a3c10"  # c_orange0
+peach     = "#7a4a18"  # c_orange1
+yellow    = "#5a4808"  # c_yellow
+green     = "#1e4a18"  # c_green1
+teal      = "#145850"  # c_teal
 sky       = "#90bcd0"  # c_winterBlue
-sapphire  = "#2a6868"  # c_aqua
-blue      = "#1e4a60"  # c_blue1
-lavender  = "#507848"  # c_ash
-
-# Texto y Primer Plano
-text      = "#222222"  # c_fg0
+sapphire  = "#1a5858"  # c_aqua
+blue      = "#143c52"  # c_blue1
+lavender  = "#608858"  # c_ash
+text      = "#1a1a1a"  # c_fg0
 subtext1  = "#1e2e1c"  # c_fg1
-subtext0  = "#4a6044"  # c_fg2
-overlay2  = "#5a7052"  # c_gray0
-overlay1  = "#4a6044"  # c_gray1
-overlay0  = "#3a5038"  # c_gray2
-
-# Superficies y Fondo
+subtext0  = "#3d5c38"  # c_fg2
+overlay2  = "#486040"  # c_gray0
+overlay1  = "#385030"  # c_gray1
+overlay0  = "#2c4028"  # c_gray2
 surface2  = "#6a9060"  # c_bg5
 surface1  = "#88b07e"  # c_bg4
 surface0  = "#96be8c"  # c_bg3
-base      = "#add4a0"  # c_bg0 (Fondo principal)
+base      = "#add4a0"  # c_bg0
 mantle    = "#a4cc98"  # c_bg1
 crust     = "#9fc895"  # c_bg2
