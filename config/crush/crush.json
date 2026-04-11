@@ -1,0 +1,25 @@
+{
+  "$schema": "https://charm.land/crush.json",
+  "default_provider": "ollama",
+  "providers": {
+    "ollama": {
+      "name": "Ollama",
+      "base_url": "http://localhost:11434/v1/",
+      "type": "openai-compat",
+      "api_key": "ollama",
+      "models": [
+        {
+          "id": "llama3.1:8b-instruct-q4_K_M",
+          "name": "Llama 3.1 8B (escritura)",
+          "context_window": 32768,
+          "default_max_tokens": 4096,
+          "supports_tools": false
+        }
+      ]
+    }
+  },
+  "models": {
+    "large": { "model": "ollama/llama3.1:8b-instruct-q4_K_M" },
+    "small": { "model": "ollama/llama3.1:8b-instruct-q4_K_M" }
+  }
+}
