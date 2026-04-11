@@ -23,3 +23,12 @@ load.on_events('FileType', 'core.lsp')
 require('core.format')
 vim.o.background = 'light'
 vim.cmd.colorscheme('eyes')
+
+-- Learning Keybindings
+--  ctrl+wv  Split buffer vertical
+--  ctrl+ws  Split buffer horizontal
+-- g;  Jump to the next change.
+-- g,  Jump to the previous change
+-- gUw  Uppercase until end of word (u for lower, ~ to toggle)
+-- gUiw  Uppercase entire word (u for lower, ~ to toggle)
+-- gUU  Uppercase entire line

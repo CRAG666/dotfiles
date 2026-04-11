@@ -322,11 +322,6 @@ ON c.id = e.categoria ORDER BY c.nombre;"
 
 function open_random_sites() {
     local count=${1:-40}
-    local option
-    option=$(rofi_sub_window "Open $count random sites? (y/n): " -theme-str 'window { width: 400px; }')
-    if [[ "$option" != "y" ]]; then
-        return
-    fi
     for ((i = 1; i <= count; i++)); do
         $BROWSER "https://searchmysite.net/search/random" &
     done

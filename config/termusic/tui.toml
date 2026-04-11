@@ -9,19 +9,20 @@ confirm_quit = false
 align = "bottom right"
 size_scale = 99
 hidden = false
+protocols = ["kitty", "sixel"]
 
 [style.library]
 foreground_color = "Foreground"
 background_color = "Reset"
-border_color = "Magenta"
-highlight_color = "LightYellow"
+border_color = "Blue"
+highlight_color = "Yellow"
 highlight_symbol = "🦄"
 
 [style.playlist]
 foreground_color = "Foreground"
 background_color = "Reset"
-border_color = "Red"
-highlight_color = "LightRed"
+border_color = "Blue"
+highlight_color = "Yellow"
 highlight_symbol = "🚀"
 current_track_symbol = "►"
 use_loop_mode_symbol = true
@@ -29,12 +30,12 @@ use_loop_mode_symbol = true
 [style.lyric]
 foreground_color = "Foreground"
 background_color = "Reset"
-border_color = "Green"
+border_color = "Blue"
 
 [style.progress]
-foreground_color = "LightBlue"
+foreground_color = "Black"
 background_color = "Reset"
-border_color = "Cyan"
+border_color = "Blue"
 
 [style.important_popup]
 foreground_color = "Yellow"
@@ -45,39 +46,40 @@ border_color = "Yellow"
 foreground_color = "Foreground"
 background_color = "Reset"
 border_color = "Blue"
-highlight_color = "LightYellow"
+highlight_color = "Yellow"
 
 [theme]
-name = "crag"
+file_name = "eyes"
+name = "Eyes (light)"
 author = "Diego Aguilar"
 
 [theme.primary]
-background = "#1e1e2e"
-foreground = "#cdd6f4"
+background = "#add4a0"
+foreground = "#1a1a1a"
 
 [theme.cursor]
-text = "#45475a"
-cursor = "#f5e0dc"
+text = "#7a1e18"
+cursor = "#d8a8a0"
 
 [theme.normal]
-black = "#585b70"
-red = "#f38ba8"
-green = "#a6e3a1"
-yellow = "#f9e2af"
-blue = "#89b4fa"
-magenta = "#cba6f7"
-cyan = "#94e2d5"
-white = "#cdd6f4"
+black = "#1a1a1a"
+red = "#7a1e18"
+green = "#2a5c22"
+yellow = "#5a4808"
+blue = "#1e4868"
+magenta = "#3a2860"
+cyan = "#1a5858"
+white = "#6a9060"
 
 [theme.bright]
-black = "#45475a"
-red = "#eba0ac"
-green = "#89dceb"
-yellow = "#f2cdcd"
-blue = "#74c7ec"
-magenta = "#b4befe"
-cyan = "#f5c2e7"
-white = "#bac2de"
+black = "#1e2e1c"
+red = "#6a3c10"
+green = "#3a5030"
+yellow = "#d0c890"
+blue = "#145850"
+magenta = "#5a2858"
+cyan = "#143c52"
+white = "#88b07e"
 
 [keys]
 escape = "escape"
@@ -87,7 +89,7 @@ quit = "q"
 view_library = "1"
 view_database = "2"
 view_podcasts = "3"
-open_config = "control+c"
+open_config = "shift+C"
 open_help = "control+h"
 
 [keys.navigation]
@@ -167,3 +169,6 @@ toggle_hide = "control+shift+end"
 
 [keys.config]
 save = "control+s"
+
+[ytdlp]
+extra_args = ""

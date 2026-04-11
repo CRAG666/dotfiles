@@ -1,0 +1,28 @@
+colors:
+  name: Eyes (light)
+  author: Diego Aguilar
+  primary:
+    background: "#add4a0"
+    foreground: "#1a1a1a"
+  cursor:
+    text: "#7a1e18"
+    cursor: "#d8a8a0"
+  normal:
+    black: "#1a1a1a"
+    red: "#7a1e18"
+    green: "#2a5c22"
+    yellow: "#5a4808"
+    blue: "#1e4868"
+    magenta: "#3a2860"
+    cyan: "#1a5858"
+    white: "#6a9060"
+  bright:
+    black: "#1e2e1c"
+    red: "#6a3c10"
+    green: "#3a5030"
+    yellow: "#d0c890"
+    blue: "#145850"
+    magenta: "#5a2858"
+    cyan: "#143c52"
+    white: "#88b07e"
+

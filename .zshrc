@@ -246,7 +246,7 @@ export FZF_DEFAULT_COMMAND='fd . --type f --hidden --follow --exclude .git --no-
 # --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
 # --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
 # --color=marker:#f5e0dc,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8"
-export FZF_DEFAULT_OPTS = " --prompt='ﰉ ' --pointer='ﰊ' --height 40% --reverse --bind='?:toggle-preview' \
+export FZF_DEFAULT_OPTS=" --prompt='ﰉ ' --pointer='ﰊ' --height 40% --reverse --bind='?:toggle-preview' \
   --color=bg+:#88b07e,bg:#add4a0,spinner:#5a2858,hl:#7a1e18 \
   --color=fg:#1e4868,header:#7a1e18,info:#3a2860,pointer:#5a2858 \
   --color=marker:#5a2858,fg+:#1a1a1a,prompt:#3a2860,hl+:#7a1e18"
@@ -258,6 +258,7 @@ export IEEESTL=~/Documentos/Proyectos/Writings/utils/latex/ieee.csl
 export LCOLORCATPPUCCIN=~/Documentos/Proyectos/Writings/utils/latex/catppuccin
 export PASSWORD_STORE_ENABLE_EXTENSIONS=true
 export NVIM_NF=true
+export OLLAMA_KV_CACHE_TYPE=q8_0
 
 # BEGIN_KITTY_SHELL_INTEGRATION
 custom_autocomplete() {
