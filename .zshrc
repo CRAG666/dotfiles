@@ -258,7 +258,6 @@ export IEEESTL=~/Documentos/Proyectos/Writings/utils/latex/ieee.csl
 export LCOLORCATPPUCCIN=~/Documentos/Proyectos/Writings/utils/latex/catppuccin
 export PASSWORD_STORE_ENABLE_EXTENSIONS=true
 export NVIM_NF=true
-export OLLAMA_KV_CACHE_TYPE=q8_0
 
 # BEGIN_KITTY_SHELL_INTEGRATION
 custom_autocomplete() {

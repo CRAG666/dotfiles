@@ -1,16 +1,16 @@
 [[plugin.deps]]
 use = "yazi-rs/plugins:no-status"
-rev = "7749958"
+rev = "babfd0f"
 hash = "3e023d31f29201efdac2a6ae35fedb78"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:full-border"
-rev = "7749958"
+rev = "babfd0f"
 hash = "6fa6a05a81c98dd000fbca3cca6e9682"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:chmod"
-rev = "7749958"
+rev = "babfd0f"
 hash = "f0c8c378184d5f8abd1b095a443d336d"
 
 [[plugin.deps]]
@@ -20,12 +20,12 @@ hash = "635b0feb9215772d22020eb0abf0bb34"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:toggle-pane"
-rev = "7749958"
+rev = "babfd0f"
 hash = "4c0260feb50ea2437380690ffc241da7"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:mount"
-rev = "7749958"
+rev = "babfd0f"
 hash = "77e20b071404f97c09d3f9afdb9482e0"
 
 [[plugin.deps]]

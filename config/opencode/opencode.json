@@ -10,7 +10,7 @@
       }
     }
   },
-  "model": "meta/llama-3_1-70b-instruct",
+  "model": "stepfun-ai/step-3.5-flash",
   "permission": {
     "bash": "ask",
     "edit": "ask",

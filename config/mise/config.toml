@@ -1,7 +1,5 @@
 [tools]
-crush = "latest"
 dotnet = "10.0"
 node = "latest"
-"npm:@google/gemini-cli" = "latest"
 "npm:oh-my-logo" = "latest"
 opencode = "latest"

@@ -22,7 +22,6 @@ let zsh_paths = [
     # $"($env.HOME)/.config/emacs/bin",
 ]
 $env.PATH = ($zsh_paths | append $env.PATH)
-$env.OLLAMA_KV_CACHE_TYPE = "q8_0"
 $env.CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense'
 mkdir $"($nu.cache-dir)"
 carapace _carapace nushell | save --force $"($nu.cache-dir)/carapace.nu"
