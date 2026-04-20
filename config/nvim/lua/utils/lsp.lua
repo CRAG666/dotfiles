@@ -19,7 +19,9 @@ local lsp_start = vim.lsp.start
 ---@param opts table?
 ---@return integer? client_id id of attached client or nil if failed
 function M.start(config, opts)
-  if not config or vim.bo.bt == 'nofile' then
+  -- Don't early return if `buftype` is 'nofile', because some plugins
+  -- (e.g. opencode) may start a in-process LSP server to provide completions
+  if not config then
     return
   end
 

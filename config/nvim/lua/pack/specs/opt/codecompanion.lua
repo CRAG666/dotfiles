@@ -62,41 +62,6 @@ return {
           visible = true,
           language = 'spanish',
         },
-        adapters = {
-          http = {
-            -- deepseek = function()
-            --   return require('codecompanion.adapters').extend('deepseek', {
-            --     env = {
-            --       api_key = 'cmd:gak ai/deepseek',
-            --     },
-            --     schema = {
-            --       model = {
-            --         -- default = 'deepseek-reasoner',
-            --         default = 'deepseek-chat',
-            --       },
-            --     },
-            --   })
-            -- end,
-            nvidia_nim = function()
-              return require('codecompanion.adapters').extend('openai', {
-                name = 'nvidia_nim',
-                url = 'https://integrate.api.nvidia.com/v1/chat/completions',
-                env = {
-                  api_key = 'NVIDIA_API_KEY',
-                },
-                schema = {
-                  model = {
-                    default = 'stepfun-ai/step-3.5-flash',
-                    -- default = 'deepseek-ai/deepseek-v3.2',
-                    -- default = 'nvidia/nemotron-3-nano-30b-a3b',
-                    -- default = 'z-ai/glm5',
-                    -- default = 'minimaxai/minimax-m2.7',
-                  },
-                },
-              })
-            end,
-          },
-        },
         prompt_library = {
           ['Translate to English'] = {
             interaction = 'inline',
@@ -152,13 +117,13 @@ return {
         },
         interactions = {
           chat = {
-            adapter = 'nvidia_nim',
+            adapter = 'opencode',
           },
           inline = {
-            adapter = 'nvidia_nim',
+            adapter = 'opencode',
           },
           cmd = {
-            adapter = 'nvidia_nim',
+            adapter = 'opencode',
           },
         },
       })

@@ -61,7 +61,7 @@ set_default_env() {
     export CLUTTER_BACKEND=wayland
     export XCURSOR_THEME=catppuccin-mocha-red-cursors
     export XCURSOR_SIZE=30
-    export GTK_THEME=Adwaita
+    export GTK_THEME=Adwaita:dark
     export GPG_TTY=$(tty)
 }
 

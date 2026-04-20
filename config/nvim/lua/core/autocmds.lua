@@ -542,3 +542,17 @@ augroup('BufferConfig', {
     command = [[let @/=""]],
   },
 })
+
+augroup('CodeCompanionConfig', {
+  'FileType',
+  {
+    pattern = 'codecompanion',
+    callback = function()
+      vim.wo.number = false
+      vim.wo.relativenumber = false
+      vim.wo.signcolumn = 'no'
+      vim.wo.foldcolumn = '0'
+      vim.wo.statuscolumn = ''
+    end,
+  },
+})

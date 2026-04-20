@@ -6,6 +6,26 @@
 -- Remove the current directory from `package.path` to avoid errors.
 package.path = package.path:gsub('%./%?%.lua;?', '')
 
+-- require('vim._core.ui2').enable({
+--   enable = true,
+--   msg = {
+--     targets = 'cmd',
+--     cmd = {
+--       height = 0.5,
+--     },
+--     dialog = {
+--       height = 0.5, -- Maximum height.
+--     },
+--     msg = { -- Options related to msg window.
+--       height = 0.5, -- Maximum height.
+--       timeout = 4000, -- Time a message is visible in the message window.
+--     },
+--     pager = { -- Options related to message window.
+--       height = 1, -- Maximum height.
+--     },
+--   },
+-- })
+
 -- Enable faster lua loader using byte-compilation
 -- https://github.com/neovim/neovim/commit/2257ade3dc2daab5ee12d27807c0b3bcf103cd29
 vim.loader.enable()

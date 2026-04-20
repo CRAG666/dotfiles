@@ -27,7 +27,7 @@ return {
       local icons = require('utils.static.icons')
       local has_ls, ls = pcall(require, 'luasnip')
       local has_devicons, devicons = pcall(require, 'nvim-web-devicons')
-      local blink_source_utils = require('blink.cmp.sources.lib.utils')
+      local blink_source_utils = require('blink.cmp.sources.cmdline.utils')
       local blink_ctx = require('blink.cmp.completion.trigger.context')
 
       ---@param ctx blink.cmp.DrawItemContext
