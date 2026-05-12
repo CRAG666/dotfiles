@@ -1,4 +1,5 @@
 [tools]
+claude = "latest"
 dotnet = "10.0"
 node = "latest"
 "npm:oh-my-logo" = "latest"

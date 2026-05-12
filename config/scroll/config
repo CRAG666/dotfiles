@@ -19,7 +19,7 @@ exec brightnessctl s 1212 && ddcutil setvcp 10 5
 exec rewaita -b &
 
 exec gsettings set org.gnome.desktop.interface cursor-theme 'Adwaita'
-exec gsettings set org.gnome.desktop.interface cursor-size 30
+exec gsettings set org.gnome.desktop.interface cursor-size 45
 
 exec gsettings set org.gnome.desktop.interface icon-theme 'Macjaro'
 exec gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita'
@@ -35,7 +35,7 @@ exec gsettings set org.gnome.desktop.wm.preferences button-layout :
 ### Outputs / Monitores ###
 
 # Laptop (pantalla integrada)
-output eDP-1 resolution 1920x1080@60Hz position 1920,0 scale 1
+output eDP-1 resolution 1920x1080@60Hz position -1920,0 scale 1
 
 # Work - ViewSonic
 output "ViewSonic Corporation VA1912wSERIES PW6061112038" resolution 1440x900@59.89Hz position -1440,0 scale 1
@@ -83,7 +83,7 @@ set $up    K
 set $right L
 
 ### Windows defaults
-default_border pixel 2
+default_border pixel 5
 gaps inner 4
 gaps outer 4
 client.focused #f38ba8 #4b4b4b #e0e0e0 #f5c2e7 #f38ba8

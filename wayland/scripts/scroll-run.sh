@@ -59,8 +59,8 @@ set_default_env() {
     export AVALONIA_GLOBAL_SCALE_FACTOR=1
     export XDG_SCREENSHOTS_DIR=~/Screenshots
     export CLUTTER_BACKEND=wayland
-    export XCURSOR_THEME=catppuccin-mocha-red-cursors
-    export XCURSOR_SIZE=30
+    export XCURSOR_THEME=Adwaita
+    export XCURSOR_SIZE=45
     export GTK_THEME=Adwaita:dark
     export GPG_TTY=$(tty)
 }

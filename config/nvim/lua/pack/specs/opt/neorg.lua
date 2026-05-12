@@ -36,9 +36,7 @@ return {
       require('neorg').setup({
         load = {
           ['core.defaults'] = {},
-          ['core.keybinds'] = {},
           ['core.autocommands'] = {},
-          ['core.highlights'] = {},
           ['core.integrations.treesitter'] = {},
           ['core.neorgcmd'] = {},
           ['core.concealer'] = {
@@ -88,11 +86,15 @@ return {
               },
             },
           },
-          ['core.looking-glass'] = {},
           ['core.export'] = {},
-          ['core.summary'] = {},
-          ['core.ui.calendar'] = {},
           ['core.latex.renderer'] = {},
+          ['core.presenter'] = {},
+          ['core.summary'] = {},
+          ['core.text-objects'] = {},
+          ['core.fs'] = {},
+          ['core.ui'] = {},
+          ['core.syntax'] = {},
+          ['core.neorgcmd'] = {},
         },
       })
 
