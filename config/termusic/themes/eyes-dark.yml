@@ -1,0 +1,27 @@
+colors:
+  name: Eyes (dark)
+  author: Crag
+  primary:
+    background: "#1a211a"
+    foreground: "#d0dcc8"
+  cursor:
+    text: "#1a211a"
+    cursor: "#d0dcc8"
+  normal:
+    black: "#1a211a"
+    red: "#c87868"
+    green: "#7aab72"
+    yellow: "#d4b85a"
+    blue: "#6a94a8"
+    magenta: "#b890b0"
+    cyan: "#5ab8a8"
+    white: "#9aab94"
+  bright:
+    black: "#536053"
+    red: "#d68878"
+    green: "#88b878"
+    yellow: "#dcc070"
+    blue: "#82aab8"
+    magenta: "#9090b8"
+    cyan: "#6ab8b0"
+    white: "#d0dcc8"

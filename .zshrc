@@ -238,7 +238,7 @@ export MYSQL_PS1="\n \d  ﯐ "
 export VISUAL=$HOME/.local/share/bob/nvim-bin/nvim
 export EDITOR=$VISUAL
 export PYTHONSTARTUP=~/.pyrc
-export BAT_THEME="Catppuccin-mocha"
+export BAT_THEME="eyes"
 export USB="/run/media/$USER"
 export PATH="$HOME/.local/bin:$HOME/.dotnet/tools:$HOME/.local/share/bob/nvim-bin:$HOME/.local/share/nvim/mason/bin:$HOME/.config/emacs/bin:$HOME/.npm-global/bin:$PATH"
 export FZF_DEFAULT_COMMAND='fd . --type f --hidden --follow --exclude .git --no-ignore'
@@ -247,9 +247,9 @@ export FZF_DEFAULT_COMMAND='fd . --type f --hidden --follow --exclude .git --no-
 # --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
 # --color=marker:#f5e0dc,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8"
 export FZF_DEFAULT_OPTS=" --prompt='ﰉ ' --pointer='ﰊ' --height 40% --reverse --bind='?:toggle-preview' \
-  --color=bg+:#88b07e,bg:#add4a0,spinner:#5a2858,hl:#7a1e18 \
-  --color=fg:#1e4868,header:#7a1e18,info:#3a2860,pointer:#5a2858 \
-  --color=marker:#5a2858,fg+:#1a1a1a,prompt:#3a2860,hl+:#7a1e18"
+  --color=bg+:#3a463a,bg:#1a211a,spinner:#b890b0,hl:#c87868 \
+  --color=fg:#6a94a8,header:#c87868,info:#9090b8,pointer:#b890b0 \
+  --color=marker:#b890b0,fg+:#d0dcc8,prompt:#9090b8,hl+:#c87868"
 
 # Working with documents
 alias pandock='podman run --rm -v "$(pwd):/data" pandoc/extra'

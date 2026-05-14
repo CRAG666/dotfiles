@@ -1,0 +1,78 @@
+[delta "eyes"]
+	# Light theme — sage-green terminal bg is #add4a0 (~50% luminance)
+	light = true
+	# Progressive bg0 → bg5 ladder for blame age
+	blame-palette = "#add4a0 #a4cc98 #9fc895 #96be8c #88b07e"
+	# Decorations: gray2 (#2c4028) frames with blue0 file titles
+	commit-decoration-style = "#2c4028" bold box ul
+	file-decoration-style = "#2c4028"
+	file-style = "#1e4868"
+	hunk-header-decoration-style = "#2c4028" box ul
+	hunk-header-file-style = bold
+	hunk-header-line-number-style = bold "#385030"
+	hunk-header-style = file line-number syntax
+	line-numbers-left-style = "#486040"
+	line-numbers-minus-style = bold "#7a1e18"
+	line-numbers-plus-style = bold "#1e4a18"
+	line-numbers-right-style = "#486040"
+	line-numbers-zero-style = "#486040"
+	# Diff washes — PALER than the terminal sage so the strips pop out
+	# (~75–82% luminance vs 50% bg). Syntax fg preserved on top.
+	#   minus  → pale cream (warm, hue-distinct from sage)
+	#   plus   → pale sage  (cooler/lighter than the bg)
+	minus-style = syntax "#f4e0d4"
+	minus-emph-style = bold syntax "#e0b8a4"
+	plus-style = syntax "#e0f0d8"
+	plus-emph-style = bold syntax "#b8d8a8"
+	# Empty-line markers: same tint, no fg work needed
+	minus-empty-line-marker-style = normal "#f4e0d4"
+	plus-empty-line-marker-style = normal "#e0f0d8"
+	# Move detection — delta maps `bold <ansi>` tokens into these styles.
+	# Previous version used saturated dark bgs (#145850 teal, #3a2860 violet)
+	# which created unreadable strips on a light theme. Now using very pale
+	# washes that still distinguish move types without sacrificing contrast.
+	map-styles = \
+		bold purple => syntax "#ecd8ec", \
+		bold blue => syntax "#d4e0ec", \
+		bold cyan => syntax "#d4e8e0", \
+		bold yellow => syntax "#ece4c8", \
+		bold green => syntax "#d4e4c4", \
+		bold magenta => syntax "#ecd0dc"
+	# bat theme name (config/bat/themes/eyes.tmTheme → <name>eyes</name>)
+	syntax-theme = eyes
+
+[delta "eyes-dark"]
+	# Dark theme — forest bg #1a211a (~7% luminance)
+	light = false
+	# Progressive bg0 → bg4 ladder for blame age
+	blame-palette = "#1a211a #202820 #263026 #2d382d #3a463a"
+	# Decorations: bg5 frames with blue0 file titles
+	commit-decoration-style = "#536053" bold box ul
+	file-decoration-style = "#536053"
+	file-style = "#6a94a8"
+	hunk-header-decoration-style = "#536053" box ul
+	hunk-header-file-style = bold
+	hunk-header-line-number-style = bold "#7a8a78"
+	hunk-header-style = file line-number syntax
+	line-numbers-left-style = "#7a8a78"
+	line-numbers-minus-style = bold "#c87868"
+	line-numbers-plus-style = bold "#7aab72"
+	line-numbers-right-style = "#7a8a78"
+	line-numbers-zero-style = "#7a8a78"
+	# Diff washes — DARKER than the forest bg (~9-15% lum vs 7%) so strips
+	# pop subtly without glare. Uses winter* palette tints.
+	minus-style = syntax "#3f2e25"
+	minus-emph-style = bold syntax "#714c41"
+	plus-style = syntax "#324a2e"
+	plus-emph-style = bold syntax "#4a6646"
+	minus-empty-line-marker-style = normal "#3f2e25"
+	plus-empty-line-marker-style = normal "#324a2e"
+	# Move detection — subtle saturated dark tints, hue-distinct
+	map-styles = \
+		bold purple => syntax "#322848", \
+		bold blue => syntax "#28384a", \
+		bold cyan => syntax "#264a42", \
+		bold yellow => syntax "#3a3420", \
+		bold green => syntax "#243224", \
+		bold magenta => syntax "#382838"
+	syntax-theme = eyes-dark

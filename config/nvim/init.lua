@@ -41,7 +41,12 @@ load.on_events('FileType', 'core.treesitter')
 load.on_events('DiagnosticChanged', 'core.diagnostic')
 load.on_events('FileType', 'core.lsp')
 require('core.format')
-vim.o.background = 'light'
+do
+  local f = io.open(vim.fn.expand('~/.config/eyes/mode'), 'r')
+  local mode = f and (f:read('*l') or 'light') or 'light'
+  if f then f:close() end
+  vim.o.background = (mode == 'dark') and 'dark' or 'light'
+end
 vim.cmd.colorscheme('eyes')
 
 -- Learning Keybindings

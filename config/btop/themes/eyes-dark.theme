@@ -1,0 +1,58 @@
+#
+# btop "eyes-dark" theme — dark forest variant
+# Matches config/nvim/colors/eyes.lua (dark mode)
+#
+
+theme[main_bg]="#1a211a"
+theme[main_fg]="#d0dcc8"
+theme[title]="#d0dcc8"
+theme[hi_fg]="#c87868"
+theme[selected_bg]="#3a463a"
+theme[selected_fg]="#d0dcc8"
+theme[inactive_fg]="#7a8a78"
+theme[graph_text]="#d0dcc8"
+theme[meter_bg]="#2d382d"
+theme[proc_misc]="#9090b8"
+
+theme[cpu_box]="#9090b8"      # violet
+theme[mem_box]="#7aab72"      # green
+theme[net_box]="#c87868"      # red
+theme[proc_box]="#6a94a8"     # blue
+
+theme[div_line]="#536053"
+
+theme[temp_start]="#7aab72"
+theme[temp_mid]="#d4b85a"
+theme[temp_end]="#c87868"
+
+theme[cpu_start]="#5ab8a8"
+theme[cpu_mid]="#6a94a8"
+theme[cpu_end]="#9090b8"
+
+theme[free_start]="#9090b8"
+theme[free_mid]="#6a94a8"
+theme[free_end]="#82aab8"
+
+theme[cached_start]="#6ab8b0"
+theme[cached_mid]="#5ab8a8"
+theme[cached_end]="#6a94a8"
+
+theme[available_start]="#c8a870"
+theme[available_mid]="#d68878"
+theme[available_end]="#c87868"
+
+theme[used_start]="#7aab72"
+theme[used_mid]="#6a9460"
+theme[used_end]="#5ab8a8"
+
+theme[download_start]="#c8a870"
+theme[download_mid]="#d68878"
+theme[download_end]="#c87868"
+
+theme[upload_start]="#7aab72"
+theme[upload_mid]="#6a9460"
+theme[upload_end]="#5ab8a8"
+
+theme[process_start]="#6a94a8"
+theme[process_mid]="#82aab8"
+theme[process_end]="#9090b8"

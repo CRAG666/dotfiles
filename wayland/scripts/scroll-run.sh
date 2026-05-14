@@ -34,9 +34,9 @@ detect_power_mode() {
 }
 
 set_default_env() {
-    export XDG_CURRENT_DESKTOP=scroll
+    export XDG_CURRENT_DESKTOP=scroll:sway
     export XDG_SESSION_TYPE=wayland
-    export XDG_SESSION_DESKTOP=scroll
+    export XDG_SESSION_DESKTOP=scroll:sway
     export ELECTRON_OZONE_PLATFORM_HINT=wayland
     export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
     export QT_SCALE_FACTOR_ROUNDING_POLICY=RoundPreferFloor
@@ -60,8 +60,7 @@ set_default_env() {
     export XDG_SCREENSHOTS_DIR=~/Screenshots
     export CLUTTER_BACKEND=wayland
     export XCURSOR_THEME=Adwaita
-    export XCURSOR_SIZE=45
-    export GTK_THEME=Adwaita:dark
+    export XCURSOR_SIZE=55
     export GPG_TTY=$(tty)
 }
 

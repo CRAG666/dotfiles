@@ -1,0 +1,88 @@
+#
+# btop "eyes" theme — sage-green light palette
+# Designed to match config/nvim/colors/eyes.lua (light mode)
+#
+
+# Main background (sage green)
+theme[main_bg]="#add4a0"
+
+# Main text
+theme[main_fg]="#1a1a1a"
+
+# Title color for boxes
+theme[title]="#1a1a1a"
+
+# Highlight color for keyboard shortcuts
+theme[hi_fg]="#7a1e18"
+
+# Background color of selected item in processes box
+theme[selected_bg]="#6a9060"
+
+# Foreground color of selected item in processes box
+theme[selected_fg]="#1a1a1a"
+
+# Color of inactive/disabled text
+theme[inactive_fg]="#486040"
+
+# Color of text appearing on top of graphs
+theme[graph_text]="#1a1a1a"
+
+# Background color of the percentage meters
+theme[meter_bg]="#88b07e"
+
+# Misc colors for processes box
+theme[proc_misc]="#3a2860"
+
+# CPU, Memory, Network, Proc box outline colors
+theme[cpu_box]="#3a2860"      # violet
+theme[mem_box]="#2a5c22"      # green
+theme[net_box]="#7a1e18"      # red
+theme[proc_box]="#1e4868"     # blue
+
+# Box divider line
+theme[div_line]="#486040"
+
+# Temperature graph (cool -> warm)
+theme[temp_start]="#2a5c22"
+theme[temp_mid]="#5a4808"
+theme[temp_end]="#7a1e18"
+
+# CPU graph (teal -> violet)
+theme[cpu_start]="#145850"
+theme[cpu_mid]="#1e4868"
+theme[cpu_end]="#3a2860"
+
+# Mem/Disk free meter
+theme[free_start]="#3a2860"
+theme[free_mid]="#1e4868"
+theme[free_end]="#143c52"
+
+# Mem/Disk cached meter
+theme[cached_start]="#1a5858"
+theme[cached_mid]="#145850"
+theme[cached_end]="#1e4868"
+
+# Mem/Disk available meter (orange -> red)
+theme[available_start]="#7a4a18"
+theme[available_mid]="#8a2820"
+theme[available_end]="#7a1e18"
+
+# Mem/Disk used meter (green -> teal)
+theme[used_start]="#2a5c22"
+theme[used_mid]="#3a5c30"
+theme[used_end]="#145850"
+
+# Download graph (orange -> red)
+theme[download_start]="#7a4a18"
+theme[download_mid]="#8a2820"
+theme[download_end]="#7a1e18"
+
+# Upload graph (green -> teal)
+theme[upload_start]="#2a5c22"
+theme[upload_mid]="#3a5c30"
+theme[upload_end]="#145850"
+
+# Process box gradient (blue -> violet)
+theme[process_start]="#1e4868"
+theme[process_mid]="#143c52"
+theme[process_end]="#3a2860"

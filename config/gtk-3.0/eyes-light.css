@@ -1,0 +1,83 @@
+/* eyes (light) — palette overrides for GTK3 + libadwaita named colors. */
+
+/* libadwaita semantic colors */
+@define-color accent_color           #1e4868;
+@define-color accent_bg_color        #1e4868;
+@define-color accent_fg_color        #add4a0;
+
+@define-color destructive_color      #7a1e18;
+@define-color destructive_bg_color   #7a1e18;
+@define-color destructive_fg_color   #add4a0;
+
+@define-color success_color          #2a5c22;
+@define-color success_bg_color       #2a5c22;
+@define-color success_fg_color       #add4a0;
+
+@define-color warning_color          #5a4808;
+@define-color warning_bg_color       #5a4808;
+@define-color warning_fg_color       #add4a0;
+
+@define-color error_color            #7a1e18;
+@define-color error_bg_color         #7a1e18;
+@define-color error_fg_color         #add4a0;
+
+/* libadwaita surfaces */
+@define-color window_bg_color                  #add4a0;
+@define-color window_fg_color                  #1a1a1a;
+@define-color view_bg_color                    #a4cc98;
+@define-color view_fg_color                    #1a1a1a;
+
+@define-color headerbar_bg_color               #96be8c;
+@define-color headerbar_fg_color               #1a1a1a;
+@define-color headerbar_border_color           #6a9060;
+@define-color headerbar_backdrop_color         #a4cc98;
+@define-color headerbar_shade_color            rgba(0, 0, 0, 0.07);
+
+@define-color card_bg_color                    #a4cc98;
+@define-color card_fg_color                    #1a1a1a;
+@define-color card_shade_color                 rgba(0, 0, 0, 0.07);
+
+@define-color dialog_bg_color                  #a4cc98;
+@define-color dialog_fg_color                  #1a1a1a;
+
+@define-color popover_bg_color                 #a4cc98;
+@define-color popover_fg_color                 #1a1a1a;
+
+@define-color sidebar_bg_color                 #9fc895;
+@define-color sidebar_fg_color                 #1a1a1a;
+@define-color sidebar_backdrop_color           #96be8c;
+@define-color sidebar_shade_color              rgba(0, 0, 0, 0.07);
+
+@define-color secondary_sidebar_bg_color       #96be8c;
+@define-color secondary_sidebar_fg_color       #1a1a1a;
+@define-color secondary_sidebar_backdrop_color #88b07e;
+@define-color secondary_sidebar_shade_color    rgba(0, 0, 0, 0.07);
+
+@define-color thumbnail_bg_color               #88b07e;
+@define-color thumbnail_fg_color               #1a1a1a;
+
+@define-color shade_color                      rgba(0, 0, 0, 0.07);
+@define-color scrollbar_outline_color          rgba(0, 0, 0, 0.07);
+
+/* Legacy GTK3 theme tokens (non-libadwaita apps) */
+@define-color theme_bg_color                #add4a0;
+@define-color theme_fg_color                #1a1a1a;
+@define-color theme_base_color              #a4cc98;
+@define-color theme_text_color              #1a1a1a;
+@define-color theme_selected_bg_color       #1e4868;
+@define-color theme_selected_fg_color       #add4a0;
+@define-color theme_unfocused_bg_color      #a4cc98;
+@define-color theme_unfocused_fg_color      #3d5c38;
+@define-color theme_unfocused_text_color    #3d5c38;
+@define-color theme_unfocused_selected_bg_color #486040;
+@define-color theme_unfocused_selected_fg_color #add4a0;
+@define-color borders                       #6a9060;
+@define-color unfocused_borders             #88b07e;
+@define-color insensitive_fg_color          #486040;
+@define-color insensitive_bg_color          #9fc895;
+@define-color insensitive_base_fg_color     #486040;
+@define-color insensitive_base_bg_color     #9fc895;
+@define-color link_color                    #1e4868;
+@define-color visited_link_color            #3a2860;
+@define-color tooltip_bg_color              #88b07e;
+@define-color tooltip_fg_color              #1a1a1a;
