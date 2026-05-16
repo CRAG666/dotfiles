@@ -23,7 +23,7 @@ sanitize tridactyllocal tridactylsync
 set configversion 2.0
 set smoothscroll false
 set newtab about:blank
-colorscheme catppuccin
+colorscheme eyes
 
 " Clipboard configuration
 " set externalclipboardcmd wl-copy

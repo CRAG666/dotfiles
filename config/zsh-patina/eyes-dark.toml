@@ -1,0 +1,67 @@
+# eyes (dark) — forest-green palette for zsh-patina.
+
+# comments
+"comment" = "#9aab94"
+
+# strings
+"string" = "#88b878"
+
+# regular expressions
+"keyword.operator.regexp" = "#b890b0"
+
+# escape characters
+"constant.character" = "#b890b0"
+
+# constants in general
+"constant" = "#b89a6a"
+
+# parameters
+"variable.parameter" = "#c8a870"
+
+# environment variables
+"variable.other" = "#c87868"
+"punctuation.definition.variable" = "#c87868"
+
+# commands
+"variable.function" = "#6a94a8"
+
+# home directory ~
+"variable.language.tilde" = "#c87868"
+
+# keywords
+"keyword" = "#9090b8"
+
+# general foreground color
+source = "#d0dcc8"
+
+# variable assignments
+"storage" = "#d4b85a"
+"storage.modifier" = "#9090b8"
+
+# support terms (e.g. double braces, let)
+"support" = "#6a94a8"
+"keyword.operator" = "#5ab8a8"
+
+# function names
+"entity.name.function" = "#6a94a8"
+
+# braces
+"punctuation.section" = "#9aab94"
+
+# terminators (e.g. ";;" after a case item)
+"punctuation.terminator" = "#9aab94"
+
+# history expansions
+"meta.group.expansion.history" = "#c87868"
+
+# reset command substitutions to the theme's default foreground color
+"meta.group.expansion.command.parens" = { foreground = "#d0dcc8" }
+
+# dynamic items
+"dynamic.callable" = "#6a94a8"
+"dynamic.callable.missing" = "#c87868"
+"dynamic.path" = { underline = true }
+
+[metadata]
+# Fall back to a dark built-in base for any uncovered scope.
+extends = "patina"

@@ -23,8 +23,9 @@ SYSTEMD_ENABLE := sudo systemctl --now enable
 SYSTEMD_ENABLE_USER := systemctl --user --now enable
 
 .DEFAULT_GOAL := help
-.PHONY: help install init wayland hypr laptop thinkpad nvidia dnscrypt-proxy \
-        podman_image test testpath hyprinstall p53 p53nvidia clean
+.PHONY: help install init wayland hypr laptop thinkpad nvidia unbound \
+        networkmanager dns podman_image test testpath hyprinstall p53 \
+        p53nvidia clean
 
 help: ## Muestra esta ayuda
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -107,12 +108,24 @@ nvidia: ## Configura drivers NVIDIA
 	@echo "==> Instalando paquetes NVIDIA..."
 	yay -S --needed --noconfirm $(NVIDIA_PKGS)
 
-dnscrypt-proxy: ## Configura dnscrypt-proxy
-	@echo "==> Configurando dnscrypt-proxy..."
+unbound: ## Configura unbound (resolver DNS local) + resolv.conf
+	@echo "==> Instalando unbound..."
+	yay -S --needed --noconfirm unbound
+	@echo "==> Configurando resolv.conf..."
+	@if [ -e /etc/resolv.conf ] || [ -L /etc/resolv.conf ]; then sudo rm -f /etc/resolv.conf; fi
 	sudo ln -vsf ${PWD}/etc/resolv.conf /etc/resolv.conf
-	yay -S --needed --noconfirm dnscrypt-proxy
-	sudo ln -vsf ${PWD}/etc/dnscrypt-proxy/* /etc/dnscrypt-proxy/
-	$(SYSTEMD_ENABLE) dnscrypt-proxy
+	@echo "==> Configurando unbound.conf..."
+	sudo install -Dm 644 ${PWD}/etc/unbound/unbound.conf /etc/unbound/unbound.conf
+	$(SYSTEMD_ENABLE) unbound
+
+networkmanager: ## Configura NetworkManager (DNS + wifi backend)
+	@echo "==> Configurando NetworkManager/conf.d..."
+	sudo install -d -m 755 /etc/NetworkManager/conf.d
+	sudo install -m 644 ${PWD}/etc/NetworkManager/conf.d/*.conf /etc/NetworkManager/conf.d/
+	@echo "==> Recargando NetworkManager (omitido en SSH para evitar desconexión)..."
+	@if [ -z "$$SSH_CONNECTION" ]; then sudo systemctl reload NetworkManager || true; else echo "    SSH detectado: recarga manualmente con 'sudo systemctl reload NetworkManager'"; fi
+
+dns: unbound networkmanager ## Configura toda la pila DNS local (unbound + NM)
 
 podman_image: ## Construye imagen de Podman para testing
 	podman build -t dotfiles ${PWD}

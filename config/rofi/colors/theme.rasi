@@ -5,10 +5,10 @@
  **/
 
 * {
-    background:     #1a211aFF;   /* bg0  — sage green */
-    background-alt: #2d382dFF;   /* bg3  — slightly darker sage */
-    foreground:     #d0dcc8FF;   /* fg0  — near-black */
-    selected: #d4b85aFF;
-    active:         #7aab72FF;   /* green0 — secondary */
-    urgent:         #c87868FF;   /* red */
+    background:     #add4a0FF;   /* bg0  — sage green */
+    background-alt: #96be8cFF;   /* bg3  — slightly darker sage */
+    foreground:     #1a1a1aFF;   /* fg0  — near-black */
+    selected: #5a4808FF;
+    active:         #2a5c22FF;   /* green0 — secondary */
+    urgent:         #7a1e18FF;   /* red */
 }

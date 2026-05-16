@@ -1,20 +1,20 @@
 :root {
   --bg: #add4a0;
   --currentline: #88b07e;
-  --fg: #222222;
-  --comment: #575268;
+  --fg: #1a1a1a;
+  --comment: #486040;
   --flamingo: #d8a8a0;
-  --mauve: #4a3870;
-  --pink: #6a3868;
-  --maroon: #e8a2af;
+  --mauve: #3a2860;
+  --pink: #5a2858;
+  --maroon: #d8a8a0;
   --red: #8a2820;
-  --peach: #8a5820;
-  --yellow: #786018;
-  --green: #2e5a28;
-  --teal: #206860;
-  --blue: #2a5872;
-  --sky: #2a6868;
-  --lavender: #4a3870;
+  --peach: #7a4a18;
+  --yellow: #5a4808;
+  --green: #2a5c22;
+  --teal: #145850;
+  --blue: #1e4868;
+  --sky: #1a5858;
+  --lavender: #3a2860;
   --rosewater: #8a2820;
   --font: "DankMono Nerd Font Mono";
   /* vimium theme uses colors: flamingo, peach, rosewater, green, blue, lavender */

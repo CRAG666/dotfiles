@@ -51,6 +51,7 @@ read -r -d '' COLOR_MAP <<'EOF' || true
 #90bcd0 #223040
 #94cc88 #243224
 #d0c890 #3a3420
+#4a3870 #a0a0c8
 EOF
 
 # Files that get bulk hex-swapped (light <-> dark).  Existence is checked at runtime.
@@ -65,6 +66,10 @@ HEX_SWAP_FILES=(
   "$HOME/.config/rofi/theme.rasi"
   "$HOME/.config/rofi/colors/theme.rasi"
   "$HOME/.config/rofi/colors/eyes.txt"
+  "$HOME/.config/scroll/config"
+  "$HOME/.config/yazi/init.lua"
+  "$HOME/.config/yazi/flavors/eyes.yazi/flavor.toml"
+  "$HOME/.config/tridactyl/themes/eyes.css"
 )
 
 current_mode() {
@@ -121,11 +126,16 @@ apply_hex_swap() {
 # Theme-name string swaps (palette = "eyes" ↔ "eyes-dark", etc.)
 apply_name_swap() {
   local direction="$1"   # to-dark | to-light
-  local from to
+  local from to target_mode to_lr
   if [[ "$direction" == "to-dark" ]]; then
     from="eyes"; to="eyes-dark"
+    target_mode="dark"
+    # For tools whose variant files are named eyes-light/eyes-dark:
+    to_lr="eyes-dark"
   else
     from="eyes-dark"; to="eyes"
+    target_mode="light"
+    to_lr="eyes-light"
   fi
 
   # starship palette
@@ -173,6 +183,31 @@ apply_name_swap() {
     ln -sfn "./${to}.yml" "$eza_dir/theme.yml" 2>/dev/null || true
   fi
 
+  # qutebrowser theme.py symlink — files are eyes-light.py / eyes-dark.py
+  local qb_dir="$HOME/.config/qutebrowser"
+  if [[ -d "$qb_dir" ]]; then
+    ln -sfn "${to_lr}.py" "$qb_dir/theme.py" 2>/dev/null || true
+  fi
+
+  # zsh-patina theme.toml symlink — files are eyes-light.toml / eyes-dark.toml.
+  # config.toml is a real file referencing theme.toml via theme = "file:..."
+  local zp_dir="$HOME/.config/zsh-patina"
+  if [[ -d "$zp_dir" ]]; then
+    ln -sfn "${to_lr}.toml" "$zp_dir/theme.toml" 2>/dev/null || true
+  fi
+
+  # swaylock config symlink — files are eyes-light.conf / eyes-dark.conf
+  local sl_dir="$HOME/.config/swaylock"
+  if [[ -d "$sl_dir" ]]; then
+    ln -sfn "${to_lr}.conf" "$sl_dir/config" 2>/dev/null || true
+  fi
+
+  # hyprland colors theme.conf symlink — files are eyes-light.conf / eyes-dark.conf
+  local hypr_dir="$HOME/.config/hypr/colors"
+  if [[ -d "$hypr_dir" ]]; then
+    ln -sfn "${to_lr}.conf" "$hypr_dir/theme.conf" 2>/dev/null || true
+  fi
+
   # zathura include line
   sed -i -E "s|^include \\./${from}rc\$|include ./${to}rc|" \
     "$HOME/.config/zathura/zathurarc" 2>/dev/null || true
@@ -181,18 +216,16 @@ apply_name_swap() {
   sed -i -E "s|\"theme\": \"custom:${from}\"|\"theme\": \"custom:${to}\"|" \
     "$HOME/.claude/settings.json" 2>/dev/null || true
 
-  # GTK 2/3/4 — relink the active palette variant in the dotfiles repo.
-  # ~/.config/gtk-{3,4}.0/gtk.css and ~/.gtkrc-2.0.mine chain through these.
-  local gtk_variant
-  if [[ "$direction" == "to-dark" ]]; then gtk_variant="dark"
-  else gtk_variant="light"; fi
-  local repo_root="$HOME/Git/dotfiles"
-  [[ -d "$repo_root/config/gtk-3.0" ]] && \
-    ln -sfn "eyes-${gtk_variant}.css" "$repo_root/config/gtk-3.0/gtk.css"
-  [[ -d "$repo_root/config/gtk-4.0" ]] && \
-    ln -sfn "eyes-${gtk_variant}.css" "$repo_root/config/gtk-4.0/gtk.css"
-  [[ -f "$repo_root/.gtkrc-2.0-${gtk_variant}" ]] && \
-    ln -sfn ".gtkrc-2.0-${gtk_variant}" "$repo_root/.gtkrc-2.0.mine"
+  # GTK — toggle gtk-application-prefer-dark-theme so Adwaita loads the
+  # matching variant (light for light mode, dark for dark).  No custom CSS:
+  # we rely on the built-in Adwaita theme.
+  local prefer_dark
+  if [[ "$direction" == "to-dark" ]]; then prefer_dark=1
+  else prefer_dark=0; fi
+  for ini in "$HOME/.config/gtk-3.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"; do
+    [[ -f "$ini" ]] || continue
+    sed -i -E "s/^gtk-application-prefer-dark-theme=[01]\$/gtk-application-prefer-dark-theme=${prefer_dark}/" "$ini"
+  done
 }
 
 reload_daemons() {
@@ -205,6 +238,11 @@ reload_daemons() {
 
   # foot: SIGUSR1 reloads config
   pkill -SIGUSR1 -x foot 2>/dev/null || true
+
+  # hyprland: reload sources in the running compositor
+  if command -v hyprctl >/dev/null && pgrep -x Hyprland >/dev/null; then
+    hyprctl reload >/dev/null 2>&1 || true
+  fi
 
   # dunst: restart
   if pgrep -x dunst >/dev/null; then

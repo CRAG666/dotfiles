@@ -13,4 +13,4 @@ set statusbar-basename "true"
 set adjust-open width
 set recolor-keephue "true"
 set font "SFProDisplay Nerd Font 16"
-include ./eyes-darkrc
+include ./eyesrc

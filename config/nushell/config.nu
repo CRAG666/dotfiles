@@ -9,6 +9,12 @@ $env.config.hooks = ($env.config.hooks | upsert env_change {
 })
 
 $env.config.buffer_editor = "nvim"
+$env.config.edit_mode = "vi"
+$env.config.cursor_shape = {
+    vi_insert: line
+    vi_normal: block
+    emacs: line
+}
 $env.config.use_kitty_protocol = true
 $env.config.show_banner = false
 $env.config.history.file_format = "sqlite"
