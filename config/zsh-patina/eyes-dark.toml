@@ -57,6 +57,11 @@ source = "#d0dcc8"
 # reset command substitutions to the theme's default foreground color
 "meta.group.expansion.command.parens" = { foreground = "#d0dcc8" }
 
+# command call wrappers and option-argument values default to ANSI 7 (too dim)
+"meta.function-call" = { foreground = "#d0dcc8" }
+"meta.function-call.arguments" = { foreground = "#d0dcc8" }
+"punctuation.definition.parameter" = { foreground = "#d0dcc8" }
+
 # dynamic items
 "dynamic.callable" = "#6a94a8"
 "dynamic.callable.missing" = "#c87868"

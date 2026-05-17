@@ -557,3 +557,10 @@ btop.log
 config/yazi/plugins
 config/nushell/plugin*
 config/nushell/history.*
+
+# aerc — cuentas con metadata privada
+config/aerc/accounts.conf
+
+# oama — tokens encriptados (van en ~/.local/share/oama por defecto)
+config/oama/*.auth
+

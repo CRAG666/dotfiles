@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+# Wrapper para luakit en Wayland (scroll/sway).
+# Workaround del bug WebKitGTK #280210 — "Error 71 (Protocol error)"
+# Fija el renderer DMA-BUF que tiene problemas con explicit-sync.
+
+export WEBKIT_DISABLE_DMABUF_RENDERER=1
+
+# Si en el futuro WebKitGTK arregla el bug, comenta la línea de arriba
+# o borra este wrapper y deja que /usr/bin/luakit se use directamente.
+
+exec /usr/bin/luakit "$@"

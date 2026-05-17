@@ -144,13 +144,209 @@ alias h help
 alias clear fillcmdline_notrail
 
 " ============================================================================
-" WORKSPACE NAVIGATION
+" WORKSPACE NAVIGATION (Hyprland)
 " ============================================================================
 bind ]] !s wtype -M ctrl -M alt -k arrowleft
 bind [[ !s wtype -M ctrl -M alt -k arrowright
 bind [1 !s wtype -M ctrl -M alt -k 1
 bind [2 !s wtype -M ctrl -M alt -k 2
 bind [3 !s wtype -M ctrl -M alt -k 3
+
+" ============================================================================
+" ZEN BROWSER - SIDEBAR / WORKSPACES / FEATURES
+" ============================================================================
+" Tridactyl no puede tocar el chrome del navegador (sidebar, barra superior),
+" así que se replican los atajos nativos de Zen disparando teclas con wtype.
+" Atajos reales tomados de: about:preferences#zen-keyboard
+"
+" --- Compact Mode / Sidebar ---
+" zt = Toggle Compact Mode (Ctrl+S)
+bind zt !s wtype -M ctrl -k s
+" zf = Toggle Floating Sidebar (Ctrl+Alt+S)
+bind zf !s wtype -M ctrl -M alt -k s
+
+" --- Workspaces ---
+" zn = Forward Workspace ; zp = Backward Workspace
+bind zn !s wtype -M ctrl -M alt -k arrowright
+bind zp !s wtype -M ctrl -M alt -k arrowleft
+" zk = Close All Unpinned Tabs (Ctrl+Shift+K)
+bind zk !s wtype -M ctrl -M shift -k k
+
+" --- Tabs verticales del sidebar ---
+" Navegar tabs (J/K rebindeados a scroll, usamos gj/gk)
+bind gj tabnext
+bind gk tabprev
+" Mover el tab actual en el sidebar
+bind <C-S-k> tabmove -1
+bind <C-S-j> tabmove +1
+
+" --- Split View ---
+" zsv = Toggle Split Vertical (Ctrl+Alt+V)
+bind zsv !s wtype -M ctrl -M alt -k v
+" zsh = Toggle Split Horizontal (Ctrl+Alt+H)
+bind zsh !s wtype -M ctrl -M alt -k h
+" zsg = Toggle Split Grid (Ctrl+Alt+G)
+bind zsg !s wtype -M ctrl -M alt -k g
+" zsn = New Empty Split View (Ctrl+Shift+8 = *)
+bind zsn !s wtype -M ctrl -M shift -k 8
+" zsc = Close Split View (Ctrl+Alt+U)
+bind zsc !s wtype -M ctrl -M alt -k u
+
+" --- Switch a workspaces específicos ---
+" "Switch to Workspace N" aparece como "Not set" en tu Zen.
+" Si lo asignas en about:preferences#zen-keyboard (por ej. Ctrl+Alt+1..9),
+" descomenta y ajusta:
+" bind z1 !s wtype -M ctrl -M alt -k 1
+" bind z2 !s wtype -M ctrl -M alt -k 2
+" bind z3 !s wtype -M ctrl -M alt -k 3
+
+" --- Other Zen Features ---
+" ze = Toggle Pin Tab (Ctrl+Shift+D)
+bind ze !s wtype -M ctrl -M shift -k d
+" zg = Expand Glance (Ctrl+O)  -- abre el glance actual a tab completo
+bind zg !s wtype -M ctrl -k o
+" zN = New Blank Window (Ctrl+Shift+N)
+bind zN !s wtype -M ctrl -M shift -k n
+
+" Nota: "Copy URL" (Ctrl+Shift+C) y "Copy URL as Markdown" (Ctrl+Alt+Shift+C)
+" ya los tienes cubiertos nativamente por Tridactyl con `yy` y `ym`
+" — más rápido y sin pasar por wtype.
+
+" Alternativa: si activas "Use Tridactyl's own URL bar" puedes usar:
+" bind o fillcmdline open
+" bind O current_url open
+" bind t fillcmdline tabopen
+" bind T current_url tabopen
+
+" ============================================================================
+" HARDCORE VIM - EDITOR EXTERNO (Neovim)
+" ============================================================================
+" Editar cualquier textarea con nvim (Ctrl-i en modo insert)
+" Requiere: native messenger instalado (`:installnative`)
+set editorcmd kitty -e nvim
+" Si prefieres floating: alacritty --class floating -e nvim
+
+" ============================================================================
+" HARDCORE VIM - HINTS AVANZADOS
+" ============================================================================
+" Auto-seleccionar el único hint si solo queda uno
+set hintautoselect true
+" Pasar al modo insert tras hint en input
+set hintfocusinput-mode auto
+" Mostrar URL del hint en preview
+set hintshift true
+" Hint a otros elementos con `;`
+" ;y -> yank URL ; ;p -> open in private ; ;b -> background tab
+" ;t -> open in new tab ; ;k -> kill element ; ;K -> kill+save
+" (vienen por defecto, recordatorio)
+
+" Hint para abrir en container específico (firefox-multi-account-containers)
+bind ;c hint -W containeropen
+
+" Hint para abrir tabs background sin perder foco
+bind F hint -b
+
+" ============================================================================
+" HARDCORE VIM - TAB / HISTORY HARDENING
+" ============================================================================
+set tabopenpos related
+set newtabfocus page
+" Cerrar tab y volver a la última activa (no a la izquierda)
+set tabclosepivot true
+" Histórico de tabs cerrados
+bind u undo
+bind U undo window
+" Siguiente/anterior página con rel="next"/"prev"
+bind ]] followpage next
+bind [[ followpage prev
+
+" ============================================================================
+" HARDCORE VIM - MARCAS Y QUICK SCROLL
+" ============================================================================
+" Marcas locales: m{a-z} para guardar posición, '{a-z} para saltar (default)
+" Scroll rápido a porcentajes
+bind gh scrollto 0
+bind gl scrollto 100
+bind gm scrollto 50
+
+" ============================================================================
+" HARDCORE VIM - SEARCH ENGINES
+" ============================================================================
+set searchurls.g https://www.google.com/search?q=
+set searchurls.dd https://duckduckgo.com/?q=
+set searchurls.gh https://github.com/search?q=
+set searchurls.mdn https://developer.mozilla.org/en-US/search?q=
+set searchurls.dv https://devdocs.io/#q=
+set searchurls.aw https://wiki.archlinux.org/index.php?search=
+set searchurls.np https://www.npmjs.com/search?q=
+set searchurls.cr https://crates.io/search?q=
+set searchurls.yt https://www.youtube.com/results?search_query=
+set searchurls.rd https://www.reddit.com/search/?q=
+set searchurls.so https://stackoverflow.com/search?q=
+set searchurls.tr https://translate.google.com/?sl=auto&tl=es&text=
+set searchengine dd
+
+" Search shortcuts
+bind sg fillcmdline tabopen g
+bind sh fillcmdline tabopen gh
+bind sm fillcmdline tabopen mdn
+bind sa fillcmdline tabopen aw
+bind sy fillcmdline tabopen yt
+
+" ============================================================================
+" HARDCORE VIM - URL / DOMAIN HACKING
+" ============================================================================
+" Subir un nivel en la URL (como `gu` ya por defecto, refuerzo)
+bind gu urlparent
+bind gU urlroot
+" Editar URL actual
+bind gE current_url tabopen
+" Recargar duro
+bind <C-r> reload
+bind <C-S-r> reloadhard
+
+" ============================================================================
+" HARDCORE VIM - INSERT MODE / DOMINIO DE INPUTS
+" ============================================================================
+" Salir de insert mode con jk (clásico vim)
+bind --mode=insert jk composite unfocus | mode normal
+bind --mode=input jk composite unfocus | mode normal
+" Bloquear focus automático de sitios web molestos
+set allowautofocus false
+" gi = foco al último input editado (default, recordatorio)
+" Ctrl-i = abrir input en $EDITOR (nvim) (default)
+
+" ============================================================================
+" HARDCORE VIM - SITIOS QUE PREFIEREN SUS PROPIOS KEYBINDINGS
+" ============================================================================
+" Desactivar Tridactyl en sitios con vim mode propio
+seturl ^https://mail.google.com mode ignore
+seturl ^https://web.whatsapp.com/ mode ignore
+seturl ^https://app.element.io mode ignore
+seturl ^https://(www\.)?youtube.com/watch noiframeon /^.*$/
+" Re-activar con <C-,> (default: shift+esc para toggle)
+" Toggle Tridactyl on/off
+bind <A-Escape> mode ignore
+bind --mode=ignore <A-Escape> mode normal
+
+" ============================================================================
+" HARDCORE VIM - GUI MINIMAL (oculta UI de Firefox/Zen)
+" ============================================================================
+" Para esconder elementos del chrome (requiere reinicio de Zen)
+" Descomenta cuando ejecutes `:fixamo` primero para permitir userChrome.css
+" guiset_quiet hoverlink right
+" guiset_quiet tabs count
+" guiset_quiet navbar autohide
+
+" ============================================================================
+" HARDCORE VIM - PERFORMANCE / CHROME
+" ============================================================================
+" Saltar la página de bienvenida en tabs nuevos
+set newtab about:blank
+" No usar smoothscroll (más responsivo)
+set smoothscroll false
+" Tabs cerrados máximos en historia
+set closedtabhistorymaxsize 30
 
 " ============================================================================
 " SITE-SPECIFIC CONFIGURATIONS

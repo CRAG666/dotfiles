@@ -98,7 +98,9 @@ zathura
 zathura-pdf-mupdf
 
 # Communication
-betterbird-es-bin
+aerc
+oama
+# betterbird-es-bin
 telegram-desktop
 
 # Download
@@ -120,6 +122,8 @@ tidal-dl
 # Web Browsers
 zen-browser-bin
 firefox-tridactyl-native
+nyxt-git
+ungoogled-chromium-bin
 
 # Gaming
 # libretro-core-info

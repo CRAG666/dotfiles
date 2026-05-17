@@ -17,6 +17,7 @@ set_discord_status = false
 random_track_quantity = 20
 random_album_min_quantity = 1
 backend = "rusty"
+startup_state = "playing"
 
 [player.remember_position]
 music = "no"

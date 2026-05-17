@@ -2,6 +2,7 @@
 x-scheme-handler/http=zen.desktop
 x-scheme-handler/https=zen.desktop
 x-scheme-handler/chrome=zen.desktop
+x-scheme-handler/mailto=aerc-kitty.desktop
 text/html=zen.desktop
 application/x-extension-htm=zen.desktop
 application/x-extension-html=zen.desktop
@@ -46,6 +47,7 @@ x-scheme-handler/claude-cli=claude-code-url-handler.desktop
 x-scheme-handler/http=zen.desktop;
 x-scheme-handler/https=zen.desktop;
 x-scheme-handler/chrome=zen.desktop;
+x-scheme-handler/mailto=aerc-kitty.desktop;
 text/html=zen.desktop;
 application/x-extension-htm=zen.desktop;
 application/x-extension-html=zen.desktop;
