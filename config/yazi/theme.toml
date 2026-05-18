@@ -123,14 +123,10 @@ progress_error  = { fg = "yellow", bg = "red" }
 
 # : Which {{{
 
+# Colors live in flavors/eyes.yazi/flavor.toml [which]; keep only
+# layout overrides here so the flavor can theme the panel.
 [which]
-cols            = 3
-mask            = { bg = "black" }
-cand            = { fg = "lightcyan" }
-rest            = { fg = "darkgray" }
-desc            = { fg = "lightmagenta" }
-separator       = "  "
-separator_style = { fg = "darkgray" }
+cols = 3
 
 # : }}}
 

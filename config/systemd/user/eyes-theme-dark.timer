@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily 19:00 — switch eyes theme to dark
+
+[Timer]
+OnCalendar=*-*-* 19:00:00
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

@@ -23,7 +23,7 @@ SYSTEMD_ENABLE := sudo systemctl --now enable
 SYSTEMD_ENABLE_USER := systemctl --user --now enable
 
 .DEFAULT_GOAL := help
-.PHONY: help install init wayland hypr laptop thinkpad nvidia unbound \
+.PHONY: help install init systemd-user wayland hypr laptop thinkpad nvidia unbound \
         networkmanager dns podman_image test testpath hyprinstall p53 \
         p53nvidia clean
 
@@ -52,7 +52,7 @@ install: ## Instala paquetes de Arch Linux usando yay
 	@echo "==> Configurando bob (neovim version manager)..."
 	@command -v bob >/dev/null 2>&1 && bob use nightly || echo "bob no instalado, saltando..."
 
-init: ## Despliega los dotfiles iniciales
+init: systemd-user ## Despliega los dotfiles iniciales
 	@echo "==> Creando enlaces simbólicos en el directorio HOME"
 	@SRC_DIR=${PWD}; \
 	DOTFILES=$$(find $$SRC_DIR -maxdepth 1 -type f -name ".*" -exec basename {} \;); \
@@ -78,6 +78,21 @@ init: ## Despliega los dotfiles iniciales
 			ln -vfs "$$SRC_DIR/config/$$config" "${HOME}/.config/$$config"; \
 		fi; \
 	done
+
+systemd-user: ## Enlaza los unit files de usuario (eyes-theme*) y habilita timers/boot
+	@echo "==> Enlazando units de systemd --user..."
+	@mkdir -p ${HOME}/.config/systemd/user
+	@for unit in $$(find ${PWD}/config/systemd/user -maxdepth 1 -type f \
+	                \( -name '*.service' -o -name '*.timer' \) -exec basename {} \;); do \
+		dst="${HOME}/.config/systemd/user/$$unit"; \
+		if [ -e "$$dst" ] && [ ! -L "$$dst" ]; then \
+			echo "ADVERTENCIA: $$dst existe pero no es un symlink. Haz backup manualmente."; \
+		else \
+			ln -vsfn "${PWD}/config/systemd/user/$$unit" "$$dst"; \
+		fi; \
+	done
+	systemctl --user daemon-reload
+	$(SYSTEMD_ENABLE_USER) eyes-theme-boot.service eyes-theme-light.timer eyes-theme-dark.timer
 
 wayland: ## Instala paquetes necesarios para Wayland
 	@echo "==> Configurando greetd..."

@@ -102,7 +102,7 @@ else
   c_red        = { '#7a1e18', 88  }   -- errores
   c_yellow     = { '#5a4808', 58  }   -- warnings (corregido, pasa AA ~4.6:1)
   c_pink       = { '#5a2858', 90  }   -- macros
-  c_ash        = { '#3a6128', 65  }   -- comentarios discretos (aclarado, separado de green1)
+  c_ash        = { '#365c25', 65  }   -- comentarios discretos (aclarado, separado de green1)
   c_gray0      = { '#486040', 66  }
   c_gray1      = { '#385030', 65  }
   c_gray2      = { '#2c4028', 64  }

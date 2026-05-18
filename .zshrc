@@ -242,10 +242,6 @@ export BAT_THEME="eyes"
 export USB="/run/media/$USER"
 export PATH="$HOME/.local/bin:$HOME/.dotnet/tools:$HOME/.local/share/bob/nvim-bin:$HOME/.local/share/nvim/mason/bin:$HOME/.config/emacs/bin:$HOME/.npm-global/bin:$PATH"
 export FZF_DEFAULT_COMMAND='fd . --type f --hidden --follow --exclude .git --no-ignore'
-# export FZF_DEFAULT_OPTS=" --prompt='ﰉ ' --pointer='ﰊ' --height 40% --reverse --bind='?:toggle-preview' \
-# --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
-# --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
-# --color=marker:#f5e0dc,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8"
 export FZF_DEFAULT_OPTS=" --prompt='ﰉ ' --pointer='ﰊ' --height 40% --reverse --bind='?:toggle-preview' \
   --color=bg+:#3a463a,bg:#1a211a,spinner:#b890b0,hl:#c87868 \
   --color=fg:#6a94a8,header:#c87868,info:#9090b8,pointer:#b890b0 \

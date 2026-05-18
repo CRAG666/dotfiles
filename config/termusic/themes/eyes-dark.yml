@@ -18,9 +18,9 @@ colors:
     white: "#9aab94"
   bright:
     black: "#536053"
-    red: "#d68878"
+    red: "#c87868"
     green: "#88b878"
-    yellow: "#dcc070"
+    yellow: "#d4b85a"
     blue: "#82aab8"
     magenta: "#9090b8"
     cyan: "#6ab8b0"

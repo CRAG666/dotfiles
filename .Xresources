@@ -8,11 +8,11 @@
 
 ! red
 *color1:           #7a1e18
-*color9:           #8a2820
+*color9:           #7a1e18
 
 ! green
 *color2:           #2a5c22
-*color10:          #3a5c30
+*color10:          #3a5030
 
 ! yellow
 *color3:           #5a4808

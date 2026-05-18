@@ -38,7 +38,7 @@ theme[cached_mid]="#5ab8a8"
 theme[cached_end]="#6a94a8"
 
 theme[available_start]="#c8a870"
-theme[available_mid]="#d68878"
+theme[available_mid]="#c87868"
 theme[available_end]="#c87868"
 
 theme[used_start]="#7aab72"
@@ -46,7 +46,7 @@ theme[used_mid]="#6a9460"
 theme[used_end]="#5ab8a8"
 
 theme[download_start]="#c8a870"
-theme[download_mid]="#d68878"
+theme[download_mid]="#c87868"
 theme[download_end]="#c87868"
 
 theme[upload_start]="#7aab72"

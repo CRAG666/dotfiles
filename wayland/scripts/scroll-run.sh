@@ -2,15 +2,16 @@
 
 show_help() {
     echo "Uso: $0 [-m MODE] [-a] [-h]"
-    echo "  -m MODE: Especifica el modo de gráficos (intel, nvidia)"
+    echo "  -m MODE: Especifica el modo de gráficos (intel, nvidia, nvidia-only)"
+    echo "           nvidia-only: solo NVIDIA, asume monitor externo (sin eDP)"
     echo "  -a: Modo automático (detecta si está enchufado)"
     echo "  -h: Muestra este mensaje de ayuda"
     exit 1
 }
 
 validate_mode() {
-    if [ "$1" != "intel" ] && [ "$1" != "nvidia" ]; then
-        echo "Modo de gráficos '$1' no válido. Usa: intel o nvidia"
+    if [ "$1" != "intel" ] && [ "$1" != "nvidia" ] && [ "$1" != "nvidia-only" ]; then
+        echo "Modo de gráficos '$1' no válido. Usa: intel, nvidia o nvidia-only"
         show_help
     fi
 }
@@ -34,9 +35,9 @@ detect_power_mode() {
 }
 
 set_default_env() {
-    export XDG_CURRENT_DESKTOP=scroll:sway
+    export XDG_CURRENT_DESKTOP=scroll
     export XDG_SESSION_TYPE=wayland
-    export XDG_SESSION_DESKTOP=scroll:sway
+    export XDG_SESSION_DESKTOP=scroll
     export ELECTRON_OZONE_PLATFORM_HINT=wayland
     export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
     export QT_SCALE_FACTOR_ROUNDING_POLICY=RoundPreferFloor
@@ -51,6 +52,7 @@ set_default_env() {
     export GDK_SCALE=1
     export GDK_DEBUG=portals
     export GTK_USE_PORTAL=1
+    export GTK_IM_MODULE=simple
     export DISABLE_QT5_COMPAT=0
     export ANKI_WAYLAND=1
     export SDL_VIDEODRIVER=wayland
@@ -82,9 +84,9 @@ set_nvidia_env() {
     export MOZ_WAYLAND_DRM_DEVICE=/dev/dri/${RENDER_NVIDIA}
     export MOZ_DRM_DEVICE=/dev/dri/${RENDER_NVIDIA}
     export MOZ_WEBRENDER=1
-    export WLR_NO_HARDWARE_CURSORS=1
     export MOZ_DISABLE_RDD_SANDBOX=1
     export CUDA_DISABLE_PERF_BOOST=1
+    export WLR_DRM_DEVICES=/dev/dri/${CARD_INTEL}:/dev/dri/${CARD_NVIDIA}
 }
 
 MODE=""
@@ -149,6 +151,16 @@ case "$MODE" in
     echo "Configurando para NVIDIA (máximo rendimiento)..."
     set_default_env
     set_nvidia_env
-    exec prime-run scroll
+    exec scroll
+    ;;
+"nvidia-only")
+    echo "Configurando para NVIDIA exclusiva (solo monitor externo)..."
+    set_default_env
+    set_nvidia_env
+    export WLR_DRM_DEVICES=/dev/dri/${CARD_NVIDIA}
+    if command -v brightnessctl &>/dev/null; then
+        brightnessctl --device=intel_backlight set 0 &>/dev/null
+    fi
+    exec scroll
     ;;
 esac

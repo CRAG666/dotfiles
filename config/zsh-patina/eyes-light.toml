@@ -1,20 +1,23 @@
 # eyes (light) — sage-green palette for zsh-patina.
 # Token names mirror Catppuccin's example; only hex values are eyes.
 
-# comments
-"comment" = "#486040"
+# comments (c_ash from nvim eyes)
+"comment" = "#365c25"
 
-# strings
-"string" = "#2a5c22"
+# strings (c_green1 from nvim eyes — distinct from comments)
+"string" = "#1e4a18"
 
 # regular expressions
 "keyword.operator.regexp" = "#5a2858"
 
-# escape characters
+# escape characters (c_pink)
 "constant.character" = "#5a2858"
 
-# constants in general
+# constants in general (c_orange0)
 "constant" = "#6a3c10"
+
+# numeric literals (c_pink to match nvim Number)
+"constant.numeric" = "#5a2858"
 
 # parameters
 "variable.parameter" = "#7a4a18"
@@ -43,14 +46,14 @@ source = "#1a1a1a"
 "support" = "#1e4868"
 "keyword.operator" = "#145850"
 
-# function names
-"entity.name.function" = "#1e4868"
+# function names (c_blue1 from nvim eyes)
+"entity.name.function" = "#143c52"
 
-# braces
-"punctuation.section" = "#486040"
+# braces (c_gray1 from nvim eyes)
+"punctuation.section" = "#385030"
 
 # terminators (e.g. ";;" after a case item)
-"punctuation.terminator" = "#486040"
+"punctuation.terminator" = "#385030"
 
 # history expansions
 "meta.group.expansion.history" = "#7a1e18"

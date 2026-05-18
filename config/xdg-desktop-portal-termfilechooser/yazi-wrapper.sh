@@ -3,17 +3,18 @@
 #
 # For more information about input/output arguments read `xdg-desktop-portal-termfilechooser(5)`
 
-set -e
-
-if [ "$6" -ge 4 ]; then
-    set -x
-fi
-
 multiple="$1"
 directory="$2"
 save="$3"
 path="$4"
 out="$5"
+debug="$6"
+
+set -e
+
+if [ "$debug" = 1 ]; then
+    set -x
+fi
 
 cmd="yazi"
 termcmd="${TERMCMD:-kitty --title 'termfilechooser'}"
@@ -44,7 +45,7 @@ sh -c "$command"
 
 if [ "$directory" = "1" ]; then
     if [ ! -s "$out" ] && [ -s "$out"".1" ]; then
-        cat "$out"".1" > "$out"
+        cat "$out"".1" >"$out"
         rm "$out"".1"
     else
         rm "$out"".1"

@@ -1,19 +1,22 @@
 # eyes (dark) — forest-green palette for zsh-patina.
 
-# comments
-"comment" = "#9aab94"
+# comments (c_ash from nvim eyes)
+"comment" = "#7a8c72"
 
-# strings
+# strings (c_green1 from nvim eyes)
 "string" = "#88b878"
 
 # regular expressions
 "keyword.operator.regexp" = "#b890b0"
 
-# escape characters
+# escape characters (c_pink)
 "constant.character" = "#b890b0"
 
-# constants in general
+# constants in general (c_orange0)
 "constant" = "#b89a6a"
+
+# numeric literals (c_pink to match nvim Number)
+"constant.numeric" = "#b890b0"
 
 # parameters
 "variable.parameter" = "#c8a870"
@@ -42,14 +45,14 @@ source = "#d0dcc8"
 "support" = "#6a94a8"
 "keyword.operator" = "#5ab8a8"
 
-# function names
-"entity.name.function" = "#6a94a8"
+# function names (c_blue1 from nvim eyes)
+"entity.name.function" = "#82aab8"
 
-# braces
-"punctuation.section" = "#9aab94"
+# braces (c_gray1 from nvim eyes)
+"punctuation.section" = "#7a8a78"
 
 # terminators (e.g. ";;" after a case item)
-"punctuation.terminator" = "#9aab94"
+"punctuation.terminator" = "#7a8a78"
 
 # history expansions
 "meta.group.expansion.history" = "#c87868"

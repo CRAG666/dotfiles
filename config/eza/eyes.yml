@@ -1,8 +1,8 @@
 colourful: true
 
 filekinds:
-  normal: {foreground: "#4a3870"}
-  directory: {foreground: "#8a2820"}
+  normal: {foreground: "#3a2860"}
+  directory: {foreground: "#7a1e18"}
   symlink: {foreground: "#2a5872"}
   pipe: {foreground: "#6a3868"}
   block_device: {foreground: "#7a4a18"}
@@ -13,14 +13,14 @@ filekinds:
   mount_point: {foreground: "#2a5872"}
 
 perms:
-  user_read: {foreground: "#8a2820", is_bold: true}
+  user_read: {foreground: "#7a1e18", is_bold: true}
   user_write: {foreground: "#786018", is_bold: true}
   user_execute_file: {foreground: "#3a6832", is_bold: true}
   user_execute_other: {foreground: "#3a6832", is_bold: true}
-  group_read: {foreground: "#8a2820"}
+  group_read: {foreground: "#7a1e18"}
   group_write: {foreground: "#786018"}
   group_execute: {foreground: "#3a6832"}
-  other_read: {foreground: "#8a2820"}
+  other_read: {foreground: "#7a1e18"}
   other_write: {foreground: "#786018"}
   other_execute: {foreground: "#3a6832"}
   special_user_file: {foreground: "#2a6868"}
@@ -43,11 +43,11 @@ size:
 
 users:
   user_you: {foreground: "#2e5a28"}
-  user_root: {foreground: "#8a2820"}
+  user_root: {foreground: "#7a1e18"}
   user_other: {foreground: "#7a4a18"}
   group_yours: {foreground: "#8a5820"}
   group_other: {foreground: "#4a6044"}
-  group_root: {foreground: "#8a2820"}
+  group_root: {foreground: "#7a1e18"}
 
 links:
   normal: {foreground: "#2a5872"}
@@ -77,7 +77,7 @@ security_context:
 
 file_type:
   image: {foreground: "#786018"}
-  video: {foreground: "#8a2820"}
+  video: {foreground: "#7a1e18"}
   music: {foreground: "#3a6832"}
   lossless: {foreground: "#2a5872"}
   crypto: {foreground: "#1e2e1c"}
@@ -97,5 +97,5 @@ flags: {foreground: "#2a6868"}
 
 symlink_path: {foreground: "#1e4a60"}
 control_char: {foreground: "#206860"}
-broken_symlink: {foreground: "#8a2820"}
+broken_symlink: {foreground: "#7a1e18"}
 broken_path_overlay: {foreground: "#585b70"}

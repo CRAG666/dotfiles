@@ -64,22 +64,22 @@ theme[cached_end]="#1e4868"
 
 # Mem/Disk available meter (orange -> red)
 theme[available_start]="#7a4a18"
-theme[available_mid]="#8a2820"
+theme[available_mid]="#7a1e18"
 theme[available_end]="#7a1e18"
 
 # Mem/Disk used meter (green -> teal)
 theme[used_start]="#2a5c22"
-theme[used_mid]="#3a5c30"
+theme[used_mid]="#3a5030"
 theme[used_end]="#145850"
 
 # Download graph (orange -> red)
 theme[download_start]="#7a4a18"
-theme[download_mid]="#8a2820"
+theme[download_mid]="#7a1e18"
 theme[download_end]="#7a1e18"
 
 # Upload graph (green -> teal)
 theme[upload_start]="#2a5c22"
-theme[upload_mid]="#3a5c30"
+theme[upload_mid]="#3a5030"
 theme[upload_end]="#145850"
 
 # Process box gradient (blue -> violet)
