@@ -247,6 +247,31 @@ export FZF_DEFAULT_OPTS=" --prompt='ﰉ ' --pointer='ﰊ' --height 40% --reverse
   --color=fg:#6a94a8,header:#c87868,info:#9090b8,pointer:#b890b0 \
   --color=marker:#b890b0,fg+:#d0dcc8,prompt:#9090b8,hl+:#c87868"
 
+# Gum (Charm) — eyes palette via env vars; eyes-theme hex-swap toggles them.
+export GUM_CHOOSE_CURSOR_FOREGROUND="#b890b0"
+export GUM_CHOOSE_SELECTED_FOREGROUND="#c87868"
+export GUM_CHOOSE_HEADER_FOREGROUND="#c87868"
+export GUM_INPUT_CURSOR_FOREGROUND="#b890b0"
+export GUM_INPUT_PROMPT_FOREGROUND="#9090b8"
+export GUM_INPUT_PLACEHOLDER_FOREGROUND="#7a8a78"
+export GUM_INPUT_HEADER_FOREGROUND="#c87868"
+export GUM_WRITE_CURSOR_FOREGROUND="#b890b0"
+export GUM_WRITE_PROMPT_FOREGROUND="#9090b8"
+export GUM_WRITE_PLACEHOLDER_FOREGROUND="#7a8a78"
+export GUM_WRITE_HEADER_FOREGROUND="#c87868"
+export GUM_CONFIRM_PROMPT_FOREGROUND="#9090b8"
+export GUM_CONFIRM_SELECTED_BACKGROUND="#c87868"
+export GUM_CONFIRM_SELECTED_FOREGROUND="#1a211a"
+export GUM_CONFIRM_UNSELECTED_BACKGROUND="#3a463a"
+export GUM_CONFIRM_UNSELECTED_FOREGROUND="#d0dcc8"
+export GUM_FILTER_INDICATOR_FOREGROUND="#b890b0"
+export GUM_FILTER_SELECTED_PREFIX_FOREGROUND="#c87868"
+export GUM_FILTER_MATCH_FOREGROUND="#d4b85a"
+export GUM_FILTER_PROMPT_FOREGROUND="#9090b8"
+export GUM_FILTER_PLACEHOLDER_FOREGROUND="#7a8a78"
+export GUM_FILTER_HEADER_FOREGROUND="#c87868"
+export GUM_SPIN_SPINNER_FOREGROUND="#c87868"
+
 # Working with documents
 alias pandock='podman run --rm -v "$(pwd):/data" pandoc/extra'
 export MARPT=~/Documentos/Proyectos/Writings/utils/marp/themes

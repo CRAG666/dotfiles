@@ -65,13 +65,25 @@ run_rofi() {
 # Execute Command
 run_cmd() {
     if [[ "$1" == '--opt1' ]]; then
-        zen-browser -P inaoe 'https://dblp.org/search'
         zen-browser -P inaoe 'https://ieeexplore.ieee.org/Xplore/home.jsp'
         zen-browser -P inaoe 'https://www.sciencedirect.com/'
+        zen-browser -P inaoe 'https://link.springer.com'
+        zen-browser -P inaoe 'https://dl.acm.org'
+        zen-browser -P inaoe 'https://dblp.org/search'
+        zen-browser -P inaoe 'https://research.ebsco.com'
+        zen-browser -P inaoe 'https://onlinelibrary.wiley.com/'
+        zen-browser -P inaoe 'https://www.semanticscholar.org/'
         zen-browser -P inaoe 'https://www.scopus.com/search/form.uri?display=basic#basic'
+        zen-browser -P inaoe 'https://openalex.org/'
         zen-browser -P inaoe 'https://www.webofscience.com/wos/woscc/basic-search'
         zen-browser -P inaoe 'https://www.researchgate.net/'
-        zen-browser -P inaoe 'https://onlinelibrary.wiley.com/'
+        zen-browser -P inaoe 'https://storm.genie.stanford.edu/'
+        zen-browser -P inaoe 'https://www.scimagojr.com'
+        zen-browser -P inaoe 'https://www.base-search.net/'
+        zen-browser -P inaoe 'https://zenodo.org/'
+        zen-browser -P inaoe 'https://europepmc.org/'
+        zen-browser -P inaoe 'https://fabian-beck.github.io/pure-suggest/'
+
     elif [[ "$1" == '--opt2' ]]; then
         xdg-open 'https://web.whatsapp.com/'
     elif [[ "$1" == '--opt3' ]]; then

@@ -52,6 +52,31 @@ $env.PROMPT_INDICATOR_VI_NORMAL = ""
 $env.FZF_DEFAULT_COMMAND = 'fd . --type f --hidden --follow --exclude .git --no-ignore'
 $env.FZF_DEFAULT_OPTS = " --prompt='ﰉ ' --pointer='ﰊ' --height 40% --reverse --bind='?:toggle-preview' --color=bg+:#88b07e,bg:#add4a0,spinner:#5a2858,hl:#7a1e18 --color=fg:#1e4868,header:#7a1e18,info:#3a2860,pointer:#5a2858 --color=marker:#5a2858,fg+:#1a1a1a,prompt:#3a2860,hl+:#7a1e18"
 
+# Gum (Charm) — eyes palette via env vars; eyes-theme hex-swap toggles them.
+$env.GUM_CHOOSE_CURSOR_FOREGROUND = "#5a2858"
+$env.GUM_CHOOSE_SELECTED_FOREGROUND = "#7a1e18"
+$env.GUM_CHOOSE_HEADER_FOREGROUND = "#7a1e18"
+$env.GUM_INPUT_CURSOR_FOREGROUND = "#5a2858"
+$env.GUM_INPUT_PROMPT_FOREGROUND = "#3a2860"
+$env.GUM_INPUT_PLACEHOLDER_FOREGROUND = "#385030"
+$env.GUM_INPUT_HEADER_FOREGROUND = "#7a1e18"
+$env.GUM_WRITE_CURSOR_FOREGROUND = "#5a2858"
+$env.GUM_WRITE_PROMPT_FOREGROUND = "#3a2860"
+$env.GUM_WRITE_PLACEHOLDER_FOREGROUND = "#385030"
+$env.GUM_WRITE_HEADER_FOREGROUND = "#7a1e18"
+$env.GUM_CONFIRM_PROMPT_FOREGROUND = "#3a2860"
+$env.GUM_CONFIRM_SELECTED_BACKGROUND = "#7a1e18"
+$env.GUM_CONFIRM_SELECTED_FOREGROUND = "#add4a0"
+$env.GUM_CONFIRM_UNSELECTED_BACKGROUND = "#88b07e"
+$env.GUM_CONFIRM_UNSELECTED_FOREGROUND = "#1a1a1a"
+$env.GUM_FILTER_INDICATOR_FOREGROUND = "#5a2858"
+$env.GUM_FILTER_SELECTED_PREFIX_FOREGROUND = "#7a1e18"
+$env.GUM_FILTER_MATCH_FOREGROUND = "#5a4808"
+$env.GUM_FILTER_PROMPT_FOREGROUND = "#3a2860"
+$env.GUM_FILTER_PLACEHOLDER_FOREGROUND = "#385030"
+$env.GUM_FILTER_HEADER_FOREGROUND = "#7a1e18"
+$env.GUM_SPIN_SPINNER_FOREGROUND = "#7a1e18"
+
 # Configuración del PATH
 # Nushell maneja el PATH como una lista. Agregamos tus directorios personalizados.
 let zsh_paths = [

@@ -81,7 +81,7 @@ current_mode() {
 auto_mode_for_now() {
   local hour
   hour="$(date +%-H)"
-  if (( hour >= 6 && hour < 19 )); then
+  if ((hour >= 6 && hour < 19)); then
     echo "light"
   else
     echo "dark"
@@ -115,7 +115,7 @@ build_sed_script() {
       printf 's/38;2;%s/38;2;%s/g;\n' "$to_sgr" "$from_sgr"
       printf 's/48;2;%s/48;2;%s/g;\n' "$to_sgr" "$from_sgr"
     fi
-  done <<< "$COLOR_MAP"
+  done <<<"$COLOR_MAP"
 }
 
 apply_hex_swap() {
@@ -136,12 +136,14 @@ apply_name_swap() {
   local direction="$1"   # to-dark | to-light
   local from to target_mode to_lr
   if [[ "$direction" == "to-dark" ]]; then
-    from="eyes"; to="eyes-dark"
+    from="eyes"
+                 to="eyes-dark"
     target_mode="dark"
     # For tools whose variant files are named eyes-light/eyes-dark:
     to_lr="eyes-dark"
   else
-    from="eyes-dark"; to="eyes"
+    from="eyes-dark"
+                      to="eyes"
     target_mode="light"
     to_lr="eyes-light"
   fi
@@ -202,6 +204,7 @@ apply_name_swap() {
   local zp_dir="$HOME/.config/zsh-patina"
   if [[ -d "$zp_dir" ]]; then
     ln -sfn "${to_lr}.toml" "$zp_dir/theme.toml" 2>/dev/null || true
+    zsh-patina restart
   fi
 
   # swaylock config symlink — files are eyes-light.conf / eyes-dark.conf
@@ -228,7 +231,8 @@ apply_name_swap() {
   # matching variant (light for light mode, dark for dark).  No custom CSS:
   # we rely on the built-in Adwaita theme.
   local prefer_dark
-  if [[ "$direction" == "to-dark" ]]; then prefer_dark=1
+  if [[ "$direction" == "to-dark" ]]; then
+                                           prefer_dark=1
   else prefer_dark=0; fi
   for ini in "$HOME/.config/gtk-3.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"; do
     [[ -f "$ini" ]] || continue
@@ -262,8 +266,8 @@ reload_daemons() {
   # kitty: if remote control is on, swap live; otherwise new windows only
   if command -v kitty >/dev/null && [[ -n "${KITTY_LISTEN_ON:-}" ]]; then
     kitty @ set-colors --all \
-      "$HOME/.config/kitty/colorschemes/eyes${mode:+-dark}.conf" 2>/dev/null \
-      || true
+      "$HOME/.config/kitty/colorschemes/eyes${mode:+-dark}.conf" 2>/dev/null ||
+         true
   fi
 
   # GTK color-scheme hint (Thunderbird, GTK4 apps respect this)
@@ -312,7 +316,7 @@ set_mode() {
     apply_name_swap "to-light"
   fi
 
-  echo "$target" > "$STATE_FILE"
+  echo "$target" >"$STATE_FILE"
   reload_daemons "$target"
   echo "Switched to $target mode."
 }
@@ -324,9 +328,9 @@ main() {
     toggle)
       if [[ "$(current_mode)" == "dark" ]]; then
         set_mode "light"
-      else
+    else
         set_mode "dark"
-      fi
+    fi
       ;;
     auto)  set_mode "$(auto_mode_for_now)" ;;
     status) echo "$(current_mode)" ;;

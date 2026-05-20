@@ -58,4 +58,19 @@ function M.cache(cb, cache)
   end
 end
 
+---Deduplicate a list-like table
+---comment
+---@generic T
+---@param list T[]
+---@return T[]
+function M.dedup(list)
+  local dedup_map = {}
+
+  for _, item in ipairs(list) do
+    dedup_map[item] = true
+  end
+
+  return vim.tbl_keys(dedup_map)
+end
+
 return M

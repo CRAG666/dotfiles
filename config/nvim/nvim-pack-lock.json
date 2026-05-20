@@ -1,7 +1,7 @@
 {
   "plugins": {
     "LuaSnip": {
-      "rev": "a62e1083a3cfe8b6b206e7d3d33a51091df25357",
+      "rev": "0abc8f390b278c3b4aabc4c004ac8a088b65cf24",
       "src": "https://github.com/L3MON4D3/LuaSnip"
     },
     "atone.nvim": {
@@ -50,11 +50,11 @@
       "src": "https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim"
     },
     "mason.nvim": {
-      "rev": "8e921c2b68571e978db5d4d3fef9c9a7f8755473",
+      "rev": "cbf8d285e1462dd24acf3507817be2bbcb035919",
       "src": "https://github.com/williamboman/mason.nvim"
     },
     "mini.nvim": {
-      "rev": "18797ed18f347d0d0da27fec28a67979b1207f70",
+      "rev": "264b5c8fc6e82212af0dc5c345145cfa916efeb6",
       "src": "https://github.com/nvim-mini/mini.nvim"
     },
     "molten-nvim": {
@@ -86,7 +86,7 @@
       "src": "https://github.com/catppuccin/nvim"
     },
     "nvim-dap": {
-      "rev": "45a69eba683a2c448dd9ecfc4de89511f0646b5f",
+      "rev": "531771530d4f82ad2d21e436e3cc052d68d7aebb",
       "src": "https://github.com/mfussenegger/nvim-dap"
     },
     "nvim-dap-ui": {
@@ -128,7 +128,7 @@
       "version": "'main'"
     },
     "nvim-web-devicons": {
-      "rev": "2795c26c916bb3c57dde308b82be51971fa92747",
+      "rev": "7d8dad2c837fcdf2e65997e68657c1a21c568074",
       "src": "https://github.com/kyazdani42/nvim-web-devicons"
     },
     "one-small-step-for-vimkind": {
@@ -160,7 +160,7 @@
       "src": "https://github.com/rest-nvim/rest.nvim"
     },
     "roslyn.nvim": {
-      "rev": "90d43d35f0ebb5ecf1df734194cb568a162de4cb",
+      "rev": "6db5f6619f7e3063dc087ce6fad6ee0d307ff8ea",
       "src": "https://github.com/seblyng/roslyn.nvim"
     },
     "snacks.nvim": {

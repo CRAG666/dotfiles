@@ -66,6 +66,9 @@ source = "#1a1a1a"
 "meta.function-call.arguments" = { foreground = "#1a1a1a" }
 "punctuation.definition.parameter" = { foreground = "#1a1a1a" }
 
+# line-continuation backslash also defaults to ANSI 7 (dim grey)
+"punctuation.separator.continuation.line" = "#385030"
+
 # dynamic items
 "dynamic.callable" = "#1e4868"
 "dynamic.callable.missing" = "#7a1e18"

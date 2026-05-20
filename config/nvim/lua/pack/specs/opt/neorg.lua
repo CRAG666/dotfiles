@@ -82,9 +82,9 @@ return {
               workspaces = {
                 life = '~/Documents/Org/Life/',
                 work = '~/Documents/Org/Work/',
-                master = '~/Documents/Proyectos/Postgraduate_studies/Master/Notes/',
-                phd = '~/Documents/Proyectos/Postgraduate_studies/PhD/Notes/',
-                lectures = '~/Documents/Proyectos/Postgraduate_studies/lectures',
+                master = '~/Documents/Projects/Postgraduate_studies/Master/Notes/',
+                phd = '~/Documents/Projects/Postgraduate_studies/PhD/Notes/',
+                lectures = '~/Documents/Projects/Postgraduate_studies/lectures',
               },
             },
           },

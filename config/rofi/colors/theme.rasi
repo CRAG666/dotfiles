@@ -8,7 +8,7 @@
     background:     #add4a0FF;   /* bg0  — sage green */
     background-alt: #96be8cFF;   /* bg3  — slightly darker sage */
     foreground:     #1a1a1aFF;   /* fg0  — near-black */
-    selected: #6a9060FF;
+    selected: #2a5c22FF;
     active:         #2a5c22FF;   /* green0 — secondary */
     urgent:         #7a1e18FF;   /* red */
 }

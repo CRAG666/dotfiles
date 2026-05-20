@@ -13,7 +13,7 @@ set $right L
 set $term kitty
 set $ROFI_SCRIPTS ~/.config/rofi/run.sh
 set $DUNST_SCRIPTS ~/.config/dunst
-set $RUN_TUI $term --class dialog
+set $RUN_TUI_DIALOG $term --class dialog
 
 ### Startup execs
 
@@ -60,7 +60,7 @@ exec gsettings set org.gnome.desktop.wm.preferences button-layout :
 output eDP-1 {
     scale 1
     resolution 1920x1080@60Hz
-    position -1920 0
+    position 1920 0
     # layout_type horizontal
     # layout_default_width 0.5
     # layout_default_height 0.5
@@ -91,7 +91,7 @@ output "Shenzhen KTC Technology Group H32S17 0x00000001" {
 
 input type:keyboard {
     xkb_layout  us
-    xkb_options compose:sclk
+    xkb_variant altgr-intl
     repeat_delay 110
     repeat_rate  30
 }
@@ -294,8 +294,10 @@ animations {
 
 # Layout
     mode "fullscreen" {
-        bindsym  a toggle_size active 1.0 1.0; mode default
-        bindsym  f toggle_size this 1.0 1.0; mode default
+        bindsym  f toggle_size active 1.0 1.0; mode default
+        bindsym  a toggle_size all 1.0 1.0; mode default
+        bindsym  t toggle_size this 1.0 1.0; mode default
+        bindsym  n toggle_size normal 1.0 1.0; mode default
         bindsym  r fullscreen; mode default
         bindsym  l fullscreen layout; mode default
         bindsym  w fullscreen application; mode default
@@ -573,12 +575,12 @@ bindsym $mod+BackSpace exec pkill rofi || $ROFI_SCRIPTS powermenu
 bindsym $mod+v exec pkill rofi || $ROFI_SCRIPTS clipboard
 bindsym XF86Launch6 exec pkill rofi || $ROFI_SCRIPTS clipboard
 
-bindsym XF86Mail exec betterbird
+bindsym XF86Mail exec $term -T aerc aerc
 bindsym XF86Search exec $BROWSER
 
 # Launchers
 bindsym XF86Open exec pkill rofi || $ROFI_SCRIPTS menu drun
-bindsym XF86Launch5 exec pkill rofi || $ROFI_SCRIPTS launcher
+bindsym $mod+Shift+Return exec pkill rofi || $ROFI_SCRIPTS launcher # F14
 bindsym XF86Launch7 exec pkill rofi || $ROFI_SCRIPTS menu run # F16
 bindsym Find exec pkill rofi || $ROFI_SCRIPTS menu window
 
@@ -587,10 +589,11 @@ bindsym XF86Tools exec pkill rofi || $ROFI_SCRIPTS apps # F13
 bindsym XF86Favorites exec pkill rofi || $ROFI_SCRIPTS bookmarks
 bindsym $mod+b exec pkill rofi || $ROFI_SCRIPTS quicklinks
 
-# WiFi / Bluetooth / File manager
-bindsym XF86Launch8 exec $RUN_TUI -T impala impala # F17
-bindsym XF86Launch9 exec $RUN_TUI -T bluetui bluetui # F18
-bindsym XF86Explorer exec $RUN_TUI -T yazi yazi
+# WiFi / Bluetooth / File manager / Volume control
+bindsym XF86Launch5 exec $RUN_TUI_DIALOG -T wiremix wiremix # F14
+bindsym XF86Launch8 exec $RUN_TUI_DIALOG -T impala impala # F17
+bindsym XF86Launch9 exec $RUN_TUI_DIALOG -T bluetui bluetui # F18
+bindsym XF86Explorer exec $RUN_TUI_DIALOG -T yazi yazi
 
 # Credentials / Notes
 bindsym $mod+c exec pkill rofi || $ROFI_SCRIPTS passman

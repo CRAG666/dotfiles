@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SKILLS_SRC="$HOME/Git/dotfiles/skills"
+GLOBAL_DEST="$HOME/.claude/skills"
+LOCAL_DEST="$PWD/.claude/skills"
+
+command -v gum >/dev/null 2>&1 || {
+                                    echo "Error: gum no está instalado" >&2
+                                                                              exit 1
+}
+[[ -d "$SKILLS_SRC" ]] || {
+                            echo "Error: no existe $SKILLS_SRC" >&2
+                                                                     exit 1
+}
+
+mapfile -t skills < <(find "$SKILLS_SRC" -maxdepth 1 -mindepth 1 -type d -printf '%f\n' | sort)
+[[ ${#skills[@]} -gt 0 ]] || {
+                               echo "No hay skills en $SKILLS_SRC" >&2
+                                                                        exit 1
+}
+
+target=$(gum choose --header "¿Dónde instalar las skills?" \
+  "Global  →  $GLOBAL_DEST" \
+  "Local   →  $LOCAL_DEST")
+
+case "$target" in
+  Global*) DEST="$GLOBAL_DEST" ;;
+  Local*)  DEST="$LOCAL_DEST"  ;;
+  *) exit 0 ;;
+esac
+
+selected=$(gum choose --no-limit \
+  --header "Selecciona skills (espacio para marcar, enter para confirmar)" \
+  "${skills[@]}")
+
+[[ -n "$selected" ]] || {
+                          echo "Nada seleccionado"
+                                                    exit 0
+}
+
+mkdir -p "$DEST"
+
+while IFS= read -r skill; do
+  [[ -z "$skill" ]] && continue
+  src="$SKILLS_SRC/$skill"
+  link="$DEST/$skill"
+
+  if [[ -L "$link" || -e "$link" ]]; then
+    if gum confirm "'$skill' ya existe en el destino. ¿Reemplazar?"; then
+      rm -rf "$link"
+    else
+      gum style --foreground 244 "omitido: $skill"
+      continue
+    fi
+  fi
+
+  ln -s "$src" "$link"
+  gum style --foreground 212 "✓ $skill  →  $link"
+done <<<"$selected"

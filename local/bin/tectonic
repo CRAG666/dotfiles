@@ -13,7 +13,7 @@ done
 
 podman run --rm \
     -v "$HOME/.cache/Tectonic:/root/.cache/Tectonic" \
-    -v "$HOME/Documents/Proyectos/utils/latex:/latex" \
+    -v "$HOME/Documents/Projects/utils/latex:/latex" \
     -v "$workdir:$workdir" \
     -w "$workdir" \
     dxjoke/tectonic-docker \

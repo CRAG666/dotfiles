@@ -290,6 +290,19 @@ let carapace_completer = {|spans|
 }
 source ~/.zoxide.nu
 source ~/.local/share/atuin/init.nu
+
+$env.config = (
+    $env.config | upsert keybindings (
+        $env.config.keybindings
+        | append {
+            name: atuin_vi_normal_k
+            modifier: none
+            keycode: char_k
+            mode: [vi_normal]
+            event: { send: executehostcommand cmd: (_atuin_search_cmd) }
+        }
+    )
+)
 # source ~/.config/nushell/catppuccin_mocha.nu
 source ~/.config/nushell/eyes.nu
 source ~/.config/nushell/podman.nu
