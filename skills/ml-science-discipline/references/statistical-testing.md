@@ -24,14 +24,20 @@ import numpy as np
 correct_a = (y_pred_a == y_test).astype(int)
 correct_b = (y_pred_b == y_test).astype(int)
 
-# Contingency table: [both_wrong, a_wrong_b_right, a_right_b_wrong, both_right]
+# 2x2 contingency table indexed by (correct_a, correct_b):
+#                          b wrong (0)         b right (1)
+#   a wrong (0)     both_wrong (n00)    a_wrong_b_right (n01)
+#   a right (1)   a_right_b_wrong (n10)    both_right (n11)
 n00 = ((correct_a == 0) & (correct_b == 0)).sum()
 n01 = ((correct_a == 0) & (correct_b == 1)).sum()
 n10 = ((correct_a == 1) & (correct_b == 0)).sum()
 n11 = ((correct_a == 1) & (correct_b == 1)).sum()
 
-table = np.array([[n00, n01], [n10, n11]])
-result = mcnemar(table, exact=True)  # exact=True for small n01+n10
+table = np.array([[n00, n01],
+                  [n10, n11]])
+# McNemar uses the discordant cells (n01, n10).
+# Use exact binomial test when n01 + n10 < 25; otherwise chi-square with continuity correction.
+result = mcnemar(table, exact=(n01 + n10) < 25, correction=True)
 print(f"p-value: {result.pvalue:.4f}")
 ```
 

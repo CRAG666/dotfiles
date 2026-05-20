@@ -1,13 +1,14 @@
 ---
 name: ml-science-discipline
 description: >
-  Enforces rigorous scientific methodology for machine learning experiments to prevent data leakage,
-  overfitting, evaluation bias, and other forms of bad ML science. Use this skill whenever the user is:
-  designing an ML pipeline, splitting datasets, evaluating model performance, selecting features,
-  tuning hyperparameters, comparing models, reporting results, or doing any task where experimental
-  validity could be compromised. Trigger this skill even for seemingly simple tasks like "train a model"
-  or "evaluate accuracy" — poor scientific practices often hide in routine steps. If ML, data science,
-  model training, or predictive modeling is mentioned in any form, consult this skill first.
+  Enforces rigorous scientific methodology for machine learning experiments intended to support
+  publication-grade claims (Q1 journals, conference papers, regulated decisions). Use this skill when
+  designing an ML pipeline, splitting datasets, evaluating performance, selecting features, tuning
+  hyperparameters, comparing models, quantifying uncertainty, validating externally, or preparing
+  results for a paper. Consult it for any task where experimental validity, reproducibility, or
+  publication standards (TRIPOD+AI, CLAIM, STARD-AI, CONSORT-AI) are in scope. Routine "train a model"
+  or "compute accuracy" requests do NOT automatically trigger this skill unless results will be
+  reported, compared, or acted on.
 ---
 
 # ML Good Science: Rigorous Experimentation in Machine Learning
@@ -221,7 +222,7 @@ train_sizes, train_scores, val_scores = learning_curve(
 Every experiment must be fully reproducible. This is non-negotiable in scientific work.
 
 ```python
-import random, numpy as np, torch, os
+import random, os, numpy as np, torch
 
 SEED = 42
 
@@ -231,37 +232,128 @@ torch.manual_seed(SEED)
 torch.cuda.manual_seed_all(SEED)
 os.environ["PYTHONHASHSEED"] = str(SEED)
 
-# Log all non-deterministic factors explicitly
+# Full GPU determinism (slower, but required for reproducible claims)
+torch.use_deterministic_algorithms(True, warn_only=False)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+
+# DataLoader workers need their own seeded RNG
+def seed_worker(worker_id):
+    worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)
+
+g = torch.Generator(); g.manual_seed(SEED)
+# DataLoader(..., worker_init_fn=seed_worker, generator=g)
 ```
+
+### Multiple Seeds (Mandatory for Reporting)
+A single seed reports luck, not signal. Run **at least 5 seeds** (preferably 10) and report
+`mean ± std` (or 95% CI). Use a fixed, pre-registered seed list — never select seeds post-hoc.
+
+### Environment Pinning
+Lock the full stack, not just Python packages:
+- Python + library versions (`pyproject.toml` + lock file, or `environment.yml`)
+- CUDA, cuDNN, GPU driver versions
+- Hardware (GPU model — kernel implementations differ across architectures)
+- OS / container image (Docker or Apptainer recommended)
 
 ### Experiment Tracking (Mandatory for Non-Trivial Work)
 Use MLflow, Weights & Biases, or DVC to log:
-- All hyperparameters
-- Dataset version and hash
-- Environment (library versions, hardware)
-- All metrics on all splits
-- Model artifacts
+- All hyperparameters AND the search budget (configs tried, total compute)
+- Dataset version + hash, preprocessing version
+- Full environment (see above)
+- All metrics on all splits, all seeds
+- Model artifacts + training curves
+- Wall-clock time, GPU-hours, energy/CO₂ if reported
 
 Without a log, you cannot reproduce, audit, or publish your findings.
 
 ---
 
-## 7. Distribution Shift and Generalization
+## 7. External Validation and Distribution Shift
 
-### Types of Shift
+Internal validation (CV + held-out test) is **necessary but not sufficient** for Q1 claims.
+Reviewers expect evidence that the model generalizes beyond the development distribution.
+
+### Levels of Validation
+| Level | What it tests | Example |
+|---|---|---|
+| **Internal** (random split / CV) | Generalization within the same distribution | k-fold on a single cohort |
+| **Temporal** | Generalization to future data | Train on 2018–2022, test on 2023–2024 |
+| **Geographic / multi-site** | Generalization across sites/labs/devices | Train at hospitals A–C, test at D–E |
+| **External cohort** | Generalization to an independent dataset | Train on UK Biobank, test on All of Us |
+
+For TRIPOD+AI / CLAIM / STARD-AI compliance, **at least one form of non-random validation is
+expected**. State explicitly which level your results support.
+
+### Types of Distribution Shift
 | Type | Description | Detection |
 |------|-------------|-----------|
-| **Covariate shift** | P(X) changes, P(Y\|X) stable | Compare feature histograms |
+| **Covariate shift** | P(X) changes, P(Y\|X) stable | Compare feature histograms, MMD, classifier two-sample test |
 | **Label shift** | P(Y) changes, P(X\|Y) stable | Compare target distributions |
-| **Concept drift** | P(Y\|X) changes over time | Monitor model performance over time |
+| **Concept drift** | P(Y\|X) changes over time | Monitor performance over time |
+| **Batch / site effects** | Technical artifacts (scanner, sequencer, lab) | Per-site performance, harmonization (ComBat) |
 
-### Train-Serving Skew
-Validate that the features used in training are computed identically at inference time.
-Any discrepancy between offline and online feature computation is a form of leakage/shift.
+### Confounders, Shortcut Learning & Negative Controls
+Scientific ML claims require ruling out spurious correlations:
+- **Confounder audit**: list every variable that could correlate with both the target and the features.
+  Stratify or adjust for them; report per-stratum performance.
+- **Shortcut detection**: if the model can solve the task using a non-causal proxy (image acquisition
+  parameters, metadata, hospital-specific tokens), flag it.
+- **Negative controls**: predict a target the model should *not* be able to predict from the
+  legitimate features (e.g., acquisition site from "clinical" features). Strong signal here = leakage.
+- **Train-serving skew**: features used in training must be computable identically at inference time.
 
 ---
 
-## 8. Pre-Registration Checklist
+## 8. Uncertainty, Calibration & Interpretability
+
+Point predictions without uncertainty are rarely acceptable in Q1 scientific work.
+
+### Calibration (Probabilistic Predictions)
+A model that outputs 0.9 should be right 90% of the time. Required reporting:
+- **Reliability diagram** (predicted vs observed frequency, per bin)
+- **Expected Calibration Error (ECE)** or Maximum Calibration Error
+- **Brier score** for binary/multiclass probabilistic forecasts
+- If miscalibrated, apply **Platt scaling** or **isotonic regression** fit on a held-out
+  calibration set (not the test set)
+
+### Predictive Intervals & Conformal Prediction
+For regression and risk prediction, report **prediction intervals**, not just point estimates.
+**Conformal prediction** (split-conformal or CV+) gives distribution-free coverage guarantees
+under exchangeability — strong fit for Q1 scientific reporting.
+
+```python
+from mapie.regression import MapieRegressor
+mapie = MapieRegressor(estimator, method="plus", cv=5)
+mapie.fit(X_train, y_train)
+y_pred, y_pis = mapie.predict(X_test, alpha=0.05)  # 95% intervals
+```
+
+### Epistemic vs Aleatoric Uncertainty
+- **Aleatoric** (data noise): irreducible — quantify with the predictive distribution.
+- **Epistemic** (model ignorance): reducible — quantify with ensembles, MC dropout, or Bayesian NNs.
+
+Distinguishing the two matters for active learning, out-of-distribution detection, and
+clinical decision support.
+
+### Interpretability & Ablations
+Q1 scientific journals expect mechanistic understanding, not just performance:
+- **Feature importance**: SHAP values, permutation importance (not raw tree importances —
+  they are biased toward high-cardinality features)
+- **Ablation studies**: remove one component at a time (architecture block, feature group,
+  data source) and report the marginal contribution
+- **Sensitivity analysis**: vary hyperparameters and inputs, report stability of conclusions
+- **Subgroup analysis**: report performance across demographic / clinical / experimental
+  subgroups (mandatory for medical AI under MI-CLAIM, TRIPOD+AI)
+
+See `references/scientific-reporting.md` for full publication-grade reporting protocols.
+
+---
+
+## 9. Pre-Registration Checklist
 
 Before running any experiment, commit to writing:
 
@@ -269,50 +361,74 @@ Before running any experiment, commit to writing:
 ## Experiment Pre-Registration
 
 **Date**: YYYY-MM-DD
+**Platform / DOI**: [OSF, AsPredicted, or internal lab notebook with hash]
 **Hypothesis**: [specific, falsifiable claim]
 **Primary metric**: [one metric, defined precisely]
-**Dataset**: [hash or version identifier]
+**Secondary metrics**: [calibration (ECE/Brier), uncertainty coverage, fairness across subgroups]
+**Dataset**: [hash or version identifier, source, license, IRB if applicable]
+**Splitting strategy**: [random / stratified / group / temporal / spatial / scaffold]
+**Validation scope**: [internal only / temporal / multi-site / external cohort]
 **Model architecture / algorithm**: [locked before test set access]
-**Baseline**: [what you're comparing against]
-**Minimum effect size to claim improvement**: [e.g., +1.5% F1]
-**Statistical test to be used**: [McNemar / t-test / Wilcoxon]
-**Sample size / power analysis**: [if applicable]
+**Baseline(s)**: [strong, published baselines — cite them]
+**Hyperparameter search budget**: [max configs, max compute, search method]
+**Seeds**: [pre-committed list of N≥5 seeds]
+**Minimum effect size to claim improvement**: [e.g., +1.5% F1, Cohen's d ≥ 0.2]
+**Statistical test**: [McNemar / Wilcoxon / Friedman+Nemenyi / paired bootstrap]
+**Multiple comparisons correction**: [Bonferroni / Benjamini-Hochberg]
+**Sample size / power analysis**: [target N for desired power]
 **Conditions for rejecting hypothesis**: [stated upfront]
+**Reporting standard**: [TRIPOD+AI / CLAIM / STARD-AI / CONSORT-AI / none]
+**Data & code availability plan**: [Zenodo DOI, GitHub, license]
 ```
 
 ---
 
-## 9. Common Anti-Patterns (Bad Science Catalog)
+## 10. Common Anti-Patterns (Bad Science Catalog)
 
 | Anti-Pattern | Why It's Bad | Fix |
 |---|---|---|
 | HARKing (Hypothesizing After Results are Known) | Inflates false discovery rate | Pre-register before running |
 | Multiple test set evaluations | Optimistic bias compounds | Evaluate test set once, at the end |
 | Cherry-picking metrics post-hoc | Always find something that looks good | Commit to primary metric upfront |
-| Reporting best run of many | Ignores variance and luck | Report mean ± std over seeds |
-| Ignoring compute/inference cost | Not a scientific error, but a practical one | Report latency and FLOPS alongside accuracy |
-| Comparing to weak baselines | Makes results look better than they are | Always include a strong, published baseline |
+| Reporting best run of many | Ignores variance and luck | Report mean ± std over ≥5 pre-committed seeds |
+| Single-seed results | Confounds signal with luck | Always report multiple seeds + CI |
+| No external validation | Internal CV overestimates generalization | Validate on independent cohort, site, or time period |
+| No calibration reporting | Probabilistic outputs may be useless | Report ECE / Brier + reliability diagram |
+| Point predictions only | Hides model uncertainty | Report CIs / prediction intervals / conformal coverage |
+| Random splits on grouped or temporal data | Trivial group/time leakage | Use Group/Time/Spatial/Scaffold splits |
+| Ignoring compute/inference cost | Not a scientific error, but a practical one | Report latency, FLOPS, GPU-hours, CO₂ |
+| Comparing to weak baselines | Makes results look better than they are | Include strong, published, properly tuned baselines |
 | No ablation studies | Can't attribute what drives improvement | Remove one component at a time |
+| No subgroup analysis | Hides disparate performance | Report metrics per demographic / clinical stratum |
+| No confounder / shortcut audit | Spurious correlations masquerade as signal | Run negative controls; adjust for confounders |
+| Undisclosed HP search budget | "Best of 500 trials" hides selection bias | Report total configs tried + selection criterion |
+| No data/code release plan | Unreproducible by definition | Pre-commit to Zenodo DOI + GitHub + license |
 
 ---
 
-## 10. Reference Files
+## 11. Reference Files
 
 For deep dives, read the reference files:
 
-- `references/splitting-strategies.md` — Time-series splits, stratification, group splits
-- `references/statistical-testing.md` — Tests for comparing models, confidence intervals, effect sizes
+- `references/splitting-strategies.md` — Time-series, stratified, group, spatial, scaffold, genomic splits
+- `references/statistical-testing.md` — Model-comparison tests, confidence intervals, effect sizes, power
 - `references/leakage-audit.md` — Step-by-step pipeline audit procedure
+- `references/scientific-reporting.md` — TRIPOD+AI / CLAIM / STARD-AI compliance, calibration, conformal,
+  model & dataset cards, FAIR data/code, publication-ready checklist for Q1 submission
 
 ---
 
 ## Quick Reference Card
 
 ```
-BEFORE you split:     Define hypothesis, metric, baseline.
-WHEN you split:       Stratify, group, or time-order as appropriate.
-AFTER you split:      Fit ALL preprocessing ONLY on training data.
-DURING training:      Tune on validation set only.
+BEFORE you split:     Pre-register hypothesis, primary metric, baselines, seeds, HP budget.
+WHEN you split:       Stratify, group, time-order, spatially-block, or scaffold as appropriate.
+AFTER you split:      Fit ALL preprocessing ONLY on training data (inside a Pipeline).
+DURING training:      Tune on validation set only; log every run + full environment.
 AT THE END:           Touch the test set exactly once.
-WHEN reporting:       State seeds, library versions, CI, and statistical tests.
+BEYOND THE TEST SET:  Validate externally (temporal / multi-site / independent cohort).
+WHEN REPORTING:       Multi-seed mean ± CI, calibration (ECE/Brier), prediction intervals,
+                      subgroup analysis, ablations, statistical tests with MC correction,
+                      strong baselines, FAIR code/data DOI, reporting-standard compliance
+                      (TRIPOD+AI / CLAIM / STARD-AI / CONSORT-AI as applicable).
 ```

@@ -30,9 +30,20 @@ case "$target" in
   *) exit 0 ;;
 esac
 
+available=()
+for skill in "${skills[@]}"; do
+  [[ -L "$DEST/$skill" || -e "$DEST/$skill" ]] && continue
+  available+=("$skill")
+done
+
+[[ ${#available[@]} -gt 0 ]] || {
+                                  echo "Todas las skills ya están instaladas en $DEST"
+                                  exit 0
+}
+
 selected=$(gum choose --no-limit \
   --header "Selecciona skills (espacio para marcar, enter para confirmar)" \
-  "${skills[@]}")
+  "${available[@]}")
 
 [[ -n "$selected" ]] || {
                           echo "Nada seleccionado"
