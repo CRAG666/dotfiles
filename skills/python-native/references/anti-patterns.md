@@ -129,7 +129,8 @@ class Rectangle:
 ### 1.7 Wrong `__exit__` signature
 
 ```python
-# Anti-pattern — wrong arity means __exit__ is silently never called on error
+# Anti-pattern — wrong arity makes the `with` machinery raise TypeError on exit,
+# masking the original exception and skipping cleanup
 class Resource:
     def __enter__(self): ...
     def __exit__(self):                          # bug

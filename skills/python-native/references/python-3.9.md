@@ -35,7 +35,8 @@ a |= b                   # in-place merge
 ```
 
 Replaces `{**a, **b}` and `a.update(b)` patterns. The `|` form preserves types — useful with
-`Counter`, `defaultdict`, etc.
+`defaultdict` and other dict subclasses. Note: `Counter | Counter` has multiset semantics
+(max-union, not right-biased merge); see `collections.Counter` docs.
 
 ---
 

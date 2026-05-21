@@ -116,6 +116,12 @@ def expensive(query: str) -> bytes:
 - Arguments must be hashable. Use `frozenset`, `tuple`, or convert before calling.
 - `.cache_info()` and `.cache_clear()` are available on both.
 
+> **CAVEAT — bound methods**: `@cache` / `@lru_cache` on instance methods keeps `self`
+> strongly referenced through the cache key, preventing garbage collection of the instance
+> until the cache is cleared. For per-instance memoization, prefer `cached_property`.
+> For class-level methods, use bounded `lru_cache(maxsize=N)`, weak-key caches, or
+> explicit `cache_clear()`.
+
 ### 1.3 `cached_property` — Lazy, Memoized Attributes
 
 ```python
@@ -254,6 +260,11 @@ from itertools import tee, starmap
 a, b = tee(iterator)                       # split one iterator into two independent ones
 list(starmap(pow, [(2, 3), (10, 2)]))      # [8, 100]   — like map() but unpacks each tuple
 ```
+
+> **Caveat on `tee`**: when the two consumers advance unevenly, `tee` accumulates an internal
+> buffer of every element produced since the slower consumer last advanced. On long iterators
+> with skewed consumption, this can blow memory. Use `tee` only when consumers stay roughly in
+> step, or materialize the iterator into a list explicitly.
 
 ---
 
@@ -409,20 +420,33 @@ from dataclasses import dataclass, field, asdict, replace
 @dataclass(frozen=True, slots=True, kw_only=True)        # slots, kw_only: 3.10+
 class Order:
     id: int
-    items: list[str] = field(default_factory=list)
+    items: tuple[str, ...] = ()                          # tuple, not list — see hash caveat below
     total: float = 0.0
 
-o = Order(id=1, items=["a", "b"], total=9.99)
+o = Order(id=1, items=("a", "b"), total=9.99)
 o2 = replace(o, total=10.5)                              # functional update
 asdict(o)                                                # → plain dict
 ```
 
-- `frozen=True` → hashable, safe in sets/dict keys.
-- `slots=True` → smaller memory, faster attribute access, no accidental new attrs.
+- `frozen=True` blocks attribute rebinding and auto-generates `__hash__` — **but the hash
+  succeeds only when every field value is hashable**. A `list[str]` field will pass type
+  checking yet raise `TypeError: unhashable type: 'list'` at hash time. For hashable
+  records, use immutable field types (`tuple`, `frozenset`, `str`, numbers) or mark mutable
+  fields `field(compare=False, hash=False)` to keep them out of the generated `__hash__`
+  and `__eq__`.
+- `slots=True` → smaller memory, faster attribute access, no accidental new attrs. Use
+  slots for stable leaf data models.
 - `kw_only=True` → forces keyword args; prevents positional-arg bugs.
-- `field(default_factory=list)` → never use a mutable default directly.
+- `field(default_factory=list)` → never use a mutable default directly (default values
+  are evaluated once at class-definition time, so a bare `items: list = []` would share
+  one list across all instances).
 
 For inherited or computed fields, use `field(init=False, default=...)` and `__post_init__`.
+
+> **CAVEAT — slots edge cases**: multiple inheritance with slots can hit layout conflicts
+> when multiple bases declare their own `__slots__` — test before enabling on
+> hierarchical classes. Breaks `weakref.ref()` unless you pass `weakref_slot=True`
+> (3.11+). Breaks `@cached_property` because slots prevents writing to `__dict__`.
 
 ---
 
@@ -435,7 +459,7 @@ p = Path("/var/log") / "app" / "today.log"          # join with /
 p.parent, p.name, p.stem, p.suffix
 p.exists(), p.is_file(), p.with_suffix(".bak")
 p.read_text(encoding="utf-8")
-p.write_text("hello")
+p.write_text("hello", encoding="utf-8")              # always pass encoding for text files
 list(p.parent.glob("*.log"))
 list(p.parent.rglob("*.py"))
 Path.home(), Path.cwd()
@@ -462,7 +486,10 @@ heapq.nsmallest(5, items, key=lambda x: x.cost)         # O(n log k), not full s
 heapq.nlargest(10, scores)
 ```
 
-> **AI anti-pattern**: `sorted(xs)[:k]` to get the k smallest. Use `nsmallest(k, xs)` — O(n log k).
+> **AI anti-pattern**: `sorted(xs)[:k]` to get the k smallest, **when k is much smaller than n**.
+> Use `nsmallest(k, xs)` — O(n log k), which beats sort for small `k` and for streaming inputs.
+> When `k` approaches `n` (rule of thumb: `k ≥ n/3`) or you also need the rest of the sequence
+> sorted, plain `sorted(xs)[:k]` is competitive or faster.
 
 ### 8.2 `bisect` — Sorted Lists Without Re-Sorting
 
@@ -605,7 +632,7 @@ f"{ ', '.join(f'{x.name!r}' for x in items) }"
 
 ```python
 def lines_of(path):
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         yield from f                       # yields lines lazily
 
 def non_empty(it):
@@ -623,10 +650,10 @@ for line in non_empty(lines_of("big.txt")):
 |---|---|
 | `any(p(x) for x in xs)` | Short-circuit "exists" — don't loop and return early manually. |
 | `all(...)` | Short-circuit "for all". |
-| `sum(iter, start)` | Note the `start` arg — works for non-numeric monoids too. Use `math.prod` for products. |
+| `sum(iter, start=0)` | Numeric sums with optional `start`; `start` cannot be a string (use `''.join()`); for concatenating iterables use `itertools.chain.from_iterable`. Use `math.prod` for products. |
 | `min(iter, key=, default=)` / `max(...)` | Use `key=` instead of pre-sorting. `default=` for empty iterables. |
 | `sorted(iter, key=, reverse=)` | Stable sort. `key` is computed once per element. |
-| `reversed(iter)` | O(1) lazy iterator — don't slice `[::-1]` if you only iterate. |
+| `reversed(seq)` | O(1) lazy iterator over a reversible sequence or any object with `__reversed__`; generators are not reversible — materialize to a list first if needed. |
 | `enumerate(iter, start=N)` | Pass `start=` instead of `i + offset`. |
 | `zip(*iters, strict=True)` | `strict=True` (3.10+) raises on length mismatch — use it. |
 | `divmod(a, b)` | Returns `(quotient, remainder)` — replaces two operations. |
@@ -688,7 +715,8 @@ for line in non_empty(lines_of("big.txt")):
 | Manual `freq = {}` loop | `Counter(iterable)` |
 | `dict.setdefault(k, []).append(v)` | `defaultdict(list)` |
 | `if x not in d: d[x] = …` | `dict.setdefault` or `defaultdict` |
-| `sorted(x)[:k]` for top-k | `heapq.nsmallest(k, x)` |
+| `sorted(x)[:k]` for k-smallest | `heapq.nsmallest(k, x)` |
+| `sorted(x, reverse=True)[:k]` for k-largest | `heapq.nlargest(k, x)` |
 | `list.pop(0)` for queues | `collections.deque` |
 | `isinstance` chains | `functools.singledispatch` or `match` |
 | `lambda p: p.attr` for sort | `operator.attrgetter("attr")` |
@@ -715,6 +743,10 @@ back to the stdlib equivalent on older ones. **Always check the target's Python 
 - When unsure of version: `python --version`, or read `pyproject.toml` (`requires-python`).
 - Use `sys.version_info >= (3, 11)` for runtime branches; do not rely on `try/except ImportError`
   unless the feature actually moved between modules.
+
+### PEP 594 dead-battery removals in 3.13
+
+If your code imports any of these, plan a replacement **before** upgrading. The 19 modules removed per PEP 594 (Python 3.13): `aifc`, `audioop`, `cgi`, `cgitb`, `chunk`, `crypt`, `imghdr`, `mailcap`, `msilib`, `nis`, `nntplib`, `ossaudiodev`, `pipes`, `sndhdr`, `spwd`, `sunau`, `telnetlib`, `uu`, `xdrlib`. Separately removed: `lib2to3` (the `2to3` source-migration tool).
 
 ### Compatibility Cheat-Sheet (Highlights)
 
@@ -774,7 +806,8 @@ BEFORE writing lambda key:    Use operator.itemgetter / attrgetter.
 BEFORE writing try/except:    Use contextlib.suppress where applicable.
 BEFORE manual freq counting:  Use collections.Counter.
 BEFORE list.pop(0):           Use collections.deque.
-BEFORE sorted(...)[:k]:       Use heapq.nsmallest.
+BEFORE sorted(...)[:k] (smallest):       Use heapq.nsmallest.
+BEFORE sorted(..., reverse=True)[:k]:    Use heapq.nlargest.
 WHEN dispatching:             functools.singledispatch or match/case.
 WHEN in doubt:                Search the stdlib index before writing code.
 ```

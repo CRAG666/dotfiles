@@ -27,8 +27,11 @@ get_annotations(Node, format=Format.FORWARDREF)   # unresolved names become Forw
 get_annotations(Node, format=Format.STRING)       # original source strings
 ```
 
-- Eager evaluation is preserved when `from __future__ import annotations` is in effect (legacy mode).
-- Migration: code that did `cls.__annotations__` should switch to `annotationlib.get_annotations(cls)`.
+- `from __future__ import annotations` continues to apply PEP 563 stringization: annotations
+  are stored as strings, not lazily evaluated PEP 649 objects. Use it to opt out of PEP 649.
+- Migration: code that did `cls.__annotations__` should switch to
+  `annotationlib.get_annotations(cls)`, which transparently handles both PEP 649 and PEP 563
+  modes via the `format=` argument.
 
 ---
 
@@ -46,8 +49,11 @@ template: Template = t"Try some {variety} cheese!"
 type(template)                       # <class 'string.templatelib.Template'>
 ```
 
-`Template` is not a `str` — it must be processed by a library that understands it. Treat `t""` as
-the safe default for any string sent to a system that can be injected (SQL, HTML, shell).
+`Template` is not a `str` — it must be processed by a library that understands it. **t-strings
+do NOT sanitize on their own**: they only preserve the literal vs. interpolated parts so a
+trusted downstream library can perform context-aware escaping (parameterized SQL bind, HTML
+attribute escaping, shell argument quoting). Pair `t""` with the appropriate processor for the
+target system; never treat the raw `Template` as a sanitized string.
 
 ---
 
@@ -72,7 +78,7 @@ with InterpreterPoolExecutor() as pool:
     results = list(pool.map(work, items))
 ```
 
-Use when you want CPU parallelism without `multiprocessing`'s fork/serialize overhead.
+Use for CPU parallelism with process-like isolation and lower process startup/resource overhead than `multiprocessing`, but expect explicit data transfer and serialization costs for most objects passed between interpreters (`concurrent.interpreters` documents the sharing/copying semantics).
 
 ---
 
@@ -83,7 +89,7 @@ The `python3.14t` build (GIL disabled) is no longer flagged experimental.
 - Specializing adaptive interpreter is now enabled on the free-threaded build.
 - Single-threaded overhead reduced to ~5-10% versus the GIL build.
 - New flags: `-X context_aware_warnings`, `-X thread_inherit_context`.
-- Most popular C extensions ship free-threaded wheels.
+- Some third-party extension modules are not ready and may re-enable the GIL; check package-specific free-threading support before adopting.
 
 Still a separate ABI / build — choose based on workload; not a drop-in for every project.
 
@@ -123,9 +129,10 @@ Replaces most `shutil.copytree` / `shutil.move` calls for path-oriented code.
 
 ## Removals / Cleanups
 
-Several long-deprecated APIs reach end-of-life. The `typing` aliases (`typing.List`,
-`typing.Dict`, etc.) remain importable but are firmly deprecated — use built-in generics
-(`list[int]`, `dict[str, int]`) instead.
+Several long-deprecated APIs are reinforced as deprecated. The `typing` aliases
+(`typing.List`, `typing.Dict`, etc.) remain importable but are deprecated style — use
+built-in generics (`list[int]`, `dict[str, int]`) instead. Deprecated since 3.9
+(PEP 585); no removal date announced.
 
 ---
 
