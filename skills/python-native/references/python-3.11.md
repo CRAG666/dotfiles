@@ -133,16 +133,18 @@ Streams the file efficiently. Replaces manual `while chunk := f.read(...)` diges
 ## Variadic Generics (PEP 646)
 
 ```python
-from typing import TypeVarTuple, Unpack
+from typing import Generic, TypeVarTuple, Unpack
 
 Shape = TypeVarTuple("Shape")
 
-class Tensor[*Shape]: ...                          # PEP 695 syntax (3.12+)
+class Tensor(Generic[*Shape]): ...                 # PEP 646 — 3.11-compatible syntax
 
 def add(a: Tensor[*Shape], b: Tensor[*Shape]) -> Tensor[*Shape]: ...
 ```
 
-Primarily for typed array libraries (numpy, jax, torch shape typing).
+Primarily for typed array libraries (numpy, jax, torch shape typing). The cleaner
+`class Tensor[*Shape]: ...` form is PEP 695 syntax and **requires Python 3.12+**;
+see `references/python-3.12.md`.
 
 ---
 

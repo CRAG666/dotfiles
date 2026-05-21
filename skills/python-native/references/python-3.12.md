@@ -61,7 +61,7 @@ superclass.
 
 f-strings are now parsed by the regular parser. You can:
 
-- Reuse the same quotes inside the expression: `f"{'.join(parts)'}"` and `f"{ "x" }"` are valid.
+- Reuse the same quotes inside the expression: `f"{', '.join(parts)}"` and `f"{ "x".upper() }"` are valid.
 - Use multi-line expressions and comments inside an f-string.
 - Backslashes are allowed in expression parts: `f"{path.replace('\\', '/')}"`.
 

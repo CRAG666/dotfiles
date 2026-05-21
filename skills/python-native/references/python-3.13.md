@@ -35,7 +35,7 @@ for larger gains later. No code changes required.
 
 ## `dbm.sqlite3`
 
-A SQLite-backed `dbm` backend — fast, durable, concurrent-safe key/value store using only stdlib.
+A SQLite-backed `dbm` backend — fast and durable key/value store using only stdlib. Concurrency semantics follow `sqlite3`/`dbm` locking; test for your workload.
 
 ```python
 import dbm
@@ -119,9 +119,16 @@ Prefer `os.process_cpu_count()` over `os.cpu_count()` for pool sizing in 3.13+.
 
 ## Removals
 
-- `cgi`, `crypt`, `nis`, `telnetlib`, `pipes`, `imghdr`, `sndhdr`, `mailcap`, `chunk`, `audioop`,
-  `aifc`, `sunau`, `nntplib`, `xdrlib`, `uu`, `msilib`, `spwd`, `ossaudiodev`, `2to3`, etc.
-- If your code imports any of these, plan replacements **before** upgrading.
+PEP 594 dead-battery modules removed in 3.13 (19 total):
+
+`aifc`, `audioop`, `cgi`, `cgitb`, `chunk`, `crypt`, `imghdr`, `mailcap`, `msilib`,
+`nis`, `nntplib`, `ossaudiodev`, `pipes`, `sndhdr`, `spwd`, `sunau`, `telnetlib`, `uu`,
+`xdrlib`.
+
+Separately removed (not PEP 594): `lib2to3` (the `2to3` Python source-migration tool).
+
+If your code imports any of these, plan replacements **before** upgrading. The Python
+3.13 What's New page links each removal to a suggested replacement.
 
 ---
 
