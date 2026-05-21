@@ -1,17 +1,6 @@
 ---
 name: python-native
-description: >
-  Maximize use of Python's standard library and built-in features before reaching for third-party
-  packages or hand-rolled code. Activate this skill on ANY Python task — writing, reviewing,
-  refactoring, optimizing, or designing. AI assistants routinely reinvent functionality that already
-  exists in `functools`, `itertools`, `collections`, `operator`, `contextlib`, `dataclasses`,
-  `pathlib`, `heapq`, `bisect`, `statistics`, `enum`, `typing`, etc. This skill enforces the rule:
-  *"check the stdlib first"*. It catalogs the under-used built-ins (`singledispatch`, `cache`,
-  `Counter`, `deque`, `chain`, `groupby`, `bisect`, `ExitStack`, `dataclass(slots=True)`, structural
-  pattern matching, `walrus`, `match`/`case`, etc.) and shows when each replaces redundant code.
-  Supports Python 3.9 through 3.14 — version-specific features live in `references/python-3.X.md`.
-  Trigger on any of: "write a Python function", "refactor this Python code", "optimize", "reduce
-  duplication", "implement X in Python", "Pythonic way to…", or whenever Python is mentioned at all.
+description: 'Push Python stdlib idioms over hand-rolled code. Use whenever the user writes, refactors, optimizes, or reviews Python — including one-liners and code-review feedback. Replaces common reinventions: manual dict counters with `Counter`, `dict.setdefault` loops with `defaultdict`, `isinstance` chains with `singledispatch` or `match`/`case`, hand-rolled memoization with `functools.cache`, `os.path.join` with `pathlib.Path`, `sorted(..., reverse=True)[:k]` with `heapq.nlargest`, manual class boilerplate with `dataclass(slots=True, frozen=True)`, `zip(lst, lst[1:])` with `itertools.pairwise`. Covers Python 3.9-3.14 with per-version reference files. Trigger phrases: "write a Python function", "refactor this Python", "Pythonic way to X", "optimize Python code", "make this more Pythonic", "implement X in Python", or any task whose answer involves Python source.'
 ---
 
 # Python Native: Use the Standard Library Before Writing Code
