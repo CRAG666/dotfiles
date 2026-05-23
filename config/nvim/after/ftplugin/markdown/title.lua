@@ -41,6 +41,7 @@ _G._title_lowercase_words = {
   ['was'] = true,
   ['were'] = true,
   ['with'] = true,
+  ['without'] = true,
   ['yet'] = true,
 }
 

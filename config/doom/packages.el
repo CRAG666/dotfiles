@@ -1,52 +1,36 @@
 ;; -*- no-byte-compile: t; -*-
 ;;; $DOOMDIR/packages.el
+;;
+;; Cambios aquí requieren `doom sync` + restart de Emacs.
+;; Referencia de :recipe: https://github.com/radian-software/straight.el#the-recipe-format
 
-;; To install a package with Doom you must declare them here and run 'doom sync'
-;; on the command line, then restart Emacs for the changes to take effect -- or
-
-
-;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
-;; (package! some-package)
-
-;; To install a package directly from a remote git repo, you must specify a
-;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
-;; https://github.com/radian-software/straight.el#the-recipe-format
-;; (package! another-package
-;;   :recipe (:host github :repo "username/repo"))
-
-;; If the package you are trying to install does not contain a PACKAGENAME.el
-;; file, or is located in a subdirectory of the repo, you'll need to specify
-;; `:files' in the `:recipe':
-;; (package! this-package
-;;   :recipe (:host github :repo "username/repo"
-;;            :files ("some-file.el" "src/lisp/*.el")))
-
-;; If you'd like to disable a package included with Doom, you can do so here
-;; with the `:disable' property:
-;; (package! builtin-package :disable t)
-
-;; You can override the recipe of a built in package without having to specify
-;; all the properties for `:recipe'. These will inherit the rest of its recipe
-;; from Doom or MELPA/ELPA/Emacsmirror:
-;; (package! builtin-package :recipe (:nonrecursive t))
-;; (package! builtin-package-2 :recipe (:repo "myfork/package"))
-
-;; Specify a `:branch' to install a package from a particular branch or tag.
-;; This is required for some packages whose default branch isn't 'master' (which
-;; our package manager can't deal with; see radian-software/straight.el#279)
-;; (package! builtin-package :recipe (:branch "develop"))
-
-;; Use `:pin' to specify a particular commit to install.
-;; (package! builtin-package :pin "1a2b3c4d5e")
-
-
-;; Doom's packages are pinned to a specific commit and updated from release to
-;; release. The `unpin!' macro allows you to unpin single packages...
-;; (unpin! pinned-package)
-;; ...or multiple packages
-;; (unpin! pinned-package another-pinned-package)
-;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
-;; (unpin! t)
-(package! catppuccin-theme)
+;; ---------- Edición ----------
 (package! evil-textobj-anyblock)
 (package! embrace)
+
+;; Tree-sitter text-objects (am/im function, ak/ik class, a,/i, param, etc.)
+;; — port de nvim-treesitter-textobjects.
+(package! evil-textobj-tree-sitter)
+
+;; HTML/JSX auto-close + auto-rename de tags (port de ts-autotag.nvim).
+(package! auto-rename-tag)
+
+;; CSV con border view nativo (port de csvview.nvim).
+(package! csv-mode)
+
+;; Alinea tablas en markdown/org (similar a render-markdown.nvim)
+(package! valign)
+
+;; ---------- Copilot (opt-in) ----------
+;; M-x copilot-install-server + M-x copilot-login.
+(package! copilot
+  :recipe (:host github :repo "copilot-emacs/copilot.el"
+           :files ("*.el")))
+
+;; ---------- Tree-sitter nativo (treesit.el, Emacs 29+) ----------
+;; Migración fuera de :tools tree-sitter + flag +tree-sitter. `treesit-auto'
+;; instala gramáticas faltantes y remappea *-mode → *-ts-mode.
+;; `evil-textobj-tree-sitter' auto-detecta `*-ts-mode' y usa el backend
+;; nativo (treesit.el), así que el paquete legacy `tree-sitter' viene como
+;; dep transitiva pero queda dormido (sin highlight ni parser activo).
+(package! treesit-auto)

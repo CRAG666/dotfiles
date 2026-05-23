@@ -15,12 +15,15 @@ local function load()
         require('code_runner.hooks.ui').select({
           Project = function()
             tectonic.build()
+            vim.g.tectonic_enabled = true
           end,
           ['Project + logs'] = function()
             tectonic.build('--synctex --keep-logs')
+            vim.g.tectonic_enabled = true
           end,
           Single = function()
             tectonic.single('--synctex --keep-logs -Zsearch-path=/latex')
+            vim.g.tectonic_enabled = true
           end,
         })
       end,
@@ -111,6 +114,6 @@ local function load()
   require('plugin.term').setup()
 end
 
-key.map_lazy('code_runner', load, 'n', '<leader>e', function()
+key.map_lazy('code_runner', load, 'n', '<leader>mc', function()
   require('code_runner').run_code()
-end, { desc = 'Execute code' })
+end, { desc = 'Compile and run code' })

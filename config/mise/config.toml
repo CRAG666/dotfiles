@@ -4,3 +4,5 @@ dotnet = "10.0"
 node = "latest"
 "npm:oh-my-logo" = "latest"
 opencode = "latest"
+"pipx:BeatPrints" = "latest"
+"pipx:markitdown" = { version = "latest", extras = "all" }

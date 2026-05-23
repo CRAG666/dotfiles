@@ -23,10 +23,14 @@ end
 
 vim.keymap.set('n', 'j', function()
   vim.cmd('normal! ' .. (vim.v.count == 0 and 'gj' or 'j'))
-  sync()
+  if vim.g.tectonic_enabled == true then
+    sync()
+  end
 end, { buffer = true, silent = true })
 
 vim.keymap.set('n', 'k', function()
   vim.cmd('normal! ' .. (vim.v.count == 0 and 'gk' or 'k'))
-  sync()
+  if vim.g.tectonic_enabled == true then
+    sync()
+  end
 end, { buffer = true, silent = true })

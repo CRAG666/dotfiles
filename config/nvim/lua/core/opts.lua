@@ -74,7 +74,7 @@ vim.opt.nrformats:append('blank')
 do
   vim.opt.spellsuggest = 'best,9'
   vim.opt.spellcapcheck = ''
-  vim.opt.spelllang = 'en,cjk'
+  vim.opt.spelllang = 'en,es,cjk'
   vim.opt.spelloptions = 'camel'
 
   require('utils.load').on_events(

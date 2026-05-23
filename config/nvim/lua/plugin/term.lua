@@ -38,14 +38,14 @@ key.maps_lazy('betterTerm', M.setup, { 'n', 't' }, '<C-', open)
 
 local more = {
   {
-    't',
+    's',
     function()
       require('betterTerm').select()
     end,
     'Select terminal',
   },
   {
-    'i',
+    'o',
     function()
       require('betterTerm').open(current)
       current = current + 1
@@ -61,6 +61,6 @@ local more = {
   },
 }
 
-key.maps_lazy('betterTerm', M.setup, 'n', '<leader>t', more)
+key.maps_lazy('betterTerm', M.setup, 'n', '<leader>mt', more)
 
 return M

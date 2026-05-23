@@ -80,6 +80,7 @@ $env.GUM_SPIN_SPINNER_FOREGROUND = "#7a1e18"
 # Configuración del PATH
 # Nushell maneja el PATH como una lista. Agregamos tus directorios personalizados.
 let zsh_paths = [
+    $"($env.HOME)/.config/emacs/bin",
     $"($env.HOME)/.local/bin",
     $"($env.HOME)/.dotnet/tools",
     $"($env.HOME)/.local/share/bob/nvim-bin",

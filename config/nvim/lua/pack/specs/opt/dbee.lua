@@ -9,8 +9,8 @@ return {
     },
     keys = {
       mode = 'n',
-      lhs = '<leader>dm',
-      opts = { desc = '[d]atabase [m]ode' },
+      lhs = '<leader>md',
+      opts = { desc = 'Database Mode' },
     },
     build = function()
       -- Install tries to automatically detect the install method.
@@ -21,7 +21,7 @@ return {
     cmds = { 'Dbee' },
     postload = function()
       require('dbee').setup({})
-      vim.keymap.set('n', '<leader>dm', function()
+      vim.keymap.set('n', '<leader>md', function()
         require('dbee').toggle()
       end)
     end,

@@ -18,7 +18,7 @@ return {
       pattern = 'http',
     },
     postload = function()
-      vim.keymap.set('n', '<leader>R', ':Rest run<cr>')
+      vim.keymap.set('n', '<leader>mr', ':Rest run<cr>')
     end,
   },
 }

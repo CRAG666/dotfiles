@@ -44,7 +44,9 @@ require('core.format')
 do
   local f = io.open(vim.fn.expand('~/.config/eyes/mode'), 'r')
   local mode = f and (f:read('*l') or 'light') or 'light'
-  if f then f:close() end
+  if f then
+    f:close()
+  end
   vim.o.background = (mode == 'dark') and 'dark' or 'light'
 end
 vim.cmd.colorscheme('eyes')
