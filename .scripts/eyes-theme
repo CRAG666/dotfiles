@@ -22,6 +22,13 @@ readonly STATE_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/eyes"
 readonly STATE_FILE="$STATE_DIR/mode"
 mkdir -p "$STATE_DIR"
 
+# Dotfiles repo root, derived from this script's real location
+# (~/Git/dotfiles/.scripts/eyes-theme → ~/Git/dotfiles). Used to locate
+# theme assets that get installed into ~/.claude on first run.
+readonly DOTFILES_DIR="$(cd -- "$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+readonly CLAUDE_THEME_SRC_DIR="$DOTFILES_DIR/themes/claude"
+readonly OPENCODE_THEME_SRC_DIR="$DOTFILES_DIR/themes/opencode"
+
 # ---------------------------------------------------------------------------
 # Canonical palette — mirrors config/nvim/colors/eyes.lua.
 # Format per entry: "slot:LIGHT_HEX:DARK_HEX" (hex without leading '#').
@@ -278,6 +285,109 @@ apply_flag_swaps() {
 }
 
 # ---------------------------------------------------------------------------
+# Claude theme bootstrap
+# ---------------------------------------------------------------------------
+
+# Ensure ~/.claude has the custom theme files and a settings.json with a
+# "theme" key. The name-swap step (apply_name_swaps) only rewrites an
+# existing key, so on a fresh install we need to seed it once.
+#
+# Theme JSONs are symlinked from the dotfiles repo so they stay in sync.
+# settings.json is created if missing; if it exists but lacks a "theme"
+# key, jq is used to insert it (falls back to a warning if jq is absent).
+ensure_claude_theme() {
+  local mode="$1"
+  local themes_dir="$HOME/.claude/themes"
+  local settings="$HOME/.claude/settings.json"
+  local theme_name="eyes"
+  [[ "$mode" == "dark" ]] && theme_name="eyes-dark"
+  local src_light="$CLAUDE_THEME_SRC_DIR/eyes.json"
+  local src_dark="$CLAUDE_THEME_SRC_DIR/eyes-dark.json"
+
+  if ((DRY_RUN)); then
+    [[ -d "$themes_dir" ]]                || info "  would create $themes_dir"
+    [[ -e "$themes_dir/eyes.json" ]]      || info "  would link $themes_dir/eyes.json -> $src_light"
+    [[ -e "$themes_dir/eyes-dark.json" ]] || info "  would link $themes_dir/eyes-dark.json -> $src_dark"
+    if [[ ! -f "$settings" ]]; then
+      info "  would create $settings with theme=custom:$theme_name"
+    elif ! grep -q '"theme"' "$settings"; then
+      info "  would insert theme=custom:$theme_name into $settings"
+    fi
+    return
+  fi
+
+  mkdir -p "$themes_dir"
+  [[ -e "$themes_dir/eyes.json" ]]      || ln -sfn "$src_light" "$themes_dir/eyes.json"
+  [[ -e "$themes_dir/eyes-dark.json" ]] || ln -sfn "$src_dark"  "$themes_dir/eyes-dark.json"
+
+  mkdir -p "$(dirname "$settings")"
+  if [[ ! -f "$settings" ]]; then
+    printf '{\n  "theme": "custom:%s"\n}\n' "$theme_name" >"$settings"
+  elif ! grep -q '"theme"' "$settings"; then
+    if command -v jq >/dev/null; then
+      local tmp
+      tmp="$(mktemp)"
+      if jq --arg t "custom:$theme_name" '. + {theme: $t}' "$settings" >"$tmp"; then
+        mv "$tmp" "$settings"
+      else
+        rm -f "$tmp"
+        warn "  failed to insert theme key into $settings (jq error)"
+      fi
+    else
+      warn "  $settings exists without a \"theme\" key and jq is unavailable;"
+      warn "  add manually:  \"theme\": \"custom:$theme_name\""
+    fi
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# opencode theme bootstrap
+# ---------------------------------------------------------------------------
+
+# Ensure ~/.config/opencode/themes/eyes.json is symlinked to the repo and
+# that tui.json selects "eyes". opencode auto-picks the dark/light variant
+# from terminal background, so a single theme file covers both modes —
+# nothing to flip per toggle, just an idempotent bootstrap.
+ensure_opencode_theme() {
+  local themes_dir="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/themes"
+  local tui="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/tui.json"
+  local src="$OPENCODE_THEME_SRC_DIR/eyes.json"
+
+  if ((DRY_RUN)); then
+    [[ -d "$themes_dir" ]]            || info "  would create $themes_dir"
+    [[ -e "$themes_dir/eyes.json" ]]  || info "  would link $themes_dir/eyes.json -> $src"
+    if [[ ! -f "$tui" ]]; then
+      info "  would create $tui with theme=eyes"
+    elif ! grep -q '"theme"[[:space:]]*:[[:space:]]*"eyes"' "$tui"; then
+      info "  would set theme=eyes in $tui"
+    fi
+    return
+  fi
+
+  mkdir -p "$themes_dir"
+  [[ -e "$themes_dir/eyes.json" ]] || ln -sfn "$src" "$themes_dir/eyes.json"
+
+  mkdir -p "$(dirname "$tui")"
+  if [[ ! -f "$tui" ]]; then
+    printf '{\n  "$schema": "https://opencode.ai/tui.json",\n  "theme": "eyes"\n}\n' >"$tui"
+  elif ! grep -q '"theme"[[:space:]]*:[[:space:]]*"eyes"' "$tui"; then
+    if command -v jq >/dev/null; then
+      local tmp
+      tmp="$(mktemp)"
+      if jq '. + {theme: "eyes"}' "$tui" >"$tmp"; then
+        mv "$tmp" "$tui"
+      else
+        rm -f "$tmp"
+        warn "  failed to set theme key in $tui (jq error)"
+      fi
+    else
+      warn "  $tui exists without theme=\"eyes\" and jq is unavailable;"
+      warn "  add manually:  \"theme\": \"eyes\""
+    fi
+  fi
+}
+
+# ---------------------------------------------------------------------------
 # Daemon reloads
 # ---------------------------------------------------------------------------
 
@@ -369,6 +479,8 @@ set_mode() {
   info "Switching to $target..."
   apply_hex_swap         "to-${target}"
   apply_symlink_switches "$target"
+  ensure_claude_theme    "$target"
+  ensure_opencode_theme
   apply_name_swaps       "$target"
   apply_flag_swaps       "$target"
 

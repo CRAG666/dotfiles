@@ -1,35 +1,35 @@
 ! eyes (light) — sage-green theme for X11 apps (xterm, urxvt, etc.)
-*background:       #1a211a
-*foreground:       #d0dcc8
+*background:       #add4a0
+*foreground:       #1a1a1a
 
 ! black
-*color0:           #d0dcc8
-*color8:           #8a9a88
+*color0:           #1a1a1a
+*color8:           #486040
 
 ! red
-*color1:           #c87868
-*color9:           #c87868
+*color1:           #7a1e18
+*color9:           #7a1e18
 
 ! green
-*color2:           #7aab72
-*color10:          #6a9460
+*color2:           #2a5c22
+*color10:          #3a5030
 
 ! yellow
-*color3:           #d4b85a
-*color11:          #c8a870
+*color3:           #5a4808
+*color11:          #7a4a18
 
 ! blue
-*color4:           #6a94a8
-*color12:          #82aab8
+*color4:           #1e4868
+*color12:          #143c52
 
 ! magenta
-*color5:           #b890b0
-*color13:          #9090b8
+*color5:           #5a2858
+*color13:          #3a2860
 
 ! cyan
-*color6:           #5ab8a8
-*color14:          #6ab8b0
+*color6:           #145850
+*color14:          #1a5858
 
 ! white
-*color7:           #3a463a
-*color15:          #202820
+*color7:           #88b07e
+*color15:          #a4cc98
