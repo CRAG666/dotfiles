@@ -14,7 +14,7 @@ command -v gum >/dev/null 2>&1 || {
                                                                      exit 1
 }
 
-mapfile -t skills < <(find "$SKILLS_SRC" -maxdepth 1 -mindepth 1 -type d -printf '%f\n' | sort)
+mapfile -t skills < <(find "$SKILLS_SRC" -maxdepth 1 -mindepth 1 -type d ! -name '.*' -printf '%f\n' | sort)
 [[ ${#skills[@]} -gt 0 ]] || {
                                echo "No hay skills en $SKILLS_SRC" >&2
                                                                         exit 1
@@ -32,7 +32,8 @@ esac
 
 available=()
 for skill in "${skills[@]}"; do
-  [[ -L "$DEST/$skill" || -e "$DEST/$skill" ]] && continue
+  [[ -L "$GLOBAL_DEST/$skill" || -e "$GLOBAL_DEST/$skill" ]] && continue
+  [[ -L "$LOCAL_DEST/$skill"  || -e "$LOCAL_DEST/$skill"  ]] && continue
   available+=("$skill")
 done
 
