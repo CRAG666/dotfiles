@@ -490,7 +490,7 @@ require('utils.load').on_events(
       )
     end
 
-    map('n', '<leader>tn', vim.cmd.tabnew, { desc = 'Tab [n]ew' })
+    -- map('n', '<leader>tn', vim.cmd.tabnew, { desc = 'Tab [n]ew' })
     map('n', '<leader>to', vim.cmd.tabonly, { desc = 'Tab [o]nly' })
     map('n', '<leader>tc', vim.cmd.tabclose, { desc = 'Tab [c]lose' })
     map('n', '<leader>tl', ':tabmove +1<CR>', { desc = 'Tab Move Right' })

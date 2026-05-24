@@ -17,26 +17,21 @@ function M.setup()
   end
 end
 
-local open = {
+local more = {
   {
-    ';>',
+    't',
     function()
       require('betterTerm').open()
     end,
     'Open terminal 0',
   },
   {
-    '/>',
+    'y',
     function()
       require('betterTerm').open(1)
     end,
     'Open terminal 1',
   },
-}
-
-key.maps_lazy('betterTerm', M.setup, { 'n', 't' }, '<C-', open)
-
-local more = {
   {
     's',
     function()
@@ -45,7 +40,7 @@ local more = {
     'Select terminal',
   },
   {
-    'o',
+    'n',
     function()
       require('betterTerm').open(current)
       current = current + 1
@@ -61,6 +56,6 @@ local more = {
   },
 }
 
-key.maps_lazy('betterTerm', M.setup, 'n', '<leader>mt', more)
+key.maps_lazy('betterTerm', M.setup, 'n', '<leader>t', more)
 
 return M

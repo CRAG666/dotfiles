@@ -1,5 +1,25 @@
 # Introducción
 
+## Contenidos
+
+- Contexto e importancia del tema (sociedad / disciplina / tiempo)
+- Síntesis de la literatura relevante existente
+- Resaltando el problema
+- Resaltando la controversia en el campo de estudio
+- Resaltando las debilidades de la literatura previa
+- Resaltando el vacío de conocimiento en el campo de estudio
+- Resaltando la importancia de estudio del problema
+- Trabajos relacionados
+- Resaltando el objetivo, interés, argumento del estudio
+- Propósito de la investigación
+- Preguntas de investigación e hipótesis
+- Indicando la significación
+- Describiendo las palabras clave
+- Definiendo la estructura
+- Limitaciones del estudio
+- Razones para un interés personal
+- Referencias adicionales
+
 ## Contexto e importancia del tema (para la sociedad)
 
 - Cada vez es más difícil ignorar…

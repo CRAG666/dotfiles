@@ -1,5 +1,17 @@
 # Results
 
+## Contents
+
+- Referring to the object / method
+- Presenting data
+- Highlighting significant data in tables, graphs or figures
+- Expressions for positive results
+- Expressions for negative results
+- Highlighting unexpected or surprising results
+- Reporting data from questionnaires and interviews
+- Observations on qualitative data
+- Summary and synthesis
+
 ## Referring to the object / method
 
 - To evaluate X, Y was used as…

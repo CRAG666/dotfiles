@@ -1,5 +1,17 @@
 # Resultados
 
+## Contenidos
+
+- Referenciando al objeto / método
+- Presentando datos
+- Resaltando datos significativos de las tablas, gráficos o figuras
+- Expresiones para resultados positivos
+- Expresiones para resultados negativos
+- Resaltando resultados inesperados o sorprendentes
+- Reportando datos de cuestionarios y entrevistas
+- Observaciones acerca de datos cualitativos
+- Resumen y síntesis
+
 ## Referenciando al objeto / método
 
 - Para evaluar X, se utilizó Y como…

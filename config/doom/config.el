@@ -8,6 +8,17 @@
       confirm-kill-emacs nil)
 
 ;; ============================================================
+;; Mason binaries en PATH (instalados desde nvim)
+;; ============================================================
+;; El daemon de Emacs lanzado por systemd hereda PATH=/usr/local/bin:/usr/bin
+;; (no lee .zshrc). Sin esto, basedpyright, lua-language-server, marksman,
+;; texlab, etc. instalados por Mason en nvim no se encuentran.
+(let ((mason-bin (expand-file-name "~/.local/share/nvim/mason/bin")))
+  (when (file-directory-p mason-bin)
+    (add-to-list 'exec-path mason-bin)
+    (setenv "PATH" (concat mason-bin path-separator (getenv "PATH")))))
+
+;; ============================================================
 ;; Fuente (alineada con kitty/kitty.conf)
 ;; ============================================================
 (setq doom-font              (font-spec :family "DankMono Nerd Font Mono" :size 20.0)
@@ -118,6 +129,19 @@
 (after! lsp-mode
   (setq lsp-semantic-tokens-enable t
         lsp-semantic-tokens-honor-refresh-requests t
+        lsp-idle-delay 0.5
+        lsp-log-io nil
+        lsp-file-watch-threshold 10000
+        lsp-enable-file-watchers nil
+        ;; Perf extra: features cuyo costo (LSP request por cursor move) no
+        ;; aporta vs lo que ya da treesit-font-lock-level 4 + semantic tokens.
+        lsp-enable-symbol-highlighting nil       ; mata textDocument/documentHighlight por cursor move
+        lsp-enable-links nil                     ; mata textDocument/documentLink
+        lsp-modeline-code-actions-enable nil     ; mata textDocument/codeAction por cursor move
+        ;; Signature help: añade :after-completion al default para mostrar
+        ;; firma tras aceptar nombre de función (paridad con blink.cmp).
+        lsp-signature-auto-activate '(:on-trigger-char :after-completion :on-server-request)
+        lsp-signature-render-documentation t
         lsp-semantic-token-faces
         '(("namespace"     . eyes-namespace-face)
           ("type"          . font-lock-type-face)
@@ -161,6 +185,9 @@
 
 (add-hook! 'vterm-mode-hook #'my/vterm-cleanup)
 
+(set-popup-rule! "^\\*doom:vterm"
+  :side 'right :size 0.5 :select t :quit nil :ttl 0)
+
 ;; ============================================================
 ;; Org
 ;; ============================================================
@@ -170,20 +197,23 @@
 ;; Python
 ;; ============================================================
 (after! lsp-pyright
-  (setq lsp-pyright-formatting-provider "ruff"))
+  ;; Mason instala `basedpyright-langserver' (fork de pyright); el binario
+  ;; oficial `pyright-langserver' no está. Sin esto lsp-pyright no conecta
+  ;; y solo queda ruff (que no soporta textDocument/completion).
+  (setq lsp-pyright-langserver-command "basedpyright"
+        lsp-pyright-formatting-provider "ruff"))
 
 ;; ============================================================
-;; Copilot (OPT-IN, no auto en prog-mode)
-;; Activación manual con M-x copilot-mode. Requiere auth previa:
-;;   M-x copilot-install-server
-;;   M-x copilot-login
+;; Performance
 ;; ============================================================
-(use-package! copilot
-  :config
-  (map! :map copilot-completion-map
-        "C-." #'copilot-accept-completion
-        "C-," #'copilot-accept-completion-by-word
-        "C-/" #'copilot-next-completion))
+;; Buffer de pipe LSP a 1MB (default 4KB; pyright manda chunks >800KB).
+(setq read-process-output-max (* 1024 1024))
+
+;; Tuning native-comp (Emacs 30 con native-comp habilitado).
+(after! comp
+  (setq native-comp-async-jobs-number (max 1 (- (num-processors) 1))
+        native-comp-async-report-warnings-errors 'silent
+        native-comp-speed 2))
 
 ;; ============================================================
 ;; Carga modular

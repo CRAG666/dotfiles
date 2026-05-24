@@ -1,5 +1,18 @@
 # Material y método
 
+## Contenidos
+
+- Describiendo metodologías previas
+- Tipo de estudio
+- Fuentes de los datos
+- Esquema sobre el diseño de investigación, método y fuentes de datos
+- Dando razones para el uso de una metodología
+- Proporcionando indicaciones sobre una metodología
+- Describiendo características de una muestra
+- Razones para los criterios de elección de la muestra
+- Describiendo el procedimiento
+- Limitaciones de la metodología adoptada y propuestas para evitarlas
+
 ## Describiendo metodologías previas
 
 - Hasta la fecha se han desarrollado e introducido varios métodos para cuantificar…

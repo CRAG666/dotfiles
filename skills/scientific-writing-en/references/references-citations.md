@@ -1,5 +1,16 @@
 # References to the existing literature and citations
 
+## Contents
+
+- General existing evidence
+- References to past research
+- References to current research
+- Existing evidence and multiple authors
+- References to a single author
+- Synthesizing sources
+- Author quotations
+- Synthesizing the evidence review
+
 ## General existing evidence
 
 - A considerable amount of evidence has been published on X. These studies…

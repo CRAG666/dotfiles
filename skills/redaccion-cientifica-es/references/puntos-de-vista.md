@@ -1,5 +1,11 @@
 # Tus puntos de vista: acuerdo, desacuerdo y opinión propia
 
+## Contenidos
+
+- Acuerdo y apoyo
+- Desacuerdo y en contra
+- Tu punto de vista
+
 ## Acuerdo y apoyo
 
 - Una útil introducción a…

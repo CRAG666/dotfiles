@@ -58,20 +58,53 @@
 ;; VTERM toggle (popup persistente)
 ;; ============================================================
 
-(defvar my/vterm-buffer-name "*doom:vterm*")
+(defvar my/vterm-counter 2)
 
-(defun my/toggle-vterm ()
-  "Toggle de un vterm popup persistente."
+(defun my/vterm-buffer-name (n)
+  (format "*doom:vterm:%d*" n))
+
+(defun my/toggle-vterm (&optional n)
+  "Toggle de un vterm popup persistente numerado N (default 0)."
   (interactive)
-  (let ((vterm-buffer (get-buffer my/vterm-buffer-name)))
-    (if vterm-buffer
-        (if (get-buffer-window vterm-buffer)
-            (delete-window (get-buffer-window vterm-buffer))
-          (pop-to-buffer vterm-buffer))
-      (vterm my/vterm-buffer-name)
-      (pop-to-buffer my/vterm-buffer-name))))
+  (let* ((name (my/vterm-buffer-name (or n 0)))
+         (buf  (get-buffer name)))
+    (if buf
+        (if (get-buffer-window buf)
+            (delete-window (get-buffer-window buf))
+          (pop-to-buffer buf))
+      (vterm name)
+      (pop-to-buffer name))))
 
-(map! :leader :desc "Toggle vterm" "t t" #'my/toggle-vterm)
+(defun my/vterm-select ()
+  "Selector entre buffers vterm existentes."
+  (interactive)
+  (let ((names (cl-loop for b in (buffer-list)
+                        for n = (buffer-name b)
+                        when (string-match-p "\\*doom:vterm" n)
+                        collect n)))
+    (if names
+        (pop-to-buffer (completing-read "vterm: " names nil t))
+      (message "No hay buffers vterm"))))
+
+(defun my/vterm-new ()
+  "Abre un nuevo vterm numerado e incrementa el contador."
+  (interactive)
+  (my/toggle-vterm my/vterm-counter)
+  (setq my/vterm-counter (1+ my/vterm-counter)))
+
+(defun my/vterm-rename (new-name)
+  "Renombra el buffer vterm actual."
+  (interactive "sNuevo nombre: ")
+  (when (derived-mode-p 'vterm-mode)
+    (rename-buffer new-name t)))
+
+(map! :leader
+      :desc "Toggle vterm 0" "t t" #'my/toggle-vterm
+      :desc "Vterm 0"        "t 0" (cmd! (my/toggle-vterm 0))
+      :desc "Vterm 1"        "t 1" (cmd! (my/toggle-vterm 1))
+      :desc "Select vterm"   "t s" #'my/vterm-select
+      :desc "New vterm"      "t o" #'my/vterm-new
+      :desc "Rename vterm"   "t r" #'my/vterm-rename)
 
 ;; ============================================================
 ;; REPLACE prefix (SPC r ...) — nvim: <leader>r{r,l,w,e,n,N}

@@ -21,12 +21,6 @@
 ;; Alinea tablas en markdown/org (similar a render-markdown.nvim)
 (package! valign)
 
-;; ---------- Copilot (opt-in) ----------
-;; M-x copilot-install-server + M-x copilot-login.
-(package! copilot
-  :recipe (:host github :repo "copilot-emacs/copilot.el"
-           :files ("*.el")))
-
 ;; ---------- Tree-sitter nativo (treesit.el, Emacs 29+) ----------
 ;; Migración fuera de :tools tree-sitter + flag +tree-sitter. `treesit-auto'
 ;; instala gramáticas faltantes y remappea *-mode → *-ts-mode.

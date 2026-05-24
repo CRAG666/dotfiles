@@ -49,7 +49,7 @@ border_color = "Blue"
 highlight_color = "Yellow"
 
 [theme]
-file_name = "eyes"
+file_name = "eyes-dark"
 name = "Eyes (light)"
 author = "Crag"
 

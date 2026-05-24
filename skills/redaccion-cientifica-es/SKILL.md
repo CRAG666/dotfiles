@@ -7,25 +7,34 @@ description: Usar siempre que el usuario escriba, redacte, revise o traduzca tex
 
 ## Cuándo usar este skill
 
-Activar SIEMPRE que el usuario pida producir, corregir o mejorar texto científico-académico en español. La función central es **sustituir la prosa genérica/robótica que produce un LLM por defecto** por construcciones idiomáticas establecidas en la tradición académica hispana.
+Activar siempre que el usuario pida producir, corregir, mejorar o traducir texto científico-académico en español. La función central es **sustituir la prosa genérica/robótica que produce un LLM por defecto** por construcciones idiomáticas establecidas en la tradición académica hispana.
 
-## Principios irrenunciables
+**NO activar para**: comentarios de código, docstrings, mensajes de commit, correos informales, copy de marketing, ficción, o redacción no académica en general. Si el usuario está escribiendo un post de blog o divulgación, pregunta antes de aplicar el registro académico — esos textos suelen requerir prosa más ligera y accesible.
 
-1. **Nunca empezar frases con "delve", "navigate", "tapestry", "in conclusion", "in summary"** ni sus equivalentes españoles ("profundizar", "navegar", "tapiz", "en conclusión" usado como muletilla).
-2. **Voz pasiva e impersonal**: en español científico se prefiere "se ha demostrado", "se realizó", "se obtuvo" sobre "demostramos" / "hicimos" (salvo en humanidades).
-3. **Conectores variados**: no abusar de "además", "por lo tanto", "sin embargo". Rotar con las frases del archivo `conectores-y-tiempo.md`.
-4. **Cautela epistémica**: en ciencia se afirma con matiz. Usar "sugiere", "podría", "los datos parecen indicar" cuando proceda — ver `precaucion-y-hipotesis.md`.
-5. **Cita y atribución**: usar las construcciones de `referencias-y-citas.md` en lugar de "según [Autor]" repetido.
-6. **Nada de emojis. Nada de negritas decorativas. Nada de bullets innecesarios** dentro del cuerpo del texto científico.
-7. **Coherencia temporal**: pasado para métodos y resultados; presente para conclusiones generales y descripciones de la literatura establecida; ver `conectores-y-tiempo.md`.
+## Principios fundamentales
+
+No son reglas arbitrarias; cada una previene un patrón concreto que delata el texto como generado por IA o como redacción no nativa.
+
+1. **Evitar las muletillas de IA.** Construcciones como "profundizar en", "navegar por las complejidades de", "tapiz de", "en el mundo actual", "es importante destacar que" se han convertido en huella estadística de los LLM. Marcan el texto como generado por IA ante cualquier lector (o detector) entrenado.
+2. **Voz pasiva e impersonal.** En español científico se prefiere "se ha demostrado", "se realizó", "se obtuvo" sobre "demostramos" / "hicimos" — salvo en humanidades, donde la voz autorial sí es aceptable. Esta convención refleja siglos de tradición académica hispana.
+3. **Cautela epistémica.** En ciencia se afirma con matiz. Usar "sugiere", "podría", "los datos parecen indicar" cuando proceda. Sobreafirmar es señal de redacción inexperta (o de IA). Ver `precaucion-y-hipotesis.md`.
+4. **Conectores variados.** Repetir "además", "por lo tanto", "sin embargo" hace mecánica la prosa. Rotar con las alternativas de `conectores-y-tiempo.md`.
+5. **Disciplina temporal.** Cada tiempo verbal señala un estatus epistémico distinto:
+   - **Pasado simple / pretérito perfecto** para métodos y resultados específicos ("se midió", "Smith halló").
+   - **Presente** para conocimiento establecido y lo que hace el paper actual ("los datos muestran", "este trabajo aborda").
+   - **Pretérito perfecto compuesto** para el cuerpo acumulado de la literatura ("la investigación ha mostrado", "se ha estudiado").
+6. **Gramática de cita.** Usar las construcciones de `referencias-y-citas.md` en lugar de "según [Autor]" repetido. Preferir verbos de reporte que marquen postura: argumenta, sostiene, plantea, demuestra, sugiere.
+7. **Nada de emojis. Nada de negritas decorativas. Nada de bullets innecesarios** dentro del cuerpo del párrafo científico. Las viñetas solo son aceptables en enumeraciones genuinas (pasos de método, listas de condiciones).
+8. **Voz activa cuando importa el agente; pasiva cuando importa la acción.** Ambas son defendibles; lo que cuenta es la consistencia dentro del documento.
 
 ## Cómo trabajar
 
 1. **Identifica la sección** que el usuario necesita (Abstract, Introducción, Método, Resultados, Discusión, Conclusiones, o función transversal — comparar, definir, ser crítico, etc.).
-2. **Lee SOLO el archivo de referencia relevante** de `references/` antes de redactar. No los cargues todos.
+2. **Lee SOLO el archivo de referencia relevante** de `references/` antes de redactar. No los cargues todos — cada uno tiene cientos de líneas.
 3. **Elige frases del banco** y adáptalas al contexto del usuario sustituyendo las X, Y, Z y "Autor" por los términos reales.
-4. **Combina y varía** — no encadenes tres frases del mismo subapartado seguidas; el texto debe fluir, no parecer un collage.
-5. Si la sección que pide el usuario no encaja con ningún archivo, lee `redaccion-critica.md` y `conectores-y-tiempo.md` que son transversales.
+4. **Combina y varía** — no encadenes tres frases del mismo subapartado seguidas; el texto debe fluir como prosa, no parecer un collage de frasebook.
+5. **Entrega prosa terminada, no un menú de frases.** Por defecto, devuelve un párrafo pulido que el usuario pueda pegar en su documento. Solo devuelve listas de opciones si el usuario pide explícitamente "dame opciones" o "muéstrame alternativas".
+6. Si la sección pedida no encaja con ningún archivo, lee `redaccion-critica.md` y `conectores-y-tiempo.md` — son transversales.
 
 ## Índice de referencias
 

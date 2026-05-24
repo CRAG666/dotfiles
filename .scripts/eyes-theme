@@ -27,22 +27,22 @@ mkdir -p "$STATE_DIR"
 # Format per entry: "slot:LIGHT_HEX:DARK_HEX" (hex without leading '#').
 # ---------------------------------------------------------------------------
 readonly PALETTE=(
-  'bg0:add4a0:1a211a'         'bg1:a4cc98:202820'
-  'bg2:9fc895:263026'         'bg3:96be8c:2d382d'
-  'bg4:88b07e:3a463a'         'bg5:6a9060:536053'
-  'fg0:1a1a1a:d0dcc8'         'fg1:1e2e1c:b8c8b0'         'fg2:3d5c38:9aab94'
-  'gray0:486040:8a9a88'       'gray1:385030:7a8a78'       'gray2:2c4028:6a7868'
-  'green0:2a5c22:7aab72'      'green1:1e4a18:88b878'      'green2:3a5030:6a9460'
+  'bg0:add4a0:1a211a' 'bg1:a4cc98:202820'
+  'bg2:9fc895:263026' 'bg3:96be8c:2d382d'
+  'bg4:88b07e:3a463a' 'bg5:6a9060:536053'
+  'fg0:1a1a1a:d0dcc8' 'fg1:1e2e1c:b8c8b0' 'fg2:3d5c38:9aab94'
+  'gray0:486040:8a9a88' 'gray1:385030:7a8a78' 'gray2:2c4028:6a7868'
+  'green0:2a5c22:7aab72' 'green1:1e4a18:88b878' 'green2:3a5030:6a9460'
   'ash:365c25:7a8c72'
   'teal:145850:5ab8a8'
-  'blue0:1e4868:6a94a8'       'blue1:143c52:82aab8'
+  'blue0:1e4868:6a94a8' 'blue1:143c52:82aab8'
   'violet:3a2860:9090b8'
   'aqua:1a5858:6ab8b0'
-  'orange0:6a3c10:b89a6a'     'orange1:7a4a18:c8a870'
+  'orange0:6a3c10:b89a6a' 'orange1:7a4a18:c8a870'
   'red:7a1e18:c87868'
   'yellow:5a4808:d4b85a'
   'pink:5a2858:b890b0'
-  'winterRed:d8a8a0:402828'   'winterBlue:90bcd0:223040'
+  'winterRed:d8a8a0:402828' 'winterBlue:90bcd0:223040'
   'winterGreen:94cc88:243224' 'winterYellow:d0c890:3a3420'
 )
 
@@ -51,18 +51,18 @@ readonly PALETTE=(
 # yazi file also flips these; they intentionally extend, not replace, the
 # canonical palette.
 readonly PALETTE_EXTRAS=(
-  'yz_blue_deep:1e4a60:6aa0b0'  'yz_teal_green:206860:6cb0a4'
-  'yz_off_black:222222:ddd8d0'  'yz_blue:2a5872:8aaec8'
-  'yz_mauve:6a3868:b89cb8'      'yz_yellow:786018:c8b070'
+  'yz_blue_deep:1e4a60:6aa0b0' 'yz_teal_green:206860:6cb0a4'
+  'yz_off_black:222222:ddd8d0' 'yz_blue:2a5872:8aaec8'
+  'yz_mauve:6a3868:b89cb8' 'yz_yellow:786018:c8b070'
   'yz_orange:8a5820:d0b078'
 )
 
-# Files where colors live inline — toggled by hex-swap.
+# Files where colors live inline with a '#' prefix — toggled by hex-swap.
 readonly HEX_SWAP_FILES=(
   "$HOME/.tmux.conf"
   "$HOME/.profile"
   "$HOME/.zshrc"
-  "$HOME/.config/foot/foot.ini"
+  "$HOME/.Xresources"
   "$HOME/.config/dunst/dunstrc"
   "$HOME/.config/nushell/env.nu"
   "$HOME/.config/nushell/eyes.nu"
@@ -76,12 +76,17 @@ readonly HEX_SWAP_FILES=(
   "$HOME/.config/tridactyl/themes/eyes.css"
 )
 
+# Files that store palette hex without a leading '#' (foot uses key=RRGGBB).
+# Word-boundary anchors keep the swap from touching unrelated 6-char tokens.
+readonly HEX_SWAP_FILES_BARE=(
+  "$HOME/.config/foot/foot.ini"
+)
+
 # Symlinks that point to a "light" or "dark" sibling file.
 # Format per entry: "symlink_path:light_target:dark_target"
 # Targets are stored as relative paths (resolved by the symlink's dir).
 readonly SYMLINK_SWITCHES=(
   "$HOME/.config/eza/theme.yml:eyes.yml:eyes-dark.yml"
-  "$HOME/.config/qutebrowser/theme.py:eyes-light.py:eyes-dark.py"
   "$HOME/.config/zsh-patina/theme.toml:eyes-light.toml:eyes-dark.toml"
   "$HOME/.config/swaylock/config:eyes-light.conf:eyes-dark.conf"
   "$HOME/.config/hypr/colors/theme.conf:eyes-light.conf:eyes-dark.conf"
@@ -105,12 +110,13 @@ readonly NAME_SWAPS=(
   '~/.claude/settings.json|s|"theme": "custom:%FROM%"|"theme": "custom:%TO%"|'
 )
 
-# Boolean flag swaps. Format: "file|sed_to_dark|sed_to_light"
+# Boolean flag swaps. Format: "file<TAB>sed_to_dark<TAB>sed_to_light"
+# Tab is the field separator because sed patterns contain '|' (regex alternation).
 # Patterns match either current value so the toggle self-heals if drift.
 readonly FLAG_SWAPS=(
-  "$HOME/.gitconfig|s/^(  light = )(true|false)\$/\\1false/|s/^(  light = )(true|false)\$/\\1true/"
-  "$HOME/.config/gtk-3.0/settings.ini|s/^gtk-application-prefer-dark-theme=[01]\$/gtk-application-prefer-dark-theme=1/|s/^gtk-application-prefer-dark-theme=[01]\$/gtk-application-prefer-dark-theme=0/"
-  "$HOME/.config/gtk-4.0/settings.ini|s/^gtk-application-prefer-dark-theme=[01]\$/gtk-application-prefer-dark-theme=1/|s/^gtk-application-prefer-dark-theme=[01]\$/gtk-application-prefer-dark-theme=0/"
+  "$HOME/.gitconfig"$'\t'"s/^(  light = )(true|false)\$/\\1false/"$'\t'"s/^(  light = )(true|false)\$/\\1true/"
+  "$HOME/.config/gtk-3.0/settings.ini"$'\t'"s/^gtk-application-prefer-dark-theme=[01]\$/gtk-application-prefer-dark-theme=1/"$'\t'"s/^gtk-application-prefer-dark-theme=[01]\$/gtk-application-prefer-dark-theme=0/"
+  "$HOME/.config/gtk-4.0/settings.ini"$'\t'"s/^gtk-application-prefer-dark-theme=[01]\$/gtk-application-prefer-dark-theme=1/"$'\t'"s/^gtk-application-prefer-dark-theme=[01]\$/gtk-application-prefer-dark-theme=0/"
 )
 
 DRY_RUN=0
@@ -145,7 +151,7 @@ current_mode() {
 auto_mode_for_now() {
   local hour
   hour="$(date +%-H)"
-  (( hour >= 6 && hour < 19 )) && echo light || echo dark
+  ((hour >= 6 && hour < 19))   && echo light || echo dark
 }
 
 # ---------------------------------------------------------------------------
@@ -153,36 +159,54 @@ auto_mode_for_now() {
 # ---------------------------------------------------------------------------
 
 # Emit one sed expression per line covering every palette entry plus
-# extras, for the requested direction (hex and SGR forms).
+# extras, for the requested direction. style=hash matches "#RRGGBB" plus
+# SGR triplets (38;2;R;G;B / 48;2;R;G;B); style=bare matches plain
+# "RRGGBB" with word boundaries (for foot.ini-style "key=RRGGBB" lines).
 build_hex_sed_script() {
-  local direction="$1"  # to-dark | to-light
-  local entry slot light dark from to from_sgr to_sgr
+  local direction="$1" style="${2:-hash}"
+  local entry slot light dark from_hex to_hex from_sgr to_sgr
   for entry in "${PALETTE[@]}" "${PALETTE_EXTRAS[@]}"; do
     IFS=: read -r slot light dark <<<"$entry"
     if [[ "$direction" == "to-dark" ]]; then
-      from="#$light"; to="#$dark"
+      from_hex="$light"
+                         to_hex="$dark"
     else
-      from="#$dark";  to="#$light"
+      from_hex="$dark"
+                        to_hex="$light"
     fi
-    from_sgr="$(hex_to_sgr "$from")"
-    to_sgr="$(hex_to_sgr "$to")"
-    printf 's/%s/%s/gI\n' "$from" "$to"
-    printf 's/38;2;%s/38;2;%s/g\n' "$from_sgr" "$to_sgr"
-    printf 's/48;2;%s/48;2;%s/g\n' "$from_sgr" "$to_sgr"
+    if [[ "$style" == "bare" ]]; then
+      printf 's/\\b%s\\b/%s/gI\n' "$from_hex" "$to_hex"
+    else
+      from_sgr="$(hex_to_sgr "#$from_hex")"
+      to_sgr="$(hex_to_sgr "#$to_hex")"
+      printf 's/#%s/#%s/gI\n' "$from_hex" "$to_hex"
+      printf 's/38;2;%s/38;2;%s/g\n' "$from_sgr" "$to_sgr"
+      printf 's/48;2;%s/48;2;%s/g\n' "$from_sgr" "$to_sgr"
+    fi
   done
 }
 
 apply_hex_swap() {
-  local direction="$1" script f target
-  script="$(build_hex_sed_script "$direction")"
+  local direction="$1" script_hash script_bare f target
+  script_hash="$(build_hex_sed_script "$direction" hash)"
+  script_bare="$(build_hex_sed_script "$direction" bare)"
   for f in "${HEX_SWAP_FILES[@]}"; do
     [[ -f "$f" ]] || continue
     # Resolve through symlinks so we edit the real file in this repo.
     target="$(readlink -f "$f")"
-    if (( DRY_RUN )); then
+    if ((DRY_RUN)); then
       info "  would hex-swap $target"
     else
-      sed -i -E "$script" "$target"
+      sed -i -E "$script_hash" "$target"
+    fi
+  done
+  for f in "${HEX_SWAP_FILES_BARE[@]}"; do
+    [[ -f "$f" ]] || continue
+    target="$(readlink -f "$f")"
+    if ((DRY_RUN)); then
+      info "  would bare-hex-swap $target"
+    else
+      sed -i -E "$script_bare" "$target"
     fi
   done
 }
@@ -197,8 +221,9 @@ apply_symlink_switches() {
     IFS=: read -r symlink light dark <<<"$entry"
     dir="$(dirname "$symlink")"
     [[ -d "$dir" ]] || continue
-    target="$light"; [[ "$mode" == "dark" ]] && target="$dark"
-    if (( DRY_RUN )); then
+    target="$light"
+                     [[ "$mode" == "dark" ]] && target="$dark"
+    if ((DRY_RUN)); then
       info "  would link $symlink -> $target"
     else
       ln -sfn "$target" "$symlink"
@@ -213,9 +238,11 @@ apply_symlink_switches() {
 apply_name_swaps() {
   local mode="$1" entry file pattern from to script
   if [[ "$mode" == "dark" ]]; then
-    from="eyes"; to="eyes-dark"
+    from="eyes"
+                 to="eyes-dark"
   else
-    from="eyes-dark"; to="eyes"
+    from="eyes-dark"
+                      to="eyes"
   fi
   for entry in "${NAME_SWAPS[@]}"; do
     file="$(expand_home "${entry%%|*}")"
@@ -223,7 +250,7 @@ apply_name_swaps() {
     [[ -f "$file" ]] || continue
     script="${pattern//%FROM%/$from}"
     script="${script//%TO%/$to}"
-    if (( DRY_RUN )); then
+    if ((DRY_RUN)); then
       info "  would sed on $file: $script"
     else
       sed -i -E "$script" "$file"
@@ -238,10 +265,11 @@ apply_name_swaps() {
 apply_flag_swaps() {
   local mode="$1" entry file dark_pat light_pat script
   for entry in "${FLAG_SWAPS[@]}"; do
-    IFS='|' read -r file dark_pat light_pat <<<"$entry"
+    IFS=$'\t' read -r file dark_pat light_pat <<<"$entry"
     [[ -f "$file" ]] || continue
-    script="$dark_pat"; [[ "$mode" == "light" ]] && script="$light_pat"
-    if (( DRY_RUN )); then
+    script="$dark_pat"
+                        [[ "$mode" == "light" ]] && script="$light_pat"
+    if ((DRY_RUN)); then
       info "  would sed on $file: $script"
     else
       sed -i -E "$script" "$file"
@@ -255,7 +283,7 @@ apply_flag_swaps() {
 
 reload_daemons() {
   local mode="$1"
-  if (( DRY_RUN )); then
+  if ((DRY_RUN)); then
     info "  would reload running daemons"
     return
   fi
@@ -268,6 +296,12 @@ reload_daemons() {
   # foot: SIGUSR1 triggers config reload.
   if pgrep -x foot >/dev/null 2>&1; then
     pkill -SIGUSR1 -x foot 2>/dev/null || true
+  fi
+
+  # X resources: merge in the rewritten palette for xterm/urxvt-style apps.
+  if command -v xrdb >/dev/null && [[ -f "$HOME/.Xresources" ]] \
+    && [[ -n "${DISPLAY:-}" ]]; then
+    xrdb -merge "$HOME/.Xresources" 2>/dev/null || true
   fi
 
   # hyprland: reload sources in the running compositor.
@@ -291,12 +325,13 @@ reload_daemons() {
 
   # zsh-patina: restart to pick up the new theme.toml symlink.
   if command -v zsh-patina >/dev/null; then
-    zsh-patina restart 2>/dev/null || true
+    zsh -c "zsh-patina restart" 2>/dev/null || true
   fi
 
   # GTK / GNOME color-scheme hint (Thunderbird, GTK4 apps respect this).
   if command -v gsettings >/dev/null; then
-    local pref="prefer-light"; [[ "$mode" == "dark" ]] && pref="prefer-dark"
+    local pref="prefer-light"
+                               [[ "$mode" == "dark" ]] && pref="prefer-dark"
     gsettings set org.gnome.desktop.interface color-scheme "$pref" 2>/dev/null || true
   fi
 
@@ -337,7 +372,7 @@ set_mode() {
   apply_name_swaps       "$target"
   apply_flag_swaps       "$target"
 
-  (( DRY_RUN )) || echo "$target" >"$STATE_FILE"
+  ((DRY_RUN))   || echo "$target" >"$STATE_FILE"
   reload_daemons         "$target"
   info "Switched to $target mode."
 }
@@ -363,22 +398,33 @@ EOF
 main() {
   while [[ $# -gt 0 && "$1" == -* ]]; do
     case "$1" in
-      --dry-run) DRY_RUN=1; shift ;;
-      -h|--help) usage ;;
-      *) warn "unknown option: $1"; usage ;;
+      --dry-run)
+                 DRY_RUN=1
+                            shift
+                                  ;;
+      -h | --help) usage ;;
+      *)
+         warn "unknown option: $1"
+                                    usage
+                                          ;;
     esac
   done
   case "${1:-status}" in
     light)  set_mode light ;;
     dark)   set_mode dark  ;;
     toggle)
-      if [[ "$(current_mode)" == dark ]]; then set_mode light
-      else set_mode dark
-      fi
+      if [[ "$(current_mode)" == dark ]]; then
+                                               set_mode light
+    else
+           set_mode dark
+    fi
       ;;
     auto)   set_mode "$(auto_mode_for_now)" ;;
     status) current_mode ;;
-    *) warn "unknown command: ${1:-}"; usage ;;
+    *)
+       warn "unknown command: ${1:-}"
+                                       usage
+                                             ;;
   esac
 }
 

@@ -113,9 +113,9 @@ input type:touchpad {
 default_border pixel 5
 gaps inner 4
 gaps outer 4
-client.focused #7a1e18 #6a9060 #1a1a1a #5a2858 #7a1e18
-client.focused_inactive #88b07e #96be8c #1a1a1a #5a2858 #88b07e
-client.unfocused #88b07e #add4a0 #1a1a1a #5a2858 #88b07e
+client.focused #c87868 #536053 #d0dcc8 #b890b0 #c87868
+client.focused_inactive #3a463a #2d382d #d0dcc8 #b890b0 #3a463a
+client.unfocused #3a463a #1a211a #d0dcc8 #b890b0 #3a463a
 
 default_decoration border_radius 20 shadow false shadow_dynamic false shadow_size 40 shadow_blur 30 shadow_offset 40 40 shadow_color #00000070 dim false dim_color #00000040
 
@@ -249,7 +249,7 @@ animations {
     bindsym --no-repeat $mod+Shift+tab scale_workspaces toggle
 
     # Jump
-    jump_labels_color #7a1e18FF
+    jump_labels_color #c87868FF
     jump_labels_keys asdfqwer
 
     mode "jump" {
@@ -565,7 +565,7 @@ bindsym $mod+g mode "spaces"
 # APPLICATIONS
 # =============================================================================
 
-bindsym Alt+space exec swaylock
+# bindsym Alt+space exec swaylock
 
 bindsym $mod+Return exec $term
 

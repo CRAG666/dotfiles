@@ -1,5 +1,16 @@
 # Referencias a la literatura existente y citas
 
+## Contenidos
+
+- Evidencia general existente
+- Referencias a investigación pasada
+- Referencias a investigación presente
+- Evidencia existente y más de un autor
+- Referencias a un autor concreto
+- Sintetizando fuentes
+- Citas de autores
+- Sintetizando la revisión de la evidencia
+
 ## Evidencia general existente
 
 - Se ha publicado una considerable cantidad de evidencia sobre X. Estos estudios…

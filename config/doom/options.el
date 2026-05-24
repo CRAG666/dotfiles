@@ -70,9 +70,25 @@
 ;; (after! fold …) NO funcionaría: no hay feature `fold' provided.
 (setq +fold-ellipsis "·")
 
-;; ---------- Completion: pumheight (nvim: pumheight = 16) ----------
+;; ---------- Completion (paridad con blink.cmp de nvim) ----------
+;; corfu-popupinfo-delay NO se pone en 0.0: la doc oficial advierte que
+;; satura Emacs con requests al backend LSP. `(0.1 . 0.1)' se siente
+;; instantáneo sin castigar.
 (after! corfu
-  (setq corfu-count 16))
+  (setq corfu-count           16              ; nvim pumheight
+        corfu-auto-delay      0.0             ; blink: instantáneo
+        corfu-auto-prefix     1               ; blink: desde 1er char
+        corfu-preselect       'first          ; blink: preselect primero
+        corfu-preview-current 'insert         ; blink: auto_insert preview
+        corfu-popupinfo-delay '(0.1 . 0.1))  ; blink: docs casi instantáneo
+  ;; Upstream: TAB=corfu-complete (completa prefijo) y S-TAB sin bind.
+  ;; Rebind a cycle next/prev (RET sigue siendo aceptar).
+  ;; ↑/↓ ya son corfu-previous/next por default.
+  (map! :map corfu-map
+        "TAB"     #'corfu-next
+        [tab]     #'corfu-next
+        "S-TAB"   #'corfu-previous
+        [backtab] #'corfu-previous))
 
 ;; ---------- Magit ----------
 (after! magit

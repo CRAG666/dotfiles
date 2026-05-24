@@ -1,11 +1,11 @@
 /* eyes (light) — sage-green palette for rofi top-level */
 * {
-    main-bg:            #add4a0e6;   /* bg0 with slight transparency */
-    main-fg:            #1a1a1aff;   /* fg0 */
-    main-br:            #1e4868ff;   /* blue0 — borders / accent */
-    main-ex:            #3a2860ff;   /* violet — secondary accent */
-    select-bg:          #1e4868ff;   /* blue0 — selection bg */
-    select-fg:          #add4a0ff;   /* bg0 — text on selection */
+    main-bg:            #1a211ae6;   /* bg0 with slight transparency */
+    main-fg:            #d0dcc8ff;   /* fg0 */
+    main-br:            #6a94a8ff;   /* blue0 — borders / accent */
+    main-ex:            #9090b8ff;   /* violet — secondary accent */
+    select-bg:          #6a94a8ff;   /* blue0 — selection bg */
+    select-fg:          #1a211aff;   /* bg0 — text on selection */
     separatorcolor:     transparent;
     border-color:       transparent;
 }

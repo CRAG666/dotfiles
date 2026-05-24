@@ -1,5 +1,25 @@
 # Introduction
 
+## Contents
+
+- Background and importance of the topic (societal / disciplinary / temporal)
+- Synthesis of the existing relevant literature
+- Highlighting the problem
+- Highlighting controversy in the field
+- Highlighting weaknesses in prior literature
+- Highlighting the knowledge gap
+- Highlighting the importance of studying the problem
+- Related work
+- Highlighting the aim, interest, argument of the study
+- Purpose of the research
+- Research questions and hypotheses
+- Indicating the significance
+- Describing keywords
+- Defining the structure
+- Limitations of the study
+- Reasons for personal interest
+- Additional references
+
 ## Background and importance of the topic (societal)
 
 - X is becoming increasingly difficult to ignore…
@@ -54,7 +74,7 @@
 - Previous studies have found…
 - A considerable body of literature has been published on X…
 - In these studies… Y shows how, in the past, research on X referred mainly to…
-- The first serious discussions and analyses of X emerged during the decade of…
+- The first serious discussions and analyses of X emerged during the X decade…
 - Recent evidence on the subject suggests that…
 - A considerable number of researchers have reported that…
 - What we know about X is largely based on Y studies that investigate how…

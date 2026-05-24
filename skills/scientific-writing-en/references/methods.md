@@ -1,5 +1,18 @@
 # Materials and Methods
 
+## Contents
+
+- Describing previous methodologies
+- Type of study
+- Data sources
+- Outline of research design, method and data sources
+- Reasons for adopting a methodology
+- Providing indications about a methodology
+- Describing characteristics of a sample
+- Reasons for sample selection criteria
+- Describing the procedure
+- Limitations of the adopted methodology and proposals to mitigate them
+
 ## Describing previous methodologies
 
 - To date several methods have been developed and introduced to quantify…
