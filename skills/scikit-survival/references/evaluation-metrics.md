@@ -36,8 +36,9 @@ The traditional estimator, simpler but has limitations.
 ```python
 from sksurv.metrics import concordance_index_censored
 
-# Compute Harrell's C-index
-result = concordance_index_censored(y_test['event'], y_test['time'], risk_scores)
+# Compute Harrell's C-index (field names vary by dataset, e.g. gbsg2 uses 'cens'/'time')
+event_field, time_field = y_test.dtype.names
+result = concordance_index_censored(y_test[event_field], y_test[time_field], risk_scores)
 c_index = result[0]
 print(f"Harrell's C-index: {c_index:.3f}")
 ```
@@ -62,7 +63,7 @@ from sksurv.metrics import concordance_index_ipcw
 
 # Compute Uno's C-index
 # Requires training data for IPCW calculation
-c_index, concordant, discordant, tied_risk = concordance_index_ipcw(
+c_index, concordant, discordant, tied_risk, tied_time = concordance_index_ipcw(
     y_train, y_test, risk_scores
 )
 print(f"Uno's C-index: {c_index:.3f}")
@@ -86,8 +87,9 @@ print(f"Uno's C-index: {c_index:.3f}")
 ```python
 from sksurv.metrics import concordance_index_censored, concordance_index_ipcw
 
-# Harrell's C-index
-harrell = concordance_index_censored(y_test['event'], y_test['time'], risk_scores)[0]
+# Harrell's C-index (field names vary by dataset, e.g. gbsg2 uses 'cens'/'time')
+event_field, time_field = y_test.dtype.names
+harrell = concordance_index_censored(y_test[event_field], y_test[time_field], risk_scores)[0]
 
 # Uno's C-index
 uno = concordance_index_ipcw(y_train, y_test, risk_scores)[0]
@@ -198,11 +200,14 @@ print(f"Brier score at {time_point} days: {bs:.3f}")
 #### integrated_brier_score: Summary Across Time
 
 ```python
+import numpy as np
 from sksurv.metrics import integrated_brier_score
 
 # Compute integrated Brier score
 times = [365, 730, 1095, 1460, 1825]
-surv_probs = model.predict_survival_function(X_test)
+# integrated_brier_score needs a 2D array (n_samples, n_times), not StepFunction objects
+surv_funcs = model.predict_survival_function(X_test)
+surv_probs = np.asarray([[fn(t) for t in times] for fn in surv_funcs])
 
 ibs = integrated_brier_score(y_train, y_test, surv_probs, times)
 print(f"Integrated Brier Score: {ibs:.3f}")
@@ -219,17 +224,25 @@ print(f"Integrated Brier Score: {ibs:.3f}")
 Always compare against a baseline (e.g., Kaplan-Meier):
 
 ```python
+from sksurv.metrics import brier_score
 from sksurv.nonparametric import kaplan_meier_estimator
 
-# Compute Kaplan-Meier baseline
-time_km, surv_km = kaplan_meier_estimator(y_train['event'], y_train['time'])
+# Evaluation time and the model's survival probabilities at that time
+time_point = 1825  # 5 years
+surv_at_t = [fn(time_point) for fn in model.predict_survival_function(X_test)]
 
-# Predict with KM for each test subject
-surv_km_test = [surv_km[time_km <= time_point][-1] if any(time_km <= time_point) else 1.0
-                for _ in range(len(X_test))]
+# Compute Kaplan-Meier baseline (field names vary by dataset, e.g. gbsg2 'cens'/'time')
+event_field, time_field = y_train.dtype.names
+time_km, surv_km = kaplan_meier_estimator(y_train[event_field], y_train[time_field])
 
-bs_km = brier_score(y_train, y_test, surv_km_test, time_point)[1]
-bs_model = brier_score(y_train, y_test, surv_at_t, time_point)[1]
+# The KM null model is marginal: every test subject gets the same survival
+# probability at time_point (it ignores covariates).
+km_prob = surv_km[time_km <= time_point][-1] if any(time_km <= time_point) else 1.0
+surv_km_test = [km_prob for _ in range(len(X_test))]
+
+# brier_score returns (times, scores); with one time point take the single scalar
+bs_km = brier_score(y_train, y_test, surv_km_test, time_point)[1][0]
+bs_model = brier_score(y_train, y_test, surv_at_t, time_point)[1][0]
 
 print(f"Kaplan-Meier Brier Score: {bs_km:.3f}")
 print(f"Model Brier Score: {bs_model:.3f}")
@@ -241,36 +254,46 @@ print(f"Improvement: {(bs_km - bs_model) / bs_km * 100:.1f}%")
 ### Concordance Index Scorer
 
 ```python
+import numpy as np
 from sklearn.model_selection import cross_val_score
 from sksurv.metrics import as_concordance_index_ipcw_scorer
 
-# Create scorer
-scorer = as_concordance_index_ipcw_scorer()
+# Wrap the estimator (as_concordance_index_ipcw_scorer is an estimator wrapper,
+# not a scorer factory); use default scoring. Set tau (a truncation time within
+# the training follow-up) so IPCW folds do not raise "time must be smaller than
+# largest observed time point".
+event_field, time_field = y.dtype.names
+tau = np.percentile(y[time_field][y[event_field]], 80)
+wrapped = as_concordance_index_ipcw_scorer(model, tau=tau)
 
 # Perform cross-validation
-scores = cross_val_score(model, X, y, cv=5, scoring=scorer)
+scores = cross_val_score(wrapped, X, y, cv=5)
 print(f"Mean C-index: {scores.mean():.3f} (±{scores.std():.3f})")
 ```
 
 ### Integrated Brier Score Scorer
 
 ```python
+import numpy as np
 from sksurv.metrics import as_integrated_brier_score_scorer
+from sksurv.linear_model import CoxPHSurvivalAnalysis
 
-# Define time points for evaluation
-times = np.percentile(y['time'][y['event']], [25, 50, 75])
+# Define time points for evaluation (field names vary by dataset, e.g. gbsg2 'cens'/'time')
+event_field, time_field = y.dtype.names
+times = np.percentile(y[time_field][y[event_field]], [25, 50, 75])
 
-# Create scorer
-scorer = as_integrated_brier_score_scorer(times)
+# Wrap the estimator (signature is (estimator, times)); use default scoring
+wrapped = as_integrated_brier_score_scorer(CoxPHSurvivalAnalysis(), times)
 
 # Perform cross-validation
-scores = cross_val_score(model, X, y, cv=5, scoring=scorer)
+scores = cross_val_score(wrapped, X, y, cv=5)
 print(f"Mean IBS: {scores.mean():.3f} (±{scores.std():.3f})")
 ```
 
 ## Model Selection with GridSearchCV
 
 ```python
+import numpy as np
 from sklearn.model_selection import GridSearchCV
 from sksurv.ensemble import RandomSurvivalForest
 from sksurv.metrics import as_concordance_index_ipcw_scorer
@@ -282,14 +305,18 @@ param_grid = {
     'max_depth': [None, 10, 20]
 }
 
-# Create scorer
-scorer = as_concordance_index_ipcw_scorer()
+# Wrap the estimator (the scorer wrapper, not scoring=); namespace params with estimator__
+param_grid = {f'estimator__{k}': v for k, v in param_grid.items()}
+
+# Set tau (a truncation time within the training follow-up) so IPCW folds do not
+# raise "time must be smaller than largest observed time point".
+event_field, time_field = y.dtype.names
+tau = np.percentile(y[time_field][y[event_field]], 80)
 
 # Perform grid search
 cv = GridSearchCV(
-    RandomSurvivalForest(random_state=42),
+    as_concordance_index_ipcw_scorer(RandomSurvivalForest(random_state=42), tau=tau),
     param_grid,
-    scoring=scorer,
     cv=5,
     n_jobs=-1
 )
@@ -317,17 +344,19 @@ def evaluate_survival_model(model, X_train, X_test, y_train, y_test):
     # Get predictions
     risk_scores = model.predict(X_test)
     surv_funcs = model.predict_survival_function(X_test)
+    event_field, time_field = y_test.dtype.names
 
     # 1. Concordance Index (both versions)
-    c_harrell = concordance_index_censored(y_test['event'], y_test['time'], risk_scores)[0]
+    c_harrell = concordance_index_censored(y_test[event_field], y_test[time_field], risk_scores)[0]
     c_uno = concordance_index_ipcw(y_train, y_test, risk_scores)[0]
 
     # 2. Time-dependent AUC
-    times = np.percentile(y_test['time'][y_test['event']], [25, 50, 75])
+    times = np.percentile(y_test[time_field][y_test[event_field]], [25, 50, 75])
     auc, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
 
     # 3. Integrated Brier Score
-    ibs = integrated_brier_score(y_train, y_test, surv_funcs, times)
+    surv_probs = np.asarray([[fn(t) for t in times] for fn in surv_funcs])
+    ibs = integrated_brier_score(y_train, y_test, surv_probs, times)
 
     # Print results
     print("=" * 50)

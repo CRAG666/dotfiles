@@ -45,15 +45,17 @@ Estimates the cumulative incidence function for each event type.
 
 ```python
 from sksurv.nonparametric import cumulative_incidence_competing_risks
-from sksurv.datasets import load_leukemia
+from sksurv.datasets import load_bmt
 
 # Load data with competing risks
-X, y = load_leukemia()
-# y has event types: 0=censored, 1=relapse, 2=death
+X, y = load_bmt()
+# y has integer status codes: 0=censored, 1=relapse, 2=death; ftime is the exit time
 
-# Compute cumulative incidence for each event type
-# Returns: time points, CIF for event 1, CIF for event 2, ...
-time_points, cif_1, cif_2 = cumulative_incidence_competing_risks(y)
+# Compute cumulative incidence for each event type.
+# Pass integer event codes and exit times. Returns (time, cif), where
+# cif[0] is the total incidence and cif[1], cif[2], ... are per-risk.
+time_points, cif = cumulative_incidence_competing_risks(y['status'], y['ftime'])
+cif_1, cif_2 = cif[1], cif[2]
 
 # Plot cumulative incidence functions
 import matplotlib.pyplot as plt
@@ -127,16 +129,18 @@ event_types = df['event_type'].values
 from sksurv.nonparametric import cumulative_incidence_competing_risks
 import matplotlib.pyplot as plt
 
-# Split by treatment group
-mask_treatment = X['treatment'] == 'A'
-mask_control = X['treatment'] == 'B'
+# Split by treatment group (event_types: integer codes 0=censored, 1, 2, ...)
+mask_treatment = (X['treatment'] == 'A').to_numpy()
+mask_control = (X['treatment'] == 'B').to_numpy()
 
-y_treatment = y[mask_treatment]
-y_control = y[mask_control]
-
-# Compute CIF for each group
-time_trt, cif1_trt, cif2_trt = cumulative_incidence_competing_risks(y_treatment)
-time_ctl, cif1_ctl, cif2_ctl = cumulative_incidence_competing_risks(y_control)
+# Compute CIF for each group; pass integer event codes and exit times.
+# Returns (time, cif); cif[1], cif[2], ... are the per-risk incidences.
+time_trt, cif_trt = cumulative_incidence_competing_risks(
+    event_types[mask_treatment], times[mask_treatment])
+time_ctl, cif_ctl = cumulative_incidence_competing_risks(
+    event_types[mask_control], times[mask_control])
+cif1_trt, cif2_trt = cif_trt[1], cif_trt[2]
+cif1_ctl, cif2_ctl = cif_ctl[1], cif_ctl[2]
 
 # Plot comparison
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
@@ -281,8 +285,11 @@ print("=" * 60)
 print("OVERALL CUMULATIVE INCIDENCE")
 print("=" * 60)
 
-y_all = Surv.from_arrays(event=(df['event_type'] > 0), time=df['time'])
-time_points, cif_relapse, cif_death = cumulative_incidence_competing_risks(y_all)
+# Pass integer event codes (0=censored, 1=relapse, 2=death) and exit times.
+# Returns (time, cif); cif[1], cif[2] are the per-risk incidences.
+time_points, cif = cumulative_incidence_competing_risks(
+    df['event_type'].to_numpy(), df['time'].to_numpy())
+cif_relapse, cif_death = cif[1], cif[2]
 
 plt.figure(figsize=(10, 6))
 plt.step(time_points, cif_relapse, where='post', label='Relapse', linewidth=2)
@@ -304,11 +311,12 @@ print("=" * 60)
 
 for trt in ['A', 'B']:
     mask = df['treatment'] == trt
-    y_trt = Surv.from_arrays(
-        event=(df.loc[mask, 'event_type'] > 0),
-        time=df.loc[mask, 'time']
+    # Pass integer event codes and exit times; cif[1], cif[2] are per-risk.
+    time_trt, cif_trt = cumulative_incidence_competing_risks(
+        df.loc[mask, 'event_type'].to_numpy(),
+        df.loc[mask, 'time'].to_numpy()
     )
-    time_trt, cif1_trt, cif2_trt = cumulative_incidence_competing_risks(y_trt)
+    cif1_trt, cif2_trt = cif_trt[1], cif_trt[2]
     print(f"\nTreatment {trt}:")
     print(f"  5-year relapse: {cif1_trt[-1]:.2%}")
     print(f"  5-year death: {cif2_trt[-1]:.2%}")

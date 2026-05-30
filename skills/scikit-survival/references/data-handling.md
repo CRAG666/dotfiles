@@ -53,10 +53,10 @@ from sksurv.datasets import (
 X, y = load_breast_cancer()
 
 # X is pandas DataFrame with features
-# y is structured array with 'event' and 'time'
+# y is structured array with 'e.tdm' (event) and 't.tdm' (time)
 print(f"Features shape: {X.shape}")
-print(f"Number of events: {y['event'].sum()}")
-print(f"Censoring rate: {1 - y['event'].mean():.2%}")
+print(f"Number of events: {y['e.tdm'].sum()}")
+print(f"Censoring rate: {1 - y['e.tdm'].mean():.2%}")
 ```
 
 ### Loading Custom Data
@@ -224,16 +224,26 @@ selected_features = X.columns[selector.get_support()]
 
 #### Univariate Feature Selection
 
+`SelectKBest` with `f_classif` is not survival-aware: passing the structured
+survival array as the target makes it treat each unique (event, time) pair as a
+separate class, so the ranking is meaningless. Rank features by a survival-aware
+score instead, e.g. the magnitude of the coefficient from a single-feature Cox fit.
+
 ```python
-from sklearn.feature_selection import SelectKBest
-from sksurv.util import Surv
+import numpy as np
+from sksurv.linear_model import CoxPHSurvivalAnalysis
+
+# Score each feature by |coef| from a univariate Cox fit (accounts for censoring)
+scores = np.zeros(X.shape[1])
+for j, col in enumerate(X.columns):
+    cox = CoxPHSurvivalAnalysis().fit(X[[col]].to_numpy(dtype=float), y)
+    scores[j] = abs(cox.coef_[0])
 
 # Select top k features
-selector = SelectKBest(k=10)
-X_selected = selector.fit_transform(X, y)
-
-# Get selected features
-selected_features = X.columns[selector.get_support()]
+k = 10
+top_idx = np.argsort(scores)[::-1][:k]
+selected_features = X.columns[top_idx]
+X_selected = X.iloc[:, top_idx]
 ```
 
 ## Complete Preprocessing Pipeline
@@ -340,18 +350,20 @@ X_test_processed, _, _ = preprocess_survival_data(X_test, scaler=scaler, encoder
 def validate_survival_data(y):
     """Check survival data quality"""
 
+    event_field, time_field = y.dtype.names  # field names vary by dataset
+
     # Check for negative times
-    if np.any(y['time'] <= 0):
+    if np.any(y[time_field] <= 0):
         print("WARNING: Found non-positive survival times")
-        print(f"Negative times: {np.sum(y['time'] <= 0)}")
+        print(f"Negative times: {np.sum(y[time_field] <= 0)}")
 
     # Check for missing values
-    if np.any(~np.isfinite(y['time'])):
+    if np.any(~np.isfinite(y[time_field])):
         print("WARNING: Found missing survival times")
-        print(f"Missing times: {np.sum(~np.isfinite(y['time']))}")
+        print(f"Missing times: {np.sum(~np.isfinite(y[time_field]))}")
 
     # Censoring rate
-    censor_rate = 1 - y['event'].mean()
+    censor_rate = 1 - y[event_field].mean()
     print(f"Censoring rate: {censor_rate:.2%}")
 
     if censor_rate > 0.7:
@@ -359,12 +371,12 @@ def validate_survival_data(y):
         print("Consider using Uno's C-index instead of Harrell's")
 
     # Event rate
-    print(f"Number of events: {y['event'].sum()}")
-    print(f"Number of censored: {(~y['event']).sum()}")
+    print(f"Number of events: {y[event_field].sum()}")
+    print(f"Number of censored: {(~y[event_field]).sum()}")
 
     # Time statistics
-    print(f"Median time: {np.median(y['time']):.2f}")
-    print(f"Time range: [{np.min(y['time']):.2f}, {np.max(y['time']):.2f}]")
+    print(f"Median time: {np.median(y[time_field]):.2f}")
+    print(f"Time range: [{np.min(y[time_field]):.2f}, {np.max(y[time_field]):.2f}]")
 
 # Use validation
 validate_survival_data(y)

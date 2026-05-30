@@ -58,7 +58,7 @@ Cox model with elastic net penalty for feature selection and regularization.
 - Require sparse models
 
 ### Penalty Types
-- **Ridge (L2)**: alpha_min_ratio=1.0, l1_ratio=0
+- **Ridge-like (L2)**: small l1_ratio, e.g. 0.01 (pure l1_ratio=0 is not allowed; for true ridge use CoxPHSurvivalAnalysis(alpha=...))
   - Shrinks all coefficients
   - Good when all features are relevant
 
@@ -71,7 +71,7 @@ Cox model with elastic net penalty for feature selection and regularization.
   - Balances feature selection and grouping
 
 ### Key Parameters
-- `l1_ratio`: Balance between L1 and L2 penalty (0=Ridge, 1=Lasso)
+- `l1_ratio`: Balance between L1 and L2 penalty in the range (0.0, 1.0] (near 0=Ridge-like, 1=Lasso; exactly 0 is not allowed)
 - `alpha_min_ratio`: Ratio of smallest to largest penalty in regularization path
 - `n_alphas`: Number of alphas along regularization path
 - `fit_baseline_model`: Whether to fit unpenalized baseline model
@@ -86,7 +86,7 @@ estimator.fit(X, y)
 
 # Access regularization path
 alphas = estimator.alphas_
-coefficients_path = estimator.coef_path_
+coefficients_path = estimator.coef_  # 2D, shape (n_features, n_alphas)
 
 # Predict with specific alpha
 risk_scores = estimator.predict(X, alpha=0.1)
@@ -94,17 +94,22 @@ risk_scores = estimator.predict(X, alpha=0.1)
 
 ### Cross-Validation for Alpha Selection
 ```python
+import numpy as np
 from sklearn.model_selection import GridSearchCV
-from sksurv.metrics import concordance_index_censored
+from sksurv.metrics import as_concordance_index_ipcw_scorer
 
-# Define parameter grid
-param_grid = {'l1_ratio': [0.1, 0.5, 0.9],
-              'alpha_min_ratio': [0.01, 0.001]}
+# Define parameter grid (namespace params with estimator__ for the wrapper)
+param_grid = {'estimator__l1_ratio': [0.1, 0.5, 0.9],
+              'estimator__alpha_min_ratio': [0.01, 0.001]}
 
 # Grid search with C-index
-cv = GridSearchCV(CoxnetSurvivalAnalysis(),
+# as_concordance_index_ipcw_scorer wraps the estimator; use default scoring.
+# Set tau (a truncation time within the training follow-up) so IPCW folds do not
+# raise "time must be smaller than largest observed time point".
+event_field, time_field = y.dtype.names
+tau = np.percentile(y[time_field][y[event_field]], 80)
+cv = GridSearchCV(as_concordance_index_ipcw_scorer(CoxnetSurvivalAnalysis(), tau=tau),
                   param_grid,
-                  scoring='concordance_index_ipcw',
                   cv=5)
 cv.fit(X, y)
 

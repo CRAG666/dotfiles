@@ -83,7 +83,8 @@ from sksurv.metrics import concordance_index_censored
 # Define scoring function
 def score_survival_model(model, X, y):
     prediction = model.predict(X)
-    result = concordance_index_censored(y['event'], y['time'], prediction)
+    event_field, time_field = y.dtype.names  # field names vary by dataset
+    result = concordance_index_censored(y[event_field], y[time_field], prediction)
     return result[0]
 
 # Compute permutation importance
@@ -238,25 +239,33 @@ print(f"Used {gbs.n_estimators_} iterations")
 ### Hyperparameter Tuning
 
 ```python
+import numpy as np
 from sklearn.model_selection import GridSearchCV
+from sksurv.metrics import as_concordance_index_ipcw_scorer
 
+# Namespace params with estimator__ for the wrapper
 param_grid = {
-    'learning_rate': [0.01, 0.05, 0.1],
-    'n_estimators': [100, 200, 300],
-    'max_depth': [3, 5, 7],
-    'subsample': [0.8, 1.0]
+    'estimator__learning_rate': [0.01, 0.05, 0.1],
+    'estimator__n_estimators': [100, 200, 300],
+    'estimator__max_depth': [3, 5, 7],
+    'estimator__subsample': [0.8, 1.0]
 }
 
+# Set tau (a truncation time within the training follow-up) so IPCW folds do not
+# raise "time must be smaller than largest observed time point".
+event_field, time_field = y.dtype.names
+tau = np.percentile(y[time_field][y[event_field]], 80)
+
+# as_concordance_index_ipcw_scorer wraps the estimator; use default scoring
 cv = GridSearchCV(
-    GradientBoostingSurvivalAnalysis(),
+    as_concordance_index_ipcw_scorer(GradientBoostingSurvivalAnalysis(), tau=tau),
     param_grid,
-    scoring='concordance_index_ipcw',
     cv=5,
     n_jobs=-1
 )
 cv.fit(X, y)
 
-best_model = cv.best_estimator_
+best_model = cv.best_estimator_.estimator_
 ```
 
 ## ComponentwiseGradientBoostingSurvivalAnalysis

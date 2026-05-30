@@ -1,6 +1,6 @@
 ---
 name: scikit-survival
-description: Comprehensive toolkit for survival analysis and time-to-event modeling in Python using scikit-survival. Use this skill when working with censored survival data, performing time-to-event analysis, fitting Cox models, Random Survival Forests, Gradient Boosting models, or Survival SVMs, evaluating survival predictions with concordance index or Brier score, handling competing risks, or implementing any survival analysis workflow with the scikit-survival library.
+description: 'Comprehensive toolkit for survival analysis and time-to-event modeling in Python using scikit-survival. Use this skill when working with censored survival data, performing time-to-event analysis, fitting Cox models, Random Survival Forests, Gradient Boosting models, or Survival SVMs, evaluating survival predictions with concordance index or Brier score, handling competing risks, or implementing any survival analysis workflow with the scikit-survival library.'
 license: GPL-3.0 license
 metadata:
     skill-author: K-Dense Inc.
@@ -18,7 +18,7 @@ Survival analysis aims to establish connections between covariates and the time 
 
 Use this skill when:
 - Performing survival analysis or time-to-event modeling
-- Working with censored data (right-censored, left-censored, or interval-censored)
+- Working with right-censored data (scikit-survival primarily models right-censored outcomes)
 - Fitting Cox proportional hazards models (standard or penalized)
 - Building ensemble survival models (Random Survival Forests, Gradient Boosting)
 - Training Survival Support Vector Machines
@@ -118,8 +118,9 @@ Primary metric for ranking/discrimination:
 ```python
 from sksurv.metrics import concordance_index_censored, concordance_index_ipcw
 
-# Harrell's C-index
-c_harrell = concordance_index_censored(y_test['event'], y_test['time'], risk_scores)[0]
+# Harrell's C-index (field names vary by dataset, e.g. gbsg2 uses 'cens'/'time')
+event_field, time_field = y_test.dtype.names
+c_harrell = concordance_index_censored(y_test[event_field], y_test[time_field], risk_scores)[0]
 
 # Uno's C-index (recommended)
 c_uno = concordance_index_ipcw(y_train, y_test, risk_scores)[0]
@@ -140,8 +141,13 @@ Assess both discrimination and calibration:
 
 ```python
 from sksurv.metrics import integrated_brier_score
+import numpy as np
 
-ibs = integrated_brier_score(y_train, y_test, survival_functions, times)
+# predict_survival_function returns StepFunction objects; evaluate them at `times`
+# to get a probability matrix of shape (n_samples, n_times) before scoring
+survival_functions = model.predict_survival_function(X_test)
+surv_matrix = np.asarray([[fn(t) for t in times] for fn in survival_functions])
+ibs = integrated_brier_score(y_train, y_test, surv_matrix, times)
 ```
 
 **See**: `references/evaluation-metrics.md` for comprehensive evaluation guidance, metric selection, and using scorers with cross-validation
@@ -153,8 +159,11 @@ Handle situations with multiple mutually exclusive event types:
 ```python
 from sksurv.nonparametric import cumulative_incidence_competing_risks
 
-# Estimate cumulative incidence for each event type
-time_points, cif_event1, cif_event2 = cumulative_incidence_competing_risks(y)
+# Estimate cumulative incidence for each event type.
+# Pass integer event codes (0=censored, 1..k) and exit times, not a Surv array.
+# Returns (times, cif) where cif[0] is the total and cif[1], cif[2], ... are per-risk.
+time_points, cif = cumulative_incidence_competing_risks(event_codes, time)
+cif_event1, cif_event2 = cif[1], cif[2]
 ```
 
 **Use competing risks when**:
@@ -172,14 +181,18 @@ Estimate survival functions without parametric assumptions:
 ```python
 from sksurv.nonparametric import kaplan_meier_estimator
 
-time, survival_prob = kaplan_meier_estimator(y['event'], y['time'])
+# field names vary by dataset (e.g. gbsg2 uses 'cens'/'time')
+event_field, time_field = y.dtype.names
+time, survival_prob = kaplan_meier_estimator(y[event_field], y[time_field])
 ```
 
 #### Nelson-Aalen Estimator
 ```python
 from sksurv.nonparametric import nelson_aalen_estimator
 
-time, cumulative_hazard = nelson_aalen_estimator(y['event'], y['time'])
+# field names vary by dataset (e.g. gbsg2 uses 'cens'/'time')
+event_field, time_field = y.dtype.names
+time, cumulative_hazard = nelson_aalen_estimator(y[event_field], y[time_field])
 ```
 
 ## Typical Workflows
@@ -187,14 +200,16 @@ time, cumulative_hazard = nelson_aalen_estimator(y['event'], y['time'])
 ### Workflow 1: Standard Survival Analysis
 
 ```python
-from sksurv.datasets import load_breast_cancer
+from sksurv.datasets import load_gbsg2
 from sksurv.linear_model import CoxPHSurvivalAnalysis
 from sksurv.metrics import concordance_index_ipcw
+from sksurv.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 # 1. Load and prepare data
-X, y = load_breast_cancer()
+X, y = load_gbsg2()
+X = OneHotEncoder().fit_transform(X)  # encode categoricals before scaling
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # 2. Preprocess
@@ -217,6 +232,7 @@ print(f"C-index: {c_index:.3f}")
 ### Workflow 2: High-Dimensional Data with Feature Selection
 
 ```python
+import numpy as np
 from sksurv.linear_model import CoxnetSurvivalAnalysis
 from sklearn.model_selection import GridSearchCV
 from sksurv.metrics import as_concordance_index_ipcw_scorer
@@ -225,19 +241,24 @@ from sksurv.metrics import as_concordance_index_ipcw_scorer
 estimator = CoxnetSurvivalAnalysis(l1_ratio=0.9)  # Lasso-like
 
 # 2. Tune regularization with cross-validation
-param_grid = {'alpha_min_ratio': [0.01, 0.001]}
-cv = GridSearchCV(estimator, param_grid,
-                  scoring=as_concordance_index_ipcw_scorer(), cv=5)
+#    as_concordance_index_ipcw_scorer wraps the estimator; use default scoring.
+#    Set tau (a truncation time within the training follow-up) so IPCW folds do
+#    not raise "time must be smaller than largest observed time point".
+event_field, time_field = y.dtype.names
+tau = np.percentile(y[time_field][y[event_field]], 80)
+param_grid = {'estimator__alpha_min_ratio': [0.01, 0.001]}
+cv = GridSearchCV(as_concordance_index_ipcw_scorer(estimator, tau=tau), param_grid, cv=5)
 cv.fit(X, y)
 
 # 3. Identify selected features
-best_model = cv.best_estimator_
+best_model = cv.best_estimator_.estimator_
 selected_features = np.where(best_model.coef_ != 0)[0]
 ```
 
 ### Workflow 3: Ensemble Method for Maximum Performance
 
 ```python
+import numpy as np
 from sksurv.ensemble import GradientBoostingSurvivalAnalysis
 from sklearn.model_selection import GridSearchCV
 
@@ -249,13 +270,18 @@ param_grid = {
 }
 
 # 2. Grid search
+#    Wrap the estimator with as_concordance_index_ipcw_scorer; use default scoring.
+#    Set tau (a truncation time within the training follow-up) so IPCW folds do
+#    not raise "time must be smaller than largest observed time point".
 gbs = GradientBoostingSurvivalAnalysis()
-cv = GridSearchCV(gbs, param_grid, cv=5,
-                  scoring=as_concordance_index_ipcw_scorer(), n_jobs=-1)
+event_field, time_field = y_train.dtype.names
+tau = np.percentile(y_train[time_field][y_train[event_field]], 80)
+param_grid = {f'estimator__{k}': v for k, v in param_grid.items()}
+cv = GridSearchCV(as_concordance_index_ipcw_scorer(gbs, tau=tau), param_grid, cv=5, n_jobs=-1)
 cv.fit(X_train, y_train)
 
 # 3. Evaluate best model
-best_model = cv.best_estimator_
+best_model = cv.best_estimator_.estimator_
 risk_scores = best_model.predict(X_test)
 c_index = concordance_index_ipcw(y_train, y_test, risk_scores)[0]
 ```
@@ -295,6 +321,7 @@ print(f"\nBest model: {best_model_name}")
 scikit-survival fully integrates with scikit-learn's ecosystem:
 
 ```python
+import numpy as np
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score, GridSearchCV
@@ -306,8 +333,12 @@ pipeline = Pipeline([
 ])
 
 # Use cross-validation
-scores = cross_val_score(pipeline, X, y, cv=5,
-                         scoring=as_concordance_index_ipcw_scorer())
+#    Wrap the pipeline with as_concordance_index_ipcw_scorer; use default scoring.
+#    Set tau (a truncation time within the training follow-up) so IPCW folds do
+#    not raise "time must be smaller than largest observed time point".
+event_field, time_field = y.dtype.names
+tau = np.percentile(y[time_field][y[event_field]], 80)
+scores = cross_val_score(as_concordance_index_ipcw_scorer(pipeline, tau=tau), X, y, cv=5)
 
 # Use grid search
 param_grid = {'model__alpha': [0.1, 1.0, 10.0]}
@@ -356,7 +387,7 @@ Load these reference files when detailed information is needed for specific task
 
 - **Official Documentation**: https://scikit-survival.readthedocs.io/
 - **GitHub Repository**: https://github.com/sebp/scikit-survival
-- **Built-in Datasets**: Use `sksurv.datasets` for practice datasets (GBSG2, WHAS500, veterans lung cancer, etc.)
+- **Built-in Datasets**: `sksurv.datasets` provides 9 loaders: 8 named practice datasets (`load_aids`, `load_bmt`, `load_breast_cancer`, `load_cgvhd`, `load_flchain`, `load_gbsg2`, `load_veterans_lung_cancer`, `load_whas500`) plus `load_arff_files_standardized` for reading ARFF files
 - **API Reference**: Complete list of classes and functions at https://scikit-survival.readthedocs.io/en/stable/api/index.html
 
 ## Quick Reference: Key Imports

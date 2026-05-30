@@ -38,7 +38,7 @@ Linear survival SVM optimized for speed using coordinate descent.
   - Higher = more regularization
 - `rank_ratio`: Trade-off between ranking and regression (default: 1.0)
 - `max_iter`: Maximum iterations (default: 20)
-- `tol`: Tolerance for stopping criterion (default: 1e-5)
+- `tol`: Tolerance for stopping criterion (default: None)
 
 ```python
 from sksurv.svm import FastSurvivalSVM
@@ -80,10 +80,11 @@ Kernel survival SVM for non-linear relationships.
 from sksurv.svm import FastKernelSurvivalSVM
 
 # Fit RBF kernel survival SVM
+# gamma must be a float in [0, inf) or None (no 'scale'/'auto' strings)
 estimator = FastKernelSurvivalSVM(
     alpha=1.0,
     kernel='rbf',
-    gamma='scale',
+    gamma=0.1,
     max_iter=50,
     random_state=42
 )
@@ -104,13 +105,16 @@ Survival SVM using hinge loss, more similar to classification SVM.
 
 **Key Parameters:**
 - `alpha`: Regularization parameter
-- `fit_intercept`: Whether to fit intercept term (default: False)
+- `solver`: Optimization solver (e.g. 'ecos')
+- `kernel`: Kernel function
+- `pairs`: Which comparable pairs to use
+- `max_iter`: Maximum iterations
 
 ```python
 from sksurv.svm import HingeLossSurvivalSVM
 
 # Fit hinge loss SVM
-estimator = HingeLossSurvivalSVM(alpha=1.0, fit_intercept=False, random_state=42)
+estimator = HingeLossSurvivalSVM(alpha=1.0)
 estimator.fit(X, y)
 
 # Predict risk scores
@@ -154,7 +158,7 @@ Survival analysis using minimizing Lipschitz constant approach.
 from sksurv.svm import MinlipSurvivalAnalysis
 
 # Fit Minlip model
-estimator = MinlipSurvivalAnalysis(alpha=1.0, random_state=42)
+estimator = MinlipSurvivalAnalysis(alpha=1.0)
 estimator.fit(X, y)
 
 # Predict
@@ -166,44 +170,58 @@ risk_scores = estimator.predict(X_test)
 ### Tuning Alpha (Regularization)
 
 ```python
+import numpy as np
 from sklearn.model_selection import GridSearchCV
 from sksurv.metrics import as_concordance_index_ipcw_scorer
 
-# Define parameter grid
+# Define parameter grid (namespace with estimator__ for the wrapper)
 param_grid = {
-    'alpha': [0.1, 0.5, 1.0, 5.0, 10.0, 50.0]
+    'estimator__alpha': [0.1, 0.5, 1.0, 5.0, 10.0, 50.0]
 }
 
+# Set tau (a truncation time within the training follow-up) so IPCW folds do not
+# raise "time must be smaller than largest observed time point".
+event_field, time_field = y.dtype.names
+tau = np.percentile(y[time_field][y[event_field]], 80)
+
 # Grid search
+# as_concordance_index_ipcw_scorer wraps the estimator; use default scoring
 cv = GridSearchCV(
-    FastSurvivalSVM(),
+    as_concordance_index_ipcw_scorer(FastSurvivalSVM(), tau=tau),
     param_grid,
-    scoring=as_concordance_index_ipcw_scorer(),
     cv=5,
     n_jobs=-1
 )
 cv.fit(X, y)
 
-print(f"Best alpha: {cv.best_params_['alpha']}")
+print(f"Best alpha: {cv.best_params_['estimator__alpha']}")
 print(f"Best C-index: {cv.best_score_:.3f}")
 ```
 
 ### Tuning Kernel Parameters
 
 ```python
+import numpy as np
 from sklearn.model_selection import GridSearchCV
+from sksurv.metrics import as_concordance_index_ipcw_scorer
 
-# Define parameter grid for kernel SVM
+# Define parameter grid for kernel SVM (namespace with estimator__ for the wrapper)
+# gamma must be a float in [0, inf) or None (no 'scale'/'auto' strings)
 param_grid = {
-    'alpha': [0.1, 1.0, 10.0],
-    'gamma': ['scale', 'auto', 0.001, 0.01, 0.1, 1.0]
+    'estimator__alpha': [0.1, 1.0, 10.0],
+    'estimator__gamma': [None, 0.001, 0.01, 0.1, 1.0]
 }
 
+# Set tau (a truncation time within the training follow-up) so IPCW folds do not
+# raise "time must be smaller than largest observed time point".
+event_field, time_field = y.dtype.names
+tau = np.percentile(y[time_field][y[event_field]], 80)
+
 # Grid search
+# as_concordance_index_ipcw_scorer wraps the estimator; use default scoring
 cv = GridSearchCV(
-    FastKernelSurvivalSVM(kernel='rbf'),
+    as_concordance_index_ipcw_scorer(FastKernelSurvivalSVM(kernel='rbf'), tau=tau),
     param_grid,
-    scoring=as_concordance_index_ipcw_scorer(),
     cv=5,
     n_jobs=-1
 )
@@ -255,6 +273,7 @@ estimator.fit(X_combined, y)
 ### Example 1: Linear SVM with Cross-Validation
 
 ```python
+import numpy as np
 from sksurv.svm import FastSurvivalSVM
 from sklearn.model_selection import cross_val_score
 from sksurv.metrics import as_concordance_index_ipcw_scorer
@@ -267,11 +286,16 @@ X_scaled = scaler.fit_transform(X)
 # Create model
 svm = FastSurvivalSVM(alpha=1.0, max_iter=100, random_state=42)
 
+# Set tau (a truncation time within the training follow-up) so IPCW folds do not
+# raise "time must be smaller than largest observed time point".
+event_field, time_field = y.dtype.names
+tau = np.percentile(y[time_field][y[event_field]], 80)
+
 # Cross-validation
+# Wrap the estimator (the scorer wrapper, not scoring=); use default scoring
 scores = cross_val_score(
-    svm, X_scaled, y,
+    as_concordance_index_ipcw_scorer(svm, tau=tau), X_scaled, y,
     cv=5,
-    scoring=as_concordance_index_ipcw_scorer(),
     n_jobs=-1
 )
 
@@ -319,6 +343,7 @@ print(f"\nBest kernel: {best_kernel} (C-index = {results[best_kernel]:.3f})")
 ### Example 3: Full Pipeline with Hyperparameter Tuning
 
 ```python
+import numpy as np
 from sksurv.svm import FastKernelSurvivalSVM
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.pipeline import Pipeline
@@ -335,16 +360,22 @@ pipeline = Pipeline([
 ])
 
 # Define parameter grid
+# The scorer wrapper nests the pipeline under estimator__; gamma must be float or None
 param_grid = {
-    'svm__alpha': [0.1, 1.0, 10.0],
-    'svm__gamma': ['scale', 0.01, 0.1, 1.0]
+    'estimator__svm__alpha': [0.1, 1.0, 10.0],
+    'estimator__svm__gamma': [None, 0.01, 0.1, 1.0]
 }
 
+# Set tau (a truncation time within the training follow-up) so IPCW folds do not
+# raise "time must be smaller than largest observed time point".
+event_field, time_field = y_train.dtype.names
+tau = np.percentile(y_train[time_field][y_train[event_field]], 80)
+
 # Grid search
+# as_concordance_index_ipcw_scorer wraps the pipeline; use default scoring
 cv = GridSearchCV(
-    pipeline,
+    as_concordance_index_ipcw_scorer(pipeline, tau=tau),
     param_grid,
-    scoring=as_concordance_index_ipcw_scorer(),
     cv=5,
     n_jobs=-1,
     verbose=1
@@ -352,7 +383,7 @@ cv = GridSearchCV(
 cv.fit(X_train, y_train)
 
 # Best model
-best_model = cv.best_estimator_
+best_model = cv.best_estimator_.estimator_
 print(f"Best parameters: {cv.best_params_}")
 print(f"Best CV C-index: {cv.best_score_:.3f}")
 
