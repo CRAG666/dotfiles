@@ -73,7 +73,7 @@ Build custom clustering pipelines:
 Compute cluster centers for time series:
 
 - `mean_average` - Arithmetic mean
-- `ba_average` - Barycentric averaging with DTW
+- `elastic_barycenter_average` - Barycentric averaging with DTW
 - `kasba_average` - Shift-invariant averaging
 - `shift_invariant_average` - General shift-invariant method
 

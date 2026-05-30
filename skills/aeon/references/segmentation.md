@@ -7,7 +7,7 @@ Aeon provides algorithms to partition time series into regions with distinct cha
 ### Binary Segmentation
 - `BinSegmenter` - Recursive binary segmentation
   - Iteratively splits series at most significant change points
-  - Parameters: `n_segments`, `cost_function`
+  - Parameters: `n_cps` (number of change points), `model` (cost model, e.g. `'l2'`)
   - **Use when**: Known number of segments, hierarchical structure
 
 ### Classification-Based
@@ -85,7 +85,7 @@ Segmenters return change point indices:
 
 - **Speed priority**: FLUSSSegmenter, BinSegmenter
 - **Accuracy priority**: ClaSPSegmenter, HMMSegmenter
-- **Known segment count**: BinSegmenter with n_segments parameter
+- **Known segment count**: BinSegmenter with n_cps parameter
 - **Unknown segment count**: ClaSPSegmenter, InformationGainSegmenter
 - **Pattern changes**: FLUSSSegmenter, ClaSPSegmenter
 - **Statistical changes**: InformationGainSegmenter, GreedyGaussianSegmenter
@@ -99,8 +99,10 @@ Identify when time series behavior fundamentally changes:
 ```python
 from aeon.segmentation import InformationGainSegmenter
 
-segmenter = InformationGainSegmenter(k=3)  # Up to 3 change points
-change_points = segmenter.fit_predict(stock_prices)
+# k_max caps the number of splits; this segmenter needs multivariate input
+# (shape (n_channels, n_timepoints)) and rejects univariate series.
+segmenter = InformationGainSegmenter(k_max=3)  # Up to 3 change points
+change_points = segmenter.fit_predict(multivariate_series)
 ```
 
 ### Activity Segmentation
@@ -118,8 +120,16 @@ Find season transitions in time series:
 
 ```python
 from aeon.segmentation import HMMSegmenter
+from scipy.stats import norm
+import numpy as np
 
-segmenter = HMMSegmenter(n_states=4)  # 4 seasons
+# HMMSegmenter needs the emission distributions and transition matrix up front.
+# 4 seasons = 4 hidden states; emission_funcs is a list of (callable, kwargs) pairs.
+centers = [0, 5, 10, 15]
+emission_funcs = [(norm.pdf, {"loc": m, "scale": 1.0}) for m in centers]
+transition_prob_mat = np.full((4, 4), 0.25)  # n_states x n_states
+
+segmenter = HMMSegmenter(emission_funcs, transition_prob_mat)
 segments = segmenter.fit_predict(temperature_data)
 ```
 

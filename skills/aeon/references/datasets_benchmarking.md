@@ -4,6 +4,8 @@ Aeon provides comprehensive tools for loading datasets and benchmarking time ser
 
 ## Dataset Loading
 
+> Note: in aeon 1.4.0 `load_classification` and `load_regression` are deprecated. They still return data, but their `load_equal_length` and `load_no_missing` arguments default to `True` today and will default to `False` in version 1.5.0. Pass them explicitly if you need stable behavior across versions.
+
 ### Task-Specific Loaders
 
 **Classification Datasets**:
@@ -35,7 +37,7 @@ download_all_regression()  # Downloads Monash TSER archive
 from aeon.datasets import load_forecasting
 
 # Load from forecastingdata.org
-y, X = load_forecasting("airline", return_X_y=True)
+data = load_forecasting("m1_yearly_dataset")  # returns the loaded data; name must match the forecastingdata.org archive
 ```
 
 **Anomaly Detection Datasets**:
@@ -86,17 +88,12 @@ X, y = load_from_timeeval_csv_file("path/to/timeeval.csv")
 
 **Write to .ts format**:
 ```python
-from aeon.datasets import write_to_ts_file
+from aeon.datasets import save_to_ts_file
 
-write_to_ts_file(X, "output.ts", y=y, problem_name="MyDataset")
+save_to_ts_file(X, y=y, path=".", problem_name="MyDataset")
 ```
 
-**Write to ARFF format**:
-```python
-from aeon.datasets import write_to_arff_file
-
-write_to_arff_file(X, "output.arff", y=y)
-```
+**Write to ARFF format**: aeon 1.4 has no ARFF writer; use `save_to_ts_file` (the `.ts` format) to round-trip aeon datasets.
 
 ## Built-in Datasets
 
@@ -128,9 +125,10 @@ Get information about datasets:
 ```python
 from aeon.datasets import get_dataset_meta_data
 
-metadata = get_dataset_meta_data("GunPoint")
+# data_names must be list-like; returns a pandas DataFrame (one row per dataset)
+metadata = get_dataset_meta_data(["GunPoint"])
 print(metadata)
-# {'n_train': 50, 'n_test': 150, 'length': 150, 'n_classes': 2, ...}
+# columns: ['Dataset', 'TrainSize', 'TestSize', 'Length', 'NumberClasses', 'Type', 'Channels']
 ```
 
 ## Benchmarking Tools
@@ -140,16 +138,18 @@ print(metadata)
 Access pre-computed benchmark results:
 
 ```python
-from aeon.benchmarking import get_estimator_results
+from aeon.benchmarking.results_loaders import get_estimator_results
 
 # Get results for specific algorithm on dataset
 results = get_estimator_results(
-    estimator_name="ROCKET",
-    dataset_name="GunPoint"
+    estimators="ROCKET",
+    datasets=["GunPoint"]
 )
+# nested dict: results["ROCKET"]["GunPoint"]
 
-# Get all available estimators for a dataset
-estimators = get_available_estimators("GunPoint")
+# List the estimators that have published results
+from aeon.benchmarking.results_loaders import get_available_estimators
+estimators = get_available_estimators(task="classification")
 ```
 
 ### Resampling Strategies
@@ -157,13 +157,13 @@ estimators = get_available_estimators("GunPoint")
 Create reproducible train/test splits:
 
 ```python
-from aeon.benchmarking import stratified_resample
+from aeon.benchmarking.resampling import stratified_resample_data
 
-# Stratified resampling maintaining class distribution
-X_train, X_test, y_train, y_test = stratified_resample(
-    X, y,
-    random_state=42,
-    test_size=0.3
+# Stratified resampling of an existing train/test split (preserves class
+# proportions and the original split sizes); useful for benchmarking repeats
+X_train2, y_train2, X_test2, y_test2 = stratified_resample_data(
+    X_train, y_train, X_test, y_test,
+    random_state=42
 )
 ```
 
@@ -189,10 +189,10 @@ auc = range_roc_auc_score(y_true, y_scores)
 
 **Clustering Metrics**:
 ```python
-from aeon.benchmarking.metrics.clustering import clustering_accuracy
+from aeon.benchmarking.metrics.clustering import clustering_accuracy_score
 
 # Clustering accuracy with label matching
-accuracy = clustering_accuracy(y_true, y_pred)
+accuracy = clustering_accuracy_score(y_true, y_pred)
 ```
 
 **Segmentation Metrics**:
@@ -214,16 +214,17 @@ hausdorff_err = hausdorff_error(y_true, y_pred)
 Post-hoc analysis for algorithm comparison:
 
 ```python
-from aeon.benchmarking import (
+from aeon.benchmarking.stats import (
     nemenyi_test,
     wilcoxon_test
 )
 
-# Nemenyi test for multiple algorithms
-results = nemenyi_test(scores_matrix, alpha=0.05)
+# Pairwise Wilcoxon signed-rank p-value matrix
+# results: 2D array (n_datasets x n_estimators); labels: estimator names
+p_values = wilcoxon_test(results, labels)
 
-# Pairwise Wilcoxon signed-rank test
-stat, p_value = wilcoxon_test(scores_alg1, scores_alg2)
+# nemenyi_test returns a clique matrix: cliques[i, j] is True if estimators i and j are not significantly different
+cliques = nemenyi_test(ordered_avg_ranks, n_datasets, alpha=0.05)
 ```
 
 ## Benchmark Collections
@@ -243,7 +244,7 @@ X_train, y_train = load_classification("Chinatown", split="train")
 
 ```python
 # Load forecasting datasets
-y = load_forecasting("nn5_daily", return_X_y=False)
+y = load_forecasting("nn5_daily")  # name must match the forecastingdata.org archive
 ```
 
 ### Published Benchmark Results
@@ -261,7 +262,7 @@ Complete benchmarking workflow:
 ```python
 from aeon.datasets import load_classification
 from aeon.classification.convolution_based import RocketClassifier
-from aeon.benchmarking import get_estimator_results
+from aeon.benchmarking.results_loaders import get_estimator_results
 from sklearn.metrics import accuracy_score
 import numpy as np
 
@@ -280,8 +281,8 @@ accuracy = accuracy_score(y_test, y_pred)
 print(f"Accuracy: {accuracy:.4f}")
 
 # Compare with published results
-published = get_estimator_results("ROCKET", dataset_name)
-print(f"Published ROCKET accuracy: {published['accuracy']:.4f}")
+published = get_estimator_results("ROCKET", [dataset_name])
+print(f"Published ROCKET accuracy: {published['ROCKET'][dataset_name]:.4f}")
 ```
 
 ## Best Practices
@@ -306,7 +307,8 @@ Ensure reproducibility:
 
 ```python
 clf = RocketClassifier(random_state=42)
-results = stratified_resample(X, y, random_state=42)
+# reproducible resampling of a train/test split (see Resampling Strategies above):
+# stratified_resample_data(X_train, y_train, X_test, y_test, random_state=42)
 ```
 
 ### 3. Report Multiple Metrics
@@ -357,14 +359,16 @@ print(f"Your model: {accuracy:.4f}")
 Test if improvements are statistically significant:
 
 ```python
-from aeon.benchmarking import wilcoxon_test
+from aeon.benchmarking.stats import wilcoxon_test
+import numpy as np
 
-# Run on multiple datasets
-accuracies_alg1 = [0.85, 0.92, 0.78, 0.88]
-accuracies_alg2 = [0.83, 0.90, 0.76, 0.86]
+# results: rows = datasets, columns = estimators (e.g. accuracies)
+results = np.array([[0.85, 0.83], [0.92, 0.90], [0.78, 0.76], [0.88, 0.86]])
+labels = ["alg1", "alg2"]
 
-stat, p_value = wilcoxon_test(accuracies_alg1, accuracies_alg2)
-if p_value < 0.05:
+# Returns a pairwise p-value matrix (estimators x estimators)
+p_values = wilcoxon_test(results, labels)
+if p_values[0, 1] < 0.05:
     print("Difference is statistically significant")
 ```
 
@@ -373,15 +377,14 @@ if p_value < 0.05:
 Find datasets matching criteria:
 
 ```python
-# List all available classification datasets
-from aeon.datasets import get_available_datasets
+# Named collections of classification dataset names
+from aeon.datasets import tsc_datasets
 
-datasets = get_available_datasets("classification")
+datasets = tsc_datasets.UCR2019  # univariate archive (also: UEA, multivariate, ...)
 print(f"Found {len(datasets)} classification datasets")
 
-# Filter by properties
-univariate_datasets = [
-    d for d in datasets
-    if get_dataset_meta_data(d)['n_channels'] == 1
-]
+# Filter by properties: get_dataset_meta_data takes a list-like and returns a
+# DataFrame with a 'Channels' column (1 == univariate)
+meta = get_dataset_meta_data(datasets)
+univariate_datasets = meta[meta['Channels'] == 1]['Dataset'].tolist()
 ```

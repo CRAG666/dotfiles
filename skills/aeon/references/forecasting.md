@@ -7,7 +7,7 @@ Aeon provides forecasting algorithms for predicting future time series values.
 Simple forecasting strategies for comparison:
 
 - `NaiveForecaster` - Multiple strategies: last value, mean, seasonal naive
-  - Parameters: `strategy` ("last", "mean", "seasonal"), `sp` (seasonal period)
+  - Parameters: `strategy` ("last", "mean", "seasonal_last"), `seasonal_period`
   - **Use when**: Establishing baselines or simple patterns
 
 ## Statistical Models
@@ -21,7 +21,7 @@ Classical time series forecasting methods:
 
 ### Exponential Smoothing
 - `ETS` - Error-Trend-Seasonal decomposition
-  - Parameters: `error`, `trend`, `seasonal` types
+  - Parameters: `error_type`, `trend_type`, `seasonality_type` (plus `seasonal_period`)
   - **Use when**: Trend and seasonal patterns present
 
 ### Threshold Autoregressive
@@ -31,7 +31,7 @@ Classical time series forecasting methods:
 
 ### Theta Method
 - `Theta` - Classical Theta forecasting
-  - Parameters: `theta`, `weights` for decomposition
+  - Parameters: `theta`, `weight` for decomposition
   - **Use when**: Simple but effective baseline needed
 
 ### Time-Varying Parameter
@@ -61,8 +61,8 @@ Apply regression to lagged features:
 ## Quick Start
 
 ```python
-from aeon.forecasting.naive import NaiveForecaster
-from aeon.forecasting.arima import ARIMA
+from aeon.forecasting import NaiveForecaster
+from aeon.forecasting.stats import ARIMA
 import numpy as np
 
 # Create time series
@@ -71,12 +71,12 @@ y = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 # Naive baseline
 naive = NaiveForecaster(strategy="last")
 naive.fit(y)
-forecast_naive = naive.predict(fh=[1, 2, 3])
+forecast_naive = naive.iterative_forecast(y, prediction_horizon=3)
 
 # ARIMA model
-arima = ARIMA(order=(1, 1, 1))
-arima.fit(y)
-forecast_arima = arima.predict(fh=[1, 2, 3])
+arima = ARIMA(p=1, d=1, q=1)
+# Multi-step forecast (next 3 steps)
+forecast_arima = arima.iterative_forecast(y, prediction_horizon=3)
 ```
 
 ## Forecasting Horizon
@@ -84,17 +84,15 @@ forecast_arima = arima.predict(fh=[1, 2, 3])
 The forecasting horizon (`fh`) specifies which future time points to predict:
 
 ```python
-# Relative horizon (next 3 steps)
-fh = [1, 2, 3]
-
-# Absolute horizon (specific time indices)
-from aeon.forecasting.base import ForecastingHorizon
-fh = ForecastingHorizon([11, 12, 13], is_relative=False)
+# aeon forecasters take an integer prediction horizon (number of future steps ahead)
+prediction_horizon = 3
+# multi-step forecast with an iterative forecaster:
+# y_pred = forecaster.iterative_forecast(y, prediction_horizon=prediction_horizon)
 ```
 
 ## Model Selection
 
-- **Baseline**: NaiveForecaster with seasonal strategy
+- **Baseline**: NaiveForecaster with seasonal_last strategy
 - **Linear patterns**: ARIMA
 - **Trend + seasonality**: ETS
 - **Regime changes**: TAR, AutoTAR
@@ -108,7 +106,7 @@ fh = ForecastingHorizon([11, 12, 13], is_relative=False)
 Use standard forecasting metrics:
 
 ```python
-from aeon.performance_metrics.forecasting import (
+from sklearn.metrics import (
     mean_absolute_error,
     mean_squared_error,
     mean_absolute_percentage_error
@@ -126,10 +124,10 @@ Many forecasters support exogenous features:
 
 ```python
 # Train with exogenous variables
-forecaster.fit(y, X=X_train)
+forecaster.fit(y, exog=X_train)
 
-# Predict requires future exogenous values
-y_pred = forecaster.predict(fh=[1, 2, 3], X=X_test)
+# Multi-step forecast with future exogenous values
+y_pred = forecaster.iterative_forecast(y, prediction_horizon=3, exog=X_test)
 ```
 
 ## Base Classes

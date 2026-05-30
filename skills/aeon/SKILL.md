@@ -1,6 +1,6 @@
 ---
 name: aeon
-description: This skill should be used for time series machine learning tasks including classification, regression, clustering, forecasting, anomaly detection, segmentation, and similarity search. Use when working with temporal data, sequential patterns, or time-indexed observations requiring specialized algorithms beyond standard ML approaches. Particularly suited for univariate and multivariate time series analysis with scikit-learn compatible APIs.
+description: 'This skill should be used for time series machine learning tasks including classification, regression, clustering, forecasting, anomaly detection, segmentation, and similarity search. Use when working with temporal data, sequential patterns, or time-indexed observations requiring specialized algorithms beyond standard ML approaches. Particularly suited for univariate and multivariate time series analysis with scikit-learn compatible APIs.'
 license: BSD-3-Clause license
 metadata:
     skill-author: K-Dense Inc.
@@ -96,11 +96,11 @@ Predict future time series values. See `references/forecasting.md` for forecaste
 
 **Quick Start:**
 ```python
-from aeon.forecasting.arima import ARIMA
+from aeon.forecasting.stats import ARIMA
 
-forecaster = ARIMA(order=(1, 1, 1))
-forecaster.fit(y_train)
-y_pred = forecaster.predict(fh=[1, 2, 3, 4, 5])
+forecaster = ARIMA(p=1, d=1, q=1)
+# Multi-step forecast (horizon of 5)
+y_pred = forecaster.iterative_forecast(y_train, prediction_horizon=5)
 ```
 
 ### 5. Anomaly Detection
@@ -109,7 +109,10 @@ Identify unusual patterns or outliers. See `references/anomaly_detection.md` for
 
 **Quick Start:**
 ```python
-from aeon.anomaly_detection import STOMP
+# STOMP needs the optional 'stumpy' and 'psutil' soft dependencies
+# (pip install stumpy psutil, or pip install aeon[all_extras])
+from aeon.anomaly_detection.series.distance_based import STOMP
+import numpy as np
 
 detector = STOMP(window_size=50)
 anomaly_scores = detector.fit_predict(y)
@@ -137,11 +140,11 @@ Find similar patterns within or across time series. See `references/similarity_s
 
 **Quick Start:**
 ```python
-from aeon.similarity_search import StompMotif
+from aeon.similarity_search.series import StompMotif
 
 # Find recurring patterns
-motif_finder = StompMotif(window_size=50, k=3)
-motifs = motif_finder.fit_predict(y)
+motif_finder = StompMotif(length=50)
+motifs = motif_finder.fit_predict(y, k=3)
 ```
 
 ## Feature Extraction and Transformations
@@ -150,9 +153,9 @@ Transform time series for feature engineering. See `references/transformations.m
 
 **ROCKET Features:**
 ```python
-from aeon.transformations.collection.convolution_based import RocketTransformer
+from aeon.transformations.collection.convolution_based import Rocket
 
-rocket = RocketTransformer()
+rocket = Rocket()
 X_features = rocket.fit_transform(X_train)
 
 # Use features with any sklearn classifier
@@ -215,7 +218,7 @@ Neural architectures for time series. See `references/networks.md`.
 - Recurrent: `RecurrentNetwork`, `TCNNetwork`
 - Autoencoders: `AEFCNClusterer`, `AEResNetClusterer`
 
-**Usage:**
+**Usage:** (deep-learning estimators require the optional `tensorflow` soft dependency: `pip install aeon[dl]`)
 ```python
 from aeon.classification.deep_learning import InceptionTimeClassifier
 
@@ -228,7 +231,7 @@ predictions = clf.predict(X_test)
 
 Load standard benchmarks and evaluate performance. See `references/datasets_benchmarking.md`.
 
-**Load Datasets:**
+**Load Datasets:** (in aeon 1.4.0 `load_classification`/`load_regression` are deprecated; their `load_equal_length` and `load_no_missing` arguments default to `True` now but will default to `False` in 1.5.0. Pass them explicitly if you need stable behavior across versions.)
 ```python
 from aeon.datasets import load_classification, load_regression
 
@@ -241,10 +244,10 @@ X_train, y_train = load_regression("Covid3Month", split="train")
 
 **Benchmarking:**
 ```python
-from aeon.benchmarking import get_estimator_results
+from aeon.benchmarking.results_loaders import get_estimator_results
 
 # Compare with published results
-published = get_estimator_results("ROCKET", "GunPoint")
+published = get_estimator_results("ROCKET", ["GunPoint"])  # nested: published["ROCKET"]["GunPoint"]
 ```
 
 ## Common Workflows
@@ -268,11 +271,11 @@ accuracy = pipeline.score(X_test, y_test)
 ### Feature Extraction + Traditional ML
 
 ```python
-from aeon.transformations.collection import RocketTransformer
+from aeon.transformations.collection.convolution_based import Rocket
 from sklearn.ensemble import GradientBoostingClassifier
 
 # Extract features
-rocket = RocketTransformer()
+rocket = Rocket()
 X_train_features = rocket.fit_transform(X_train)
 X_test_features = rocket.transform(X_test)
 
@@ -285,8 +288,9 @@ predictions = clf.predict(X_test_features)
 ### Anomaly Detection with Visualization
 
 ```python
-from aeon.anomaly_detection import STOMP
+from aeon.anomaly_detection.series.distance_based import STOMP
 import matplotlib.pyplot as plt
+import numpy as np
 
 detector = STOMP(window_size=50)
 scores = detector.fit_predict(y)
