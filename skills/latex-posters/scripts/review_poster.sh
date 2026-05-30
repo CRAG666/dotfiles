@@ -111,11 +111,16 @@ if command_exists pdffonts; then
         echo "    $line"
     done
     
-    # Check for non-embedded fonts
-    NON_EMBEDDED=$(echo "$FONT_OUTPUT" | tail -n +3 | awk '{if ($4 == "no") print $0}')
+    # Check for non-embedded fonts. pdffonts columns are:
+    # name  type  encoding  emb  sub  uni  object-num  gen
+    # The "type" field can contain spaces (e.g. "Type 1"), which shifts the
+    # left-anchored columns, so the embedding flag is read from the right:
+    # the last 5 fields are always  emb sub uni object-num gen, i.e. $(NF-4).
+    NON_EMBEDDED=$(echo "$FONT_OUTPUT" | tail -n +3 | awk 'NF>=5 && $(NF-4) == "no" {print $0}')
     if [ -n "$NON_EMBEDDED" ]; then
         echo -e "    ${RED}✗ Some fonts are NOT embedded (printing may fail)${NC}"
-        echo -e "    ${BLUE}  Fix: Recompile with 'pdflatex -dEmbedAllFonts=true poster.tex'${NC}"
+        echo -e "    ${BLUE}  Fix: pdfLaTeX embeds fonts by default; recompile, or force-embed with${NC}"
+        echo -e "    ${BLUE}       Ghostscript: gs -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dEmbedAllFonts=true -sOutputFile=out.pdf $POSTER_FILE${NC}"
     else
         echo -e "    ${GREEN}✓ All fonts appear to be embedded${NC}"
     fi

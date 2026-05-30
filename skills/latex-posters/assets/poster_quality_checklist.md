@@ -348,7 +348,7 @@ _________________________________________________________
 | Text too small | Increase scale: `scale=1.5` in beamerposter |
 | Blurry figures | Use vector graphics (PDF) or higher resolution (600+ DPI) |
 | Colors wrong | Check RGB vs CMYK, test print before final |
-| Fonts not embedded | Compile with: `pdflatex -dEmbedAllFonts=true` |
+| Fonts not embedded | pdfLaTeX embeds by default; recompile, or force-embed with Ghostscript (`gs ... -dEmbedAllFonts=true`) or xelatex/lualatex |
 | Content cut off | Check total width: columns + spacing + margins = pagewidth |
 | QR codes don't scan | Increase size (min 2×2cm), ensure high contrast |
 | File too large | Compress: `gs -sDEVICE=pdfwrite -dPDFSETTINGS=/printer ...` |

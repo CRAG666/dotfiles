@@ -222,7 +222,7 @@ Effective poster layout organizes content for maximum impact and comprehension. 
   }
 \end{columns}
 
-\block[width=1.0\linewidth]{Results}{
+\block{Results}{
   % Full-width results section
 }
 ```
@@ -600,19 +600,18 @@ Discussion/Conclusions
 
 ### Block Styling Options
 
-**Border Styles**:
+**Border Styles** (set these in the preamble, not inside a block):
 ```latex
-% Rounded corners (friendly, modern)
-\begin{block}{Title}
-  % beamerposter with rounded
-  \setbeamertemplate{block begin}[rounded]
-  
+% Rounded corners (friendly, modern). Use the "blocks" template, which styles
+% both the block begin and block end; "block begin" alone leaves the end mismatched.
+\setbeamertemplate{blocks}[rounded][shadow=true]
+
 % Sharp corners (formal, traditional)
-  \setbeamertemplate{block begin}[default]
+\setbeamertemplate{blocks}[default]
 
 % No border (minimal, clean)
-  \setbeamercolor{block title}{bg=white, fg=black}
-  \setbeamercolor{block body}{bg=white, fg=black}
+\setbeamercolor{block title}{bg=white, fg=black}
+\setbeamercolor{block body}{bg=white, fg=black}
 ```
 
 **Shadow and Depth**:

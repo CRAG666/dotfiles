@@ -5,7 +5,10 @@
 % Excellent for multi-column layouts with automatic positioning
 % ==============================================================================
 
-\documentclass[a0paper,portrait,fontscale=0.285]{baposter}
+% Current TeX Live ships xebaposter (a backward-compatible baposter successor),
+% not the original "baposter" class. Compile with pdflatex, xelatex, or lualatex.
+% If you have the original baposter.cls installed, you may change this back to {baposter}.
+\documentclass[a0paper,portrait,fontscale=0.285]{xebaposter}
 
 % Packages
 \usepackage{graphicx}
@@ -25,25 +28,24 @@
 
 \begin{document}
 
+% Note: do not leave blank lines inside this option block. xebaposter parses
+% the options as a single argument, and a blank line (\par) breaks its key-value
+% parser. Comment lines are fine; empty lines are not.
 \begin{poster}{
   % ============================================================================
   % POSTER CONFIGURATION
   % ============================================================================
-  
   % Grid and columns
   grid=false,                    % Set to true for debugging layout
   columns=3,                     % Number of columns
   colspacing=1.5em,              % Space between columns
-  
   % Background
   background=plain,              % plain, shadetb, shadelr
   bgColorOne=white,
   bgColorTwo=white,
-  
   % Borders
   borderColor=blue!50!black,
   linewidth=2pt,
-  
   % Header
   headerColorOne=blue!70!black,
   headerColorTwo=blue!60!black,
@@ -53,13 +55,11 @@
   headershade=plain,             % plain, shadetb, shadelr
   headerborder=closed,           % open, closed
   headerfont=\Large\sf\bf,
-  
   % Boxes
   boxColorOne=white,
   boxColorTwo=blue!10,
   boxshade=plain,
   textborder=roundedleft,        % none, rectangle, rounded, roundedleft, roundedright
-  
   % Eye catcher
   eyecatcher=true
 }
@@ -180,8 +180,33 @@
 % ==============================================================================
 % BOTTOM ROW (SPANS ALL COLUMNS)
 % ==============================================================================
+% Anchor chain: declare the footer first (anchored to the page bottom), then
+% anchor the conclusions and QR boxes "above=footer". In baposter/xebaposter an
+% anchor target must be declared before any box that references it.
 
-\headerbox{Conclusions}{name=conclusions,column=0,span=2,above=bottom}{
+\headerbox{}{name=footer,column=0,span=3,above=bottom}{
+  \footnotesize
+  \begin{multicols}{2}
+    \textbf{References}
+    \begin{enumerate}
+      \item Author A et al. (2023). Title. \textit{Journal}, 10(2), 123-145.
+      \item Author B et al. (2024). Title. \textit{Conference}.
+      \item Author C et al. (2022). Title. \textit{Journal}, 15(3), 456-478.
+    \end{enumerate}
+
+    \columnbreak
+
+    \textbf{Acknowledgments}
+
+    Funded by Grant Agency (Grant \#12345). Thanks to collaborators at Institution X.
+
+    \vspace{0.3cm}
+
+    \textbf{Contact:} presenter.email@university.edu | labname.university.edu
+  \end{multicols}
+}
+
+\headerbox{Conclusions}{name=conclusions,column=0,span=2,above=footer}{
   \begin{multicols}{2}
     \textbf{Key Findings}
     \begin{itemize}
@@ -217,38 +242,12 @@
   \end{multicols}
 }
 
-\headerbox{Scan for More}{name=qr,column=2,above=bottom}{
+\headerbox{Scan for More}{name=qr,column=2,above=footer}{
   \begin{center}
     \qrcode[height=4cm]{https://doi.org/10.1234/your-paper}\\
     \vspace{0.3cm}
     \small Full paper, code \& data
   \end{center}
-}
-
-% ==============================================================================
-% FOOTER (FULL WIDTH AT BOTTOM)
-% ==============================================================================
-
-\headerbox{}{name=footer,column=0,span=3,above=bottom,below=conclusions}{
-  \footnotesize
-  \begin{multicols}{2}
-    \textbf{References}
-    \begin{enumerate}
-      \item Author A et al. (2023). Title. \textit{Journal}, 10(2), 123-145.
-      \item Author B et al. (2024). Title. \textit{Conference}.
-      \item Author C et al. (2022). Title. \textit{Journal}, 15(3), 456-478.
-    \end{enumerate}
-    
-    \columnbreak
-    
-    \textbf{Acknowledgments}
-    
-    Funded by Grant Agency (Grant \#12345). Thanks to collaborators at Institution X.
-    
-    \vspace{0.3cm}
-    
-    \textbf{Contact:} presenter.email@university.edu | labname.university.edu
-  \end{multicols}
 }
 
 \end{poster}

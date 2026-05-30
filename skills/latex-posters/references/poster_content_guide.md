@@ -64,10 +64,11 @@ Hook (Problem) → Approach → Discovery → Impact
 | References/Acknowledgments | 50-100 | 10% |
 
 **Counting Tool**:
-```latex
-% Add word count to poster (remove for final)
-\usepackage{texcount}
-% Compile with: texcount -inc poster.tex
+
+`texcount` is a command-line tool bundled with TeX Live, not a LaTeX package, so run it from the shell rather than loading it with `\usepackage`:
+```bash
+# Word count, following \input/\include files
+texcount -inc poster.tex
 ```
 
 ### 4. Visual-to-Text Ratio
@@ -225,13 +226,21 @@ improve cross-species accuracy.
 
 **Visual Methods (Highly Recommended)**:
 ```latex
+% Requires: \usepackage{tikz} in the preamble
+\usetikzlibrary{positioning,arrows.meta}
+% Local style definitions for the box and arrow used below
+\tikzset{
+  box/.style={draw, rectangle, rounded corners, align=center, fill=blue!10},
+  arrow/.style={-{Stealth}, thick}
+}
+
 % Flowchart of study design
-\begin{tikzpicture}[node distance=2cm]
+\begin{tikzpicture}[node distance=1.5cm]
   \node (start) [box] {Data Collection\\n=1,000 samples};
-  \node (process) [box, below of=start] {Preprocessing\\Quality Control};
-  \node (analysis) [box, below of=process] {Statistical Analysis\\Mixed Models};
-  \node (end) [box, below of=analysis] {Validation\\Independent Cohort};
-  
+  \node (process) [box, below=of start] {Preprocessing\\Quality Control};
+  \node (analysis) [box, below=of process] {Statistical Analysis\\Mixed Models};
+  \node (end) [box, below=of analysis] {Validation\\Independent Cohort};
+
   \draw [arrow] (start) -- (process);
   \draw [arrow] (process) -- (analysis);
   \draw [arrow] (analysis) -- (end);
@@ -320,6 +329,8 @@ Key Findings
 
 **1. Bar Charts**: Comparing categories
 ```latex
+% Requires: \usepackage{pgfplots} and \pgfplotsset{compat=1.18} in the preamble
+% (the axis environment is provided by pgfplots, not plain tikz)
 \begin{tikzpicture}
   \begin{axis}[
     ybar,

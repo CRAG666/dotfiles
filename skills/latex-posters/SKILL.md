@@ -1,6 +1,6 @@
 ---
 name: latex-posters
-description: "Create professional research posters in LaTeX using beamerposter, tikzposter, or baposter. Support for conference presentations, academic posters, and scientific communication. Includes layout design, color schemes, multi-column formats, figure integration, and poster-specific best practices for visual communication."
+description: 'Create professional research posters in LaTeX using beamerposter, tikzposter, or baposter. Support for conference presentations, academic posters, and scientific communication. Includes layout design, color schemes, multi-column formats, figure integration, and poster-specific best practices for visual communication.'
 allowed-tools: Read Write Edit Bash
 ---
 
@@ -22,17 +22,35 @@ This skill should be used when:
 - Building posters with complex multi-column layouts
 - Integrating figures, tables, equations, and citations in poster format
 
-## AI-Powered Visual Element Generation
+## Toolchain and Prerequisites
 
-**STANDARD WORKFLOW: Generate ALL major visual elements using AI before creating the LaTeX poster.**
+**Primary (pure-LaTeX) path, works out of the box with a TeX Live install:**
+1. Install the LaTeX poster packages (see [Package Installation](#package-installation)).
+2. Start from one of the bundled templates in `assets/` (`tikzposter_template.tex`, `beamerposter_template.tex`, `baposter_template.tex`).
+3. Build figures with native LaTeX tooling: TikZ/PGF diagrams, `pgfplots` charts, and `\includegraphics` for externally produced graphics.
+4. Compile with `pdflatex` (or `xelatex`/`lualatex` for system fonts), then run `scripts/review_poster.sh` for QA.
 
-This is the recommended approach for creating visually compelling posters:
+This pure-LaTeX path is the documented happy path and the rest of this guide assumes it unless stated otherwise.
+
+**Optional AI image-generation path (extra prerequisites, not required):**
+The bundled `scripts/generate_schematic.py` (and its engine `scripts/generate_schematic_ai.py`) can generate raster visuals via the OpenRouter API. This path is OPTIONAL and has prerequisites the pure-LaTeX path does not:
+- A **paid** `OPENROUTER_API_KEY` (set as an environment variable). Image-model calls are billed per request.
+- Python with the `requests` library installed.
+- **Network egress** to `https://openrouter.ai` (the scripts send your prompts, and review prompts include the generated image, to that third-party API).
+
+If you do not have these, skip the AI section entirely; everything below works with LaTeX alone.
+
+## AI-Powered Visual Element Generation (Optional)
+
+**OPTIONAL WORKFLOW: when the OpenRouter prerequisites above are met, you may generate major visual elements with AI before assembling the LaTeX poster.**
+
+This is one optional approach for creating visually rich posters; it is not required and is not the default:
 1. Plan all visual elements needed (title, intro, methods, results, conclusions)
-2. Generate each element using scientific-schematics or Nano Banana Pro
+2. Generate each element with the bundled `scripts/generate_schematic.py`. (`scientific-schematics` and Nano Banana image generation are optional external skills and are NOT bundled in this repo; the bundled script is the concrete in-repo alternative.)
 3. Assemble generated images in the LaTeX template
 4. Add text content around the visuals
 
-**Target: 60-70% of poster area should be AI-generated visuals, 30-40% text.**
+**When using this optional path, aim for roughly 60-70% of poster area as AI-generated visuals, 30-40% text.** (For a pure-LaTeX poster, balance visuals and text using the design guidance later in this document.)
 
 ---
 
@@ -305,7 +323,7 @@ After passing the pre-generation review, identify visual elements needed:
 
 Use the appropriate tool for each element type:
 
-**For Schematics and Diagrams (scientific-schematics):**
+**For Schematics and Diagrams (bundled `generate_schematic.py`; the external `scientific-schematics` skill is optional and not bundled):**
 ```bash
 # Create figures directory
 mkdir -p figures
@@ -331,7 +349,7 @@ python scripts/generate_schematic.py "POSTER FORMAT for A0. ONE case study: Larg
 # If you need 3 cases → make 3 separate simple graphics (not one complex graphic)
 ```
 
-**For Stylized Blocks and Graphics (Nano Banana Pro):**
+**For Stylized Blocks and Graphics (bundled `generate_schematic.py`; the external Nano Banana image skill is optional and not bundled):**
 ```bash
 # Title block - SIMPLE
 python scripts/generate_schematic.py "POSTER FORMAT for A0. Title block: 'ML FOR DRUG DISCOVERY' in HUGE bold text (120pt+). Dark blue background. ONE subtle icon. NO other text. 40% white space. Readable from 15 feet." -o figures/title_block.png
@@ -385,6 +403,8 @@ python scripts/generate_schematic.py "POSTER FORMAT for A0. SIMPLE bar chart wit
 ### Step 3: Assemble in LaTeX Template
 
 After all figures pass the post-generation review, include them in your poster template:
+
+**Resolution note (raster AI output vs print):** AI image generation returns raster PNGs, while the design section requires 300 DPI for large-format print. At 300 DPI, an A0 sheet (841 x 1189 mm) is roughly 9933 x 14043 px, far beyond typical AI output. Treat AI rasters as suitable for on-screen/digital posters or as small accent elements only. For printed A0 posters, keep core diagrams as vector graphics (native TikZ/PGF or vector PDF), or generate AI rasters large enough that each placed image still resolves to >=150-300 DPI at its final printed size, and verify with the image-resolution check below before printing.
 
 **tikzposter example:**
 ```latex
@@ -555,14 +575,14 @@ grep "Overfull" poster.log
 
 ---
 
-## Scientific Schematics Integration
+## Scientific Schematics Integration (Optional)
 
-For detailed guidance on creating schematics, refer to the **scientific-schematics** skill documentation.
+The bundled `scripts/generate_schematic.py` is the in-repo tool for AI-generated schematics (requires the OpenRouter prerequisites listed above). A separate `scientific-schematics` skill is an optional external add-on and is NOT bundled in this repo; if you do not have it, use the bundled script or build diagrams directly in TikZ/PGF.
 
-**Key capabilities:**
-- Nano Banana Pro automatically generates, reviews, and refines diagrams
-- Creates publication-quality images with proper formatting
-- Ensures accessibility (colorblind-friendly, high contrast)
+**Key capabilities of the bundled AI script:**
+- Generates, reviews, and iteratively refines diagrams via the OpenRouter API
+- Produces raster images intended for layout (see resolution note under the assembly steps)
+- Prompt templates encourage accessible output (colorblind-friendly, high contrast)
 - Supports iterative refinement for complex diagrams
 
 ---
@@ -729,8 +749,12 @@ Provide professional color palettes for various contexts:
 
 **beamerposter**:
 ```latex
-\usetheme{Berlin}
+% Plain default theme (Berlin is a presentation navigation theme: it adds a
+% miniframes headline bar that is useless on a poster).
+\usetheme{default}
 \usecolortheme{beaver}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{footline}{}
 ```
 
 **tikzposter**:
@@ -834,8 +858,9 @@ Posters should use the entire page without excessive margins. Configure packages
 % Remove default beamer margins
 \setbeamersize{text margin left=0mm, text margin right=0mm}
 
-% Use geometry for precise control
-\usepackage[margin=10mm]{geometry}  % 10mm margins all around
+% Use geometry for precise control (beamerposter already loads geometry,
+% so set margins with \geometry, not a second \usepackage)
+\geometry{margin=10mm}  % 10mm margins all around
 
 % Remove navigation symbols
 \setbeamertemplate{navigation symbols}{}
@@ -863,7 +888,7 @@ Posters should use the entire page without excessive margins. Configure packages
 
 **baposter - Full Page Setup**:
 ```latex
-\documentclass[a0paper,portrait,fontscale=0.285]{baposter}
+\documentclass[a0paper,portrait,fontscale=0.285]{xebaposter}
 
 \begin{poster}{
   grid=false,
@@ -893,7 +918,7 @@ Posters should use the entire page without excessive margins. Configure packages
 \documentclass[..., margin=5mm, innermargin=10mm]{tikzposter}
 
 % Fix for baposter - adjust in document class
-\documentclass[a0paper, margin=5mm]{baposter}
+\documentclass[a0paper, margin=5mm]{xebaposter}
 ```
 
 **Problem**: Content doesn't fill vertical space
@@ -1100,8 +1125,12 @@ Open PDF at 100% zoom and check:
 pdffonts poster.pdf
 
 # All fonts should show "yes" in "emb" column
-# If any show "no", recompile with:
-pdflatex -dEmbedAllFonts=true poster.tex
+# pdfLaTeX already embeds fonts by default, so a normal recompile usually fixes "no":
+pdflatex poster.tex
+# For guaranteed embedding (e.g. fonts pulled from included graphics), post-process
+# with Ghostscript (this is where -dEmbedAllFonts belongs), or use xelatex/lualatex:
+# gs -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dEmbedAllFonts=true -dSubsetFonts=true \
+#    -sOutputFile=poster-embedded.pdf poster.pdf
 ```
 
 **Image Resolution Check**:
@@ -1258,13 +1287,13 @@ echo "- Proofreading for typos"
 | Large white margins | Incorrect margin settings | Reduce margin in documentclass |
 | Content cut off | Exceeds page boundaries | Check total width/height calculations |
 | Blurry images | Low resolution (<300 DPI) | Replace with higher resolution images |
-| Missing fonts | Fonts not embedded | Compile with -dEmbedAllFonts=true |
+| Missing fonts | Fonts not embedded | pdfLaTeX embeds by default; recompile, or force-embed with Ghostscript (`gs ... -dEmbedAllFonts=true`) or xelatex/lualatex |
 | Wrong page size | Incorrect paper size setting | Verify documentclass paper size |
 | Colors look wrong | RGB vs CMYK mismatch | Convert color space for print |
 | File too large (>50MB) | Uncompressed images | Optimize images or compress PDF |
 | QR codes don't work | Too small or low resolution | Minimum 2×2cm, high contrast |
 
-### 11. Common Poster Content Patterns
+### 12. Common Poster Content Patterns
 
 Effective content organization for different research types:
 
@@ -1297,7 +1326,7 @@ Effective content organization for different research types:
 7. Conclusions: Summary and implications
 8. References
 
-### 12. Accessibility and Inclusive Design
+### 13. Accessibility and Inclusive Design
 
 Design posters that are accessible to diverse audiences:
 
@@ -1319,7 +1348,7 @@ Design posters that are accessible to diverse audiences:
 - International audience considerations
 - Consider multilingual QR code options for global conferences
 
-### 13. Poster Presentation Best Practices
+### 14. Poster Presentation Best Practices
 
 Guidance beyond LaTeX for effective poster sessions:
 
@@ -1489,13 +1518,13 @@ Guidance beyond LaTeX for effective poster sessions:
 ## Integration with Other Skills
 
 This skill works effectively with:
-- **Scientific Schematics**: CRITICAL - Use for generating all poster diagrams and flowcharts
-- **Generate Image / Nano Banana Pro**: For stylized graphics, conceptual illustrations, and summary visuals
+- **Bundled `generate_schematic.py`**: Optional AI generation of poster diagrams and flowcharts (requires a paid OpenRouter key, see prerequisites).
+- **`scientific-schematics` / image-generation skills (e.g. Nano Banana)**: Optional external skills, NOT bundled in this repo; use them only if separately installed, otherwise rely on the bundled script or native TikZ/PGF.
 - **Scientific Writing**: For developing poster content from papers
 - **Literature Review**: For contextualizing research
 - **Data Analysis**: For creating result figures and charts
 
-**Recommended workflow**: Always use scientific-schematics and generate-image skills BEFORE creating the LaTeX poster to generate all visual elements.
+**Recommended workflow**: Build the poster with pure LaTeX as the default. Optionally, if the OpenRouter prerequisites are met, generate visual elements with the bundled `generate_schematic.py` (or an external image skill, if you have one) BEFORE assembling the LaTeX poster.
 
 ## Common Pitfalls to Avoid
 
@@ -1555,21 +1584,28 @@ Ensure required LaTeX packages are installed:
 
 ```bash
 # For TeX Live (Linux/Mac)
-tlmgr install beamerposter tikzposter baposter
+# Note: current TeX Live ships "xebaposter" (a TikZ-based baposter successor),
+# not the original "baposter" class. Use xebaposter; its \headerbox/\begin{poster}
+# syntax is backward-compatible, so the bundled baposter template compiles against it.
+tlmgr install beamerposter tikzposter xebaposter
 
 # For MiKTeX (Windows)
 # Packages typically auto-install on first use
 
 # Additional recommended packages
 tlmgr install qrcode graphics xcolor tcolorbox subcaption
+
+# If you specifically need the original baposter.cls (not in TeX Live), install it
+# manually from CTAN (https://ctan.org/pkg/baposter) into your local texmf tree.
 ```
 
 ## Scripts and Automation
 
 Helper scripts available in `scripts/` directory:
 
-- `review_poster.sh`: Poster review and validation
-- `generate_schematic.py`: Generate scientific diagrams and schematics
+- `review_poster.sh`: Poster review and validation (pure-LaTeX QA, no external services).
+- `generate_schematic.py`: Thin CLI wrapper for the optional AI image path. Validates the `OPENROUTER_API_KEY` and delegates to `generate_schematic_ai.py`.
+- `generate_schematic_ai.py`: The actual generation engine (OpenRouter API calls, iterative quality review). Requires a paid `OPENROUTER_API_KEY`, the `requests` library, and network access to openrouter.ai. Optional; not needed for the pure-LaTeX workflow.
 
 ## References
 
@@ -1584,11 +1620,10 @@ Comprehensive reference files for detailed guidance:
 
 Ready-to-use poster templates in `assets/` directory:
 
-- beamerposter templates (classic, modern, colorful)
-- tikzposter templates (default, rays, wave, envelope)
-- baposter templates (portrait, landscape, minimal)
-- Example posters from various scientific disciplines
-- Color scheme definitions and institutional templates
+- `tikzposter_template.tex` - tikzposter starting point
+- `beamerposter_template.tex` - beamerposter starting point
+- `baposter_template.tex` - box-based template (compiles against xebaposter; see Package Installation)
+- `poster_quality_checklist.md` - pre-print QA checklist
 
-Load these templates and customize for your specific research and conference requirements.
+Load a template and customize it for your specific research and conference requirements.
 

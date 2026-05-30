@@ -6,7 +6,7 @@ Generate any scientific diagram by describing it in natural language.
 Nano Banana 2 handles everything automatically with smart iterative refinement.
 
 Smart iteration: Only regenerates if quality is below threshold for your document type.
-Quality review: Uses Gemini 3.1 Pro Preview for professional scientific evaluation.
+Quality review: Uses Gemini 3.5 Flash for professional scientific evaluation.
 
 Usage:
     # Generate for journal paper (highest quality threshold)
@@ -36,7 +36,7 @@ How it works:
   Simply describe your diagram in natural language
   Nano Banana 2 generates it automatically with:
   - Smart iteration (only regenerates if quality is below threshold)
-  - Quality review by Gemini 3.1 Pro Preview
+  - Quality review by Gemini 3.5 Flash
   - Document-type aware quality thresholds
   - Publication-ready output
 

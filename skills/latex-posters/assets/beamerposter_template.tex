@@ -7,12 +7,18 @@
 
 \documentclass[final,t]{beamer}
 \usepackage[size=a0,scale=1.4,orientation=portrait]{beamerposter}
-\usetheme{Berlin}
+% Use the plain default theme. (Avoid navigation themes such as Berlin: it is a
+% miniframes theme that renders a section-navigation headline bar, which is
+% useless on a poster and wastes vertical space.)
+\usetheme{default}
 \usecolortheme{beaver}
+% Clear any leftover headline/footline so no navigation bar appears.
+\setbeamertemplate{headline}{}
+\setbeamertemplate{footline}{}
 
 % Remove default margins for full page coverage
 \setbeamersize{text margin left=5mm, text margin right=5mm}
-\usepackage[margin=10mm]{geometry}
+\geometry{margin=10mm}
 
 % Remove navigation symbols
 \setbeamertemplate{navigation symbols}{}

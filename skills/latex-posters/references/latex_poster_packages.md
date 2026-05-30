@@ -48,8 +48,12 @@ beamerposter extends the popular Beamer presentation class for poster-sized docu
 ```latex
 \documentclass[final,t]{beamer}
 \usepackage[size=a0,scale=1.4,orientation=portrait]{beamerposter}
-\usetheme{Berlin}
+% Plain default theme (Berlin is a presentation navigation theme: it adds a
+% miniframes headline bar that is useless on a poster).
+\usetheme{default}
 \usecolortheme{beaver}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{footline}{}
 
 % Configure fonts
 \setbeamerfont{title}{size=\VeryHuge,series=\bfseries}
@@ -103,8 +107,12 @@ beamerposter extends the popular Beamer presentation class for poster-sized docu
 
 ```latex
 % Traditional academic
-\usetheme{Berlin}
+% Plain default theme (Berlin is a presentation navigation theme: it adds a
+% miniframes headline bar that is useless on a poster).
+\usetheme{default}
 \usecolortheme{beaver}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{footline}{}
 
 % Modern minimal
 \usetheme{Madrid}
@@ -335,11 +343,8 @@ tikzposter is built on the powerful TikZ graphics package, offering modern desig
 % Full-width block
 \block{Title}{Content}
 
-% Specify width
-\block[width=0.8\linewidth]{Title}{Content}
-
-% Position manually
-\block[x=10, y=50, width=30]{Title}{Content}
+% Specify width (scale block body relative to its column)
+\block[bodywidthscale=0.8]{Title}{Content}
 
 % Inner blocks (nested, different styling)
 \block{Outer Title}{
@@ -375,6 +380,7 @@ tikzposter is built on the powerful TikZ graphics package, offering modern desig
 }
 
 % Custom TikZ graphics
+% Requires \usetikzlibrary{positioning} for the "right=of" placement syntax
 \block{Methodology}{
   \begin{tikzpicture}
     \node[draw, rectangle, fill=blue!20] (A) {Step 1};
@@ -409,7 +415,7 @@ baposter (Box Area Poster) uses a box-based layout system with automatic positio
 ### Basic Template
 
 ```latex
-\documentclass[a0paper,portrait]{baposter}
+\documentclass[a0paper,portrait]{xebaposter}
 
 \usepackage{graphicx}
 \usepackage{multicol}
@@ -674,8 +680,13 @@ pdflatex -interaction=nonstopmode poster.tex
 ### Font Embedding
 
 ```bash
-# Ensure fonts are embedded (required for printing)
-pdflatex -dEmbedAllFonts=true poster.tex
+# pdfLaTeX embeds fonts by default; a normal compile is usually enough
+pdflatex poster.tex
+
+# To force embedding, post-process with Ghostscript (-dEmbedAllFonts is a
+# Ghostscript option, not a pdflatex flag), or compile with xelatex/lualatex:
+# gs -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dEmbedAllFonts=true -dSubsetFonts=true \
+#    -sOutputFile=poster-embedded.pdf poster.pdf
 
 # Check font embedding
 pdffonts poster.pdf

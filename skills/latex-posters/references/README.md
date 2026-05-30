@@ -35,13 +35,13 @@ Posters should span the entire page with minimal margins:
 \documentclass[final,t]{beamer}
 \usepackage[size=a0,scale=1.4,orientation=portrait]{beamerposter}
 \setbeamersize{text margin left=5mm, text margin right=5mm}
-\usepackage[margin=10mm]{geometry}
+\geometry{margin=10mm}
 
 % tikzposter - full page setup
 \documentclass[25pt,a0paper,portrait,margin=10mm,innermargin=15mm]{tikzposter}
 
 % baposter - full page setup
-\documentclass[a0paper,portrait,fontscale=0.285]{baposter}
+\documentclass[a0paper,portrait,fontscale=0.285]{xebaposter}
 ```
 
 ### 4. Compile
@@ -114,14 +114,14 @@ Templates support all standard sizes:
 
 **Comprehensive Documentation** (in `references/`):
 
-1. **`latex_poster_packages.md`** (746 lines)
+1. **`latex_poster_packages.md`**
    - Detailed comparison of beamerposter, tikzposter, baposter
    - Package-specific syntax and examples
    - Strengths, limitations, best use cases
    - Theme and color customization
    - Compilation tips and troubleshooting
 
-2. **`poster_design_principles.md`** (807 lines)
+2. **`poster_design_principles.md`**
    - Visual hierarchy and white space
    - Typography: font selection, sizing, readability
    - Color theory: schemes, contrast, accessibility
@@ -129,7 +129,7 @@ Templates support all standard sizes:
    - Icons, graphics, and visual elements
    - Common design mistakes to avoid
 
-3. **`poster_layout_design.md`** (650+ lines)
+3. **`poster_layout_design.md`**
    - Grid systems (2, 3, 4-column layouts)
    - Visual flow and reading patterns
    - Spatial organization strategies
@@ -137,7 +137,7 @@ Templates support all standard sizes:
    - Block and box design
    - Layout patterns by research type
 
-4. **`poster_content_guide.md`** (900+ lines)
+4. **`poster_content_guide.md`**
    - Content strategy (3-5 minute rule)
    - Word budgets by section
    - Visual-to-text ratio (40-50% visual)
@@ -224,13 +224,13 @@ Templates support all standard sizes:
 ```latex
 % beamerposter
 \setbeamersize{text margin left=5mm, text margin right=5mm}
-\usepackage[margin=10mm]{geometry}
+\geometry{margin=10mm}
 
 % tikzposter
 \documentclass[..., margin=5mm, innermargin=10mm]{tikzposter}
 
 % baposter
-\documentclass[a0paper, margin=5mm]{baposter}
+\documentclass[a0paper, margin=5mm]{xebaposter}
 ```
 
 ### Content Cut Off
@@ -266,8 +266,13 @@ Templates support all standard sizes:
 
 **Solution**:
 ```bash
-# Recompile with embedded fonts
-pdflatex -dEmbedAllFonts=true poster.tex
+# pdfLaTeX embeds fonts by default, so recompiling normally is usually enough
+pdflatex poster.tex
+
+# To force embedding (e.g. fonts from included PDFs), post-process with Ghostscript
+# (-dEmbedAllFonts is a Ghostscript option, not a pdflatex flag), or use xelatex/lualatex:
+# gs -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dEmbedAllFonts=true -dSubsetFonts=true \
+#    -sOutputFile=poster-embedded.pdf poster.pdf
 
 # Verify embedding
 pdffonts poster.pdf
@@ -412,6 +417,6 @@ For issues or questions:
 ## Version
 
 LaTeX Poster Skill v1.0
-Compatible with: beamerposter, tikzposter, baposter
+Compatible with: beamerposter, tikzposter, xebaposter
 Last updated: January 2025
 

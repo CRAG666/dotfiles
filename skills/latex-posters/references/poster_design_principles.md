@@ -633,10 +633,14 @@ Strategic use of icons enhances comprehension:
 }
 
 % Watermark
+% Note: opacity is not a graphicx \includegraphics key. Apply transparency by
+% wrapping the image in a TikZ node with the opacity= option instead.
 \usepackage{tikz}
 \AddToShipoutPictureBG{
   \AtPageCenter{
-    \includegraphics[width=0.5\paperwidth,opacity=0.05]{university-seal.pdf}
+    \begin{tikzpicture}
+      \node[opacity=0.05]{\includegraphics[width=0.5\paperwidth]{university-seal.pdf}};
+    \end{tikzpicture}
   }
 }
 ```
