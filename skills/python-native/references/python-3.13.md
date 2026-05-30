@@ -88,7 +88,7 @@ many stdlib types).
 
 - `typing.TypeIs` — a narrower, more accurate cousin of `TypeGuard` for type narrowing.
 - `typing.ReadOnly` for `TypedDict` fields.
-- `warnings.deprecated` (also added in 3.12 as `typing.deprecated`).
+- `warnings.deprecated`: the `@deprecated` decorator (PEP 702). The runtime symbol lives in `warnings`, never `typing`, and is new in 3.13.
 - PEP 696 — type parameter defaults: `class Box[T = int]: ...`.
 
 ---
@@ -111,9 +111,10 @@ Prefer `os.process_cpu_count()` over `os.cpu_count()` for pool sizing in 3.13+.
 ## Other Additions
 
 - `random` module gains a CLI (`python -m random`).
-- `os.path.isreserved` for Windows reserved filenames.
+- `ntpath.isreserved` (and `PureWindowsPath.is_reserved`) for Windows reserved filenames. Exposed as `os.path.isreserved` only on Windows (where `os.path` is `ntpath`); not present on POSIX. `PurePath.is_reserved` was deprecated at the same time.
 - `argparse` deprecation hints, suggestion messages.
 - Better error messages for `NameError`, `AttributeError`, `ImportError` — common typos suggested.
+- `array.array` supports `clear()` (added in 3.13).
 
 ---
 

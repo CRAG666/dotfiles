@@ -91,9 +91,8 @@ groundwork for true parallelism without subprocesses.
 - `calendar.Month`, `calendar.Day` enums.
 - `random.binomialvariate(n, p)` — sample from a binomial distribution.
 - `sys.monitoring` — low-overhead instrumentation hooks (debuggers, coverage) (PEP 669).
-- `array.array` supports `clear()`.
 - Improved `asyncio` performance — eager task factories, faster `gather`.
-- Many small `typing` improvements: `@deprecated`, `Buffer` protocol.
+- Many small `typing` improvements. The `Buffer` protocol (PEP 688) also lands here, but it lives in `collections.abc.Buffer`, not `typing`. (The `@deprecated` decorator, PEP 702, is **not** here; it lands in 3.13 as `warnings.deprecated`.)
 
 ---
 

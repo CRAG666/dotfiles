@@ -604,10 +604,10 @@ f"{dt:%Y-%m-%d}"           # datetime format
 f"{a + b = :,}"            # debug + format spec combined
 ```
 
-Multi-line f-strings (3.12+) allow nested same-quote strings:
+f-strings (3.12+, PEP 701) allow reusing the **same** quote character inside the expression:
 
 ```python
-f"{ ', '.join(f'{x.name!r}' for x in items) }"
+f"{ ", ".join(parts) }"     # outer and inner both double-quoted, SyntaxError before 3.12
 ```
 
 ---
