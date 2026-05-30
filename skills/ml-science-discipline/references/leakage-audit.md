@@ -57,6 +57,9 @@ SMOTE note: **Only oversample inside cross-validation folds**, never before spli
 ```python
 from imblearn.pipeline import Pipeline as ImbPipeline
 from imblearn.over_sampling import SMOTE
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import cross_val_score, StratifiedKFold
 
 pipe = ImbPipeline([
     ("smote", SMOTE(random_state=42)),
@@ -97,7 +100,6 @@ Shuffle the target labels randomly and train the model. If performance stays hig
 you have leakage — a valid model cannot learn from random labels.
 
 ```python
-from sklearn.inspection import permutation_importance
 from sklearn.model_selection import permutation_test_score
 
 score, perm_scores, p_value = permutation_test_score(
@@ -109,16 +111,24 @@ print(f"Permutation mean: {perm_scores.mean():.3f}")
 print(f"p-value: {p_value:.4f}")
 ```
 
-If `score` is close to `perm_scores.mean()`, the model is not learning signal.
-If `score` is high even after shuffling labels → **severe leakage**.
+`score` is the true score on the real labels; `perm_scores` are the scores obtained after
+shuffling the labels, and `p_value` is the fraction of permutations that match or beat `score`.
+If `score` is close to `perm_scores.mean()` (large `p_value`), the model is not learning signal.
+A `score` far above `perm_scores.mean()` with a small `p_value` confirms the model learns real
+signal, but if that gap is implausibly large for the domain, suspect **leakage** (the model is
+exploiting information it should not have).
 
 ---
 
 ## Step 5: Retrospective Check — Model Complexity vs. Dataset Size
 
-A model with more parameters than training samples can memorize the training set.
+A classical, low-capacity model with more parameters than training samples can memorize the
+training set.
 
-Rule of thumb: `n_samples_train / n_parameters >> 10`
+Rule of thumb (classical / low-capacity models only): `n_samples_train / n_parameters >> 10`.
+This does NOT hold for modern over-parameterized deep networks, which routinely have far more
+parameters than samples yet still generalize (the double-descent regime). For those, judge
+overfitting from the train-vs-validation gap and learning curves, not this ratio.
 
 For neural networks, use:
 ```python

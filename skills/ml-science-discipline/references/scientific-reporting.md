@@ -16,7 +16,7 @@ Identify the right one **before writing** — it determines what you must measur
 | **TRIPOD+AI** (Collins et al., 2024) | Prediction model development & validation | Diagnostic / prognostic models, clinical risk scores, biology prediction |
 | **TRIPOD-LLM** (2024) | LLM-based prediction studies | Any clinical/scientific use of LLMs for prediction or generation |
 | **CLAIM** (Mongan et al., 2020) | AI in medical imaging | Radiology, pathology, ophthalmology, dermatology |
-| **STARD-AI** | Diagnostic accuracy of AI systems | Sensitivity/specificity studies for AI diagnostics |
+| **STARD-AI** (protocol Sounderajah et al., 2021; guideline 2025) | Diagnostic accuracy of AI systems | Sensitivity/specificity studies for AI diagnostics |
 | **CONSORT-AI** (Liu et al., 2020) | RCTs evaluating AI interventions | Prospective trials with AI in the intervention arm |
 | **SPIRIT-AI** | Trial protocols involving AI | Pre-registration of clinical trials with AI |
 | **MI-CLAIM** (Norgeot et al., 2020) | Minimal info for clinical AI modeling | Broader/lighter than TRIPOD+AI for clinical ML |
@@ -72,8 +72,12 @@ import numpy as np
 def expected_calibration_error(y_true, y_prob, n_bins=10):
     bins = np.linspace(0, 1, n_bins + 1)
     ece = 0.0
-    for lo, hi in zip(bins[:-1], bins[1:]):
-        mask = (y_prob >= lo) & (y_prob < hi)
+    for i, (lo, hi) in enumerate(zip(bins[:-1], bins[1:])):
+        # Right-close the final bin so y_prob == 1.0 is not dropped.
+        if i == n_bins - 1:
+            mask = (y_prob >= lo) & (y_prob <= hi)
+        else:
+            mask = (y_prob >= lo) & (y_prob < hi)
         if mask.sum() == 0:
             continue
         ece += (mask.sum() / len(y_true)) * abs(y_true[mask].mean() - y_prob[mask].mean())
@@ -85,10 +89,10 @@ For regression and risk scoring, conformal prediction provides marginal coverage
 without distributional assumptions — well-aligned with Q1 standards.
 
 ```python
-from mapie.classification import MapieClassifier
-mapie = MapieClassifier(estimator, method="aps", cv=5)
-mapie.fit(X_train, y_train)
-y_pred, y_ps = mapie.predict(X_test, alpha=0.1)  # 90% coverage prediction sets
+from mapie.classification import CrossConformalClassifier
+mapie = CrossConformalClassifier(estimator, confidence_level=0.9, conformity_score="aps", cv=5)
+mapie.fit_conformalize(X_train, y_train)
+y_pred, y_ps = mapie.predict_set(X_test)  # 90% coverage prediction sets
 ```
 
 Report empirical coverage on the test set and conditional coverage across subgroups —

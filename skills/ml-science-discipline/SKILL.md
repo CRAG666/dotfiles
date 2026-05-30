@@ -1,14 +1,6 @@
 ---
 name: ml-science-discipline
-description: >
-  Enforces rigorous scientific methodology for machine learning experiments intended to support
-  publication-grade claims (Q1 journals, conference papers, regulated decisions). Use this skill when
-  designing an ML pipeline, splitting datasets, evaluating performance, selecting features, tuning
-  hyperparameters, comparing models, quantifying uncertainty, validating externally, or preparing
-  results for a paper. Consult it for any task where experimental validity, reproducibility, or
-  publication standards (TRIPOD+AI, CLAIM, STARD-AI, CONSORT-AI) are in scope. Routine "train a model"
-  or "compute accuracy" requests do NOT automatically trigger this skill unless results will be
-  reported, compared, or acted on.
+description: 'Enforces rigorous scientific methodology for machine learning experiments intended to support publication-grade claims (Q1 journals, conference papers, regulated decisions). Use this skill when designing an ML pipeline, splitting datasets, evaluating performance, selecting features, tuning hyperparameters, comparing models, quantifying uncertainty, validating externally, or preparing results for a paper. Consult it for any task where experimental validity, reproducibility, or publication standards (TRIPOD+AI, CLAIM, STARD-AI, CONSORT-AI) are in scope. Routine "train a model" or "compute accuracy" requests do NOT automatically trigger this skill unless results will be reported, compared, or acted on.'
 ---
 
 # ML Good Science: Rigorous Experimentation in Machine Learning
@@ -136,7 +128,8 @@ The metric must align with the real-world cost function, not default convenience
 | Calibration matters | AUC-ROC | Brier score, ECE |
 
 ### Multiple Comparisons Problem
-Testing 20 models on the same test set means ~1 will appear significant by chance (p=0.05 threshold).
+Testing 20 models on the same test set means you should expect ~1 to appear significant by chance
+on average (p=0.05 threshold), and the probability that at least one does is ~64%.
 - Pre-register the primary metric and primary model before running experiments.
 - Apply **Bonferroni correction** or **Benjamini-Hochberg** when comparing multiple models.
 - Report effect sizes, not just p-values.
@@ -179,7 +172,7 @@ Outer loop  → unbiased performance estimate  (5 folds)
 ```
 
 ```python
-from sklearn.model_selection import GridSearchCV, cross_val_score
+from sklearn.model_selection import GridSearchCV, cross_val_score, StratifiedKFold
 
 inner_cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 outer_cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
@@ -205,6 +198,7 @@ scores = cross_val_score(search, X, y, cv=outer_cv, scoring="f1_macro")
 ### Learning Curves as Diagnostic Tools
 Always plot learning curves before drawing conclusions:
 ```python
+import numpy as np
 from sklearn.model_selection import learning_curve
 train_sizes, train_scores, val_scores = learning_curve(
     estimator, X_train, y_train, cv=5,
@@ -219,7 +213,10 @@ train_sizes, train_scores, val_scores = learning_curve(
 
 ## 6. Reproducibility Requirements
 
-Every experiment must be fully reproducible. This is non-negotiable in scientific work.
+Every experiment must be reproducible. This is non-negotiable in scientific work. The seeding
+below is necessary but not sufficient on its own: bit-for-bit reproducibility also requires the
+same hardware, drivers, and pinned library versions (see Environment Pinning), and
+`PYTHONHASHSEED` set in the launcher rather than in-process.
 
 ```python
 import random, os, numpy as np, torch
@@ -230,7 +227,11 @@ random.seed(SEED)
 np.random.seed(SEED)
 torch.manual_seed(SEED)
 torch.cuda.manual_seed_all(SEED)
-os.environ["PYTHONHASHSEED"] = str(SEED)
+# PYTHONHASHSEED must be set BEFORE the interpreter starts; setting os.environ
+# here does NOT affect the already-running process. Launch with:
+#   PYTHONHASHSEED=42 python train.py
+assert os.environ.get("PYTHONHASHSEED") == str(SEED), \
+    "Set PYTHONHASHSEED in the launcher: PYTHONHASHSEED=42 python train.py"
 
 # Full GPU determinism (slower, but required for reproducible claims)
 torch.use_deterministic_algorithms(True, warn_only=False)
@@ -326,10 +327,10 @@ For regression and risk prediction, report **prediction intervals**, not just po
 under exchangeability — strong fit for Q1 scientific reporting.
 
 ```python
-from mapie.regression import MapieRegressor
-mapie = MapieRegressor(estimator, method="plus", cv=5)
-mapie.fit(X_train, y_train)
-y_pred, y_pis = mapie.predict(X_test, alpha=0.05)  # 95% intervals
+from mapie.regression import CrossConformalRegressor
+mapie = CrossConformalRegressor(estimator, confidence_level=0.95, method="plus", cv=5)
+mapie.fit_conformalize(X_train, y_train)
+y_pred, y_pis = mapie.predict_interval(X_test)  # 95% intervals
 ```
 
 ### Epistemic vs Aleatoric Uncertainty

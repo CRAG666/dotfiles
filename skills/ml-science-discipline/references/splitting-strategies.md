@@ -20,12 +20,22 @@ Fold 3: Train [t2–t5]        → Val [t6]
 ```
 Use when older data becomes irrelevant (e.g., trend changes, concept drift).
 
+Bare `TimeSeriesSplit` implements the **expanding window** above: the training
+set always starts at index 0 and grows each fold.
 ```python
 from sklearn.model_selection import TimeSeriesSplit
 
 tscv = TimeSeriesSplit(n_splits=5, gap=0)
 for train_idx, val_idx in tscv.split(X):
     X_train, X_val = X[train_idx], X[val_idx]
+```
+
+For the **sliding window** above (fixed-size training set that drops the oldest
+rows), add `max_train_size`. Without it, the window expands rather than slides.
+```python
+tscv = TimeSeriesSplit(n_splits=5, gap=0, max_train_size=100)
+for train_idx, val_idx in tscv.split(X):
+    X_train, X_val = X[train_idx], X[val_idx]  # len(train_idx) capped at 100
 ```
 
 The `gap` parameter removes rows between train and val to prevent leakage
@@ -54,7 +64,8 @@ from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
 ```python
 from sklearn.preprocessing import KBinsDiscretizer
 
-binner = KBinsDiscretizer(n_bins=10, encode="ordinal", strategy="quantile")
+binner = KBinsDiscretizer(n_bins=10, encode="ordinal", strategy="quantile",
+                          quantile_method="linear")
 y_binned = binner.fit_transform(y.reshape(-1, 1)).ravel()
 
 X_train, X_test, y_train, y_test = train_test_split(
@@ -114,7 +125,7 @@ from collections import defaultdict
 
 scaffolds = defaultdict(list)
 for i, smi in enumerate(smiles):
-    s = MurckoScaffoldSmiles(smi=smi, includeChirality=False)
+    s = MurckoScaffoldSmiles(smiles=smi, includeChirality=False)
     scaffolds[s].append(i)
 
 # Sort scaffolds by size and assign whole scaffolds to splits

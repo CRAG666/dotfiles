@@ -51,6 +51,7 @@ It does not tell you which is better — combine with the actual accuracy differ
 Non-parametric. Does not assume normally distributed errors.
 
 ```python
+import numpy as np
 from scipy.stats import wilcoxon
 
 # Per-sample absolute errors
@@ -127,6 +128,7 @@ Cohen's d interpretation: small=0.2, medium=0.5, large=0.8.
 Before running an experiment, determine the sample size needed to detect a meaningful effect.
 
 ```python
+import numpy as np
 from statsmodels.stats.power import TTestIndPower
 
 analysis = TTestIndPower()
