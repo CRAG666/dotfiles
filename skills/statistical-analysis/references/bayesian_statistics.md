@@ -133,15 +133,15 @@ import pymc as pm
 
 # Model with different priors
 priors = [
-    ('weakly_informative', pm.Normal.dist(0, 1)),
-    ('diffuse', pm.Normal.dist(0, 10)),
-    ('informative', pm.Normal.dist(0.5, 0.3))
+    ('weakly_informative', (0, 1)),
+    ('diffuse', (0, 10)),
+    ('informative', (0.5, 0.3))
 ]
 
 results = {}
-for name, prior in priors:
+for name, (mu, sigma) in priors:
     with pm.Model():
-        effect = pm.Normal('effect', mu=prior.mu, sigma=prior.sigma)
+        effect = pm.Normal('effect', mu=mu, sigma=sigma)
         # ... rest of model
         trace = pm.sample()
         results[name] = trace

@@ -41,23 +41,25 @@ import numpy as np
 
 # Independent t-test with effect size
 result = pg.ttest(group1, group2, correction=False)
-cohens_d = result['cohen-d'].values[0]
+cohens_d = result['cohen_d'].values[0]
 
 # Manual calculation
 mean_diff = np.mean(group1) - np.mean(group2)
-pooled_std = np.sqrt((np.var(group1, ddof=1) + np.var(group2, ddof=1)) / 2)
+n1, n2 = len(group1), len(group2)
+pooled_std = np.sqrt(((n1 - 1) * np.var(group1, ddof=1) + (n2 - 1) * np.var(group2, ddof=1)) / (n1 + n2 - 2))
 cohens_d = mean_diff / pooled_std
 
 # Paired t-test
 result = pg.ttest(pre, post, paired=True)
-cohens_d = result['cohen-d'].values[0]
+cohens_d = result['cohen_d'].values[0]
 ```
 
-**Confidence intervals for d**:
+**Effect size from a t-statistic**:
 ```python
 from pingouin import compute_effsize_from_t
 
-d, ci = compute_effsize_from_t(t_statistic, nx=n1, ny=n2, eftype='cohen')
+# returns a scalar effect size; for a CI, bootstrap with pg.compute_bootci
+d = compute_effsize_from_t(t_statistic, nx=n1, ny=n2, eftype='cohen')
 ```
 
 ---
@@ -70,8 +72,7 @@ d, ci = compute_effsize_from_t(t_statistic, nx=n1, ny=n2, eftype='cohen')
 
 **Python calculation**:
 ```python
-result = pg.ttest(group1, group2, correction=False)
-hedges_g = result['hedges'].values[0]
+hedges_g = pg.compute_effsize(group1, group2, eftype='hedges')
 ```
 
 **Use Hedges' g when**:
@@ -112,7 +113,7 @@ hedges_g = result['hedges'].values[0]
 import pingouin as pg
 
 # One-way ANOVA
-aov = pg.anova(dv='value', between='group', data=df)
+aov = pg.anova(dv='value', between='group', data=df, detailed=True)
 eta_squared = aov['SS'][0] / aov['SS'].sum()
 
 # Or use pingouin directly
@@ -207,7 +208,7 @@ import pingouin as pg
 # Pearson correlation with CI
 result = pg.corr(x, y, method='pearson')
 r = result['r'].values[0]
-ci = [result['CI95%'][0][0], result['CI95%'][0][1]]
+ci = [result['CI95'].values[0][0], result['CI95'].values[0][1]]
 
 # Spearman correlation
 result = pg.corr(x, y, method='spearman')
@@ -285,7 +286,7 @@ beta = model.params
 
 **What it measures**: Effect size for individual predictors or model comparison
 
-**Formula**: f² = R²_AB - R²_A / (1 - R²_AB)
+**Formula**: f² = (R²_AB - R²_A) / (1 - R²_AB)
 
 Where:
 - R²_AB = R² for full model with predictor
@@ -329,13 +330,18 @@ Where k = min(rows, columns)
 
 **Python calculation**:
 ```python
+import numpy as np
+from scipy.stats import chi2_contingency
 from scipy.stats.contingency import association
 
 # Cramér's V
 cramers_v = association(contingency_table, method='cramer')
 
-# Phi coefficient (for 2x2)
-phi = association(contingency_table, method='pearson')
+# Phi coefficient (for 2x2): phi = sqrt(chi2 / n)
+# Note: association(method='pearson') returns Pearson's C, not phi
+chi2 = chi2_contingency(contingency_table, correction=False)[0]
+n = np.asarray(contingency_table).sum()
+phi = np.sqrt(chi2 / n)
 ```
 
 ---
@@ -411,10 +417,10 @@ import pingouin as pg
 
 # Bayesian t-test
 result = pg.ttest(group1, group2, correction=False)
-# Note: pingouin doesn't include BF; use other packages
+# pingouin returns a JZS Bayes factor in the 'BF10' column (as a string)
+bf10 = float(result['BF10'].values[0])
 
-# Using JASP or BayesFactor (R) via rpy2
-# Or implement using numerical integration
+# For other designs, JASP or BayesFactor (R) via rpy2 are alternatives
 ```
 
 ---
@@ -455,6 +461,7 @@ from statsmodels.stats.power import (
     FTestAnovaPower,
     NormalIndPower
 )
+import numpy as np
 
 # T-test power analysis
 n_required = tt_ind_solve_power(
@@ -467,12 +474,13 @@ n_required = tt_ind_solve_power(
 
 # ANOVA power analysis
 anova_power = FTestAnovaPower()
-n_per_group = anova_power.solve_power(
+n_total = anova_power.solve_power(
     effect_size=0.25,  # Cohen's f
-    ngroups=3,
+    k_groups=3,
     alpha=0.05,
     power=0.80
 )
+n_per_group = int(np.ceil(n_total / 3))  # solve_power returns the TOTAL sample size
 
 # Correlation power analysis
 from pingouin import power_corr

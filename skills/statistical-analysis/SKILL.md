@@ -1,6 +1,6 @@
 ---
 name: statistical-analysis
-description: Guided statistical analysis with test selection and reporting. Use when you need help choosing appropriate tests for your data, assumption checking, power analysis, and APA-formatted results. Best for academic research reporting, test selection guidance. For implementing specific models programmatically use statsmodels.
+description: 'Guided statistical analysis with test selection and reporting. Use when you need help choosing appropriate tests for your data, assumption checking, power analysis, and APA-formatted results. Best for academic research reporting, test selection guidance. For implementing specific models programmatically use statsmodels.'
 license: MIT license
 metadata:
     skill-author: K-Dense Inc.
@@ -195,6 +195,8 @@ Primary libraries for statistical analysis:
 - **pymc**: Bayesian statistical modeling
 - **arviz**: Bayesian visualization and diagnostics
 
+Several examples below depend on `pingouin`, `pymc`, and `arviz`, not only `scipy` and `statsmodels`; install them before running those snippets.
+
 ### Example Analyses
 
 #### T-Test with Complete Reporting
@@ -209,10 +211,10 @@ result = pg.ttest(group_a, group_b, correction='auto')
 # Extract results
 t_stat = result['T'].values[0]
 df = result['dof'].values[0]
-p_value = result['p-val'].values[0]
-cohens_d = result['cohen-d'].values[0]
-ci_lower = result['CI95%'].values[0][0]
-ci_upper = result['CI95%'].values[0][1]
+p_value = result['p_val'].values[0]
+cohens_d = result['cohen_d'].values[0]
+ci_lower = result['CI95'].values[0][0]
+ci_upper = result['CI95'].values[0][1]
 
 # Report
 print(f"t({df:.0f}) = {t_stat:.2f}, p = {p_value:.3f}")
@@ -229,7 +231,7 @@ aov = pg.anova(dv='score', between='group', data=df, detailed=True)
 print(aov)
 
 # If significant, conduct post-hoc tests
-if aov['p-unc'].values[0] < 0.05:
+if aov['p_unc'].values[0] < 0.05:
     posthoc = pg.pairwise_tukey(dv='score', between='group', data=df)
     print(posthoc)
 
@@ -241,6 +243,8 @@ print(f"Partial η² = {eta_squared:.3f}")
 #### Linear Regression with Diagnostics
 
 ```python
+import numpy as np
+import pandas as pd
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
@@ -356,7 +360,7 @@ Most effect sizes are automatically calculated by pingouin:
 ```python
 # T-test returns Cohen's d
 result = pg.ttest(x, y)
-d = result['cohen-d'].values[0]
+d = result['cohen_d'].values[0]
 
 # ANOVA returns partial eta-squared
 aov = pg.anova(dv='score', between='group', data=df)
@@ -372,16 +376,19 @@ r = corr['r'].values[0]
 Always report CIs to show precision:
 
 ```python
-from pingouin import compute_effsize_from_t
+from pingouin import compute_effsize_from_t, compute_bootci
 
-# For t-test
-d, ci = compute_effsize_from_t(
+# Point estimate from the t-statistic
+d = compute_effsize_from_t(
     t_statistic,
     nx=len(group1),
     ny=len(group2),
     eftype='cohen'
 )
-print(f"d = {d:.2f}, 95% CI [{ci[0]:.2f}, {ci[1]:.2f}]")
+
+# Bootstrap a 95% CI for Cohen's d from the raw data
+ci = compute_bootci(group1, group2, func='cohen', n_boot=2000, seed=42)
+print(f"Cohen's d = {d:.2f}, 95% CI [{ci[0]:.2f}, {ci[1]:.2f}]")
 ```
 
 ---
@@ -393,6 +400,7 @@ print(f"d = {d:.2f}, 95% CI [{ci[0]:.2f}, {ci[1]:.2f}]")
 Determine required sample size before data collection:
 
 ```python
+import numpy as np
 from statsmodels.stats.power import (
     tt_ind_solve_power,
     FTestAnovaPower
@@ -410,12 +418,14 @@ print(f"Required n per group: {n_required:.0f}")
 
 # ANOVA: What n is needed to detect f = 0.25?
 anova_power = FTestAnovaPower()
-n_per_group = anova_power.solve_power(
+n_total = anova_power.solve_power(
     effect_size=0.25,
-    ngroups=3,
+    k_groups=3,
     alpha=0.05,
     power=0.80
 )
+# statsmodels returns TOTAL N; divide by k_groups for per-group n
+n_per_group = int(np.ceil(n_total / 3))
 print(f"Required n per group: {n_per_group:.0f}")
 ```
 

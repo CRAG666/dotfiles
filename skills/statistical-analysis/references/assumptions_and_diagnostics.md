@@ -160,7 +160,7 @@ stats.levene(group1, group2)
 
 # If assumptions violated:
 # Option 1: Welch's t-test (unequal variances)
-pg.ttest(group1, group2, correction=False)  # Welch's
+pg.ttest(group1, group2, correction=True)  # Welch's (correction=True); correction=False is Student's
 
 # Option 2: Non-parametric alternative
 pg.mwu(group1, group2)  # Mann-Whitney U
@@ -296,9 +296,9 @@ vif_data["VIF"] = [variance_inflation_factor(X.values, i) for i in range(len(X.c
 **3. Influential observations**:
 ```python
 # Cook's distance, DFBetas, leverage
-from statsmodels.stats.outliers_influence import OLSInfluence
-
-influence = OLSInfluence(model)
+# For a Logit/GLM fit, use GLMInfluence via the result's get_influence()
+# (OLSInfluence only works for OLS fits)
+influence = model.get_influence()
 cooks_d = influence.cooks_distance
 ```
 
