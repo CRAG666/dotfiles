@@ -49,7 +49,7 @@ import matplotlib.pyplot as plt
 uv pip install scikit-learn
 
 # Optional dependencies
-uv pip install scikit-learn[plots]  # For plotting utilities
+uv pip install matplotlib seaborn  # needed to render the *Display helpers (RocCurveDisplay, ConfusionMatrixDisplay, ...)
 uv pip install pandas numpy matplotlib seaborn  # Common companions
 ```
 
@@ -89,7 +89,7 @@ print(confusion_matrix(y_test, y_pred))
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import root_mean_squared_error, r2_score
 
 # Split
 X_train, X_test, y_train, y_test = train_test_split(
@@ -106,7 +106,7 @@ model.fit(X_train_scaled, y_train)
 
 # Evaluate
 y_pred = model.predict(X_test_scaled)
-print(f"RMSE: {mean_squared_error(y_test, y_pred, squared=False):.3f}")
+print(f"RMSE: {root_mean_squared_error(y_test, y_pred):.3f}")
 print(f"R² Score: {r2_score(y_test, y_pred):.3f}")
 ```
 

@@ -1,6 +1,6 @@
 ---
 name: scikit-learn
-description: Machine learning in Python with scikit-learn. Use when working with supervised learning (classification, regression), unsupervised learning (clustering, dimensionality reduction), model evaluation, hyperparameter tuning, preprocessing, or building ML pipelines. Provides comprehensive reference documentation for algorithms, preprocessing techniques, pipelines, and best practices.
+description: 'Machine learning in Python with scikit-learn. Use when working with supervised learning (classification, regression), unsupervised learning (clustering, dimensionality reduction), model evaluation, hyperparameter tuning, preprocessing, or building ML pipelines. Provides comprehensive reference documentation for algorithms, preprocessing techniques, pipelines, and best practices.'
 license: BSD-3-Clause license
 metadata:
     skill-author: K-Dense Inc.
@@ -142,7 +142,7 @@ Discover patterns in unlabeled data through clustering and dimensionality reduct
 
 **Dimensionality reduction:**
 - **Linear**: PCA, TruncatedSVD, NMF
-- **Manifold learning**: t-SNE, UMAP, Isomap, LLE
+- **Manifold learning**: t-SNE, Isomap, LLE (UMAP via the external `umap-learn` package)
 - **Feature extraction**: FastICA, LatentDirichletAllocation
 
 **When to use:**
@@ -164,7 +164,7 @@ Tools for robust model evaluation, cross-validation, and hyperparameter tuning.
 **Hyperparameter tuning:**
 - GridSearchCV (exhaustive search)
 - RandomizedSearchCV (random sampling)
-- HalvingGridSearchCV (successive halving)
+- HalvingGridSearchCV (successive halving; requires `from sklearn.experimental import enable_halving_search_cv` before importing it)
 
 **Metrics:**
 - **Classification**: accuracy, precision, recall, F1-score, ROC AUC, confusion matrix
@@ -192,7 +192,8 @@ Transform raw data into formats suitable for machine learning.
 **Encoding categorical variables:**
 - OneHotEncoder (nominal categories)
 - OrdinalEncoder (ordered categories)
-- LabelEncoder (target encoding)
+- LabelEncoder (encodes the target/label vector y)
+- TargetEncoder (supervised encoding of categorical features)
 
 **Handling missing values:**
 - SimpleImputer (mean, median, most frequent)
@@ -342,7 +343,7 @@ This skill includes comprehensive reference files for deep dives into specific t
 3. **Create preprocessing pipeline**
    ```python
    from sklearn.pipeline import Pipeline
-   from sklearn.preprocessing import StandardScaler
+   from sklearn.preprocessing import StandardScaler, OneHotEncoder
    from sklearn.compose import ColumnTransformer
 
    # Handle numeric and categorical features separately
@@ -354,6 +355,9 @@ This skill includes comprehensive reference files for deep dives into specific t
 
 4. **Build complete pipeline**
    ```python
+   from sklearn.pipeline import Pipeline
+   from sklearn.ensemble import RandomForestClassifier
+
    model = Pipeline([
        ('preprocessor', preprocessor),
        ('classifier', RandomForestClassifier(random_state=42))
@@ -394,6 +398,7 @@ This skill includes comprehensive reference files for deep dives into specific t
 
 2. **Find optimal number of clusters**
    ```python
+   import numpy as np
    from sklearn.cluster import KMeans
    from sklearn.metrics import silhouette_score
 
@@ -414,6 +419,7 @@ This skill includes comprehensive reference files for deep dives into specific t
 
 4. **Visualize with dimensionality reduction**
    ```python
+   import matplotlib.pyplot as plt
    from sklearn.decomposition import PCA
 
    pca = PCA(n_components=2)

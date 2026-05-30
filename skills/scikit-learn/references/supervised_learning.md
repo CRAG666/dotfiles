@@ -64,7 +64,7 @@ model.fit(X_train, y_train)
 
 **Logistic Regression (`sklearn.linear_model.LogisticRegression`)**
 - Binary and multiclass classification
-- Key parameters: `C` (inverse regularization), `penalty` ('l1', 'l2', 'elasticnet')
+- Key parameters: `C` (inverse regularization), `l1_ratio` (0=L2, 1=L1)
 - Returns probability estimates
 - Use when: Need probabilistic predictions, interpretability
 - Example:

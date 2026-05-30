@@ -145,11 +145,10 @@ y_decoded = le.inverse_transform(y_encoded)
 print(f"Classes: {le.classes_}")
 ```
 
-### Target Encoding (using category_encoders)
+### Target Encoding
 
 ```python
-# Install: uv pip install category-encoders
-from category_encoders import TargetEncoder
+from sklearn.preprocessing import TargetEncoder  # native since scikit-learn 1.3
 
 encoder = TargetEncoder()
 X_train_encoded = encoder.fit_transform(X_train_categorical, y_train)
@@ -300,7 +299,10 @@ binner = KBinsDiscretizer(n_bins=5, encode='ordinal', strategy='uniform')
 X_binned = binner.fit_transform(X)
 
 # Equal-frequency bins (quantile-based)
-binner = KBinsDiscretizer(n_bins=5, encode='onehot', strategy='quantile')
+# quantile_method='linear' keeps the current default; in 1.8 it must be set
+# explicitly to silence a FutureWarning (the default changes in 1.9)
+binner = KBinsDiscretizer(n_bins=5, encode='onehot', strategy='quantile',
+                          quantile_method='linear')
 X_binned = binner.fit_transform(X)
 ```
 
@@ -470,7 +472,7 @@ selected_features = selector.get_support()
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_selection import SelectFromModel
 
-model = LogisticRegression(penalty='l1', solver='liblinear', C=0.1)
+model = LogisticRegression(l1_ratio=1, solver='liblinear', C=0.1)
 selector = SelectFromModel(model)
 selector.fit(X_train, y_train)
 X_selected = selector.transform(X_train)

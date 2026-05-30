@@ -13,7 +13,7 @@ Unsupervised learning discovers patterns in unlabeled data through clustering, d
 - Key parameters:
   - `n_clusters`: Number of clusters to form
   - `init`: Initialization method ('k-means++', 'random')
-  - `n_init`: Number of initializations (default=10)
+  - `n_init`: Number of initializations (default='auto')
   - `max_iter`: Maximum iterations
 - Use when: Know number of clusters, spherical cluster shapes
 - Fast and scalable
@@ -74,7 +74,9 @@ print(f"Clusters: {n_clusters}, Noise points: {n_noise}")
 ```python
 from sklearn.cluster import HDBSCAN
 
-model = HDBSCAN(min_cluster_size=10, min_samples=5)
+# copy=False keeps the current default; in 1.8 it must be set explicitly
+# to silence a FutureWarning (the default changes to True in 1.10).
+model = HDBSCAN(min_cluster_size=10, min_samples=5, copy=False)
 labels = model.fit_predict(X)
 ```
 
@@ -277,14 +279,14 @@ X_reduced = pca.fit_transform(X)
   - `n_components`: Usually 2 or 3
   - `perplexity`: Balance between local and global structure (5-50)
   - `learning_rate`: Usually 10-1000
-  - `n_iter`: Number of iterations (min 250)
+  - `max_iter`: Number of iterations (min 250)
 - Use when: Visualizing high-dimensional data
 - Note: Slow on large datasets, no transform() method
 - Example:
 ```python
 from sklearn.manifold import TSNE
 
-tsne = TSNE(n_components=2, perplexity=30, learning_rate=200, n_iter=1000, random_state=42)
+tsne = TSNE(n_components=2, perplexity=30, learning_rate=200, max_iter=1000, random_state=42)
 X_embedded = tsne.fit_transform(X)
 
 # Visualize
@@ -331,12 +333,17 @@ X_embedded = lle.fit_transform(X)
 
 **MDS (Multidimensional Scaling)**
 - Preserves pairwise distances
-- Key parameter: `n_components`, `metric` (True/False)
+- Key parameter: `n_components`, `metric_mds` (True/False)
 - Example:
 ```python
 from sklearn.manifold import MDS
 
-mds = MDS(n_components=2, metric=True, random_state=42)
+# metric_mds replaces the old `metric` arg (removed in 1.10).
+# n_init=4 and init='random' keep the current defaults; in 1.8 they
+# must be set explicitly to silence FutureWarnings (defaults change
+# in 1.9 and 1.10).
+mds = MDS(n_components=2, metric_mds=True, n_init=4, init='random',
+          random_state=42)
 X_embedded = mds.fit_transform(X)
 ```
 
