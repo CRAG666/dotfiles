@@ -1,14 +1,6 @@
 ---
 name: senior-dev-principles
-description: >
-  Apply senior-level engineering judgment on non-trivial code work: designing systems,
-  writing new modules, refactoring, implementing algorithms, or making structural
-  decisions. Triggers: "design X", "refactor this", "implement an algorithm/feature/
-  service", "optimize this", "review this code", "what's the best way to structure X",
-  or any task that involves architecture, complexity reasoning, or multi-file changes.
-  SKIP for trivial edits (rename, typo, single-line fix), config tweaks, documentation
-  edits, or tasks already covered by the base "match request scope" guidance.
-  Languages: Python, TypeScript, C, C++, SQL.
+description: 'Apply senior-level engineering judgment on non-trivial code work: designing systems, writing new modules, refactoring, implementing algorithms, or making structural decisions. Triggers: "design X", "refactor this", "implement an algorithm/feature/service", "optimize this", "review this code", "what''s the best way to structure X", or any task that involves architecture, complexity reasoning, or multi-file changes. SKIP for trivial edits (rename, typo, single-line fix), config tweaks, documentation edits, or tasks already covered by the base "match request scope" guidance. Languages: Python, TypeScript, C, C++, SQL.'
 ---
 
 # Senior Code Quality
@@ -58,11 +50,11 @@ over a known-small list, skip the analysis.
 | Find duplicates          | O(n²)      | O(n)         | hash set                 |
 | Pair matching            | O(n²)      | O(n)         | hash map                 |
 | Sorted lookup            | O(n)       | O(log n)     | binary search            |
-| Graph shortest path      | O(V²)      | O(E log V)   | Dijkstra + min-heap      |
-| Substring search         | O(nm)      | O(n+m)       | KMP / Rabin-Karp         |
+| Shortest path (single-source, non-negative weights) | O(V²) | O((V+E) log V) | Dijkstra + min-heap; for negative edges use Bellman-Ford, or Johnson for all-pairs |
+| Substring search         | O(nm)      | O(n+m)       | KMP (worst-case O(n+m)); Rabin-Karp (expected O(n+m), worst-case O(nm) on hash collisions) |
 | Top-K elements           | O(n log n) | O(n log k)   | min-heap of size k       |
 | Range sum queries        | O(n) each  | O(1) each    | prefix sum array         |
-| Repeated subproblem      | O(2ⁿ)      | O(n²) / O(n) | memoization / DP         |
+| Repeated subproblem      | O(2ⁿ)      | states × transition cost | memoization / DP (e.g. matrix-chain O(n³), 0/1 knapsack pseudo-polynomial O(nW)) |
 
 **Rules of thumb:**
 - Don't use nested loops when a hash map flattens them.
