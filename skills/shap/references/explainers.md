@@ -182,9 +182,11 @@ shap_values = explainer.shap_values(X_test[:10])
 **Constructor Parameters**:
 - `model`: Linear model or tuple of (coefficients, intercept)
 - `masker`: Background data for feature correlation
-- `feature_perturbation`: How to handle feature correlations
+- `feature_perturbation`: How to handle feature correlations (default `None`)
   - `"interventional"`: Assumes feature independence
   - `"correlation_dependent"`: Accounts for feature correlations
+  - DEPRECATED in 0.51.0: this parameter is deprecated in favor of passing the
+    appropriate tabular masker and will be removed in a future release.
 
 **Supported Models**:
 - scikit-learn linear models (LinearRegression, LogisticRegression, Ridge, Lasso, ElasticNet)
@@ -251,10 +253,12 @@ shap_values = explainer.shap_values(X_test[:10])
 **Constructor Parameters**:
 - `model`: Prediction function
 - `masker`: Background data or masker object
+
+**Call Parameters** (passed when calling the explainer, e.g. `explainer(X, max_evals=...)`):
 - `max_evals`: Maximum number of model evaluations per sample
 
 **When to Use**:
-- When exact Shapley values are needed but specialized explainers aren't available
+- When a model-agnostic approximation of Shapley values is needed and specialized explainers aren't available
 - For small feature sets where permutation is tractable
 - As a more accurate alternative to KernelExplainer (but slower)
 

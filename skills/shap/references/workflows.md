@@ -12,6 +12,8 @@ Every SHAP analysis follows a general workflow:
 4. **Visualize Results**: Use plots to understand feature impacts
 5. **Interpret and Act**: Draw conclusions and make decisions
 
+> **Classifier note**: For scikit-learn classifiers (e.g. RandomForestClassifier), `explainer(X)` returns a 3D Explanation `(n_samples, n_features, n_classes)`, carrying a trailing class axis. The plotting and `.values` indexing in the workflows below assume a 2D output (XGBoost / LightGBM / gradient boosting); for forests, select a class first with `shap_values = shap_values[..., 1]` (or `shap_values[0, :, 1]` for a single sample) before plotting or computing per-feature means.
+
 ## Workflow 1: Basic Model Explanation
 
 **Use Case**: Understanding feature importance and prediction behavior for a trained model
@@ -219,9 +221,11 @@ explainer = shap.TreeExplainer(model)
 shap_values = explainer(X_test)
 
 # Step 3: Compare feature importance across groups
+# .values converts each pandas boolean Series to a numpy array;
+# indexing an Explanation with a Series directly raises a ValueError.
 groups = X_test[protected_attr].unique()
 cohorts = {
-    f"{protected_attr}={group}": shap_values[X_test[protected_attr] == group]
+    f"{protected_attr}={group}": shap_values[(X_test[protected_attr] == group).values]
     for group in groups
 }
 shap.plots.bar(cohorts)
@@ -234,7 +238,7 @@ print(f"{protected_attr} mean |SHAP|: {protected_importance:.4f}")
 # Step 5: Analyze predictions for each group
 for group in groups:
     mask = X_test[protected_attr] == group
-    group_shap = shap_values[mask]
+    group_shap = shap_values[mask.values]  # .values: Series index on an Explanation raises ValueError
 
     print(f"\n=== {protected_attr} = {group} ===")
     print(f"Sample size: {mask.sum()}")
@@ -289,11 +293,12 @@ test_subset = X_test[:50]
 shap_values = explainer.shap_values(test_subset)
 
 # Step 5: Handle multi-output models
-# For binary classification, shap_values is a list [class_0_values, class_1_values]
-# For regression, it's a single array
-if isinstance(shap_values, list):
-    # Focus on positive class
-    shap_values_positive = shap_values[1]
+# For a single input with multiple outputs, shap_values is a stacked ndarray
+# of shape (n_samples, *features, n_outputs); the class axis is the last one.
+# For regression (single output) it is a single array without that extra axis.
+if shap_values.ndim > test_subset.ndim:
+    # Focus on positive class by indexing the trailing class axis
+    shap_values_positive = shap_values[..., 1]
     shap_exp = shap.Explanation(
         values=shap_values_positive,
         base_values=explainer.expected_value[1],
@@ -460,7 +465,8 @@ for feature in lag_features:
 # Step 6: Explain specific predictions
 # E.g., why was Monday's forecast so different?
 monday_mask = X_test['DayOfWeek'] == 0
-shap.plots.waterfall(shap_values[monday_mask][0])
+# .values: indexing an Explanation with a pandas boolean Series raises a ValueError
+shap.plots.waterfall(shap_values[monday_mask.values][0])
 
 # Step 7: Validate seasonality understanding
 shap.plots.scatter(shap_values[:, 'Month'])
@@ -534,12 +540,14 @@ plt.plot(pd_result['grid_values'][0], pd_result['average'][0])
 Analyze SHAP values conditioned on other features:
 ```python
 # High Income group
+# .values yields a numpy boolean array; a pandas boolean Series index
+# on an Explanation raises a ValueError.
 high_income = X_test['Income'] > X_test['Income'].median()
-shap.plots.beeswarm(shap_values[high_income])
+shap.plots.beeswarm(shap_values[high_income.values])
 
 # Low Income group
 low_income = X_test['Income'] <= X_test['Income'].median()
-shap.plots.beeswarm(shap_values[low_income])
+shap.plots.beeswarm(shap_values[low_income.values])
 ```
 
 ### Technique 4: Feature Clustering for Redundancy

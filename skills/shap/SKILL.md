@@ -1,6 +1,6 @@
 ---
 name: shap
-description: Model interpretability and explainability using SHAP (SHapley Additive exPlanations). Use this skill when explaining machine learning model predictions, computing feature importance, generating SHAP plots (waterfall, beeswarm, bar, scatter, force, heatmap), debugging models, analyzing model bias or fairness, comparing models, or implementing explainable AI. Works with tree-based models (XGBoost, LightGBM, Random Forest), deep learning (TensorFlow, PyTorch), linear models, and any black-box model.
+description: 'Model interpretability and explainability using SHAP (SHapley Additive exPlanations). Use this skill when explaining machine learning model predictions, computing feature importance, generating SHAP plots (waterfall, beeswarm, bar, scatter, force, heatmap), debugging models, analyzing model bias or fairness, comparing models, or implementing explainable AI. Works with tree-based models (XGBoost, LightGBM, Random Forest), deep learning (TensorFlow, PyTorch), linear models, and any black-box model.'
 license: MIT license
 metadata:
     skill-author: K-Dense Inc.
@@ -79,6 +79,12 @@ shap_values = explainer(X_test)
 # - values: SHAP values (feature attributions)
 # - base_values: Expected model output (baseline)
 # - data: Original feature values
+
+# Output shape is model-family-dependent:
+# - XGBoost / LightGBM / gradient boosting: values is 2D (n_samples, n_features)
+# - scikit-learn forests (RandomForest, etc.): values is 3D
+#   (n_samples, n_features, n_classes), carrying a trailing class axis
+# Select a class before plotting 3D outputs, e.g. shap_values[..., 1]
 ```
 
 ### Step 3: Visualize Results
@@ -100,6 +106,8 @@ shap.plots.waterfall(shap_values[0])
 # Force plot - additive force visualization
 shap.plots.force(shap_values[0])
 ```
+
+> **Classifier note**: For scikit-learn classifiers (e.g. RandomForestClassifier), `explainer(X)` returns a 3D Explanation `(n_samples, n_features, n_classes)`. Select a class before passing to a plot, otherwise these calls error. For a single prediction use `shap_values[0, :, 1]`; for the global plots above use `shap_values[..., 1]` (the example here uses an XGBoost classifier, whose output is already 2D).
 
 **For Feature Relationships**:
 ```python
@@ -132,6 +140,9 @@ This skill supports several common workflows. Choose the workflow that matches t
 # Step 1-2: Setup
 explainer = shap.TreeExplainer(model)
 shap_values = explainer(X_test)
+
+# For sklearn classifiers shap_values is 3D (carries a trailing class axis);
+# select a class first, e.g. shap_values = shap_values[..., 1]
 
 # Step 3: Global importance
 shap.plots.beeswarm(shap_values)
@@ -249,7 +260,7 @@ Final prediction: 0.30 + 0.15 + 0.10 - 0.05 = 0.50
 - Or use kmeans to select representative samples
 - For DeepExplainer/KernelExplainer: 100-1000 samples balances accuracy and speed
 
-**Impact**: Baseline affects SHAP value magnitudes but not relative importance
+**Impact**: The background choice can affect SHAP value magnitudes, signs, and feature rankings
 
 ### Model Output Types
 
@@ -259,7 +270,7 @@ Final prediction: 0.30 + 0.15 + 0.10 - 0.05 = 0.50
 - **Probability**: For classification probability
 - **Log-odds**: For logistic regression (before sigmoid)
 
-**Example**: XGBoost classifiers explain margin output (log-odds) by default. To explain probabilities, use `model_output="probability"` in TreeExplainer.
+**Example**: XGBoost and gradient-boosting classifiers explain margin output (log-odds) by default, while scikit-learn forests (e.g. RandomForest) explain probability. To explain probabilities, construct TreeExplainer with `model_output="probability"`, `data=background`, and `feature_perturbation="interventional"` (the no-background `tree_path_dependent` default only supports `model_output="raw"`).
 
 ## Common Patterns
 
@@ -269,6 +280,10 @@ Final prediction: 0.30 + 0.15 + 0.10 - 0.05 = 0.50
 # 1. Setup
 explainer = shap.TreeExplainer(model)
 shap_values = explainer(X_test)
+
+# For sklearn classifiers shap_values is 3D (trailing class axis);
+# select a class first so the plots and .values math below stay 2D
+# shap_values = shap_values[..., 1]
 
 # 2. Global importance
 shap.plots.beeswarm(shap_values)
@@ -288,13 +303,15 @@ for i in range(5):
 
 ```python
 # Define cohorts
+# .values converts the pandas boolean Series to a numpy array;
+# indexing an Explanation with a Series directly raises a ValueError.
 cohort1_mask = X_test['Group'] == 'A'
 cohort2_mask = X_test['Group'] == 'B'
 
 # Compare feature importance
 shap.plots.bar({
-    "Group A": shap_values[cohort1_mask],
-    "Group B": shap_values[cohort2_mask]
+    "Group A": shap_values[cohort1_mask.values],
+    "Group B": shap_values[cohort2_mask.values]
 })
 ```
 
@@ -304,6 +321,9 @@ shap.plots.bar({
 # Find errors
 errors = model.predict(X_test) != y_test
 error_indices = np.where(errors)[0]
+
+# For sklearn classifiers shap_values is 3D (trailing class axis);
+# select a class first, e.g. shap_values = shap_values[..., 1]
 
 # Explain errors
 for idx in error_indices[:5]:
@@ -324,7 +344,7 @@ for idx in error_indices[:5]:
 3. `DeepExplainer` - Fast for neural networks
 4. `GradientExplainer` - Fast for neural networks
 5. `KernelExplainer` - Slow (use only when necessary)
-6. `PermutationExplainer` - Very slow but accurate
+6. `PermutationExplainer` - Slow, model-agnostic approximation
 
 ### Optimization Strategies
 
@@ -446,7 +466,7 @@ Complete guide to all explainer classes:
 - `KernelExplainer` - Model-agnostic (works with any model)
 - `LinearExplainer` - Fast explanations for linear models
 - `GradientExplainer` - Gradient-based for neural networks
-- `PermutationExplainer` - Exact but slow for any model
+- `PermutationExplainer` - Model-agnostic approximation, slow for any model
 
 Includes: Constructor parameters, methods, supported models, when to use, examples, performance considerations.
 
@@ -532,31 +552,31 @@ Includes: Mathematical foundations, proofs, comparisons, advanced topics.
 
 8. **Check for data leakage**: Unexpectedly high feature importance may indicate data quality issues
 
-9. **Consider feature correlations**: Use TreeExplainer's correlation-aware options or feature clustering for redundant features
+9. **Consider feature correlations**: Use TreeExplainer's `feature_perturbation` choices (interventional vs tree_path_dependent) or feature clustering for redundant features
 
 10. **Remember SHAP shows association, not causation**: Use domain knowledge for causal interpretation
 
 ## Installation
 
 ```bash
-# Basic installation
+# Core installation (no plotting; shap.plots.* will be unavailable)
 uv pip install shap
 
-# With visualization dependencies
-uv pip install shap matplotlib
+# With visualization dependencies (required for shap.plots.*)
+uv pip install "shap[plots]"
 
 # Latest version
-uv pip install -U shap
+uv pip install -U "shap[plots]"
 ```
 
-**Dependencies**: numpy, pandas, scikit-learn, matplotlib, scipy
+**Dependencies**: numpy, pandas, scikit-learn, scipy
 
-**Optional**: xgboost, lightgbm, tensorflow, torch (depending on model types)
+**Optional**: matplotlib and ipython (via the `plots` extra, required for `shap.plots.*`); xgboost, lightgbm, tensorflow, torch (depending on model types)
 
 ## Additional Resources
 
 - **Official Documentation**: https://shap.readthedocs.io/
-- **GitHub Repository**: https://github.com/slundberg/shap
+- **GitHub Repository**: https://github.com/shap/shap
 - **Original Paper**: Lundberg & Lee (2017) - "A Unified Approach to Interpreting Model Predictions"
 - **Nature MI Paper**: Lundberg et al. (2020) - "From local explanations to global understanding with explainable AI for trees"
 

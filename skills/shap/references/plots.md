@@ -6,6 +6,8 @@ This document provides comprehensive information about all SHAP plotting functio
 
 SHAP provides diverse visualization tools for explaining model predictions at both individual and global levels. Each plot type serves specific purposes in understanding feature importance, interactions, and prediction mechanisms.
 
+> **Classifier note**: For scikit-learn classifiers (e.g. RandomForestClassifier), `explainer(X)` returns a 3D Explanation `(n_samples, n_features, n_classes)`. Every plot below (waterfall, beeswarm, bar, scatter, heatmap, violin) expects a 2D global or 1D single-sample Explanation, so select a class first: use `shap_values[..., 1]` for the global plots and `shap_values[0, :, 1]` for a single-prediction plot. The `shap_values[i]` and `shap_values[:, "Feature"]` forms in the examples assume a 2D output (XGBoost / LightGBM / gradient boosting); for forests, slice the class axis first.
+
 ## Plot Types
 
 ### Waterfall Plots
@@ -56,7 +58,7 @@ shap.plots.waterfall(shap_values[0], max_display=20)
 
 **Purpose**: Information-dense summary of how top features impact model output across the entire dataset, combining feature importance with value distributions.
 
-**Function**: `shap.plots.beeswarm(shap_values, max_display=10, order=Explanation.abs.mean(0), color=None, show=True)`
+**Function**: `shap.plots.beeswarm(shap_values, max_display=10, order=Explanation.abs.mean(0), clustering=None, cluster_threshold=0.5, color=None, alpha=1.0, ax=None, show=True, log_scale=False, color_bar=True, s=16, plot_size="auto", group_remaining_features=True)`
 
 **Key Parameters**:
 - `shap_values`: Explanation object containing multiple samples
@@ -104,7 +106,7 @@ shap.plots.beeswarm(shap_values, color=plt.cm.viridis)
 
 **Purpose**: Display feature importance as mean absolute SHAP values, providing clean, simple visualizations of global feature impact.
 
-**Function**: `shap.plots.bar(shap_values, max_display=10, clustering=None, clustering_cutoff=0.5, show=True)`
+**Function**: `shap.plots.bar(shap_values, max_display=10, order=Explanation.abs, clustering=None, clustering_cutoff=0.5, show_data="auto", ax=None, show=True)`
 
 **Key Parameters**:
 - `shap_values`: Explanation object (can be single instance, global, or cohorts)
@@ -136,10 +138,12 @@ shap.plots.bar(shap_values[0])
 Compares feature importance across subgroups by passing a dictionary of Explanation objects.
 
 ```python
-# Compare cohorts
+# Compare cohorts. mask_A/mask_B are boolean selectors (e.g. X_test["group"] == "A").
+# Pass .values so the Explanation is indexed with a numpy array; indexing an
+# Explanation with a pandas Series raises a ValueError.
 cohorts = {
-    "Group A": shap_values[mask_A],
-    "Group B": shap_values[mask_B]
+    "Group A": shap_values[mask_A.values],
+    "Group B": shap_values[mask_B.values]
 }
 shap.plots.bar(cohorts)
 ```
@@ -220,7 +224,7 @@ shap.plots.force(
 **Key Parameters**:
 - `shap_values`: Explanation object, can specify feature with subscript (e.g., `shap_values[:, "Age"]`)
 - `color`: Feature to use for coloring points (string name or Explanation object)
-- `hist`: Show histogram of feature values on y-axis
+- `hist`: Show a light histogram of feature values along the x-axis
 - `alpha`: Point transparency (useful for dense plots)
 
 **Visual Elements**:
@@ -257,12 +261,12 @@ shap.plots.scatter(shap_values[:, "Age"], alpha=0.5)
 
 **Purpose**: Visualize SHAP values for multiple samples simultaneously, showing feature impacts across instances.
 
-**Function**: `shap.plots.heatmap(shap_values, instance_order=None, feature_values=None, max_display=10, show=True)`
+**Function**: `shap.plots.heatmap(shap_values, instance_order=Explanation.hclust, feature_values=Explanation.abs.mean(0), max_display=10, show=True)`
 
 **Key Parameters**:
 - `shap_values`: Explanation object
-- `instance_order`: How to order instances (can be Explanation object for custom ordering)
-- `feature_values`: Display feature values on hover
+- `instance_order`: How to order instances (default: hierarchical clustering, `Explanation.hclust`; pass an array/Explanation to override)
+- `feature_values`: Per-feature global importance used to order features (default: mean absolute SHAP value)
 - `max_display`: Maximum features to display
 
 **Visual Elements**:
@@ -293,7 +297,9 @@ shap.plots.heatmap(shap_values[:100])
 
 **Purpose**: Similar to beeswarm plots but uses violin (kernel density) visualization instead of individual dots.
 
-**Function**: `shap.plots.violin(shap_values, features=None, feature_names=None, max_display=10, show=True)`
+**Function**: `shap.plots.violin(shap_values, features=None, feature_names=None, max_display=None, show=True)`
+
+> Note: violin's `max_display` default resolves to 20 features (unlike waterfall/beeswarm/bar/heatmap, whose effective default is 10). The `None` above means "use the violin default", which is 20.
 
 **When to Use**:
 - Alternative to beeswarm when dataset is very large
@@ -443,18 +449,20 @@ shap.plots.bar({
 **Pattern 3: Subgroup Analysis**
 ```python
 # Define cohorts
+# .values yields a numpy boolean array; indexing an Explanation with a
+# pandas boolean Series directly raises a ValueError.
 male_mask = X_test['Sex'] == 'Male'
 female_mask = X_test['Sex'] == 'Female'
 
 # Compare cohorts
 shap.plots.bar({
-    "Male": shap_values[male_mask],
-    "Female": shap_values[female_mask]
+    "Male": shap_values[male_mask.values],
+    "Female": shap_values[female_mask.values]
 })
 
 # Separate beeswarm plots
-shap.plots.beeswarm(shap_values[male_mask])
-shap.plots.beeswarm(shap_values[female_mask])
+shap.plots.beeswarm(shap_values[male_mask.values])
+shap.plots.beeswarm(shap_values[female_mask.values])
 ```
 
 **Pattern 4: Debugging Predictions**
