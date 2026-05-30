@@ -3,7 +3,7 @@
 cuGraph is NVIDIA's GPU-accelerated graph analytics library within the RAPIDS ecosystem. It provides NetworkX-compatible APIs for graph algorithms, delivering 10-500x+ speedup over CPU-based NetworkX on medium to large graphs. It supports both a direct Python API and a **zero-code-change NetworkX backend** (nx-cugraph) that accelerates existing NetworkX code with no modifications.
 
 > **Full documentation:** https://docs.rapids.ai/api/cugraph/stable/
-> **Version (stable):** 26.02.00
+> **Version (stable):** 26.04.00
 > **Repository:** https://github.com/rapidsai/cugraph
 
 ## Table of Contents
@@ -700,7 +700,7 @@ edges = cudf.from_pandas(df)
 G = cugraph.Graph()
 G.from_cudf_edgelist(edges, source="src", destination="dst")
 pr = cugraph.pagerank(G, alpha=0.85)
-bc = cugraph.betweenness_centrality(G)
+bc = cugraph.betweenness_centrality(G, k=100)  # sampled over k vertices (matches the benchmark); omit k for exact
 parts, modularity = cugraph.louvain(G, resolution=1.0)
 ```
 

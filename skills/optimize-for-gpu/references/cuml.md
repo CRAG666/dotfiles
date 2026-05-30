@@ -413,7 +413,7 @@ from cuml.fil import ForestInference
 fil_model = ForestInference.load("xgboost_model.ubj", is_classifier=True)
 
 # Optional: optimize for specific batch size
-fil_model.optimize()
+fil_model.optimize(batch_size=1_000_000)
 
 # Predict (80x+ faster than sklearn)
 predictions = fil_model.predict(X_test)

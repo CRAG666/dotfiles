@@ -478,7 +478,7 @@ print(result)  # Shows CPU and GPU elapsed times with statistics
 
 In IPython/Jupyter:
 ```python
-%load_ext cupy
+%load_ext cupyx.profiler
 %gpu_timeit my_function(args)
 ```
 

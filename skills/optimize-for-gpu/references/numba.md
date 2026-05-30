@@ -37,7 +37,7 @@ uv add numba numba-cuda
 
 The `numba-cuda` package is the actively maintained NVIDIA implementation. It implements functionality under the `numba.cuda` namespace — no code changes needed vs the old built-in target.
 
-**Requirements:** CUDA Toolkit >= 11.2, GPU with Compute Capability >= 5.0 (Maxwell or newer).
+**Requirements:** CUDA Toolkit >= 11.2, GPU with Compute Capability >= 3.5 (>= 5.0 recommended).
 
 ```python
 from numba import cuda
@@ -382,7 +382,7 @@ For operations on sub-arrays (not just scalars). Uses NumPy's generalized ufunc 
 ```python
 from numba import guvectorize, float32
 
-@guvectorize([float32[:,:], float32[:,:], float32[:,:]],
+@guvectorize([(float32[:,:], float32[:,:], float32[:,:])],
              '(m,n),(n,p)->(m,p)', target='cuda')
 def gpu_matmul(A, B, C):
     for i in range(A.shape[0]):

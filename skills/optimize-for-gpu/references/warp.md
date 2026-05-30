@@ -372,7 +372,7 @@ grad_a = tape.gradients[a]
 ```
 
 Key features:
-- Automatic adjoint code generation for all kernels
+- Automatic adjoint code generation for kernels recorded on a `wp.Tape` (in-place writes are not differentiable)
 - `wp.Tape` records and replays computation graphs
 - Integrates with PyTorch autograd and JAX JIT
 - Custom gradient functions via `@wp.func_grad`

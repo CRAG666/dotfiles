@@ -1,6 +1,6 @@
 ---
 name: optimize-for-gpu
-description: "GPU-accelerate Python code using CuPy, Numba CUDA, Warp, cuDF, cuML, cuGraph, KvikIO, cuCIM, cuxfilter, cuVS, cuSpatial, and RAFT. Use whenever the user mentions GPU/CUDA/NVIDIA acceleration, or wants to speed up NumPy, pandas, scikit-learn, scikit-image, NetworkX, GeoPandas, or Faiss workloads. Covers physics simulation, differentiable rendering, mesh ray casting, particle systems (DEM/SPH/fluids), vector/similarity search, GPUDirect Storage file IO, interactive dashboards, geospatial analysis, medical imaging, and sparse eigensolvers. Also use when you see CPU-bound Python code (loops, large arrays, ML pipelines, graph analytics, image processing) that would benefit from GPU acceleration, even if not explicitly requested."
+description: 'GPU-accelerate Python code using CuPy, Numba CUDA, Warp, cuDF, cuML, cuGraph, KvikIO, cuCIM, cuxfilter, cuVS, cuSpatial, and RAFT. Use whenever the user mentions GPU/CUDA/NVIDIA acceleration, or wants to speed up NumPy, pandas, scikit-learn, scikit-image, NetworkX, GeoPandas, or Faiss workloads. Covers physics simulation, differentiable rendering, mesh ray casting, particle systems (DEM/SPH/fluids), vector/similarity search, GPUDirect Storage file IO, interactive dashboards, geospatial analysis, medical imaging, and sparse eigensolvers. Also use when you see CPU-bound Python code (loops, large arrays, ML pipelines, graph analytics, image processing) that would benefit from GPU acceleration, even if not explicitly requested.'
 metadata:
   author: K-Dense, Inc.
 ---
@@ -77,7 +77,7 @@ Use Warp when the user's code is primarily:
 - Any Python simulation loop that needs to be JIT-compiled to GPU
 - Spatial computing with meshes, volumes (NanoVDB), hash grids, or BVH queries
 
-Warp JIT-compiles `@wp.kernel` Python functions to CUDA, with built-in types for spatial computing (vec3, mat33, quat, transform) and primitives for geometry queries (Mesh, Volume, HashGrid, BVH). All kernels are automatically differentiable.
+Warp JIT-compiles `@wp.kernel` Python functions to CUDA, with built-in types for spatial computing (vec3, mat33, quat, transform) and primitives for geometry queries (Mesh, Volume, HashGrid, BVH). Kernels recorded on a `wp.Tape` are automatically differentiable (in-place writes are not differentiable).
 
 **Best for:** Physics simulation, mesh ray casting, particle systems, differentiable rendering, robotics kinematics, SDF operations, any workload combining spatial data structures with GPU compute.
 
@@ -380,7 +380,7 @@ GPU is a poor fit when:
 2. **Minimize host-device transfers.** Keep data on GPU. Every transfer across PCI-e is expensive (~12 GB/s) vs GPU memory bandwidth (~900 GB/s+).
 3. **Batch operations.** Fewer large GPU operations beat many small ones.
 4. **Only write custom kernels if needed.** CuPy and cuDF use NVIDIA's hand-tuned libraries. Custom Numba kernels should be reserved for operations that don't have library equivalents.
-5. **Profile the GPU version.** Use `nvprof`, `nsys`, or CuPy's built-in benchmarking.
+5. **Profile the GPU version.** Use `nsys` or `ncu`, or `cupyx.profiler.benchmark`.
 
 ### 4. Memory Management Principles
 These apply across all libraries:
@@ -625,10 +625,7 @@ import cudf
 
 points_cu = cuspatial.from_geopandas(points)
 polygons_cu = cuspatial.from_geopandas(polygons)
-joined = cuspatial.point_in_polygon(
-    points_cu.geometry.x, points_cu.geometry.y,
-    polygons_cu.geometry
-)
+joined = cuspatial.point_in_polygon(points_cu.geometry, polygons_cu.geometry)
 ```
 
 ### Faiss/Annoy to cuVS
