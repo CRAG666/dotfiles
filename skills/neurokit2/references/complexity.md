@@ -11,11 +11,11 @@ Complexity measures quantify the irregularity, unpredictability, and multiscale 
 Compute multiple complexity metrics simultaneously for exploratory analysis.
 
 ```python
-complexity_indices = nk.complexity(signal, sampling_rate=1000, show=False)
+complexity_indices, info = nk.complexity(signal, sampling_rate=1000, show=False)
 ```
 
 **Returns:**
-- DataFrame with numerous complexity measures across categories:
+- A tuple `(df, info)` where `df` is a DataFrame with numerous complexity measures across categories:
   - Entropy indices
   - Fractal dimensions
   - Nonlinear dynamics measures
@@ -35,13 +35,13 @@ Before computing complexity measures, optimal embedding parameters should be det
 Determine optimal time delay (τ) for phase space reconstruction.
 
 ```python
-optimal_tau = nk.complexity_delay(signal, delay_max=100, method='fraser1986', show=False)
+optimal_tau, info = nk.complexity_delay(signal, delay_max=100, method='fraser1986', show=False)
 ```
 
 **Methods:**
-- `'fraser1986'`: Mutual information first minimum
-- `'theiler1990'`: Autocorrelation first zero crossing
-- `'casdagli1991'`: Cao's method
+- `'fraser1986'`: First local minimum of the mutual information
+- `'theiler1990'`: Lag where the autocorrelation first drops to 1/e
+- `'casdagli1991'`: First zero-crossing of the autocorrelation
 
 **Use for:** Embedding delay in entropy, attractor reconstruction
 
@@ -50,8 +50,8 @@ optimal_tau = nk.complexity_delay(signal, delay_max=100, method='fraser1986', sh
 Determine optimal embedding dimension (m).
 
 ```python
-optimal_m = nk.complexity_dimension(signal, delay=None, dimension_max=20,
-                                    method='afn', show=False)
+optimal_m, info = nk.complexity_dimension(signal, delay=None, dimension_max=20,
+                                          method='afn', show=False)
 ```
 
 **Methods:**
@@ -66,7 +66,7 @@ optimal_m = nk.complexity_dimension(signal, delay=None, dimension_max=20,
 Determine optimal tolerance (r) for entropy measures.
 
 ```python
-optimal_r = nk.complexity_tolerance(signal, method='sd', show=False)
+optimal_r, info = nk.complexity_tolerance(signal, method='sd', show=False)
 ```
 
 **Methods:**
@@ -81,7 +81,7 @@ optimal_r = nk.complexity_tolerance(signal, method='sd', show=False)
 Determine optimal k parameter for Higuchi fractal dimension.
 
 ```python
-optimal_k = nk.complexity_k(signal, k_max=20, show=False)
+optimal_k, info = nk.complexity_k(signal, k_max=20, show=False)
 ```
 
 **Use for:** Higuchi fractal dimension calculation
@@ -95,7 +95,7 @@ Entropy quantifies randomness, unpredictability, and information content.
 Shannon entropy - classical information-theoretic measure.
 
 ```python
-shannon_entropy = nk.entropy_shannon(signal)
+shannon_entropy, info = nk.entropy_shannon(signal)
 ```
 
 **Interpretation:**
@@ -113,7 +113,7 @@ shannon_entropy = nk.entropy_shannon(signal)
 Approximate Entropy (ApEn) - regularity of patterns.
 
 ```python
-apen = nk.entropy_approximate(signal, delay=1, dimension=2, tolerance='sd')
+apen, _ = nk.entropy_approximate(signal, delay=1, dimension=2, tolerance='sd')
 ```
 
 **Parameters:**
@@ -135,7 +135,7 @@ apen = nk.entropy_approximate(signal, delay=1, dimension=2, tolerance='sd')
 Sample Entropy (SampEn) - improved ApEn.
 
 ```python
-sampen = nk.entropy_sample(signal, delay=1, dimension=2, tolerance='sd')
+sampen, info = nk.entropy_sample(signal, delay=1, dimension=2, tolerance='sd')
 ```
 
 **Advantages over ApEn:**
@@ -156,8 +156,8 @@ sampen = nk.entropy_sample(signal, delay=1, dimension=2, tolerance='sd')
 Multiscale Entropy (MSE) - complexity across temporal scales.
 
 ```python
-mse = nk.entropy_multiscale(signal, scale=20, dimension=2, tolerance='sd',
-                            method='MSEn', show=False)
+mse, info = nk.entropy_multiscale(signal, scale=20, dimension=2, tolerance='sd',
+                                  method='MSEn', show=False)
 ```
 
 **Methods:**
@@ -181,7 +181,7 @@ mse = nk.entropy_multiscale(signal, scale=20, dimension=2, tolerance='sd',
 Fuzzy Entropy - uses fuzzy membership functions.
 
 ```python
-fuzzen = nk.entropy_fuzzy(signal, delay=1, dimension=2, tolerance='sd', r=0.2)
+fuzzen, info = nk.entropy_fuzzy(signal, delay=1, dimension=2, tolerance='sd', r=0.2)
 ```
 
 **Advantages:**
@@ -194,7 +194,7 @@ fuzzen = nk.entropy_fuzzy(signal, delay=1, dimension=2, tolerance='sd', r=0.2)
 Permutation Entropy - based on ordinal patterns.
 
 ```python
-perment = nk.entropy_permutation(signal, delay=1, dimension=3)
+perment, info = nk.entropy_permutation(signal, delay=1, dimension=3)
 ```
 
 **Method:**
@@ -216,7 +216,7 @@ perment = nk.entropy_permutation(signal, delay=1, dimension=3)
 Spectral Entropy - based on power spectrum.
 
 ```python
-spec_ent = nk.entropy_spectral(signal, sampling_rate=1000, bands=None)
+spec_ent, info = nk.entropy_spectral(signal)
 ```
 
 **Method:**
@@ -236,7 +236,7 @@ spec_ent = nk.entropy_spectral(signal, sampling_rate=1000, bands=None)
 Singular Value Decomposition Entropy.
 
 ```python
-svd_ent = nk.entropy_svd(signal, delay=1, dimension=2)
+svd_ent, info = nk.entropy_svd(signal, delay=1, dimension=2)
 ```
 
 **Method:**
@@ -252,7 +252,7 @@ svd_ent = nk.entropy_svd(signal, delay=1, dimension=2)
 Differential Entropy - continuous analog of Shannon entropy.
 
 ```python
-diff_ent = nk.entropy_differential(signal)
+diff_ent, info = nk.entropy_differential(signal)
 ```
 
 **Use for:** Continuous probability distributions
@@ -261,14 +261,14 @@ diff_ent = nk.entropy_differential(signal)
 
 **Tsallis Entropy:**
 ```python
-tsallis = nk.entropy_tsallis(signal, q=2)
+tsallis, info = nk.entropy_tsallis(signal, q=2)
 ```
 - Generalized entropy with parameter q
 - q=1 reduces to Shannon entropy
 
 **Rényi Entropy:**
 ```python
-renyi = nk.entropy_renyi(signal, alpha=2)
+renyi, info = nk.entropy_renyi(signal, alpha=2)
 ```
 - Generalized entropy with parameter α
 
@@ -281,7 +281,7 @@ renyi = nk.entropy_renyi(signal, alpha=2)
 - `entropy_symbolicdynamic()`: Symbolic dynamics entropy
 - `entropy_range()`: Range entropy
 - `entropy_phase()`: Phase entropy
-- `entropy_quadratic()`, `entropy_cumulative_residual()`, `entropy_rate()`: Specialized variants
+- `entropy_quadratic()`, `entropy_cumulativeresidual()`, `entropy_rate()`: Specialized variants
 
 ## Fractal Dimension Measures
 
@@ -292,7 +292,7 @@ Fractal dimensions characterize self-similarity and roughness.
 Katz Fractal Dimension - waveform complexity.
 
 ```python
-kfd = nk.fractal_katz(signal)
+kfd, info = nk.fractal_katz(signal)
 ```
 
 **Interpretation:**
@@ -309,7 +309,7 @@ kfd = nk.fractal_katz(signal)
 Higuchi Fractal Dimension - self-similarity.
 
 ```python
-hfd = nk.fractal_higuchi(signal, k_max=10)
+hfd, info = nk.fractal_higuchi(signal, k_max=10)
 ```
 
 **Method:**
@@ -330,7 +330,7 @@ hfd = nk.fractal_higuchi(signal, k_max=10)
 Petrosian Fractal Dimension - rapid estimation.
 
 ```python
-pfd = nk.fractal_petrosian(signal)
+pfd, info = nk.fractal_petrosian(signal)
 ```
 
 **Advantages:**
@@ -342,7 +342,7 @@ pfd = nk.fractal_petrosian(signal)
 Sevcik Fractal Dimension - normalized waveform complexity.
 
 ```python
-sfd = nk.fractal_sevcik(signal)
+sfd, info = nk.fractal_sevcik(signal)
 ```
 
 ### fractal_nld()
@@ -350,7 +350,7 @@ sfd = nk.fractal_sevcik(signal)
 Normalized Length Density - curve length-based measure.
 
 ```python
-nld = nk.fractal_nld(signal)
+nld, info = nk.fractal_nld(signal)
 ```
 
 ### fractal_psdslope()
@@ -358,7 +358,7 @@ nld = nk.fractal_nld(signal)
 Power Spectral Density Slope - frequency-domain fractal measure.
 
 ```python
-slope = nk.fractal_psdslope(signal, sampling_rate=1000)
+slope, info = nk.fractal_psdslope(signal)
 ```
 
 **Method:**
@@ -375,7 +375,7 @@ slope = nk.fractal_psdslope(signal, sampling_rate=1000)
 Hurst Exponent - long-range dependence.
 
 ```python
-hurst = nk.fractal_hurst(signal, show=False)
+hurst, info = nk.fractal_hurst(signal, show=False)
 ```
 
 **Interpretation:**
@@ -393,7 +393,7 @@ hurst = nk.fractal_hurst(signal, show=False)
 Correlation Dimension - attractor dimensionality.
 
 ```python
-corr_dim = nk.fractal_correlation(signal, delay=1, dimension=10, radius=64)
+corr_dim, info = nk.fractal_correlation(signal, delay=1, dimension=10, radius=64)
 ```
 
 **Method:**
@@ -409,7 +409,7 @@ corr_dim = nk.fractal_correlation(signal, delay=1, dimension=10, radius=64)
 Detrended Fluctuation Analysis - scaling exponent.
 
 ```python
-dfa_alpha = nk.fractal_dfa(signal, multifractal=False, q=2, show=False)
+dfa_alpha, _ = nk.fractal_dfa(signal, multifractal=False, q=2, show=False)
 ```
 
 **Interpretation:**
@@ -429,7 +429,7 @@ dfa_alpha = nk.fractal_dfa(signal, multifractal=False, q=2, show=False)
 Multifractal DFA - multiscale fractal properties.
 
 ```python
-mfdfa_results = nk.fractal_mfdfa(signal, q=None, show=False)
+mfdfa_results, info = nk.fractal_mfdfa(signal, show=False)
 ```
 
 **Method:**
@@ -451,7 +451,7 @@ mfdfa_results = nk.fractal_mfdfa(signal, q=None, show=False)
 Multifractal Nonlinearity - deviation from monofractal.
 
 ```python
-tmf = nk.fractal_tmf(signal)
+tmf, info = nk.fractal_tmf(signal)
 ```
 
 **Interpretation:**
@@ -463,7 +463,7 @@ tmf = nk.fractal_tmf(signal)
 Density Fractal Dimension.
 
 ```python
-density_fd = nk.fractal_density(signal)
+density_fd, info = nk.fractal_density(signal)
 ```
 
 ### fractal_linelength()
@@ -471,7 +471,7 @@ density_fd = nk.fractal_density(signal)
 Line Length - total variation measure.
 
 ```python
-linelength = nk.fractal_linelength(signal)
+linelength, info = nk.fractal_linelength(signal)
 ```
 
 **Use case:**
@@ -485,8 +485,7 @@ linelength = nk.fractal_linelength(signal)
 Largest Lyapunov Exponent - chaos and divergence.
 
 ```python
-lyap = nk.complexity_lyapunov(signal, delay=None, dimension=None,
-                              sampling_rate=1000, show=False)
+lyap, _ = nk.complexity_lyapunov(signal, delay=1, dimension=2, show=False)
 ```
 
 **Interpretation:**
@@ -504,7 +503,7 @@ lyap = nk.complexity_lyapunov(signal, delay=None, dimension=None,
 Lempel-Ziv Complexity - algorithmic complexity.
 
 ```python
-lz = nk.complexity_lempelziv(signal, symbolize='median')
+lz, info = nk.complexity_lempelziv(signal, symbolize='median')
 ```
 
 **Method:**
@@ -524,7 +523,7 @@ lz = nk.complexity_lempelziv(signal, symbolize='median')
 Recurrence Quantification Analysis - phase space recurrences.
 
 ```python
-rqa_indices = nk.complexity_rqa(signal, delay=1, dimension=3, tolerance='sd')
+rqa_indices, info = nk.complexity_rqa(signal, delay=1, dimension=3, tolerance='sd')
 ```
 
 **Metrics:**
@@ -550,7 +549,7 @@ rqa_indices = nk.complexity_rqa(signal, delay=1, dimension=3, tolerance='sd')
 Hjorth Parameters - time-domain complexity.
 
 ```python
-hjorth = nk.complexity_hjorth(signal)
+hjorth, info = nk.complexity_hjorth(signal)
 ```
 
 **Metrics:**
@@ -568,7 +567,7 @@ hjorth = nk.complexity_hjorth(signal)
 Decorrelation Time - memory duration.
 
 ```python
-decorr_time = nk.complexity_decorrelation(signal, show=False)
+decorr_time, info = nk.complexity_decorrelation(signal, show=False)
 ```
 
 **Interpretation:**
@@ -581,7 +580,7 @@ decorr_time = nk.complexity_decorrelation(signal, show=False)
 Relative Roughness - smoothness measure.
 
 ```python
-roughness = nk.complexity_relativeroughness(signal)
+roughness, info = nk.complexity_relativeroughness(signal)
 ```
 
 ## Information Theory
@@ -591,7 +590,7 @@ roughness = nk.complexity_relativeroughness(signal)
 Fisher Information - measure of order.
 
 ```python
-fisher = nk.fisher_information(signal, delay=1, dimension=2)
+fisher, info = nk.fisher_information(signal, delay=1, dimension=2)
 ```
 
 **Interpretation:**
@@ -607,7 +606,7 @@ fisher = nk.fisher_information(signal, delay=1, dimension=2)
 Fisher-Shannon Information Product.
 
 ```python
-fs = nk.fishershannon_information(signal)
+fs, info = nk.fishershannon_information(signal)
 ```
 
 **Method:**

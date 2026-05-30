@@ -11,12 +11,12 @@ Analyze electroencephalography (EEG) signals for frequency band power, channel q
 Compute power across standard frequency bands for specified channels.
 
 ```python
-power = nk.eeg_power(eeg_data, sampling_rate=250, channels=['Fz', 'Cz', 'Pz'],
-                     frequency_bands={'Delta': (0.5, 4),
-                                     'Theta': (4, 8),
-                                     'Alpha': (8, 13),
-                                     'Beta': (13, 30),
-                                     'Gamma': (30, 45)})
+power = nk.eeg_power(eeg_data, sampling_rate=250,
+                     frequency_band=[(0.5, 4),
+                                     (4, 8),
+                                     (8, 13),
+                                     (13, 30),
+                                     (30, 45)])
 ```
 
 **Standard frequency bands:**
@@ -27,8 +27,8 @@ power = nk.eeg_power(eeg_data, sampling_rate=250, channels=['Fz', 'Cz', 'Pz'],
 - **Gamma (30-45 Hz)**: Cognitive processing, binding
 
 **Returns:**
-- DataFrame with power values for each channel × frequency band combination
-- Columns: `Channel_Band` (e.g., 'Fz_Alpha', 'Cz_Beta')
+- DataFrame with one row per channel and one column per band, plus a `Channel` column
+- Columns: `Channel`, `Gamma`, `Beta`, `Alpha`, `Theta`, `Delta` (band columns follow the requested `frequency_band`)
 
 **Use cases:**
 - Resting state analysis
@@ -41,7 +41,7 @@ power = nk.eeg_power(eeg_data, sampling_rate=250, channels=['Fz', 'Cz', 'Pz'],
 Identify problematic channels using statistical outlier detection.
 
 ```python
-bad_channels = nk.eeg_badchannels(eeg_data, sampling_rate=250, bad_threshold=2)
+bad_channels = nk.eeg_badchannels(eeg_data, sampling_rate=250, bad_threshold=0.5)
 ```
 
 **Detection methods:**
@@ -51,7 +51,8 @@ bad_channels = nk.eeg_badchannels(eeg_data, sampling_rate=250, bad_threshold=2)
 - Channels with excessive noise
 
 **Parameters:**
-- `bad_threshold`: Z-score threshold for outlier detection (default: 2)
+- `bad_threshold`: Correlation-based threshold for flagging a channel as bad (default: 0.5)
+- `distance_threshold`: Threshold on the cumulative density of correlations (default: 0.99)
 
 **Returns:**
 - List of channel names identified as problematic
@@ -107,7 +108,7 @@ gfp = nk.eeg_gfp(eeg_data)
 Measure topographic dissimilarity between electric field configurations.
 
 ```python
-dissimilarity = nk.eeg_diss(eeg_data1, eeg_data2, method='gfp')
+dissimilarity = nk.eeg_diss(eeg_data)  # DISS per time point for one EEG array (optionally pass a precomputed gfp=)
 ```
 
 **Methods:**
@@ -182,7 +183,7 @@ Identify and extract microstates using clustering algorithms.
 
 ```python
 microstates = nk.microstates_segment(eeg_data, n_microstates=4, sampling_rate=250,
-                                      method='kmod', normalize=True)
+                                      method='kmod', standardize_eeg=True)
 ```
 
 **Methods:**
@@ -197,15 +198,15 @@ microstates = nk.microstates_segment(eeg_data, n_microstates=4, sampling_rate=25
 
 **Parameters:**
 - `n_microstates`: Number of microstate classes (typically 4-7)
-- `normalize`: Normalize topographies (recommended: True)
-- `n_inits`: Number of random initializations (increase for stability)
+- `standardize_eeg`: Standardize the EEG before segmentation (recommended: True)
+- `n_runs`: Number of random initializations (increase for stability)
 
 **Returns:**
-- Dictionary with:
-  - `'maps'`: Microstate template topographies
-  - `'labels'`: Microstate label at each time point
-  - `'gfp'`: Global field power
-  - `'gev'`: Global explained variance
+- Dictionary with (among others):
+  - `'Microstates'`: Microstate template topographies (maps)
+  - `'Sequence'`: Microstate label at each time point
+  - `'GFP'`: Global field power
+  - `'GEV'`: Global explained variance (total; `'GEV_per_microstate'` gives the per-class breakdown)
 
 ### microstates_findnumber()
 
@@ -231,7 +232,7 @@ optimal_k = nk.microstates_findnumber(eeg_data, show=True)
 Reorder microstates based on anterior-posterior and left-right channel values.
 
 ```python
-classified = nk.microstates_classify(microstates)
+classified = nk.microstates_classify(microstates["Sequence"], microstates["Microstates"])
 ```
 
 **Purpose:**
@@ -284,7 +285,7 @@ peak_indices = nk.microstates_peaks(eeg_data, sampling_rate=250)
 Compute temporal properties of individual microstates.
 
 ```python
-static_metrics = nk.microstates_static(microstates)
+static_metrics = nk.microstates_static(microstates["Sequence"])
 ```
 
 **Metrics:**
@@ -311,7 +312,7 @@ static_metrics = nk.microstates_static(microstates)
 Analyze transition patterns between microstates.
 
 ```python
-dynamic_metrics = nk.microstates_dynamic(microstates)
+dynamic_metrics = nk.microstates_dynamic(microstates["Sequence"])
 ```
 
 **Metrics:**
@@ -353,7 +354,7 @@ nk.microstates_plot(microstates, eeg_data)
 Access sample datasets from MNE-Python.
 
 ```python
-raw = nk.mne_data(dataset='sample', directory=None)
+raw = nk.mne_data(what='raw', path=None)
 ```
 
 **Available datasets:**
@@ -449,7 +450,7 @@ bad = nk.eeg_badchannels(cleaned, sampling_rate=250)
 rereferenced = nk.eeg_rereference(cleaned, reference='average')
 
 # 4. Compute power
-power = nk.eeg_power(rereferenced, sampling_rate=250, channels=channel_list)
+power = nk.eeg_power(rereferenced, sampling_rate=250)
 ```
 
 **Microstate workflow:**
@@ -464,12 +465,12 @@ optimal_k = nk.microstates_findnumber(cleaned, show=True)
 microstates = nk.microstates_segment(cleaned, n_microstates=optimal_k,
                                      sampling_rate=250, method='kmod')
 
-# 4. Classify to standard labels
-microstates = nk.microstates_classify(microstates)
+# 4. Classify to standard labels (returns the reordered maps; keep the segment dict)
+classified = nk.microstates_classify(microstates["Sequence"], microstates["Microstates"])
 
 # 5. Compute temporal metrics
-static = nk.microstates_static(microstates)
-dynamic = nk.microstates_dynamic(microstates)
+static = nk.microstates_static(microstates["Sequence"])
+dynamic = nk.microstates_dynamic(microstates["Sequence"])
 
 # 6. Visualize
 nk.microstates_plot(microstates, cleaned)

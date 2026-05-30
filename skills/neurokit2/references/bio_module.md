@@ -47,8 +47,8 @@ rsp_rate = bio_signals['RSP_Rate']
 eda_phasic = bio_signals['EDA_Phasic']
 
 # Access detected peaks
-ecg_peaks = bio_info['ECG']['ECG_R_Peaks']
-rsp_peaks = bio_info['RSP']['RSP_Peaks']
+ecg_peaks = bio_info['ECG_R_Peaks']
+rsp_peaks = bio_info['RSP_Peaks']
 ```
 
 **Internal workflow:**
@@ -111,7 +111,7 @@ heart_rate_mean = results['ECG_Rate_Mean']
 hrv_rmssd = results['HRV_RMSSD']
 breathing_rate = results['RSP_Rate_Mean']
 scr_count = results['SCR_Peaks_N']
-rsa_value = results['RSA']  # If both ECG and RSP present
+rsa_value = results['RSA_P2T_Mean']  # If both ECG and RSP present (no plain 'RSA' column; use a specific RSA_* key, e.g. RSA_P2T_Mean or RSA_PorgesBohrer)
 ```
 
 ## Cross-Signal Features
@@ -126,7 +126,7 @@ Automatically computed when both ECG and respiratory signals are present.
 bio_signals, bio_info = nk.bio_process(ecg=ecg, rsp=rsp, sampling_rate=1000)
 results = nk.bio_analyze(bio_signals, sampling_rate=1000)
 
-rsa = results['RSA']  # Automatically included
+rsa = results['RSA_P2T_Mean']  # Automatically included (bio_analyze emits RSA_* columns such as RSA_P2T_Mean and RSA_PorgesBohrer, not a plain 'RSA')
 ```
 
 **Computation:**
@@ -147,7 +147,7 @@ If respiratory signal unavailable, NeuroKit2 can estimate from ECG:
 ecg_signals, ecg_info = nk.ecg_process(ecg, sampling_rate=1000)
 
 # Extract EDR
-edr = nk.ecg_rsp(ecg_signals['ECG_Clean'], sampling_rate=1000)
+edr = nk.ecg_rsp(ecg_signals['ECG_Rate'], sampling_rate=1000)
 ```
 
 **Use case:**
@@ -226,7 +226,7 @@ print("Heart Rate (mean):", results['ECG_Rate_Mean'])
 print("HRV (RMSSD):", results['HRV_RMSSD'])
 print("Breathing Rate:", results['RSP_Rate_Mean'])
 print("SCRs (count):", results['SCR_Peaks_N'])
-print("RSA:", results['RSA'])
+print("RSA:", results['RSA_P2T_Mean'])
 ```
 
 ### Event-Related Multi-Modal Analysis

@@ -326,12 +326,13 @@ Quantifies abnormal short-term fluctuations reflecting autonomic dysregulation.
 Respiratory Sinus Arrhythmia - heart rate modulation by breathing.
 
 ```python
-rsa = nk.hrv_rsa(peaks, rsp_signal, sampling_rate=1000, method='porges1980')
+rsa = nk.hrv_rsa(ecg_signals, rsp_signals, sampling_rate=1000)
 ```
 
-**Methods:**
-- `'porges1980'`: Porges-Bohrer method (band-pass filtered HR around breathing frequency)
-- `'harrison2021'`: Peak-to-trough RSA (max-min HR per breath cycle)
+**Returns** several RSA indices together (there is no method to select); among them:
+- Peak-to-trough (P2T): max-min HR per breath cycle
+- Porges-Bohrer: band-pass filtered HR around the breathing frequency
+- Gates and other variants
 
 **Requirements:**
 - Both ECG and respiratory signals
@@ -339,7 +340,7 @@ rsa = nk.hrv_rsa(peaks, rsp_signal, sampling_rate=1000, method='porges1980')
 - At least several breath cycles
 
 **Returns:**
-- `RSA`: RSA magnitude (beats/min or similar units depending on method)
+- A dict of RSA indices keyed by method (there is no plain `RSA` key): e.g. `RSA_P2T_Mean`, `RSA_P2T_SD`, `RSA_PorgesBohrer`, `RSA_Gates_Mean` (magnitudes in beats/min or similar units depending on method)
 
 ### hrv_rqa()
 
@@ -369,7 +370,7 @@ Preprocess RR-intervals before HRV analysis.
 
 ```python
 processed_intervals = nk.intervals_process(rr_intervals, interpolate=False,
-                                           interpolate_sampling_rate=1000)
+                                           interpolation_rate=100)
 ```
 
 **Operations:**

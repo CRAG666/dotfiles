@@ -70,7 +70,9 @@ peaks_dict, info = nk.ecg_peaks(cleaned_ecg, sampling_rate=1000, method='neuroki
 - `'elgendi2010'`: Elgendi's two moving averages
 - `'engzeemod2012'`: Modified Engelse-Zeelenberg
 - `'kalidas2017'`: XQRS-based
-- `'martinez2004'`, `'rodrigues2021'`, `'koka2022'`, `'promac'`: Advanced methods
+- `'martinez2004'`, `'rodrigues2021'`, `'emrich2023'`, `'promac'`: Advanced methods
+
+> **Note:** `'koka2022'` has been renamed to `'emrich2023'` (passing `'koka2022'` still works but emits a deprecation warning). This visibility-graph method additionally requires the optional `ts2vg` package (`uv pip install ts2vg`).
 
 **Artifact correction:**
 Set `correct_artifacts=True` to apply Lipponen & Tarvainen (2019) correction:
@@ -242,7 +244,7 @@ corrected_ecg, is_inverted = nk.ecg_invert(ecg_signal, sampling_rate=1000)
 Extract ECG-derived respiration (EDR) as respiratory proxy signal.
 
 ```python
-edr_signal = nk.ecg_rsp(ecg_cleaned, sampling_rate=1000, method='vangent2019')
+edr_signal = nk.ecg_rsp(ecg_rate, sampling_rate=1000, method='vangent2019')
 ```
 
 **Methods:**
@@ -333,7 +335,7 @@ ecg_signals, ecg_info = nk.ecg_process(ecg, sampling_rate=1000)
 rsp_signals, rsp_info = nk.rsp_process(rsp, sampling_rate=1000)
 
 # Compute RSA
-rsa = nk.hrv_rsa(ecg_info['ECG_R_Peaks'], rsp_signals['RSP_Clean'], sampling_rate=1000)
+rsa = nk.hrv_rsa(ecg_signals, rsp_signals, sampling_rate=1000)
 ```
 
 ### Multi-modal Integration

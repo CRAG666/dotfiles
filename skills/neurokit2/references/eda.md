@@ -60,31 +60,36 @@ cleaned_eda = nk.eda_clean(eda_signal, sampling_rate=100, method='neurokit')
 Decompose EDA into tonic (slow baseline) and phasic (rapid responses) components.
 
 ```python
-tonic, phasic = nk.eda_phasic(eda_cleaned, sampling_rate=100, method='cvxeda')
+df = nk.eda_phasic(eda_cleaned, sampling_rate=100, method='cvxeda')
+tonic, phasic = df['EDA_Tonic'], df['EDA_Phasic']
 ```
 
 **Methods:**
 
-**1. cvxEDA (default, recommended):**
+**1. cvxEDA (recommended):**
 ```python
-tonic, phasic = nk.eda_phasic(eda_cleaned, sampling_rate=100, method='cvxeda')
+df = nk.eda_phasic(eda_cleaned, sampling_rate=100, method='cvxeda')
+tonic, phasic = df['EDA_Tonic'], df['EDA_Phasic']
 ```
 - Convex optimization approach (Greco et al., 2016)
 - Sparse phasic driver model
 - Most physiologically accurate
 - Computationally intensive but superior decomposition
+- Requires the optional `cvxopt` package (`uv pip install cvxopt`); without it this method raises ImportError. The default `'highpass'`, plus `'smoothmedian'` and `'sparseda'`, work without extra dependencies.
 
 **2. Median smoothing:**
 ```python
-tonic, phasic = nk.eda_phasic(eda_cleaned, sampling_rate=100, method='smoothmedian')
+df = nk.eda_phasic(eda_cleaned, sampling_rate=100, method='smoothmedian')
+tonic, phasic = df['EDA_Tonic'], df['EDA_Phasic']
 ```
 - Median filter with configurable window
 - Fast, simple
 - Less accurate than cvxEDA
 
-**3. High-pass filtering (Biopac's Acqknowledge):**
+**3. High-pass filtering (Biopac's Acqknowledge, default):**
 ```python
-tonic, phasic = nk.eda_phasic(eda_cleaned, sampling_rate=100, method='highpass')
+df = nk.eda_phasic(eda_cleaned, sampling_rate=100, method='highpass')
+tonic, phasic = df['EDA_Tonic'], df['EDA_Phasic']
 ```
 - High-pass filter (0.05 Hz) extracts phasic
 - Fast computation
@@ -92,7 +97,8 @@ tonic, phasic = nk.eda_phasic(eda_cleaned, sampling_rate=100, method='highpass')
 
 **4. SparsEDA:**
 ```python
-tonic, phasic = nk.eda_phasic(eda_cleaned, sampling_rate=100, method='sparseda')
+df = nk.eda_phasic(eda_cleaned, sampling_rate=100, method='sparseda')
+tonic, phasic = df['EDA_Tonic'], df['EDA_Phasic']
 ```
 - Sparse deconvolution approach
 - Alternative optimization method
@@ -125,8 +131,6 @@ peaks, info = nk.eda_peaks(eda_phasic, sampling_rate=100, method='neurokit',
 - `amplitude_min`: Minimum SCR amplitude (default: 0.1 µS)
   - Too low: false positives from noise
   - Too high: miss small but valid responses
-- `rise_time_max`: Maximum rise time (default: 2 seconds)
-- `rise_time_min`: Minimum rise time (default: 0.01 seconds)
 
 **Returns:**
 - Dictionary with:
@@ -234,7 +238,7 @@ results = nk.eda_intervalrelated(signals, sampling_rate=100)
 Derive sympathetic nervous system activity from frequency band (0.045-0.25 Hz).
 
 ```python
-sympathetic = nk.eda_sympathetic(signals, sampling_rate=100, method='posada',
+sympathetic = nk.eda_sympathetic(signals["EDA_Clean"], sampling_rate=100, method='posada',
                                   show=False)
 ```
 
@@ -269,7 +273,7 @@ sympathetic = nk.eda_sympathetic(signals, sampling_rate=100, method='posada',
 Compute autocorrelation to assess temporal structure of EDA signal.
 
 ```python
-autocorr = nk.eda_autocor(eda_phasic, sampling_rate=100, lag=4)
+autocorr = nk.eda_autocor(eda_cleaned, sampling_rate=100, lag=4)
 ```
 
 **Parameters:**
@@ -290,7 +294,7 @@ autocorr = nk.eda_autocor(eda_phasic, sampling_rate=100, lag=4)
 Detect abrupt shifts in mean and variance of EDA signal.
 
 ```python
-changepoints = nk.eda_changepoints(eda_phasic, penalty=10000, show=False)
+changepoints = nk.eda_changepoints(eda_cleaned, penalty=10000, show=False)
 ```
 
 **Method:**
@@ -410,8 +414,9 @@ synthetic_eda = nk.eda_simulate(duration=10, sampling_rate=100, scr_number=3,
 # 1. Clean signal
 cleaned = nk.eda_clean(eda_raw, sampling_rate=100, method='neurokit')
 
-# 2. Decompose tonic/phasic
-tonic, phasic = nk.eda_phasic(cleaned, sampling_rate=100, method='cvxeda')
+# 2. Decompose tonic/phasic (use method='cvxeda' for best accuracy if cvxopt is installed)
+df = nk.eda_phasic(cleaned, sampling_rate=100, method='highpass')
+tonic, phasic = df['EDA_Tonic'], df['EDA_Phasic']
 
 # 3. Detect SCRs
 signals, info = nk.eda_peaks(phasic, sampling_rate=100, amplitude_min=0.05)

@@ -92,17 +92,17 @@ Detect periods of muscle activation (onsets and offsets).
 
 ```python
 activity, info = nk.emg_activation(emg_amplitude, sampling_rate=1000, method='threshold',
-                                   threshold='auto', duration_min=0.05)
+                                   threshold='default', duration_min=0.05)
 ```
 
 **Methods:**
 
 **1. Threshold-based (default):**
 ```python
-activity = nk.emg_activation(amplitude, method='threshold', threshold='auto')
+activity = nk.emg_activation(amplitude, method='threshold', threshold='default')
 ```
 - Compares amplitude to threshold
-- `threshold='auto'`: Automatic based on signal statistics (e.g., mean + 1 SD)
+- `threshold='default'`: Automatic based on signal statistics (e.g., mean + 1 SD)
 - `threshold=0.1`: Manual absolute threshold
 - Simple, fast, widely used
 
@@ -114,21 +114,20 @@ activity = nk.emg_activation(amplitude, method='mixture', n_clusters=2)
 - Adaptive to signal characteristics
 - More robust to varying baseline
 
-**3. Changepoint detection:**
+**3. Changepoint detection (PELT):**
 ```python
-activity = nk.emg_activation(amplitude, method='changepoint')
+activity = nk.emg_activation(emg_cleaned=emg_cleaned, sampling_rate=1000, method='pelt')
 ```
-- Detects abrupt transitions in signal properties
+- Detects abrupt transitions in signal properties (Pruned Exact Linear Time)
 - Identifies activation/deactivation points
-- Useful for complex temporal patterns
+- Needs the cleaned (or raw) EMG signal via `emg_cleaned=`, not the amplitude envelope
 
-**4. Bimodality (Silva et al., 2013):**
+**4. BioSPPy onset detection:**
 ```python
-activity = nk.emg_activation(amplitude, method='bimodal')
+activity = nk.emg_activation(emg_cleaned=emg_cleaned, sampling_rate=1000, method='biosppy')
 ```
-- Tests for bimodal distribution (active vs. rest)
-- Determines optimal separation threshold
-- Statistically principled
+- BioSPPy full-wave-rectification + threshold approach
+- Needs the cleaned EMG signal via `emg_cleaned=`, not the amplitude envelope
 
 **Key parameters:**
 - `duration_min`: Minimum activation duration (seconds)
@@ -313,7 +312,7 @@ amplitude = nk.emg_amplitude(cleaned, sampling_rate=1000)
 
 # 3. Detect activation periods
 activity, info = nk.emg_activation(amplitude, sampling_rate=1000,
-                                   method='threshold', threshold='auto')
+                                   method='threshold', threshold='default')
 
 # 4. Comprehensive processing (alternative)
 signals, info = nk.emg_process(emg_raw, sampling_rate=1000)

@@ -1,6 +1,6 @@
 ---
 name: neurokit2
-description: Comprehensive biosignal processing toolkit for analyzing physiological data including ECG, EEG, EDA, RSP, PPG, EMG, and EOG signals. Use this skill when processing cardiovascular signals, brain activity, electrodermal responses, respiratory patterns, muscle activity, or eye movements. Applicable for heart rate variability analysis, event-related potentials, complexity measures, autonomic nervous system assessment, psychophysiology research, and multi-modal physiological signal integration.
+description: 'Comprehensive biosignal processing toolkit for analyzing physiological data including ECG, EEG, EDA, RSP, PPG, EMG, and EOG signals. Use this skill when processing cardiovascular signals, brain activity, electrodermal responses, respiratory patterns, muscle activity, or eye movements. Applicable for heart rate variability analysis, event-related potentials, complexity measures, autonomic nervous system assessment, psychophysiology research, and multi-modal physiological signal integration.'
 license: MIT license
 metadata:
     skill-author: K-Dense Inc.
@@ -69,7 +69,7 @@ hrv_indices = nk.hrv(peaks, sampling_rate=1000)
 hrv_time = nk.hrv_time(peaks)
 hrv_freq = nk.hrv_frequency(peaks, sampling_rate=1000)
 hrv_nonlinear = nk.hrv_nonlinear(peaks, sampling_rate=1000)
-hrv_rsa = nk.hrv_rsa(peaks, rsp_signal, sampling_rate=1000)
+hrv_rsa = nk.hrv_rsa(ecg_signals, rsp_signals, sampling_rate=1000)
 ```
 
 ### 3. Brain Signal Analysis (EEG)
@@ -86,12 +86,13 @@ Analyze electroencephalography signals for frequency power, complexity, and micr
 **Key functions:**
 ```python
 # Power analysis across frequency bands
-power = nk.eeg_power(eeg_data, sampling_rate=250, channels=['Fz', 'Cz', 'Pz'])
+power = nk.eeg_power(eeg_data, sampling_rate=250,
+                     frequency_band=['Delta', 'Theta', 'Alpha', 'Beta', 'Gamma'])
 
 # Microstate analysis
-microstates = nk.microstates_segment(eeg_data, n_microstates=4, method='kmod')
-static = nk.microstates_static(microstates)
-dynamic = nk.microstates_dynamic(microstates)
+microstates = nk.microstates_segment(eeg_data, n_microstates=4, sampling_rate=250, method='kmod')
+static = nk.microstates_static(microstates["Sequence"])
+dynamic = nk.microstates_dynamic(microstates["Sequence"])
 ```
 
 ### 4. Electrodermal Activity (EDA)
@@ -113,7 +114,7 @@ signals, info = nk.eda_process(eda_signal, sampling_rate=100)
 analysis = nk.eda_analyze(signals, sampling_rate=100)
 
 # Sympathetic nervous system activity
-sympathetic = nk.eda_sympathetic(signals, sampling_rate=100)
+sympathetic = nk.eda_sympathetic(signals["EDA_Clean"], sampling_rate=100)
 ```
 
 ### 5. Respiratory Signal Processing (RSP)
@@ -135,7 +136,7 @@ signals, info = nk.rsp_process(rsp_signal, sampling_rate=100)
 rrv = nk.rsp_rrv(signals, sampling_rate=100)
 
 # Respiratory volume per time
-rvt = nk.rsp_rvt(signals, sampling_rate=100)
+rvt = nk.rsp_rvt(signals["RSP_Clean"], sampling_rate=100)
 ```
 
 ### 6. Electromyography (EMG)
@@ -148,7 +149,7 @@ Process muscle activity signals for activation detection and amplitude analysis.
 signals, info = nk.emg_process(emg_signal, sampling_rate=1000)
 
 # Muscle activation detection
-activation = nk.emg_activation(signals, sampling_rate=1000, method='threshold')
+activation, info = nk.emg_activation(signals["EMG_Amplitude"], sampling_rate=1000, method='threshold')
 ```
 
 ### 7. Electrooculography (EOG)
@@ -161,8 +162,10 @@ Analyze eye movement and blink patterns. See `references/eog.md` for workflows.
 signals, info = nk.eog_process(eog_signal, sampling_rate=500)
 
 # Extract blink features
-features = nk.eog_features(signals, sampling_rate=500)
+features = nk.eog_features(signals["EOG_Clean"], info["EOG_Blinks"], sampling_rate=500)
 ```
+
+> **Note:** The default EOG blink detection relies on MNE-Python, so install it (`uv pip install mne` or `neurokit2[full]`). To avoid the MNE dependency, pass `method="brainstorm"` to `nk.eog_process()`.
 
 ### 8. General Signal Processing
 
@@ -202,12 +205,12 @@ Compute nonlinear dynamics, fractal dimensions, and information-theoretic measur
 **Key functions:**
 ```python
 # Multiple complexity metrics at once
-complexity_indices = nk.complexity(signal, sampling_rate=1000)
+complexity_indices, info = nk.complexity(signal, sampling_rate=1000)
 
 # Specific measures
-apen = nk.entropy_approximate(signal)
-dfa = nk.fractal_dfa(signal)
-lyap = nk.complexity_lyapunov(signal, sampling_rate=1000)
+apen, _ = nk.entropy_approximate(signal)
+dfa, _ = nk.fractal_dfa(signal)
+lyap, _ = nk.complexity_lyapunov(signal, sampling_rate=1000)
 ```
 
 ### 10. Event-Related Analysis

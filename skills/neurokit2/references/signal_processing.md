@@ -12,7 +12,7 @@ Apply frequency-domain filtering to remove noise or isolate frequency bands.
 
 ```python
 filtered = nk.signal_filter(signal, sampling_rate=1000, lowcut=None, highcut=None,
-                            method='butterworth', order=5)
+                            method='butterworth', order=2)
 ```
 
 **Filter types (via lowcut/highcut combinations):**
@@ -60,10 +60,10 @@ notch = nk.signal_filter(signal, sampling_rate=1000, method='powerline', powerli
 
 ### signal_sanitize()
 
-Remove invalid values (NaN, inf) and optionally interpolate.
+Drop a Pandas Series' custom index, returning the values as a plain NumPy array (use after set_index). It does not remove NaN/inf; use `signal_fillmissing` or pandas `dropna` for that.
 
 ```python
-clean_signal = nk.signal_sanitize(signal, interpolate=True)
+clean_signal = nk.signal_sanitize(signal)
 ```
 
 **Use cases:**
@@ -142,6 +142,7 @@ components = nk.signal_decompose(signal, sampling_rate=1000, method='emd')
 - Data-adaptive decomposition into Intrinsic Mode Functions (IMFs)
 - Each IMF represents different frequency content (high to low)
 - No predefined basis functions
+- Requires the optional `EMD-signal` package (`uv pip install EMD-signal`); the `'ssa'` method below has no extra dependency
 
 **Singular Spectrum Analysis (SSA):**
 ```python
@@ -168,7 +169,7 @@ components = nk.signal_decompose(signal, method='ssa')
 Reconstruct signal from decomposed components.
 
 ```python
-reconstructed = nk.signal_recompose(components, indices=[1, 2, 3])
+reconstructed = nk.signal_recompose(components, method='wcorr', threshold=0.5)
 ```
 
 **Use case:**
@@ -185,10 +186,8 @@ binary = nk.signal_binarize(signal, method='threshold', threshold=0.5)
 ```
 
 **Methods:**
-- `'threshold'`: Simple threshold
-- `'median'`: Median-based
-- `'mean'`: Mean-based
-- `'quantile'`: Percentile-based
+- `'threshold'` (default): Values above `threshold` become 1 (default `threshold='auto'`, i.e. the signal mean)
+- `'mixture'`: Gaussian mixture model (two-class clustering into 0/1)
 
 **Use case:**
 - Event detection from continuous signal
@@ -251,20 +250,18 @@ merged = nk.signal_merge(signal1, signal2, time1=None, time2=None, sampling_rate
 Identify periods of constant signal (artifacts or sensor failure).
 
 ```python
-flatline_mask = nk.signal_flatline(signal, duration=5.0, sampling_rate=1000)
+flatline_pct = nk.signal_flatline(signal, threshold=0.01)
 ```
 
 **Returns:**
-- Binary mask where True indicates flatline periods
-- Duration threshold prevents false positives from normal stability
+- `float`: the proportion (0.0-1.0) of samples where the signal is flat (consecutive absolute difference < threshold)
 
 ### signal_noise()
 
-Add various types of noise to signal.
+Generate colored noise (it does not take an input signal; to add noise to a signal use `signal_distort`).
 
 ```python
-noisy = nk.signal_noise(signal, sampling_rate=1000, noise_type='gaussian',
-                        amplitude=0.1)
+noise = nk.signal_noise(duration=10, sampling_rate=1000, beta=1)  # beta: 0=white, 1=pink, 2=brown
 ```
 
 **Noise types:**
@@ -303,15 +300,15 @@ peaks_dict = nk.signal_findpeaks(signal, height_min=None, height_max=None,
 
 **Key parameters:**
 - `height_min/max`: Absolute amplitude thresholds
-- `relative_height_min/max`: Relative to signal range (0-1)
-- `threshold`: Minimum prominence
-- `distance`: Minimum samples between peaks
+- `relative_height_min/max`: Height thresholds relative to a baseline (in SD units)
+- `relative_mean` / `relative_median` / `relative_max`: Choose the baseline for the relative thresholds (mean is the default)
 
 **Returns:**
-- Dictionary with:
+- Dictionary with keys:
   - `'Peaks'`: Peak indices
-  - `'Height'`: Peak amplitudes
   - `'Distance'`: Inter-peak intervals
+  - `'Height'`: Peak amplitudes
+  - `'Width'`, `'Onsets'`, `'Offsets'`: Peak width and onset/offset indices
 
 **Use cases:**
 - Generic peak detection for any signal
@@ -364,37 +361,37 @@ rate = nk.signal_rate(peaks, sampling_rate=1000, desired_length=None)
 
 ### signal_period()
 
-Find dominant period/frequency in signal.
+Compute the instantaneous period (in seconds) from detected event locations (peaks).
 
 ```python
-period = nk.signal_period(signal, sampling_rate=1000, method='autocorrelation',
-                          show=False)
+period = nk.signal_period(peaks, sampling_rate=1000, desired_length=None,
+                          interpolation_method='monotone_cubic')
 ```
 
-**Methods:**
-- `'autocorrelation'`: Peak in autocorrelation function
-- `'powerspectraldensity'`: Peak in frequency spectrum
+**Parameters:**
+- `peaks`: Indices (or a boolean/marker array) of detected events, e.g. R-peaks from `ecg_peaks`
+- `desired_length`: If set, interpolate the period series to this length (e.g. the original signal length)
+- `interpolation_method`: Interpolation used between events (default `'monotone_cubic'`)
 
 **Returns:**
-- Period in samples or seconds
-- Frequency (1/period) in Hz
+- An array of the period (in seconds) between successive events, optionally interpolated to `desired_length`
 
 **Use case:**
-- Detect dominant rhythm
-- Estimate fundamental frequency
-- Breathing rate, heart rate estimation
+- Period (and, as its reciprocal, rate) from cardiac or respiratory peaks
+- Convert event series to a continuous instantaneous-period signal
 
 ### signal_phase()
 
 Compute instantaneous phase of signal.
 
 ```python
-phase = nk.signal_phase(signal, method='hilbert')
+phase = nk.signal_phase(signal, method='radians')
 ```
 
-**Methods:**
-- `'hilbert'`: Hilbert transform (analytic signal)
-- `'wavelet'`: Wavelet-based phase
+**Methods (output units):**
+- `'radians'`: Phase in radians (default)
+- `'degrees'`: Phase between 0 and 360
+- `'percents'`: Phase between 0 and 1
 
 **Returns:**
 - Phase in radians (-π to π) or 0 to 1 (normalized)
@@ -409,19 +406,18 @@ phase = nk.signal_phase(signal, method='hilbert')
 Compute Power Spectral Density.
 
 ```python
-psd, freqs = nk.signal_psd(signal, sampling_rate=1000, method='welch',
-                           max_frequency=None, show=False)
+psd_df = nk.signal_psd(signal, sampling_rate=1000, method='welch', show=False)
+# psd_df is a DataFrame with columns "Frequency" and "Power"
 ```
 
 **Methods:**
 - `'welch'`: Welch's periodogram (windowed FFT, default)
-- `'multitapers'`: Multitaper method (superior spectral estimation)
-- `'lomb'`: Lomb-Scargle (unevenly sampled data)
+- `'multitapers'`: Multitaper method (superior spectral estimation; requires the optional `mne` package)
+- `'lomb'`: Lomb-Scargle (unevenly sampled data; requires the optional `astropy` package)
 - `'burg'`: Autoregressive (parametric)
 
 **Returns:**
-- `psd`: Power at each frequency (units²/Hz)
-- `freqs`: Frequency bins (Hz)
+- A DataFrame with columns `Frequency` (Hz) and `Power` (units²/Hz)
 
 **Use case:**
 - Frequency content analysis
@@ -433,11 +429,7 @@ psd, freqs = nk.signal_psd(signal, sampling_rate=1000, method='welch',
 Compute power in specific frequency bands.
 
 ```python
-power_dict = nk.signal_power(signal, sampling_rate=1000, frequency_bands={
-    'VLF': (0.003, 0.04),
-    'LF': (0.04, 0.15),
-    'HF': (0.15, 0.4)
-}, method='welch')
+power_df = nk.signal_power(signal, frequency_band=[(0.003, 0.04), (0.04, 0.15), (0.15, 0.4)], sampling_rate=1000)
 ```
 
 **Returns:**
@@ -454,7 +446,7 @@ power_dict = nk.signal_power(signal, sampling_rate=1000, frequency_bands={
 Compute autocorrelation function.
 
 ```python
-autocorr = nk.signal_autocor(signal, lag=1000, show=False)
+autocorr, info = nk.signal_autocor(signal, lag=1000, show=False)
 ```
 
 **Interpretation:**
@@ -488,12 +480,11 @@ n_crossings = nk.signal_zerocrossings(signal)
 Detect abrupt changes in signal properties (mean, variance).
 
 ```python
-changepoints = nk.signal_changepoints(signal, penalty=10, method='pelt', show=False)
+changepoints = nk.signal_changepoints(signal, change='meanvar', penalty=10, show=False)
 ```
 
-**Methods:**
-- `'pelt'`: Pruned Exact Linear Time (fast, exact)
-- `'binseg'`: Binary segmentation (faster, approximate)
+**Parameter:**
+- `change='meanvar'` (default): detect changes in the signal's mean and variance
 
 **Parameters:**
 - `penalty`: Controls sensitivity (higher = fewer changepoints)
@@ -516,10 +507,8 @@ sync = nk.signal_synchrony(signal1, signal2, method='correlation')
 ```
 
 **Methods:**
-- `'correlation'`: Pearson correlation
-- `'coherence'`: Frequency-domain coherence
-- `'mutual_information'`: Information-theoretic measure
-- `'phase'`: Phase locking value
+- `'hilbert'` (default): instantaneous phase synchrony via the Hilbert transform
+- `'correlation'`: rolling-window Pearson correlation
 
 **Use cases:**
 - Heart-brain coupling
@@ -631,7 +620,7 @@ nk.signal_plot(signal, sampling_rate=1000, peaks=None, show=True)
 **Combining operations:**
 ```python
 # Typical preprocessing pipeline
-signal = nk.signal_sanitize(raw_signal)  # Remove invalid values
+signal = nk.signal_sanitize(raw_signal)  # reset to default integer index
 signal = nk.signal_filter(signal, sampling_rate=1000, lowcut=0.5, highcut=40)  # Bandpass
 signal = nk.signal_detrend(signal, method='polynomial', order=1)  # Remove linear trend
 ```

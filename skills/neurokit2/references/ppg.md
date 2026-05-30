@@ -29,8 +29,8 @@ signals, info = nk.ppg_process(ppg_signal, sampling_rate=100, method='elgendi')
 - `info`: Dictionary with peak indices and parameters
 
 **Methods:**
-- `'elgendi'`: Elgendi et al. (2013) algorithm (default, robust)
-- `'nabian2018'`: Nabian et al. (2018) approach
+- `method='elgendi'` (default) runs the full clean-and-peak pipeline end to end.
+- For other algorithms, run the stages separately: `ppg_clean` accepts `'elgendi'`, `'nabian2018'`, `'langevin2021'`, `'goda2024'`, `'none'`; `ppg_peaks` accepts `'elgendi'`, `'bishop'`, `'charlton'`, `'charlton2024'`. `ppg_process` forwards `method` to both stages, so `'elgendi'` is the only value valid for it directly.
 
 ## Preprocessing Functions
 
@@ -68,10 +68,9 @@ peaks, info = nk.ppg_peaks(cleaned_ppg, sampling_rate=100, method='elgendi',
 ```
 
 **Methods:**
-- `'elgendi'`: Two moving averages with dynamic thresholding
-- `'bishop'`: Bishop's algorithm
-- `'nabian2018'`: Nabian's approach
-- `'scipy'`: Simple scipy peak detection
+- `'elgendi'` (default): Two moving averages with dynamic thresholding
+- `'bishop'`: Bishop & Ercole (2018) algorithm
+- `'charlton'` / `'charlton2024'`: Charlton et al. peak detectors
 
 **Artifact correction:**
 - Set `correct_artifacts=True` for physiological plausibility checks
@@ -160,12 +159,12 @@ results = nk.ppg_intervalrelated(signals, sampling_rate=100)
 Assess signal quality and reliability.
 
 ```python
-quality = nk.ppg_quality(ppg_signal, sampling_rate=100, method='averageQRS')
+quality = nk.ppg_quality(ppg_signal, sampling_rate=100, method='templatematch')
 ```
 
 **Methods:**
 
-**1. averageQRS (default):**
+**1. templatematch (default):**
 - Template matching approach
 - Correlates each pulse with average template
 - Returns quality scores 0-1 per beat
