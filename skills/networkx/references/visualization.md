@@ -119,7 +119,11 @@ nx.draw(G, node_color=node_colors)
 # Color by attribute
 colors = [G.nodes[n].get('value', 0) for n in G.nodes()]
 nx.draw(G, node_color=colors, cmap=plt.cm.viridis)
-plt.colorbar()
+# nx.draw returns None, so colorbar needs an explicit ScalarMappable
+sm = plt.cm.ScalarMappable(cmap=plt.cm.viridis,
+                           norm=plt.Normalize(vmin=min(colors), vmax=max(colors)))
+sm.set_array(colors)
+plt.colorbar(sm, ax=plt.gca())
 plt.show()
 ```
 

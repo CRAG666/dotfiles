@@ -1,6 +1,6 @@
 ---
 name: networkx
-description: Comprehensive toolkit for creating, analyzing, and visualizing complex networks and graphs in Python. Use when working with network/graph data structures, analyzing relationships between entities, computing graph algorithms (shortest paths, centrality, clustering), detecting communities, generating synthetic networks, or visualizing network topologies. Applicable to social networks, biological networks, transportation systems, citation networks, and any domain involving pairwise relationships.
+description: 'Comprehensive toolkit for creating, analyzing, and visualizing complex networks and graphs in Python. Use when working with network/graph data structures, analyzing relationships between entities, computing graph algorithms (shortest paths, centrality, clustering), detecting communities, generating synthetic networks, or visualizing network topologies. Applicable to social networks, biological networks, transportation systems, citation networks, and any domain involving pairwise relationships.'
 license: 3-clause BSD license
 metadata:
     skill-author: K-Dense Inc.
@@ -131,7 +131,7 @@ G = nx.watts_strogatz_graph(n=100, k=6, p=0.1, seed=42)
 G = nx.grid_2d_graph(m=5, n=7)
 
 # Random tree
-G = nx.random_tree(n=100, seed=42)
+G = nx.random_labeled_tree(n=100, seed=42)
 ```
 
 **Reference**: See `references/generators.md` for comprehensive coverage of all graph generators including classic, random, lattice, bipartite, and specialized network models with detailed parameters and use cases.
@@ -264,6 +264,12 @@ print(nx.__version__)
 # uv pip install networkx
 # uv pip install networkx[default]  # With optional dependencies
 ```
+
+> **Note**: Examples below that use NumPy, SciPy, pandas, or matplotlib (e.g. matrix
+> conversions, pandas edge lists, and all visualization code) rely on optional
+> dependencies that are not part of base NetworkX. Install them with
+> `uv pip install networkx[default]` (or install the individual packages) before
+> running those snippets.
 
 ### Common Workflow Pattern
 

@@ -117,7 +117,7 @@ G = nx.random_powerlaw_tree(n=100, gamma=3, seed=42, tries=1000)
 ### Configuration Model
 ```python
 # Graph with specified degree sequence
-degree_sequence = [3, 3, 3, 3, 2, 2, 2, 1, 1, 1]
+degree_sequence = [3, 3, 3, 3, 2, 2, 2, 2, 1, 1]
 G = nx.configuration_model(degree_sequence, seed=42)
 
 # Remove self-loops and parallel edges
@@ -178,7 +178,7 @@ G = nx.hypercube_graph(n=4)
 ### Random Trees
 ```python
 # Random tree with n nodes
-G = nx.random_tree(n=100, seed=42)
+G = nx.random_labeled_tree(n=100, seed=42)
 
 # Prefix tree (tries)
 G = nx.prefix_tree([[0, 1, 2], [0, 1, 3], [0, 4]])
@@ -249,7 +249,7 @@ G = nx.DiGraph([(u, v) for (u, v) in G.edges() if u < v])  # Remove backward edg
 ### Tournament Graphs
 ```python
 # Random tournament (complete directed graph)
-G = nx.random_tournament(n=10, seed=42)
+G = nx.tournament.random_tournament(n=10, seed=42)
 ```
 
 ## Duplication-Divergence Models
@@ -265,7 +265,7 @@ G = nx.duplication_divergence_graph(n=100, p=0.5, seed=42)
 ### Valid Degree Sequences
 ```python
 # Check if degree sequence is valid (graphical)
-sequence = [3, 3, 3, 3, 2, 2, 2, 1, 1, 1]
+sequence = [3, 3, 3, 3, 2, 2, 2, 2, 1, 1]
 is_valid = nx.is_graphical(sequence)
 
 # For directed graphs
@@ -294,7 +294,7 @@ G = nx.directed_configuration_model(in_degree_sequence, out_degree_sequence)
 G = nx.bipartite.random_graph(n=50, m=30, p=0.1, seed=42)
 
 # Configuration model for bipartite
-G = nx.bipartite.configuration_model(deg1=[3, 3, 2], deg2=[2, 2, 2, 2], seed=42)
+G = nx.bipartite.configuration_model(aseq=[3, 3, 2], bseq=[2, 2, 2, 2], seed=42)
 ```
 
 ### Bipartite Generators

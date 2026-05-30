@@ -108,8 +108,8 @@ nx.write_pajek(G, 'graph.net')
 # Read LEDA format
 G = nx.read_leda('graph.leda')
 
-# Write LEDA format
-nx.write_leda(G, 'graph.leda')
+# Writing LEDA is not supported by NetworkX (nx.write_leda does not exist);
+# only nx.read_leda is available for the LEDA format.
 ```
 
 ## Working with Pandas
@@ -206,14 +206,15 @@ G = nx.from_scipy_sparse_array(A)
 import json
 
 # To node-link format (good for d3.js)
-data = nx.node_link_data(G)
+# The edges= parameter was added in NetworkX 3.4; the default key became "edges" in 3.6 (was "links"). Passing it is optional.
+data = nx.node_link_data(G, edges="edges")
 with open('graph.json', 'w') as f:
     json.dump(data, f)
 
 # From node-link format
 with open('graph.json', 'r') as f:
     data = json.load(f)
-G = nx.node_link_graph(data)
+G = nx.node_link_graph(data, edges="edges")
 ```
 
 ### Adjacency Data Format
@@ -231,8 +232,10 @@ G = nx.adjacency_graph(data)
 
 ### Tree Data Format
 ```python
-# For tree graphs
-data = nx.tree_data(G, root=0)
+# For tree graphs; tree_data requires a directed, rooted tree
+# convert an undirected tree with nx.bfs_tree(G, root) first
+DG = nx.bfs_tree(G, 0)
+data = nx.tree_data(DG, root=0)
 with open('tree.json', 'w') as f:
     json.dump(data, f)
 
@@ -256,9 +259,11 @@ with open('graph.pkl', 'wb') as f:
 with open('graph.pkl', 'rb') as f:
     G = pickle.load(f)
 
-# NetworkX convenience functions
-nx.write_gpickle(G, 'graph.gpickle')
-G = nx.read_gpickle('graph.gpickle')
+# Use stdlib pickle (write_gpickle/read_gpickle were removed in NetworkX 3.0)
+with open('graph.gpickle', 'wb') as f:
+    pickle.dump(G, f)
+with open('graph.gpickle', 'rb') as f:
+    G = pickle.load(f)
 ```
 
 ## CSV Files
@@ -350,12 +355,9 @@ mmwrite('graph.mtx', A)
 
 ### Shapefile (for Geographic Networks)
 ```python
-# Requires pyshp library
-# Read geographic network from shapefile
-G = nx.read_shp('roads.shp')
-
-# Write to shapefile
-nx.write_shp(G, 'network')
+# nx.read_shp / nx.write_shp were removed in NetworkX 3.0 and have no built-in
+# replacement. Use an external library (e.g. geopandas/fiona/pyshp) to read the
+# shapefile, then build the graph from the resulting geometries.
 ```
 
 ## Format Selection Guidelines
@@ -392,15 +394,18 @@ nx.write_shp(G, 'network')
 For large graphs, consider:
 ```python
 # Use compressed formats
+# write_adjlist/read_adjlist operate on bytes, so open gzip in binary mode
 import gzip
-with gzip.open('graph.adjlist.gz', 'wt') as f:
+with gzip.open('graph.adjlist.gz', 'wb') as f:
     nx.write_adjlist(G, f)
 
-with gzip.open('graph.adjlist.gz', 'rt') as f:
+with gzip.open('graph.adjlist.gz', 'rb') as f:
     G = nx.read_adjlist(f)
 
-# Use binary formats (faster)
-nx.write_gpickle(G, 'graph.gpickle')  # Faster than text formats
+# Use binary formats (faster); write_gpickle was removed in NetworkX 3.0, use stdlib pickle
+import pickle
+with open('graph.gpickle', 'wb') as f:
+    pickle.dump(G, f)  # Faster than text formats
 
 # Use sparse matrices for adjacency
 A = nx.to_scipy_sparse_array(G, format='csr')  # Memory efficient
