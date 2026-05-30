@@ -224,6 +224,12 @@ def save_style_file(style_dict, filename):
                         value_str = ', '.join(str(v) for v in value)
                     elif isinstance(value, bool):
                         value_str = str(value)
+                    elif isinstance(value, str) and value.startswith('#'):
+                        # .mplstyle treats '#' as a comment delimiter, so a
+                        # leading '#' makes the hex color parse as empty and
+                        # the key is dropped on reload. Write hex colors using
+                        # the bare mplstyle convention (e.g. 1e1e1e).
+                        value_str = value[1:]
                     else:
                         value_str = str(value)
                     f.write(f"{key}: {value_str}\n")

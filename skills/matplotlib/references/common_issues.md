@@ -79,7 +79,8 @@ plt.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.15)
 # Solution 4: Save with bbox_inches='tight'
 plt.savefig('figure.png', bbox_inches='tight')
 
-# Solution 5: Rotate long tick labels
+# Solution 5: Rotate long tick labels (set tick positions first so set_xticklabels does not warn)
+ax.set_xticks(range(len(labels)))
 ax.set_xticklabels(labels, rotation=45, ha='right')
 ```
 
@@ -161,7 +162,7 @@ ax.plot(x, y, rasterized=True)
 plt.savefig('figure.pdf')  # or .svg
 
 # Solution 4: Compress PNG
-plt.savefig('figure.png', dpi=300, optimize=True)
+plt.savefig('figure.png', dpi=300, pil_kwargs={'optimize': True})
 ```
 
 ### Issue: Slow Plotting with Large Datasets
@@ -196,11 +197,11 @@ ax.hexbin(x, y, gridsize=50, cmap='viridis')
 ```python
 # Solution 1: Use available fonts
 from matplotlib.font_manager import findfont, FontProperties
-print(findfont(FontProperties(family='sans-serif')))
+print(findfont(FontProperties(family=['sans-serif'])))
 
 # Solution 2: Rebuild font cache
 import matplotlib.font_manager
-matplotlib.font_manager._rebuild()
+matplotlib.font_manager._load_fontmanager(try_read_cache=False)
 
 # Solution 3: Suppress warnings
 import warnings

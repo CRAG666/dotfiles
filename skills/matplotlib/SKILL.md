@@ -1,6 +1,6 @@
 ---
 name: matplotlib
-description: Low-level plotting library for full customization. Use when you need fine-grained control over every plot element, creating novel plot types, or integrating with specific scientific workflows. Export to PNG/PDF/SVG for publication. For quick statistical plots use seaborn; for interactive plots use plotly; for publication-ready multi-panel figures with journal styling, use scientific-visualization.
+description: 'Low-level plotting library for full customization. Use when you need fine-grained control over every plot element, creating novel plot types, or integrating with specific scientific workflows. Export to PNG/PDF/SVG for publication. For quick statistical plots use seaborn; for interactive plots use plotly; for publication-ready multi-panel figures with journal styling, use scientific-visualization.'
 license: https://github.com/matplotlib/matplotlib/tree/main/LICENSE
 metadata:
     skill-author: K-Dense Inc.
@@ -158,7 +158,7 @@ ax.clabel(contour, inline=True, fontsize=8)
 
 **Box plots** - Statistical distributions
 ```python
-ax.boxplot([data1, data2, data3], labels=['A', 'B', 'C'])
+ax.boxplot([data1, data2, data3], tick_labels=['A', 'B', 'C'])
 ```
 
 **Violin plots** - Distribution densities

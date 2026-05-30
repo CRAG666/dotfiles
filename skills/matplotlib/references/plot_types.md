@@ -168,15 +168,15 @@ plt.colorbar(h[3], ax=ax, label='Counts')
 ### Box Plot
 ```python
 ax.boxplot([data1, data2, data3],
-           labels=['Group A', 'Group B', 'Group C'],
+           tick_labels=['Group A', 'Group B', 'Group C'],
            showmeans=True, meanline=True)
 ax.set_ylabel('Values')
 ```
 
 ### Horizontal Box Plot
 ```python
-ax.boxplot([data1, data2, data3], vert=False,
-           labels=['Group A', 'Group B', 'Group C'])
+ax.boxplot([data1, data2, data3], orientation='horizontal',
+           tick_labels=['Group A', 'Group B', 'Group C'])
 ax.set_xlabel('Values')
 ```
 
