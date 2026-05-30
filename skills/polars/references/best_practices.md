@@ -81,7 +81,7 @@ Enable streaming for datasets larger than RAM:
 ```python
 # Streaming mode processes data in chunks
 lf = pl.scan_parquet("very_large.parquet")
-result = lf.filter(pl.col("value") > 100).collect(streaming=True)
+result = lf.filter(pl.col("value") > 100).collect(engine="streaming")
 
 # Or use sink for direct streaming writes
 lf.filter(pl.col("value") > 100).sink_parquet("output.parquet")
@@ -98,7 +98,7 @@ df = pl.read_csv("data.csv")
 # Good: Specify optimal types
 df = pl.read_csv(
     "data.csv",
-    dtypes={
+    schema_overrides={
         "id": pl.UInt32,  # Instead of Int64 if values fit
         "category": pl.Categorical,  # For low-cardinality strings
         "date": pl.Date,  # Instead of String
@@ -234,25 +234,27 @@ df.select("col1", "col2", "col3")
 df.select(pl.col("^sales_.*$"))
 
 # Starts with
-df.select(pl.col("^sales"))
+df.select(pl.col("^sales.*$"))
 
 # Ends with
-df.select(pl.col("_total$"))
+df.select(pl.col("^.*_total$"))
 
 # Contains
-df.select(pl.col(".*revenue.*"))
+df.select(pl.col("^.*revenue.*$"))
 ```
 
 **By type:**
 ```python
+import polars.selectors as cs
+
 # All numeric columns
-df.select(pl.col(pl.NUMERIC_DTYPES))
+df.select(cs.numeric())
 
 # All string columns
 df.select(pl.col(pl.Utf8))
 
 # Multiple types
-df.select(pl.col(pl.NUMERIC_DTYPES, pl.Boolean))
+df.select(cs.numeric() | cs.boolean())
 ```
 
 **Exclude columns:**
@@ -336,7 +338,7 @@ df = df.with_columns(result=pl.col("value") * 2)
 
 ```python
 # Bad: Polars is immutable, this doesn't work as expected
-df["new_col"] = df["old_col"] * 2  # May work but not recommended
+df["new_col"] = df["old_col"] * 2  # Raises TypeError: Series assignment by index is unsupported
 
 # Good: Functional style
 df = df.with_columns(new_col=pl.col("old_col") * 2)
@@ -377,7 +379,7 @@ df = pl.read_csv("data.csv")
 # Good: Specify types for correctness and performance
 df = pl.read_csv(
     "data.csv",
-    dtypes={"id": pl.Int64, "date": pl.Date, "category": pl.Categorical}
+    schema_overrides={"id": pl.Int64, "date": pl.Date, "category": pl.Categorical}
 )
 ```
 
@@ -429,7 +431,7 @@ print(lf.explain())  # See query plan
 lf = pl.scan_parquet("data.parquet")
 
 # 2. Stream results
-result = lf.collect(streaming=True)
+result = lf.collect(engine="streaming")
 
 # 3. Select only needed columns
 lf = lf.select("col1", "col2")
@@ -538,7 +540,7 @@ lf = pl.scan_parquet("data/*.parquet")  # Parallel reading
 # 3. Specify schema when known
 lf = pl.scan_csv(
     "data.csv",
-    dtypes={"id": pl.Int64, "date": pl.Date}
+    schema_overrides={"id": pl.Int64, "date": pl.Date}
 )
 
 # 4. Use predicate pushdown

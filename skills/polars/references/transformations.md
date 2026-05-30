@@ -23,7 +23,7 @@ result = df1.join(df2, on="id", how="left")
 **Outer Join (union):**
 ```python
 # Keep all rows from both DataFrames
-result = df1.join(df2, on="id", how="outer")
+result = df1.join(df2, on="id", how="full")
 ```
 
 **Cross Join (Cartesian product):**
@@ -232,7 +232,7 @@ df = pl.DataFrame({
 pivoted = df.pivot(
     values="sales",
     index="date",
-    columns="product"
+    on="product"
 )
 # Result:
 # date     | A   | B
@@ -255,7 +255,7 @@ df = pl.DataFrame({
 pivoted = df.pivot(
     values="sales",
     index="date",
-    columns="product",
+    on="product",
     aggregate_function="sum"  # or "mean", "max", "min", etc.
 )
 ```
@@ -273,7 +273,7 @@ df = pl.DataFrame({
 pivoted = df.pivot(
     values="sales",
     index=["region", "date"],
-    columns="product"
+    on="product"
 )
 ```
 
@@ -318,6 +318,8 @@ unpivoted = df.unpivot(
 
 ```python
 # Unpivot all columns matching pattern
+import polars.selectors as cs
+
 df = pl.DataFrame({
     "id": [1, 2],
     "sales_Q1": [100, 200],
@@ -326,10 +328,10 @@ df = pl.DataFrame({
     "revenue_Q1": [1000, 2000]
 })
 
-# Unpivot all sales columns
+# Unpivot all sales columns (on= takes column names or a selector, not pl.col)
 unpivoted = df.unpivot(
     index="id",
-    on=pl.col("^sales_.*$")
+    on=cs.starts_with("sales_")
 )
 ```
 
@@ -405,7 +407,7 @@ wide = pl.DataFrame({
 long = wide.unpivot(index="id", on=["A", "B"])
 
 # Back to wide (maybe with transformations)
-wide_again = long.pivot(values="value", index="id", columns="variable")
+wide_again = long.pivot(values="value", index="id", on="variable")
 ```
 
 ### Pattern 2: Nested to Flat
@@ -442,7 +444,7 @@ result = (
     sales
     .group_by("date", "product")
     .agg(pl.col("sales").sum())
-    .pivot(values="sales", index="date", columns="product")
+    .pivot(values="sales", index="date", on="product")
 )
 ```
 
@@ -451,26 +453,30 @@ result = (
 ### Conditional Reshaping
 
 ```python
+import polars.selectors as cs
+
 # Pivot only certain values
 df.filter(pl.col("year") >= 2020).pivot(...)
 
 # Unpivot with filtering
-df.unpivot(index="id", on=pl.col("^sales.*$"))
+df.unpivot(index="id", on=cs.starts_with("sales"))
 ```
 
 ### Multi-level Transformations
 
 ```python
 # Complex reshaping pipeline
+import polars.selectors as cs
+
 result = (
     df
-    .unpivot(index="id", on=pl.col("^Q[0-9]_.*$"))
+    .unpivot(index="id", on=cs.matches("^Q[0-9]_.*$"))
     .with_columns(
         quarter=pl.col("variable").str.extract(r"Q([0-9])", 1),
         metric=pl.col("variable").str.extract(r"Q[0-9]_(.*)", 1)
     )
     .drop("variable")
-    .pivot(values="value", index=["id", "quarter"], columns="metric")
+    .pivot(values="value", index=["id", "quarter"], on="metric")
 )
 ```
 
@@ -545,5 +551,5 @@ orders.join(customers, on="customer_id").join(products, on="product_id")
 
 ```python
 # Pivot for reporting
-sales.pivot(values="amount", index="month", columns="product")
+sales.pivot(values="amount", index="month", on="product")
 ```

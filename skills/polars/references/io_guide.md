@@ -21,7 +21,7 @@ df = pl.read_csv(
     columns=["col1", "col2"],  # Select specific columns
     n_rows=1000,  # Read only first 1000 rows
     skip_rows=10,  # Skip first 10 rows
-    dtypes={"col1": pl.Int64, "col2": pl.Utf8},  # Specify types
+    schema_overrides={"col1": pl.Int64, "col2": pl.Utf8},  # Specify types
     null_values=["NA", "null", ""],  # Define null values
     encoding="utf-8",
     ignore_errors=False
@@ -146,8 +146,8 @@ lf = pl.scan_ndjson("data.ndjson")
 ```python
 df = pl.read_json("data.json")
 
-# From JSON string
-df = pl.read_json('{"col1": [1, 2], "col2": ["a", "b"]}')
+# From JSON string (a str is treated as a path; pass bytes for a literal document)
+df = pl.read_json('{"col1": [1, 2], "col2": ["a", "b"]}'.encode())
 ```
 
 ### Writing JSON
@@ -159,8 +159,9 @@ df.write_ndjson("output.ndjson")
 # Write standard JSON
 df.write_json("output.json")
 
-# Pretty printed
-df.write_json("output.json", pretty=True, row_oriented=False)
+# write_json takes only `file` in polars 1.x; for pretty/row-oriented output, serialize rows yourself
+import json
+json.dump(df.to_dicts(), open("output.json", "w"), indent=2)
 ```
 
 ## Excel Files
@@ -173,17 +174,16 @@ df = pl.read_excel("data.xlsx")
 
 # Specific sheet
 df = pl.read_excel("data.xlsx", sheet_name="Sheet1")
-# Or by index
-df = pl.read_excel("data.xlsx", sheet_id=0)
+# Or by index (sheet_id is 1-indexed; sheet_id=0 returns a dict of all sheets)
+df = pl.read_excel("data.xlsx", sheet_id=1)
 
 # With options
 df = pl.read_excel(
     "data.xlsx",
     sheet_name="Sheet1",
-    columns=["A", "B", "C"],  # Excel columns
-    n_rows=100,
-    skip_rows=5,
-    has_header=True
+    columns=["name", "age", "city"],  # by column name (or integer index), not Excel letters
+    has_header=True,
+    read_options={"n_rows": 100, "skip_rows": 5}  # engine-specific (calamine)
 )
 ```
 
@@ -193,10 +193,11 @@ df = pl.read_excel(
 # Write to Excel
 df.write_excel("output.xlsx")
 
-# Multiple sheets
-with pl.ExcelWriter("output.xlsx") as writer:
-    df1.write_excel(writer, worksheet="Sheet1")
-    df2.write_excel(writer, worksheet="Sheet2")
+# Multiple sheets: pass a shared xlsxwriter Workbook (pl.ExcelWriter does not exist)
+import xlsxwriter
+with xlsxwriter.Workbook("output.xlsx") as wb:
+    df1.write_excel(workbook=wb, worksheet="Sheet1")
+    df2.write_excel(workbook=wb, worksheet="Sheet2")
 ```
 
 ## Database Connectivity
@@ -207,7 +208,7 @@ with pl.ExcelWriter("output.xlsx") as writer:
 import polars as pl
 
 # Read entire table
-df = pl.read_database("SELECT * FROM users", connection_uri="postgresql://...")
+df = pl.read_database("SELECT * FROM users", connection=conn)  # conn: a DBAPI2/SQLAlchemy connection
 
 # Using connectorx for better performance
 df = pl.read_database_uri(
@@ -229,7 +230,7 @@ df.write_database("table_name", connection=engine)
 df.write_database(
     "table_name",
     connection=engine,
-    if_exists="replace",  # or "append", "fail"
+    if_table_exists="replace",  # or "append", "fail"
 )
 ```
 
@@ -305,9 +306,9 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/path/to/credentials.json"
 
 ```python
 # Read from BigQuery
-df = pl.read_database(
+df = pl.read_database_uri(
     "SELECT * FROM project.dataset.table",
-    connection_uri="bigquery://project"
+    uri="bigquery://project"
 )
 
 # Or using Google Cloud SDK
@@ -419,7 +420,7 @@ rows = df.to_dicts()
 
 # From list of tuples
 data = [("Alice", 25), ("Bob", 30)]
-df = pl.DataFrame(data, schema=["name", "age"])
+df = pl.DataFrame(data, schema=["name", "age"], orient="row")
 ```
 
 ## Streaming Large Files
@@ -429,11 +430,11 @@ For datasets larger than memory, use lazy mode with streaming:
 ```python
 # Streaming mode
 lf = pl.scan_csv("very_large.csv")
-result = lf.filter(pl.col("value") > 100).collect(streaming=True)
+result = lf.filter(pl.col("value") > 100).collect(engine="streaming")
 
 # Streaming with multiple files
 lf = pl.scan_parquet("data/*.parquet")
-result = lf.group_by("category").agg(pl.col("value").sum()).collect(streaming=True)
+result = lf.group_by("category").agg(pl.col("value").sum()).collect(engine="streaming")
 ```
 
 ## Best Practices
@@ -478,7 +479,7 @@ result = (
 )
 
 # 3. Use streaming for very large data
-result = lf.filter(...).select(...).collect(streaming=True)
+result = lf.filter(...).select(...).collect(engine="streaming")
 
 # 4. Read only needed rows during development
 df = pl.read_csv("large.csv", n_rows=10000)  # Sample for testing
@@ -504,15 +505,15 @@ lf.sink_parquet("output.parquet")  # Streaming write
 # 1. Specify dtypes when reading CSV
 df = pl.read_csv(
     "data.csv",
-    dtypes={"id": pl.Int64, "name": pl.Utf8}  # Avoids inference
+    schema_overrides={"id": pl.Int64, "name": pl.Utf8}  # Avoids inference
 )
 
 # 2. Use appropriate compression
 df.write_parquet("output.parquet", compression="snappy")  # Fast
 df.write_parquet("output.parquet", compression="zstd")    # Better compression
 
-# 3. Parallel reading
-df = pl.read_csv("data.csv", parallel="auto")
+# 3. CSV reads parallelize automatically (read_csv has no `parallel` argument)
+df = pl.read_csv("data.csv")
 
 # 4. Read multiple files in parallel
 lf = pl.scan_parquet("data/*.parquet")  # Automatic parallel read
@@ -544,7 +545,7 @@ else:
 schema = pl.read_csv("data.csv", n_rows=1000).schema
 
 # Use inferred schema for full read
-df = pl.read_csv("data.csv", dtypes=schema)
+df = pl.read_csv("data.csv", schema_overrides=schema)
 
 # Define schema explicitly
 schema = {
@@ -553,5 +554,5 @@ schema = {
     "date": pl.Date,
     "value": pl.Float64
 }
-df = pl.read_csv("data.csv", dtypes=schema)
+df = pl.read_csv("data.csv", schema_overrides=schema)
 ```

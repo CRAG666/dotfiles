@@ -17,11 +17,13 @@ df.select(pl.col("name"), pl.col("age"))
 
 **Pattern-based selection:**
 ```python
+import polars.selectors as cs
+
 # All columns starting with "sales_"
 df.select(pl.col("^sales_.*$"))
 
 # All numeric columns
-df.select(pl.col(pl.NUMERIC_DTYPES))
+df.select(cs.numeric())
 
 # All columns except specific ones
 df.select(pl.all().exclude("id", "timestamp"))
@@ -294,9 +296,9 @@ df.with_columns(
 **Time-based rolling:**
 ```python
 df.with_columns(
-    rolling_avg=pl.col("value").rolling_mean(
-        window_size="7d",
-        by="date"
+    rolling_avg=pl.col("value").rolling_mean_by(
+        "date",
+        window_size="7d"
     )
 )
 ```
@@ -481,7 +483,7 @@ df.with_columns(
 # Add duration
 df.with_columns(
     next_week=pl.col("date") + pl.duration(weeks=1),
-    next_month=pl.col("date") + pl.duration(months=1)
+    next_month=pl.col("date").dt.offset_by("1mo")
 )
 
 # Difference between dates
@@ -512,7 +514,7 @@ df.filter(pl.col("date").dt.month().is_in([6, 7, 8]))  # Summer months
 ```python
 # Create list column
 df.with_columns(
-    items_list=pl.col("item1", "item2", "item3").to_list()
+    items_list=pl.concat_list("item1", "item2", "item3")
 )
 
 # List operations

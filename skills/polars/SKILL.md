@@ -1,6 +1,6 @@
 ---
 name: polars
-description: Fast in-memory DataFrame library for datasets that fit in RAM. Use when pandas is too slow but data still fits in memory. Lazy evaluation, parallel execution, Apache Arrow backend. Best for 1-100GB datasets, ETL pipelines, faster pandas replacement. For larger-than-RAM data use dask or vaex.
+description: 'Fast DataFrame library built on Apache Arrow with lazy evaluation, a query optimizer, and multithreaded parallel execution. Use as a faster pandas replacement for ETL and analytics on datasets from megabytes to roughly 100GB, and use its streaming, out-of-core engine to process larger-than-memory data that does not fit in RAM, with predicate and projection pushdown when scanning Parquet or CSV, plus joins, group-bys, window and rolling operations. For distributed multi-machine clusters consider dask or Spark.'
 license: https://github.com/pola-rs/polars/blob/main/LICENSE
 metadata:
     skill-author: K-Dense Inc.
@@ -18,7 +18,7 @@ Polars is a lightning-fast DataFrame library for Python and Rust built on Apache
 
 Install Polars:
 ```python
-uv pip install polars
+uv add polars
 ```
 
 Basic DataFrame creation and operations:
@@ -140,8 +140,8 @@ df.with_columns(
 
 # Parallel computation (all columns computed in parallel)
 df.with_columns(
-    pl.col("value") * 10,
-    pl.col("value") * 100,
+    value_x10=pl.col("value") * 10,
+    value_x100=pl.col("value") * 100,
 )
 ```
 
@@ -175,7 +175,7 @@ Common aggregations within `group_by` context:
 - `pl.col("x").sum()` - sum values
 - `pl.col("x").mean()` - average
 - `pl.col("x").min()` / `pl.col("x").max()` - extremes
-- `pl.first()` / `pl.last()` - first/last values
+- `pl.col("x").first()` / `pl.col("x").last()` - first/last values (give each an explicit `.alias()` when both are used in one agg, or they collide)
 
 ### Window Functions with `over()`
 Apply aggregations while preserving row count:
@@ -266,7 +266,7 @@ pl.concat([df1, df2], how="diagonal")
 Reshape data:
 ```python
 # Pivot (wide format)
-df.pivot(values="sales", index="date", columns="product")
+df.pivot("product", index="date", values="sales")
 
 # Unpivot (long format)
 df.unpivot(index="id", on=["col1", "col2"])
@@ -331,7 +331,7 @@ For comprehensive migration guide, load `references/pandas_migration.md`.
 
 3. **Use streaming for very large data:**
    ```python
-   lf.collect(streaming=True)
+   lf.collect(engine="streaming")
    ```
 
 4. **Select only needed columns early:**
