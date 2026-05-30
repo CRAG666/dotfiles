@@ -1,6 +1,6 @@
 ---
 name: scikit-bio
-description: Biological data toolkit. Sequence analysis, alignments, phylogenetic trees, diversity metrics (alpha/beta, UniFrac), ordination (PCoA), PERMANOVA, FASTA/Newick I/O, for microbiome analysis.
+description: 'Biological data toolkit. Sequence analysis, alignments, phylogenetic trees, diversity metrics (alpha/beta, UniFrac), ordination (PCoA), PERMANOVA, FASTA/Newick I/O, for microbiome analysis.'
 license: BSD-3-Clause license
 metadata:
     skill-author: K-Dense Inc.
@@ -53,7 +53,7 @@ rna = seq.transcribe()
 protein = rna.translate()
 
 # Find motifs
-motif_positions = seq.find_with_regex('ATG[ACGT]{3}')
+motif_positions = seq.find_with_regex('(ATG[ACGT]{3})')
 
 # Check for properties
 has_degens = seq.has_degenerates()
@@ -79,13 +79,13 @@ Perform pairwise and multiple sequence alignments using dynamic programming algo
 
 **Common patterns:**
 ```python
-from skbio.alignment import local_pairwise_align_ssw, TabularMSA
+from skbio.alignment import local_pairwise_align_nucleotide, TabularMSA
 
 # Pairwise alignment
-alignment = local_pairwise_align_ssw(seq1, seq2)
+msa, score, positions = local_pairwise_align_nucleotide(seq1, seq2)
 
 # Access aligned sequences
-msa = alignment.aligned_sequences
+aligned_seqs = list(msa)
 
 # Read multiple alignment from file
 msa = TabularMSA.read('alignment.fasta', constructor=skbio.DNA)
@@ -95,8 +95,9 @@ consensus = msa.consensus()
 ```
 
 **Important notes:**
-- Use `local_pairwise_align_ssw` for local alignments (faster, SSW-based)
-- Use `StripedSmithWaterman` for protein alignments
+- `local_pairwise_align_nucleotide`, `global_pairwise_align_nucleotide`, and `local_pairwise_align_protein` are pure-Python and emit a PendingDeprecationWarning; prefer `skbio.alignment.pair_align` (use `mode='local'` or `mode='global'`) for new code
+- Use `local_pairwise_align_nucleotide` for local nucleotide alignments
+- Use `local_pairwise_align_protein` for protein alignments
 - Affine gap penalties recommended for biological sequences
 - Can convert between scikit-bio, BioPython, and Biotite alignment formats
 
@@ -105,7 +106,7 @@ consensus = msa.consensus()
 Construct, manipulate, and analyze phylogenetic trees representing evolutionary relationships.
 
 **Key capabilities:**
-- Tree construction from distance matrices (UPGMA, WPGMA, Neighbor Joining, GME, BME)
+- Tree construction from distance matrices (UPGMA, WPGMA via `upgma(weighted=True)`, Neighbor Joining, GME, BME)
 - Tree manipulation (pruning, rerooting, traversal)
 - Distance calculations (patristic, cophenetic, Robinson-Foulds)
 - ASCII visualization
@@ -129,10 +130,10 @@ lca = tree.lowest_common_ancestor(['taxon1', 'taxon2'])
 
 # Calculate distances
 patristic_dist = tree.find('taxon1').distance(tree.find('taxon2'))
-cophenetic_matrix = tree.cophenetic_matrix()
+cophenetic_matrix = tree.tip_tip_distances()
 
 # Compare trees
-rf_distance = tree.robinson_foulds(other_tree)
+rf_distance = tree.compare_rfd(other_tree)
 ```
 
 **Important notes:**
@@ -160,12 +161,12 @@ import skbio
 # Alpha diversity
 alpha = alpha_diversity('shannon', counts_matrix, ids=sample_ids)
 faith_pd = alpha_diversity('faith_pd', counts_matrix, ids=sample_ids,
-                          tree=tree, otu_ids=feature_ids)
+                          tree=tree, taxa=feature_ids)
 
 # Beta diversity
 bc_dm = beta_diversity('braycurtis', counts_matrix, ids=sample_ids)
 unifrac_dm = beta_diversity('unweighted_unifrac', counts_matrix,
-                           ids=sample_ids, tree=tree, otu_ids=feature_ids)
+                           ids=sample_ids, tree=tree, taxa=feature_ids)
 
 # Get available metrics
 from skbio.diversity import get_alpha_diversity_metrics
@@ -173,7 +174,7 @@ print(get_alpha_diversity_metrics())
 ```
 
 **Important notes:**
-- Counts must be integers representing abundances, not relative frequencies
+- Most non-phylogenetic metrics accept any nonnegative abundance-like vectors; some metrics (e.g. those based on counting individuals, like chao1) require integer counts rather than relative frequencies
 - Phylogenetic metrics (Faith's PD, UniFrac) require tree and OTU ID mapping
 - Use `partial_beta_diversity()` for computing specific sample pairs only
 - Alpha diversity returns Series, beta diversity returns DistanceMatrix
@@ -273,8 +274,8 @@ seq.write('output.fasta', format='fasta')
 for seq in skbio.io.read('large.fasta', format='fasta', constructor=skbio.DNA):
     process(seq)
 
-# Convert formats
-seqs = list(skbio.io.read('input.fastq', format='fastq', constructor=skbio.DNA))
+# Convert formats (pass a generator; there is no list writer)
+seqs = skbio.io.read('input.fastq', format='fastq', constructor=skbio.DNA)
 skbio.io.write(seqs, format='fasta', into='output.fasta')
 ```
 
@@ -347,14 +348,15 @@ counts = table.matrix_data
 # Filter
 filtered = table.filter(sample_ids_to_keep, axis='sample')
 
-# Convert to/from pandas
+# Convert to/from pandas (skbio.Table is biom.table.Table;
+# the DataFrame is observations (rows) x samples (columns))
 df = table.to_dataframe()
-table = Table.from_dataframe(df)
+table = Table(df.values, observation_ids=df.index, sample_ids=df.columns)
 ```
 
 **Important notes:**
 - BIOM tables are standard in QIIME 2 workflows
-- Rows typically represent samples, columns represent features (OTUs/ASVs)
+- Rows represent observations/features (OTUs/ASVs), columns represent samples
 - Supports sparse and dense representations
 - Output format configurable (pandas/polars/numpy)
 
@@ -370,20 +372,25 @@ Work with protein language model embeddings for downstream analysis.
 
 **Common patterns:**
 ```python
-from skbio.embedding import ProteinEmbedding, ProteinVector
+from skbio.embedding import (ProteinEmbedding, ProteinVector,
+                             embed_vec_to_distances, embed_vec_to_ordination,
+                             embed_vec_to_numpy, embed_vec_to_dataframe)
 
-# Create embedding from array
-embedding = ProteinEmbedding(embedding_array, sequence_ids)
+# Create a per-residue embedding from an array (second positional is the sequence)
+embedding = ProteinEmbedding(embedding_array, sequence)
+
+# Per-sequence vectors (one fixed-length vector per protein)
+vectors = [ProteinVector(vec, seq) for vec, seq in zip(vector_array, sequences)]
 
 # Convert to distance matrix for analysis
-dm = embedding.to_distances(metric='euclidean')
+dm = embed_vec_to_distances(vectors, metric='euclidean')
 
-# PCoA visualization of embedding space
-pcoa_results = embedding.to_ordination(metric='euclidean', method='pcoa')
+# Ordination of embedding space
+ordination_results = embed_vec_to_ordination(vectors)
 
 # Export for machine learning
-array = embedding.to_array()
-df = embedding.to_dataframe()
+array = embed_vec_to_numpy(vectors)
+df = embed_vec_to_dataframe(vectors)
 ```
 
 **Important notes:**
