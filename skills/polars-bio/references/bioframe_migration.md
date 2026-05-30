@@ -138,10 +138,9 @@ Benchmarks on real-world genomic datasets (from the polars-bio paper, Bioinforma
 
 | Operation | bioframe | polars-bio | Speedup |
 |-----------|----------|------------|---------|
-| overlap | 1.0x | 6.5x | 6.5x |
-| nearest | 1.0x | 38x | 38x |
-| merge | 1.0x | 8.2x | 8.2x |
-| coverage | 1.0x | 12x | 12x |
+| count_overlaps | 1.0x | 38x | 38x |
+| nearest | 1.0x | 15.5x | 15.5x |
+| coverage | 1.0x | 15x | 15x |
 
 Speedups come from:
 - Rust-based interval tree implementation
@@ -206,7 +205,7 @@ import polars_bio as pb
 
 # Lazy scan, streaming execution
 lf = pb.scan_bed("huge_intervals.bed")
-result = pb.merge(lf).collect(streaming=True)
+result = pb.merge(lf).collect(engine="streaming")
 ```
 
 ## pandas Compatibility Mode

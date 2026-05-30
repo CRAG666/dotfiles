@@ -41,8 +41,8 @@ When `per_base=False` (default), adjacent positions with the same depth are grou
 | Column | Type | Description |
 |--------|------|-------------|
 | `contig` | String | Chromosome/contig name |
-| `pos_start` | Int64 | Block start position |
-| `pos_end` | Int64 | Block end position |
+| `pos_start` | Int32 | Block start position |
+| `pos_end` | Int32 | Block end position |
 | `coverage` | Int16 | Read depth |
 
 ### Output Schema (Per-Base Mode)
@@ -52,7 +52,7 @@ When `per_base=True`, each position is reported individually:
 | Column | Type | Description |
 |--------|------|-------------|
 | `contig` | String | Chromosome/contig name |
-| `pos` | Int64 | Position |
+| `pos` | Int32 | Position |
 | `coverage` | Int16 | Read depth at position |
 
 ### filter_flag

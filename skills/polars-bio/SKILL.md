@@ -1,6 +1,6 @@
 ---
 name: polars-bio
-description: High-performance genomic interval operations and bioinformatics file I/O on Polars DataFrames. Overlap, nearest, merge, coverage, complement, subtract for BED/VCF/BAM/GFF intervals. Streaming, cloud-native, faster bioframe alternative.
+description: 'High-performance genomic interval operations and bioinformatics file I/O on Polars DataFrames. Overlap, nearest, merge, coverage, complement, subtract for BED/VCF/BAM/GFF intervals. Streaming, cloud-native, faster bioframe alternative.'
 license: https://github.com/biodatageeks/polars-bio/blob/main/LICENSE
 metadata:
     skill-author: K-Dense Inc.
@@ -131,7 +131,7 @@ result_df = result.collect()
 Read and write common bioinformatics formats with `read_*`, `scan_*`, `write_*`, and `sink_*` functions. Supports cloud storage (S3, GCS, Azure) and compression (GZIP, BGZF).
 
 **Supported formats:**
-- **BED** - Genomic intervals (`read_bed`, `scan_bed`, `write_*` via generic)
+- **BED** - Genomic intervals (`read_bed`, `scan_bed`; no BED writer; write via Polars `df.write_csv("out.bed", separator="\t", include_header=False)`)
 - **VCF** - Genetic variants (`read_vcf`, `scan_vcf`, `write_vcf`, `sink_vcf`)
 - **BAM** - Aligned reads (`read_bam`, `scan_bam`, `write_bam`, `sink_bam`)
 - **CRAM** - Compressed alignments (`read_cram`, `scan_cram`, `write_cram`, `sink_cram`)
@@ -212,13 +212,13 @@ polars-bio defaults to **1-based** coordinates (genomic convention). This can be
 import polars_bio as pb
 
 # Switch to 0-based coordinates
-pb.set_option("coordinate_system", "0-based")
+pb.set_option(pb.POLARS_BIO_COORDINATE_SYSTEM_ZERO_BASED, True)
 
 # Switch back to 1-based (default)
-pb.set_option("coordinate_system", "1-based")
+pb.set_option(pb.POLARS_BIO_COORDINATE_SYSTEM_ZERO_BASED, False)
 ```
 
-I/O functions also accept `use_zero_based` to set coordinate metadata on the resulting DataFrame:
+Coordinate-bearing readers (BED, VCF, BAM, CRAM, GFF, GTF, Hi-C pairs) also accept `use_zero_based` to set coordinate metadata on the resulting DataFrame (sequence-only readers like `read_fasta`/`read_fastq` do not):
 
 ```python
 # Read BED with explicit 0-based metadata
@@ -303,7 +303,7 @@ For datasets larger than available RAM, use `scan_*` functions and streaming exe
 lf = pb.scan_bed("large_intervals.bed")
 
 # Process with streaming
-result = lf.collect(streaming=True)
+result = lf.collect(engine="streaming")
 ```
 
 DataFusion streaming is enabled by default for interval operations, processing data in batches without loading the full dataset into memory.
@@ -316,20 +316,20 @@ DataFusion streaming is enabled by default for interval operations, processing d
 
 3. **Column name mismatches:** polars-bio expects `chrom`, `start`, `end` by default. Use `cols1`/`cols2` parameters (as lists) if your columns have different names.
 
-4. **Coordinate system metadata:** When constructing DataFrames manually (not via `read_*`/`scan_*`), polars-bio warns about missing coordinate metadata. Use `pb.set_option("coordinate_system", "0-based")` globally, or use I/O functions that set metadata automatically.
+4. **Coordinate system metadata:** When constructing DataFrames manually (not via `read_*`/`scan_*`), polars-bio warns about missing coordinate metadata. Use `pb.set_option(pb.POLARS_BIO_COORDINATE_SYSTEM_ZERO_BASED, True)` globally, or use I/O functions that set metadata automatically.
 
 5. **Probe-build order matters:** For overlap, nearest, and coverage, the first DataFrame is probed against the second. Swapping arguments changes which intervals appear in the left vs right output columns, and can affect performance.
 
 6. **INT32 position limit:** Genomic positions are stored as 32-bit integers, limiting coordinates to ~2.1 billion. This is sufficient for all known genomes but may be an issue with custom coordinate spaces.
 
-7. **BAM index requirements:** `read_bam` and `scan_bam` require a `.bai` index file alongside the BAM. Create one with `samtools index` if missing.
+7. **BAM index is optional:** `read_bam` and `scan_bam` work without a `.bai`/`.csi` index. An index is only needed for indexed parallel reads and predicate pushdown (region-based filtering), which become automatic when an index is present. Create one with `samtools index` to enable them.
 
 8. **Parallel execution disabled by default:** DataFusion parallelism defaults to 1 partition. Enable for large datasets:
    ```python
    pb.set_option("datafusion.execution.target_partitions", 8)
    ```
 
-9. **CRAM has separate functions:** Use `read_cram`/`scan_cram`/`register_cram` for CRAM files (not `read_bam`). CRAM functions require a `reference_path` parameter.
+9. **CRAM has separate functions:** Use `read_cram`/`scan_cram`/`register_cram` for CRAM files (not `read_bam`). Only `write_cram`/`sink_cram` require a `reference_path`; `read_cram`/`scan_cram` accept `reference_path=None` (the embedded reference / MD5 lookup is used when available).
 
 ## Best Practices
 
@@ -341,7 +341,7 @@ DataFusion streaming is enabled by default for interval operations, processing d
    pb.set_option("datafusion.execution.target_partitions", os.cpu_count())
    ```
 
-3. **Use BGZF compression:** BGZF-compressed files (`.bed.gz`, `.vcf.gz`) support parallel block decompression, significantly faster than plain GZIP.
+3. **Use BGZF compression:** BGZF-compressed files (`.bed.gz`, `.vcf.gz`) support parallel block decompression, significantly faster than plain GZIP. For BED specifically, plain (non-BGZF) GZIP is unsupported and panics, so BED `.gz` files must be BGZF-compressed (e.g., created with `bgzip`).
 
 4. **Select columns early:** When only specific columns are needed, select them early to reduce memory usage:
    ```python

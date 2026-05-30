@@ -53,10 +53,10 @@ polars-bio defaults to 1-based coordinates (standard genomic convention).
 import polars_bio as pb
 
 # Switch to 0-based half-open coordinates
-pb.set_option("coordinate_system", "0-based")
+pb.set_option(pb.POLARS_BIO_COORDINATE_SYSTEM_ZERO_BASED, True)
 
 # Switch back to 1-based (default)
-pb.set_option("coordinate_system", "1-based")
+pb.set_option(pb.POLARS_BIO_COORDINATE_SYSTEM_ZERO_BASED, False)
 
 # Check current setting
 print(pb.get_option("coordinate_system"))
@@ -110,7 +110,7 @@ Use Polars' native streaming for post-processing operations:
 
 ```python
 # Collect with Polars streaming
-result = lf.collect(streaming=True)
+result = lf.collect(engine="streaming")
 ```
 
 ### Combining Both
@@ -126,7 +126,7 @@ lf2 = pb.scan_bed("large2.bed")
 result_lf = pb.overlap(lf1, lf2)
 
 # Collect with Polars streaming for final materialization
-result = result_lf.collect(streaming=True)
+result = result_lf.collect(engine="streaming")
 ```
 
 ## Logging
@@ -142,7 +142,7 @@ pb.set_loglevel("info")    # Standard messages
 pb.set_loglevel("warn")    # Warnings only (default)
 ```
 
-**Note:** Only `"debug"`, `"info"`, and `"warn"` are valid log levels.
+**Note:** Valid log levels are `"debug"`, `"info"`, `"warn"`, and `"warning"` (`"warn"` and `"warning"` are equivalent).
 
 ## Metadata Management
 
@@ -172,4 +172,4 @@ pb.from_polars("my_table", df)
 | Option | Default | Description |
 |--------|---------|-------------|
 | `datafusion.execution.target_partitions` | `1` | Number of parallel execution partitions |
-| `coordinate_system` | `"1-based"` | Default coordinate system (`"0-based"` or `"1-based"`) |
+| `coordinate_system` | `None` | Legacy key; `get_option("coordinate_system")` returns `None` (unset). The effective runtime switch is `datafusion.bio.coordinate_system_zero_based` (default `"false"`, i.e. 1-based), settable via `pb.set_option(pb.POLARS_BIO_COORDINATE_SYSTEM_ZERO_BASED, True/False)` |
