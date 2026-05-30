@@ -1,6 +1,6 @@
 ---
 name: redaccion-cientifica-es
-description: Usar siempre que el usuario escriba, redacte, revise o traduzca texto científico/académico en ESPAÑOL — artículos, papers, tesis, abstracts, introducciones, metodologías, resultados, discusión, conclusiones, agradecimientos, revisiones de literatura, defensas, propuestas de investigación o cualquier sección IMRyD. Aporta más de 5000 frases "precocinadas" idiomáticas y formales para cada sección estándar de un documento científico, evitando la prosa robótica/IA. Disparadores: "escribe la introducción", "redacta el abstract", "ayúdame con la discusión", "mejora este párrafo científico", "tradúceme este paper", "redacta la metodología", "necesito frases para...", "esto suena a IA, mejóralo".
+description: 'Usar siempre que el usuario escriba, redacte, revise o traduzca texto científico/académico en ESPAÑOL: artículos, papers, tesis, abstracts, introducciones, metodologías, resultados, discusión, conclusiones, agradecimientos, revisiones de literatura, defensas, propuestas de investigación o cualquier sección IMRyD. Aporta más de 5000 frases "precocinadas" idiomáticas y formales para cada sección estándar de un documento científico, evitando la prosa robótica/IA. Disparadores: "escribe la introducción", "redacta el abstract", "ayúdame con la discusión", "mejora este párrafo científico", "tradúceme este paper", "redacta la metodología", "necesito frases para...", "esto suena a IA, mejóralo".'
 ---
 
 # Redacción Científica en Español
