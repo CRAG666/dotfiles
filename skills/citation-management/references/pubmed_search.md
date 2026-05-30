@@ -666,16 +666,19 @@ for topic in "${TOPICS[@]}"; do
 done
 ```
 
-### Extract Metadata
+### Export BibTeX
 
 ```bash
-# Search returns PMIDs
-python scripts/search_pubmed.py "topic" --output results.json
-
-# Extract full metadata
-python scripts/extract_metadata.py \
-  --input results.json \
+# search_pubmed.py fetches full metadata, so it can emit BibTeX in one step.
+python scripts/search_pubmed.py "topic" \
+  --format bibtex \
   --output references.bib
+
+# If you saved JSON results instead, extract the PMIDs first: extract_metadata.py
+# reads one identifier per line, not a results JSON object.
+python scripts/search_pubmed.py "topic" --format json --output results.json
+python -c "import json; [print(r['pmid']) for r in json.load(open('results.json'))['results'] if r.get('pmid')]" > pmids.txt
+python scripts/extract_metadata.py --input pmids.txt --output references.bib
 ```
 
 ## Tips and Best Practices

@@ -379,7 +379,7 @@ Google Scholar has rate limiting to prevent automated scraping:
 **In our scripts**:
 ```python
 # Automatic rate limiting built in
-time.sleep(random.uniform(3, 7))  # Random delay 3-7 seconds
+time.sleep(random.uniform(2, 5))  # Random delay 2-5 seconds
 ```
 
 ### Ethical Considerations
@@ -492,10 +492,12 @@ time.sleep(random.uniform(3, 7))  # Random delay 3-7 seconds
    # Save search results for later analysis
    python scripts/search_google_scholar.py "your topic" \
      --output topic_papers.json
-   
-   # Can re-process later without re-searching
-   python scripts/extract_metadata.py \
-     --input topic_papers.json \
+
+   # Re-run the same search to export BibTeX directly (the search script
+   # builds the entries itself; extract_metadata.py expects one identifier
+   # per line, not a results JSON file).
+   python scripts/search_google_scholar.py "your topic" \
+     --format bibtex \
      --output topic_refs.bib
    ```
 
@@ -528,11 +530,10 @@ machine learning
 # Check arXiv, bioRxiv versions
 ```
 
-**In script**:
+**In script** (no open-access filter exists; use the manual techniques above to spot OA results):
 ```bash
 python scripts/search_google_scholar.py "topic" \
-  --open-access-only \
-  --output open_access_papers.json
+  --output results.json
 ```
 
 ### Tracking Research Impact
@@ -680,9 +681,11 @@ python scripts/search_google_scholar.py "topic" \
   --format json \
   --output results.json
 
-# Later: extract full metadata
-python scripts/extract_metadata.py \
-  --input results.json \
+# To get BibTeX, re-run the search with --format bibtex. The results JSON is
+# not a list of identifiers, so it cannot be fed to extract_metadata.py
+# directly; that tool reads one DOI/PMID/arXiv ID per line.
+python scripts/search_google_scholar.py "topic" \
+  --format bibtex \
   --output references.bib
 ```
 

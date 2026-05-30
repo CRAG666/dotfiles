@@ -12,6 +12,9 @@ import json
 from typing import Dict, List, Tuple, Optional
 from collections import defaultdict
 
+import bibtexparser
+from bibtexparser.bparser import BibTexParser
+
 class CitationValidator:
     """Validate BibTeX entries for errors and inconsistencies."""
     
@@ -56,40 +59,39 @@ class CitationValidator:
         except Exception as e:
             print(f'Error reading file: {e}', file=sys.stderr)
             return []
-        
+
+        # Use bibtexparser for robust parsing. The hand-rolled regex parser
+        # silently truncated or dropped any field containing nested braces
+        # (e.g. {\v{Z}}{\'\i}dek), corrupting author lists and titles.
+        parser = BibTexParser(common_strings=True)
+        parser.ignore_nonstandard_types = False
+        parser.interpolate_strings = False
+
+        try:
+            bib_db = bibtexparser.loads(content, parser=parser)
+        except Exception as e:
+            print(f'Error parsing BibTeX: {e}', file=sys.stderr)
+            return []
+
         entries = []
-        
-        # Match BibTeX entries
-        pattern = r'@(\w+)\s*\{\s*([^,\s]+)\s*,(.*?)\n\}'
-        matches = re.finditer(pattern, content, re.DOTALL | re.IGNORECASE)
-        
-        for match in matches:
-            entry_type = match.group(1).lower()
-            citation_key = match.group(2).strip()
-            fields_text = match.group(3)
-            
-            # Parse fields
+        for record in bib_db.entries:
+            entry_type = record.get('ENTRYTYPE', 'misc').lower()
+            citation_key = record.get('ID', '')
+
+            # Field names are already lowercased by the parser.
             fields = {}
-            field_pattern = r'(\w+)\s*=\s*\{([^}]*)\}|(\w+)\s*=\s*"([^"]*)"'
-            field_matches = re.finditer(field_pattern, fields_text)
-            
-            for field_match in field_matches:
-                if field_match.group(1):
-                    field_name = field_match.group(1).lower()
-                    field_value = field_match.group(2)
-                else:
-                    field_name = field_match.group(3).lower()
-                    field_value = field_match.group(4)
-                
+            for field_name, field_value in record.items():
+                if field_name in ('ENTRYTYPE', 'ID'):
+                    continue
                 fields[field_name] = field_value.strip()
-            
+
             entries.append({
                 'type': entry_type,
                 'key': citation_key,
                 'fields': fields,
-                'raw': match.group(0)
+                'raw': record
             })
-        
+
         return entries
     
     def validate_entry(self, entry: Dict) -> Tuple[List[Dict], List[Dict]]:
@@ -376,12 +378,11 @@ class CitationValidator:
     
     def _extract_year_crossref(self, message: Dict) -> str:
         """Extract year from CrossRef message."""
-        date_parts = message.get('published-print', {}).get('date-parts', [[]])
-        if not date_parts or not date_parts[0]:
-            date_parts = message.get('published-online', {}).get('date-parts', [[]])
-        
-        if date_parts and date_parts[0]:
-            return str(date_parts[0][0])
+        # Prefer 'issued' (most authoritative), then published-print, then published-online
+        for key in ('issued', 'published-print', 'published-online'):
+            date_parts = message.get(key, {}).get('date-parts', [[]])
+            if date_parts and date_parts[0]:
+                return str(date_parts[0][0])
         return ''
     
     def _format_authors_crossref(self, authors: List[Dict]) -> str:

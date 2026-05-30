@@ -148,7 +148,7 @@ doi OR url    % At least one required
 #### Validation Script
 
 ```bash
-python scripts/validate_citations.py references.bib --check-required-fields
+python scripts/validate_citations.py references.bib
 ```
 
 **Output**:
@@ -215,7 +215,7 @@ author = {{World Health Organization}}
 
 **Automated validation**:
 ```bash
-python scripts/validate_citations.py references.bib --check-authors
+python scripts/validate_citations.py references.bib
 ```
 
 **Checks for**:
@@ -367,7 +367,7 @@ url = {bit.ly/...}  % URL shortener (not permanent)
 
 **Automated detection**:
 ```bash
-python scripts/validate_citations.py references.bib --check-duplicates
+python scripts/validate_citations.py references.bib
 ```
 
 **Output**:
@@ -454,7 +454,7 @@ title = {Title with {Protected} Text}
 #### Validation
 
 ```bash
-python scripts/validate_citations.py references.bib --check-syntax
+python scripts/validate_citations.py references.bib
 ```
 
 **Checks**:
@@ -544,9 +544,7 @@ Examine validation report:
 Use auto-fix for safe corrections:
 
 ```bash
-python scripts/validate_citations.py references.bib \
-  --auto-fix \
-  --output fixed_references.bib
+python scripts/format_bibtex.py references.bib -o fixed_references.bib
 ```
 
 **Auto-fix can**:
@@ -641,7 +639,7 @@ python scripts/validate_citations.py refs.bib
 python scripts/validate_citations.py refs.bib
 
 # Before submission
-python scripts/validate_citations.py refs.bib --strict
+python scripts/validate_citations.py refs.bib
 ```
 
 ### 2. Use Automated Tools
@@ -659,9 +657,7 @@ Don't validate manually - use scripts:
 cp references.bib references_backup.bib
 
 # Run auto-fix
-python scripts/validate_citations.py references.bib \
-  --auto-fix \
-  --output references_fixed.bib
+python scripts/format_bibtex.py references.bib -o references_fixed.bib
 
 # Review changes
 diff references.bib references_fixed.bib

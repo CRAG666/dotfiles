@@ -52,10 +52,14 @@ class MetadataExtractor:
             return ('doi', identifier)
         
         # Check for arXiv ID
-        if re.match(r'^\d{4}\.\d{4,5}(v\d+)?$', identifier):
-            return ('arxiv', identifier)
         if identifier.startswith('arXiv:'):
             return ('arxiv', identifier.replace('arXiv:', ''))
+        # New-style arXiv ID (since 2007): YYMM.NNNNN
+        if re.match(r'^\d{4}\.\d{4,5}(v\d+)?$', identifier):
+            return ('arxiv', identifier)
+        # Old-style arXiv ID (pre-2007): archive[.subclass]/YYMMNNN
+        if re.match(r'^[a-z][a-z\-\.]+/\d{7}(v\d+)?$', identifier, re.IGNORECASE):
+            return ('arxiv', identifier)
         
         # Check for PMID (8-digit number typically)
         if identifier.isdigit() and len(identifier) >= 7:
@@ -323,7 +327,10 @@ class MetadataExtractor:
             lines.append(f'  number  = {{{metadata["issue"]}}},')
         
         if metadata.get('pages'):
-            pages = metadata['pages'].replace('-', '--')  # En-dash
+            pages = metadata['pages']
+            # turn a single-hyphen digit range into an en-dash, leaving non-numeric hyphens intact
+            if re.search(r'\d-\d', pages) and '--' not in pages:
+                pages = re.sub(r'(\d)-(\d)', r'\1--\2', pages)
             lines.append(f'  pages   = {{{pages}}},')
         
         if metadata.get('doi'):
@@ -391,13 +398,11 @@ class MetadataExtractor:
     
     def _extract_year_crossref(self, message: Dict) -> str:
         """Extract year from CrossRef message."""
-        # Try published-print first, then published-online
-        date_parts = message.get('published-print', {}).get('date-parts', [[]])
-        if not date_parts or not date_parts[0]:
-            date_parts = message.get('published-online', {}).get('date-parts', [[]])
-        
-        if date_parts and date_parts[0]:
-            return str(date_parts[0][0])
+        # Prefer 'issued' (most authoritative), then published-print, then published-online
+        for key in ('issued', 'published-print', 'published-online'):
+            date_parts = message.get(key, {}).get('date-parts', [[]])
+            if date_parts and date_parts[0]:
+                return str(date_parts[0][0])
         return ''
     
     def _extract_year_pubmed(self, article: ET.Element) -> str:
@@ -448,36 +453,54 @@ class MetadataExtractor:
         ]
         
         for word in protected_words:
-            title = re.sub(rf'\b{word}\b', f'{{{word}}}', title, flags=re.IGNORECASE)
-        
+            # Match case-insensitively but preserve the original casing found in
+            # the title (wrap the matched text, do not rewrite it to canonical case).
+            # Skip words the source already brace-protected, to avoid double braces.
+            title = re.sub(
+                rf'(?<!\{{)\b{word}\b(?!\}})',
+                lambda m: f'{{{m.group(0)}}}',
+                title,
+                flags=re.IGNORECASE,
+            )
+
         return title
     
-    def extract(self, identifier: str) -> Optional[str]:
+    def extract_metadata_dict(self, identifier: str) -> Optional[Dict]:
         """
-        Extract metadata and return BibTeX.
-        
+        Extract structured metadata for an identifier.
+
         Args:
             identifier: DOI, PMID, arXiv ID, or URL
-            
+
         Returns:
-            BibTeX string or None
+            Metadata dictionary or None
         """
         id_type, clean_id = self.identify_type(identifier)
-        
+
         print(f'Identified as {id_type}: {clean_id}', file=sys.stderr)
-        
-        metadata = None
-        
+
         if id_type == 'doi':
-            metadata = self.extract_from_doi(clean_id)
+            return self.extract_from_doi(clean_id)
         elif id_type == 'pmid':
-            metadata = self.extract_from_pmid(clean_id)
+            return self.extract_from_pmid(clean_id)
         elif id_type == 'arxiv':
-            metadata = self.extract_from_arxiv(clean_id)
+            return self.extract_from_arxiv(clean_id)
         else:
             print(f'Error: Unknown identifier type: {identifier}', file=sys.stderr)
             return None
-        
+
+    def extract(self, identifier: str) -> Optional[str]:
+        """
+        Extract metadata and return BibTeX.
+
+        Args:
+            identifier: DOI, PMID, arXiv ID, or URL
+
+        Returns:
+            BibTeX string or None
+        """
+        metadata = self.extract_metadata_dict(identifier)
+
         if metadata:
             return self.metadata_to_bibtex(metadata)
         else:
@@ -528,40 +551,41 @@ def main():
     
     # Extract metadata
     extractor = MetadataExtractor(email=args.email)
-    bibtex_entries = []
-    
+    metadata_list = []
+
     for i, identifier in enumerate(identifiers):
         print(f'\nProcessing {i+1}/{len(identifiers)}...', file=sys.stderr)
-        bibtex = extractor.extract(identifier)
-        if bibtex:
-            bibtex_entries.append(bibtex)
-        
+        metadata = extractor.extract_metadata_dict(identifier)
+        if metadata:
+            metadata_list.append(metadata)
+
         # Rate limiting
         if i < len(identifiers) - 1:
             time.sleep(0.5)
-    
-    if not bibtex_entries:
+
+    if not metadata_list:
         print('Error: No successful extractions', file=sys.stderr)
         sys.exit(1)
-    
+
     # Format output
     if args.format == 'bibtex':
+        bibtex_entries = [extractor.metadata_to_bibtex(m) for m in metadata_list]
         output = '\n\n'.join(bibtex_entries) + '\n'
-    else:  # json
+    else:  # json: emit structured metadata, not rendered BibTeX strings
         output = json.dumps({
-            'count': len(bibtex_entries),
-            'entries': bibtex_entries
+            'count': len(metadata_list),
+            'entries': metadata_list
         }, indent=2)
-    
+
     # Write output
     if args.output:
         with open(args.output, 'w', encoding='utf-8') as f:
             f.write(output)
-        print(f'\nSuccessfully wrote {len(bibtex_entries)} entries to {args.output}', file=sys.stderr)
+        print(f'\nSuccessfully wrote {len(metadata_list)} entries to {args.output}', file=sys.stderr)
     else:
         print(output)
-    
-    print(f'\nExtracted {len(bibtex_entries)}/{len(identifiers)} entries', file=sys.stderr)
+
+    print(f'\nExtracted {len(metadata_list)}/{len(identifiers)} entries', file=sys.stderr)
 
 
 if __name__ == '__main__':

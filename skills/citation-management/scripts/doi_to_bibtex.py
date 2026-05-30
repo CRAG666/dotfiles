@@ -5,19 +5,34 @@ Quick utility to convert DOIs to BibTeX format using CrossRef API.
 """
 
 import sys
+import os
 import requests
 import argparse
 import time
 import json
 from typing import Optional, List
 
+
+def _build_user_agent() -> str:
+    """Build the CrossRef User-Agent string.
+
+    CrossRef recommends including a contact mailto in the User-Agent to join
+    the "polite pool". Set CROSSREF_MAILTO to your email to enable it; if unset,
+    no contact address is sent (no placeholder address is used).
+    """
+    mailto = os.getenv('CROSSREF_MAILTO', '').strip()
+    if mailto:
+        return f'DOIConverter/1.0 (Citation Management Tool; mailto:{mailto})'
+    return 'DOIConverter/1.0 (Citation Management Tool)'
+
+
 class DOIConverter:
     """Convert DOIs to BibTeX entries using CrossRef API."""
-    
+
     def __init__(self):
         self.session = requests.Session()
         self.session.headers.update({
-            'User-Agent': 'DOIConverter/1.0 (Citation Management Tool; mailto:support@example.com)'
+            'User-Agent': _build_user_agent()
         })
     
     def doi_to_bibtex(self, doi: str) -> Optional[str]:
@@ -43,7 +58,7 @@ class DOIConverter:
         url = f'https://doi.org/{doi}'
         headers = {
             'Accept': 'application/x-bibtex',
-            'User-Agent': 'DOIConverter/1.0 (Citation Management Tool)'
+            'User-Agent': _build_user_agent()
         }
         
         try:

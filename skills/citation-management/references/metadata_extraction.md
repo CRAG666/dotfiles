@@ -601,12 +601,14 @@ python scripts/extract_metadata.py \
 4. Query appropriate API
 5. Format as BibTeX
 
-**URL patterns**:
+**URL patterns** (resolved by the script):
 ```
-# DOI URLs
+# DOI resolver URLs
 https://doi.org/10.1038/nature12345
 https://dx.doi.org/10.1126/science.abc123
-https://www.nature.com/articles/s41586-021-03819-2
+
+# Any URL that contains a literal DOI in the path/query
+https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0123456
 
 # PubMed URLs
 https://pubmed.ncbi.nlm.nih.gov/34265844/
@@ -614,8 +616,11 @@ https://www.ncbi.nlm.nih.gov/pubmed/34265844
 
 # arXiv URLs
 https://arxiv.org/abs/2103.14030
-https://arxiv.org/pdf/2103.14030.pdf
 ```
+
+**Not resolved**: publisher landing pages whose slug is not the DOI
+(e.g. `https://www.nature.com/articles/s41586-021-03819-2`). The script does
+not scrape publisher HTML for a DOI; pass the DOI directly in that case.
 
 ### Batch Processing
 

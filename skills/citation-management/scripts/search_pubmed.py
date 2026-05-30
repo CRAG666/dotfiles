@@ -211,6 +211,30 @@ class PubMedSearcher:
             print(f'Error extracting metadata: {e}', file=sys.stderr)
             return None
     
+    def _protect_title(self, title: str) -> str:
+        """Protect capitalization in title for BibTeX.
+
+        Wraps common acronyms/proper nouns in braces so BibTeX styles do not
+        lowercase them. Matches case-insensitively but preserves the original
+        casing found in the title.
+        """
+        import re
+        protected_words = [
+            'DNA', 'RNA', 'CRISPR', 'COVID', 'HIV', 'AIDS', 'AlphaFold',
+            'Python', 'AI', 'ML', 'GPU', 'CPU', 'USA', 'UK', 'EU'
+        ]
+
+        for word in protected_words:
+            # Skip words the source already brace-protected, to avoid double braces.
+            title = re.sub(
+                rf'(?<!\{{)\b{word}\b(?!\}})',
+                lambda m: f'{{{m.group(0)}}}',
+                title,
+                flags=re.IGNORECASE,
+            )
+
+        return title
+
     def metadata_to_bibtex(self, metadata: Dict) -> str:
         """Convert metadata to BibTeX format."""
         # Generate citation key
@@ -233,8 +257,9 @@ class PubMedSearcher:
             lines.append(f'  author  = {{{metadata["authors"]}}},')
         
         if metadata.get('title'):
-            lines.append(f'  title   = {{{metadata["title"]}}},')
-        
+            title = self._protect_title(metadata['title'])
+            lines.append(f'  title   = {{{title}}},')
+
         if metadata.get('journal'):
             lines.append(f'  journal = {{{metadata["journal"]}}},')
         
@@ -248,7 +273,11 @@ class PubMedSearcher:
             lines.append(f'  number  = {{{metadata["issue"]}}},')
         
         if metadata.get('pages'):
-            pages = metadata['pages'].replace('-', '--')
+            import re
+            pages = metadata['pages']
+            # turn a single-hyphen digit range into an en-dash, leaving non-numeric hyphens intact
+            if re.search(r'\d-\d', pages) and '--' not in pages:
+                pages = re.sub(r'(\d)-(\d)', r'\1--\2', pages)
             lines.append(f'  pages   = {{{pages}}},')
         
         if metadata.get('doi'):
