@@ -7,14 +7,14 @@ This document provides comprehensive guidance for searching multiple literature 
 ### Biomedical & Life Sciences
 
 #### PubMed / PubMed Central
-- **Access**: Use `gget` skill or WebFetch tool
+- **Access**: NCBI E-utilities directly via the `WebFetch` tool, ESearch (`esearch.fcgi?db=pubmed&term=<query>`) for PMIDs, then ESummary/EFetch for records. (Note: `gget search` queries Ensembl genes and requires `-s/--species`; it has no PubMed module, so do not use it for PubMed.)
 - **Coverage**: 35M+ citations in biomedical literature
 - **Best for**: Clinical studies, biomedical research, genetics, molecular biology
 - **Search tips**: Use MeSH terms, Boolean operators (AND, OR, NOT), field tags [Title], [Author]
 - **Example**: `"CRISPR"[Title] AND "gene editing"[Title/Abstract] AND 2020:2024[Publication Date]`
 
 #### bioRxiv / medRxiv
-- **Access**: Use `gget` skill or direct API
+- **Access**: The bioRxiv/medRxiv API directly via `WebFetch` (`https://api.biorxiv.org/details/biorxiv/<from-date>/<to-date>`; swap `biorxiv` for `medrxiv`), or `WebSearch` restricted to `biorxiv.org`/`medrxiv.org`. (`gget` has no bioRxiv module.)
 - **Coverage**: Preprints in biology and medicine
 - **Best for**: Latest unpublished research, cutting-edge findings
 - **Note**: Not peer-reviewed; verify findings with caution
@@ -30,11 +30,11 @@ This document provides comprehensive guidance for searching multiple literature 
 - **Search format**: `cat:q-bio.QM AND title:"single cell"`
 
 #### Semantic Scholar
-- **Access**: Direct API (requires API key)
+- **Access**: Direct API (an API key is optional, not required)
 - **Coverage**: 200M+ papers across all fields
 - **Best for**: Cross-disciplinary searches, citation graphs, paper recommendations
 - **Features**: Influential citations, paper summaries, related papers
-- **Rate limits**: 100 requests/5 minutes with API key
+- **Rate limits**: Unauthenticated requests share a throttled public pool (roughly 1000 requests/second shared across all anonymous users, so effective throughput is low and bursty). An introductory API key grants a dedicated allowance on the order of ~1 request/second. Confirm current limits in the official docs: https://api.semanticscholar.org/api-docs/
 
 #### Google Scholar
 - **Access**: Web scraping (use cautiously) or manual search
@@ -45,36 +45,38 @@ This document provides comprehensive guidance for searching multiple literature 
 
 ### Specialized Databases
 
+> Each database below has a free public REST API reachable directly with the built-in `WebFetch` tool. The named libraries (`gget`, `bioservices`) are **optional external wrappers**, not bundled with this skill and not required.
+
 #### ChEMBL / PubChem
-- **Access**: Use `gget` skill or `bioservices` skill
+- **Access**: ChEMBL REST API / PubChem PUG REST directly via `WebFetch` (optional external wrappers: `gget`, `bioservices`)
 - **Coverage**: Chemical compounds, bioactivity data, drug molecules
 - **Best for**: Drug discovery, chemical biology, medicinal chemistry
 - **ChEMBL**: 2M+ compounds, bioactivity data
 - **PubChem**: 110M+ compounds, assay data
 
 #### UniProt
-- **Access**: Use `gget` skill or `bioservices` skill
+- **Access**: UniProt REST API directly via `WebFetch` (optional external wrappers: `gget`, `bioservices`)
 - **Coverage**: Protein sequence and functional information
 - **Best for**: Protein research, sequence analysis, functional annotations
 - **Search by**: Protein name, gene name, organism, function
 
 #### KEGG (Kyoto Encyclopedia of Genes and Genomes)
-- **Access**: Use `bioservices` skill
+- **Access**: KEGG REST API directly via `WebFetch` (optional external wrapper: `bioservices`)
 - **Coverage**: Pathways, diseases, drugs, genes
 - **Best for**: Pathway analysis, systems biology, metabolic research
 
 #### COSMIC (Catalogue of Somatic Mutations in Cancer)
-- **Access**: Use `gget` skill or direct download
+- **Access**: COSMIC website/downloads directly (optional external wrapper: `gget`)
 - **Coverage**: Cancer genomics, somatic mutations
 - **Best for**: Cancer research, mutation analysis
 
 #### AlphaFold Database
-- **Access**: Use `gget` skill with `alphafold` command
+- **Access**: AlphaFold DB API (`https://alphafold.ebi.ac.uk/api/...`) directly via `WebFetch` (optional external wrapper: `gget alphafold`)
 - **Coverage**: 200M+ protein structure predictions
 - **Best for**: Structural biology, protein modeling
 
 #### PDB (Protein Data Bank)
-- **Access**: Use `gget` or direct API
+- **Access**: RCSB PDB REST API directly via `WebFetch` (optional external wrapper: `gget`)
 - **Coverage**: Experimental 3D structures of proteins, nucleic acids
 - **Best for**: Structural biology, drug design, molecular modeling
 
@@ -196,12 +198,12 @@ Search at least 3 complementary databases:
 4. Document reasons for exclusion at each stage
 
 ### Phase 5: Quality Assessment
-1. Assess study quality using appropriate tools:
-   - **RCTs**: Cochrane Risk of Bias tool
-   - **Observational**: Newcastle-Ottawa Scale
-   - **Systematic reviews**: AMSTAR 2
-2. Grade quality of evidence (high, moderate, low, very low)
-3. Consider excluding very low-quality studies
+1. Assess **risk of bias per study** using the tool's own labels (these are NOT GRADE levels):
+   - **RCTs**: Cochrane RoB 2 → Low risk / Some concerns / High risk
+   - **Observational**: ROBINS-I (Low / Moderate / Serious / Critical) or Newcastle-Ottawa (star score)
+   - **Systematic reviews**: AMSTAR 2 (High / Moderate / Low / Critically low confidence)
+2. Rate **certainty of evidence per outcome** with GRADE (High / Moderate / Low / Very Low), downgrading for risk of bias, inconsistency, indirectness, imprecision, and publication bias. Risk of bias is one input to GRADE, not the same scale.
+3. Consider excluding studies at high/critical risk of bias, or examine them in a sensitivity analysis
 
 ---
 
@@ -412,29 +414,31 @@ Many databases suggest related articles:
 ## Example Multi-Database Search Workflow
 
 ```python
-# Example workflow using available skills
+# Example workflow using built-in tools and direct database APIs
 
-# 1. Search PubMed via gget
+# 1. Search PubMed via NCBI E-utilities (WebFetch), NOT gget
 search_term = "CRISPR AND sickle cell disease"
-# Use gget search pubmed search_term
+# ESearch for PMIDs:
+#   https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=<search_term>&retmax=100
+# Then ESummary/EFetch for records by PMID
 
-# 2. Search bioRxiv
-# Use gget search biorxiv search_term
+# 2. Search bioRxiv via its API (WebFetch)
+#   https://api.biorxiv.org/details/biorxiv/<from-date>/<to-date>   (filter by search_term)
 
-# 3. Search arXiv for computational papers
-# Search arXiv with: cat:q-bio AND "CRISPR" AND "sickle cell"
+# 3. Search arXiv for computational papers via its API
+#   http://export.arxiv.org/api/query?search_query=cat:q-bio AND all:"CRISPR sickle cell"
 
-# 4. Search Semantic Scholar via API
-# Use semantic scholar API with search query
+# 4. Search Semantic Scholar via its public API
+# Use the Semantic Scholar API with the search query
 
 # 5. Aggregate and deduplicate results
-# python search_databases.py combined_results.json --deduplicate --format markdown --output review_papers.md
+# python scripts/search_databases.py combined_results.json --deduplicate --format markdown --output review_papers.md
 
 # 6. Verify all citations
-# python verify_citations.py review_papers.md
+# python scripts/verify_citations.py review_papers.md
 
 # 7. Generate final PDF
-# python generate_pdf.py review_papers.md --citation-style nature
+# python scripts/generate_pdf.py review_papers.md --citation-style nature
 ```
 
 ---

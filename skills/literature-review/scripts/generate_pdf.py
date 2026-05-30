@@ -71,14 +71,38 @@ def generate_pdf(
     if number_sections:
         cmd.append('--number-sections')
 
-    # Add citation processing if bibliography exists
+    # Add citation processing if bibliography exists.
+    # NOTE: citation_style is only applied when a sibling "<markdown>.bib"
+    # bibliography is present; with no .bib, pandoc has nothing to format and
+    # the style is silently a no-op. Warn so the user is not surprised.
     bib_file = Path(markdown_file).with_suffix('.bib')
     if bib_file.exists():
-        cmd.extend([
-            '--citeproc',
-            '--bibliography', str(bib_file),
-            '--csl', f'{citation_style}.csl' if not citation_style.endswith('.csl') else citation_style
-        ])
+        # The CSL value is a bare filename (e.g. "apa.csl"); no CSL files are
+        # bundled with this skill, so pandoc resolves it relative to the working
+        # directory (or its data dir). The user must supply the matching .csl
+        # file. Download styles from https://github.com/citation-style-language/styles
+        csl = citation_style if citation_style.endswith('.csl') else f'{citation_style}.csl'
+        if not os.path.exists(csl):
+            print(f"Warning: CSL style file '{csl}' not found in the working directory.")
+            print("  No CSL files are bundled. Provide the .csl yourself (e.g. from")
+            print("  https://github.com/citation-style-language/styles); falling back")
+            print("  to pandoc's default citation style.")
+            # Omit --csl entirely: passing a missing file makes pandoc fail,
+            # whereas with no --csl pandoc uses its built-in default style.
+            cmd.extend([
+                '--citeproc',
+                '--bibliography', str(bib_file),
+            ])
+        else:
+            cmd.extend([
+                '--citeproc',
+                '--bibliography', str(bib_file),
+                '--csl', csl
+            ])
+    elif citation_style != 'apa':
+        # A non-default citation style was requested but cannot take effect.
+        print(f"Warning: --citation-style '{citation_style}' was requested, but no "
+              f"bibliography file '{bib_file}' exists; the style will be ignored.")
 
     # Add custom template if provided
     if template and os.path.exists(template):
@@ -130,7 +154,9 @@ def main():
     if len(sys.argv) < 2:
         print("Usage: python generate_pdf.py <markdown_file> [output_pdf] [--citation-style STYLE]")
         print("\nOptions:")
-        print("  --citation-style STYLE    Citation style (default: apa)")
+        print("  --output FILE             Output PDF path (alternative to the positional argument)")
+        print("  --citation-style STYLE    Citation style (default: apa). Only applied when a")
+        print("                            sibling <markdown_file>.bib bibliography exists.")
         print("  --no-toc                  Disable table of contents")
         print("  --no-numbers              Disable section numbering")
         print("  --check-deps              Check if dependencies are installed")
@@ -150,6 +176,13 @@ def main():
     number_sections = True
 
     # Parse optional flags
+    # --output is an alias for the positional output argument; the explicit
+    # flag wins if both are supplied.
+    if '--output' in sys.argv:
+        idx = sys.argv.index('--output')
+        if idx + 1 < len(sys.argv):
+            output_pdf = sys.argv[idx + 1]
+
     if '--citation-style' in sys.argv:
         idx = sys.argv.index('--citation-style')
         if idx + 1 < len(sys.argv):

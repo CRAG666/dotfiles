@@ -91,26 +91,37 @@ def deduplicate_results(results: List[Dict]) -> List[Dict]:
         Deduplicated list
     """
     seen_dois = set()
-    seen_titles = set()
+    seen_title_sigs = set()
     unique_results = []
 
     for result in results:
-        doi = result.get('doi', '').lower().strip()
-        title = result.get('title', '').lower().strip()
+        # Guard against None values (a record may carry doi=None or title=None)
+        doi = (result.get('doi') or '').lower().strip()
+        # Normalize title (collapse whitespace) so minor formatting differences
+        # across databases still collapse a genuine duplicate.
+        title = ' '.join((result.get('title') or '').lower().split())
+        year = str(result.get('year') or '').strip()
+        # Guard the title match by year: the same title in the same year is
+        # almost certainly the same work (e.g. a preprint and the published
+        # article under different DOIs), whereas an identical title in a
+        # different year is likely a distinct work and must NOT be merged.
+        title_sig = (title, year) if title else None
 
-        # Check DOI first (more reliable)
+        # DOI is authoritative: a previously seen DOI is always a duplicate.
         if doi and doi in seen_dois:
             continue
-
-        # Check title as fallback
-        if not doi and title in seen_titles:
+        # Fall back to the year-guarded title signature ONLY when this record has
+        # no usable DOI of its own, so a shared title alone never overrides
+        # DOI-distinct records. Two records with different DOIs are distinct works
+        # (e.g. an erratum or a same-title paper in two venues) and must be kept,
+        # even if their title+year happens to match.
+        if not doi and title_sig and title_sig in seen_title_sigs:
             continue
 
-        # Add to results
         if doi:
             seen_dois.add(doi)
-        if title:
-            seen_titles.add(title)
+        if title_sig:
+            seen_title_sigs.add(title_sig)
 
         unique_results.append(result)
 
@@ -127,10 +138,24 @@ def rank_results(results: List[Dict], criteria: str = 'citations') -> List[Dict]
     Returns:
         Ranked list
     """
+    def _as_int(value, default: int = 0) -> int:
+        """Coerce a possibly-string value to int, falling back on default.
+
+        Citation counts often arrive as strings; sorting them lexicographically
+        would rank '2' above '10'. Coerce to numeric first.
+        """
+        try:
+            return int(value)
+        except (ValueError, TypeError):
+            return default
+
     if criteria == 'citations':
-        return sorted(results, key=lambda x: x.get('citations', 0), reverse=True)
+        return sorted(results, key=lambda x: _as_int(x.get('citations', 0)), reverse=True)
     elif criteria == 'year':
-        return sorted(results, key=lambda x: x.get('year', '0'), reverse=True)
+        # Years may arrive as ints (e.g. PubMed) or strings (e.g. JSON exports)
+        # across aggregated sources; coerce so mixed types sort numerically
+        # instead of raising TypeError when comparing int to str.
+        return sorted(results, key=lambda x: _as_int(x.get('year', 0)), reverse=True)
     elif criteria == 'relevance':
         return sorted(results, key=lambda x: x.get('relevance_score', 0), reverse=True)
     else:
@@ -151,8 +176,18 @@ def filter_by_year(results: List[Dict], start_year: int = None, end_year: int = 
     filtered = []
 
     for result in results:
+        raw_year = result.get('year')
+        # Treat an absent, null, or empty year the same way as an unparseable
+        # one: include the record. Without this, a missing 'year' key would
+        # default to 0 and be silently dropped by any start_year bound, while a
+        # present 'year': null would parse-fail and be kept (inconsistent), and
+        # preprints / incomplete metadata that legitimately lack a year would be
+        # removed whenever a bound is set.
+        if raw_year is None or (isinstance(raw_year, str) and not raw_year.strip()):
+            filtered.append(result)
+            continue
         try:
-            year = int(result.get('year', 0))
+            year = int(raw_year)
             if start_year and year < start_year:
                 continue
             if end_year and year > end_year:

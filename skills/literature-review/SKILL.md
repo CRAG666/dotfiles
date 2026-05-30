@@ -1,7 +1,7 @@
 ---
 name: literature-review
-description: Conduct comprehensive, systematic literature reviews using multiple academic databases (PubMed, arXiv, bioRxiv, Semantic Scholar, etc.). This skill should be used when conducting systematic literature reviews, meta-analyses, research synthesis, or comprehensive literature searches across biomedical, scientific, and technical domains. Creates professionally formatted markdown documents and PDFs with verified citations in multiple citation styles (APA, Nature, Vancouver, etc.).
-allowed-tools: Read Write Edit Bash
+description: 'Conduct comprehensive, systematic literature reviews across multiple academic databases (PubMed, arXiv, bioRxiv, Semantic Scholar, etc.). Use for systematic reviews, meta-analyses, scoping reviews, research synthesis, and broad literature searches, including topic overviews, surveys, and state-of-the-art summaries that gather and organize the major work on a subject by theme or method. Produces professionally formatted markdown and PDF documents with verified citations in multiple styles (APA, Nature, Vancouver, etc.).'
+allowed-tools: Read, Write, Edit, Bash
 license: MIT license
 metadata:
     skill-author: K-Dense Inc.
@@ -13,7 +13,12 @@ metadata:
 
 Conduct systematic, comprehensive literature reviews following rigorous academic methodology. Search multiple literature databases, synthesize findings thematically, verify all citations for accuracy, and generate professional output documents in markdown and PDF formats.
 
-This skill uses the **parallel-web skill** (`parallel-cli search`) as the primary web search tool for broad academic literature discovery, supplemented by specialized database access skills (gget, bioservices, datacommons-client). It provides specialized tools for citation verification, result aggregation, and document generation.
+This skill is **runnable standalone** using the built-in `WebSearch` and `WebFetch` tools plus direct calls to free academic database APIs (NCBI E-utilities, the bioRxiv/medRxiv API, arXiv, Semantic Scholar, CrossRef, OpenAlex). It provides bundled tools for citation verification, result aggregation, and document generation that depend only on Python `requests` and pandoc.
+
+Several **optional external skills/tools** can enhance the workflow if you have them installed, but none are bundled with this skill and none are required:
+- **parallel-cli** (`parallel-web-tools` on PyPI), an optional external CLI for broad web search and URL extraction with academic domain filtering.
+- **scientific-schematics**, an optional external skill for AI-generated diagrams (see the bundled `scripts/generate_schematic*.py` for a self-contained alternative that uses a paid OpenRouter key).
+- Domain-specific data skills/libraries (e.g. `gget`, `bioservices`, `datacommons-client`, `scanpy`, `anndata`, `biopython`), optional external tools for specialized biomedical/structural databases. Where they are mentioned below, a direct-API fallback is given so the core workflow never depends on them.
 
 ## When to Use This Skill
 
@@ -28,23 +33,23 @@ Use this skill when:
 
 ## Visual Enhancement with Scientific Schematics
 
-**⚠️ MANDATORY: Every literature review MUST include at least 1-2 AI-generated figures using the scientific-schematics skill.**
-
-This is not optional. Literature reviews without visual elements are incomplete. Before finalizing any document:
+**Recommended (optional): Include 1-2 figures so the review communicates visually.** Figures strengthen a review but are not required for it to be valid; a text-only review with a well-described PRISMA flow is still complete. When you do add figures:
 1. Generate at minimum ONE schematic or diagram (e.g., PRISMA flow diagram for systematic reviews)
 2. Prefer 2-3 figures for comprehensive reviews (search strategy flowchart, thematic synthesis diagram, conceptual framework)
 
 **How to generate figures:**
-- Use the **scientific-schematics** skill to generate AI-powered publication-quality diagrams
-- Simply describe your desired diagram in natural language
-- Nano Banana Pro will automatically generate, review, and refine the schematic
+- **scientific-schematics** is an optional external skill (not bundled with this skill); use it if you have it installed for AI-powered publication-quality diagrams.
+- Alternatively, use the bundled scripts below, which are self-contained but call a paid third-party API.
+- For a no-cost, no-dependency option, hand-author a PRISMA box diagram directly in markdown/ASCII (see the PRISMA section under Phase 3) or with any local drawing tool.
 
-**How to generate schematics:**
+**How to generate schematics (bundled scripts, optional, paid API):**
 ```bash
 python scripts/generate_schematic.py "your diagram description" -o figures/output.png
 ```
 
-The AI will automatically:
+> **Paid-API disclosure:** `scripts/generate_schematic.py` and `scripts/generate_schematic_ai.py` call the **OpenRouter** API and require a paid `OPENROUTER_API_KEY` (set as an environment variable or in a `.env` file). They send your prompt to OpenRouter and incur per-image charges; they make outbound network requests on every run. The image model is `google/gemini-3.1-flash-image-preview` (marketed as "Nano Banana 2"); review uses `google/gemini-3.5-flash`. These scripts are entirely optional and are not needed for any other phase of the workflow.
+
+The script will automatically:
 - Create publication-quality images with proper formatting
 - Review and refine through multiple iterations
 - Ensure accessibility (colorblind-friendly, high contrast)
@@ -59,7 +64,7 @@ The AI will automatically:
 - Conceptual framework illustrations
 - Any complex concept that benefits from visualization
 
-For detailed guidance on creating schematics, refer to the scientific-schematics skill documentation.
+For detailed guidance on creating schematics, refer to the scientific-schematics skill documentation if that optional skill is installed; otherwise use the bundled scripts (paid API) or hand-author the diagram.
 
 ---
 
@@ -82,7 +87,7 @@ Literature reviews follow a structured, multi-phase workflow:
    - List synonyms, abbreviations, and related terms for each concept
    - Plan Boolean operators (AND, OR, NOT) to combine terms
    - Select minimum 3 complementary databases
-   - **Use the parallel-web skill (`parallel-cli search`) for initial scoping** to quickly gauge the landscape before formal database searches
+   - **For initial scoping**, use the built-in `WebSearch` tool to quickly gauge the landscape before formal database searches (or the optional external `parallel-cli search` if installed)
 
 4. **Set Inclusion/Exclusion Criteria**:
    - Date range (e.g., last 10 years: 2015-2024)
@@ -95,43 +100,31 @@ Literature reviews follow a structured, multi-phase workflow:
 
 1. **Multi-Database Search**:
 
-   Select databases appropriate for the domain. **Always start with parallel-web for broad academic coverage**, then supplement with domain-specific databases.
+   Select databases appropriate for the domain. **The default, no-dependency path is the built-in `WebSearch` tool for broad scholarly coverage plus direct calls to free database APIs.** If you have the optional external `parallel-cli` installed, you can use it instead for the broad-coverage step; it is not required.
 
-   **Web-Based Academic Search (parallel-web skill — START HERE):**
-   - Use `parallel-cli search` with academic domain filtering for broad scholarly coverage
-   - Run two searches: academic-focused + general to catch all relevant sources
-   ```bash
-   # Academic-focused search across scholarly sources
-   parallel-cli search "your research topic" -q "keyword1" -q "keyword2" \
-     --json --max-results 10 --excerpt-max-chars-total 27000 \
-     --include-domains "scholar.google.com,arxiv.org,pubmed.ncbi.nlm.nih.gov,semanticscholar.org,biorxiv.org,medrxiv.org,ncbi.nlm.nih.gov,nature.com,science.org,ieee.org,acm.org,springer.com,wiley.com,cell.com,pnas.org,nih.gov" \
-     -o sources/litreview_<topic>-academic.json
+   **Web-Based Academic Search (default, built-in `WebSearch`):**
+   - Run two `WebSearch` queries to catch all relevant sources: one academic-focused (append scholarly domains/terms such as `arxiv.org`, `pubmed`, `nature.com`, `semanticscholar.org`, `biorxiv.org` to the query) and one general.
+   - Use the built-in `WebFetch` tool to pull full content from specific paper URLs or PDFs found in the results (e.g. `WebFetch "https://arxiv.org/abs/XXXX.XXXXX"`).
+   - Save the distilled results into `sources/` so the search stays reproducible.
 
-   # General search for supplementary sources
-   parallel-cli search "your research topic" -q "keyword1" -q "keyword2" \
-     --json --max-results 10 --excerpt-max-chars-total 27000 \
-     -o sources/litreview_<topic>-general.json
-   ```
-   - Use `parallel-cli extract` to fetch full content from specific paper URLs or PDFs found in search results
-   ```bash
-   parallel-cli extract "https://arxiv.org/abs/XXXX.XXXXX" --json
-   ```
+   **Optional external alternative (`parallel-cli`, not bundled):** if installed, `parallel-cli search ... --include-domains "..."` and `parallel-cli extract "<url>" --json` provide the same broad-search and extraction steps with academic domain filtering. Install with `uv tool install "parallel-web-tools[cli]"`.
 
-   **Biomedical & Life Sciences:**
-   - Use `gget` skill: `gget search pubmed "search terms"` for PubMed/PMC
-   - Use `gget` skill: `gget search biorxiv "search terms"` for preprints
-   - Use `bioservices` skill for ChEMBL, KEGG, UniProt, etc.
+   **Biomedical & Life Sciences (direct APIs, no extra skill required):**
+   - **PubMed/PMC:** use NCBI E-utilities directly via `WebFetch`. Search with ESearch (`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=<query>&retmax=100`) to get PMIDs, then fetch records with ESummary/EFetch (`.../esummary.fcgi?db=pubmed&id=<pmids>`). `gget search` does NOT query PubMed (it searches Ensembl genes and requires `-s/--species`), so do not use it here.
+   - **bioRxiv/medRxiv preprints:** use the bioRxiv API directly, e.g. `WebFetch "https://api.biorxiv.org/details/biorxiv/<YYYY-MM-DD>/<YYYY-MM-DD>"` (swap `biorxiv` for `medrxiv`), or search via the web UI / `WebSearch` restricted to `biorxiv.org`/`medrxiv.org`. `gget` has no PubMed or bioRxiv module.
+   - **ChEMBL, KEGG, UniProt, etc.:** query their public REST APIs via `WebFetch`. The optional external `bioservices` library wraps these if you have it installed.
 
    **General Scientific Literature:**
-   - Search arXiv via direct API (preprints in physics, math, CS, q-bio)
-   - Search Semantic Scholar via API (200M+ papers, cross-disciplinary)
-   - Use Google Scholar for comprehensive coverage (manual or careful scraping)
+   - Search arXiv via its direct API (`http://export.arxiv.org/api/query?search_query=...`), preprints in physics, math, CS, q-bio
+   - Search Semantic Scholar via its public API (200M+ papers, cross-disciplinary; see rate limits in `references/database_strategies.md`)
+   - Search OpenAlex via its free API (`https://api.openalex.org/works?search=...`, no key required) for broad cross-disciplinary coverage and citation metadata
+   - Use Google Scholar for comprehensive coverage (manual search; no official API)
 
    **Specialized Databases:**
-   - Use `gget alphafold` for protein structures
-   - Use `gget cosmic` for cancer genomics
-   - Use `datacommons-client` for demographic/statistical data
-   - Use specialized databases as appropriate for the domain
+   - AlphaFold protein structures: AlphaFold DB API (`https://alphafold.ebi.ac.uk/api/...`); the optional external `gget alphafold` wraps it
+   - Cancer genomics (COSMIC): the COSMIC website/downloads; the optional external `gget cosmic` wraps it
+   - Demographic/statistical data: the Data Commons REST API; the optional external `datacommons-client` wraps it
+   - Use other specialized databases via their public APIs as appropriate for the domain
 
 2. **Document Search Parameters**:
    ```markdown
@@ -156,7 +149,7 @@ Literature reviews follow a structured, multi-phase workflow:
    - Combine all results into a single file
    - Use `scripts/search_databases.py` for post-processing:
      ```bash
-     python search_databases.py combined_results.json \
+     python scripts/search_databases.py combined_results.json \
        --deduplicate \
        --format markdown \
        --output aggregated_results.md
@@ -166,7 +159,7 @@ Literature reviews follow a structured, multi-phase workflow:
 
 1. **Deduplication**:
    ```bash
-   python search_databases.py results.json --deduplicate --output unique_results.json
+   python scripts/search_databases.py results.json --deduplicate --output unique_results.json
    ```
    - Removes duplicates by DOI (primary) or title (fallback)
    - Document number of duplicates removed
@@ -187,14 +180,35 @@ Literature reviews follow a structured, multi-phase workflow:
    - Document specific reasons for exclusion
    - Record final number of included studies
 
-5. **Create PRISMA Flow Diagram**:
+5. **Create PRISMA 2020 Flow Diagram**:
+
+   Follow the PRISMA 2020 flow-diagram box sequence. Track *records* (database hits/citations) and *reports* (retrievable full-text documents) separately, account for everything removed *before* screening, and give explicit exclusion reason counts at full-text assessment. (The bundled `assets/review_template.md` follows this same structure.)
    ```
-   Initial search: n = X
-   ├─ After deduplication: n = Y
-   ├─ After title screening: n = Z
-   ├─ After abstract screening: n = A
-   └─ Included in review: n = B
+   Identification
+     Records identified from databases/registers: n = X
+       (per source, e.g. PubMed n=…, bioRxiv n=…)
+     Records removed before screening:
+       - Duplicate records removed:                n = …
+       - Records marked ineligible by automation:  n = …
+       - Records removed for other reasons:         n = …
+
+   Screening
+     Records screened (title/abstract):            n = …
+       Records excluded:                           n = …
+     Reports sought for retrieval:                 n = …
+       Reports not retrieved:                      n = …
+     Reports assessed for eligibility:             n = …
+       Reports excluded (with reason + count):
+         - Wrong population:                        n = …
+         - Wrong intervention/outcome:              n = …
+         - Wrong study design:                      n = …
+         - Other (specify):                         n = …
+
+   Included
+     Studies included in review:                   n = …
+     Reports of included studies:                  n = …
    ```
+   Every full-text exclusion MUST be recorded with a specific reason and its count (list excluded reports in Appendix C of the template).
 
 ### Phase 4: Data Extraction and Quality Assessment
 
@@ -206,12 +220,13 @@ Literature reviews follow a structured, multi-phase workflow:
    - Limitations noted by authors
    - Funding sources and conflicts of interest
 
-2. **Assess Study Quality**:
-   - **For RCTs**: Use Cochrane Risk of Bias tool
-   - **For observational studies**: Use Newcastle-Ottawa Scale
-   - **For systematic reviews**: Use AMSTAR 2
-   - Rate each study: High, Moderate, Low, or Very Low quality
-   - Consider excluding very low-quality studies
+2. **Assess Risk of Bias (per study)** using the tool-specific labels of each instrument, do NOT relabel these as GRADE certainty levels:
+   - **For RCTs**: Cochrane RoB 2 → rate each study **Low risk / Some concerns / High risk**
+   - **For non-randomized/observational studies**: ROBINS-I (**Low / Moderate / Serious / Critical**) or the Newcastle-Ottawa Scale (star score)
+   - **For systematic reviews**: AMSTAR 2 (**High / Moderate / Low / Critically low** confidence in the review)
+   - Consider excluding studies at high/critical risk of bias, or analyze them separately in a sensitivity analysis
+
+   **Rate certainty of evidence (per outcome), separately, with GRADE**: each outcome (not each study) is rated **High / Moderate / Low / Very Low** certainty, downgraded for risk of bias, inconsistency, indirectness, imprecision, and publication bias. Risk of bias is one *input* to GRADE; it is not the same scale.
 
 3. **Organize by Themes**:
    - Identify 3-5 major themes across studies
@@ -322,14 +337,14 @@ Literature reviews follow a structured, multi-phase workflow:
 
 ### PubMed / PubMed Central
 
-Access via `gget` skill:
+Access via NCBI E-utilities (Entrez), using the built-in `WebFetch` tool. Do NOT use `gget search` here: it queries Ensembl genes (and requires `-s/--species`); it has no PubMed module.
 ```bash
-# Search PubMed
-gget search pubmed "CRISPR gene editing" -l 100
-
-# Search with filters
-# Use PubMed Advanced Search Builder to construct complex queries
-# Then execute via gget or direct Entrez API
+# 1. ESearch -> list of PMIDs for a query
+#   https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=CRISPR+gene+editing&retmax=100
+# 2. ESummary/EFetch -> records for those PMIDs
+#   https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=<pmid1,pmid2,...>
+# Build complex queries with the PubMed Advanced Search Builder, then run the
+# resulting term string through ESearch.
 ```
 
 **Search tips**:
@@ -341,9 +356,12 @@ gget search pubmed "CRISPR gene editing" -l 100
 
 ### bioRxiv / medRxiv
 
-Access via `gget` skill:
+Access via the bioRxiv/medRxiv API (using `WebFetch`) or `WebSearch` restricted to the preprint domains. `gget` has no bioRxiv module.
 ```bash
-gget search biorxiv "CRISPR sickle cell" -l 50
+# bioRxiv content API (swap "biorxiv" for "medrxiv"); filter the returned
+# records by your search terms client-side:
+#   https://api.biorxiv.org/details/biorxiv/2015-01-01/2024-12-31
+# Or: WebSearch "CRISPR sickle cell site:biorxiv.org"
 ```
 
 **Important considerations**:
@@ -369,7 +387,7 @@ search_query = "cat:q-bio.QM AND ti:\"single cell sequencing\""
 
 ### Semantic Scholar
 
-Access via direct API (requires API key, or use free tier):
+Access via the public API (an API key is optional, not required; see rate limits in `references/database_strategies.md`):
 - 200M+ papers across all fields
 - Excellent for cross-disciplinary searches
 - Provides citation graphs and paper recommendations
@@ -377,37 +395,27 @@ Access via direct API (requires API key, or use free tier):
 
 ### Specialized Biomedical Databases
 
-Use appropriate skills:
-- **ChEMBL**: `bioservices` skill for chemical bioactivity
-- **UniProt**: `gget` or `bioservices` skill for protein information
-- **KEGG**: `bioservices` skill for pathways and genes
-- **COSMIC**: `gget` skill for cancer mutations
-- **AlphaFold**: `gget alphafold` for protein structures
-- **PDB**: `gget` or direct API for experimental structures
+Query the free public REST API of each database directly with `WebFetch`. The named libraries are **optional external wrappers** (not bundled, not required):
+- **ChEMBL**: ChEMBL REST API (optional wrapper: `bioservices`) for chemical bioactivity
+- **UniProt**: UniProt REST API (optional wrappers: `gget`, `bioservices`) for protein information
+- **KEGG**: KEGG REST API (optional wrapper: `bioservices`) for pathways and genes
+- **COSMIC**: COSMIC website/downloads (optional wrapper: `gget`) for cancer mutations
+- **AlphaFold**: AlphaFold DB API (optional wrapper: `gget alphafold`) for protein structures
+- **PDB**: RCSB PDB REST API (optional wrapper: `gget`) for experimental structures
 
 ### Citation Chaining
 
 Expand search via citation networks:
 
 1. **Forward citations** (papers citing key papers):
-   - Use `parallel-cli search` to find papers citing a specific work:
-     ```bash
-     parallel-cli search "papers citing [Author et al. Year] [paper title]" \
-       -q "citing" -q "[key author]" \
-       --json --max-results 10 --excerpt-max-chars-total 27000 \
-       --include-domains "scholar.google.com,semanticscholar.org,arxiv.org,pubmed.ncbi.nlm.nih.gov" \
-       -o sources/litreview_forward_citations.json
-     ```
+   - Use the **Semantic Scholar or OpenAlex APIs** (via `WebFetch`) to list papers that cite a given DOI, both expose a citations endpoint and require no key (OpenAlex: `https://api.openalex.org/works?filter=cites:<openalex-id>`)
+   - Use the built-in `WebSearch` tool (e.g. `WebSearch "papers citing [Author et al. Year] [title]" site:semanticscholar.org`), or the optional external `parallel-cli search --include-domains "..."` if installed
    - Use Google Scholar "Cited by"
-   - Use Semantic Scholar or OpenAlex APIs
    - Identifies newer research building on seminal work
 
 2. **Backward citations** (references from key papers):
-   - Use `parallel-cli extract` to fetch full text of key papers and extract their reference lists:
-     ```bash
-     parallel-cli extract "https://doi.org/10.xxxx/yyyy" --json
-     ```
-   - Extract references from included papers
+   - Use the built-in `WebFetch` tool to pull the full text of key papers and extract their reference lists (or the optional external `parallel-cli extract "<url>" --json` if installed)
+   - Better yet, read references straight from the CrossRef/OpenAlex record for the DOI (both list cited works)
    - Identify highly cited foundational work
    - Find papers cited by multiple included studies
 
@@ -474,19 +482,13 @@ For any topic, identify foundational work by:
 ## Best Practices
 
 ### Search Strategy
-1. **Start with parallel-web**: Use `parallel-cli search` with academic domains for initial broad coverage before querying specialized databases
-2. **Use multiple databases** (minimum 3): Ensures comprehensive coverage — parallel-web counts as one source
+1. **Start broad with `WebSearch`**: Use the built-in `WebSearch` tool (or the optional external `parallel-cli search`) with academic domains for initial broad coverage before querying specialized databases
+2. **Use multiple databases** (minimum 3): Ensures comprehensive coverage, the broad web search counts as one source
 3. **Include preprint servers**: Captures latest unpublished findings
-4. **Document everything**: Search strings, dates, result counts for reproducibility — save all parallel-cli output to `sources/`
+4. **Document everything**: Search strings, dates, result counts for reproducibility, save all search output to `sources/`
 5. **Test and refine**: Run pilot searches, review results, adjust search terms
 6. **Sort by citations**: When available, sort search results by citation count to surface influential work first
-7. **Use parallel-cli extract**: Fetch full content from promising URLs found during search to verify relevance before full-text screening
-
-### Screening and Selection
-1. **Use multiple databases** (minimum 3): Ensures comprehensive coverage
-2. **Include preprint servers**: Captures latest unpublished findings
-3. **Document everything**: Search strings, dates, result counts for reproducibility
-4. **Test and refine**: Run pilot searches, review results, adjust search terms
+7. **Fetch full content with `WebFetch`**: Pull full text from promising URLs found during search (or the optional external `parallel-cli extract`) to verify relevance before full-text screening
 
 ### Screening and Selection
 1. **Use clear criteria**: Document inclusion/exclusion criteria before screening
@@ -533,24 +535,27 @@ Complete workflow for a biomedical literature review:
 # 1. Create review document from template
 cp assets/review_template.md crispr_sickle_cell_review.md
 
-# 2. Start with parallel-web for broad academic search
-parallel-cli search "CRISPR Cas9 sickle cell disease gene therapy efficacy" \
-  -q "CRISPR" -q "sickle cell" -q "gene therapy" \
-  --json --max-results 10 --excerpt-max-chars-total 27000 \
-  --include-domains "scholar.google.com,arxiv.org,pubmed.ncbi.nlm.nih.gov,semanticscholar.org,biorxiv.org,nature.com,science.org,cell.com,pnas.org,nih.gov" \
-  -o sources/litreview_crispr_scd-academic.json
+# 2. Start with a broad academic search using the built-in WebSearch tool
+#    Run one academic-focused query and one general query, e.g.:
+#      WebSearch "CRISPR Cas9 sickle cell disease gene therapy efficacy
+#                 (arxiv.org OR pubmed OR semanticscholar.org OR biorxiv.org OR nature.com)"
+#      WebSearch "CRISPR sickle cell disease clinical trials treatment"
+#    Save the distilled hits to sources/ for reproducibility.
+#
+#    Optional external alternative (parallel-cli, if installed):
+#      parallel-cli search "CRISPR Cas9 sickle cell disease gene therapy efficacy" \
+#        -q "CRISPR" -q "sickle cell" -q "gene therapy" \
+#        --json --max-results 10 --excerpt-max-chars-total 27000 \
+#        --include-domains "arxiv.org,pubmed.ncbi.nlm.nih.gov,semanticscholar.org,biorxiv.org,nature.com,cell.com,pnas.org" \
+#        -o sources/litreview_crispr_scd-academic.json
 
-parallel-cli search "CRISPR sickle cell disease clinical trials treatment" \
-  -q "CRISPR" -q "sickle cell" \
-  --json --max-results 10 --excerpt-max-chars-total 27000 \
-  -o sources/litreview_crispr_scd-general.json
+# 3. Search specialized databases via their public APIs (WebFetch)
+# - PubMed: NCBI E-utilities (esearch.fcgi / efetch.fcgi) -- NOT gget
+# - bioRxiv/medRxiv: api.biorxiv.org -- NOT gget
+# - arXiv: export.arxiv.org/api/query ; Semantic Scholar / OpenAlex: public APIs
+# - Export results in JSON format into sources/
 
-# 3. Search specialized databases using appropriate skills
-# - Use gget skill for PubMed, bioRxiv
-# - Use direct API access for arXiv, Semantic Scholar
-# - Export results in JSON format
-
-# 4. Aggregate and process results (combine parallel-cli + database results)
+# 4. Aggregate and process results (combine web-search + database results)
 python scripts/search_databases.py combined_results.json \
   --deduplicate \
   --rank citations \
@@ -561,7 +566,7 @@ python scripts/search_databases.py combined_results.json \
   --summary
 
 # 5. Screen results and extract data
-# - Use parallel-cli extract to fetch full content from promising URLs
+# - Use the WebFetch tool (or optional parallel-cli extract) to fetch full content from promising URLs
 # - Manually screen titles, abstracts, full texts
 # - Extract key data into the review document
 # - Organize by themes
@@ -594,21 +599,24 @@ python scripts/generate_pdf.py crispr_sickle_cell_review.md \
 
 This skill works seamlessly with other scientific skills:
 
-### Web Search & Extraction (parallel-web skill — PRIMARY)
-- **parallel-cli search**: Broad academic and general web search with domain filtering — use for initial scoping, finding papers, citation chaining, and supplementary searches
-- **parallel-cli extract**: Fetch full content from paper URLs, journal websites, and preprint servers — use for reading abstracts, extracting reference lists, and verifying paper details
+All of the tools listed below are **optional external dependencies**: none ship with this skill, and the core workflow runs without them using the built-in `WebSearch`/`WebFetch` tools and direct database APIs.
+
+### Web Search & Extraction (optional external `parallel-cli`)
+`parallel-cli` is a real, separately installed CLI (`parallel-web-tools` on PyPI), not a bundled skill. If installed, it can replace the built-in `WebSearch`/`WebFetch` steps:
+- **parallel-cli search**: Broad academic and general web search with domain filtering, initial scoping, finding papers, citation chaining, supplementary searches
+- **parallel-cli extract**: Fetch full content from paper URLs, journal websites, and preprint servers, reading abstracts, extracting reference lists, verifying paper details
 - **parallel-cli search --include-domains**: Academic-focused search across scholarly domains (arxiv.org, pubmed, nature.com, etc.)
 
-### Database Access Skills
-- **gget**: PubMed, bioRxiv, COSMIC, AlphaFold, Ensembl, UniProt
+### Database Access (optional external wrappers; use the public APIs directly otherwise)
+- **gget**: COSMIC, AlphaFold, Ensembl, UniProt (NOTE: `gget` does NOT cover PubMed or bioRxiv, use NCBI E-utilities and the bioRxiv API directly for those)
 - **bioservices**: ChEMBL, KEGG, Reactome, UniProt, PubChem
 - **datacommons-client**: Demographics, economics, health statistics
 
-### Analysis Skills
-- **pydeseq2**: RNA-seq differential expression (for methods sections)
-- **scanpy**: Single-cell analysis (for methods sections)
-- **anndata**: Single-cell data (for methods sections)
-- **biopython**: Sequence analysis (for background sections)
+### Analysis Libraries (optional external; for methods/background sections only)
+- **pydeseq2**: RNA-seq differential expression
+- **scanpy**: Single-cell analysis
+- **anndata**: Single-cell data
+- **biopython**: Sequence analysis
 
 ### Visualization Skills
 - **matplotlib**: Generate figures and plots for review
@@ -653,9 +661,10 @@ This skill works seamlessly with other scientific skills:
 
 ## Dependencies
 
-### Required CLI Tools
+### Optional External CLI Tools
 ```bash
-# parallel-cli (PRIMARY — for web search and URL extraction)
+# parallel-cli (OPTIONAL, external; the workflow runs without it using the
+# built-in WebSearch/WebFetch tools). Real package: parallel-web-tools on PyPI.
 curl -fsSL https://parallel.ai/install.sh | bash
 # Or: uv tool install "parallel-web-tools[cli]"
 # Authenticate: parallel-cli auth
@@ -663,8 +672,10 @@ curl -fsSL https://parallel.ai/install.sh | bash
 
 ### Required Python Packages
 ```bash
-pip install requests  # For citation verification
+pip install requests  # For citation verification (the only required dependency for the bundled scripts)
 ```
+
+> Image-generation scripts (`scripts/generate_schematic*.py`) are optional and additionally require a paid `OPENROUTER_API_KEY`; see the Visual Enhancement section.
 
 ### Required System Tools
 ```bash
@@ -687,8 +698,8 @@ python scripts/generate_pdf.py --check-deps
 This literature-review skill provides:
 
 1. **Systematic methodology** following academic best practices
-2. **Parallel-web powered search** using `parallel-cli search` for fast, broad academic literature discovery with scholarly domain filtering
-3. **Multi-database integration** via existing scientific skills (gget, bioservices, datacommons-client)
+2. **Built-in web search** using the `WebSearch`/`WebFetch` tools for fast, broad academic literature discovery (optionally the external `parallel-cli`)
+3. **Multi-database integration** via direct public APIs (NCBI E-utilities, bioRxiv, arXiv, Semantic Scholar, OpenAlex, CrossRef), with optional external wrappers (gget, bioservices, datacommons-client)
 4. **Citation verification** ensuring accuracy and credibility
 5. **Professional output** in markdown and PDF formats
 6. **Comprehensive guidance** covering the entire review process

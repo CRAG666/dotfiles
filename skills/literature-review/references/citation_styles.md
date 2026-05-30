@@ -2,13 +2,15 @@
 
 This document provides detailed guidelines for formatting citations in various academic styles commonly used in literature reviews.
 
+> **Note:** All author names, titles, and DOIs in the examples below (e.g. `10.1038/nrd.2023.001`, `10.1101/2024.01.001`) are fictional and shown for illustration of formatting only. They do not resolve to real works; always verify real DOIs with `verify_citations.py`.
+
 ## APA Style (7th Edition)
 
 ### Journal Articles
 
 **Format**: Author, A. A., Author, B. B., & Author, C. C. (Year). Title of article. *Title of Periodical*, *volume*(issue), page range. https://doi.org/xx.xxx/yyyy
 
-**Example**: Smith, J. D., Johnson, M. L., & Williams, K. R. (2023). Machine learning approaches in drug discovery. *Nature Reviews Drug Discovery*, *22*(4), 301-318. https://doi.org/10.1038/nrd.2023.001
+**Example** (illustrative; DOI is not real): Smith, J. D., Johnson, M. L., & Williams, K. R. (2023). Machine learning approaches in drug discovery. *Nature Reviews Drug Discovery*, *22*(4), 301-318. https://doi.org/10.1038/nrd.2023.001
 
 ### Books
 
