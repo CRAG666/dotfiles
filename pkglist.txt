@@ -1,0 +1,161 @@
+# System utilities
+ananicy-cpp
+
+# Basic security
+nftables
+iptables-nft
+pass
+
+# Controls
+brightnessctl
+ddcutil
+playerctl
+bluez-utils
+impala
+bluetui
+wiremix
+udisks2
+
+# ZSH
+zsh
+zsh-patina-git
+resvg
+
+# CLI tools
+hyperfine
+perl-image-exiftool
+atuin
+yt-dlp
+starship
+reflector
+gum
+graphviz
+gocryptfs
+eza
+git
+git-crypt
+git-delta
+git-filter-repo
+topgrade
+ttyper
+rsync
+glow
+prettyping
+bob
+cht.sh-git
+bat
+yazi
+ffmpeg
+ffmpegthumbnailer
+p7zip
+jq
+poppler
+fd
+ripgrep
+ripgrep-all
+fzf
+zoxide
+imagemagick
+mmv-c
+ripdrag
+rclone
+bc
+carapace-bin
+quarto-cli-bin
+gnome-epub-thumbnailer
+gitleaks
+cpx-copy
+mise
+luarocks
+corkscrew
+chawan
+ccache
+
+# Monitoring
+btop
+htop-vim
+fastfetch
+duf
+progress
+
+# Audio
+pwvucontrol
+pipewire
+pipewire-alsa
+pipewire-pulse
+wireplumber
+
+# Fonts
+ttf-nerd-fonts-symbols
+ttf-nerd-fonts-symbols-common
+nerd-fonts-apple
+ttf-apple-emoji
+
+# Basic
+ntfs-3g
+
+# Text edition
+tree-sitter
+tree-sitter-cli
+
+# Viewers
+zathura
+zathura-pdf-mupdf
+
+# Communication
+aerc
+oama-bin
+
+# Download
+nicotine+
+
+# Edition
+lunacy-bin
+
+# Players
+mpv
+mpv-uosc
+mpv-mpris
+mpv-thumbfast-git
+termusic
+tidal-dl
+
+# Web Browsers
+zen-browser-bin
+firefox-tridactyl-native
+ungoogled-chromium-bin
+
+# Gaming
+# libretro-core-info
+# libretro-fbneo-git
+# libretro-overlays
+# libretro-shaders-slang
+# retroarch
+# retroarch-assets-glui
+# retroarch-assets-ozone
+# retroarch-assets-xmb
+
+# GPU
+libva-utils
+vdpauinfo
+vulkan-tools
+clinfo
+
+# Utilities
+podman
+podman-compose
+podman-tui
+parallel
+pacman-contrib
+nushell
+freerdp
+age
+keyd
+swappy
+grim
+slurp
+mold
+hunspell-en_us
+hunspell-es_mx
+gnome-disk-utility
+acpi

@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Scroll nvidia only config
+Comment=An i3-compatible Wayland compositor (sway) with a PaperWM layout
+Exec=/usr/local/bin/scroll-run.sh -m nvidia-only
+Type=Application
+DesktopNames=scroll;wlroots

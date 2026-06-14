@@ -1,0 +1,12 @@
+[theme]
+name = "eyes-dark"
+
+[colors]
+AlertInfo    = "#6a94a8"
+AlertWarn    = "#d4b85a"
+AlertError   = "#c87868"
+Annotation   = "#7a8c72"
+Base         = "#d0dcc8"
+Guidance     = "#9aab94"
+Important    = "#9090b8"
+Title        = "#5ab8a8"

@@ -1,0 +1,20 @@
+[env]
+# markitdown[all] (0.1.6+) arrastra azure-ai-contentunderstanding (pre-release) como
+# dependencia transitiva; uv la rechaza por defecto. "allow" es el único modo que la
+# resuelve (los modos acotados no cubren pre-releases transitivas). OJO: es global a uv.
+UV_PRERELEASE = "allow"
+
+[tools]
+claude = "latest"
+dotnet = "10.0"
+node = "latest"
+"npm:oh-my-logo" = "latest"
+opencode = "latest"
+"pipx:BeatPrints" = "latest"
+"pipx:markitdown" = { version = "latest", extras = "all" }
+uv = "latest"
+
+[settings]
+
+[settings.pipx]
+uvx = true

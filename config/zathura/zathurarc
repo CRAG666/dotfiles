@@ -1,0 +1,16 @@
+set sandbox none
+set statusbar-h-padding 0
+set statusbar-v-padding 0
+set page-padding 1
+set guioptions none
+map <C-;> toggle_statusbar
+set synctex true
+set synctex-editor-command "nvim --server $NVIM --remote-send ':VimtexInverseSearch %{line} %{input}<CR>'"
+set selection-clipboard "clipboard"
+set window-title-home-tilde "true"
+set window-title-basename "true"
+set statusbar-basename "true"
+set adjust-open width
+set recolor-keephue "true"
+set font "SFProDisplay Nerd Font 16"
+include ./eyes-activerc

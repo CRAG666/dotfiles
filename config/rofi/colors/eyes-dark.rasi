@@ -1,0 +1,14 @@
+/**
+ *
+ * eyes (light) — sage-green palette for rofi
+ *
+ **/
+
+* {
+    background:     #1a211aFF;   /* bg0  — sage green */
+    background-alt: #2d382dFF;   /* bg3  — slightly darker sage */
+    foreground:     #d0dcc8FF;   /* fg0  — near-black */
+    selected: #b890b0FF;
+    active:         #7aab72FF;   /* green0 — secondary */
+    urgent:         #c87868FF;   /* red */
+}

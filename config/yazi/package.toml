@@ -1,0 +1,39 @@
+[[plugin.deps]]
+use = "yazi-rs/plugins:no-status"
+rev = "598cdb6"
+hash = "3e023d31f29201efdac2a6ae35fedb78"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:full-border"
+rev = "598cdb6"
+hash = "7b625412411be411153886894d9acaf"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:chmod"
+rev = "598cdb6"
+hash = "f0c8c378184d5f8abd1b095a443d336d"
+
+[[plugin.deps]]
+use = "Rolv-Apneseth/starship"
+rev = "a837101"
+hash = "635b0feb9215772d22020eb0abf0bb34"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:toggle-pane"
+rev = "598cdb6"
+hash = "9c7987da2d2a2120dac33abb64132004"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:mount"
+rev = "598cdb6"
+hash = "e3260d0b1feded8c8e3ae3afa1169e30"
+
+[[plugin.deps]]
+use = "AminurAlam/yazi-plugins:preview-audio"
+rev = "6206bae"
+hash = "5635f5acda68654e4f0a5581f70cc359"
+
+[[flavor.deps]]
+use = "yazi-rs/flavors:catppuccin-mocha"
+rev = "0f9204b"
+hash = "7dfe41c9c3d9be76da8a844263d0bbed"

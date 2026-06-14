@@ -1,0 +1,28 @@
+{
+  "plugins": {
+    "mini.ai": {
+      "rev": "1cd4f021a05c29acd4ab511c0981da14217daf38",
+      "src": "https://github.com/echasnovski/mini.ai"
+    },
+    "mini.move": {
+      "rev": "819e90c3e113a3c826c3003ec07073f1e0677ea0",
+      "src": "https://github.com/echasnovski/mini.move"
+    },
+    "mini.splitjoin": {
+      "rev": "51909e9883ab206f5a92deb9ca685317387586a4",
+      "src": "https://github.com/echasnovski/mini.splitjoin"
+    },
+    "nvim-surround": {
+      "rev": "c271c9082886a24866353764cf96c9d957e95b2b",
+      "src": "https://github.com/kylechui/nvim-surround"
+    },
+    "ultimate-autopair.nvim": {
+      "rev": "b24b97c538b71b6de0ce9d84e47df27b6ecafd76",
+      "src": "https://github.com/altermo/ultimate-autopair.nvim"
+    },
+    "vim-wordmotion": {
+      "rev": "81d9bd298376ab0dc465c85d55afa4cb8d5f47a1",
+      "src": "https://github.com/chaoren/vim-wordmotion"
+    }
+  }
+}

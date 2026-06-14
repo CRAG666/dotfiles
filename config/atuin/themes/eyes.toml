@@ -1,0 +1,12 @@
+[theme]
+name = "eyes"
+
+[colors]
+AlertInfo    = "#1e4868"
+AlertWarn    = "#5a4808"
+AlertError   = "#7a1e18"
+Annotation   = "#365c25"
+Base         = "#1a1a1a"
+Guidance     = "#3d5c38"
+Important    = "#3a2860"
+Title        = "#145850"

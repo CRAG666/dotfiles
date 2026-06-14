@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# toggle web cam, i'm paranoid #
+#
+
+## find web cam module ##
+lsmod | awk '{print($1)}' | grep $1
+
+if [ $? -eq 0 ]
+then
+  pkexec modprobe -r $1
+else
+  pkexec modprobe $1
+fi
+

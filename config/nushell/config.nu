@@ -1,0 +1,327 @@
+# $env.LSI_THEME_PATH = $"($env.HOME)/.config/yazi/theme.toml"
+# source ~/.config/nushell/lsi.nu
+$env.config.hooks = ($env.config.hooks | upsert env_change {
+    PWD: [
+        {|before, after|
+            print (ls -t | table)
+        }
+    ]
+})
+
+$env.config.buffer_editor = "nvim"
+$env.config.edit_mode = "vi"
+$env.config.cursor_shape = {
+    vi_insert: line
+    vi_normal: block
+    emacs: line
+}
+$env.config.use_kitty_protocol = true
+$env.config.show_banner = false
+$env.config.history.file_format = "sqlite"
+$env.config.history.sync_on_enter = true
+$env.config.table = {
+    mode: rounded
+    index_mode: auto
+    show_empty: true
+    trim: {
+        methodology: wrapping
+        wrapping_try_keep_words: true
+        truncating_suffix: "..."
+    }
+}
+
+alias rm = rm -ti
+# alias help = cht.sh
+alias la = ls -la
+alias ll = ls -l
+
+def vi [...args] {
+    NVIM_APPNAME=nvim-minimal nvim ...$args
+}
+alias vic = vi ~/.config/nvim-minimal/init.lua
+def vim [...args] {
+    NVIM_NF=true nvim ...$args
+}
+alias vimc = nvim ~/.config/nvim/init.lua
+alias vimk = nvim ~/.config/nvim/lua/core/keymaps.lua
+alias vimd = nvim ~/.config/nvim/lua/core/opts.lua
+alias vima = nvim ~/.config/nvim/lua/core/autocmds.lua
+alias viml = nvim ~/.config/nvim/lua/core/lsp.lua
+alias newmc = nvim ~/.config/newm/config.py
+alias hyprc = nvim ~/.config/hypr/hyprland.conf
+alias scrollc = nvim ~/.config/scroll/config
+alias owlc = nvim ~/.config/owl/owl.conf
+alias keydc = nvim ~/Git/dotfiles/etc/keyd/default.conf
+alias zshc = nvim ~/.zshrc
+alias zshf = nvim ~/.zshfunc
+alias zimc = nvim ~/.zimrc
+alias dnsc = nvim /etc/resolv.conf
+alias nftc = nvim /etc/nftables.conf
+alias starshipc = nvim ~/.config/starship.toml
+
+alias Applications = cd /usr/share/applications
+alias Desktop = cd $"($env.HOME)/Escritorio"
+alias Download = cd $"($env.HOME)/Descargas"
+alias Document = cd $"($env.HOME)/Documentos"
+alias Images = cd $"($env.HOME)/Imágenes"
+alias Music = cd $"($env.HOME)/Música"
+alias Videos = cd $"($env.HOME)/Vídeos"
+alias Git = cd $"($env.HOME)/Git"
+alias Usb = cd $env.USB
+
+
+alias v = nvim
+
+def sar [find_text: string, replace_text: string] {
+    let files_to_change = (rg -l $find_text | lines)
+
+    if ($files_to_change | is-empty) {
+        print "No se encontraron archivos."
+        return
+    }
+
+    for $file in $files_to_change {
+        let content = (open $file | str replace -a $find_text $replace_text)
+        $content | save -f $file
+    }
+
+    print $"Cambiado en ($files_to_change | length) archivos."
+}
+
+def encrypt [infile: path, outfile: path] {
+    openssl enc -aes-256-cbc -md sha512 -pbkdf2 -iter 100000 -salt -in $infile -out $outfile
+}
+
+def decrypt [infile: path, outfile: path] {
+    openssl enc -d -aes-256-cbc -md sha512 -pbkdf2 -iter 100000 -salt -in $infile -out $outfile
+}
+
+def get_commit_info [] {
+    let TYPE = (gum choose "fix" "feat" "docs" "style" "refactor" "test" "chore" "revert")
+    let SCOPE_INPUT = (gum input --placeholder "scope")
+    let SCOPE = if not ($SCOPE_INPUT | is-empty) { $"($SCOPE_INPUT)" } else { "" }
+    let SUMMARY = (gum input --value $"($TYPE)($SCOPE): " --placeholder "Resumen de este cambio")
+    let DESCRIPTION = (gum write --placeholder "Detalles de este cambio")
+    { summary: $SUMMARY, description: $DESCRIPTION }
+}
+
+def gac [] {
+    let commit_info = (get_commit_info)
+    if (gum confirm "Hacer commit de los cambios?") {
+        git add .
+        git commit -m $commit_info.summary -m $commit_info.description
+    }
+}
+
+def vims [pattern: string] {
+    let files = (rg $pattern -l | lines)
+    if not ($files | is-empty) {
+        nvim -p $files
+    } else {
+        print "No se encontraron archivos para el patrón."
+    }
+}
+
+def uuid [count: int = 1] {
+    for i in 1..$count {
+        python -c "import uuid; print(uuid.uuid4())"
+    }
+}
+
+def fkill [signal: int = 9] {
+    let processes = (
+        ps
+        | where pid != 1
+        | select pid name
+    )
+
+    let selection = (
+        $processes
+        | each { |p| $p.name }
+        | uniq
+        | str join "\n"
+        | ^gum filter --no-limit --height 25
+    )
+
+    if ($selection | is-empty) {
+        return
+    }
+
+    $processes
+    | where name in ($selection | lines)
+    | get pid
+    | each { |pid|
+        kill --signal $signal ($pid | into int)
+    }
+}
+
+def fapp [] {
+    let selected = (ls /usr/share/applications | get name | to text | gum filter --no-limit --height=25 --placeholder "Select an application")
+
+    let filename = ($selected | str trim | path basename)
+
+    let exec_line = (open $"/usr/share/applications/($filename)" | lines | find --regex '^Exec' | last)
+
+    let command = ($exec_line | str replace '^Exec=' '' | str replace '%.' '')
+
+    bash -c $"nohup ($command) >/dev/null 2>&1 &"
+}
+
+def dirsum [directory?: string] {
+    if ($directory == null) {
+        print 'usage: dirsum [directory]'
+        return
+    }
+
+    let dir = ($directory | str trim --right --char '/')
+
+    glob $"($dir)/**/*"
+    | where ($it | path type) == "file"
+    | each { |file| ^shasum $file | split row ' ' | get 0 }
+    | sort
+    | to text
+    | ^shasum
+    | split row ' '
+    | get 0
+}
+
+def du1 [] { du -d 1 | sort-by apparent }
+def aicli [] { ^bash -c 'eval $(gum choose "gemini" "qwen" "crush")' }
+def paci [] { ^bash -c "pacman -Slq | fzf --multi --preview 'pacman -Si {1}' | xargs -ro sudo pacman -S" }
+def pacr [] { ^bash -c "pacman -Qq | fzf --multi --preview 'pacman -Qi {1}' | xargs -ro sudo pacman -Rns" }
+def ys [] {
+    ^paru -Slq
+    | fzf --multi --preview 'paru -Si {1}'
+    | xargs -ro paru -S
+}
+def yclean [] {
+    let orphans = (paru -Qtdq | lines)
+    if ($orphans | is-empty) {
+        print "No hay paquetes huérfanos para limpiar."
+    } else {
+        paru -Rns $orphans
+    }
+    paru -Scc
+}
+def ci [] { ^bash -c "{ find . -xdev -printf '%h\n' | sort | uniq -c | sort -k 1 -n; } 2>/dev/null" }
+def fontl [] { ^bash -c "fc-list | cut -d ':' -f2 | sort | uniq" }
+# def atm [flag: string] { ^bash -c $'atm "($flag)"' }
+
+def polars-open [file: path] {
+    polars open $file | polars into-nu
+}
+
+def hyprctl-monitors [] {
+    hyprctl monitors -j | from json
+}
+
+def hyprctl-clients [] {
+    hyprctl clients -j | from json
+}
+
+def hyprctl-workspaces [] {
+    hyprctl workspaces -j | from json
+}
+
+def hyprctl-activewindow [] {
+    hyprctl activewindow -j | from json
+}
+
+def hyprctl-devices [] {
+    hyprctl devices -j | from json
+}
+
+def hyprctl-layers [] {
+    hyprctl layers -j | from json
+}
+
+def hyprctl-animations [] {
+    hyprctl animations -j | from json
+}
+
+def hyprctl-cursorpos [] {
+    hyprctl cursorpos -j | from json
+}
+
+def hyprctl-plugins [] {
+    hyprctl plugin list -j | from json
+}
+
+def hyprctl-activeworkspace [] {
+    hyprctl activeworkspace -j | from json
+}
+
+def norg [
+    workspace: string  # Nombre del workspace (ej: academic, personal, work)
+] {
+    nvim -c $"Neorg workspace ($workspace)"
+}
+
+def ddl [
+    db_file: path,           # El archivo de la base de datos (.db)
+    table_name?: string      # Nombre de la tabla (opcional)
+] {
+    if ($table_name == null) {
+        open $db_file | query db "SELECT name, sql FROM sqlite_schema WHERE type = 'table'"
+    } else {
+        open $db_file | query db $"SELECT sql FROM sqlite_schema WHERE name = '($table_name)'"
+    }
+}
+
+source $"($nu.cache-dir)/carapace.nu"
+let carapace_completer = {|spans|
+    carapace $spans.0 nushell ...$spans | from json
+}
+source ~/.zoxide.nu
+source ~/.local/share/atuin/init.nu
+
+$env.config = (
+    $env.config | upsert keybindings (
+        $env.config.keybindings
+        | append {
+            name: atuin_vi_normal_k
+            modifier: none
+            keycode: char_k
+            mode: [vi_normal]
+            event: { send: executehostcommand cmd: (_atuin_search_cmd) }
+        }
+        # Equivalente practico al preview de fzf-tab en zsh: Ctrl+T abre fzf
+        # con ~/.scripts/preview (imagenes/pdf/video via kitty icat) e inserta
+        # la ruta elegida en la linea. Tab sigue siendo el menu de reedline:
+        # nushell no permite delegarlo a fzf (no existe fzf-tab para nu).
+        | append {
+            name: fzf_file_preview
+            modifier: control
+            keycode: char_t
+            mode: [emacs, vi_insert]
+            event: {
+                send: executehostcommand
+                cmd: "let _sel = (try { fd --hidden --exclude .git --color never | fzf --height 90% --preview '~/.scripts/preview {}' | str trim } catch { '' }); if ($_sel | is-not-empty) { commandline edit --insert ($_sel | str replace -a ' ' '\\ ') }"
+            }
+        }
+    )
+)
+# source ~/.config/nushell/catppuccin_mocha.nu
+source ~/.config/nushell/theme.nu
+source ~/.config/nushell/podman.nu
+source ~/.config/nushell/git.nu
+source ~/.config/nushell/aliases.nu
+
+# Hot-reload del tema: cuando eyes-theme cambia de modo (mtime del state file
+# ~/.config/eyes/mode), recarga colors.env y re-source theme.nu en el próximo
+# prompt — la sesión abierta adopta los colores activos sin reiniciar.
+# El código va como string para que se re-parsee en el scope actual (así
+# `source` y los cambios de $env persisten en la sesión).
+$env._EYES_MODE_MTIME = (try { ls $"($env.HOME)/.config/eyes/mode" | get 0.modified | into int } catch { -1 })
+$env.config.hooks.pre_prompt = (
+    $env.config.hooks.pre_prompt? | default [] | append {
+        condition: {||
+            (try { ls $"($env.HOME)/.config/eyes/mode" | get 0.modified | into int } catch { -1 }) != $env._EYES_MODE_MTIME
+        }
+        code: '
+            $env._EYES_MODE_MTIME = (try { ls $"($env.HOME)/.config/eyes/mode" | get 0.modified | into int } catch { -1 })
+            try { load-shared-env $"($env.HOME)/Git/dotfiles/config/shell/colors.env" }
+            source ~/.config/nushell/theme.nu
+        '
+    }
+)

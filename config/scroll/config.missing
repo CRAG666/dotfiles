@@ -1,0 +1,102 @@
+# vim: ft=swayconfig
+#
+# Asignaciones disponibles en config.txt (default de scroll) que NO tienes
+# en tu configuracion actual, o cuya tecla equivalente ya esta usada.
+#
+# Todo viene comentado. Revisa los conflictos indicados antes de descomentar.
+#
+
+
+# Dividir un workspace en dos (wssplit)
+# mode "wssplit" {
+#     bindsym 1 workspace split v 0.25 10; mode default
+#     bindsym Shift+1 workspace split h 0.25 10; mode default
+#     bindsym 2 workspace split v 0.333333333 10; mode default
+#     bindsym Shift+2 workspace split h 0.333333333 10; mode default
+#     bindsym 3 workspace split v 0.5 10; mode default
+#     bindsym Shift+3 workspace split h 0.5 10; mode default
+#     bindsym 4 workspace split v 0.66666667 10; mode default
+#     bindsym Shift+4 workspace split h 0.6666667 10; mode default
+#     bindsym 5 workspace split v 0.75 10; mode default
+#     bindsym Shift+5 workspace split h 0.75 10; mode default
+#     bindsym r workspace split reset; mode default
+#     bindsym Escape mode "default"
+# }
+# bindsym $mod+Shift+backslash mode "wssplit"
+
+#
+# Scaling: contenido (no solo workspace)
+#
+    # bindsym $mod+comma scale_content incr -0.05
+    # bindsym --whole-window $mod+button4 scale_content incr -0.05
+    # bindsym $mod+period scale_content incr 0.05
+    # bindsym --whole-window $mod+button5 scale_content incr 0.05
+    # bindsym $mod+Ctrl+period scale_content reset
+
+#
+# Layout stuff: extras
+#
+    # Selection (multi-window selection)
+    # bindsym --no-repeat $mod+Insert selection toggle
+    # bindsym --no-repeat $mod+Ctrl+Insert selection reset
+    # bindsym --no-repeat $mod+Shift+Insert selection move
+    # bindsym --no-repeat $mod+Ctrl+Shift+Insert selection workspace
+    # bindsym --no-repeat $mod+Alt+Insert selection to_trail
+
+#
+# Trailmark mode (marcas en trails)
+# CONFLICTO: $mod+semicolon esta usado para "focus output right"
+#
+# mode "trailmark" {
+#     bindsym bracketright trailmark next
+#     bindsym bracketleft trailmark prev
+#     bindsym semicolon trailmark toggle; mode default
+#     bindsym --no-repeat slash trailmark jump; mode default
+#     bindsym Escape mode "default"
+# }
+# bindsym $mod+semicolon mode "trailmark"
+
+#
+# Trail mode (gestion de trails/rutas)
+# CONFLICTO: $mod+Shift+semicolon esta usado para "move container to output right"
+#
+# mode "trail" {
+#     bindsym bracketright trail next
+#     bindsym bracketleft trail prev
+#     bindsym 0 trail number 0; mode default
+#     bindsym 1 trail number 1; mode default
+#     bindsym 2 trail number 2; mode default
+#     bindsym 3 trail number 3; mode default
+#     bindsym 4 trail number 4; mode default
+#     bindsym 5 trail number 5; mode default
+#     bindsym 6 trail number 6; mode default
+#     bindsym 7 trail number 7; mode default
+#     bindsym 8 trail number 8; mode default
+#     bindsym 9 trail number 9; mode default
+#     bindsym semicolon trail new; mode default
+#     bindsym d trail delete; mode default
+#     bindsym c trail clear; mode default
+#     bindsym insert trail to_selection; mode default
+#     bindsym Escape mode "default"
+# }
+# bindsym $mod+Shift+semicolon mode "trail"
+
+#
+# Status bar nativo (no tienes bar { } - probablemente usas waybar externo)
+#
+# bar {
+#     position top
+#     status_command while date +'%Y-%m-%d %X'; do sleep 1; done
+#
+#     colors {
+#         statusline #ffffff
+#         background #323232
+#         inactive_workspace #32323200 #32323200 #5c5c5c
+#         scroller #2F343AFF #055E20FF #FFFFFFFF
+#     }
+# }
+
+#
+# Include para configuracion adicional desde @sysconfdir@
+#
+# include @sysconfdir@/scroll/config.d/*

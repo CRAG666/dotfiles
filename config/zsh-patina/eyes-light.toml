@@ -1,0 +1,79 @@
+# eyes (light) — sage-green palette for zsh-patina.
+# Token names mirror Catppuccin's example; only hex values are eyes.
+
+# comments (c_ash from nvim eyes)
+"comment" = "#365c25"
+
+# strings (c_green1 from nvim eyes — distinct from comments)
+"string" = "#1e4a18"
+
+# regular expressions
+"keyword.operator.regexp" = "#5a2858"
+
+# escape characters (c_pink)
+"constant.character" = "#5a2858"
+
+# constants in general (c_orange0)
+"constant" = "#6a3c10"
+
+# numeric literals (c_pink to match nvim Number)
+"constant.numeric" = "#5a2858"
+
+# parameters
+"variable.parameter" = "#7a4a18"
+
+# environment variables
+"variable.other" = "#7a1e18"
+"punctuation.definition.variable" = "#7a1e18"
+
+# commands
+"variable.function" = "#1e4868"
+
+# home directory ~
+"variable.language.tilde" = "#7a1e18"
+
+# keywords
+"keyword" = "#3a2860"
+
+# general foreground color
+source = "#1a1a1a"
+
+# variable assignments
+"storage" = "#5a4808"
+"storage.modifier" = "#3a2860"
+
+# support terms (e.g. double braces, let)
+"support" = "#1e4868"
+"keyword.operator" = "#145850"
+
+# function names (c_blue1 from nvim eyes)
+"entity.name.function" = "#143c52"
+
+# braces (c_gray1 from nvim eyes)
+"punctuation.section" = "#385030"
+
+# terminators (e.g. ";;" after a case item)
+"punctuation.terminator" = "#385030"
+
+# history expansions
+"meta.group.expansion.history" = "#7a1e18"
+
+# reset command substitutions to the theme's default foreground color
+"meta.group.expansion.command.parens" = { foreground = "#1a1a1a" }
+
+# command call wrappers and option-argument values default to ANSI 7 (too dim)
+"meta.function-call" = { foreground = "#1a1a1a" }
+"meta.function-call.arguments" = { foreground = "#1a1a1a" }
+"punctuation.definition.parameter" = { foreground = "#1a1a1a" }
+
+# line-continuation backslash also defaults to ANSI 7 (dim grey)
+"punctuation.separator.continuation.line" = "#385030"
+
+# dynamic items
+"dynamic.callable" = "#1e4868"
+"dynamic.callable.missing" = "#7a1e18"
+"dynamic.path" = { underline = true }
+
+[metadata]
+# Fall back to a light built-in base for any uncovered scope.
+extends = "catppuccin-latte"

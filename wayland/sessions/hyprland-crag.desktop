@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Hyprland Crag
+Comment=An intelligent dynamic tiling Wayland compositor
+Exec=/usr/local/bin/hypr-run.sh -a
+Type=Application
+DesktopNames=Hyprland
+Keywords=tiling;wayland;compositor;

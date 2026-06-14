@@ -1,0 +1,6 @@
+[Unit]
+Description=Switch eyes theme to light variant
+
+[Service]
+Type=oneshot
+ExecStart=%h/.scripts/eyes-theme light

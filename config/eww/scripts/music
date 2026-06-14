@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# One-shot snapshot of the active MPRIS player for eww (poll every 1s):
+#   {"status":"Playing","title":"…","artist":"…","posfmt":"2:21","lenfmt":"5:57","pct":39}
+# jq does the JSON escaping so quotes/apostrophes in tags can't break output.
+
+fmt_time() {            # whole seconds -> M:SS
+  local s=${1:-0}
+  [[ "$s" =~ ^[0-9]+$ ]] || s=0
+  printf '%d:%02d' $((s / 60)) $((s % 60))
+}
+
+status=$(playerctl status 2>/dev/null || true)
+if [[ -z "$status" ]]; then
+  jq -cn '{status:"Stopped",title:"",artist:"",posfmt:"0:00",lenfmt:"0:00",pct:0}'
+  exit 0
+fi
+
+title=$(playerctl metadata title 2>/dev/null || true)
+artist=$(playerctl metadata artist 2>/dev/null || true)
+pos=$(playerctl position 2>/dev/null || echo 0)          # float seconds
+len_us=$(playerctl metadata mpris:length 2>/dev/null || echo 0)  # microseconds
+
+pos_i=${pos%.*}; [[ "$pos_i" =~ ^[0-9]+$ ]] || pos_i=0
+len_s=0; pct=0
+if [[ "$len_us" =~ ^[0-9]+$ ]] && (( len_us > 0 )); then
+  len_s=$(( len_us / 1000000 ))
+  (( len_s > 0 )) && pct=$(( pos_i * 100 / len_s ))
+fi
+(( pct > 100 )) && pct=100
+
+jq -cn \
+  --arg status "$status" --arg title "$title" --arg artist "$artist" \
+  --arg posfmt "$(fmt_time "$pos_i")" --arg lenfmt "$(fmt_time "$len_s")" \
+  --argjson pct "$pct" \
+  '{status:$status,title:$title,artist:$artist,posfmt:$posfmt,lenfmt:$lenfmt,pct:$pct}'

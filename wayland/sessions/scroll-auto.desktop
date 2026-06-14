@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Scroll (auto battery/AC)
+Comment=An i3-compatible Wayland compositor (sway) with a PaperWM layout
+Exec=/usr/local/bin/scroll-run.sh -a
+Type=Application
+DesktopNames=scroll;wlroots

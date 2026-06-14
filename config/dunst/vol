@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# You can call this script like this:
+# $./volume.sh up
+# $./volume.sh down
+# $./volume.sh mute
+
+case $1 in
+up)
+	wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+ >/dev/null
+	;;
+down)
+	wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%- >/dev/null
+	;;
+mute)
+	# Toggle mute
+	wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+	exit 0
+	;;
+*)
+	exit 0
+	;;
+esac
+
+# El sonido va en segundo plano: aplay bloquea lo que dura el wav (~380 ms)
+# y retrasaba el OSD; la notificación debe aparecer con la pulsación.
+aplay ~/.config/dunst/vol.wav >/dev/null 2>&1 &
+
+volume_integer=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2 * 100 + 0.5)}')
+
+if [ "$volume_integer" -eq 0 ]; then
+	icon="audio-volume-muted"
+elif [ "$volume_integer" -le 33 ]; then
+	icon="audio-volume-low"
+elif [ "$volume_integer" -le 66 ]; then
+	icon="audio-volume-medium"
+else
+	icon="audio-volume-high"
+fi
+
+notify-send -i "$icon" \
+	-h int:value:$volume_integer \
+	-h string:x-dunst-stack-tag:volume \
+	"Volume"

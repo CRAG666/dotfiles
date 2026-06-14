@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+cat $HOME/.config/chromium-flags.conf | xargs -0 -i echo {} "$2" | xargs "$1"

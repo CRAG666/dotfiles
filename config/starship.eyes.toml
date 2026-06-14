@@ -1,0 +1,114 @@
+add_newline = false
+format = """$all"""
+# right_format = """$all"""
+palette = "eyes"
+
+[character]
+# success_symbol = "[ﰉ](fg:red)[ ﰉ](fg:yellow)[ ﰉ](fg:cyan)"
+success_symbol = "[ﰉ](fg:red)[ ﰉ](fg:yellow)[ ﰉ](fg:green)"
+# vicmd_symbol = "[ﰊ](fg:cyan)[ ﰊ](fg:yellow)[ ﰊ](fg:red)"
+vicmd_symbol = "[ﰊ](fg:green)[ ﰊ](fg:yellow)[ ﰊ](fg:red)"
+error_symbol = "[ﰉ](fg:red)"
+
+[git_metrics]
+disabled = false
+
+[directory.substitutions]
+"~/Escritorio" = "󰇄"
+"~/Descargas" = ""
+"~/Documentos" = ""
+"~/Imágenes" = ""
+"~/Música" = ""
+"~/Vídeos" = ""
+"~/Git" = ""
+"/run/media/$USER" = "󱊞"
+"~/Desktop" = "󰇄"
+"~/Downloads" = ""
+"~/Documents" = ""
+"~/Pictures" = ""
+"~/Music" = ""
+"~/Videos" = ""
+
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"
+
+[palettes.eyes]
+rosewater = "#d8a8a0"  # c_winterRed
+flamingo  = "#5a2858"  # c_pink
+pink      = "#5a2858"  # c_pink
+mauve     = "#3a2860"  # c_violet
+red       = "#7a1e18"  # c_red
+maroon    = "#6a3c10"  # c_orange0
+peach     = "#7a4a18"  # c_orange1
+yellow    = "#5a4808"  # c_yellow
+green     = "#1e4a18"  # c_green1
+teal      = "#145850"  # c_teal
+sky       = "#90bcd0"  # c_winterBlue
+sapphire  = "#1a5858"  # c_aqua
+blue      = "#143c52"  # c_blue1
+lavender  = "#365c25"  # c_ash
+text      = "#1a1a1a"  # c_fg0
+subtext1  = "#1e2e1c"  # c_fg1
+subtext0  = "#3d5c38"  # c_fg2
+overlay2  = "#486040"  # c_gray0
+overlay1  = "#385030"  # c_gray1
+overlay0  = "#2c4028"  # c_gray2
+surface2  = "#6a9060"  # c_bg5
+surface1  = "#88b07e"  # c_bg4
+surface0  = "#96be8c"  # c_bg3
+base      = "#add4a0"  # c_bg0
+mantle    = "#a4cc98"  # c_bg1
+crust     = "#9fc895"  # c_bg2
+
+[palettes.eyes-dark]
+rosewater = "#402828"  # c_winterRed (dark)
+flamingo  = "#b890b0"  # c_pink
+pink      = "#b890b0"  # c_pink
+mauve     = "#9090b8"  # c_violet
+red       = "#c87868"  # c_red
+maroon    = "#b89a6a"  # c_orange0
+peach     = "#c8a870"  # c_orange1
+yellow    = "#d4b85a"  # c_yellow
+green     = "#88b878"  # c_green1
+teal      = "#5ab8a8"  # c_teal
+sky       = "#223040"  # c_winterBlue (dark)
+sapphire  = "#6ab8b0"  # c_aqua
+blue      = "#82aab8"  # c_blue1
+lavender  = "#7a8c72"  # c_ash
+text      = "#d0dcc8"  # c_fg0
+subtext1  = "#b8c8b0"  # c_fg1
+subtext0  = "#9aab94"  # c_fg2
+overlay2  = "#8a9a88"  # c_gray0
+overlay1  = "#7a8a78"  # c_gray1
+overlay0  = "#6a7868"  # c_gray2
+surface2  = "#536053"  # c_bg5
+surface1  = "#3a463a"  # c_bg4
+surface0  = "#2d382d"  # c_bg3
+base      = "#1a211a"  # c_bg0
+mantle    = "#202820"  # c_bg1
+crust     = "#263026"  # c_bg2

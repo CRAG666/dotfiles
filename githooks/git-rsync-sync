@@ -1,0 +1,62 @@
+#!/bin/bash
+# Syncs the current git repo to all configured mount points, preserving
+# the path structure relative to LOCAL_BASE.
+#
+# Usage: git-rsync-sync [local_base_dir]
+#   local_base_dir  Base directory that repos live under (default: ~/Documents/Projects)
+
+LOCAL_BASE="${1:-$HOME/Documents/Projects}"
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+if [[ -z "$REPO_ROOT" ]]; then
+    echo "git-rsync-sync: not inside a git repository" >&2
+    exit 1
+fi
+
+REMOTE_DIR_PATH="${REPO_ROOT#"$LOCAL_BASE"/}"
+if [[ "$REMOTE_DIR_PATH" == "$REPO_ROOT" ]]; then
+    echo "git-rsync-sync: repo '$REPO_ROOT' is not under '$LOCAL_BASE'" >&2
+    exit 1
+fi
+
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+MOUNT_POINTS=(
+    "$HOME/Public/Drive"
+    "$HOME/Public/InaoeDrive"
+    "$HOME/Public/InaoeOneDrive"
+)
+
+RSYNC_OPTS=(
+    -av
+    --delete
+    --filter=':- .gitignore'
+    --exclude='.git'
+)
+
+synced=0
+skipped=0
+
+for MOUNT_POINT in "${MOUNT_POINTS[@]}"; do
+    if [[ ! -d "$MOUNT_POINT" ]]; then
+        echo -e "${YELLOW}⚠  $MOUNT_POINT not mounted, skipping.${NC}"
+        (( skipped++ ))
+        continue
+    fi
+
+    REMOTE_PATH="$MOUNT_POINT/$REMOTE_DIR_PATH"
+    mkdir -p "$REMOTE_PATH"
+
+    echo "Syncing to $REMOTE_PATH..."
+    if rsync "${RSYNC_OPTS[@]}" "$REPO_ROOT/" "$REMOTE_PATH/"; then
+        echo -e "${GREEN}✓ Done${NC}"
+        (( synced++ ))
+    else
+        echo -e "${RED}✗ Sync failed${NC}" >&2
+    fi
+done
+
+echo -e "\nSynced: ${GREEN}$synced${NC} | Skipped: ${YELLOW}$skipped${NC}"

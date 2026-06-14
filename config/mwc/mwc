@@ -1,0 +1,307 @@
+# makes a comment, you can only comment whole lines
+# all config values consist of a keyword followed by the list of args, all space separated, usage of multiple spaces is fine
+# if you need spaces in an argument use double quotes as in "argument with spaces"
+
+# you can add env variables with env <name> <value>
+env EDITOR nvim
+env BROWSER zen-browser
+env TERMCMD "kitty -T filechooser"
+
+env XDG_CURRENT_DESKTOP owl
+env XDG_SESSION_DESKTOP owl
+env XDG_SESSION_TYPE wayland
+env QT_QPA_PLATFORM wayland
+env QT_WAYLAND_DISABLE_WINDOWDECORATION 1
+# env QT_STYLE_OVERRIDE kvantum
+env QT_AUTO_SCREEN_SCALE_FACTOR 1
+env GDK_BACKEND wayland
+env QT_QPA_PLATFORMTHEME qt6ct
+env MOZ_ENABLE_WAYLAND 1
+env GDK_SCALE 1
+env GDK_DEBUG portals # for file chooser term
+env GTK_USE_PORTAL 1
+env DISABLE_QT5_COMPAT 0
+env ANKI_WAYLAND 1
+env SDL_VIDEODRIVER wayland
+env ECORE_EVAS_ENGINE wayland_egl
+env ELM_ENGINE wayland_egl
+env AVALONIA_GLOBAL_SCALE_FACTOR 1
+env XDG_SCREENSHOTS_DIR ~/Screenshots
+env CLUTTER_BACKEND wayland
+
+# NVIDIA
+env NVD_BACKEND direct
+env GBM_BACKEND nvidia-drm
+env __NV_PRIME_RENDER_OFFLOAD 1
+env __GLX_VENDOR_LIBRARY_NAME nvidia
+env __VK_LAYER_NV_optimus NVIDIA_only
+env VDPAU_DRIVER nvidia
+env LIBVA_DRIVER_NAME nvidia
+env AQ_DRM_DEVICES /dev/dri/card2:/dev/dri/card1
+env WLR_DRM_DEVICES /dev/dri/card2:/dev/dri/card1
+env MOZ_WAYLAND_DRM_DEVICE /dev/dri/renderD128
+env MOZ_DRM_DEVICE /dev/dri/renderD128
+env MOZ_DISABLE_RDD_SANDBOX 1
+env WLR_DRM_NO_ATOMIC 1
+env ELECTRON_OZONE_PLATFORM_HINT auto
+
+env XCURSOR_SIZE 30
+env XCURSOR_THEME catppuccin-mocha-red-cursors
+env GTK_THEME catppuccin-mocha-red-standard
+
+# this starts xdg-desktop-portals in the right order so things like screensharing work
+run "$HOME/.config/owl/fix-portals.sh"
+
+run "gsettings set org.gnome.desktop.interface cursor-theme 'catppuccin-mocha-red-cursors'"
+run "gsettings set org.gnome.desktop.interface cursor-size 30"
+
+run "gsettings set org.gnome.desktop.interface icon-theme 'Macjaro'"
+run "gsettings set org.gnome.desktop.interface gtk-theme 'catppuccin-mocha-red-standard'"
+run "gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'"
+
+run "gsettings set org.gnome.desktop.interface font-name 'SFProDisplay Nerd Font 14'"
+run "gsettings set org.gnome.desktop.interface document-font-name 'SFProDisplay Nerd Font 10'"
+run "gsettings set org.gnome.desktop.interface monospace-font-name 'SFProDisplay Nerd Font 12'"
+run "gsettings set org.gnome.desktop.interface font-antialiasing 'rgba'"
+run "gsettings set org.gnome.desktop.interface font-hinting 'full'"
+run "gsettings set org.gnome.desktop.wm.preferences button-layout :"
+run "gsettings set org.gnome.desktop.wm.preferences theme 'catppuccin-mocha-red-standard'"
+
+run "wl-paste --type text --watch cliphist store"
+run "wl-paste --type image --watch cliphist store"
+run "wl-paste --type image --watch cliphist store"
+run "wl-paste --type x-kde-passwordManagerHint --watch cliphist store"
+run dunst
+run "$HOME/.config/swww/swwwallpaper.sh"
+run /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+run "$HOME/.scripts/cloud_mount &"
+run "systemctl --user start podman.socket"
+run "$HOME/Git/selfhost/instances.sh"
+run "$HOME/.scripts/check_battery.sh"
+
+# some toplevels dont have the min size, so you can force that behaviour here; recommended to keep at least at 1
+min_toplevel_size 10
+
+# keyboard settings
+keymap us ""
+keymap_options "compose:menu"
+keyboard_rate 30
+keyboard_delay 150
+
+# trackpad settings
+natural_scroll 1
+tap_to_click 1
+
+# whether of not to use client side decorations; default is server side, which is no decorations
+client_side_decorations 0
+
+# you should specify the placement of your outputs as
+# output <name> <x> <y> <width> <height> <refresh_rate> where x, y are coordinates in the layout
+# for example, this config places HDMI-A-1 to the left of eDP-1
+# to find the names run owl and read the logs
+# output HDMI-A-1 0    0 1920 1080 60
+# output eDP-1    1920 0 1920 1080 60 1.0
+output eDP-1    0    0 1920 1080 60 1.0
+output DP2     1920 0 2560 1440 144 1.0
+
+# you should also specify where to place workspaces; not doing so will give you just one workspace per monitor
+# syntax is workspace <index> <output_name>
+# index is not that important, you dont have to write them seqentially, but be sure to use the same ones for keybinds, see under
+workspace 1 DP2
+workspace 2 DP2
+workspace 3 DP2
+workspace 4 DP2
+workspace 5 DP2
+
+# i put number 10 first so it is primary when my external monitor is not connected
+
+workspace 10 eDP-1
+workspace 9 eDP-1
+workspace 8 eDP-1
+workspace 7 eDP-1
+workspace 6 eDP-1
+
+# you can specify how many master toplevels you want, especially useful for wide monitors
+master_count 1
+# you can specify how much space will masters take;
+# setting it to 0 or skipping it will space all tiled toplevel evenly
+master_ratio 0.6
+
+# self explanatory
+outer_gaps 12
+inner_gaps 6
+border_width 3
+inactive_border_color 180 190 254 256
+active_border_color 243 139 168 256
+
+# enable animations
+animations 1
+animation_duration 500
+# cubic bezier curve to use for the animation; you should use sane values here
+animation_curve 0.05 0.9 0.1 1.05
+
+# if animations are used this color is used to fill in when the toplevels buffer
+# can not fill the current size; recommended to fit this color in with your theme
+placeholder_color 30 30 46 256
+
+# cursor things
+cursor_theme catppuccin-mocha-red-cursors
+cursor_size 30
+
+# keybinds are done in this form
+# keybind <modifiers> <key> <action> ...args
+# actions are
+#   exit - quits owl
+#   workspace <index> - go to workspace index
+#   move_to_workspace <index> - move focused toplevel to workspace index
+#   run <command> - run command
+#   resize - start resizing focused toplevel (only for floating toplevels)
+#   move - start move focused toplevel (only for floating toplevels)
+#   move_focus <direction> - move focus to another toplevel in direction
+#   swap <direction> - swap toplevel in direction
+#   kill_active - kill focused toplevel
+#   switch_floating_state - switch floating state of the focused toplevel
+# special key names you can use are
+#   enter
+#   backspace
+#   delete
+#   tab
+# other keys you are supposed to use with their xkb name
+#
+# keybind super escape exit
+
+# cycle workspaces
+keybind super n next_workspace
+keybind super p prev_workspace
+
+keybind super 1 workspace 1
+keybind super 2 workspace 2
+keybind super 3 workspace 3
+keybind super 4 workspace 4
+keybind super 5 workspace 5
+keybind super 6 workspace 6
+keybind super 7 workspace 7
+keybind super 8 workspace 8
+keybind super 9 workspace 9
+keybind super 0 workspace 10
+
+keybind super+shift 1 move_to_workspace 1
+keybind super+shift 2 move_to_workspace 2
+keybind super+shift 3 move_to_workspace 3
+keybind super+shift 4 move_to_workspace 4
+keybind super+shift 5 move_to_workspace 5
+keybind super+shift 6 move_to_workspace 6
+keybind super+shift 7 move_to_workspace 7
+keybind super+shift 8 move_to_workspace 8
+keybind super+shift 9 move_to_workspace 9
+keybind super+shift 0 move_to_workspace 10
+
+keybind super t run kitty
+
+# Rofi
+keybind _ XF86Open run "pkill rofi || ~/.config/rofi/run.sh clipboard"
+keybind alt space run "pkill rofi || ~/.config/rofi/run.sh clipboard"
+keybind _ XF86Search run "pkill rofi || ~/.config/rofi/run.sh menu drun"
+# keybind super slash run "pkill rofi || ~/.config/rofi/run.sh menu window" # Not working
+keybind super e run "pkill rofi || ~/.config/rofi/run.sh apps"
+keybind super b run "pkill rofi || ~/.config/rofi/run.sh bookmarks"
+keybind super+shift p run "pkill rofi || ~/.config/rofi/run.sh passman"
+keybind super backspace run "pkill rofi || ~/.config/rofi/run.sh powermenu"
+keybind super+shift r run "pkill rofi || ~/.config/rofi/run.sh launcher"
+keybind super+alt w run "pkill rofi || ~/.config/swww/swwwallselect.sh"
+
+keybind _ Print run "grimblast --notify --freeze copysave screen"
+keybind super Print run "grimblast --notify --freeze copysave area"
+
+# keybind control space run swaylock # Not working
+keybind super space run "wl-kbptr"
+
+# you can bind mouse buttons for shortcuts by prefixing them with mouse_ followed by
+#   - left_click
+#   - right_click
+#   - middle_click
+# or a number that represents that mouse button (you can get it by running `wev` and reading the logs)
+# e.g. left click is usually 272 (that is what owl assumes and replaces left_click with)
+keybind alt mouse_left_click move
+keybind alt mouse_right_click resize
+
+keybind super k move_focus up
+keybind super j move_focus down
+keybind super l move_focus right
+keybind super h move_focus left
+
+# use + for multiple modifiers
+keybind super+shift k swap up
+keybind super+shift j swap down
+keybind super+shift l swap right
+keybind super+shift h swap left
+
+keybind super q kill_active
+keybind super w switch_floating_state
+
+# use _ for no modifiers (you can actually put anything there and it will work)
+keybind _ XF86MonBrightnessUp run "brightnessctl s 10+"
+keybind _ XF86MonBrightnessDown run "brightnessctl s 10-"
+
+keybind _ XF86AudioRaiseVolume run "~/.config/dunst/vol up"
+keybind _ XF86AudioLowerVolume run "~/.config/dunst/vol down"
+
+keybind _ XF86AudioMute run "~/.config/dunst/vol mute"
+keybind _ XF86AudioMicMute run "pactl set-source-mute 0 toggle"
+keybind _ XF86AudioPrev run "playerctl previous"
+keybind _ XF86AudioNext run "playerctl next"
+keybind _ XF86AudioPlay run "playerctl play-pause"
+
+# Apps
+keybind _ XF86Favorites run "pkill rofi || ~/.config/rofi/run.sh quicklinks"
+keybind _ XF86Go run "kitty -T impala impala"
+keybind _ XF86Explorer run "kitty -T yazi yazi"
+keybind _ XF86Mail run betterbird
+keybind _ XF86WWW run zen-browser
+keybind _ Find run zen-browser
+
+# window rules are done with
+# window_rule <app_id regex> <title regex> <predicate> ...args
+# predicate can be
+#   float - to float by default
+#   size <width> <height> - to be specific size (only if floating);
+#                           sizes can either be absolute or relative
+# note: you can use _ to ignore class/title
+
+window_rule  Xdg-desktop-portal-gtk _ float
+window_rule  Xdg-desktop-portal-gtk _ size 60% 60%
+
+window_rule _ dialog float
+window_rule _ dialog size 80% 80%
+
+window_rule _ filechooser float
+window_rule _ filechooser size 80% 80%
+
+window_rule _ impala float
+window_rule _ impala size 80% 80%
+
+window_rule _ yazi float
+window_rule _ yazi size 80% 80%
+
+window_rule _ bluetui float
+window_rule _ bluetui size 80% 80%
+
+window_rule _ termusic float
+window_rule _ termusic size 80% 80%
+
+window_rule imv _ float
+window_rule imv _ size 80% 80%
+
+window_rule nwg-look _ float
+window_rule nwg-look _ size 1024 576
+
+window_rule kvantummanager _ float
+window_rule kvantummanager _ size 1024 576
+
+window_rule org.pulseaudio.pavucontrol _ float
+window_rule org.pulseaudio.pavucontrol _ size 1024 576
+
+# i dont use opacity settings but here is an example
+window_rule zen-browser _ opacity 0.6
+window_rule zen-browser .*YouTube.* opacity 1
+window_rule kitty _ opacity 0.9

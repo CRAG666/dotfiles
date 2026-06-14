@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+workdir="$PWD"
+dir="$PWD"
+
+for _ in 1 2 3; do
+    if [ -f "$dir/Tectonic.toml" ]; then
+        workdir="$dir"
+        break
+    fi
+    dir="$(dirname "$dir")"
+done
+
+podman run --rm \
+    -v "$HOME/.cache/Tectonic:/root/.cache/Tectonic" \
+    -v "$HOME/Documents/Projects/utils/latex:/latex" \
+    -v "$workdir:$workdir" \
+    -w "$workdir" \
+    dxjoke/tectonic-docker \
+    tectonic "$@"

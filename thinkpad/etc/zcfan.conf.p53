@@ -1,0 +1,10 @@
+# zcfan profile: ThinkPad P53 (Intel Core i7, 12 threads + Quadro workstation)
+# Workstation thermals: matches zcfan defaults, lets the fan ramp aggressively.
+max_temp 85
+med_temp 70
+low_temp 55
+temp_hysteresis 20
+
+max_level full-speed
+med_level 4
+low_level 1

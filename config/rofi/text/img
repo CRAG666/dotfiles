@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Modi de cliphist para rofi con thumbnails de imagen.
+#
+# El cache de thumbnails es PERSISTENTE por sesion: antes se hacia rm -rf y
+# se re-decodificaba todo el historial en cada apertura (~350 ms con 80
+# imagenes, sincrono antes de pintar el menu). Ahora solo se decodifica lo
+# que falta (en paralelo) y los huerfanos se podan en segundo plano.
+
+tmp_dir="${XDG_RUNTIME_DIR:-/tmp}/cliphist-thumbs"
+
+if [[ -n "$1" ]]; then
+	cliphist decode <<<"$1" | wl-copy
+	exit
+fi
+
+mkdir -p "$tmp_dir"
+
+list=$(cliphist list)
+
+# decodifica solo los thumbnails que faltan, en paralelo
+declare -A want=()
+while IFS= read -r line; do
+	[[ $line =~ ^([0-9]+)[[:space:]](\[\[[[:space:]])?binary.*(jpg|jpeg|png|bmp) ]] || continue
+	f="${BASH_REMATCH[1]}.${BASH_REMATCH[3]}"
+	want[$f]=1
+	[[ -s "$tmp_dir/$f" ]] && continue
+	cliphist decode <<<"${BASH_REMATCH[1]}"$'\t' > "$tmp_dir/$f" &
+done <<< "$list"
+wait
+
+# emite la lista (gawk: un solo pase, sin spawns)
+gawk -v dir="$tmp_dir" '
+/^[0-9]+\s<meta http-equiv=/ { next }
+match($0, /^([0-9]+)\s(\[\[\s)?binary.*(jpg|jpeg|png|bmp)/, grp) {
+    print $0 "\0icon\x1f" dir "/" grp[1] "." grp[3]
+    next
+}
+1
+' <<< "$list"
+
+# poda thumbnails de entradas ya expiradas del historial (fuera del camino
+# critico: rofi ya tiene la lista)
+{
+	for f in "$tmp_dir"/*; do
+		[[ -e $f ]] || break
+		[[ ${want[${f##*/}]+x} ]] || rm -f "$f"
+	done
+} &
+disown

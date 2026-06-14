@@ -1,0 +1,23 @@
+---@type lsp.config
+return {
+  filetypes = { 'tex' },
+  cmd = { 'efm-langserver' },
+  name = 'tex_fmt',
+  requires = { 'tex-fmt' },
+  root_markers = { 'Tectonic.toml' },
+  init_options = {
+    documentFormatting = true,
+    documentRangeFormatting = true,
+  },
+  settings = {
+    languages = {
+      tex = {
+        {
+          formatCommand = 'tex-fmt -n -t -p -s',
+          formatStdin = true,
+          formatCanRange = true,
+        },
+      },
+    },
+  },
+}

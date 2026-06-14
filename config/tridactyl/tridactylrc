@@ -1,0 +1,281 @@
+"
+"   _____ _           __            __     ___
+"  |  ___(_)_ __ ___ / _| _____  __ \ \   / (_)_ __ ___
+"  | |_  | | '__/ _ \ |_ / _ \ \/ /  \ \ / /| | '_ ` _ \
+"  |  _| | | | |  __/  _| (_) >  <    \ V / | | | | | | |
+"  |_|   |_|_|  \___|_|  \___/_/\_\    \_/  |_|_| |_| |_|
+"
+"                                    _
+"               _ __ ___   ___   __| | ___
+"              | '_ ` _ \ / _ \ / _` |/ _ \
+"              | | | | | | (_) | (_| |  __/
+"              |_| |_| |_|\___/ \__,_|\___|
+"
+
+" This wipes all existing settings. This means that if a setting in this file
+" is removed, then it will return to default. In other words, this file serves
+" as an enforced single point of truth for Tridactyl's configuration.
+sanitize tridactyllocal tridactylsync
+
+" ============================================================================
+" GENERAL CONFIGURATION
+" ============================================================================
+set configversion 2.0
+set smoothscroll false
+set newtab about:blank
+colorscheme theme
+
+" Clipboard configuration
+" set externalclipboardcmd wl-copy
+set yankto both
+
+" ============================================================================
+" MODE INDICATOR
+" ============================================================================
+set modeindicator true
+set modeindicatorshowkeys true
+set modeindicatormodes.ignore false
+
+" ============================================================================
+" HINTS CONFIGURATION
+" ============================================================================
+set hintfiltermode vimperator-reflow
+" set hintchars qwerasdfzxcv
+set hintchars fjdkslaghrueiwoq
+set hintdelay 100
+
+" ============================================================================
+" NAVIGATION AND SCROLL
+" ============================================================================
+bind j scrollline 5
+bind k scrollline -5
+bind h scrollpx -100
+bind l scrollpx 100
+
+" ============================================================================
+" TAB MANAGEMENT
+" ============================================================================
+" Basic navigation
+bind $ tablast
+bind 0 tabfirst
+bind << tabmove -1
+bind >> tabmove +1
+
+bind ;1 tab 13
+bind ;2 tab 14
+bind ;3 tab 15
+bind ;4 tab 16
+bind ;5 tab 17
+bind ;6 tab 18
+bind ;7 tab 19
+bind ;8 tab 20
+bind ;9 tab 21
+bind ;0 tab 22
+
+" ============================================================================
+" SEARCH COMMANDS
+" ============================================================================
+bind / fillcmdline find
+bind ? fillcmdline find -?
+bind n findnext 1
+bind N findnext -1
+bind <C-f> fillcmdline find
+bind * fillcmdline find
+
+" ============================================================================
+" UNBINDS
+" ============================================================================
+unbind J
+unbind K
+unbind F1
+
+" Allow Ctrl-a to select all in the commandline
+unbind --mode=ex <C-a>
+" Allow Ctrl-c to copy in the commandline
+unbind --mode=ex <C-c>
+
+" Custom command line (uncomment if you want to use it)
+" bind ñ fillcmdline_notrail
+
+" ============================================================================
+" IMPROVED CLIPBOARD COMMANDS
+" ============================================================================
+" Your improved git command
+bind yg composite js "git clone " + document.location.href.replace(/\/$/,"") + ".git" | clipboard yank
+
+" Additional useful commands
+bind yt composite js document.title + " - " + document.location.href | clipboard yank
+bind ym composite js "[" + document.title + "](" + document.location.href + ")" | clipboard yank
+
+" ============================================================================
+" ORGANIZED QUICKMARKS
+" ============================================================================
+" Development and code
+quickmark g https://github.com/
+quickmark l http://localhost/
+
+" Communication
+quickmark d https://discord.com/channels/1339832223729193030/1339832224178114596
+quickmark m https://mail.proton.me/u/1/inbox
+
+" Productivity
+quickmark f https://drive.google.com/drive/u/0/home
+quickmark n https://www.notion.so/16014572789580399978fbf7da3622f3?v=44e369be79784f879926b23197601fa4
+quickmark y https://www.youtube.com/feed/subscriptions
+
+" Tools
+quickmark p https://catppuccin.com/palette/
+quickmark r https://relay.firefox.com
+
+" ============================================================================
+" USEFUL ALIASES
+" ============================================================================
+alias tabuniq jsb browser.tabs.query({}).then(tabs => browser.tabs.remove(tabs.filter((tab, index) => tabs.slice(index + 1).find(t => t.url == tab.url)).map(tab => tab.id)))
+alias tabonly tabclose -o
+alias tabdetach winopen -c
+alias mksession-ts js tri.excmds.mksession(new Date().toISOString().slice(0,10))
+
+" Additional useful aliases
+alias q tabclose
+alias qa qall
+alias w winclose
+alias h help
+alias clear fillcmdline_notrail
+
+" ============================================================================
+" ZEN BROWSER - SIDEBAR / WORKSPACES / FEATURES
+" ============================================================================
+
+" zt = Toggle Compact Mode (Ctrl+S)
+bind zt !s wtype -M ctrl -k s
+" zf = Toggle Floating Sidebar (Ctrl+Alt+S)
+bind zf !s wtype -s 30 -M ctrl -M alt -k s
+
+" --- Workspaces ---
+" zn = Forward Workspace ; zp = Backward Workspace
+bind zn !s wtype -s 30 -M ctrl -M alt -k right
+bind zp !s wtype -s 30 -M ctrl -M alt -k left
+" zk = Close All Unpinned Tabs (Ctrl+Shift+K)
+bind zk !s wtype -s 30 -M ctrl -M shift -k k
+
+" --- Tabs verticales del sidebar ---
+" Navegar tabs (J/K rebindeados a scroll, usamos gj/gk)
+bind gj tabnext
+bind gk tabprev
+" Mover el tab actual en el sidebar
+bind <C-S-k> tabmove -1
+bind <C-S-j> tabmove +1
+
+" --- Split View ---
+" zsv = Toggle Split Vertical (Ctrl+Alt+V)
+bind zsv !s wtype -s 30 -M ctrl -M alt -k v
+" zsh = Toggle Split Horizontal (Ctrl+Alt+H)
+bind zsh !s wtype -s 30 -M ctrl -M alt -k h
+" zsg = Toggle Split Grid (Ctrl+Alt+G)
+bind zsg !s wtype -s 30 -M ctrl -M alt -k g
+" zsn = New Empty Split View (Ctrl+Shift+8 = *)
+bind zsn !s wtype -s 30 -M ctrl -M shift -k 8
+" zsc = Close Split View (Ctrl+Alt+U)
+bind zsc !s wtype -s 30 -M ctrl -M alt -k u
+
+
+" --- Other Zen Features ---
+" ze = Toggle Pin Tab (Ctrl+Shift+D)
+bind ze !s wtype -s 30 -M ctrl -M shift -k d
+" zg = Expand Glance (Ctrl+O)
+bind zg !s wtype -M ctrl -k o
+" zN = New Blank Window (Ctrl+Shift+N)
+bind zN !s wtype -s 30 -M ctrl -M shift -k n
+
+" ============================================================================
+" HARDCORE VIM - EDITOR EXTERNO (Neovim)
+" ============================================================================
+set editorcmd kitty -e nvim
+
+" ============================================================================
+" HARDCORE VIM - HINTS AVANZADOS
+" ============================================================================
+set hintautoselect true
+set hintfocusinput-mode auto
+set hintshift true
+bind ;c hint -W containeropen
+bind F hint -b
+
+" ============================================================================
+" HARDCORE VIM - TAB / HISTORY HARDENING
+" ============================================================================
+set tabopenpos related
+set newtabfocus page
+set tabclosepivot true
+bind u undo
+bind U undo window
+bind ]] followpage next
+bind [[ followpage prev
+
+" ============================================================================
+" HARDCORE VIM - MARCAS Y QUICK SCROLL
+" ============================================================================
+bind gh scrollto 0
+bind gl scrollto 100
+bind gm scrollto 50
+
+" ============================================================================
+" HARDCORE VIM - URL / DOMAIN HACKING
+" ============================================================================
+bind gu urlparent
+bind gU urlroot
+" Editar URL actual en la cmdline antes de abrir en tab nueva
+bind gE composite get_current_url | fillcmdline tabopen
+" Recargar duro
+bind <C-r> reload
+bind <C-S-r> reloadhard
+
+" ============================================================================
+" HARDCORE VIM - INSERT MODE / DOMINIO DE INPUTS
+" ============================================================================
+set allowautofocus false
+
+" ============================================================================
+" HARDCORE VIM - SITIOS QUE PREFIEREN SUS PROPIOS KEYBINDINGS
+" ============================================================================
+" Desactivar Tridactyl en sitios con vim mode propio
+seturl ^https://mail.google.com mode ignore
+seturl ^https://app.element.io mode ignore
+" Re-activar con <C-,> (default: shift+esc para toggle)
+" Toggle Tridactyl on/off
+bind <A-Escape> mode ignore
+bind --mode=ignore <A-Escape> mode normal
+
+" ============================================================================
+" HARDCORE VIM - GUI MINIMAL (oculta UI de Firefox/Zen)
+" ============================================================================
+guiset_quiet hoverlink right
+guiset_quiet tabs count
+guiset_quiet navbar autohide
+
+" ============================================================================
+" HARDCORE VIM - PERFORMANCE / CHROME
+" ============================================================================
+set closedtabhistorymaxsize 30
+
+" ============================================================================
+" SITE-SPECIFIC CONFIGURATIONS
+" ============================================================================
+" Improved WhatsApp
+bindurl web.whatsapp.com --mode=normal <Escape> composite hint -f m2 ; fillcmdline ; ex.hide_and_clear
+bindurl web.whatsapp.com --mode=insert <Escape> composite hint -f m2 ; fillcmdline ; ex.hide_and_clear
+bindurl web.whatsapp.com --mode=input <Escape> composite hint -f m2 ; fillcmdline ; ex.hide_and_clear
+
+" ============================================================================
+" ADDITIONAL PERFORMANCE CONFIGURATION
+" ============================================================================
+" Reduce lag on heavy sites
+set update.nag false
+set update.lastchecktime 1999999999999
+
+" Improve hint performance
+set hintnames uniform
+
+" For syntax highlighting see https://github.com/tridactyl/vim-tridactyl
+" vim: set filetype=tridactyl
+" vim: set ft=vim :

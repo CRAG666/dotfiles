@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+"""Compara layouts VIA entre teclados, ignorando luces y huecos.
+
+Uso:
+  compare-layouts                      # cidoo vs keychron con el mapeo por defecto
+  compare-layouts a.json b.json        # otros archivos (a = principal/referencia)
+  compare-layouts --map 0:0,1:2,2:3,3:4
+
+El mapeo es capa_de_A:capa_de_B. Los numeros de capa dentro de LT()/MO()
+se normalizan segun el mapeo, asi un corrimiento de capas no cuenta como
+diferencia. Se ignoran KC_NO, KC_TRNS y teclas de iluminacion/placa
+(RGB_*, BL_*, QK_*, CUSTOM(*) salvo --with-custom).
+"""
+import argparse
+import difflib
+import json
+import re
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parent.parent.parent
+DEFAULT_A = REPO / "cidoo_qk61.layout.json"
+DEFAULT_B = REPO / "keychron_k12_pro.layout.VIA.json"
+DEFAULT_MAP = "0:0,1:2,2:3,3:4"
+
+IGNORE = {"KC_NO", "KC_TRNS"}
+LIGHT = re.compile(r"^(RGB_|BL_|QK_)")
+LAYER_REF = re.compile(r"^(LT|MO|TG|TO|TT|OSL|DF)\((\d+)")
+
+
+def parse_map(spec):
+    pairs = []
+    for part in spec.split(","):
+        a, b = part.split(":")
+        pairs.append((int(a), int(b)))
+    return pairs
+
+
+def normalize(kc, layer_map):
+    """Reescribe el numero de capa de LT()/MO()/etc. de A a su capa en B."""
+    m = LAYER_REF.match(kc)
+    if m and int(m.group(2)) in layer_map:
+        target = layer_map[int(m.group(2))]
+        return f"{m.group(1)}({target}{kc[m.end():]}"
+    return kc
+
+
+def seq(layer, layer_map=None, with_custom=False):
+    out = [kc for kc in layer if kc not in IGNORE and not LIGHT.match(kc)
+           and (with_custom or not kc.startswith("CUSTOM("))]
+    if layer_map:
+        out = [normalize(kc, layer_map) for kc in out]
+    return out
+
+
+def compare_layers(a, b, pairs, with_custom=False):
+    layer_map = dict(pairs)
+    ok = True
+    for la, lb in pairs:
+        sa = seq(a["layers"][la], layer_map, with_custom)
+        sb = seq(b["layers"][lb], None, with_custom)
+        if sa == sb:
+            print(f"capa {la} -> {lb}: IGUALES ({len(sa)} teclas)")
+            continue
+        ok = False
+        print(f"capa {la} -> {lb}: DIFIEREN ({len(sa)} vs {len(sb)} teclas)")
+        sm = difflib.SequenceMatcher(None, sa, sb)
+        for tag, i1, i2, j1, j2 in sm.get_opcodes():
+            if tag == "equal":
+                continue
+            print(f"  {tag}: {sa[i1:i2]} <-> {sb[j1:j2]}")
+    return ok
+
+
+def compare_macros(a, b):
+    ok = True
+    for i, (ma, mb) in enumerate(zip(a.get("macros", []), b.get("macros", []))):
+        if ma != mb:
+            ok = False
+            print(f"macro {i}: DIFIERE")
+            print(f"  A: {ma!r}")
+            print(f"  B: {mb!r}")
+    if ok:
+        print("macros: IGUALES")
+    return ok
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    p.add_argument("file_a", nargs="?", default=DEFAULT_A, type=Path,
+                   help="layout principal/referencia (default: cidoo)")
+    p.add_argument("file_b", nargs="?", default=DEFAULT_B, type=Path,
+                   help="layout a verificar (default: keychron)")
+    p.add_argument("--map", default=DEFAULT_MAP, dest="layer_map",
+                   help=f"mapeo capaA:capaB,... (default: {DEFAULT_MAP})")
+    p.add_argument("--with-custom", action="store_true",
+                   help="incluir teclas CUSTOM(n), propias de cada placa")
+    args = p.parse_args()
+
+    a = json.loads(args.file_a.read_text())
+    b = json.loads(args.file_b.read_text())
+    print(f"A: {a.get('name', args.file_a.name)}  ->  B: {b.get('name', args.file_b.name)}\n")
+
+    ok = compare_layers(a, b, parse_map(args.layer_map), args.with_custom)
+    print()
+    ok = compare_macros(a, b) and ok
+    sys.exit(0 if ok else 1)
+
+
+if __name__ == "__main__":
+    main()

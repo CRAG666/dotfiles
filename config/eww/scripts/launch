@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Start the eww daemon (if needed) and open every desktop widget.
+# Safe to call repeatedly — use it with `exec_always` in the Sway config.
+
+set -euo pipefail
+
+WINDOWS=(datetime player system)
+
+eww daemon >/dev/null 2>&1 || true   # no-op if already running
+
+for w in "${WINDOWS[@]}"; do
+  eww open --toggle=false "$w" >/dev/null 2>&1 || eww open "$w"
+done

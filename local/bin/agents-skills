@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SKILLS_SRC="$HOME/Git/dotfiles/skills"
+GLOBAL_DEST="$HOME/.agents/skills"
+GLOBAL_LINK="$HOME/.claude/skills"
+LOCAL_DEST="$PWD/.agents/skills"
+LOCAL_LINK="$PWD/.claude/skills"
+
+command -v gum >/dev/null 2>&1 || {
+                                    echo "Error: gum no está instalado" >&2
+                                                                              exit 1
+}
+[[ -d "$SKILLS_SRC" ]] || {
+                            echo "Error: no existe $SKILLS_SRC" >&2
+                                                                     exit 1
+}
+
+ensure_link() {
+  local dest="$1" link="$2"
+  mkdir -p "$dest"
+
+  if [[ -L "$link" ]]; then
+    local current
+    current=$(readlink -f "$link")
+    if [[ "$current" == "$(readlink -f "$dest")" ]]; then
+      return 0
+    fi
+    gum style --foreground 196 "Error: $link ya enlaza a $current (esperado $dest)" >&2
+    exit 1
+  fi
+
+  if [[ -d "$link" ]]; then
+    shopt -s nullglob dotglob
+    local conflicts=()
+    for item in "$link"/*; do
+      local name
+      name=$(basename "$item")
+      if [[ -L "$item" ]]; then
+        if [[ -e "$dest/$name" || -L "$dest/$name" ]]; then
+          rm "$item"
+        else
+          mv "$item" "$dest/$name"
+        fi
+      else
+        conflicts+=("$name")
+      fi
+    done
+    shopt -u nullglob dotglob
+
+    if (( ${#conflicts[@]} > 0 )); then
+      gum style --foreground 196 "Error: $link contiene archivos/directorios reales que requieren resolución manual:" >&2
+      printf '  - %s\n' "${conflicts[@]}" >&2
+      echo "Muévelos a $dest o elimínalos antes de continuar." >&2
+      exit 1
+    fi
+
+    rmdir "$link"
+  elif [[ -e "$link" ]]; then
+    gum style --foreground 196 "Error: $link existe y no es un directorio ni enlace" >&2
+    exit 1
+  fi
+
+  mkdir -p "$(dirname "$link")"
+  ln -s "$dest" "$link"
+  gum style --foreground 99 "→ $link  →  $dest"
+}
+
+mapfile -t skills < <(find "$SKILLS_SRC" -maxdepth 1 -mindepth 1 -type d ! -name '.*' -printf '%f\n' | sort)
+[[ ${#skills[@]} -gt 0 ]] || {
+                               echo "No hay skills en $SKILLS_SRC" >&2
+                                                                        exit 1
+}
+
+target=$(gum choose --header "¿Dónde instalar las skills?" \
+  "Global  →  $GLOBAL_DEST" \
+  "Local   →  $LOCAL_DEST")
+
+case "$target" in
+  Global*) DEST="$GLOBAL_DEST"; LINK="$GLOBAL_LINK" ;;
+  Local*)  DEST="$LOCAL_DEST";  LINK="$LOCAL_LINK"  ;;
+  *) exit 0 ;;
+esac
+
+ensure_link "$DEST" "$LINK"
+
+available=()
+for skill in "${skills[@]}"; do
+  [[ -L "$GLOBAL_DEST/$skill" || -e "$GLOBAL_DEST/$skill" ]] && continue
+  [[ -L "$LOCAL_DEST/$skill"  || -e "$LOCAL_DEST/$skill"  ]] && continue
+  available+=("$skill")
+done
+
+[[ ${#available[@]} -gt 0 ]] || {
+                                  echo "Todas las skills ya están instaladas en global o local"
+                                  exit 0
+}
+
+selected=$(gum choose --no-limit \
+  --header "Selecciona skills (espacio para marcar, enter para confirmar)" \
+  "${available[@]}")
+
+[[ -n "$selected" ]] || {
+                          echo "Nada seleccionado"
+                                                    exit 0
+}
+
+while IFS= read -r skill; do
+  [[ -z "$skill" ]] && continue
+  src="$SKILLS_SRC/$skill"
+  link="$DEST/$skill"
+
+  if [[ -L "$link" || -e "$link" ]]; then
+    if gum confirm "'$skill' ya existe en el destino. ¿Reemplazar?"; then
+      rm -rf "$link"
+    else
+      gum style --foreground 244 "omitido: $skill"
+      continue
+    fi
+  fi
+
+  ln -s "$src" "$link"
+  gum style --foreground 212 "✓ $skill  →  $link"
+done <<<"$selected"

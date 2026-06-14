@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+podman run --rm -ti \
+  -v "$(pwd)":/work \
+  -w /work \
+  texlive/texlive:latest \
+  latexdiff "$@"

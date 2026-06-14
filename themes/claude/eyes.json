@@ -1,0 +1,38 @@
+{
+  "name": "Eyes (light)",
+  "base": "light",
+  "overrides": {
+    "claude":      "#1e4868",
+    "text":        "#1a1a1a",
+    "inverseText": "#add4a0",
+    "subtle":      "#3d5c38",
+    "inactive":    "#486040",
+    "suggestion":  "#143c52",
+    "permission":  "#7a4a18",
+    "remember":    "#3a2860",
+
+    "success": "#2a5c22",
+    "error":   "#7a1e18",
+    "warning": "#5a4808",
+    "merged":  "#5a2858",
+
+    "promptBorder": "#1e4868",
+    "planMode":     "#145850",
+    "autoAccept":   "#2a5c22",
+    "bashBorder":   "#7a4a18",
+    "ide":          "#1a5858",
+    "fastMode":     "#5a2858",
+
+    "diffAdded":         "#e0f0d8",
+    "diffRemoved":       "#f4e0d4",
+    "diffAddedWord":     "#b8d8a8",
+    "diffRemovedWord":   "#e0b8a4",
+    "diffAddedDimmed":   "#cce4c0",
+    "diffRemovedDimmed": "#e8d4c4",
+
+    "userMessageBackground":      "#a4cc98",
+    "userMessageBackgroundHover": "#96be8c",
+    "bashMessageBackgroundColor": "#9fc895",
+    "memoryBackgroundColor":      "#d0c890"
+  }
+}

@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Fetch weather from wttr.in (location auto-detected by IP) and emit JSON
+# for eww:  {"temp":"21°","cond":"Clouds","city":"Sfantu Gheorghe","icon":""}
+# Override the location by exporting EWW_WEATHER_LOC (e.g. "Madrid").
+
+set -euo pipefail
+
+loc="${EWW_WEATHER_LOC:-}"
+raw="$(curl -fsS --max-time 10 "https://wttr.in/${loc}?format=%t|%C|%l" 2>/dev/null || true)"
+
+if [[ -z "$raw" || "$raw" == *"Unknown location"* ]]; then
+  printf '{"temp":"—","cond":"sin conexión","city":"","icon":""}\n'
+  exit 0
+fi
+
+temp="${raw%%|*}"; rest="${raw#*|}"
+cond="${rest%%|*}"; city="${rest#*|}"
+temp="${temp#+}"                      # drop leading '+' from "+21°C"
+temp="${temp/°C/°}"                   # "21°C" -> "21°"
+
+# map condition text to a Nerd Font glyph
+shopt -s nocasematch
+case "$cond" in
+  *thunder*|*storm*)            icon="" ;;
+  *snow*|*sleet*|*ice*|*blizz*) icon="" ;;
+  *rain*|*drizzle*|*shower*)    icon="" ;;
+  *fog*|*mist*|*haze*)          icon="" ;;
+  *overcast*|*cloud*)           icon="" ;;
+  *clear*|*sunny*)              icon="" ;;
+  *)                            icon="" ;;
+esac
+shopt -u nocasematch
+
+# JSON-escape the city (basic: strip quotes/backslashes)
+city="${city//\\/}"; city="${city//\"/}"; cond="${cond//\"/}"
+
+printf '{"temp":"%s","cond":"%s","city":"%s","icon":"%s"}\n' \
+  "$temp" "$cond" "$city" "$icon"

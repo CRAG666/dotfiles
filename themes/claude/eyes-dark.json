@@ -1,0 +1,38 @@
+{
+  "name": "Eyes (dark)",
+  "base": "dark",
+  "overrides": {
+    "claude":      "#6a94a8",
+    "text":        "#d0dcc8",
+    "inverseText": "#1a211a",
+    "subtle":      "#9aab94",
+    "inactive":    "#7a8a78",
+    "suggestion":  "#82aab8",
+    "permission":  "#c8a870",
+    "remember":    "#9090b8",
+
+    "success": "#7aab72",
+    "error":   "#c87868",
+    "warning": "#d4b85a",
+    "merged":  "#b890b0",
+
+    "promptBorder": "#6a94a8",
+    "planMode":     "#5ab8a8",
+    "autoAccept":   "#7aab72",
+    "bashBorder":   "#c8a870",
+    "ide":          "#6ab8b0",
+    "fastMode":     "#b890b0",
+
+    "diffAdded":         "#324a2e",
+    "diffRemoved":       "#3f2e25",
+    "diffAddedWord":     "#4a6646",
+    "diffRemovedWord":   "#714c41",
+    "diffAddedDimmed":   "#28381f",
+    "diffRemovedDimmed": "#33231d",
+
+    "userMessageBackground":      "#263026",
+    "userMessageBackgroundHover": "#2d382d",
+    "bashMessageBackgroundColor": "#202820",
+    "memoryBackgroundColor":      "#3a3420"
+  }
+}
