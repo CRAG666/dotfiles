@@ -64,7 +64,7 @@ install: makepkg ## Install Arch Linux packages using paru
 	@echo "==> Installing packages from pkglist.txt (one by one)..."
 	$(call install_pkgs,$$(grep -v '^#' ${PWD}/pkglist.txt | grep -v '^$$'))
 	@echo "==> Enabling services..."
-	$(SYSTEMD_ENABLE) ananicy-cpp gopreload
+	$(SYSTEMD_ENABLE) ananicy-cpp
 	@echo "==> Configuring keyd..."
 	@if [ -L /etc/keyd ]; then sudo rm /etc/keyd; fi
 	@if [ -d /etc/keyd ] && [ ! -L /etc/keyd ]; then sudo rm -rf /etc/keyd; fi

@@ -118,7 +118,6 @@ mpv-uosc
 mpv-mpris
 mpv-thumbfast-git
 termusic
-tidal-dl
 
 # Web Browsers
 zen-browser-bin
