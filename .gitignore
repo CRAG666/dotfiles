@@ -616,3 +616,6 @@ config/oama/*.auth
 **/.claude
 **/.agents
 **/.crush
+/config/nvim/nvim-pack-lock.json
+/config/opencode/tui.toml
+/config/opencode/themes/
