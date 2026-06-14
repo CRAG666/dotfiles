@@ -18,20 +18,35 @@ NVIDIA_PKGS := nvidia nvidia-prime nvidia-settings nvidia-utils cuda nvtop \
 
 LAPTOP_PKGS_INTEL := intel-gpu-tools intel-media-driver \
 		     intel-ucode vulkan-intel
-# AMD laptops: microcode, Radeon Vulkan/VA-API and GPU monitoring (auto-cpufreq
-# works on AMD; thermald is excluded since it is Intel-only)
+
 LAPTOP_PKGS_AMD := amd-ucode vulkan-radeon libva-mesa-driver radeontop \
 		   auto-cpufreq
+
 LAPTOP_PKGS := thermald auto-cpufreq
 
-# Intel ThinkPads (throttled is the Intel-only Lenovo throttling fix)
 THINKPAD_PKGS := zcfan acpi_call throttled
-# AMD ThinkPads: no throttled (Intel-only)
+
 THINKPAD_PKGS_AMD := zcfan acpi_call
 
 # systemd commands
 SYSTEMD_ENABLE := sudo systemctl --now enable
 SYSTEMD_ENABLE_USER := systemctl --user --now enable
+
+define install_pkgs
+	@failed=""; \
+	for pkg in $(1); do \
+		echo "==> Installing $$pkg..."; \
+		if ! paru -S --needed --noconfirm "$$pkg"; then \
+			echo "  ✗ Failed: $$pkg"; \
+			failed="$$failed $$pkg"; \
+		fi; \
+	done; \
+	if [ -n "$$failed" ]; then \
+		echo "==> WARNING: packages that failed:$$failed"; \
+	else \
+		echo "==> All packages installed successfully."; \
+	fi
+endef
 
 .DEFAULT_GOAL := help
 .PHONY: help install init theme bin makepkg systemd-user wayland hypr scroll \
@@ -43,28 +58,28 @@ help: ## Show this help
 	| sort \
 	| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-install: ## Install Arch Linux packages using paru
-	@echo "==> Instalando paru si es necesario..."
-	@sudo pacman -S --needed --noconfirm paru || { echo "Error instalando paru"; exit 1; }
-	@echo "==> Instalando paquetes desde pkglist.txt..."
-	@cat ${PWD}/pkglist.txt | grep -v "^#" | grep -v "^$$" | xargs -r paru -S --needed --noconfirm
-	@echo "==> Habilitando servicios..."
+install: makepkg ## Install Arch Linux packages using paru
+	@echo "==> Installing paru if necessary..."
+	@sudo pacman -S --needed --noconfirm paru || { echo "Error installing paru"; exit 1; }
+	@echo "==> Installing packages from pkglist.txt (one by one)..."
+	$(call install_pkgs,$$(grep -v '^#' ${PWD}/pkglist.txt | grep -v '^$$'))
+	@echo "==> Enabling services..."
 	$(SYSTEMD_ENABLE) ananicy-cpp gopreload
-	@echo "==> Configurando keyd..."
+	@echo "==> Configuring keyd..."
 	@if [ -L /etc/keyd ]; then sudo rm /etc/keyd; fi
 	@if [ -d /etc/keyd ] && [ ! -L /etc/keyd ]; then sudo rm -rf /etc/keyd; fi
 	sudo cp -r ${PWD}/etc/keyd /etc/
-	@echo "==> Configurando nftables..."
+	@echo "==> Configuring nftables..."
 	@if [ -L /etc/nftables.conf ]; then sudo rm /etc/nftables.conf; fi
 	sudo cp ${PWD}/etc/nftables.conf /etc/
-	@echo "==> Configurando sysctl..."
+	@echo "==> Configuring sysctl..."
 	sudo cp ${PWD}/etc/sysctl.d/99-sysctl.conf /etc/sysctl.d/
 	$(SYSTEMD_ENABLE) keyd nftables
-	@echo "==> Configurando bob (neovim version manager)..."
-	@command -v bob >/dev/null 2>&1 && bob use nightly || echo "bob no instalado, saltando..."
+	@echo "==> Configuring bob (neovim version manager)..."
+	@command -v bob >/dev/null 2>&1 && bob use nightly || echo "bob not installed, skipping..."
 
 init: theme systemd-user bin ## Deploy the initial dotfiles
-	@echo "==> Creando enlaces simbólicos en el directorio HOME"
+	@echo "==> Creating symlinks in the HOME directory"
 	@SRC_DIR=${PWD}; \
 	DOTFILES=$$(find $$SRC_DIR -mindepth 1 -maxdepth 1 -name ".*" \
 		! -name .git ! -name .gitignore ! -name .gitattributes \
@@ -72,34 +87,34 @@ init: theme systemd-user bin ## Deploy the initial dotfiles
 		-exec basename {} \;); \
 	CONFIGS=$$(find $$SRC_DIR/config -mindepth 1 -maxdepth 1 \
 		! -name .gitignore ! -name systemd -exec basename {} \;); \
-	echo "==> Procesando dotfiles..."; \
+	echo "==> Processing dotfiles..."; \
 	for file in $$DOTFILES; do \
 		if [ -L "${HOME}/$$file" ]; then \
-			echo "El enlace $$file ya existe, saltando..."; \
+			echo "Link $$file already exists, skipping..."; \
 		elif [ -e "${HOME}/$$file" ]; then \
-			echo "ADVERTENCIA: $$file existe pero no es un enlace simbólico. Haz backup manualmente."; \
+			echo "WARNING: $$file exists but is not a symlink. Back it up manually."; \
 		else \
 			ln -vfs "$$SRC_DIR/$$file" "${HOME}/$$file"; \
 		fi; \
 	done; \
-	echo "==> Procesando configs..."; \
+	echo "==> Processing configs..."; \
 	mkdir -p "${HOME}/.config"; \
 	for config in $$CONFIGS; do \
 		if [ -L "${HOME}/.config/$$config" ]; then \
-			echo "El enlace $$config ya existe, saltando..."; \
+			echo "Link $$config already exists, skipping..."; \
 		elif [ -e "${HOME}/.config/$$config" ]; then \
-			echo "ADVERTENCIA: $$config existe pero no es un enlace simbólico. Haz backup manualmente."; \
+			echo "WARNING: $$config exists but is not a symlink. Back it up manually."; \
 		else \
 			ln -vfs "$$SRC_DIR/config/$$config" "${HOME}/.config/$$config"; \
 		fi; \
 	done
 
 theme: ## Apply the eyes theme (active symlinks + claude/opencode themes)
-	@echo "==> Aplicando tema eyes (crea los symlinks activos gitignorados)..."
+	@echo "==> Applying eyes theme (creates the gitignored active symlinks)..."
 	@${PWD}/.scripts/eyes-theme auto
 
 bin: ## Link the local/bin scripts into ~/.local/bin
-	@echo "==> Enlazando scripts en ~/.local/bin..."
+	@echo "==> Linking scripts into ~/.local/bin..."
 	@mkdir -p ${HOME}/.local/bin
 	@for script in $$(find ${PWD}/local/bin -mindepth 1 -maxdepth 1 ! -name ".*" -exec basename {} \;); do \
 		ln -vsfn "${PWD}/local/bin/$$script" "${HOME}/.local/bin/$$script"; \
@@ -109,13 +124,13 @@ makepkg: ## Install makepkg.conf in /etc (optimized compilation)
 	sudo install -m 644 ${PWD}/etc/makepkg.conf /etc/makepkg.conf
 
 systemd-user: ## Link the user unit files (eyes-theme*) and enable timers/boot
-	@echo "==> Enlazando units de systemd --user..."
+	@echo "==> Linking systemd --user units..."
 	@mkdir -p ${HOME}/.config/systemd/user
 	@for unit in $$(find ${PWD}/config/systemd/user -maxdepth 1 -type f \
 	                \( -name '*.service' -o -name '*.timer' \) -exec basename {} \;); do \
 		dst="${HOME}/.config/systemd/user/$$unit"; \
 		if [ -e "$$dst" ] && [ ! -L "$$dst" ]; then \
-			echo "ADVERTENCIA: $$dst existe pero no es un symlink. Haz backup manualmente."; \
+			echo "WARNING: $$dst exists but is not a symlink. Back it up manually."; \
 		else \
 			ln -vsfn "${PWD}/config/systemd/user/$$unit" "$$dst"; \
 		fi; \
@@ -124,89 +139,89 @@ systemd-user: ## Link the user unit files (eyes-theme*) and enable timers/boot
 	$(SYSTEMD_ENABLE_USER) eyes-theme-boot.service eyes-theme-light.timer eyes-theme-dark.timer
 
 wayland: ## Install packages required for Wayland
-	@echo "==> Configurando greetd..."
+	@echo "==> Configuring greetd..."
 	sudo cp -r ${PWD}/etc/greetd /etc/
-	@echo "==> Habilitando flags de Electron/Chromium para Wayland..."
+	@echo "==> Enabling Electron/Chromium flags for Wayland..."
 	@${PWD}/wayland/enable-electron-flags.sh
-	@echo "==> Instalando paquetes Wayland..."
-	paru -S --needed --noconfirm $(WAYLAND_PKGS)
+	@echo "==> Installing Wayland packages..."
+	$(call install_pkgs,$(WAYLAND_PKGS))
 	$(SYSTEMD_ENABLE) greetd
 
 hypr: wayland ## Configure Hyprland (Wayland)
-	@echo "==> Instalando script hypr-run..."
+	@echo "==> Installing hypr-run script..."
 	sudo install -m 755 ${PWD}/wayland/scripts/hypr-run.sh /usr/local/bin/
-	@echo "==> Instalando sesiones de Hyprland..."
+	@echo "==> Installing Hyprland sessions..."
 	sudo install -Dm 644 ${PWD}/wayland/sessions/hyprland-crag.desktop \
 		/usr/share/wayland-sessions/hyprland-crag.desktop
-	@echo "==> Instalando paquetes Hyprland..."
-	paru -S --needed --noconfirm $(HYPR_PKGS)
+	@echo "==> Installing Hyprland packages..."
+	$(call install_pkgs,$(HYPR_PKGS))
 
 scroll: wayland ## Configure Scroll (Wayland)
-	@echo "==> Instalando script scroll-run..."
+	@echo "==> Installing scroll-run script..."
 	sudo install -m 755 ${PWD}/wayland/scripts/scroll-run.sh /usr/local/bin/
-	@echo "==> Instalando sesión de Scroll..."
+	@echo "==> Installing Scroll session..."
 	sudo install -Dm 644 ${PWD}/wayland/sessions/scroll-auto.desktop \
 		/usr/share/wayland-sessions/scroll-auto.desktop
-	@echo "==> Instalando paquetes Scroll..."
-	paru -S --needed --noconfirm $(SCROLL_PKGS)
+	@echo "==> Installing Scroll packages..."
+	$(call install_pkgs,$(SCROLL_PKGS))
 
 laptop: ## Configure laptop (power management)
-	@echo "==> Instalando herramientas de gestión de energía..."
-	paru -S --needed --noconfirm $(LAPTOP_PKGS)
+	@echo "==> Installing power management tools..."
+	$(call install_pkgs,$(LAPTOP_PKGS))
 	sudo cp ${PWD}/etc/auto-cpufreq.conf /etc/
 	$(SYSTEMD_ENABLE) thermald auto-cpufreq
 
 laptop-intel: laptop ## Configure Intel laptop (power management + Intel GPU)
-	@echo "==> Instalando herramientas de gestión de energía..."
-	paru -S --needed --noconfirm $(LAPTOP_PKGS_INTEL)
+	@echo "==> Installing Intel GPU tools..."
+	$(call install_pkgs,$(LAPTOP_PKGS_INTEL))
 
 laptop-amd: ## Configure AMD laptop (power management + Radeon GPU)
-	@echo "==> Instalando microcódigo, GPU Radeon y gestión de energía AMD..."
-	paru -S --needed --noconfirm $(LAPTOP_PKGS_AMD)
+	@echo "==> Installing microcode, Radeon GPU and AMD power management..."
+	$(call install_pkgs,$(LAPTOP_PKGS_AMD))
 	sudo cp ${PWD}/etc/auto-cpufreq.conf /etc/
 	$(SYSTEMD_ENABLE) auto-cpufreq
 
 thinkpad: laptop ## ThinkPad-specific configuration (Intel)
-	@echo "==> Instalando herramientas específicas de ThinkPad..."
-	paru -S --needed --noconfirm $(THINKPAD_PKGS)
+	@echo "==> Installing ThinkPad-specific tools..."
+	$(call install_pkgs,$(THINKPAD_PKGS))
 	sudo install -m 644 ${PWD}/thinkpad/etc/zcfan.conf.p53 /etc/zcfan.conf
-	@echo "==> Instalando sysctl específico de la P53..."
+	@echo "==> Installing P53-specific sysctl..."
 	sudo install -m 644 ${PWD}/etc/sysctl.d/99-p53.conf /etc/sysctl.d/
 	sudo sysctl --system
 	$(SYSTEMD_ENABLE) zcfan throttled
 
 thinkpad-amd: laptop-amd ## AMD ThinkPad configuration (e.g. L14 Gen 4)
-	@echo "==> Instalando herramientas específicas de ThinkPad (AMD)..."
-	paru -S --needed --noconfirm $(THINKPAD_PKGS_AMD)
+	@echo "==> Installing ThinkPad-specific tools (AMD)..."
+	$(call install_pkgs,$(THINKPAD_PKGS_AMD))
 	sudo install -m 644 ${PWD}/thinkpad/etc/zcfan.conf.l14 /etc/zcfan.conf
-	@echo "==> Instalando sysctl específico de la L14..."
+	@echo "==> Installing L14-specific sysctl..."
 	sudo install -m 644 ${PWD}/etc/sysctl.d/99-l14.conf /etc/sysctl.d/
 	sudo sysctl --system
 	$(SYSTEMD_ENABLE) zcfan
 
 nvidia: ## Configure NVIDIA drivers (+ NVIDIA-only Scroll session)
-	@echo "==> Instalando paquetes NVIDIA..."
-	paru -S --needed --noconfirm $(NVIDIA_PKGS)
-	@echo "==> Instalando sesión Scroll NVIDIA-only..."
+	@echo "==> Installing NVIDIA packages..."
+	$(call install_pkgs,$(NVIDIA_PKGS))
+	@echo "==> Installing NVIDIA-only Scroll session..."
 	sudo install -Dm 644 ${PWD}/wayland/sessions/scroll-nvidia.desktop \
 		/usr/share/wayland-sessions/scroll-nvidia.desktop
 
 unbound: ## Configure unbound (local DNS resolver) + resolv.conf
-	@echo "==> Instalando unbound..."
-	paru -S --needed --noconfirm unbound
-	@echo "==> Configurando resolv.conf..."
+	@echo "==> Installing unbound..."
+	$(call install_pkgs,unbound)
+	@echo "==> Configuring resolv.conf..."
 	@if [ -e /etc/resolv.conf ] || [ -L /etc/resolv.conf ]; then sudo rm -f /etc/resolv.conf; fi
 	sudo ln -vsf ${PWD}/etc/resolv.conf /etc/resolv.conf
-	@echo "==> Configurando unbound.conf..."
+	@echo "==> Configuring unbound.conf..."
 	sudo install -Dm 644 ${PWD}/etc/unbound/unbound.conf /etc/unbound/unbound.conf
 	$(SYSTEMD_ENABLE) unbound
 
 networkmanager: ## Configure NetworkManager (DNS + wifi backend)
-	@echo "==> Configurando NetworkManager/conf.d..."
+	@echo "==> Configuring NetworkManager/conf.d..."
 	sudo install -d -m 755 /etc/NetworkManager/conf.d
 	sudo install -m 644 ${PWD}/etc/NetworkManager/conf.d/*.conf /etc/NetworkManager/conf.d/
-	@echo "==> Recargando NetworkManager (omitido en SSH para evitar desconexión)..."
-	@if [ -z "$$SSH_CONNECTION" ]; then sudo systemctl reload NetworkManager || true; else echo "    SSH detectado: recarga manualmente con 'sudo systemctl reload NetworkManager'"; fi
+	@echo "==> Reloading NetworkManager (skipped over SSH to avoid disconnection)..."
+	@if [ -z "$$SSH_CONNECTION" ]; then sudo systemctl reload NetworkManager || true; else echo "    SSH detected: reload manually with 'sudo systemctl reload NetworkManager'"; fi
 
 dns: unbound networkmanager ## Configure the whole local DNS stack (unbound + NM)
 
@@ -214,13 +229,13 @@ podman_image: ## Build the Podman image for testing
 	podman build -t dotfiles ${PWD}
 
 test: podman_image ## Test the Makefile with Podman
-	@echo "==> Iniciando contenedor de prueba..."
+	@echo "==> Starting test container..."
 	podman run -it --name maketest -d dotfiles:latest /bin/bash || true
 	@for target in install init wayland hypr thinkpad; do \
-		echo "==> Probando target: $$target"; \
+		echo "==> Testing target: $$target"; \
 		podman exec -it maketest sh -c "cd ${PWD}; make $$target"; \
 	done
-	@echo "==> Limpiando contenedor de prueba..."
+	@echo "==> Cleaning up test container..."
 	@podman stop maketest && podman rm maketest || true
 
 testpath: ## Show the PATH and GOPATH variables
