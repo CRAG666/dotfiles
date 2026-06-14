@@ -467,12 +467,32 @@ reload_daemons() {
 # Orchestration
 # ---------------------------------------------------------------------------
 
+# True only when every pointer symlink already exists. On a fresh clone the
+# pointers are gitignored and therefore absent, so this returns false and forces
+# a full apply even when the requested mode already matches the saved one.
+pointers_present() {
+  local entry rel pointer
+  for entry in "${SWITCHES[@]}"; do
+    IFS='|' read -r rel _ _ <<<"$entry"
+    pointer="$DOTFILES_DIR/$rel"
+    [[ -d "$(dirname "$pointer")" ]] || continue
+    [[ -L "$pointer" ]] || return 1
+  done
+  return 0
+}
+
 set_mode() {
   local target="$1"
   local cur
   cur="$(current_mode)"
 
-  if [[ "$cur" == "$target" && $FORCE -eq 0 ]]; then
+  # Skip re-applying only when we have actually applied before: the state file
+  # exists AND every pointer symlink is in place. On a first run (no state file)
+  # or after drift (a pointer went missing) we must fall through to apply_switches,
+  # otherwise the gitignored pointers are never created and every app reads a
+  # missing theme file.
+  if [[ -f "$STATE_FILE" && "$cur" == "$target" && $FORCE -eq 0 ]] \
+    && pointers_present; then
     info "Already in $target mode. (use --force / reapply to re-apply anyway)"
     return 0
   fi
