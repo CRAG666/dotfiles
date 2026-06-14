@@ -10,6 +10,22 @@ This repository is built with Makefile. It is an attempt to set up a minimal env
 make help
 ```
 
+### For P53
+
+```bash
+make p53
+make scroll
+make dns
+```
+
+### L14
+
+```bash
+make l14
+make scroll
+make dns
+```
+
 ## Results
 
 ### [Scroll](https://github.com/dawsers/scroll)
