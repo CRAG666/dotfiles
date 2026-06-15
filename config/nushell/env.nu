@@ -28,10 +28,6 @@ $env.PATH = ($zsh_paths | append $env.PATH)
 $env.CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense'
 mkdir $"($nu.cache-dir)"
 carapace _carapace nushell | save --force $"($nu.cache-dir)/carapace.nu"
-let mise_path = $nu.default-config-dir | path join mise.nu
-^mise activate nu | save $mise_path --force
-source ($nu.default-config-dir | path join mise.nu)
-
 
 # >>> load-shared-env >>>
 # Vars compartidas: vars.env (estáticas), colors.env (colores eyes-theme).
@@ -53,3 +49,6 @@ def --env load-shared-env [file: path] {
 try { load-shared-env $"($env.HOME)/Git/dotfiles/config/shell/vars.env" }
 try { load-shared-env $"($env.HOME)/Git/dotfiles/config/shell/colors.env" }
 # <<< load-shared-env <<<
+
+let mise_path = $nu.default-config-dir | path join mise.nu
+^mise activate nu | save $mise_path --force
