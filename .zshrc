@@ -153,7 +153,6 @@ zstyle ':fzf-tab:complete:*:*' fzf-preview '~/.scripts/preview $realpath'
 enable-fzf-tab
 
 # -< Evals >-
-# Cachea la salida de `init` en .zwc; se regenera solo si cambia el binario (evita 3 spawns).
 _init_cache() {
   local out="${XDG_CACHE_HOME:-$HOME/.cache}/zsh-init/$1.zsh" bin="${commands[$1]}"
   if [[ -n $bin && ( ! -s $out || $bin -nt $out ) ]]; then
@@ -166,7 +165,6 @@ _init_cache atuin atuin init zsh
 _init_cache starship starship init zsh
 
 # -< Aliases >-
-# Alias compartidos — fuente única: ~/.config/nushell/aliases.nu (convierte 'alias x = y' -> 'alias x=y').
 if [[ -r ~/.config/nushell/aliases.nu ]]; then
   while IFS= read -r _l; do
     [[ "$_l" == alias\ * ]] || continue
@@ -180,7 +178,7 @@ fi
 alias js="/usr/bin/node ~/.noderc"
 alias ls="exa --icons"
 alias la="exa --icons -la"
-# alias grep='grep --color=auto'
+alias grep='grep --color=auto'
 cd() { pushd $1 && ls; }
 alias rm='rm -i'
 alias du1='du -h -d 1 2>/dev/null | sort -hr'
@@ -226,22 +224,19 @@ ys() {
   paru -Slq | fzf --multi --preview 'paru -Si {1}' | xargs -ro paru -S
 }
 yclean() {
-  paru -Rns $(paru -Qtdq)
+  paru -Rnsc $(paru -Qtdq)
   paru -Scc
 }
 alias ci="{ find . -xdev -printf '%h\n' | sort | uniq -c | sort -k 1 -n; } 2>/dev/null"
 alias fontl="fc-list | cut -d ':' -f2 | sort | uniq"
 
 # -< Environ variable >-
-# Vars compartidas — fuente única: config/shell/vars.env (estáticas), colors.env (colores eyes-theme).
 set -a
 source "$HOME/Git/dotfiles/config/shell/vars.env"
 source "$HOME/Git/dotfiles/config/shell/colors.env"
 set +a
 export PATH="$HOME/.config/emacs/bin:$HOME/.local/bin:$HOME/.dotnet/tools:$HOME/.local/share/bob/nvim-bin:$HOME/.local/share/nvim/mason/bin:$HOME/.config/emacs/bin:$HOME/.npm-global/bin:$PATH"
-# FZF y Gum (colores eyes) — fuente única: config/shell/colors.env (sourced arriba).
 
-# Hot-reload: si cambia ~/.config/eyes/mode, re-source colors.env en el próximo prompt.
 zmodload -F zsh/stat b:zstat 2>/dev/null
 typeset -g _eyes_mode_mtime="$(zstat +mtime "${XDG_CONFIG_HOME:-$HOME/.config}/eyes/mode" 2>/dev/null)"
 _eyes_hotreload() {
@@ -256,7 +251,6 @@ _eyes_hotreload() {
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd _eyes_hotreload
 
-# Working with documents
 alias pandock='podman run --rm -v "$(pwd):/data" pandoc/extra'
 
 # BEGIN_KITTY_SHELL_INTEGRATION
@@ -270,12 +264,9 @@ bindkey '^I' custom_autocomplete
 # END_KITTY_SHELL_INTEGRATION
 
 source ~/.zshfunc
-# FPATH="/usr/share/zsh/site-functions:${FPATH}"
 # source ~/.env
 eval "$(zsh-patina activate)"
 
-# Compila rc/func a bytecode (.zwc) si cambiaron; zsh los usa automáticamente
-# al hacer source y se salta el parseo de texto.
 for _f in ~/.zshrc ~/.zshfunc ${ZIM_HOME}/init.zsh; do
   [[ -s $_f && ( ! -s $_f.zwc || $_f -nt $_f.zwc ) ]] && zcompile "$_f" 2>/dev/null
 done
