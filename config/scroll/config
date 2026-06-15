@@ -98,7 +98,7 @@ output "Samsung Electric Company S27E360 0x304E4135" {
 output "Shenzhen KTC Technology Group H32S17 0x00000001" {
     scale 1
     resolution 2560x1440@165Hz
-    position 0 0
+    position 1920 0
     # layout_type horizontal
     layout_default_width 0.5
     layout_default_height 0.5

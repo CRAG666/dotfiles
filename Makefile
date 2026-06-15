@@ -19,14 +19,15 @@ NVIDIA_PKGS := nvidia nvidia-prime nvidia-settings nvidia-utils cuda nvtop \
 LAPTOP_PKGS_INTEL := intel-gpu-tools intel-media-driver \
 		     intel-ucode vulkan-intel
 
-LAPTOP_PKGS_AMD := amd-ucode vulkan-radeon libva-mesa-driver radeontop \
-		   auto-cpufreq
+# auto-cpufreq
+LAPTOP_PKGS_AMD := amd-ucode vulkan-radeon libva-mesa-driver radeontop
 
-LAPTOP_PKGS := thermald auto-cpufreq
+LAPTOP_PKGS := thermald
 
-THINKPAD_PKGS := zcfan acpi_call throttled
+# zcfan
+THINKPAD_PKGS := acpi_call throttled
 
-THINKPAD_PKGS_AMD := zcfan acpi_call
+THINKPAD_PKGS_AMD := acpi_call
 
 # systemd commands
 SYSTEMD_ENABLE := sudo systemctl --now enable
@@ -168,8 +169,7 @@ scroll: wayland ## Configure Scroll (Wayland)
 laptop: ## Configure laptop (power management)
 	@echo "==> Installing power management tools..."
 	$(call install_pkgs,$(LAPTOP_PKGS))
-	sudo cp ${PWD}/etc/auto-cpufreq.conf /etc/
-	$(SYSTEMD_ENABLE) thermald auto-cpufreq
+	$(SYSTEMD_ENABLE) thermald
 
 laptop-intel: laptop ## Configure Intel laptop (power management + Intel GPU)
 	@echo "==> Installing Intel GPU tools..."
@@ -178,26 +178,21 @@ laptop-intel: laptop ## Configure Intel laptop (power management + Intel GPU)
 laptop-amd: ## Configure AMD laptop (power management + Radeon GPU)
 	@echo "==> Installing microcode, Radeon GPU and AMD power management..."
 	$(call install_pkgs,$(LAPTOP_PKGS_AMD))
-	sudo cp ${PWD}/etc/auto-cpufreq.conf /etc/
-	$(SYSTEMD_ENABLE) auto-cpufreq
 
 thinkpad: laptop ## ThinkPad-specific configuration (Intel)
 	@echo "==> Installing ThinkPad-specific tools..."
 	$(call install_pkgs,$(THINKPAD_PKGS))
-	sudo install -m 644 ${PWD}/thinkpad/etc/zcfan.conf.p53 /etc/zcfan.conf
 	@echo "==> Installing P53-specific sysctl..."
 	sudo install -m 644 ${PWD}/etc/sysctl.d/99-p53.conf /etc/sysctl.d/
 	sudo sysctl --system
-	$(SYSTEMD_ENABLE) zcfan throttled
+	$(SYSTEMD_ENABLE) throttled
 
 thinkpad-amd: laptop-amd ## AMD ThinkPad configuration (e.g. L14 Gen 4)
 	@echo "==> Installing ThinkPad-specific tools (AMD)..."
 	$(call install_pkgs,$(THINKPAD_PKGS_AMD))
-	sudo install -m 644 ${PWD}/thinkpad/etc/zcfan.conf.l14 /etc/zcfan.conf
 	@echo "==> Installing L14-specific sysctl..."
 	sudo install -m 644 ${PWD}/etc/sysctl.d/99-l14.conf /etc/sysctl.d/
 	sudo sysctl --system
-	$(SYSTEMD_ENABLE) zcfan
 
 nvidia: ## Configure NVIDIA drivers (+ NVIDIA-only Scroll session)
 	@echo "==> Installing NVIDIA packages..."

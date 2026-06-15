@@ -13,9 +13,9 @@ return {
       lhs = '<leader>md',
       opts = { desc = 'Database Mode' },
     },
-    build = function()
-      require('dbee').install()
-    end,
+    -- build = function()
+    --   require('dbee').install()
+    -- end,
     postload = function()
       require('dbee').setup({})
       vim.keymap.set('n', '<leader>md', function()
