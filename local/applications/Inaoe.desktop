@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Inaoe
+Exec=zen-browser -P "Inaoe" --no-remote
+Terminal=false
+Type=Application
+Icon=Inaoe
+Categories=Network;WebBrowser;

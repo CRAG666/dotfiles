@@ -1,13 +1,7 @@
 #!/usr/bin/env bash
-# Pre-renders every app icon referenced by .desktop files into a flat PNG
-# icon theme ("rofi-fast"). Rationale: gdk-pixbuf >= 2.44 decodes SVGs through
-# sandboxed glycin loader processes (one spawn per concurrent load, ~40ms
-# each), which makes rofi's drun icon pass intermittently slow. Small
-# pre-rendered PNGs decode in ~2ms and sidestep the SVG path entirely.
-# Anything not covered falls back to the inherited themes as before.
-#
-# Cheap to call often: exits immediately unless a .desktop file changed since
-# the last run (launcher.sh runs it in the background on every launch).
+# Pre-render .desktop app icons into a flat PNG theme ("rofi-fast"): PNGs decode
+# ~20x faster than gdk-pixbuf's sandboxed glycin SVG loader. Misses fall back to
+# inherited themes. Cheap to call often: exits unless a .desktop dir changed.
 
 set -u
 
@@ -21,10 +15,8 @@ for d in /usr/share/applications "${HOME}/.local/share/applications"; do
     [ -d "$d" ] && [ "$d" -nt "$STAMP" ] && fresh=0
 done
 
-# ...or anything changed inside the Macjaro theme itself. Manifest by
-# content (path+size+mtime hashed), NOT by -newer: icon updates often arrive
-# via cp -a/rsync -a with old timestamps preserved, which mtime checks miss.
-# ~150 ms over 19k files, and this script runs in the background anyway.
+# ...or Macjaro theme changed. Content-hash (path+size+mtime), not -newer:
+# cp -a/rsync -a preserve old timestamps so mtime checks miss updates.
 MACJARO="${HOME}/.icons/Macjaro"
 MACJARO_SUM="${THEME_DIR}/.macjaro.sum"
 theme_changed=0
@@ -41,8 +33,7 @@ fi
 [ "$fresh" = 1 ] && exit 0
 
 if [ "$theme_changed" = 1 ]; then
-    # keep Macjaro's mmap cache valid for GTK apps (a stale cache gets
-    # ignored and every lookup falls back to readdir)
+    # refresh Macjaro's mmap cache so GTK lookups don't fall back to readdir
     gtk-update-icon-cache -f "$MACJARO" >/dev/null 2>&1
     echo "$sum" > "$MACJARO_SUM"
 fi
@@ -82,9 +73,7 @@ count=0
 while IFS=$'\t' read -r name path; do
     [ -n "$name" ] && [ -f "$path" ] || continue
     out="${THEME_DIR}/${SIZE}x${SIZE}/apps/${name}.png"
-    # skip if up to date with its source — unless the theme changed: las
-    # actualizaciones con timestamps preservados dejan SVGs "viejos" que
-    # -nt saltaria aunque el contenido sea nuevo
+    # skip if up to date — unless theme changed (preserved timestamps fool -nt)
     [ "$theme_changed" = 0 ] && [ -f "$out" ] && [ "$out" -nt "$path" ] && continue
     case "$path" in
         *.svg) rsvg-convert -w "$SIZE" -h "$SIZE" --keep-aspect-ratio "$path" -o "$out" 2>/dev/null ;;

@@ -38,7 +38,7 @@ detect_power_mode() {
     echo "intel"
 }
 
-# Devuelve "card render" (dos líneas) para el patrón de proveedor dado, o nada.
+# Devuelve "card render" (dos líneas) para el proveedor dado, o nada.
 detect_device() {
     local pci
     pci=$(lspci -k | grep -E '(VGA|3D)' | grep -iE "$1" | awk '{print $1}')
@@ -160,7 +160,7 @@ RENDER_AMD=$(echo "$DEVICE_AMD" | awk 'NR==2')
 
 if [ "$AUTO_MODE" = true ]; then
     if [ -n "$DEVICE_NVIDIA" ]; then
-        # GPU híbrida Intel+NVIDIA: alternar según alimentación.
+        # Híbrida Intel+NVIDIA: elegir según alimentación.
         MODE=$(detect_power_mode)
     elif [ -n "$DEVICE_AMD" ]; then
         MODE="amd"

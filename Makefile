@@ -50,7 +50,7 @@ endef
 
 .DEFAULT_GOAL := help
 .PHONY: help install init theme bin makepkg systemd-user wayland hypr scroll \
-        laptop laptop-intel laptop-amd thinkpad thinkpad-amd nvidia unbound \
+        laptop laptop-intel laptop-amd thinkpad thinkpad-amd nvidia inaoe unbound \
         networkmanager dns podman_image test testpath clean p53 l14
 
 help: ## Show this help
@@ -206,19 +206,30 @@ nvidia: ## Configure NVIDIA drivers (+ NVIDIA-only Scroll session)
 	sudo install -Dm 644 ${PWD}/wayland/sessions/scroll-nvidia.desktop \
 		/usr/share/wayland-sessions/scroll-nvidia.desktop
 
+inaoe: ## Create the zen-browser "Inaoe" profile + install its .desktop launcher
+	@echo "==> Creating zen-browser profile 'Inaoe' (if missing)..."
+	@if grep -qs '^Name=Inaoe$$' ${HOME}/.zen/profiles.ini; then \
+		echo "    Profile 'Inaoe' already exists, skipping..."; \
+	else \
+		zen-browser -CreateProfile "Inaoe"; \
+	fi
+	@echo "==> Installing Inaoe icon + .desktop launcher..."
+	install -Dm 644 ${PWD}/local/applications/Inaoe.png ${HOME}/.local/share/icons/hicolor/256x256/apps/Inaoe.png
+	@mkdir -p ${HOME}/.local/share/applications
+	ln -vsfn ${PWD}/local/applications/Inaoe.desktop ${HOME}/.local/share/applications/Inaoe.desktop
+	@gtk-update-icon-cache -q ${HOME}/.local/share/icons/hicolor 2>/dev/null || true
+
 unbound: ## Configure unbound (local DNS resolver) + resolv.conf
 	@echo "==> Installing unbound..."
 	$(call install_pkgs,unbound)
-	@echo "==> Disabling systemd-resolved (nss-resolve would bypass unbound otherwise)..."
+	@echo "==> Disabling systemd-resolved..."
 	@sudo systemctl disable --now systemd-resolved 2>/dev/null || true
-	@echo "==> Configuring resolv.conf (plain file, not a symlink)..."
+	@echo "==> Configuring resolv.conf..."
 	@if [ -L /etc/resolv.conf ]; then sudo rm -f /etc/resolv.conf; fi
 	sudo install -m 644 ${PWD}/etc/resolv.conf /etc/resolv.conf
 	@echo "==> Configuring unbound.conf..."
 	sudo install -Dm 644 ${PWD}/etc/unbound/unbound.conf /etc/unbound/unbound.conf
-	@echo "==> Fixing /etc/unbound ownership (auto-trust-anchor rewrites the key in"
-	@echo "    place via RFC 5011, so the file AND dir must be writable by the unbound"
-	@echo "    user; a fresh sudo install leaves them root-owned -> fatal autotrust error)..."
+	@echo "==> Fixing /etc/unbound ownership (unbound must write the trust anchor)..."
 	sudo chown -R unbound:unbound /etc/unbound
 	$(SYSTEMD_ENABLE) unbound
 

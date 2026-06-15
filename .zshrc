@@ -153,10 +153,7 @@ zstyle ':fzf-tab:complete:*:*' fzf-preview '~/.scripts/preview $realpath'
 enable-fzf-tab
 
 # -< Evals >-
-# La salida de los `init` es estática: se cachea en disco (compilada a .zwc)
-# y solo se regenera cuando el binario cambia — evita 3 spawns por shell.
-# zsh-patina queda fuera: su `activate` genera contenido dinámico y su
-# cabecera prohíbe cachearlo.
+# Cachea la salida de `init` en .zwc; se regenera solo si cambia el binario (evita 3 spawns).
 _init_cache() {
   local out="${XDG_CACHE_HOME:-$HOME/.cache}/zsh-init/$1.zsh" bin="${commands[$1]}"
   if [[ -n $bin && ( ! -s $out || $bin -nt $out ) ]]; then
@@ -169,8 +166,7 @@ _init_cache atuin atuin init zsh
 _init_cache starship starship init zsh
 
 # -< Aliases >-
-# Alias compartidos con nushell — fuente única: ~/.config/nushell/aliases.nu
-# Se parsea en runtime: cada 'alias x = y' (nu) -> 'alias x=y' (zsh).
+# Alias compartidos — fuente única: ~/.config/nushell/aliases.nu (convierte 'alias x = y' -> 'alias x=y').
 if [[ -r ~/.config/nushell/aliases.nu ]]; then
   while IFS= read -r _l; do
     [[ "$_l" == alias\ * ]] || continue
@@ -237,9 +233,7 @@ alias ci="{ find . -xdev -printf '%h\n' | sort | uniq -c | sort -k 1 -n; } 2>/de
 alias fontl="fc-list | cut -d ':' -f2 | sort | uniq"
 
 # -< Environ variable >-
-# Variables compartidas con nushell — fuente única:
-#   config/shell/vars.env    → variables estáticas
-#   config/shell/colors.env  → colores FZF/Gum (eyes-theme las reescribe por tema)
+# Vars compartidas — fuente única: config/shell/vars.env (estáticas), colors.env (colores eyes-theme).
 set -a
 source "$HOME/Git/dotfiles/config/shell/vars.env"
 source "$HOME/Git/dotfiles/config/shell/colors.env"
@@ -247,9 +241,7 @@ set +a
 export PATH="$HOME/.config/emacs/bin:$HOME/.local/bin:$HOME/.dotnet/tools:$HOME/.local/share/bob/nvim-bin:$HOME/.local/share/nvim/mason/bin:$HOME/.config/emacs/bin:$HOME/.npm-global/bin:$PATH"
 # FZF y Gum (colores eyes) — fuente única: config/shell/colors.env (sourced arriba).
 
-# Hot-reload del tema: cuando eyes-theme cambia de modo (mtime del state file
-# ~/.config/eyes/mode), re-source colors.env en el próximo prompt para que las
-# shells ya abiertas adopten los colores activos sin reiniciar.
+# Hot-reload: si cambia ~/.config/eyes/mode, re-source colors.env en el próximo prompt.
 zmodload -F zsh/stat b:zstat 2>/dev/null
 typeset -g _eyes_mode_mtime="$(zstat +mtime "${XDG_CONFIG_HOME:-$HOME/.config}/eyes/mode" 2>/dev/null)"
 _eyes_hotreload() {

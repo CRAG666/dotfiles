@@ -3,23 +3,9 @@
 #
 # Usage: eyes-theme [--dry-run] {light|dark|toggle|auto|reapply|status|generate}
 #
-# Strategy: symlink-only switching. Every themed config has TWO committed
-# variants (light = canonical, hand-edited; dark = generated from the palette).
-# The path each app reads is a *gitignored symlink* that points at the active
-# variant. Toggling just repoints those symlinks (`ln -sfn`) — it never mutates
-# file contents, so the dotfiles repo stays clean (`git status` empty) after a
-# switch.
-#
-#   * apply_switches  — repoint every pointer in SWITCHES to light/dark.
-#   * generate        — (re)build the dark variants from the light canonicals
-#                       using the palette below. Run after editing a light file.
-#   * reload_daemons  — nudge running daemons (tmux, foot, dunst, kitty,
-#                       gsettings, nvim sockets, zsh-patina) to pick up changes.
-#   * apply_gtk / ensure_claude_theme / ensure_opencode_theme — handle targets
-#                       that live OUTSIDE the repo (no dirtiness to avoid).
-#
-# Persistent state lives at $XDG_CONFIG_HOME/eyes/mode (single line). nvim reads
-# that file to choose its background; see config/nvim/init.lua.
+# Symlink-only switching: each config has light (canonical) + dark (generated)
+# variants; a gitignored pointer symlink selects the active one, so switching
+# never dirties the repo. State: $XDG_CONFIG_HOME/eyes/mode (read by nvim).
 
 set -euo pipefail
 
@@ -35,11 +21,8 @@ readonly DOTFILES_DIR="$(cd -- "$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}")
 readonly CLAUDE_THEME_SRC_DIR="$DOTFILES_DIR/themes/claude"
 readonly OPENCODE_THEME_SRC_DIR="$DOTFILES_DIR/themes/opencode"
 
-# ---------------------------------------------------------------------------
-# Canonical palette — mirrors config/nvim/colors/eyes.lua.
+# Canonical palette (mirrors config/nvim/colors/eyes.lua); source for GENERATE.
 # Format per entry: "slot:LIGHT_HEX:DARK_HEX" (hex without leading '#').
-# This is the single source of truth used to GENERATE the dark variants.
-# ---------------------------------------------------------------------------
 readonly PALETTE=(
   'bg0:add4a0:1a211a' 'bg1:a4cc98:202820'
   'bg2:9fc895:263026' 'bg3:96be8c:2d382d'
@@ -70,13 +53,9 @@ readonly PALETTE_EXTRAS=(
   'yz_orange:8a5820:d0b078'
 )
 
-# ---------------------------------------------------------------------------
-# SWITCHES — the heart of the new design.
-# Format: "pointer|light_target|dark_target"
-#   pointer       : path relative to $DOTFILES_DIR — the gitignored symlink the
-#                   app reads. apply_switches repoints it per mode.
-#   light/dark    : symlink targets, RELATIVE to the pointer's own directory.
-# ---------------------------------------------------------------------------
+# SWITCHES. Format: "pointer|light_target|dark_target"
+#   pointer    : gitignored symlink, path relative to $DOTFILES_DIR
+#   light/dark : symlink targets, RELATIVE to the pointer's own directory
 readonly SWITCHES=(
   # -- Group A: pre-existing variant pairs (pointer was a tracked symlink) --
   'config/eza/theme.yml|eyes.yml|eyes-dark.yml'
@@ -110,17 +89,14 @@ readonly SWITCHES=(
   '.eyes-delta-active.gitconfig|.eyes-delta-light.gitconfig|.eyes-delta-dark.gitconfig'
 )
 
-# ---------------------------------------------------------------------------
-# GENERATE — how to (re)build each dark variant from its light canonical.
+# GENERATE — build each dark variant from its light canonical.
 # Format: "light_path|dark_path|style"   (paths relative to $DOTFILES_DIR)
 #   style: hash       — swap "#RRGGBB" and "38;2;R;G;B"/"48;2;R;G;B" SGR
 #          bare       — swap word-bounded "RRGGBB" (foot's key=RRGGBB)
 #          colorsenv  — hash + flip BAT_THEME="eyes" -> "eyes-dark"
 #          starship   — flip `palette = "eyes"` -> "eyes-dark" (palettes inline)
 #          yaziflavor — copy the flavor dir, then hash-swap flavor.toml/tmtheme
-# Hand-tuned pairs (gitconfig delta washes, nvim, doom, bat, neorg flowers) are
-# intentionally NOT listed — they are maintained by hand.
-# ---------------------------------------------------------------------------
+# Hand-tuned pairs (gitconfig delta, nvim, doom, bat, neorg) are NOT listed.
 readonly GENERATE=(
   'config/foot/colors.eyes.ini|config/foot/colors.eyes-dark.ini|bare'
   'config/dunst/colors.eyes.conf|config/dunst/colors.eyes-dark.conf|hash'
@@ -467,9 +443,7 @@ reload_daemons() {
 # Orchestration
 # ---------------------------------------------------------------------------
 
-# True only when every pointer symlink already exists. On a fresh clone the
-# pointers are gitignored and therefore absent, so this returns false and forces
-# a full apply even when the requested mode already matches the saved one.
+# True only when every pointer symlink already exists (absent on a fresh clone).
 pointers_present() {
   local entry rel pointer
   for entry in "${SWITCHES[@]}"; do
@@ -486,11 +460,8 @@ set_mode() {
   local cur
   cur="$(current_mode)"
 
-  # Skip re-applying only when we have actually applied before: the state file
-  # exists AND every pointer symlink is in place. On a first run (no state file)
-  # or after drift (a pointer went missing) we must fall through to apply_switches,
-  # otherwise the gitignored pointers are never created and every app reads a
-  # missing theme file.
+  # Skip only if applied before (state file + pointers present); else fall through
+  # so a first run / drift recreates the gitignored pointers.
   if [[ -f "$STATE_FILE" && "$cur" == "$target" && $FORCE -eq 0 ]] \
     && pointers_present; then
     info "Already in $target mode. (use --force / reapply to re-apply anyway)"

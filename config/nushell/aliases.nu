@@ -1,11 +1,5 @@
-# Shared aliases — single source of truth for zsh + nushell.
-#
-#   - nushell (config.nu):  source ~/.config/nushell/aliases.nu   (nativo)
-#   - zsh     (.zshrc):     bucle que convierte cada 'alias x = y' -> 'alias x=y'
-#
-# Reglas: una línea `alias NOMBRE = VALOR` (sintaxis nushell, sin comillas).
-# SOLO alias que se comportan IGUAL en ambos shells. Los específicos de cada
-# shell (funciones, saltos cd, builtins divergentes como rm) van en su config.
+# Shared aliases — single source of truth para zsh + nushell (.zshrc convierte 'alias x = y' -> 'x=y').
+# Una línea `alias NOMBRE = VALOR`; SOLO alias idénticos en ambos shells.
 alias ip = ip -color=auto
 alias ping = prettyping
 alias cp = cpx

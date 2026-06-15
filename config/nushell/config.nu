@@ -285,10 +285,7 @@ $env.config = (
             mode: [vi_normal]
             event: { send: executehostcommand cmd: (_atuin_search_cmd) }
         }
-        # Equivalente practico al preview de fzf-tab en zsh: Ctrl+T abre fzf
-        # con ~/.scripts/preview (imagenes/pdf/video via kitty icat) e inserta
-        # la ruta elegida en la linea. Tab sigue siendo el menu de reedline:
-        # nushell no permite delegarlo a fzf (no existe fzf-tab para nu).
+        # Ctrl+T: fzf con ~/.scripts/preview e inserta la ruta (equivalente al preview de fzf-tab en zsh).
         | append {
             name: fzf_file_preview
             modifier: control
@@ -307,11 +304,8 @@ source ~/.config/nushell/podman.nu
 source ~/.config/nushell/git.nu
 source ~/.config/nushell/aliases.nu
 
-# Hot-reload del tema: cuando eyes-theme cambia de modo (mtime del state file
-# ~/.config/eyes/mode), recarga colors.env y re-source theme.nu en el próximo
-# prompt — la sesión abierta adopta los colores activos sin reiniciar.
-# El código va como string para que se re-parsee en el scope actual (así
-# `source` y los cambios de $env persisten en la sesión).
+# Hot-reload: si cambia ~/.config/eyes/mode, recarga colors.env y re-source theme.nu en el próximo prompt.
+# Va como string para re-parsearse en el scope actual (así source y $env persisten).
 $env._EYES_MODE_MTIME = (try { ls $"($env.HOME)/.config/eyes/mode" | get 0.modified | into int } catch { -1 })
 $env.config.hooks.pre_prompt = (
     $env.config.hooks.pre_prompt? | default [] | append {

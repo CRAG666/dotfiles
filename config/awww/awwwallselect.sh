@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# Salir inmediatamente si un comando falla, si se usan variables no definidas,
-# y propagar el código de salida en pipelines.
 # set -euo pipefail
 
 #// Función para verificar dependencias
@@ -70,12 +68,8 @@ set_file_hash() {
     printf '%s' "$sum"
 }
 
-# Recopila fondos de pantalla, resuelve hashes (cacheados) y genera en paralelo
-# SOLO las miniaturas que falten — en el caso común no se lanza ningún proceso
-# por archivo.
-# Argumento 1 (nombre de array, por referencia): Array para almacenar rutas completas de fondos.
-# Argumento 2 (nombre de array, por referencia): Array para almacenar hashes de fondos.
-# Argumento 3 (nombre de array, por referencia): Array de rutas donde buscar fondos.
+# Recopila fondos, resuelve hashes (cacheados) y genera en paralelo solo las miniaturas faltantes.
+# Args (namerefs): 1=lista rutas (out), 2=lista hashes (out), 3=rutas de búsqueda (in).
 get_wallpapers_and_hashes() {
     local -n out_wall_list=$1 # Usar nameref para modificar el array original
     local -n out_wall_hash=$2 # Usar nameref
@@ -220,9 +214,7 @@ if ((${#wall_full_paths_list[@]} == 0)); then
     exit 1
 fi
 
-#// Preparar la entrada para Rofi
-# wall_basenames_list: solo nombres de archivo para mostrar en Rofi.
-# rofi_input_string: cadena formateada para Rofi con nombres de archivo e iconos.
+#// Preparar la entrada para Rofi (basenames + cadena nombre\x00icon\x1fminiatura)
 declare -a wall_basenames_list=()
 rofi_input_string=""
 for i in "${!wall_full_paths_list[@]}"; do
@@ -235,9 +227,7 @@ for i in "${!wall_full_paths_list[@]}"; do
     rofi_input_string+="${base_name}\x00icon\x1f${THUMB_DIR}/${hash_val}.sqre\n"
 done
 
-#// Lanzar Rofi
-# Se usa -select "$current_wall_basename" para preseleccionar. Si está vacío, no hay preselección.
-# xargs se usa para limpiar cualquier espacio en blanco alrededor de la selección de Rofi.
+#// Lanzar Rofi (-select preselecciona el actual; xargs recorta la selección)
 $CONF_DIR/colors/ramdom_color.sh
 selected_basename=$(echo -ne "${rofi_input_string}" | rofi -dmenu \
     -theme-str "${ROFI_THEME_SCALE_OVERRIDE}" \

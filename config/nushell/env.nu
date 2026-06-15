@@ -3,8 +3,7 @@ $env.VISUAL = $"($env.HOME)/.local/share/bob/nvim-bin/nvim"
 $env.EDITOR = $env.VISUAL
 $env.PYTHONSTARTUP = $"($env.HOME)/.pyrc"
 
-# BAT_THEME y LS_COLORS (vars temáticas) → fuente única compartida con zsh:
-# config/shell/colors.env, cargado via el loader al final de este archivo.
+# Vars temáticas (BAT_THEME, LS_COLORS) → fuente única: config/shell/colors.env (loader al final).
 
 $env.USB = $"/run/media/($env.USER)"
 $env.PASSWORD_STORE_ENABLE_EXTENSIONS = true
@@ -13,15 +12,11 @@ $env.NVIM_NF = true
 $env.PROMPT_INDICATOR_VI_INSERT = ""
 $env.PROMPT_INDICATOR_VI_NORMAL = ""
 
-# FZF (no-color) y Gum/FZF colores → fuente única compartida con zsh:
-#   config/shell/vars.env    (FZF_DEFAULT_COMMAND, …)
-#   config/shell/colors.env  (FZF_DEFAULT_OPTS, GUM_*)
-# Se cargan via el loader al final de este archivo.
+# FZF/Gum → fuente única: vars.env (FZF_DEFAULT_COMMAND), colors.env (FZF_DEFAULT_OPTS, GUM_*); loader al final.
 
 $env.DOT_DIR = $"($env.HOME)/Git/dotfiles"
 
-# Configuración del PATH
-# Nushell maneja el PATH como una lista. Agregamos tus directorios personalizados.
+# PATH como lista (nushell): añade directorios personalizados.
 let zsh_paths = [
     $"($env.HOME)/.config/emacs/bin",
     $"($env.HOME)/.local/bin",
@@ -39,11 +34,8 @@ source ($nu.default-config-dir | path join mise.nu)
 
 
 # >>> load-shared-env >>>
-# Carga las variables compartidas con zsh:
-#   vars.env    → estáticas
-#   colors.env  → colores FZF/Gum (eyes-theme las reescribe por tema)
-# Va al final para tener prioridad sobre las defs anteriores, y cada carga en
-# try{} para que un fallo del parser jamás rompa el arranque de nushell.
+# Vars compartidas: vars.env (estáticas), colors.env (colores eyes-theme).
+# Al final para tener prioridad; cada carga en try{} para no romper el arranque.
 def --env load-shared-env [file: path] {
     open --raw $file
     | lines

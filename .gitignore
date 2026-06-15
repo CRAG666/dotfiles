@@ -558,19 +558,18 @@ config/yazi/plugins
 config/nushell/plugin*
 config/nushell/history.*
 
-# awww — estado de wallpaper por máquina (lo genera awwwallpaper.sh)
+# awww / quickshell — per-machine wallpaper state
 config/awww/wall.blur
 config/awww/wall.ctl
 config/awww/wall.set
-# quickshell theme.state — luminancia del wallpaper por máquina (awwwallpaper.sh)
 config/quickshell/theme.state
 
-# termusic — biblioteca/cache regenerable por máquina (rutas locales)
+# termusic — regenerable db/cache
 config/termusic/*.db
 config/termusic/*.db-wal
 config/termusic/*.db-shm
 
-# w3m — estado del navegador (cookies de sesión, NUNCA versionar)
+# w3m — browser session state (never commit)
 .w3m/cookie
 .w3m/history
 .w3m/w3mtmp*

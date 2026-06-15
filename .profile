@@ -8,12 +8,8 @@ set +a
 # export QT_QPA_PLATFORMTHEME=qt6ct
 # export RIDER_JDK=/usr/share/rider/jbr
 
-# lsp-mode: usar plists en vez de hash-tables → deserialización JSON más rápida.
-# Tras cambiar este flag hay que reinstalar lsp-mode: cd ~/.config/emacs && bin/doom sync.
+# lsp-mode plists (JSON más rápido); tras cambiar, reinstalar: cd ~/.config/emacs && bin/doom sync.
 
-# WebKitGTK + Wayland workaround — bug #280210 (Error 71 dispatching)
-# Afecta a luakit, nyxt, vimb, chawan, surf, epiphany, etc.
-# Quitar cuando WebKitGTK arregle el bug del DMA-BUF renderer.
+# WebKitGTK+Wayland workaround — bug #280210 (Error 71); quitar cuando se arregle el DMA-BUF renderer.
 
-# LS_COLORS, BAT_THEME, FZF y Gum (vars temáticas) → fuente única:
-# config/shell/colors.env, sourced arriba. (eza/exa usa su propio eyes.yml.)
+# Vars temáticas (LS_COLORS, BAT_THEME, FZF, Gum) → fuente única: config/shell/colors.env (sourced arriba).

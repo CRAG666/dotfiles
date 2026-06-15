@@ -40,7 +40,6 @@ while true; do
 		touch $NOTIFIED_LOW_FLAG
 	fi
 
-	# 60 s: el nivel de bateria cambia en escala de minutos; sondear cada
-	# 3 s eran ~80 spawns/min (acpi+grep) de fondo permanente.
+	# 60 s: la bateria cambia en minutos; sondear mas seguido es spawns de fondo inutiles.
 	sleep 60
 done

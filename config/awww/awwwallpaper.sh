@@ -36,9 +36,7 @@ Wall_Set() {
         --transition-pos "$xpos"
 }
 
-# Derived artifacts: blur + rofi thumbnail + Quickshell per-widget light/dark.
-# Everything comes out of ONE magick invocation (one image decode, jpeg
-# shrink-on-load, then a 25% working copy), instead of five full 4K decodes.
+# Derived artifacts (blur + rofi thumbnail + Quickshell light/dark) from ONE magick decode.
 Post_Process() {
     if ! command -v magick > /dev/null 2>&1; then
         echo "WARNING: ImageMagick not found. Skipping blur creation."
@@ -48,16 +46,8 @@ Post_Process() {
     local src="$BaseDir/wall.set"
     mkdir -p "${HOME}/.cache/wallpapers/thumbnails"
 
-    # Quickshell: per-widget eyes light/dark. We sample the wallpaper region
-    # BEHIND each widget (per shell.qml geometry, in u = height/1440) and use
-    # its mean perceptual luminance (Rec.709). Light theme only when the
-    # background is clearly bright; otherwise dark (light text + halo stays
-    # legible over busy/dark/colourful backgrounds). Regions, in stdout order:
-    #   date block:   top centre, y 4..29% of height        -> North 40%x29%
-    #   player block: bottom centre, y 78..90% (bottomMargin
-    #                 150u keeps it off the edge — top 55%
-    #                 of the bottom-22% band)                -> South+North crop
-    #   system gauges: left edge, vertically centred        -> West 9%x50%
+    # Per-widget light/dark from mean Rec.709 luminance behind each widget. Crops, in stdout order:
+    #   dl date block  -> North 40%x29%   pl player -> South 22% then top 55%   sl system -> West 9%x50%
     local lums dl pl sl
     lums=$(magick -define jpeg:size=2048x2048 "${src}[0]" -strip -resize 25% \
         \( +clone -quality 90 -write "${HOME}/.cache/wallpapers/thumbnails/wall.sqre" +delete \) \
@@ -80,13 +70,9 @@ Post_Process() {
 
 BaseDir="$(dirname "$(realpath "$0")")"
 
-# Bootstrap on first run. wall.ctl / wall.set are per-machine state (gitignored),
-# so on a fresh clone they don't exist. Seed them from the first wallpaper found
-# so the rest of the script (and -n / -p / -s) has a valid current entry; an
-# explicit `-s <path>` later just overwrites this seed with the chosen image.
+# Bootstrap wall.ctl / wall.set on a fresh clone (they're gitignored per-machine state).
 WallDir="${HOME}/Pictures/wallpaperCicle"
 if [ ! -s "$BaseDir/wall.ctl" ]; then
-    # No control file: seed both from the first wallpaper available.
     seed="$(find "$WallDir" -type f \( -iname '*.jpg' -o -iname '*.jpeg' \
         -o -iname '*.png' -o -iname '*.gif' -o -iname '*.bmp' \
         -o -iname '*.tiff' -o -iname '*.svg' \) | sort | head -n1)"
@@ -97,8 +83,7 @@ if [ ! -s "$BaseDir/wall.ctl" ]; then
     printf '1|Catppuccin-Mocha|%s\n' "${seed/#$HOME/~}" > "$BaseDir/wall.ctl"
     ln -fs "$seed" "$BaseDir/wall.set"
 elif [ ! -L "$BaseDir/wall.set" ]; then
-    # Control file is fine but the symlink is missing/broken: rebuild it from
-    # wall.ctl so we keep the current selection instead of resetting it.
+    # Rebuild a missing/broken symlink from wall.ctl.
     cur="$(eval echo "$(awk -F'|' '$1 == "1" { print $3; exit }' "$BaseDir/wall.ctl")")"
     [ -f "$cur" ] && ln -fs "$cur" "$BaseDir/wall.set"
 fi
@@ -164,9 +149,7 @@ fi
 
 Wall_Set
 
-# run the derived artifacts in the background so the script returns as soon as
-# the transition starts; if a previous run is still processing, replace it
-# (newest wallpaper wins)
+# Background postprocess; kill any in-flight run so newest wallpaper wins.
 ppPid="${XDG_RUNTIME_DIR:-/tmp}/awww-postprocess.pid"
 [ -f "$ppPid" ] && kill "$(cat "$ppPid" 2>/dev/null)" 2>/dev/null
 Post_Process &
