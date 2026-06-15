@@ -127,7 +127,7 @@ systemd-user: ## Link the user unit files (eyes-theme*) and enable timers/boot
 	@echo "==> Linking systemd --user units..."
 	@mkdir -p ${HOME}/.config/systemd/user
 	@for unit in $$(find ${PWD}/config/systemd/user -maxdepth 1 -type f \
-	                \( -name '*.service' -o -name '*.timer' \) -exec basename {} \;); do \
+	                \( -name '*.service' -o -name '*.timer' -o -name '*.target' \) -exec basename {} \;); do \
 		dst="${HOME}/.config/systemd/user/$$unit"; \
 		if [ -e "$$dst" ] && [ ! -L "$$dst" ]; then \
 			echo "WARNING: $$dst exists but is not a symlink. Back it up manually."; \
