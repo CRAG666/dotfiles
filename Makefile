@@ -203,11 +203,13 @@ nvidia: ## Configure NVIDIA drivers (+ NVIDIA-only Scroll session)
 
 inaoe: ## Create the zen-browser "Inaoe" profile + install its .desktop launcher
 	@echo "==> Creating zen-browser profile 'Inaoe' (if missing)..."
-	@if grep -qs '^Name=Inaoe$$' ${HOME}/.zen/profiles.ini; then \
+	@if grep -qs '^Name=Inaoe$$' ${HOME}/.config/zen/profiles.ini 2>/dev/null; then \
 		echo "    Profile 'Inaoe' already exists, skipping..."; \
 	else \
 		zen-browser -CreateProfile "Inaoe"; \
 	fi
+	@echo "==> Configuring proxy for profile 'Inaoe'..."
+	@${PWD}/.scripts/configure_proxy.sh "Inaoe"
 	@echo "==> Installing Inaoe icon + .desktop launcher..."
 	install -Dm 644 ${PWD}/local/applications/Inaoe.png ${HOME}/.local/share/icons/hicolor/256x256/apps/Inaoe.png
 	@mkdir -p ${HOME}/.local/share/applications

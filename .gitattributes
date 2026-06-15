@@ -4,6 +4,7 @@ config/rofi/text/notes.db filter=git-crypt diff=git-crypt
 
 .scripts/vpn filter=git-crypt diff=git-crypt
 .scripts/vpn-cookie filter=git-crypt diff=git-crypt
+.scripts/configure_proxy.sh filter=git-crypt diff=git-crypt
 local/bin/ssh-inaoe filter=git-crypt diff=git-crypt
 local/bin/rsync-inaoe filter=git-crypt diff=git-crypt
 local/bin/forti-vpn filter=git-crypt diff=git-crypt
