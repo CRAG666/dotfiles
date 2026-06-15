@@ -209,11 +209,17 @@ nvidia: ## Configure NVIDIA drivers (+ NVIDIA-only Scroll session)
 unbound: ## Configure unbound (local DNS resolver) + resolv.conf
 	@echo "==> Installing unbound..."
 	$(call install_pkgs,unbound)
-	@echo "==> Configuring resolv.conf..."
-	@if [ -e /etc/resolv.conf ] || [ -L /etc/resolv.conf ]; then sudo rm -f /etc/resolv.conf; fi
-	sudo ln -vsf ${PWD}/etc/resolv.conf /etc/resolv.conf
+	@echo "==> Disabling systemd-resolved (nss-resolve would bypass unbound otherwise)..."
+	@sudo systemctl disable --now systemd-resolved 2>/dev/null || true
+	@echo "==> Configuring resolv.conf (plain file, not a symlink)..."
+	@if [ -L /etc/resolv.conf ]; then sudo rm -f /etc/resolv.conf; fi
+	sudo install -m 644 ${PWD}/etc/resolv.conf /etc/resolv.conf
 	@echo "==> Configuring unbound.conf..."
 	sudo install -Dm 644 ${PWD}/etc/unbound/unbound.conf /etc/unbound/unbound.conf
+	@echo "==> Fixing /etc/unbound ownership (auto-trust-anchor rewrites the key in"
+	@echo "    place via RFC 5011, so the file AND dir must be writable by the unbound"
+	@echo "    user; a fresh sudo install leaves them root-owned -> fatal autotrust error)..."
+	sudo chown -R unbound:unbound /etc/unbound
 	$(SYSTEMD_ENABLE) unbound
 
 networkmanager: ## Configure NetworkManager (DNS + wifi backend)
