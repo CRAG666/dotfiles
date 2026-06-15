@@ -1,6 +1,6 @@
 [background]
 # Path to the background image
-path = "~/Pictures/P53s.png"
+path = "/etc/greetd/laptop.png"
 
 # How the background image covers the screen if the aspect ratio doesn't match
 # Available values: "Fill", "Contain", "Cover", "ScaleDown"
