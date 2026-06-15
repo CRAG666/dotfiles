@@ -618,3 +618,4 @@ config/oama/*.auth
 /config/nvim/nvim-pack-lock.json
 /config/opencode/tui.json
 /config/opencode/themes/
+/config/nushell/mise.nu
