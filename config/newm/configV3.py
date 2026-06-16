@@ -23,7 +23,7 @@ def on_reconfigure():
     theme = "Catppuccin-Mocha-Standard-Lavender-dark"
     icons = "candy-icons"
     cursor = "Catppuccin-Mocha-Lavender-Cursors"
-    font = "SFProDisplay Nerd Font 15"
+    font = "SFPro Nerd Font Propo Display 15"
     gtk2 = "~/.gtkrc-2.0"
 
     GSETTINGS = (

@@ -87,7 +87,7 @@ configuration {
 
 	/*---------- Misc setting ----------*/
 	terminal: "rofi-sensible-terminal";
-	font: "SFProDisplay Nerd Font Bold 14";
+	font: "SFPro Nerd Font Propo Display Bold 14";
 	sort: false;
 	threads: 0;
 	click-to-exit: true;

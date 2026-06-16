@@ -12,5 +12,5 @@ set window-title-basename "true"
 set statusbar-basename "true"
 set adjust-open width
 set recolor-keephue "true"
-set font "SFProDisplay Nerd Font 16"
+set font "SFPro Nerd Font Propo Display 16"
 include ./eyes-activerc

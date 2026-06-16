@@ -57,14 +57,18 @@ exec gsettings set org.gnome.desktop.interface cursor-size $CURSORSIZE
 exec gsettings set org.gnome.desktop.interface icon-theme 'Macjaro'
 exec gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita'
 
-exec gsettings set org.gnome.desktop.interface font-name 'SFProDisplay Nerd Font 16'
-exec gsettings set org.gnome.desktop.interface document-font-name 'SFProDisplay Nerd Font 12'
-exec gsettings set org.gnome.desktop.interface monospace-font-name 'SFProDisplay Nerd Font 10'
+exec gsettings set org.gnome.desktop.interface font-name 'SFPro Nerd Font Propo Text 14'
+exec gsettings set org.gnome.desktop.interface document-font-name 'SFPro Nerd Font Propo Text 14'
+exec gsettings set org.gnome.desktop.interface monospace-font-name 'SFMono Nerd Font Mono 13'
+exec gsettings set org.gnome.desktop.wm.preferences titlebar-font 'SFPro Nerd Font Propo Display 15'
+
 exec gsettings set org.gnome.desktop.interface font-antialiasing 'rgba'
 exec gsettings set org.gnome.desktop.interface font-hinting 'full'
 exec gsettings set org.gnome.desktop.wm.preferences button-layout :
 
 seat seat0 xcursor_theme Adwaita $CURSORSIZE
+
+font pango:SFPro Nerd Font Propo Display 14
 
 ### Outputs
 
@@ -123,7 +127,7 @@ input type:pointer {
 
 input type:touchpad {
     accel_profile flat
-    pointer_accel 0.3
+    pointer_accel 0.5
     tap enabled
     natural_scroll disabled
     dwt enabled

@@ -1,8 +1,5 @@
 #!/usr/bin/env sh
 
-# Use user-specific cache directories for persistence
-# md5 como clave: base64 emite '/' (nombre de archivo invalido), con lo que
-# el cache de thumbnails fallaba y se regeneraban en cada preview.
 LTMP="$HOME/.cache/fzf-preview"
 _hash=$(printf "%s" "$1" | md5sum)
 LCACHEFILE="$LTMP/${_hash%% *}.png"
