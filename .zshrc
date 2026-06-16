@@ -251,8 +251,6 @@ _eyes_hotreload() {
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd _eyes_hotreload
 
-alias pandock='podman run --rm -v "$(pwd):/data" pandoc/extra'
-
 # BEGIN_KITTY_SHELL_INTEGRATION
 custom_autocomplete() {
     zle fzf-tab-complete

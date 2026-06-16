@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# Run once at login: if the "Shenzhen KTC" monitor is connected, turn the
-# laptop backlight off (brightnessctl --device=intel_backlight set 0).
-# Launched from the scroll config via `exec`.
 
 set -euo pipefail
 

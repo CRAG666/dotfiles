@@ -1,7 +1,4 @@
 # zcfan profile: ThinkPad L14 Gen 4 (AMD Ryzen 5, integrated Radeon)
-# Thin ultraportable with a small fan and a cool-running 15-28W APU: keep the
-# fan off at idle and ramp later/softer for quieter operation. Zen 3 mobile is
-# happy into the high 80s, so there is plenty of thermal headroom.
 max_temp 90
 med_temp 75
 low_temp 60

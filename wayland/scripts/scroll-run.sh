@@ -1,12 +1,12 @@
 #!/bin/bash
 
 show_help() {
-    echo "Uso: $0 [-m MODE] [-a] [-h]"
-    echo "  -m MODE: Especifica el modo de gráficos (intel, nvidia, nvidia-only, amd)"
-    echo "           nvidia-only: solo NVIDIA, asume monitor externo (sin eDP)"
-    echo "           amd: GPU AMD integrada (ej. ThinkPad L14 Ryzen)"
-    echo "  -a: Modo automático (detecta GPU disponible y si está enchufado)"
-    echo "  -h: Muestra este mensaje de ayuda"
+    echo "Usage: $0 [-m MODE] [-a] [-h]"
+    echo "  -m MODE: Specify the graphics mode (intel, nvidia, nvidia-only, amd)"
+    echo "           nvidia-only: NVIDIA only, assumes external monitor (no eDP)"
+    echo "           amd: integrated AMD GPU (e.g. ThinkPad L14 Ryzen)"
+    echo "  -a: Automatic mode (detects available GPU and whether plugged in)"
+    echo "  -h: Show this help message"
     exit 1
 }
 
@@ -14,7 +14,7 @@ validate_mode() {
     case "$1" in
     intel | nvidia | nvidia-only | amd) ;;
     *)
-        echo "Modo de gráficos '$1' no válido. Usa: intel, nvidia, nvidia-only o amd"
+        echo "Invalid graphics mode '$1'. Use: intel, nvidia, nvidia-only or amd"
         show_help
         ;;
     esac
@@ -38,7 +38,6 @@ detect_power_mode() {
     echo "intel"
 }
 
-# Devuelve "card render" (dos líneas) para el proveedor dado, o nada.
 detect_device() {
     local pci
     pci=$(lspci -k | grep -E '(VGA|3D)' | grep -iE "$1" | awk '{print $1}')
@@ -127,19 +126,17 @@ while getopts ":m:ah" opt; do
         show_help
         ;;
     \?)
-        echo "Opción inválida: -$OPTARG" >&2
+        echo "Invalid option: -$OPTARG" >&2
         show_help
         ;;
     :)
-        echo "La opción -$OPTARG requiere un argumento." >&2
+        echo "Option -$OPTARG requires an argument." >&2
         show_help
         ;;
     esac
 done
 
 shift $((OPTIND - 1))
-
-# ─── Detectar dispositivos ────────────────────────────────────────────────────
 
 DEVICE_INTEL=$(detect_device 'intel')
 DEVICE_NVIDIA=$(detect_device 'nvidia')
@@ -156,40 +153,38 @@ RENDER_AMD=$(echo "$DEVICE_AMD" | awk 'NR==2')
 [ -n "$DEVICE_NVIDIA" ] && echo "NVIDIA: $CARD_NVIDIA (render: $RENDER_NVIDIA)"
 [ -n "$DEVICE_AMD" ] && echo "AMD   : $CARD_AMD (render: $RENDER_AMD)"
 
-# ─── Modo automático ──────────────────────────────────────────────────────────
-
 if [ "$AUTO_MODE" = true ]; then
     if [ -n "$DEVICE_NVIDIA" ]; then
-        # Híbrida Intel+NVIDIA: elegir según alimentación.
+        # Intel+NVIDIA hybrid: choose based on power source.
         MODE=$(detect_power_mode)
     elif [ -n "$DEVICE_AMD" ]; then
         MODE="amd"
     else
         MODE="intel"
     fi
-    echo "Modo detectado automáticamente: $MODE"
+    echo "Automatically detected mode: $MODE"
 fi
 
 if [ -z "$MODE" ]; then
-    echo "Debe especificar un modo (-m) o usar detección automática (-a)."
+    echo "You must specify a mode (-m) or use automatic detection (-a)."
     show_help
 fi
 
 case "$MODE" in
 "intel")
-    echo "Configurando para Intel (ahorro de energía)..."
+    echo "Configuring for Intel (power saving)..."
     set_default_env
     set_intel_env
     exec scroll
     ;;
 "nvidia")
-    echo "Configurando para NVIDIA (máximo rendimiento)..."
+    echo "Configuring for NVIDIA (maximum performance)..."
     set_default_env
     set_nvidia_env
     exec scroll
     ;;
 "nvidia-only")
-    echo "Configurando para NVIDIA exclusiva (solo monitor externo)..."
+    echo "Configuring for NVIDIA exclusive (external monitor only)..."
     set_default_env
     set_nvidia_env
     export WLR_DRM_DEVICES=/dev/dri/${CARD_NVIDIA}
@@ -199,7 +194,7 @@ case "$MODE" in
     exec scroll
     ;;
 "amd")
-    echo "Configurando para AMD (GPU integrada)..."
+    echo "Configuring for AMD (integrated GPU)..."
     set_default_env
     set_amd_env
     exec scroll

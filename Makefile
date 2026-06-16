@@ -1,7 +1,6 @@
 export PATH := ${HOME}/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/bin/core_perl
 export GOPATH := ${HOME}
 
-# Packages organized by category
 HYPR_PKGS := hyprland xdg-desktop-portal-hyprland hyprland-guiutils \
 	     hyprland-qt-support hyprsunset hyprtoolkit hyprutils
 

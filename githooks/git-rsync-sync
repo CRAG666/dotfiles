@@ -1,7 +1,4 @@
 #!/bin/bash
-# Syncs the current git repo to all configured mount points, preserving
-# the path structure relative to LOCAL_BASE.
-#
 # Usage: git-rsync-sync [local_base_dir]
 #   local_base_dir  Base directory that repos live under (default: ~/Documents/Projects)
 

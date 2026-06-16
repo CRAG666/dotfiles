@@ -1,13 +1,6 @@
 #!/usr/bin/env bash
 # Shim transparente para TeX Live vía podman.
 #
-# Ejecuta los binarios de la imagen texlive/texlive:latest como si
-# estuvieran instalados nativamente, sin ensuciar el sistema.
-#
-# No se invoca directamente: se usa a través de symlinks con el nombre
-# del binario deseado. basename "$0" decide qué ejecutar dentro del
-# contenedor. Por ejemplo:
-#
 #   lualatex -> texlive-shim     ->  lualatex documento.tex
 #   pdflatex -> texlive-shim     ->  pdflatex documento.tex
 #   latexmk  -> texlive-shim     ->  latexmk -pdf -pvc documento.tex
@@ -33,17 +26,13 @@ EOF
   exit 1
 fi
 
-# -t solo si hay terminal en ambos extremos, para no romper pipes/scripts
 run_flags=(--rm -i)
 if [ -t 0 ] && [ -t 1 ]; then
   run_flags=(--rm -ti)
 fi
 
-# Monta el directorio actual como /work; las rutas relativas funcionan igual
-# que en una instalación nativa.
 mounts=(-v "$PWD:/work" -w /work)
 
-# Expone tus paquetes/clases personales (.sty/.cls) si la carpeta existe.
 if [ -d "$LATEX_UTILS" ]; then
   mounts+=(-v "$LATEX_UTILS:/latex-utils:ro" -e TEXINPUTS="/latex-utils//:")
 fi
