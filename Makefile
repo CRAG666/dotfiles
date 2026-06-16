@@ -4,7 +4,7 @@ export GOPATH := ${HOME}
 HYPR_PKGS := hyprland xdg-desktop-portal-hyprland hyprland-guiutils \
 	     hyprland-qt-support hyprsunset hyprtoolkit hyprutils
 
-WAYLAND_PKGS := wl-kbptr wlrctl wtype wl-clipboard swaylock-effects rofi qt6-wayland \
+WAYLAND_PKGS := wl-kbptr wlrctl wtype wl-clipboard swaylock-effects swayidle rofi qt6-wayland \
                 imv kitty egl-wayland cliphist greetd-regreet \
                 xdg-desktop-portal-termfilechooser-hunkyburrito-git \
                 xdg-desktop-portal-gtk dunst awww quickshell \
@@ -50,7 +50,7 @@ endef
 
 .DEFAULT_GOAL := help
 .PHONY: help install init theme bin makepkg systemd-user wayland hypr scroll \
-        laptop laptop-intel laptop-amd thinkpad thinkpad-amd nvidia inaoe unbound \
+        suspend laptop laptop-intel laptop-amd thinkpad thinkpad-amd nvidia inaoe unbound \
         networkmanager dns podman_image test testpath clean p53 l14
 
 help: ## Show this help
@@ -165,7 +165,14 @@ scroll: wayland ## Configure Scroll (Wayland)
 	@echo "==> Installing Scroll packages..."
 	$(call install_pkgs,$(SCROLL_PKGS))
 
-laptop: ## Configure laptop (power management)
+suspend: ## Configure suspend-on-lid (battery only); idle lock/DPMS via swayidle
+	@echo "==> Configuring logind (suspend on lid, battery only)..."
+	sudo install -Dm 644 ${PWD}/etc/systemd/logind.conf.d/10-lid-battery.conf \
+		/etc/systemd/logind.conf.d/10-lid-battery.conf
+	@echo "==> Restarting systemd-logind to apply..."
+	@sudo systemctl restart systemd-logind || true
+
+laptop: suspend ## Configure laptop (power management)
 	@echo "==> Installing power management tools..."
 	$(call install_pkgs,$(LAPTOP_PKGS))
 	$(SYSTEMD_ENABLE) thermald
@@ -174,7 +181,7 @@ laptop-intel: laptop ## Configure Intel laptop (power management + Intel GPU)
 	@echo "==> Installing Intel GPU tools..."
 	$(call install_pkgs,$(LAPTOP_PKGS_INTEL))
 
-laptop-amd: ## Configure AMD laptop (power management + Radeon GPU)
+laptop-amd: suspend ## Configure AMD laptop (power management + Radeon GPU)
 	@echo "==> Installing microcode, Radeon GPU and AMD power management..."
 	$(call install_pkgs,$(LAPTOP_PKGS_AMD))
 

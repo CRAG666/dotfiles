@@ -5,7 +5,8 @@
 #// Función para verificar dependencias
 check_dependencies() {
     local missing_deps=0
-    local deps=("realpath" "mkdir" "jq" "fd" "magick" "md5sum" "rofi" "notify-send" "readlink" "dirname" "awk" "xargs" "nproc")
+    # ponytail: only the non-coreutils — mkdir/awk/readlink/etc are always present
+    local deps=("jq" "fd" "magick" "rofi" "notify-send")
 
     # Verificar compositor disponible y agregar su herramienta
     if [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]] && command -v hyprctl &>/dev/null; then

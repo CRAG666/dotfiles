@@ -18,7 +18,7 @@ MOUNT_POINTS=(
 	"InaoeOneDrive:/ $HOME/Public/InaoeOneDrive"
 )
 
-MAX_RETRIES=5
+MAX_RETRIES=3
 INTERVAL=30
 
 check_internet() {
@@ -41,8 +41,7 @@ done
 echo "Conexión a internet establecida. Montando unidades..."
 
 for MOUNT in "${MOUNT_POINTS[@]}"; do
-	SOURCE=$(echo "$MOUNT" | awk '{print $1}')
-	TARGET=$(echo "$MOUNT" | awk '{print $2}')
+	read -r SOURCE TARGET <<< "$MOUNT"
 
 	if [[ "$SOURCE" == "InaoeOneDrive:/" ]]; then
 		rclone mount "$SOURCE" "$TARGET" $MOUNT_OPTIONS --onedrive-chunk-size 320M &
@@ -57,7 +56,7 @@ all_mounted=false
 while [ "$all_mounted" = false ]; do
 	all_mounted=true
 	for MOUNT in "${MOUNT_POINTS[@]}"; do
-		TARGET=$(echo "$MOUNT" | awk '{print $2}')
+		read -r _ TARGET <<< "$MOUNT"
 		if ! mountpoint -q "$TARGET"; then
 			all_mounted=false
 			echo "$TARGET no está montado. Esperando..."
@@ -74,7 +73,7 @@ LOCAL_FOLDER="$HOME/Documents/Org"
 echo "Iniciando sincronización con rsync..."
 
 for MOUNT in "${MOUNT_POINTS[@]}"; do
-	TARGET=$(echo "$MOUNT" | awk '{print $2}')
+	read -r _ TARGET <<< "$MOUNT"
 	echo "Sincronizando con $TARGET..."
 	rsync -av --delete --progress "$LOCAL_FOLDER" "$TARGET"
 done

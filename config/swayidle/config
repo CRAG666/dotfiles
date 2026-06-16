@@ -1,0 +1,8 @@
+# Bloquear a los 5 min (pidof evita lanzar un segundo swaylock si ya está activo)
+timeout 300 'pidof swaylock || swaylock -f'
+
+# Apagar pantallas a los 10 min; reactivar al volver de la inactividad
+timeout 600 'scrollmsg "output * dpms off"' resume 'scrollmsg "output * dpms on"'
+
+# Bloquear SIEMPRE antes de cualquier suspensión (tapa con batería, suspend manual, etc.)
+before-sleep 'pidof swaylock || swaylock -f'

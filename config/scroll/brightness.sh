@@ -4,15 +4,24 @@ busfile="$rt/ddc-brightness.bus"
 pend="$rt/ddc-brightness.pending"
 lock="$rt/ddc-brightness.lock"
 
-case $1 in
-up)   d=1 ;;
-down) d=-1 ;;
-init)
-    level="${2:-5}"
+# Detecta los buses i2c de los monitores externos y los cachea en busfile.
+# Escribe "none" si no hay ninguno (solo pantalla de laptop).
+detect_buses() {
     ddcutil detect --brief 2>/dev/null |
         awk '/^Display/{ok=1} ok && /I2C bus:/{sub(".*i2c-",""); print}' \
         > "$busfile"
     [[ -s $busfile ]] || echo none > "$busfile"
+}
+
+case $1 in
+up)   d=1 ;;
+down) d=-1 ;;
+init)
+    # Espeja el % actual del backlight de la laptop a los monitores externos.
+    # Asi el externo "recuerda" el ultimo brillo sin guardar estado aparte.
+    level="${2:-$(brightnessctl -m | cut -d, -f4 | tr -d '%')}"
+    : "${level:=5}"
+    detect_buses
     [[ $(<"$busfile") == none ]] && exit 0
     while IFS= read -r bus; do
         ddcutil --bus "$bus" --skip-ddc-checks --noverify --sleep-multiplier .1 \
@@ -33,15 +42,12 @@ esac
 worker() {
     exec 9>"$lock"
     flock -n 9 || return 0
-    if [[ ! -s $busfile ]]; then
-        ddcutil detect --brief 2>/dev/null |
-            awk '/^Display/{ok=1} ok && /I2C bus:/{sub(".*i2c-",""); print}' \
-            > "$busfile"
-        [[ -s $busfile ]] || echo none > "$busfile"
-    fi
+    [[ -s $busfile ]] || detect_buses
     local -a buses
     mapfile -t buses < "$busfile"
-    [[ "${buses[0]}" == none ]] && return 0
+    # "none" = solo pantalla de laptop: sin buses externos, pero igual
+    # ajustamos el backlight interno con brightnessctl más abajo.
+    [[ "${buses[0]}" == none ]] && buses=()
     local empty=0 n op
     while :; do
         {
