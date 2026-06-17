@@ -12,7 +12,7 @@ list_row='3'
 win_width='120px'
 
 # Options
-layout=$(cat ${theme} | grep 'USE_ICON' | cut -d'=' -f2)
+layout=$(grep 'USE_ICON' "${theme}" | cut -d'=' -f2)
 if [[ "$layout" == 'NO' ]]; then
 	option_1="󱄄 Home"
 	option_2="󱋆 Work"

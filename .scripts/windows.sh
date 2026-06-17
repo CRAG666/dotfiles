@@ -31,8 +31,6 @@ elif [[ "$STATUS" == *"Exited"* ]] || [[ "$STATUS" == *"Created"* ]]; then
 	podman-compose --file "$COMPOSE_FILE" start
 	notify-send "Windows 11" "Powering on..." --icon=windows --urgency=normal
 	sleep 5
-else
-	notify-send "Windows 11" "Abriendo..." --icon=windows --urgency=normal
 fi
 
 notify-send "Windows 11" "Abriendo..." --icon=windows --urgency=normal

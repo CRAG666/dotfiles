@@ -69,7 +69,7 @@ elif [[ $percentage -ge 80 ]] && [[ $percentage -le 100 ]]; then
 fi
 
 # Options
-layout=`cat ${theme} | grep 'USE_ICON' | cut -d'=' -f2`
+layout=$(grep 'USE_ICON' "${theme}" | cut -d'=' -f2)
 if [[ "$layout" == 'NO' ]]; then
 	option_1=" Remaining ${percentage}%"
 	option_2=" $status"

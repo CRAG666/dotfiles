@@ -21,13 +21,8 @@ MOUNT_POINTS=(
 MAX_RETRIES=3
 INTERVAL=30
 
-check_internet() {
-	/bin/ping -c 1 8.8.8.8 &>/dev/null
-	return $?
-}
-
 attempt=0
-while ! check_internet; do
+while ! ping -c 1 8.8.8.8 &>/dev/null; do
 	attempt=$((attempt + 1))
 	echo "No hay conexión a internet. Intento $attempt de $MAX_RETRIES..."
 	if [ "$attempt" -ge "$MAX_RETRIES" ]; then

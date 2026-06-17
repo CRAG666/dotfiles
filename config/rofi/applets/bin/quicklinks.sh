@@ -28,7 +28,7 @@ else
 fi
 
 # Options
-layout=$(cat ${theme} | grep 'USE_ICON' | cut -d'=' -f2)
+layout=$(grep 'USE_ICON' "${theme}" | cut -d'=' -f2)
 if [[ "$layout" == 'NO' ]]; then
     option_1=" Science"
     option_2=" Whatsapp"

@@ -32,7 +32,7 @@ bluetooth_cmd="kitty --class dialog -T bluetui bluetui"
 email_cmd="kitty -T aerc aerc"
 
 # Options
-layout=$(cat ${theme} | grep 'USE_ICON' | cut -d'=' -f2)
+layout=$(grep 'USE_ICON' "${theme}" | cut -d'=' -f2)
 if [[ "$layout" == 'NO' ]]; then
     option_1="󰾱 Email <span weight='light' size='small'><i>($email_cmd)</i></span>"
     option_2="󰂰 Bluetooth <span weight='light' size='small'><i>($bluetooth_cmd)</i></span>"

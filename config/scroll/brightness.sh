@@ -3,6 +3,11 @@ rt="${XDG_RUNTIME_DIR:-/tmp}"
 busfile="$rt/ddc-brightness.bus"
 pend="$rt/ddc-brightness.pending"
 lock="$rt/ddc-brightness.lock"
+# Ultimo % del monitor externo. La laptop la recuerda systemd; el externo no
+# (y ktc-brightness.sh pone el backlight de laptop en 0, asi que no sirve de proxy).
+levelfile="$rt/ddc-brightness.level"
+
+clamp() { local v=$1; ((v<0)) && v=0; ((v>100)) && v=100; echo "$v"; }
 
 # Detecta los buses i2c de los monitores externos y los cachea en busfile.
 # Escribe "none" si no hay ninguno (solo pantalla de laptop).
@@ -17,16 +22,22 @@ case $1 in
 up)   d=1 ;;
 down) d=-1 ;;
 init)
-    # Espeja el % actual del backlight de la laptop a los monitores externos.
-    # Asi el externo "recuerda" el ultimo brillo sin guardar estado aparte.
-    level="${2:-$(brightnessctl -m | cut -d, -f4 | tr -d '%')}"
-    : "${level:=5}"
+    # Restaura el ultimo % guardado (arg explicito > levelfile > 50).
+    level="$2"
+    [[ -z $level && -s $levelfile ]] && read -r level < "$levelfile"
+    : "${level:=50}"
     detect_buses
     [[ $(<"$busfile") == none ]] && exit 0
     while IFS= read -r bus; do
         ddcutil --bus "$bus" --skip-ddc-checks --noverify --sleep-multiplier .1 \
             setvcp 10 "$level" >/dev/null 2>&1
     done < "$busfile"
+    echo "$level" > "$levelfile"
+    exit 0
+    ;;
+test)
+    [[ $(clamp -5) == 0 && $(clamp 150) == 100 && $(clamp 40) == 40 ]] \
+        && echo OK || { echo FAIL; exit 1; }
     exit 0
     ;;
 *)    exit 0 ;;
@@ -48,6 +59,8 @@ worker() {
     # "none" = solo pantalla de laptop: sin buses externos, pero igual
     # ajustamos el backlight interno con brightnessctl más abajo.
     [[ "${buses[0]}" == none ]] && buses=()
+    local level=50
+    [[ -s $levelfile ]] && read -r level < "$levelfile"
     local empty=0 n op
     while :; do
         {
@@ -73,12 +86,16 @@ worker() {
             brightnessctl s "${n}%-" >/dev/null 2>&1 &
         fi
 
-        local failed=0
-        for bus in "${buses[@]}"; do
-            ddcutil --bus "$bus" --skip-ddc-checks --noverify --sleep-multiplier .1 \
-                setvcp 10 $op $n >/dev/null 2>&1 || failed=1
-        done
-        [[ $failed -eq 1 ]] && { rm -f "$busfile"; break; }
+        if [[ ${#buses[@]} -gt 0 ]]; then
+            local failed=0
+            for bus in "${buses[@]}"; do
+                ddcutil --bus "$bus" --skip-ddc-checks --noverify --sleep-multiplier .1 \
+                    setvcp 10 $op $n >/dev/null 2>&1 || failed=1
+            done
+            [[ $failed -eq 1 ]] && { rm -f "$busfile"; break; }
+            level=$(clamp $((level $op n)))
+            echo "$level" > "$levelfile"
+        fi
     done
 }
 worker &
