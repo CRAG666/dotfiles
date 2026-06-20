@@ -160,3 +160,4 @@ hunspell-es_mx
 gnome-disk-utility
 acpi
 syncthing
+sshpass

@@ -586,7 +586,7 @@ function _G._statusline.info()
 
   add_section(_G._statusline.ft())
 
-  if is_text[vim.bo.ft] and not vim.b.bigfile then
+  if not vim.bo.bin and is_text[vim.bo.ft] and not vim.b.bigfile then
     add_section(_G._statusline.wordcount())
   end
 

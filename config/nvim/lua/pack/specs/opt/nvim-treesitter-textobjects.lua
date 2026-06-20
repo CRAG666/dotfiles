@@ -81,9 +81,7 @@ return {
       vim.keymap.set({ 'n', 'x', 'o' }, ']O', function() goto_next_end('@loop.outer') end,              { desc = 'Go to next end of loop' })
       vim.keymap.set({ 'n', 'x', 'o' }, '][', function() goto_next_end('@function.outer') end,          { desc = 'Go to next end of function' })
       vim.keymap.set({ 'n', 'x', 'o' }, ']K', function() goto_next_end('@class.outer') end,             { desc = 'Go to next end of class' })
-      vim.keymap.set({ 'n', 'x', 'o' }, ']<', function() goto_next_end('@parameter.outer') end,         { desc = 'Go to next end of parameter' })
       vim.keymap.set({ 'n', 'x', 'o' }, ']/', function() goto_next_end('@comment.outer') end,           { desc = 'Go to next end of comment' })
-      vim.keymap.set({ 'n', 'x', 'o' }, ']>', function() goto_next_end('@block.outer') end,             { desc = 'Go to next end of block' })
 
       vim.keymap.set({ 'n', 'x', 'o' }, '[m', function() goto_previous_start('@function.outer') end,    { desc = 'Go to previous start of function' })
       vim.keymap.set({ 'n', 'x', 'o' }, '[o', function() goto_previous_start('@loop.outer') end,        { desc = 'Go to previous start of loop' })
@@ -100,9 +98,7 @@ return {
       vim.keymap.set({ 'n', 'x', 'o' }, '[O', function() goto_previous_end('@loop.outer') end,          { desc = 'Go to previous end of loop' })
       vim.keymap.set({ 'n', 'x', 'o' }, '[]', function() goto_previous_end('@function.outer') end,      { desc = 'Go to previous end of function' })
       vim.keymap.set({ 'n', 'x', 'o' }, '[K', function() goto_previous_end('@class.outer') end,         { desc = 'Go to previous end of class' })
-      vim.keymap.set({ 'n', 'x', 'o' }, '[<', function() goto_previous_end('@parameter.outer') end,     { desc = 'Go to previous end of parameter' })
       vim.keymap.set({ 'n', 'x', 'o' }, '[/', function() goto_previous_end('@comment.outer') end,       { desc = 'Go to previous end of comment' })
-      vim.keymap.set({ 'n', 'x', 'o' }, '[>', function() goto_previous_end('@block.outer') end,         { desc = 'Go to previous end of block' })
 
       vim.keymap.set('n', 'gsh',       function() swap_previous('@parameter.inner') end, { desc = 'Swap with previous parameter' })
       vim.keymap.set('n', 'gs<Left>',  function() swap_previous('@parameter.inner') end, { desc = 'Swap with previous parameter' })

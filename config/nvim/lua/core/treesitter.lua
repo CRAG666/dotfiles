@@ -1,4 +1,4 @@
-local ts = require('utils.ts')
+local ts = require('my.utils.ts')
 
 -- Fix treesitter bug: when `vim.treesitter.start/stop` is called with a
 -- different `buf` from current buffer, it can affect current buffer's
@@ -32,8 +32,8 @@ local function enable_ts_hl(buf)
   pcall(vim.treesitter.start, buf)
 end
 
-vim.api.nvim_create_autocmd('FileType', {
-  group = vim.api.nvim_create_augroup('ts.auto_start', {}),
+vim.api.nvim_create_autocmd({ 'BufEnter', 'FileType' }, {
+  group = vim.api.nvim_create_augroup('my.ts.auto_start', {}),
   desc = 'Automatically start treesitter highlighting for buffers.',
   callback = function(args)
     enable_ts_hl(args.buf)
@@ -64,8 +64,8 @@ local function enable_ts_folding(buf)
   end
 end
 
-vim.api.nvim_create_autocmd('FileType', {
-  group = vim.api.nvim_create_augroup('ts.set_folding', {}),
+vim.api.nvim_create_autocmd({ 'BufEnter', 'FileType' }, {
+  group = vim.api.nvim_create_augroup('my.ts.set_folding', {}),
   desc = 'Set treesitter folding.',
   callback = function(args)
     enable_ts_folding(args.buf)

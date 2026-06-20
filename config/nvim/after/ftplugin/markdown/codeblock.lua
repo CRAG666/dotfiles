@@ -20,10 +20,15 @@ local dash_string = '-'
 ---@param buf? integer
 local function refresh(buf)
   buf = vim._resolve_bufnr(buf)
-  if not vim.api.nvim_buf_is_valid(buf) then
+  if
+    not vim.api.nvim_buf_is_valid(buf)
+    or vim.bo.ft ~= ft
+    or vim.b[buf].codeblock_refresh_changed_tick == vim.b[buf].changedtick
+  then
     return
   end
 
+  vim.b[buf].codeblock_refresh_changed_tick = vim.b[buf].changedtick
   vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
 
   if
@@ -125,7 +130,7 @@ vim.api.nvim_create_autocmd({
   'TextChanged',
 }, {
   group = groupid,
-  desc = 'Refresh headlines.',
+  desc = 'Refresh codeblocks and headlines.',
   callback = function(args)
     refresh(args.buf)
   end,
@@ -134,9 +139,19 @@ vim.api.nvim_create_autocmd({
 vim.api.nvim_create_autocmd('Syntax', {
   group = groupid,
   pattern = ft,
-  desc = 'Refresh headlines.',
+  desc = 'Refresh codeblocks and headlines.',
   callback = function(args)
     refresh(args.buf)
+  end,
+})
+
+vim.api.nvim_create_autocmd('BufEnter', {
+  group = groupid,
+  desc = 'Refresh codeblocks and headlines.',
+  callback = function(args)
+    if vim.bo[args.buf].ft == ft then
+      refresh(args.buf)
+    end
   end,
 })
 

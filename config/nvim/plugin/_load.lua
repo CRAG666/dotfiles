@@ -131,6 +131,7 @@ if vim.g.loaded_session == nil then
     'SessionRemove',
     'SessionSelect',
     'Mkssession',
+    'Restart',
   }, 'plugin.session', setup)
 end
 

@@ -24,7 +24,7 @@ require('utils.load').on_events(
         modes = { modes }
       end
 
-      if not opts or not opts.buffer then -- global keymaps
+      if not opts or not opts.buf then -- global keymaps
         for _, mode in ipairs(modes) do
           if not keymaps[mode] then
             keymaps[mode] = {}
@@ -37,7 +37,7 @@ require('utils.load').on_events(
           end
         end
       else -- buffer-local keymaps
-        local buf = type(opts.buffer) == 'number' and opts.buffer or 0 --[[@as integer]]
+        local buf = type(opts.buf) == 'number' and opts.buf or 0 --[[@as integer]]
         if not buf_keymaps[buf] then
           buf_keymaps[buf] = {}
         end
@@ -203,6 +203,18 @@ require('utils.load').on_events(
         expr = true,
         replace_keycodes = false,
         desc = 'Clear and redraw screen',
+      }
+    )
+
+    -- Edit current file's directory
+    map(
+      { 'n', 'x' },
+      '-',
+      [[isdirectory(expand('%:p:h')) ? '<Cmd>e%:p:h<CR>' : '<Cmd>e ' . fnameescape(getcwd(0)) . '<CR>']],
+      {
+        expr = true,
+        replace_keycodes = false,
+        desc = "Edit current file's directory",
       }
     )
 
@@ -401,6 +413,18 @@ require('utils.load').on_events(
     map({ 'o' }, 'g}', '<Cmd>silent! exe "normal V" . v:count1 . "g}"<CR>', { noremap = false, desc = 'Go to the last line of paragraph' })
     map({ 'n', 'x' }, 'g{', goto_paragraph_firstline, { noremap = false, desc = 'Go to the first line of paragraph' })
     map({ 'n', 'x' }, 'g}', goto_paragraph_lastline, { noremap = false, desc = 'Go to the last line of paragraph' })
+    -- stylua: ignore end
+
+    -- Jump to git conflict markers
+    -- stylua: ignore start
+    map({ 'n', 'x', 'o' }, '[<', function() vim.fn.search('^<\\{7}', 'sb') end, { desc = 'Go to previous git conflict start' })
+    map({ 'n', 'x', 'o' }, ']<', function() vim.fn.search('^<\\{7}', 's') end,  { desc = 'Go to next git conflict start' })
+    map({ 'n', 'x', 'o' }, '[>', function() vim.fn.search('^>\\{7}', 'sb') end, { desc = 'Go to previous git conflict end' })
+    map({ 'n', 'x', 'o' }, ']>', function() vim.fn.search('^>\\{7}', 's') end,  { desc = 'Go to next git conflict end' })
+    map({ 'n', 'x', 'o' }, '[x', function() vim.fn.search('^=\\{7}', 'sb') end, { desc = 'Go to previous git conflict mid' })
+    map({ 'n', 'x', 'o' }, ']x', function() vim.fn.search('^=\\{7}', 's') end,  { desc = 'Go to next git conflict mid' })
+    map({ 'n', 'x', 'o' }, '[|', function() vim.fn.search('^|\\{7}', 'sb') end, { desc = 'Go to previous git conflict base' })
+    map({ 'n', 'x', 'o' }, ']|', function() vim.fn.search('^|\\{7}', 's') end,  { desc = 'Go to next git conflict base' })
     -- stylua: ignore end
 
     map('n', '<Leader>Pu', vim.pack.update, { desc = 'Update plugins' })

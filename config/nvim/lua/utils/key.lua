@@ -169,7 +169,7 @@ function M.amend(modes, lhs, rhs, opts)
       return rhs(M.fallback_fn(key_def))
     end
 
-    if not key_def.buffer or opts.buffer then
+    if not key_def.buffer or opts.buf then
       vim.keymap.set(mode, lhs, rhs_fn, opts)
     else
       -- If the original key definition is a buffer mapping, we should also set

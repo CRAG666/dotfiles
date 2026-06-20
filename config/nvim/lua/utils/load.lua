@@ -59,6 +59,7 @@ end
 
 ---@class (partial) load.event.structured_spec : vim.api.keyset.create_autocmd
 ---@field event string
+---@field retrig boolean? Whether to re-trigger the event after loading to activate plugins depending on corresponding events, e.g. some plugins load themselves on FileType event. Default `false`
 
 ---@alias load.event.spec load.event.structured_spec|string
 ---@alias load.event.handler fun(args: vim.api.keyset.create_autocmd.callback_args): boolean?
@@ -70,22 +71,22 @@ local event_loaders = vim.defaulttable()
 ---Helper function that returns a function as event callback to trigger
 ---loaders given by `loaders`
 ---@param loaders load.event.handler[]
+---@param retrig boolean? Whether to re-trigger the event after loading to activate plugins depending on corresponding events, e.g. some plugins load themselves on FileType event. Default `false`
 ---@return load.event.handler
-local function trig_loaders_fn(loaders)
+local function trig_loaders_fn(loaders, retrig)
   return function(args)
     for i, loader in ipairs(loaders) do
       loader(args)
       loaders[i] = nil
     end
-    if not vim.api.nvim_buf_is_valid(args.buf) then
-      return
+    if retrig and vim.api.nvim_buf_is_valid(args.buf) then
+      vim.api.nvim_buf_call(args.buf, function()
+        vim.api.nvim_exec_autocmds(
+          args.event,
+          { pattern = args.match, data = args.data }
+        )
+      end)
     end
-    vim.api.nvim_buf_call(args.buf, function()
-      vim.api.nvim_exec_autocmds(
-        args.event,
-        { pattern = args.match, data = args.data }
-      )
-    end)
     return true
   end
 end
@@ -153,7 +154,7 @@ function M.on_events(event_specs, name, load)
             ),
             {}
           ),
-          callback = trig_loaders_fn(loaders),
+          callback = trig_loaders_fn(loaders, spec.retrig),
         })
       end
       table.insert(loaders, load)
@@ -179,7 +180,7 @@ function M.on_events(event_specs, name, load)
               ),
               {}
             ),
-            callback = trig_loaders_fn(loaders),
+            callback = trig_loaders_fn(loaders, spec.retrig),
           })
         end
         table.insert(loaders, load)
@@ -199,7 +200,7 @@ function M.on_events(event_specs, name, load)
             string.format('load.on_events.event.%s', spec.event),
             {}
           ),
-          callback = trig_loaders_fn(loaders),
+          callback = trig_loaders_fn(loaders, spec.retrig),
         })
       end
       table.insert(loaders, load)
@@ -339,7 +340,7 @@ function M.on_keys(key_specs, name, load)
       -- for such plugin, the one that is not used as the initial trigger can
       -- has wrong definition
       for _, s in ipairs(keys[name] or {}) do
-        local buf = s.opts and (s.opts.buffer == true and 0 or s.opts.buffer)
+        local buf = s.opts and (s.opts.buf == true and 0 or s.opts.buf)
         if buf then
           for _, mode in
             ipairs(s.mode --[=[@as string[]]=])
