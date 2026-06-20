@@ -52,7 +52,7 @@ def ghgram [] {
 
 def gdiff [commit1: string, commit2: string = "HEAD", --full(-f)] {
   if $full {
-    git diff $commit1 $commit2 | delta
+    git diff --color=always $commit1 $commit2
   } else {
     git diff --stat $commit1 $commit2
     | lines

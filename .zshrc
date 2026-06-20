@@ -124,7 +124,7 @@ zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|
 	fzf-preview 'echo ${(P)word}'
 zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word'
 zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview \
-	'git diff $word | delta'
+	'git diff --color=always $word'
 zstyle ':fzf-tab:complete:git-log:*' fzf-preview \
 	'git log --color=always $word'
 zstyle ':fzf-tab:complete:git-help:*' fzf-preview \
@@ -132,12 +132,12 @@ zstyle ':fzf-tab:complete:git-help:*' fzf-preview \
 zstyle ':fzf-tab:complete:git-show:*' fzf-preview \
 	'case "$group" in
 	"commit tag") git show --color=always $word ;;
-	*) git show --color=always $word | delta ;;
+	*) git show --color=always $word ;;
 	esac'
 zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
 	'case "$group" in
-	"modified file") git diff $word | delta ;;
-	"recent commit object name") git show --color=always $word | delta ;;
+	"modified file") git diff --color=always $word ;;
+	"recent commit object name") git show --color=always $word ;;
 	*) git log --color=always $word ;;
 	esac'
 zstyle ':fzf-tab:complete:*:options' fzf-preview

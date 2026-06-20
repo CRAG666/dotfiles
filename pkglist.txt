@@ -34,7 +34,6 @@ gocryptfs
 eza
 git
 git-crypt
-git-delta
 git-filter-repo
 topgrade
 ttyper
@@ -70,6 +69,8 @@ luarocks
 corkscrew
 chawan
 ccache
+jujutsu
+hunk-bin
 
 # Monitoring
 btop
@@ -158,3 +159,4 @@ hunspell-en_us
 hunspell-es_mx
 gnome-disk-utility
 acpi
+syncthing

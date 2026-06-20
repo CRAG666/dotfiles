@@ -85,8 +85,8 @@ readonly SWITCHES=(
   'config/yazi/flavors/eyes.yazi|eyes-light.yazi|eyes-dark.yazi'
   'config/termusic/tui.toml|tui.eyes.toml|tui.eyes-dark.toml'
   'config/mpv/colors.conf|colors.eyes.conf|colors.eyes-dark.conf'
-  # -- Group D: git delta theme (include split out of ~/.gitconfig) --
-  '.eyes-delta-active.gitconfig|.eyes-delta-light.gitconfig|.eyes-delta-dark.gitconfig'
+  # -- Group D: hunk diff theme (TOML with inline colors; hand-tuned pair) --
+  'config/hunk/config.toml|config.eyes.toml|config.eyes-dark.toml'
 )
 
 # GENERATE — build each dark variant from its light canonical.
@@ -96,7 +96,7 @@ readonly SWITCHES=(
 #          colorsenv  — hash + flip BAT_THEME="eyes" -> "eyes-dark"
 #          starship   — flip `palette = "eyes"` -> "eyes-dark" (palettes inline)
 #          yaziflavor — copy the flavor dir, then hash-swap flavor.toml/tmtheme
-# Hand-tuned pairs (gitconfig delta, nvim, doom, bat, neorg) are NOT listed.
+# Hand-tuned pairs (hunk, nvim, doom, bat, neorg) are NOT listed.
 readonly GENERATE=(
   'config/foot/colors.eyes.ini|config/foot/colors.eyes-dark.ini|bare'
   'config/dunst/colors.eyes.conf|config/dunst/colors.eyes-dark.conf|hash'
@@ -205,6 +205,7 @@ generate() {
         script="$(build_hex_sed_script to-dark hash)"
         sed -E "$script" "$src" >"$out"
         sed -i -E 's/BAT_THEME="eyes"/BAT_THEME="eyes-dark"/' "$out"
+        bat cache --build
         ;;
       starship)
         sed -E 's/^palette = "eyes"$/palette = "eyes-dark"/' "$src" >"$out"

@@ -1,0 +1,60 @@
+# Eyes — dark variant. Forest palette (mirrors config/nvim/colors/eyes.lua).
+# Hand-tuned counterpart of config.eyes.toml.
+theme = "custom"
+
+[custom_theme]
+base = "github-dark-default"
+label = "Eyes Dark"
+# UI surfaces — bg ladder
+background = "#1a211a"
+panel = "#202820"
+panelAlt = "#263026"
+border = "#536053"
+accent = "#6a94a8"
+accentMuted = "#8a9a88"
+text = "#d0dcc8"
+muted = "#9aab94"
+# Diff line backgrounds — darker than the forest bg so strips pop subtly
+addedBg = "#324a2e"
+removedBg = "#3f2e25"
+addedContentBg = "#4a6646"
+removedContentBg = "#714c41"
+contextBg = "#202820"
+contextContentBg = "#1a211a"
+# Move detection — subtle saturated dark tints, hue-distinct
+movedAddedBg = "#243224"
+movedRemovedBg = "#322848"
+# Signs and gutter
+addedSignColor = "#7aab72"
+removedSignColor = "#c87868"
+lineNumberBg = "#202820"
+lineNumberFg = "#8a9a88"
+selectedHunk = "#2d382d"
+# Badges
+badgeAdded = "#7aab72"
+badgeRemoved = "#c87868"
+badgeNeutral = "#8a9a88"
+# File status
+fileNew = "#7aab72"
+fileDeleted = "#c87868"
+fileRenamed = "#d4b85a"
+fileModified = "#6a94a8"
+fileUntracked = "#8a9a88"
+# Notes
+noteBorder = "#536053"
+noteBackground = "#263026"
+noteTitleBackground = "#3a463a"
+noteTitleText = "#d0dcc8"
+
+[custom_theme.syntax]
+default = "#d0dcc8"
+keyword = "#c87868"
+string = "#7aab72"
+comment = "#7a8a78"
+number = "#9090b8"
+function = "#6a94a8"
+property = "#5ab8a8"
+type = "#c8a870"
+variable = "#b8c8b0"
+operator = "#7a8c72"
+punctuation = "#9aab94"

@@ -1,0 +1,60 @@
+# Eyes — light variant. Sage-green palette (mirrors config/nvim/colors/eyes.lua).
+# Generated dark variant: config.eyes-dark.toml (hand-tuned, kept in sync by hand).
+theme = "custom"
+
+[custom_theme]
+base = "github-light-default"
+label = "Eyes"
+# UI surfaces — bg ladder
+background = "#add4a0"
+panel = "#a4cc98"
+panelAlt = "#9fc895"
+border = "#2c4028"
+accent = "#1e4868"
+accentMuted = "#486040"
+text = "#1a1a1a"
+muted = "#3d5c38"
+# Diff line backgrounds — paler than the sage bg so strips pop
+addedBg = "#e0f0d8"
+removedBg = "#f4e0d4"
+addedContentBg = "#b8d8a8"
+removedContentBg = "#e0b8a4"
+contextBg = "#a4cc98"
+contextContentBg = "#add4a0"
+# Move detection — hue-distinct pale washes
+movedAddedBg = "#d4e4c4"
+movedRemovedBg = "#ecd8ec"
+# Signs and gutter
+addedSignColor = "#1e4a18"
+removedSignColor = "#7a1e18"
+lineNumberBg = "#a4cc98"
+lineNumberFg = "#486040"
+selectedHunk = "#96be8c"
+# Badges
+badgeAdded = "#1e4a18"
+badgeRemoved = "#7a1e18"
+badgeNeutral = "#486040"
+# File status
+fileNew = "#1e4a18"
+fileDeleted = "#7a1e18"
+fileRenamed = "#5a4808"
+fileModified = "#1e4868"
+fileUntracked = "#486040"
+# Notes
+noteBorder = "#2c4028"
+noteBackground = "#9fc895"
+noteTitleBackground = "#88b07e"
+noteTitleText = "#1a1a1a"
+
+[custom_theme.syntax]
+default = "#1a1a1a"
+keyword = "#7a1e18"
+string = "#2a5c22"
+comment = "#385030"
+number = "#3a2860"
+function = "#1e4868"
+property = "#145850"
+type = "#7a4a18"
+variable = "#1e2e1c"
+operator = "#365c25"
+punctuation = "#3d5c38"

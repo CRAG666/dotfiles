@@ -587,7 +587,7 @@ config/oama/*.auth
 # moves, so toggling the theme never dirties the repo.
 /.tmux.colors.conf
 /.Xresources
-/.eyes-delta-active.gitconfig
+/config/hunk/config.toml
 /config/eza/theme.yml
 /config/zsh-patina/theme.toml
 /config/swaylock/config
