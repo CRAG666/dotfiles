@@ -299,3 +299,38 @@ Spellcheckers do not catch a correctly spelled wrong word. Verify these by meani
 - **its / it's** - *its* = possessive; *it's* = "it is"/"it has" (and a contraction, so avoided in academic prose anyway).
 - **i.e. / e.g.** - *i.e.* (id est) = "that is," "in other words"; *e.g.* (exempli gratia) = "for example."
 - **prescribe / proscribe** - *prescribe* = recommend or authorize; *proscribe* = forbid, prohibit.
+- **complementary / complimentary** - *complementary* = completing, going together (*complementary medicine*); *complimentary* = praising, or free of charge.
+- **lead / led** - *lead* (rhymes with *seed*) = present tense verb, or (rhymes with *bed*) the metal; *led* = past tense of the verb.
+- **lose / loose** - *lose* = to mislay or be deprived of; *loose* = not tight, lax (*a loosely worded argument*).
+- **advise / advice** - *advise* = verb; *advice* = noun.
+
+## Confusing prefixes
+
+These pairs change the meaning of a term entirely; verify by sense:
+
+- **anti-** (against) vs **ante-** (before): *antibody, antiwar* vs *antecedent, antenatal*.
+- **hyper-** (over, above) vs **hypo-** (under, below): *hyperactive, hypertension* vs *hypodermic, hypothermia*.
+- **inter-** (between) vs **intra-** (within): *international, interlibrary* vs *intravenous, intramural*.
+
+## Ambiguous words to avoid or sharpen
+
+- **quite** and **rather** are ambiguous in academic prose: each can mean either *relatively* or *very*. Replace with the precise sense: *the results were relatively poor* or *the results were very poor*, not *quite poor*.
+- **the former / the latter** are now stilted and force the reader to backtrack; repeat the noun instead.
+
+## US / British spelling
+
+SKILL.md principle 8 mandates US spelling throughout. The differences fall into regular patterns; convert the British form (left) to the US form (right):
+
+- **-our -> -or:** colour -> color, behaviour -> behavior, favour -> favor, labour -> labor, tumour -> tumor, vapour -> vapor, rigour -> rigor.
+- **-ae-/-oe- -> -e-:** anaemia -> anemia, anaesthesia -> anesthesia, haematology -> hematology, leukaemia -> leukemia, paediatric -> pediatric, orthopaedic -> orthopedic; oesophagus -> esophagus, oestrogen -> estrogen, diarrhoea -> diarrhea, coeliac -> celiac, foetus -> fetus.
+- **-re -> -er:** centre -> center, fibre -> fiber, litre -> liter, metre -> meter, theatre -> theater. (Exceptions kept in both: *acre*; and *-er* device names.)
+- **-ce -> -se (nouns):** defence -> defense, offence -> offense, licence -> license, practice/practise -> US uses *practice* for both noun and verb.
+- **-ise/-yse -> -ize/-yze:** organise -> organize, analyse -> analyze, catalyse -> catalyze, paralyse -> paralyze, hydrolyse -> hydrolyze.
+- **-ph- -> -f-:** sulphur -> sulfur, sulphate -> sulfate.
+- **-ll- -> -l- (before suffix):** travelled -> traveled, modelling -> modeling, labelled -> labeled, counselling -> counseling, cancelled -> canceled. (But some go the other way: *fulfil -> fulfill*, *enrol -> enroll*, *skilful -> skillful*.)
+- **long -> short ending:** catalogue -> catalog, dialogue -> dialog (often kept), analogue -> analog (computing), programme -> program. (Both keep *diagram, histogram, synagogue*.)
+- **other:** grey -> gray, mould -> mold, plough -> plow, cheque -> check, kerb -> curb, tyre -> tire.
+
+**Exception - always *-s*, never *-ize*:** a set of verbs are spelled with *-ise/-yse* (or just *s*) in **both** US and British English because the ending is not the *-ize* suffix. Do not "correct" these: *advertise, advise, arise, comprise, compromise, despise, devise, exercise, improvise, revise, supervise, surmise, surprise, televise*. Likewise *-yse* exceptions do not apply to *lyse* (same in both).
+
+When unsure, set the document language to US English and use one dictionary throughout; consistency matters as much as the individual choice.

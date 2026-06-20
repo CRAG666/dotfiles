@@ -5,7 +5,7 @@ HYPR_PKGS := hyprland xdg-desktop-portal-hyprland hyprland-guiutils \
 	     hyprland-qt-support hyprsunset hyprtoolkit hyprutils
 
 WAYLAND_PKGS := wl-kbptr wlrctl wtype wl-clipboard swaylock-effects swayidle rofi qt6-wayland \
-                imv kitty egl-wayland cliphist greetd-regreet \
+                kitty egl-wayland cliphist greetd-regreet \
                 xdg-desktop-portal-termfilechooser-hunkyburrito-git \
                 xdg-desktop-portal-gtk dunst awww quickshell \
 		rofi-polkit-agent-git pinentry-rofi nwg-look

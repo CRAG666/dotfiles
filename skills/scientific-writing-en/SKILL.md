@@ -80,6 +80,7 @@ Before returning a draft, verify:
 - [ ] No contractions, colloquialisms, rhetorical questions in body prose.
 - [ ] Tense use is consistent within section (past for completed methods/findings; present perfect for the literature; present for established knowledge and what the paper does).
 - [ ] No tautology ("past history", "future prospects", "positive benefit"). See `academic-style.md`.
+- [ ] Borrowed-noun plurals and agreement are correct ("the data are", "these criteria", "this phenomenon"); US spelling throughout (no analyse/behaviour/centre). See `grammar-numbers-units.md` and `academic-style.md`.
 - [ ] No decorative Unicode: no em dash (U+2014), en dash (U+2013), curly quotes (U+201C/201D/2018/2019), ellipsis glyph (U+2026), or non-breaking spaces. Use a spaced hyphen, straight quotes, three periods, and normal spaces instead. Output is plain ASCII.
 
 ## Reference index
@@ -97,9 +98,10 @@ IMRaD structure and front matter:
 Structural and stylistic craft (use across all sections):
 
 - `paragraph-structure.md` - Topic sentences, controlling idea + supporting detail, given-new ordering, cohesion devices, paragraph-level moves, worked examples.
-- `academic-style.md` - Formality register, avoiding colloquialism / contraction / tautology, weak-verb replacement, vague intensifiers, bias-free language, nominalization.
+- `academic-style.md` - Formality register, avoiding colloquialism / contraction / tautology / cliche, weak-verb replacement, vague intensifiers, bias-free language, nominalization, commonly confused word pairs, confusing prefixes, ambiguous words, and US/British spelling conversion.
 - `shared-knowledge-signposting.md` - Indicating shared knowledge ("It is widely accepted..."), previewing sections, transitioning between sections, summarizing and re-orienting the reader.
-- `punctuation-articles.md` - Mechanical correctness rules: comma / semicolon / colon / quotation-mark / dash / apostrophe usage, and article use (a/an/the/zero) with countable, uncountable, plural nouns and names. Use when editing for correctness, not phrasing.
+- `punctuation-articles.md` - Mechanical correctness rules: comma / semicolon / colon / quotation-mark / dash / apostrophe / end-mark usage, abbreviations and acronyms, capitalization, punctuating titles/legends/bullets, and article use (a/an/the/zero) with countable, uncountable, plural nouns and names. Use when editing for correctness, not phrasing.
+- `grammar-numbers-units.md` - Irregular plurals (datum/data, criterion/criteria, phenomenon/phenomena, analysis/analyses...), subject-verb agreement on borrowed nouns, singular-looking disciplines/diseases (statistics, diabetes), noncount nouns (research, evidence), number style (words vs figures, sentence-initial numbers, thousands/decimals, percent, Roman numerals), and SI prefixes and units. Use when editing for correctness, mainly in Methods and Results.
 
 Transverse functions (useful in every section):
 

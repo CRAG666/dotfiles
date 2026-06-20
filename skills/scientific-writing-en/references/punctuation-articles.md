@@ -52,6 +52,30 @@ Mechanical rules that keep academic prose clear and unambiguous. Use this file w
 - Marks the possessive: the study's aim, the participants' responses (plural possessive after the s).
 - Do NOT use it for plurals (the 1990s, several PhDs) or in "its" (possessive) versus "it's" (= it is; avoided in formal prose anyway).
 
+### Question mark and exclamation mark
+
+- The exclamation mark has essentially no place in academic body prose; remove it. The question mark is used only for genuine questions (a listed research question), not for rhetorical questions inside paragraphs (see `academic-style.md`).
+
+## Abbreviations and acronyms
+
+- **Define on first use** - spell out the term with the abbreviation in parentheses the first time it appears, or list it in a table of abbreviations. Even standard abbreviations may be opaque to readers in an adjacent subfield, so do not assume. Define abbreviations used in tables and figures in the legend as well.
+- **Periods (US) vs none (GB).** US English uses more stops (*Ph.D., U.S., Dr., Dept.*) than British (*PhD, UK, Dr, Dept*); some US authorities also drop them. Acronyms, chemical elements and units take no periods in either variety: *AIDS, DNA, Fe, Cu, kg, Hz*. Be consistent.
+- **Plurals take no apostrophe:** *NGOs, MPs, CEOs* (not *NGO's*). A few scholarly abbreviations pluralize by doubling the letter: *p./pp.* (page/pages), *l./ll.* (line/lines), *f./ff.* (following), *MS/MSS* (manuscript/manuscripts), *sp./spp.* (species).
+- **Do not pluralize unit symbols:** *50 cm, 90 kg* (not *cms, kgs*). See `grammar-numbers-units.md`.
+- **Possessive uses the apostrophe normally:** *the UN's role*, *MEPs' expenses*.
+- **US state / Canadian province abbreviations** appear in reference lists for publishers and equipment makers. Use either the two-letter postal codes (*CA, MA, DC; ON, BC, QC*) or the traditional forms (*Calif., Mass., D.C.; Ont., B.C., Que.*) consistently throughout - do not mix the two systems.
+
+## Capitalization
+
+- **Specific vs general.** Capitalize the name or title of a specific person, place or thing; use lower case for general terms. *the University of Manchester* but *a university*; *the Linguistics Department* but *a department of linguistics*; *Professor Smith* but *a professor*. Where a field allows either heavier or lighter capitalization, pick one and keep a style sheet for consistency.
+- **Parts of a work.** Decide once whether cross-references are capitalized (*see Chapter 1, Table 4.5, Figure 6*) or not (*see chapter 1, table 4.5*), and follow the target journal's convention.
+- **Titles.** Either title case (capitalize all main words: *A Vindication of the Rights of Woman*) or sentence case (capitalize only the first word and proper nouns: *A vindication of the rights of woman*). In title case, do not capitalize minor words unless first: articles (*a, an, the*), coordinators (*and, but, or, nor, if*), short prepositions (*in, on, of, to, at, for, with, by, about*), and *is/are*. A common reference style uses title case for book and journal titles but sentence case for article titles - be consistent.
+
+## Punctuating titles, legends and bullets
+
+- Headings and figure/table titles usually take no closing period. Table titles conventionally sit above the table, figure captions below the figure.
+- In a bulleted or numbered list, choose one style: either each item is a fragment with no terminal punctuation, or each is a full sentence ending in a period. Do not mix. Bullets are acceptable only in genuine enumerations, not inside body paragraphs (SKILL.md principle 7).
+
 ## Article use (a / an / the / zero)
 
 Article use is complex, but a few rules resolve most cases.

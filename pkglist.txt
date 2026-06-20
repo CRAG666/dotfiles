@@ -38,7 +38,6 @@ git-filter-repo
 topgrade
 ttyper
 rsync
-glow
 prettyping
 bob
 cht.sh-git
@@ -46,7 +45,7 @@ bat
 yazi
 ffmpeg
 ffmpegthumbnailer
-p7zip
+7zip
 jq
 poppler
 fd
@@ -71,6 +70,7 @@ chawan
 ccache
 jujutsu
 hunk-bin
+fetch-git
 
 # Monitoring
 btop

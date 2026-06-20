@@ -197,7 +197,6 @@ alias viml='vim ~/.config/nvim/lua/core/lsp.lua'
 alias vl='vim -c "Neorg workspace life"'
 alias va='vim -c "Neorg workspace academic"'
 # HACK: Config alias
-alias newmc="vim ~/.config/newm/config.py"
 alias hyprc="vim ~/.config/hypr/hyprland.conf"
 alias scrollc="vim ~/.config/scroll/config"
 alias keydc="vim ~/Git/dotfiles/etc/keyd/default.conf"
