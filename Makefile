@@ -166,6 +166,10 @@ scroll: wayland ## Configure Scroll (Wayland)
 	$(call install_pkgs,$(SCROLL_PKGS))
 
 suspend: ## Configure suspend-on-lid (battery only); idle lock/DPMS via swayidle
+	@echo "==> Installing power-profile auto-switch udev rule..."
+	sudo install -Dm 644 ${PWD}/etc/udev/rules.d/99-power-profile.rules \
+		/etc/udev/rules.d/99-power-profile.rules
+	@sudo udevadm control --reload || true
 	@echo "==> Configuring logind (suspend on lid, battery only)..."
 	sudo install -Dm 644 ${PWD}/etc/systemd/logind.conf.d/10-lid-battery.conf \
 		/etc/systemd/logind.conf.d/10-lid-battery.conf

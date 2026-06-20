@@ -33,13 +33,11 @@ exec ~/.scripts/cloud_mount
 exec systemctl --user start podman.socket
 exec ~/Git/selfhost/instances.sh
 exec ~/.scripts/check_battery.sh
-# Inactividad: bloqueo (5 min) + apagado de pantalla (10 min) + lock antes de suspender.
-# -w hace que swayidle espere a que swaylock termine antes de suspender (config/swayidle/config).
 exec swayidle -w
-exec brightnessctl s 1212 && ~/.config/scroll/brightness.sh init
+exec ~/.config/scroll/brightness.sh init
 # Re-detecta monitores al conectar/desconectar (mantiene vivas las teclas de brillo).
 exec ~/.config/scroll/brightness-hotplug.sh
-exec rewaita -b &
+exec rfkill block bluetooth
 
 # Turn the laptop backlight off whenever the "Shenzhen KTC" monitor is detected.
 exec ~/.config/scroll/ktc-brightness.sh
