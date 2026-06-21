@@ -381,9 +381,7 @@ animations {
     bindsym $mod+Shift+m exec ~/.config/scroll/scroll-mark-toggle.sh
     bindsym $mod+apostrophe exec ~/.config/scroll/scroll-mark-switch.sh
 
-    # HDR toggle (KTC). HDR bloquea DDC/CI: con HDR on no hay control de brillo.
-    # Borra el caché de buses para que brightness.sh redetecte al volver a SDR.
-    bindsym $mod+Mod1+h exec scrollmsg output DP-1 hdr toggle; exec rm -f "${XDG_RUNTIME_DIR:-/tmp}/ddc-brightness.bus"
+    # bindsym $mod+Mod1+h exec scrollmsg output DP-1 hdr toggle && rm -f "${XDG_RUNTIME_DIR:-/tmp}/ddc-brightness.bus"
 
 # Scratchpad
     bindsym $mod+d scratchpad show
