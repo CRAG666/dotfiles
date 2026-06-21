@@ -4,7 +4,7 @@ export GOPATH := ${HOME}
 HYPR_PKGS := hyprland xdg-desktop-portal-hyprland hyprland-guiutils \
 	     hyprland-qt-support hyprsunset hyprtoolkit hyprutils
 
-WAYLAND_PKGS := wl-kbptr wlrctl wtype wl-clipboard swaylock-effects swayidle rofi qt6-wayland \
+WAYLAND_PKGS := wtype wl-clipboard swaylock-effects swayidle rofi qt6-wayland \
                 kitty egl-wayland cliphist greetd-regreet \
                 xdg-desktop-portal-termfilechooser-hunkyburrito-git \
                 xdg-desktop-portal-gtk dunst awww quickshell \

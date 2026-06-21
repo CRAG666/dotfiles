@@ -131,7 +131,6 @@ clinfo
 # Utilities
 podman
 podman-compose
-podman-tui
 parallel
 pacman-contrib
 nushell

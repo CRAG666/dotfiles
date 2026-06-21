@@ -710,3 +710,5 @@ for_window [class="xwaylandvideobridge"] opacity 0, floating enable, sticky enab
 for_window [title="Firefox — Sharing Indicator"] move scratchpad
 for_window [title="Firefox - Indicador de compartición"] move scratchpad
 for_window [title="(?i).*is sharing (your screen|a window).*"] move scratchpad
+for_window [app_id="pinentry"] floating enable
+for_window [class="Pinentry"] floating enable

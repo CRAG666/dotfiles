@@ -89,7 +89,7 @@ get_wallpapers_and_hashes() {
         fi
         # Usar mapfile para leer de forma segura los resultados de fd (maneja espacios en nombres de archivo)
         # fd busca archivos con las extensiones especificadas en el directorio de búsqueda
-        mapfile -t found_files_in_path < <(fd --type f --extension jpg --extension jpeg --extension png --extension gif --extension bmp --extension tiff --extension svg . "$search_path_expanded")
+        mapfile -t found_files_in_path < <(fd --type f --extension jpg --extension jpeg --extension png --extension gif --extension bmp --extension tiff --extension svg --extension webp . "$search_path_expanded")
         all_found_files+=("${found_files_in_path[@]}")
     done
 
