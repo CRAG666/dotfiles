@@ -87,12 +87,15 @@ worker() {
         fi
 
         if [[ ${#buses[@]} -gt 0 ]]; then
-            local failed=0
+            local ok=0
             for bus in "${buses[@]}"; do
                 ddcutil --bus "$bus" --skip-ddc-checks --noverify --sleep-multiplier .1 \
-                    setvcp 10 $op $n >/dev/null 2>&1 || failed=1
+                    setvcp 10 $op $n >/dev/null 2>&1 && ok=1
             done
-            [[ $failed -eq 1 ]] && { rm -f "$busfile"; break; }
+            # Redetecta solo si NINGUN bus respondio (desconexion total). Un
+            # monitor sin DDC o un timeout puntual se ignora; los demas siguen
+            # y el fallido se reintenta en la proxima pulsacion.
+            [[ $ok -eq 0 ]] && { rm -f "$busfile"; break; }
             level=$(clamp $((level $op n)))
             echo "$level" > "$levelfile"
         fi
