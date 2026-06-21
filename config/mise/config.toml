@@ -5,13 +5,20 @@
 UV_PRERELEASE = "allow"
 
 [tools]
+carapace = "latest"
+"cargo:cpx" = "latest"
+"cargo:ripdrag" = "latest"
+"cargo:zsh-patina" = "latest"
 claude = "latest"
 dotnet = "10.0"
+"github:pdobsan/oama" = "latest"
+hunk = "latest"
 node = "latest"
 "npm:oh-my-logo" = "latest"
 opencode = "latest"
 "pipx:BeatPrints" = "latest"
 "pipx:markitdown" = { version = "latest", extras = "all" }
+topgrade = "latest"
 uv = "latest"
 
 [settings]

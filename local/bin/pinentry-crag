@@ -1,2 +1,4 @@
 #!/bin/bash
-exec /usr/bin/pinentry-rofi -- -theme ~/.config/rofi/text/confirm.rasi "$@"
+# pinentry-rofi (AUR) reemplazado por pinentry-qt (oficial, qt6-base ya instalado).
+# Se pierde el tema rofi: no hay pinentry con UI rofi en repos oficiales.
+exec /usr/bin/pinentry-qt "$@"

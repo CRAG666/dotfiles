@@ -2,6 +2,8 @@
 $env.VISUAL = $"($env.HOME)/.local/share/bob/nvim-bin/nvim"
 $env.EDITOR = $env.VISUAL
 $env.PYTHONSTARTUP = $"($env.HOME)/.pyrc"
+# gpg: el agente necesita el terminal actual para el pinentry (pass, git sign…).
+try { $env.GPG_TTY = (^tty | str trim) }
 
 # Vars temáticas (BAT_THEME, LS_COLORS) → fuente única: config/shell/colors.env (loader al final).
 
@@ -20,6 +22,10 @@ $env.DOT_DIR = $"($env.HOME)/Git/dotfiles"
 let zsh_paths = [
     $"($env.HOME)/.config/emacs/bin",
     $"($env.HOME)/.local/bin",
+    # shims de mise: expone carapace y demás tools ANTES de activar mise (mise.nu se
+    # carga en config.nu, después de este env.nu). Sin esto, el `carapace` de abajo
+    # dependía del binario de AUR en /usr/bin y se rompe al quitar AUR.
+    $"($env.HOME)/.local/share/mise/shims",
     $"($env.HOME)/.dotnet/tools",
     $"($env.HOME)/.local/share/bob/nvim-bin",
     $"($env.HOME)/.local/share/nvim/mason/bin",

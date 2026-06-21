@@ -18,7 +18,6 @@ udisks2
 
 # ZSH
 zsh
-zsh-patina-git
 resvg
 
 # CLI tools
@@ -35,12 +34,10 @@ eza
 git
 git-crypt
 git-filter-repo
-topgrade
 ttyper
 rsync
 prettyping
 bob
-cht.sh-git
 bat
 yazi
 ffmpeg
@@ -54,27 +51,20 @@ ripgrep-all
 fzf
 zoxide
 imagemagick
-mmv-c
-ripdrag
 rclone
 bc
-carapace-bin
-quarto-cli-bin
 gnome-epub-thumbnailer
 gitleaks
-cpx-copy
 mise
 luarocks
 corkscrew
 chawan
 ccache
 jujutsu
-hunk-bin
-fetch-git
 
 # Monitoring
 btop
-htop-vim
+htop
 fastfetch
 duf
 progress
@@ -90,7 +80,7 @@ wireplumber
 ttf-nerd-fonts-symbols
 ttf-nerd-fonts-symbols-common
 nerd-fonts-apple-hinted
-ttf-apple-emoji
+noto-fonts-emoji
 
 # Basic
 ntfs-3g
@@ -105,7 +95,6 @@ zathura-pdf-mupdf
 
 # Communication
 aerc
-oama-bin
 
 # Download
 nicotine+
@@ -115,14 +104,11 @@ lunacy-bin
 
 # Players
 mpv
-mpv-uosc
 mpv-mpris
-mpv-thumbfast-git
 termusic
 
 # Web Browsers
 zen-browser-bin
-firefox-tridactyl-native
 ungoogled-chromium-bin
 
 # Gaming

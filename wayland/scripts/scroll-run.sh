@@ -75,7 +75,6 @@ set_default_env() {
     export XCURSOR_THEME=Adwaita
     export XCURSOR_SIZE=30
     export MOZ_CURSOR_SIZE=30
-    export GPG_TTY=$(tty)
 }
 
 set_intel_env() {

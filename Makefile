@@ -8,7 +8,7 @@ WAYLAND_PKGS := wl-kbptr wlrctl wtype wl-clipboard swaylock-effects swayidle rof
                 kitty egl-wayland cliphist greetd-regreet \
                 xdg-desktop-portal-termfilechooser-hunkyburrito-git \
                 xdg-desktop-portal-gtk dunst awww quickshell \
-		rofi-polkit-agent-git pinentry-rofi nwg-look
+		mate-polkit nwg-look
 
 SCROLL_PKGS := sway-scroll xdg-desktop-portal-wlr
 
@@ -51,7 +51,7 @@ endef
 .DEFAULT_GOAL := help
 .PHONY: help install init theme bin makepkg systemd-user wayland hypr scroll \
         suspend laptop laptop-intel laptop-amd thinkpad thinkpad-amd nvidia inaoe unbound \
-        networkmanager dns podman_image test testpath clean p53 l14
+        networkmanager dns podman_image test testpath clean p53 l14 user-tools
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -78,7 +78,7 @@ install: makepkg ## Install Arch Linux packages using paru
 	@echo "==> Configuring bob (neovim version manager)..."
 	@command -v bob >/dev/null 2>&1 && bob use nightly || echo "bob not installed, skipping..."
 
-init: theme systemd-user bin ## Deploy the initial dotfiles
+init: theme systemd-user bin user-tools ## Deploy the initial dotfiles
 	@echo "==> Creating symlinks in the HOME directory"
 	@SRC_DIR=${PWD}; \
 	DOTFILES=$$(find $$SRC_DIR -mindepth 1 -maxdepth 1 -name ".*" \
@@ -119,6 +119,13 @@ bin: ## Link the local/bin scripts into ~/.local/bin
 	@for script in $$(find ${PWD}/local/bin -mindepth 1 -maxdepth 1 ! -name ".*" -exec basename {} \;); do \
 		ln -vsfn "${PWD}/local/bin/$$script" "${HOME}/.local/bin/$$script"; \
 	done
+
+user-tools: ## Install user-level tools sin AUR (cht.sh + tridactyl native messenger)
+	@echo "==> Installing cht.sh into ~/.local/bin..."
+	@mkdir -p ${HOME}/.local/bin
+	@curl -fsSL https://cht.sh/:cht.sh -o ${HOME}/.local/bin/cht.sh && chmod +x ${HOME}/.local/bin/cht.sh
+	@echo "==> Installing Tridactyl native messenger (user-level, sin root)..."
+	@curl -fsSL https://raw.githubusercontent.com/tridactyl/native_messenger/master/installers/install.sh | sh
 
 makepkg: ## Install makepkg.conf in /etc (optimized compilation)
 	sudo install -m 644 ${PWD}/etc/makepkg.conf /etc/makepkg.conf

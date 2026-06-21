@@ -175,7 +175,7 @@ if [[ -r ~/.config/nushell/aliases.nu ]]; then
 fi
 # HACK: Command alternatives
 # alias vpn="~/.scripts/vpn"
-alias js="/usr/bin/node ~/.noderc"
+alias js="node ~/.noderc"
 alias ls="exa --icons"
 alias la="exa --icons -la"
 alias grep='grep --color=auto'
@@ -220,11 +220,12 @@ alias Usb="cd /run/media/$USER"
 alias paci="pacman -Slq | fzf --multi --preview 'pacman -Si {1}' | xargs -ro sudo pacman -S"
 alias pacr="pacman -Qq | fzf --multi --preview 'pacman -Qi {1}' | xargs -ro sudo pacman -Rns"
 ys() {
-  paru -Slq | fzf --multi --preview 'paru -Si {1}' | xargs -ro paru -S
+  pacman -Slq | fzf --multi --preview 'pacman -Si {1}' | xargs -ro sudo pacman -S
 }
 yclean() {
-  paru -Rnsc $(paru -Qtdq)
-  paru -Scc
+  local orphans=$(pacman -Qtdq)
+  [ -n "$orphans" ] && sudo pacman -Rns $orphans
+  sudo pacman -Scc
 }
 alias ci="{ find . -xdev -printf '%h\n' | sort | uniq -c | sort -k 1 -n; } 2>/dev/null"
 alias fontl="fc-list | cut -d ':' -f2 | sort | uniq"
@@ -235,6 +236,14 @@ source "$HOME/Git/dotfiles/config/shell/vars.env"
 source "$HOME/Git/dotfiles/config/shell/colors.env"
 set +a
 export PATH="$HOME/.config/emacs/bin:$HOME/.local/bin:$HOME/.dotnet/tools:$HOME/.local/share/bob/nvim-bin:$HOME/.local/share/nvim/mason/bin:$HOME/.config/emacs/bin:$HOME/.npm-global/bin:$PATH"
+
+# mise: expone los runtimes/herramientas de ~/.config/mise/config.toml en el PATH
+# (carapace, zsh-patina, hunk, topgrade, oama, cpx, node…). Reemplaza los binarios
+# que antes venían de AUR en /usr/bin. Debe ir antes de usar cualquiera (p.ej. zsh-patina activate).
+eval "$(mise activate zsh)"
+
+# gpg: el agente necesita saber el terminal actual para el pinentry (pass, git sign…).
+export GPG_TTY=$TTY
 
 zmodload -F zsh/stat b:zstat 2>/dev/null
 typeset -g _eyes_mode_mtime="$(zstat +mtime "${XDG_CONFIG_HOME:-$HOME/.config}/eyes/mode" 2>/dev/null)"

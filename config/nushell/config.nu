@@ -190,18 +190,18 @@ def aicli [] { ^bash -c 'eval $(gum choose "gemini" "qwen" "crush")' }
 def paci [] { ^bash -c "pacman -Slq | fzf --multi --preview 'pacman -Si {1}' | xargs -ro sudo pacman -S" }
 def pacr [] { ^bash -c "pacman -Qq | fzf --multi --preview 'pacman -Qi {1}' | xargs -ro sudo pacman -Rns" }
 def ys [] {
-    ^paru -Slq
-    | fzf --multi --preview 'paru -Si {1}'
-    | xargs -ro paru -S
+    ^pacman -Slq
+    | fzf --multi --preview 'pacman -Si {1}'
+    | xargs -ro sudo pacman -S
 }
 def yclean [] {
-    let orphans = (paru -Qtdq | lines)
+    let orphans = (pacman -Qtdq | lines)
     if ($orphans | is-empty) {
         print "No hay paquetes huérfanos para limpiar."
     } else {
-        paru -Rns $orphans
+        sudo pacman -Rns $orphans
     }
-    paru -Scc
+    sudo pacman -Scc
 }
 def ci [] { ^bash -c "{ find . -xdev -printf '%h\n' | sort | uniq -c | sort -k 1 -n; } 2>/dev/null" }
 def fontl [] { ^bash -c "fc-list | cut -d ':' -f2 | sort | uniq" }
@@ -268,6 +268,8 @@ def ddl [
     }
 }
 
+use ($nu.default-config-dir | path join mise.nu)
+
 source $"($nu.cache-dir)/carapace.nu"
 let carapace_completer = {|spans|
     carapace $spans.0 nushell ...$spans | from json
@@ -320,4 +322,3 @@ $env.config.hooks.pre_prompt = (
     }
 )
 
-use ($nu.default-config-dir | path join mise.nu)
