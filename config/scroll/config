@@ -10,10 +10,6 @@ set $down  J
 set $up    K
 set $right L
 # Rofi / Dunst / TUI helpers
-# kitty -1 (instancia unica): si ya hay un kitty vivo, la ventana nueva sale
-# del proceso existente en ~5 ms en vez de ~260 ms de arranque en frio.
-# --class/-T se siguen respetando por ventana. Contrapartida: todas las
-# ventanas comparten proceso (si kitty crashea, caen todas).
 set $term kitty -1
 set $ROFI_SCRIPTS ~/.config/rofi/run.sh
 set $DUNST_SCRIPTS ~/.config/dunst
@@ -35,7 +31,6 @@ exec ~/Git/selfhost/instances.sh
 exec ~/.scripts/check_battery.sh
 exec swayidle -w
 exec ~/.config/scroll/brightness.sh init
-# Re-detecta monitores al conectar/desconectar (mantiene vivas las teclas de brillo).
 exec ~/.config/scroll/brightness-hotplug.sh
 exec rfkill block bluetooth
 
@@ -52,6 +47,9 @@ lua $lua_scripts/grid_NxM.lua
 # Auto-marks by app_id (firefox->b, nvim->e, yazi->f, btop->s, ...).
 # Jump to them with $mod+apostrophe (rofi mark switcher).
 lua $lua_scripts/auto_marks.lua
+
+# Hide kitty when open mpv
+lua $lua_scripts/swallow.lua
 
 set $CURSORSIZE 30
 exec gsettings set org.gnome.desktop.interface cursor-theme 'Adwaita'
@@ -138,8 +136,6 @@ input type:touchpad {
 
 ### Windows defaults
 
-# Colores del tema (client.*, jump_labels_color): symlink gitignorado que
-# eyes-theme repunta a colors.eyes.conf / colors.eyes-dark.conf.
 include colors.conf
 default_border pixel 5
 gaps inner 4
@@ -662,9 +658,6 @@ mode $printscreen_mode {
 }
 bindsym Print mode $printscreen_mode
 
-# Brightness: keeps repeating and works on the lock screen.
-# brightness.sh cachea el bus i2c y acumula pulsaciones en un worker unico:
-# retorna en ~5 ms (ddcutil a pelo re-detectaba monitores: ~1.5 s por tecla).
 bindsym --locked XF86MonBrightnessUp exec ~/.config/scroll/brightness.sh up
 bindsym --locked XF86MonBrightnessDown exec ~/.config/scroll/brightness.sh down
 

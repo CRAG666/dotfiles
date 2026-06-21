@@ -1,11 +1,4 @@
 #!/usr/bin/env bash
-# eyes-theme — switch the eyes theme between light and dark across all dotfiles.
-#
-# Usage: eyes-theme [--dry-run] {light|dark|toggle|auto|reapply|status|generate}
-#
-# Symlink-only switching: each config has light (canonical) + dark (generated)
-# variants; a gitignored pointer symlink selects the active one, so switching
-# never dirties the repo. State: $XDG_CONFIG_HOME/eyes/mode (read by nvim).
 
 set -euo pipefail
 
@@ -13,16 +6,10 @@ readonly STATE_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/eyes"
 readonly STATE_FILE="$STATE_DIR/mode"
 mkdir -p "$STATE_DIR"
 
-# Dotfiles repo root, derived from this script's real location
-# (~/Git/dotfiles/.scripts/eyes-theme → ~/Git/dotfiles). All pointer paths in
-# SWITCHES/GENERATE are relative to it; ~/.config/<app> symlinks into here, so a
-# symlink created at the repo path is the same file each app reads.
 readonly DOTFILES_DIR="$(cd -- "$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
 readonly CLAUDE_THEME_SRC_DIR="$DOTFILES_DIR/themes/claude"
 readonly OPENCODE_THEME_SRC_DIR="$DOTFILES_DIR/themes/opencode"
 
-# Canonical palette (mirrors config/nvim/colors/eyes.lua); source for GENERATE.
-# Format per entry: "slot:LIGHT_HEX:DARK_HEX" (hex without leading '#').
 readonly PALETTE=(
   'bg0:add4a0:1a211a' 'bg1:a4cc98:202820'
   'bg2:9fc895:263026' 'bg3:96be8c:2d382d'
@@ -43,9 +30,6 @@ readonly PALETTE=(
   'winterGreen:94cc88:243224' 'winterYellow:d0c890:3a3420'
 )
 
-# Yazi's tmtheme.xml ports Catppuccin and uses 7 intermediate slots that
-# fall between the canonical palette entries. Kept here so generating the
-# yazi dark flavor also flips these; they extend, not replace, the palette.
 readonly PALETTE_EXTRAS=(
   'yz_blue_deep:1e4a60:6aa0b0' 'yz_teal_green:206860:6cb0a4'
   'yz_off_black:222222:ddd8d0' 'yz_blue:2a5872:8aaec8'
@@ -53,9 +37,6 @@ readonly PALETTE_EXTRAS=(
   'yz_orange:8a5820:d0b078'
 )
 
-# SWITCHES. Format: "pointer|light_target|dark_target"
-#   pointer    : gitignored symlink, path relative to $DOTFILES_DIR
-#   light/dark : symlink targets, RELATIVE to the pointer's own directory
 readonly SWITCHES=(
   # -- Group A: pre-existing variant pairs (pointer was a tracked symlink) --
   'config/eza/theme.yml|eyes.yml|eyes-dark.yml'
@@ -89,14 +70,6 @@ readonly SWITCHES=(
   'config/hunk/config.toml|config.eyes.toml|config.eyes-dark.toml'
 )
 
-# GENERATE — build each dark variant from its light canonical.
-# Format: "light_path|dark_path|style"   (paths relative to $DOTFILES_DIR)
-#   style: hash       — swap "#RRGGBB" and "38;2;R;G;B"/"48;2;R;G;B" SGR
-#          bare       — swap word-bounded "RRGGBB" (foot's key=RRGGBB)
-#          colorsenv  — hash + flip BAT_THEME="eyes" -> "eyes-dark"
-#          starship   — flip `palette = "eyes"` -> "eyes-dark" (palettes inline)
-#          yaziflavor — copy the flavor dir, then hash-swap flavor.toml/tmtheme
-# Hand-tuned pairs (hunk, nvim, doom, bat, neorg) are NOT listed.
 readonly GENERATE=(
   'config/foot/colors.eyes.ini|config/foot/colors.eyes-dark.ini|bare'
   'config/dunst/colors.eyes.conf|config/dunst/colors.eyes-dark.conf|hash'
@@ -152,19 +125,17 @@ auto_mode_for_now() {
 # Palette → sed script (used only by `generate`)
 # ---------------------------------------------------------------------------
 
-# Emit one sed expression per line covering every palette entry plus extras,
-# for the requested direction. style=hash matches "#RRGGBB" plus SGR triplets
-# (38;2;R;G;B / 48;2;R;G;B); style=bare matches plain "RRGGBB" with word
-# boundaries (for foot.ini-style "key=RRGGBB" lines).
 build_hex_sed_script() {
   local direction="$1" style="${2:-hash}"
   local entry slot light dark from_hex to_hex from_sgr to_sgr
   for entry in "${PALETTE[@]}" "${PALETTE_EXTRAS[@]}"; do
     IFS=: read -r slot light dark <<<"$entry"
     if [[ "$direction" == "to-dark" ]]; then
-      from_hex="$light"; to_hex="$dark"
+      from_hex="$light"
+                         to_hex="$dark"
     else
-      from_hex="$dark"; to_hex="$light"
+      from_hex="$dark"
+                        to_hex="$light"
     fi
     if [[ "$style" == "bare" ]]; then
       printf 's/\\b%s\\b/%s/gI\n' "$from_hex" "$to_hex"
@@ -238,8 +209,6 @@ apply_switches() {
     [[ -d "$dir" ]] || continue
     target="$light"
     [[ "$mode" == "dark" ]] && target="$dark"
-    # Guard against a leftover real file/dir at the pointer path: a plain
-    # `ln -sfn` into an existing directory would nest the link inside it.
     if [[ -e "$pointer" && ! -L "$pointer" ]]; then
       if ((DRY_RUN)); then
         info "  would remove non-symlink at $rel before linking"
@@ -276,8 +245,6 @@ apply_gtk() {
 # Claude theme bootstrap (outside the repo)
 # ---------------------------------------------------------------------------
 
-# Ensure ~/.claude has the custom theme files and a settings.json "theme" key.
-# Theme JSONs are symlinked from the repo; settings.json is created/patched.
 ensure_claude_theme() {
   local mode="$1"
   local themes_dir="$HOME/.claude/themes"
@@ -372,8 +339,8 @@ reload_daemons() {
   fi
 
   # X resources: merge in the new palette for xterm/urxvt-style apps.
-  if command -v xrdb >/dev/null && [[ -f "$HOME/.Xresources" ]] \
-    && [[ -n "${DISPLAY:-}" ]]; then
+  if command -v xrdb >/dev/null && [[ -f "$HOME/.Xresources" ]] &&
+       [[ -n "${DISPLAY:-}" ]]; then
     xrdb -merge "$HOME/.Xresources" 2>/dev/null || true
   fi
 
@@ -394,10 +361,6 @@ reload_daemons() {
     setsid dunst >/dev/null 2>&1 &
   fi
 
-  # kitty: live-swap colors in EVERY running instance via its remote-control
-  # socket (kitty.conf: listen_on unix:/tmp/kitty-{kitty_pid}), so it works
-  # from outside kitty too — not just where $KITTY_LISTEN_ON is exported.
-  # SIGUSR1 stays as a fallback for instances without a usable socket.
   if command -v kitty >/dev/null; then
     local ksock
     for ksock in "${KITTY_LISTEN_ON:-}" /tmp/kitty-*; do
@@ -461,10 +424,8 @@ set_mode() {
   local cur
   cur="$(current_mode)"
 
-  # Skip only if applied before (state file + pointers present); else fall through
-  # so a first run / drift recreates the gitignored pointers.
-  if [[ -f "$STATE_FILE" && "$cur" == "$target" && $FORCE -eq 0 ]] \
-    && pointers_present; then
+  if [[ -f "$STATE_FILE" && "$cur" == "$target" && $FORCE -eq 0 ]] &&
+       pointers_present; then
     info "Already in $target mode. (use --force / reapply to re-apply anyway)"
     return 0
   fi
@@ -504,10 +465,19 @@ EOF
 main() {
   while [[ $# -gt 0 && "$1" == -* ]]; do
     case "$1" in
-      --dry-run) DRY_RUN=1; shift ;;
-      --force)   FORCE=1;   shift ;;
+      --dry-run)
+                 DRY_RUN=1
+                            shift
+                                  ;;
+      --force)
+                 FORCE=1
+                            shift
+                                  ;;
       -h | --help) usage ;;
-      *) warn "unknown option: $1"; usage ;;
+      *)
+         warn "unknown option: $1"
+                                    usage
+                                          ;;
     esac
   done
   case "${1:-status}" in
@@ -517,14 +487,20 @@ main() {
       if [[ "$(current_mode)" == dark ]]; then set_mode light; else set_mode dark; fi
       ;;
     auto)    set_mode "$(auto_mode_for_now)" ;;
-    reapply) FORCE=1; set_mode "$(current_mode)" ;;
+    reapply)
+             FORCE=1
+                      set_mode "$(current_mode)"
+                                                 ;;
     status)  current_mode ;;
     generate)
       info "Generating dark variants from light canonicals..."
       generate
       info "Done. Review with: git diff --stat"
       ;;
-    *) warn "unknown command: ${1:-}"; usage ;;
+    *)
+       warn "unknown command: ${1:-}"
+                                       usage
+                                             ;;
   esac
 }
 

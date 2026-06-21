@@ -18,7 +18,7 @@ return {
   git = {
     Added = "",
     Removed = "",
-    Modified = "",
+    Modified = "󰄯",
     Topdelete = "﯇",
     Changedelete = "",
     Untracked = "",
