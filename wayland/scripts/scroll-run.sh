@@ -46,6 +46,7 @@ detect_device() {
 }
 
 set_default_env() {
+    export WLR_RENDERER=vulkan  # HDR support requires the Vulkan renderer
     export XDG_CURRENT_DESKTOP=scroll
     export XDG_SESSION_TYPE=wayland
     export XDG_SESSION_DESKTOP=scroll
