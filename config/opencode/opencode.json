@@ -4,5 +4,20 @@
     "bash": "ask",
     "edit": "ask",
     "webfetch": "ask"
+  },
+  "model": "ollama/qwen3-coder-next:latest",
+  "small_model": "ollama/gemma4:31b",
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama (cluster vía túnel)",
+      "options": {
+        "baseURL": "http://localhost:11652/v1"
+      },
+      "models": {
+        "qwen3-coder-next:latest": { "name": "Qwen3 Coder Next" },
+        "gemma4:31b": { "name": "Gemma 4 31B" }
+      }
+    }
   }
 }

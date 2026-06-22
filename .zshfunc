@@ -183,3 +183,7 @@ group_lazy_load() {
 group_lazy_load node npm yarn
 unset -f group_lazy_load
 
+# Túnel SSH al ollama del cluster (gpuserver02:11652 vía login node).
+otun-up()   { setsid ssh -fN ollama-tunnel && echo "túnel arriba → localhost:11652 (sobrevive al cerrar la terminal)"; }
+otun-down() { pkill -f 'ssh -fN ollama-tunnel' && echo "túnel cerrado"; }
+

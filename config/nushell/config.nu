@@ -268,6 +268,10 @@ def ddl [
     }
 }
 
+# Túnel SSH al ollama del cluster (gpuserver02:11652 vía login node).
+def otun-up [] { ^setsid ssh -fN ollama-tunnel; print "túnel arriba → localhost:11652 (sobrevive al cerrar la terminal)" }
+def otun-down [] { do -i { ^pkill -f 'ssh -fN ollama-tunnel' }; print "túnel cerrado" }
+
 use ($nu.default-config-dir | path join mise.nu)
 
 source $"($nu.cache-dir)/carapace.nu"
