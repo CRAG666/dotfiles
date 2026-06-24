@@ -18,7 +18,9 @@ DOH='127.0.0.1@5300'                 # dnscrypt-proxy -> DoH/443
 reload() { systemctl reload-or-restart unbound; }
 
 # Recursión viable = alcanzo un.root-servers.net (198.41.0.4) por 53.
-if dig +time=2 +tries=1 +short @198.41.0.4 . NS >/dev/null 2>&1; then
+# OJO: el firewall solo deja el 53 saliente a 'skuid unbound'; la sonda DEBE
+# correr como unbound o el firewall la tira y creeria que el 53 esta bloqueado.
+if runuser -u unbound -- dig +time=2 +tries=1 +short @198.41.0.4 . NS >/dev/null 2>&1; then
     if [ -f "$FWD" ]; then rm -f "$FWD"; reload; fi
     exit 0
 fi

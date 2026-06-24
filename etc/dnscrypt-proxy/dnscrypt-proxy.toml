@@ -22,12 +22,13 @@ require_nofilter = true
 # No leer /etc/resolv.conf (apunta a unbound -> bucle).
 ignore_system_dns = true
 
-# Bootstrap: loopback (unbound, en casa) + un publico. Los stamps DoH de
-# Cloudflare/Quad9 llevan IP, asi que en frio en el lab no hace falta resolver
-# hostnames. -> Haz el PRIMER arranque en casa para cachear la lista.
-bootstrap_resolvers = ['127.0.0.1:53', '9.9.9.9:53']
+# Bootstrap y netprobe SOLO por loopback (unbound): el firewall solo deja el 53
+# saliente a unbound, asi que apuntar a 9.9.9.9:53 lo tiraria y atascaria el
+# arranque. Los stamps DoH (Cloudflare/Quad9) llevan IP -> en frio no hace falta
+# resolver hostnames. Haz el PRIMER arranque en casa para cachear la lista.
+bootstrap_resolvers = ['127.0.0.1:53']
 netprobe_timeout = 60
-netprobe_address = '9.9.9.9:53'
+netprobe_address = '127.0.0.1:53'
 
 # unbound ya cachea; no dupliques.
 cache = false
