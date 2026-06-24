@@ -256,6 +256,8 @@ networkmanager: ## Configure NetworkManager (DNS + wifi backend)
 	sudo install -d -m 755 /etc/NetworkManager/dispatcher.d
 	sudo install -o root -g root -m 755 ${PWD}/etc/NetworkManager/dispatcher.d/90-unbound-forward /etc/NetworkManager/dispatcher.d/90-unbound-forward
 	sudo install -d -o unbound -g unbound -m 755 /etc/unbound/forward.d
+	@echo "==> Probing the network now to pick DNS mode (recursión vs DoH) sin esperar a NM..."
+	@sudo /etc/NetworkManager/dispatcher.d/90-unbound-forward "" up || true
 	@echo "==> Reloading NetworkManager (skipped over SSH to avoid disconnection)..."
 	@if [ -z "$$SSH_CONNECTION" ]; then sudo systemctl reload NetworkManager || true; else echo "    SSH detected: reload manually with 'sudo systemctl reload NetworkManager'"; fi
 

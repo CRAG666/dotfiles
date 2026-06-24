@@ -1,10 +1,10 @@
 #!/bin/sh
 # Decide la salida DNS de unbound segun la red:
-#   - ¿llego a un root server por el 53? -> recursión pura (sin terceros)
-#   - 53 bloqueado (p.ej. lab) -> reenvia a dnscrypt-proxy (DoH/443),
-#     que te saca por HTTPS libre del resolver de la institucion.
+#   - ¿el root me da su DNSKEY firmado por el 53? -> recursión pura (sin terceros)
+#   - 53 bloqueado o MANIPULADO (lab, o router que secuestra el :53 y quita las
+#     firmas) -> reenvia a dnscrypt-proxy (DoH/443), que sale por HTTPS limpio.
 # Se reevalua en cada cambio de red; sin estado per-red.
-# ponytail: dig como sonda; un root server como discriminador.
+# ponytail: dig +dnssec como sonda; la RRSIG del root como discriminador.
 
 action="$2"
 case "$action" in
@@ -17,10 +17,13 @@ DOH='127.0.0.1@5300'                 # dnscrypt-proxy -> DoH/443
 
 reload() { systemctl reload-or-restart unbound; }
 
-# Recursión viable = alcanzo un.root-servers.net (198.41.0.4) por 53.
-# OJO: el firewall solo deja el 53 saliente a 'skuid unbound'; la sonda DEBE
+# Recursión viable = el root me devuelve su DNSKEY CON la RRSIG intacta.
+# OJO 1: el firewall solo deja el 53 saliente a 'skuid unbound'; la sonda DEBE
 # correr como unbound o el firewall la tira y creeria que el 53 esta bloqueado.
-if runuser -u unbound -- dig +time=2 +tries=1 +short @198.41.0.4 . NS >/dev/null 2>&1; then
+# OJO 2: NO basta con que el root "responda": un router que secuestra el :53 te
+# contesta cualquier cosa (incluso a IPs inexistentes). Hay que exigir la RRSIG:
+# los interceptores transparentes la quitan -> sin RRSIG = :53 manipulado -> DoH.
+if runuser -u unbound -- dig +time=2 +tries=1 +dnssec @198.41.0.4 . DNSKEY 2>/dev/null | grep -q RRSIG; then
     if [ -f "$FWD" ]; then rm -f "$FWD"; reload; fi
     exit 0
 fi
