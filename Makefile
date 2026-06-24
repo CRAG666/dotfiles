@@ -51,7 +51,7 @@ endef
 .DEFAULT_GOAL := help
 .PHONY: help install init theme bin makepkg systemd-user wayland hypr scroll \
         suspend laptop laptop-intel laptop-amd thinkpad thinkpad-amd nvidia inaoe unbound \
-        networkmanager dns dnscrypt podman_image test testpath clean p53 l14 user-tools
+        networkmanager dns dnscrypt nftables podman_image test testpath clean p53 l14 user-tools
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -72,6 +72,7 @@ install: makepkg ## Install Arch Linux packages using paru
 	@echo "==> Configuring nftables..."
 	@if [ -L /etc/nftables.conf ]; then sudo rm /etc/nftables.conf; fi
 	sudo cp ${PWD}/etc/nftables.conf /etc/
+	sudo nft -f /etc/nftables.conf
 	@echo "==> Configuring sysctl..."
 	sudo cp ${PWD}/etc/sysctl.d/99-sysctl.conf /etc/sysctl.d/
 	$(SYSTEMD_ENABLE) keyd nftables
@@ -257,6 +258,12 @@ networkmanager: ## Configure NetworkManager (DNS + wifi backend)
 	sudo install -d -o unbound -g unbound -m 755 /etc/unbound/forward.d
 	@echo "==> Reloading NetworkManager (skipped over SSH to avoid disconnection)..."
 	@if [ -z "$$SSH_CONNECTION" ]; then sudo systemctl reload NetworkManager || true; else echo "    SSH detected: reload manually with 'sudo systemctl reload NetworkManager'"; fi
+
+nftables: ## Install AND (re)load the nftables firewall (evita el config drift)
+	@echo "==> Installing + (re)loading nftables..."
+	sudo install -m 644 ${PWD}/etc/nftables.conf /etc/nftables.conf
+	sudo nft -f /etc/nftables.conf
+	$(SYSTEMD_ENABLE) nftables
 
 dnscrypt: ## Configure dnscrypt-proxy (DoH/443 egress for networks that block 53)
 	@echo "==> Installing dnscrypt-proxy..."
