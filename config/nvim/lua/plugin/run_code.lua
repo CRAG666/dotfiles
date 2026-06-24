@@ -12,6 +12,7 @@ local function load()
       v = 'v run',
       tex = function(...)
         local tectonic = require('code_runner.hooks.tectonic')
+        local hr_preview_pdf = require('code_runner.hooks.preview_pdf')
         require('code_runner.hooks.ui').select({
           Project = function()
             tectonic.build()
@@ -23,10 +24,18 @@ local function load()
             vim.g.tectonic_enabled = true
             vim.cmd('VimtexView')
           end,
-          Single = function()
+          ['Single (tectonic)'] = function()
             tectonic.single('--synctex --keep-logs -Zsearch-path=/latex')
             vim.g.tectonic_enabled = true
             vim.cmd('VimtexView')
+          end,
+          ['Single (pdflatex)'] = function()
+            hr_preview_pdf.run({
+              command = vim.fn.expand('~/.local/bin/pdflatex'),
+              args = { '-interaction=nonstopmode', 'main.tex' },
+              preview_cmd = preview_cmd,
+              overwrite_output = '.',
+            })
           end,
         })
       end,

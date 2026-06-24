@@ -51,7 +51,7 @@ endef
 .DEFAULT_GOAL := help
 .PHONY: help install init theme bin makepkg systemd-user wayland hypr scroll \
         suspend laptop laptop-intel laptop-amd thinkpad thinkpad-amd nvidia inaoe unbound \
-        networkmanager dns podman_image test testpath clean p53 l14 user-tools
+        networkmanager dns dnscrypt podman_image test testpath clean p53 l14 user-tools
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -251,10 +251,22 @@ networkmanager: ## Configure NetworkManager (DNS + wifi backend)
 	@echo "==> Configuring NetworkManager/conf.d..."
 	sudo install -d -m 755 /etc/NetworkManager/conf.d
 	sudo install -m 644 ${PWD}/etc/NetworkManager/conf.d/*.conf /etc/NetworkManager/conf.d/
+	@echo "==> Installing dynamic unbound-forward dispatcher hook..."
+	sudo install -d -m 755 /etc/NetworkManager/dispatcher.d
+	sudo install -o root -g root -m 755 ${PWD}/etc/NetworkManager/dispatcher.d/90-unbound-forward /etc/NetworkManager/dispatcher.d/90-unbound-forward
+	sudo install -d -o unbound -g unbound -m 755 /etc/unbound/forward.d
 	@echo "==> Reloading NetworkManager (skipped over SSH to avoid disconnection)..."
 	@if [ -z "$$SSH_CONNECTION" ]; then sudo systemctl reload NetworkManager || true; else echo "    SSH detected: reload manually with 'sudo systemctl reload NetworkManager'"; fi
 
-dns: unbound networkmanager ## Configure the whole local DNS stack (unbound + NM)
+dnscrypt: ## Configure dnscrypt-proxy (DoH/443 egress for networks that block 53)
+	@echo "==> Installing dnscrypt-proxy..."
+	$(call install_pkgs,dnscrypt-proxy)
+	@echo "==> Configuring dnscrypt-proxy.toml..."
+	sudo install -Dm 644 ${PWD}/etc/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+	@echo "==> Enabling dnscrypt-proxy (first start should be at home to cache the resolver list)..."
+	$(SYSTEMD_ENABLE) dnscrypt-proxy
+
+dns: unbound dnscrypt networkmanager ## Configure the whole local DNS stack (unbound + dnscrypt + NM)
 
 podman_image: ## Build the Podman image for testing
 	podman build -t dotfiles ${PWD}

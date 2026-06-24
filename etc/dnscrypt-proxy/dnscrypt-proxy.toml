@@ -1,0 +1,39 @@
+# dnscrypt-proxy: salida DNS cifrada por DoH (puerto 443).
+# unbound le reenvia aqui SOLO cuando el hook de NetworkManager detecta el 53
+# bloqueado (p.ej. lab). En casa unbound recursa y esto queda ocioso.
+# Solo DoH -> siempre 443 -> atraviesa firewalls que filtran 53/853.
+
+listen_addresses = ['127.0.0.1:5300']     # 5300 para no chocar con avahi/mDNS (5353)
+max_clients = 250
+
+ipv4_servers = true
+ipv6_servers = false
+
+# Solo DoH: garantiza que TODO sale por 443 (lo unico abierto en el lab).
+doh_servers = true
+dnscrypt_servers = false
+odoh_servers = false
+
+# Elegir solo resolvers que no registran y validan DNSSEC.
+require_dnssec = true
+require_nolog = true
+require_nofilter = true
+
+# No leer /etc/resolv.conf (apunta a unbound -> bucle).
+ignore_system_dns = true
+
+# Bootstrap: loopback (unbound, en casa) + un publico. Los stamps DoH de
+# Cloudflare/Quad9 llevan IP, asi que en frio en el lab no hace falta resolver
+# hostnames. -> Haz el PRIMER arranque en casa para cachear la lista.
+bootstrap_resolvers = ['127.0.0.1:53', '9.9.9.9:53']
+netprobe_timeout = 60
+netprobe_address = '9.9.9.9:53'
+
+# unbound ya cachea; no dupliques.
+cache = false
+
+[sources]
+  [sources.public-resolvers]
+  urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md', 'https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md']
+  cache_file = '/var/cache/dnscrypt-proxy/public-resolvers.md'
+  minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'

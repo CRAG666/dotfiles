@@ -1,0 +1,34 @@
+#!/bin/sh
+# Decide la salida DNS de unbound segun la red:
+#   - ¿llego a un root server por el 53? -> recursión pura (sin terceros)
+#   - 53 bloqueado (p.ej. lab) -> reenvia a dnscrypt-proxy (DoH/443),
+#     que te saca por HTTPS libre del resolver de la institucion.
+# Se reevalua en cada cambio de red; sin estado per-red.
+# ponytail: dig como sonda; un root server como discriminador.
+
+action="$2"
+case "$action" in
+    up|down|dhcp4-change|connectivity-change) ;;
+    *) exit 0 ;;
+esac
+
+FWD=/etc/unbound/forward.d/active.conf
+DOH='127.0.0.1@5300'                 # dnscrypt-proxy -> DoH/443
+
+reload() { systemctl reload-or-restart unbound; }
+
+# Recursión viable = alcanzo un.root-servers.net (198.41.0.4) por 53.
+if dig +time=2 +tries=1 +short @198.41.0.4 . NS >/dev/null 2>&1; then
+    if [ -f "$FWD" ]; then rm -f "$FWD"; reload; fi
+    exit 0
+fi
+
+# 53 bloqueado -> reenviar todo a dnscrypt (sale por 443).
+conf="forward-zone:
+    name: \".\"
+    forward-addr: $DOH"
+
+[ "$(cat "$FWD" 2>/dev/null)" = "$conf" ] && exit 0   # sin cambios: no recargar
+mkdir -p "$(dirname "$FWD")"
+printf '%s\n' "$conf" > "$FWD"
+reload
