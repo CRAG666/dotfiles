@@ -375,8 +375,8 @@ reload_daemons() {
   fi
 
   # zsh-patina: restart to pick up the new theme.toml symlink.
-  if command -v zsh-patina >/dev/null; then
-    zsh -c "zsh-patina restart" 2>/dev/null || true
+  if mise which zsh-patina >/dev/null 2>&1; then
+    mise exec -- zsh -c "zsh-patina restart" 2>/dev/null || true
   fi
 
   # GTK / GNOME color-scheme hint (Thunderbird, GTK4 apps respect this).

@@ -1,16 +1,16 @@
 [[plugin.deps]]
 use = "yazi-rs/plugins:no-status"
-rev = "38efe09"
+rev = "39aaf6d"
 hash = "3e023d31f29201efdac2a6ae35fedb78"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:full-border"
-rev = "38efe09"
+rev = "39aaf6d"
 hash = "7b625412411be411153886894d9acaf"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:chmod"
-rev = "38efe09"
+rev = "39aaf6d"
 hash = "f0c8c378184d5f8abd1b095a443d336d"
 
 [[plugin.deps]]
@@ -20,20 +20,20 @@ hash = "7de446280b1ba8c49ffd86dbc24bbbe6"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:toggle-pane"
-rev = "38efe09"
-hash = "9c7987da2d2a2120dac33abb64132004"
+rev = "39aaf6d"
+hash = "15e5b67a241172cbb86b8fbf9e63692"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:mount"
-rev = "38efe09"
+rev = "39aaf6d"
 hash = "e3260d0b1feded8c8e3ae3afa1169e30"
 
 [[plugin.deps]]
 use = "AminurAlam/yazi-plugins:preview-audio"
-rev = "4949660"
-hash = "f5d0e31ec691f0c508612108aca41d03"
+rev = "ce325af"
+hash = "fdb9c99b81d675a3098ba8e380048b00"
 
 [[flavor.deps]]
 use = "yazi-rs/flavors:catppuccin-mocha"
-rev = "0f9204b"
+rev = "4770a34"
 hash = "7dfe41c9c3d9be76da8a844263d0bbed"

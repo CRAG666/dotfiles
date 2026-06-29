@@ -9,6 +9,7 @@ local function load()
       number = 0,
     },
     filetype = {
+      typst = 'typst compile',
       v = 'v run',
       tex = function(...)
         local tectonic = require('code_runner.hooks.tectonic')
