@@ -51,7 +51,8 @@ endef
 .DEFAULT_GOAL := help
 .PHONY: help install init theme bin makepkg systemd-user wayland hypr scroll \
         suspend laptop laptop-intel laptop-amd thinkpad thinkpad-amd nvidia inaoe unbound \
-        networkmanager dns dnscrypt nftables podman_image test testpath clean p53 l14 user-tools
+        networkmanager dns dnscrypt nftables tailscale ssh \
+        podman_image test testpath clean p53 l14 user-tools
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -267,6 +268,11 @@ nftables: ## Install AND (re)load the nftables firewall (evita el config drift)
 	sudo nft -f /etc/nftables.conf
 	$(SYSTEMD_ENABLE) nftables
 
+ssh: nftables ## P53: servidor SSH accesible solo por el tailnet (aplica firewall + habilita sshd)
+	@echo "==> Installing openssh + habilitando sshd..."
+	$(call install_pkgs,openssh)
+	$(SYSTEMD_ENABLE) sshd
+
 dnscrypt: ## Configure dnscrypt-proxy (DoH/443 egress for networks that block 53)
 	@echo "==> Installing dnscrypt-proxy..."
 	$(call install_pkgs,dnscrypt-proxy)
@@ -276,6 +282,13 @@ dnscrypt: ## Configure dnscrypt-proxy (DoH/443 egress for networks that block 53
 	$(SYSTEMD_ENABLE) dnscrypt-proxy
 
 dns: unbound dnscrypt networkmanager ## Configure the whole local DNS stack (unbound + dnscrypt + NM)
+
+tailscale: nftables ## Install Tailscale + unirse al tailnet (base para P53 y L14)
+	@echo "==> Installing tailscale..."
+	$(call install_pkgs,tailscale)
+	$(SYSTEMD_ENABLE) tailscaled
+	@echo "==> Uniendo al tailnet (--accept-dns=false: NO tocar resolv.conf, usamos unbound local)..."
+	sudo tailscale up --accept-dns=false
 
 podman_image: ## Build the Podman image for testing
 	podman build -t dotfiles ${PWD}
@@ -299,5 +312,5 @@ clean: ## Clean up test containers
 	@podman rm maketest 2>/dev/null || true
 
 # Combined targets
-p53: install init thinkpad nvidia ## Install for ThinkPad P53 with NVIDIA
+p53: install init thinkpad nvidia ssh ## Install for ThinkPad P53 with NVIDIA (incluye servidor SSH)
 l14: install init thinkpad-amd ## Install for ThinkPad L14 Gen 4 (Ryzen 5)
