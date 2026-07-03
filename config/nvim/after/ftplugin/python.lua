@@ -38,3 +38,6 @@ end
 
 vim.g.mason = { 'basedpyright', 'ruff', 'pyrefly' }
 vim.g.ts = { 'python', 'requirements' }
+
+-- Parse python tracebacks (code_runner quickfix mode)
+vim.bo.errorformat = [[%C %.%#,%A  File "%f"\, line %l%.%#,%Z%m]]

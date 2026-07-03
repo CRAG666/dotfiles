@@ -1,17 +1,17 @@
 [[plugin.deps]]
 use = "yazi-rs/plugins:no-status"
-rev = "39aaf6d"
+rev = "65559fd"
 hash = "3e023d31f29201efdac2a6ae35fedb78"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:full-border"
-rev = "39aaf6d"
+rev = "65559fd"
 hash = "7b625412411be411153886894d9acaf"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:chmod"
-rev = "39aaf6d"
-hash = "f0c8c378184d5f8abd1b095a443d336d"
+rev = "65559fd"
+hash = "5b1c276b75cae91cbbdbe7863f39a540"
 
 [[plugin.deps]]
 use = "Rolv-Apneseth/starship"
@@ -20,12 +20,12 @@ hash = "7de446280b1ba8c49ffd86dbc24bbbe6"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:toggle-pane"
-rev = "39aaf6d"
+rev = "65559fd"
 hash = "15e5b67a241172cbb86b8fbf9e63692"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:mount"
-rev = "39aaf6d"
+rev = "65559fd"
 hash = "e3260d0b1feded8c8e3ae3afa1169e30"
 
 [[plugin.deps]]

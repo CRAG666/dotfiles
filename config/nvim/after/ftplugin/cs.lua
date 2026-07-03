@@ -12,3 +12,6 @@ vim.keymap.set(
   '<esc>mzA;<esc>`z',
   { noremap = true, silent = true }
 )
+
+-- Parse dotnet/msbuild diagnostics (code_runner quickfix mode)
+vim.bo.errorformat = [[%f(%l\,%c): %t%*[^:]: %m,%f(%l\,%c): %m]]

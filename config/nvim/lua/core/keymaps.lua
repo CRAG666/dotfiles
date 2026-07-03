@@ -580,7 +580,7 @@ require('utils.load').on_events(
     })
 
     --Esc in terminal mode
-    map('t', '<Esc>', [[<C-\><C-n>']])
+    map('t', '<Esc>', [[<C-\><C-n>]])
     map('t', '<M-[>', '<Esc>')
     map('t', '<C-v><Esc>', '<Esc>')
 

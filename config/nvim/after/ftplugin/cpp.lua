@@ -47,3 +47,6 @@ vim.g.ts = { 'c', 'cpp' }
 --   memory_usage = { border = 'solid' },
 --   symbol_info = { border = 'solid' },
 -- })
+
+-- Parse gcc/clang diagnostics (code_runner quickfix mode)
+vim.bo.errorformat = [[%f:%l:%c: %t%*[^:]: %m,%f:%l: %m]]
