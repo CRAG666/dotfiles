@@ -3,6 +3,7 @@
 return setmetatable({
   buf = nil, ---@module 'utils.buf'
   cmd = nil, ---@module 'utils.cmd'
+  ctx = nil, ---@module 'utils.ctx'
   dap = nil, ---@module 'utils.dap'
   fs = nil, ---@module 'utils.fs'
   git = nil, ---@module 'utils.git'

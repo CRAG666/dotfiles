@@ -49,42 +49,9 @@ local M = setmetatable({}, {
   end,
 })
 
----Returns whether the cursor is in a tex math zone (excluding `\text{}`)
----@return boolean
-function M.in_mathzone()
-  if utils.ts.is_active() then
-    -- Requires latex treesitter parser
-    return utils.ts.find_node(
-      { 'formula', 'equation', 'math' },
-      { ignore_injections = false }
-    ) ~= nil and utils.ts.find_node(
-      { 'text_mode' },
-      { ignore_injections = false }
-    ) == nil
-  end
-
-  -- Fall back to vim legacy regex syntax
-  if vim.b.current_syntax then
-    return utils.syn.find_group({ 'texMathZone' }) ~= nil
-      and utils.syn.find_group({ 'texMathText' }) == nil
-  end
-
-  return false
-end
-
----Returns whether the cursor is in a code block
----@return boolean
-function M.in_codeblock()
-  if utils.ts.is_active() then
-    return utils.ts.find_node({ 'fence' }) ~= nil
-  end
-
-  if vim.b.current_syntax then
-    return utils.syn.find_group({ 'CodeBlock' }) ~= nil
-  end
-
-  return false
-end
+M.in_mathzone = utils.ctx.in_mathzone
+M.in_codeblock = utils.ctx.in_codeblock
+M.in_normalzone = utils.ctx.in_normalzone
 
 ---Returns whether current cursor is in the given types of treesitter node
 ---@param type string|string[]
@@ -118,28 +85,6 @@ function M.in_ft(ft)
       return t == vim.bo.ft
     end)
   end
-end
-
----Returns whether the cursor is in a normal zone
----@return boolean
-function M.in_normalzone()
-  if utils.ts.is_active() then
-    return utils.ts.find_node(
-      { 'comment', 'string', 'fence', 'formula', 'equation', 'math' },
-      { ignore_injections = false }
-    ) == nil
-  end
-
-  if vim.b.current_syntax then
-    return utils.syn.find_group({
-      'Comment',
-      'String',
-      'Code',
-      'MathZone',
-    }) == nil
-  end
-
-  return true
 end
 
 ---Returns whether the cursor is before a pattern

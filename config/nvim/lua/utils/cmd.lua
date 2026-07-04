@@ -79,12 +79,13 @@ function M.complete_opts(opts)
     local optkey, eq, optval = arglead:match('^%-%-([^%s=]+)(=?)([^%s=]*)$')
     -- Complete option values
     if optkey and eq == '=' then
-      local candidate_vals = vim.tbl_map(
-        tostring,
-        type(opts[optkey]) == 'function'
-            and opts[optkey](arglead, cmdline, cursorpos)
-          or opts[optkey]
-      )
+      local candidate_vals = opts[optkey]
+        and vim.tbl_map(
+          tostring,
+          type(opts[optkey]) == 'function'
+              and opts[optkey](arglead, cmdline, cursorpos)
+            or opts[optkey]
+        )
       return candidate_vals
           and vim.tbl_map(
             function(val)
