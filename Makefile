@@ -9,8 +9,10 @@ WAYLAND_PKGS := wtype wl-clipboard swaylock-effects swayidle rofi qt6-wayland \
                 xdg-desktop-portal-termfilechooser-hunkyburrito-git \
                 xdg-desktop-portal-gtk dunst awww quickshell \
 		mate-polkit nwg-look
+# AUR: xdg-desktop-portal-termfilechooser-hunkyburrito-git
 
 SCROLL_PKGS := sway-scroll xdg-desktop-portal-wlr
+# AUR: sway-scroll
 
 NVIDIA_PKGS := nvidia nvidia-prime nvidia-settings nvidia-utils cuda nvtop \
                libva-nvidia-driver opencl-nvidia nvtop nvidia-container-toolkit
@@ -35,8 +37,14 @@ SYSTEMD_ENABLE_USER := systemctl --user --now enable
 define install_pkgs
 	@failed=""; \
 	for pkg in $(1); do \
-		echo "==> Installing $$pkg..."; \
-		if ! paru -S --needed --noconfirm "$$pkg"; then \
+		if pacman -Si "$$pkg" >/dev/null 2>&1; then \
+			echo "==> pacman: $$pkg"; \
+			installer="sudo pacman -S --needed --noconfirm"; \
+		else \
+			echo "==> paru (AUR): $$pkg"; \
+			installer="paru -S --needed --noconfirm"; \
+		fi; \
+		if ! $$installer "$$pkg"; then \
 			echo "  ✗ Failed: $$pkg"; \
 			failed="$$failed $$pkg"; \
 		fi; \
@@ -60,10 +68,14 @@ help: ## Show this help
 	| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 install: makepkg ## Install Arch Linux packages using paru
+	@echo "==> Refreshing package databases (needed to route repo vs AUR)..."
+	@sudo pacman -Sy
 	@echo "==> Installing paru if necessary..."
 	@sudo pacman -S --needed --noconfirm paru || { echo "Error installing paru"; exit 1; }
-	@echo "==> Installing packages from pkglist.txt (one by one)..."
+	@echo "==> Installing official-repo packages from pkglist.txt (one by one)..."
 	$(call install_pkgs,$$(grep -v '^#' ${PWD}/pkglist.txt | grep -v '^$$'))
+	@echo "==> Installing AUR packages from pkglist-aur.txt (one by one)..."
+	$(call install_pkgs,$$(grep -v '^#' ${PWD}/pkglist-aur.txt | grep -v '^$$'))
 	@echo "==> Enabling services..."
 	$(SYSTEMD_ENABLE) ananicy-cpp
 	@echo "==> Configuring keyd..."

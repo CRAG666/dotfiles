@@ -3,7 +3,7 @@ ananicy-cpp
 
 # Basic security
 nftables
-iptables-nft
+iptables
 pass
 
 # Controls
@@ -80,7 +80,6 @@ wireplumber
 # Fonts
 ttf-nerd-fonts-symbols
 ttf-nerd-fonts-symbols-common
-nerd-fonts-apple-hinted
 noto-fonts-emoji
 
 # Basic
@@ -99,9 +98,6 @@ aerc
 
 # Download
 nicotine+
-
-# Edition
-lunacy-bin
 
 # Players
 mpv
