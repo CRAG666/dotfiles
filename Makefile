@@ -51,7 +51,7 @@ endef
 .DEFAULT_GOAL := help
 .PHONY: help install init theme bin makepkg systemd-user wayland hypr scroll \
         suspend laptop laptop-intel laptop-amd thinkpad thinkpad-amd nvidia inaoe unbound \
-        networkmanager dns dnscrypt nftables tailscale ssh \
+        networkmanager dns dnscrypt nftables tailscale ssh waypipe \
         podman_image test testpath clean p53 l14 user-tools
 
 help: ## Show this help
@@ -273,6 +273,10 @@ ssh: nftables ## P53: servidor SSH accesible solo por el tailnet (aplica firewal
 	$(call install_pkgs,openssh)
 	$(SYSTEMD_ENABLE) sshd
 
+waypipe: ## L14+P53: apps gráficas Wayland de la P53 sobre el SSH del tailnet (waypipe ssh usuario@p53 app)
+	@echo "==> Installing waypipe..."
+	$(call install_pkgs,waypipe)
+
 dnscrypt: ## Configure dnscrypt-proxy (DoH/443 egress for networks that block 53)
 	@echo "==> Installing dnscrypt-proxy..."
 	$(call install_pkgs,dnscrypt-proxy)
@@ -312,5 +316,5 @@ clean: ## Clean up test containers
 	@podman rm maketest 2>/dev/null || true
 
 # Combined targets
-p53: install init thinkpad nvidia ssh ## Install for ThinkPad P53 with NVIDIA (incluye servidor SSH)
-l14: install init thinkpad-amd ## Install for ThinkPad L14 Gen 4 (Ryzen 5)
+p53: install init thinkpad nvidia ssh waypipe ## Install for ThinkPad P53 with NVIDIA (servidor SSH + waypipe)
+l14: install init thinkpad-amd waypipe ## Install for ThinkPad L14 Gen 4 (Ryzen 5, + waypipe)
