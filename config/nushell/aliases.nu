@@ -17,3 +17,4 @@ alias kittyc = nvim ~/.config/kitty/kitty.conf
 alias icat = kitten icat
 alias s = kitten ssh
 alias ssh = kitten ssh
+alias tf = kitten transfer

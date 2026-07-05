@@ -175,7 +175,6 @@ if [[ -r ~/.config/nushell/aliases.nu ]]; then
 fi
 # HACK: Command alternatives
 # alias vpn="~/.scripts/vpn"
-alias js="node ~/.noderc"
 alias ls="exa --icons"
 alias la="exa --icons -la"
 alias grep='grep --color=auto'
