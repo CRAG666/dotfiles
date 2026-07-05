@@ -1,0 +1,3 @@
+# ThinkPad battery charge thresholds (thinkpad_acpi). powerprofilesctl no maneja esto.
+# ponytail: 1 regla udev en vez de TLP/servicio. Ajustar valores aqui si cambia el uso.
+ACTION=="add", SUBSYSTEM=="power_supply", KERNEL=="BAT0", ATTR{charge_control_end_threshold}="80", ATTR{charge_control_start_threshold}="75"

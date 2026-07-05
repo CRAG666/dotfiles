@@ -216,6 +216,10 @@ thinkpad: laptop ## ThinkPad-specific configuration (Intel)
 	@echo "==> Installing P53-specific sysctl..."
 	sudo install -m 644 ${PWD}/etc/sysctl.d/99-p53.conf /etc/sysctl.d/
 	sudo sysctl --system
+	@echo "==> Installing battery charge threshold udev rule..."
+	sudo install -Dm 644 ${PWD}/etc/udev/rules.d/99-battery-threshold.rules \
+		/etc/udev/rules.d/99-battery-threshold.rules
+	@sudo udevadm control --reload || true
 	$(SYSTEMD_ENABLE) throttled
 
 thinkpad-amd: laptop-amd ## AMD ThinkPad configuration (e.g. L14 Gen 4)
