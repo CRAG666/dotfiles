@@ -43,6 +43,7 @@ set $lua_scripts /home/think-crag/.config/scroll/lua
 # Auto 2xN grid (tile pattern). Edit MAX_PER_COL inside the script to change
 # the vertical cap per column.
 lua $lua_scripts/grid_NxM.lua
+# lua $lua_scripts/grid.lua enable 3
 
 # Auto-marks by app_id (firefox->b, nvim->e, yazi->f, btop->s, ...).
 # Jump to them with $mod+apostrophe (rofi mark switcher).
@@ -141,9 +142,10 @@ default_border pixel 5
 gaps inner 4
 gaps outer 4
 
-default_decoration border_radius 20 shadow false shadow_dynamic false shadow_size 40 shadow_blur 30 shadow_offset 40 40 shadow_color #00000070 dim false dim_color #00000040
+default_decoration border_radius 15 shadow false shadow_dynamic false shadow_size 40 shadow_blur 30 shadow_offset 40 40 shadow_color #00000070 dim false dim_color #00000040
 
 for_window [all] inhibit_idle fullscreen
+for_window [all] border pixel
 
 # Layout
 layout_default_width 0.5
@@ -719,5 +721,5 @@ for_window [class="xwaylandvideobridge"] opacity 0, floating enable, sticky enab
 for_window [title="Firefox — Sharing Indicator"] move scratchpad
 for_window [title="Firefox - Indicador de compartición"] move scratchpad
 for_window [title="(?i).*is sharing (your screen|a window).*"] move scratchpad
-for_window [app_id="pinentry"] floating enable
-for_window [class="Pinentry"] floating enable
+for_window [app_id="pinentry"] floating enable, resize set 60ppt 20ppt
+for_window [class="Pinentry"] floating enable, resize set 60ppt 20ppt

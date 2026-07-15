@@ -13,7 +13,6 @@ playerctl
 bluez-utils
 impala
 bluetui
-wiremix
 udisks2
 
 # ZSH
@@ -70,12 +69,12 @@ duf
 progress
 
 # Audio
-pwvucontrol
 pipewire
 pipewire-alsa
 pipewire-pulse
 pipewire-jack
 wireplumber
+wiremix
 
 # Fonts
 ttf-nerd-fonts-symbols

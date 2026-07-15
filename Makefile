@@ -337,5 +337,5 @@ clean: ## Clean up test containers
 	@podman rm maketest 2>/dev/null || true
 
 # Combined targets
-p53: install init thinkpad nvidia ssh wayvnc ## Install for ThinkPad P53 with NVIDIA (servidor SSH + wayvnc)
-l14: install init thinkpad-amd vncviewer ## Install for ThinkPad L14 Gen 4 (Ryzen 5, + cliente VNC)
+p53: install init thinkpad nvidia ssh wayvnc ## Install for ThinkPad P53 with NVIDIA (server SSH + wayvnc)
+l14: install init thinkpad-amd vncviewer ## Install for ThinkPad L14 Gen 4 (Ryzen 5, + client VNC)

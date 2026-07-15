@@ -16,6 +16,7 @@ hunk = "latest"
 node = "latest"
 "npm:oh-my-logo" = "latest"
 opencode = "latest"
+pi = "latest"
 "pipx:BeatPrints" = "latest"
 "pipx:markitdown" = { version = "latest", extras = "all" }
 topgrade = "latest"

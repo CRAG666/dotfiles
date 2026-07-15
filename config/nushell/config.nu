@@ -272,8 +272,6 @@ def ddl [
 def otun-up [] { ^setsid ssh -fN ollama-tunnel; print "túnel arriba → localhost:11652 (sobrevive al cerrar la terminal)" }
 def otun-down [] { do -i { ^pkill -f 'ssh -fN ollama-tunnel' }; print "túnel cerrado" }
 
-use ($nu.default-config-dir | path join mise.nu)
-
 source $"($nu.cache-dir)/carapace.nu"
 let carapace_completer = {|spans|
     carapace $spans.0 nushell ...$spans | from json

@@ -22,9 +22,6 @@ $env.DOT_DIR = $"($env.HOME)/Git/dotfiles"
 let zsh_paths = [
     $"($env.HOME)/.config/emacs/bin",
     $"($env.HOME)/.local/bin",
-    # shims de mise: expone carapace y demás tools ANTES de activar mise (mise.nu se
-    # carga en config.nu, después de este env.nu). Sin esto, el `carapace` de abajo
-    # dependía del binario de AUR en /usr/bin y se rompe al quitar AUR.
     $"($env.HOME)/.local/share/mise/shims",
     $"($env.HOME)/.dotnet/tools",
     $"($env.HOME)/.local/share/bob/nvim-bin",
@@ -55,6 +52,3 @@ def --env load-shared-env [file: path] {
 try { load-shared-env $"($env.HOME)/Git/dotfiles/config/shell/vars.env" }
 try { load-shared-env $"($env.HOME)/Git/dotfiles/config/shell/colors.env" }
 # <<< load-shared-env <<<
-
-let mise_path = $nu.default-config-dir | path join mise.nu
-^mise activate nu | save $mise_path --force
