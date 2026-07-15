@@ -38,26 +38,9 @@ alias ll = ls -l
 def vi [...args] {
     NVIM_APPNAME=nvim-minimal nvim ...$args
 }
-alias vic = vi ~/.config/nvim-minimal/init.lua
 def vim [...args] {
     NVIM_NF=true nvim ...$args
 }
-alias vimc = nvim ~/.config/nvim/init.lua
-alias vimk = nvim ~/.config/nvim/lua/core/keymaps.lua
-alias vimd = nvim ~/.config/nvim/lua/core/opts.lua
-alias vima = nvim ~/.config/nvim/lua/core/autocmds.lua
-alias viml = nvim ~/.config/nvim/lua/core/lsp.lua
-alias newmc = nvim ~/.config/newm/config.py
-alias hyprc = nvim ~/.config/hypr/hyprland.conf
-alias scrollc = nvim ~/.config/scroll/config
-alias owlc = nvim ~/.config/owl/owl.conf
-alias keydc = nvim ~/Git/dotfiles/etc/keyd/default.conf
-alias zshc = nvim ~/.zshrc
-alias zshf = nvim ~/.zshfunc
-alias zimc = nvim ~/.zimrc
-alias dnsc = nvim /etc/resolv.conf
-alias nftc = nvim /etc/nftables.conf
-alias starshipc = nvim ~/.config/starship.toml
 
 alias Applications = cd /usr/share/applications
 alias Desktop = cd $"($env.HOME)/Escritorio"
@@ -68,9 +51,11 @@ alias Music = cd $"($env.HOME)/Música"
 alias Videos = cd $"($env.HOME)/Vídeos"
 alias Git = cd $"($env.HOME)/Git"
 alias Usb = cd $env.USB
-
-
-alias v = nvim
+alias h = do {|x| curl -s $"cheat.sh/($x)" }
+alias q = do {|x|
+  pi --tools bash,read -p $"Read the man page \(or --help if none exists\) for the following Linux command and output ONLY a cheat.sh-style reference in plain shell-script format: a one-line comment summarizing the command at the top, then 4-8 realistic example invocations from basic to advanced, each preceded by a one-line comment starting with # explaining what it does. Every line must be either a comment starting with # or an actual runnable shell command exactly as it would appear in a .sh file - no markdown code fences, no headers, no bullet points, no bold text, no prose paragraphs. End with one comment starting with # gotcha: describing a common mistake. Keep it under 25 lines total. The command is: ($x)"
+  | bat -l bash --style=plain --paging=never --color=always
+}
 
 def sar [find_text: string, replace_text: string] {
     let files_to_change = (rg -l $find_text | lines)

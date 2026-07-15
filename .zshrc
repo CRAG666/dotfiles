@@ -174,7 +174,6 @@ if [[ -r ~/.config/nushell/aliases.nu ]]; then
   unset _l _r _n _c
 fi
 # HACK: Command alternatives
-# alias vpn="~/.scripts/vpn"
 alias ls="exa --icons"
 alias la="exa --icons -la"
 alias grep='grep --color=auto'
@@ -183,28 +182,6 @@ alias rm='rm -i'
 alias du1='du -h -d 1 2>/dev/null | sort -hr'
 alias rec="wl-screenrec --dri-device $MOZ_DRM_DEVICE -f $(date +'%s_grab.mp4')"
 alias freq="watch -n1 'grep Hz /proc/cpuinfo'"
-alias help="cht.sh"
-# HACK: Config Nvim Aliases
-alias vi="NVIM_APPNAME=nvim-minimal nvim"
-alias vic='vi ~/.config/nvim-minimal/init.lua'
-alias vim="NVIM_NF=true nvim"
-alias vimc='vim ~/.config/nvim/init.lua'
-alias vimk='vim ~/.config/nvim/lua/core/keymaps.lua'
-alias vimd='vim ~/.config/nvim/lua/core/opts.lua'
-alias vima='vim ~/.config/nvim/lua/core/autocmds.lua'
-alias viml='vim ~/.config/nvim/lua/core/lsp.lua'
-alias vl='vim -c "Neorg workspace life"'
-alias va='vim -c "Neorg workspace academic"'
-# HACK: Config alias
-alias hyprc="vim ~/.config/hypr/hyprland.conf"
-alias scrollc="vim ~/.config/scroll/config"
-alias keydc="vim ~/Git/dotfiles/etc/keyd/default.conf"
-alias zshc="vim ~/.zshrc"
-alias zshf="vim ~/.zshfunc"
-alias zimc="vim ~/.zimrc"
-alias dnsc="vim /etc/resolv.conf"
-alias nftc="vim /etc/nftables.conf"
-alias starshipc="vim ~/.config/starship.toml"
 # HACK: Jump alias
 alias Applications="cd /usr/share/applications"
 alias Desktop="cd /$HOME/Escritorio"
@@ -226,6 +203,8 @@ yclean() {
   [ -n "$orphans" ] && sudo pacman -Rns $orphans
   sudo pacman -Scc
 }
+h(){ curl -s "cheat.sh/$*"; }
+q(){ pi --tools bash,read -p "Read the man page (or --help if none exists) for the following Linux command and output ONLY a cheat.sh-style reference in plain shell-script format: a one-line comment summarizing the command at the top, then 4-8 realistic example invocations from basic to advanced, each preceded by a one-line comment starting with # explaining what it does. Every line must be either a comment starting with # or an actual runnable shell command exactly as it would appear in a .sh file - no markdown code fences, no headers, no bullet points, no bold text, no prose paragraphs. End with one comment starting with # gotcha: describing a common mistake. Keep it under 25 lines total. The command is: $*" | bat -l bash --style=plain --paging=never --color=always; }
 alias ci="{ find . -xdev -printf '%h\n' | sort | uniq -c | sort -k 1 -n; } 2>/dev/null"
 alias fontl="fc-list | cut -d ':' -f2 | sort | uniq"
 
@@ -234,7 +213,7 @@ set -a
 source "$HOME/Git/dotfiles/config/shell/vars.env"
 source "$HOME/Git/dotfiles/config/shell/colors.env"
 set +a
-export PATH="$HOME/.config/emacs/bin:$HOME/.local/bin:$HOME/.dotnet/tools:$HOME/.local/share/bob/nvim-bin:$HOME/.local/share/nvim/mason/bin:$HOME/.config/emacs/bin:$HOME/.npm-global/bin:$PATH"
+export PATH="$HOME/.config/emacs/bin:$HOME/.local/bin:$HOME/.dotnet/tools:$HOME/.local/share/bob/nvim-bin:$HOME/.local/share/nvim/mason/bin:$PATH"
 
 # mise: expone los runtimes/herramientas de ~/.config/mise/config.toml en el PATH
 # (carapace, zsh-patina, hunk, topgrade, oama, cpx, node…). Reemplaza los binarios
