@@ -20,7 +20,9 @@ pi = "latest"
 "pipx:BeatPrints" = "latest"
 "pipx:markitdown" = { version = "latest", extras = "all" }
 topgrade = "latest"
+"ubi:immanuwell/dockerfile-roast" = "latest"
 uv = "latest"
+yq = "latest"
 
 [settings]
 

@@ -290,7 +290,7 @@ animations {
         bindsym  s scratchpad jump; mode default
         bindsym  t jump trailmark; mode default
         bindsym  Shift+t jump trailmark all; mode default
-        bindsym  v jump; mode default
+        bindsym  j jump; mode default
         bindsym  k jump criteria [app_id="kitty"]; mode default
         bindsym  z jump criteria [app_id="zen"]; mode default
         bindsym Escape mode "default"

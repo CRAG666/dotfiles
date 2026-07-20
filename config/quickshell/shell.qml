@@ -49,11 +49,15 @@ ShellRoot {
                     anchors.bottomMargin: 150 * parent.u
                 }
 
-                SystemBlock {
-                    u: parent.u
+                Column {
+                    property real u: parent.u
                     anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.leftMargin: 48 * parent.u
+                    spacing: 22 * parent.u
+
+                    SystemBlock { u: parent.u }
+                    BatteryBlock { u: parent.u }
                 }
             }
         }

@@ -20,7 +20,7 @@ Column {
         label: "RAM"
         value: SysInfo.ram
         subText: SysInfo.ramshort
-        ringColor: Theme.green(root.dark)
+        ringColor: Theme.pink(root.dark)
     }
     CircleStat {
         anchors.horizontalCenter: parent.horizontalCenter
@@ -38,7 +38,7 @@ Column {
         centerText: "↓" + SysInfo.netdown      // ↓ download
         subText: "↑" + SysInfo.netup           // ↑ upload
         mono: true
-        ringColor: Theme.pink(root.dark)
+        ringColor: Theme.teal(root.dark)
     }
 
     // uptime

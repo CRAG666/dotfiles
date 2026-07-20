@@ -18,6 +18,10 @@ Singleton {
     property string netup: "—"
     property real netpct: 0
     property string uptime: "—"
+    property real batPct: 0
+    property string batStatus: "—"
+    property string batTime: "—"
+    property bool batPresent: false
 
     // previous sample, for deltas
     property real _prevIdle: 0
@@ -49,6 +53,11 @@ Singleton {
     FileView { id: tempFile;   blockAllReads: true; printErrors: false }
     FileView { id: rxFile;     blockAllReads: true; printErrors: false }
     FileView { id: txFile;     blockAllReads: true; printErrors: false }
+    FileView { id: batCapFile;  path: "/sys/class/power_supply/BAT0/capacity";   blockAllReads: true; printErrors: false }
+    FileView { id: batStatFile; path: "/sys/class/power_supply/BAT0/status";    blockAllReads: true; printErrors: false }
+    FileView { id: batNowFile;  path: "/sys/class/power_supply/BAT0/energy_now";blockAllReads: true; printErrors: false }
+    FileView { id: batFullFile; path: "/sys/class/power_supply/BAT0/energy_full";blockAllReads: true; printErrors: false }
+    FileView { id: batPowFile;  path: "/sys/class/power_supply/BAT0/power_now"; blockAllReads: true; printErrors: false }
 
     Timer {
         interval: 2000
@@ -138,6 +147,34 @@ Singleton {
             netpct = 0;
         }
 
+        // ── BATTERY ──
+        batCapFile.reload();
+        const cap = parseInt(batCapFile.text());
+        batPresent = !isNaN(cap);
+        if (batPresent) {
+            batPct = cap;
+            batStatFile.reload();
+            batStatus = batStatFile.text().trim();
+            if (batStatus === "Full") {
+                batTime = "Full";
+            } else {
+                batNowFile.reload();
+                batFullFile.reload();
+                batPowFile.reload();
+                const now = parseInt(batNowFile.text()) || 0;
+                const full = parseInt(batFullFile.text()) || 0;
+                const pow = parseInt(batPowFile.text()) || 0;
+                if (pow > 0) {
+                    const secs = batStatus === "Charging"
+                        ? ((full - now) / pow) * 3600
+                        : (now / pow) * 3600;
+                    batTime = fmtDuration(Math.round(secs));
+                } else {
+                    batTime = batStatus;
+                }
+            }
+        }
+
         // ── uptime ──
         uptimeFile.reload();
         const us = parseFloat(uptimeFile.text());
@@ -168,5 +205,13 @@ Singleton {
         if (h) parts.push(h + (h === 1 ? " hour" : " hours"));
         if (m || !parts.length) parts.push(m + (m === 1 ? " minute" : " minutes"));
         return parts.join(", ");
+    }
+
+    function fmtDuration(s) {
+        if (s < 0) s = 0;
+        const h = Math.floor(s / 3600);
+        const m = Math.floor((s % 3600) / 60);
+        if (h > 0) return h + "h " + m + "m";
+        return m + "m";
     }
 }
