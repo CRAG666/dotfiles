@@ -98,11 +98,7 @@ FORCE=0
 info() { printf '%s\n' "$*"; }
 warn() { printf '%s\n' "$*" >&2; }
 
-# Convert "#RRGGBB" (or "RRGGBB") to "R;G;B" (decimal SGR triplet).
-hex_to_sgr() {
-  local hex="${1#\#}"
-  printf '%d;%d;%d' "$((16#${hex:0:2}))" "$((16#${hex:2:2}))" "$((16#${hex:4:2}))"
-}
+# ponytail: inlined — only caller is build_hex_sed_script
 
 # ---------------------------------------------------------------------------
 # Mode determination
@@ -140,8 +136,8 @@ build_hex_sed_script() {
     if [[ "$style" == "bare" ]]; then
       printf 's/\\b%s\\b/%s/gI\n' "$from_hex" "$to_hex"
     else
-      from_sgr="$(hex_to_sgr "#$from_hex")"
-      to_sgr="$(hex_to_sgr "#$to_hex")"
+      from_sgr="$((16#${from_hex:0:2}));$((16#${from_hex:2:2}));$((16#${from_hex:4:2}))"
+      to_sgr="$((16#${to_hex:0:2}));$((16#${to_hex:2:2}));$((16#${to_hex:4:2}))"
       printf 's/#%s/#%s/gI\n' "$from_hex" "$to_hex"
       printf 's/38;2;%s/38;2;%s/g\n' "$from_sgr" "$to_sgr"
       printf 's/48;2;%s/48;2;%s/g\n' "$from_sgr" "$to_sgr"
@@ -376,7 +372,7 @@ reload_daemons() {
 
   # zsh-patina: restart to pick up the new theme.toml symlink.
   if mise which zsh-patina >/dev/null 2>&1; then
-    mise exec -- zsh -c "zsh-patina restart" 2>/dev/null || true
+    zsh -c "mise exec -- zsh-patina restart" 2>/dev/null || true
   fi
 
   # GTK / GNOME color-scheme hint (Thunderbird, GTK4 apps respect this).

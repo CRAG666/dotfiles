@@ -20,6 +20,8 @@ zmodule jeffreytse/zsh-vi-mode
 # Utility aliases and functions. Adds colour to ls, grep and less.
 zmodule utility
 zmodule archive
+zmodule exa
+zmodule joke/zim-mise
 zmodule le0me55i/zsh-systemd --source systemd.plugin.zsh
 zmodule Aloxaf/fzf-tab
 
@@ -56,6 +58,5 @@ zmodule completion
 # zmodule zsh-users/zsh-history-substring-search
 # Fish-like autosuggestions for Zsh.
 zmodule zsh-users/zsh-autosuggestions
-zmodule none9632/zsh-sudo
 zmodule wfxr/forgit
 # }}} End configuration added by Zim install

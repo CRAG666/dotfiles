@@ -30,7 +30,23 @@ for _, plugin in ipairs(disabled_built_ins) do
 	vim.g["loaded_" .. plugin] = 1
 end
 
-vim.cmd.colorscheme("macro")
+do
+	local f = io.open(vim.fn.expand("~/.config/eyes/mode"), "r")
+	local mode = f and (f:read("*l") or "light") or "light"
+	if f then
+		f:close()
+	end
+	vim.o.background = (mode == "dark") and "dark" or "light"
+end
+vim.cmd.colorscheme("eyes")
+
+vim.opt.relativenumber = true
+vim.api.nvim_create_autocmd('UIEnter', {
+  once = true,
+  callback = vim.schedule_wrap(function()
+    vim.opt.clipboard:append('unnamedplus')
+  end),
+})
 
 vim.api.nvim_create_autocmd("FileType", {
 	once = true,
@@ -74,4 +90,3 @@ require("plugin.run_code")
 vim.pack.add({ { src = "https://github.com/chaoren/vim-wordmotion" } })
 vim.pack.add({ { src = "https://github.com/kylechui/nvim-surround" } })
 require("nvim-surround").setup({})
-

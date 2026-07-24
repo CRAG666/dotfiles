@@ -8,7 +8,7 @@ let __lsi_icons = {
     files: (
         $__lsi_theme.icon.files
         | reduce -f {} {|it, acc|
-            $acc | upsert ($it.name | str downcase) $it
+            $acc | upsert ($it.name | str lowercase) $it
         }
     ),
     exts: (
@@ -32,12 +32,12 @@ def decorate-file [input] {
         let match = ($__lsi_icons.dirs | get -o $name)
         if $match != null {
             let hex = ($match.fg? | default "#50fa7b")
-            return $"(ansi $hex)($match.text) ($path)(ansi reset)"
+            return $"(ansi $hex)($match.text)(ansi reset) ($path)"
         }
-        return $"(ansi red)󰉋 ($path)(ansi reset)"
+        return $"(ansi cyan)󰉋(ansi reset) ($path)"
     }
 
-    let lname = ($name | str downcase)
+    let lname = ($name | str lowercase)
     let file_match = ($__lsi_icons.files | get -o $lname)
 
     if $file_match != null {
@@ -50,7 +50,7 @@ def decorate-file [input] {
         | path parse
         | get extension?
         | default ""
-        | str downcase
+        | str lowercase
     )
 
     let ext_match = ($__lsi_icons.exts | get -o $ext)
@@ -64,7 +64,7 @@ def decorate-file [input] {
 
 def --wrapped ls [...args] {
     let result = (
-        nu -c $"ls ($args | str join ' ') | to nuon"
+        nu -c $"ls ($args | str join ' ') | sort-by type name | to nuon"
         | complete
     )
 

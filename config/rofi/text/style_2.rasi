@@ -21,7 +21,6 @@ configuration {
 * {
   background-color: @background;
   bgAlt: @background-alt;
-  background-color:	@background;
   text-color:		@foreground;
 }
 
@@ -117,18 +116,6 @@ element selected.urgent {
 element selected.active {
     background-color: 				@foreground;
     text-color:       				@background;
-}
-element alternate.normal {
-    background-color: 				@background;
-    text-color:       				@foreground;
-}
-element alternate.urgent {
-    background-color: 				@background;
-    text-color:       				@foreground;
-}
-element alternate.active {
-    background-color: 				@background;
-    text-color:       				@foreground;
 }
 
 element-icon {

@@ -412,11 +412,6 @@ on  = "M"
 run = "plugin mount"
 
 [[mgr.prepend_keymap]]
-on   =[ "<C-p>" ]
-run = '''shell 'ripdrag -x "$@"' --confirm'''
-desc = "Drag and Drop"
-
-[[mgr.prepend_keymap]]
 on = [ "g", "m" ]
 run = "cd /run/media/$USER"
 desc = "Go USB"

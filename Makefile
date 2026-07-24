@@ -228,6 +228,10 @@ thinkpad-amd: laptop-amd ## AMD ThinkPad configuration (e.g. L14 Gen 4)
 	@echo "==> Installing L14-specific sysctl..."
 	sudo install -m 644 ${PWD}/etc/sysctl.d/99-l14.conf /etc/sysctl.d/
 	sudo sysctl --system
+	@echo "==> Installing battery charge threshold udev rule..."
+	sudo install -Dm 644 ${PWD}/etc/udev/rules.d/99-battery-threshold.rules \
+		/etc/udev/rules.d/99-battery-threshold.rules
+	@sudo udevadm control --reload || true
 
 nvidia: ## Configure NVIDIA drivers (+ NVIDIA-only Scroll session)
 	@echo "==> Installing NVIDIA packages..."

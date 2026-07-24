@@ -7,23 +7,75 @@ return {
         data = { optional = false },
       },
     },
+    -- events = { 'VimEnter' },
     postload = function()
       require('snacks').setup({
-        animate = { enabled = false },
-        scroll = { enabled = false },
+        dashboard = {
+          enabled = true,
+          sections = {
+            {
+              section = 'terminal',
+              cmd = 'oh-my-logo "Aguilar" fire --filled',
+              height = 8,
+              padding = 1,
+            },
+            { section = 'keys', gap = 1 },
+            {
+              icon = ' ',
+              title = 'Recent Files',
+              section = 'recent_files',
+              indent = 2,
+              padding = { 2, 2 },
+            },
+            {
+              icon = ' ',
+              title = 'Projects',
+              section = 'projects',
+              indent = 2,
+              padding = 2,
+            },
+          },
+        },
+        bigfile = { enabled = true },
+        animate = { enabled = true },
+        scroll = { enabled = true },
         quickfile = { enabled = false },
         statuscolumn = { enabled = false },
-        bigfile = { enabled = true },
-        dim = { enabled = true },
+        dim = { enabled = false },
         indent = { enabled = true },
         scope = { enabled = true },
         layout = { enabled = true },
         picker = {
           enabled = true,
-          -- layout = {
-          --   preset = 'sidebar',
-          --   layout = { position = 'right' },
-          -- },
+          layout = {
+            --   preset = 'sidebar',
+            -- layout = {
+            --   width = 0.9,
+            --   height = 0.9,
+            --   -- position = 'right'
+            -- },
+            layout = {
+              box = 'vertical',
+              backdrop = false,
+              row = -1,
+              width = 0,
+              height = 0.6,
+              border = 'top',
+              title = ' {title} {live} {flags}',
+              title_pos = 'left',
+              { win = 'input', height = 1, border = 'bottom' },
+              {
+                box = 'horizontal',
+                { win = 'list', border = 'none' },
+                {
+                  win = 'preview',
+                  title = '{preview}',
+                  width = 0.6,
+                  border = 'left',
+                },
+              },
+            },
+          },
           previewers = {
             diff = {
               builtin = false,
@@ -40,35 +92,6 @@ return {
           enabled = true,
         },
         words = { enabled = true },
-        dashboard = {
-          enabled = true,
-          sections = {
-            {
-              section = 'terminal',
-              cmd = 'oh-my-logo "Aguilar" fire --filled',
-              height = 8,
-              padding = 1,
-            },
-            {
-              -- pane = 2,
-              { section = 'keys', gap = 1, padding = 1 },
-            },
-            {
-              icon = ' ',
-              title = 'Recent Files',
-              section = 'recent_files',
-              indent = 2,
-              padding = 1,
-            },
-            {
-              icon = ' ',
-              title = 'Projects',
-              section = 'projects',
-              indent = 2,
-              padding = 1,
-            },
-          },
-        },
       })
 
       local key = require('utils.keymap')

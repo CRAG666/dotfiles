@@ -1,5 +1,5 @@
-# Shared aliases — single source of truth para zsh + nushell (.zshrc convierte 'alias x = y' -> 'x=y').
-# Una línea `alias NOMBRE = VALOR`; SOLO alias idénticos en ambos shells.
+alias la = ls -la
+alias ll = ls -l
 alias ip = ip -color=auto
 alias ping = prettyping
 alias cp = cpx
@@ -18,6 +18,7 @@ alias icat = kitten icat
 alias s = kitten ssh
 alias ssh = kitten ssh
 alias tf = kitten transfer
+alias vim = nvim
 alias vimc = nvim ~/.config/nvim/init.lua
 alias vimk = nvim ~/.config/nvim/lua/core/keymaps.lua
 alias vimd = nvim ~/.config/nvim/lua/core/opts.lua

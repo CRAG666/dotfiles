@@ -1,3 +1,12 @@
+def get_commit_info [] {
+    let TYPE = (gum choose "fix" "feat" "docs" "style" "refactor" "test" "chore" "revert")
+    let SCOPE_INPUT = (gum input --placeholder "scope")
+    let SCOPE = if not ($SCOPE_INPUT | is-empty) { $"($SCOPE_INPUT)" } else { "" }
+    let SUMMARY = (gum input --value $"($TYPE)($SCOPE): " --placeholder "Resumen de este cambio")
+    let DESCRIPTION = (gum write --placeholder "Detalles de este cambio")
+    { summary: $SUMMARY, description: $DESCRIPTION }
+}
+
 def acp [] {
     let commit_info = (get_commit_info)
     if (gum confirm "Hacer commit de los cambios?") {
@@ -101,3 +110,12 @@ def gtags [] {
   | update tag { |row| $"(ansi yellow)($row.tag)(ansi reset)" }
   | update date { |row| $"(ansi green)($row.date)(ansi reset)" }
 }
+
+def gac [] {
+    let commit_info = (get_commit_info)
+    if (gum confirm "Hacer commit de los cambios?") {
+        git add .
+        git commit -m $commit_info.summary -m $commit_info.description
+    }
+}
+

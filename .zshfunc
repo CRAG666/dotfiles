@@ -11,66 +11,6 @@ sar(){
   # perl -pi -e "s/$1/$2/g" .
 }
 
-atm() {
-  subcmd="unmount"
-
-  # Verificar si hay dispositivos disponibles
-  devices=$(udisksctl status | rg -e "sd[^a]")
-  if [ -z "$devices" ]; then
-    echo "No se encontraron dispositivos disponibles."
-    return 1
-  fi
-
-  device=$(echo "$devices" | gum filter --no-limit --height=25 --placeholder 'Select Device' | awk '{print $(NF)}')
-  if [ -z "$device" ]; then
-    echo "No se seleccionó ningún dispositivo."
-    return 1
-  fi
-
-  if [ "$1" != "-u" ]; then
-    subcmd="mount"
-  fi
-
-  # Verificar si el dispositivo seleccionado tiene particiones
-  partitions=$(lsblk | rg -i "$device.*part")
-  if [ -z "$partitions" ]; then
-    echo "El dispositivo seleccionado no tiene particiones."
-    return 1
-  fi
-
-  partition_count=$(echo "$partitions" | wc -l)
-  if [ "$partition_count" -eq 1 ]; then
-    # Solo hay una partición, montar o desmontar automáticamente
-    partition=$(echo "$partitions" | sed 's/[├─└─]//g' | awk '{print $1}')
-  else
-    # Mostrar el menú de selección de partición
-    if [ "$subcmd" = "unmount" ]; then
-      # Filtrar particiones montadas solamente si se va a desmontar
-      mounted_partitions=$(grep -s "/dev/$device" /proc/mounts | awk '{print $1}' | awk -F '/' '{print $NF}')
-      if [ -z "$mounted_partitions" ]; then
-        echo "No hay particiones montadas en este dispositivo."
-        return 1
-      fi
-      partition=$(echo "$partitions" | grep -i -e "$mounted_partitions" | sed 's/[├─└─]//g' | gum filter --no-limit --height=25 --placeholder 'Select Partition' | awk '{print $1}')
-    else
-      partition=$(echo "$partitions" | sed 's/[├─└─]//g' | gum filter --no-limit --height=25 --placeholder 'Select Partition' | awk '{print $1}')
-    fi
-  fi
-
-  if [ -z "$partition" ]; then
-    echo "No se seleccionó ninguna partición."
-    return 1
-  fi
-
-  mounted=$(grep -s "/dev/$partition" /proc/mounts)
-  if [ "$mounted" ] && [ "$subcmd" = "mount" ]; then
-    echo "Esta partición ya está montada en el sistema."
-    return 1
-  fi
-
-  udisksctl "$subcmd" -b "/dev/$partition"
-}
-
 encrypt(){
   openssl enc -aes-256-cbc -md sha512 -pbkdf2 -iter 100000 -salt -in "$1" -out "$2"
 }
@@ -183,7 +123,5 @@ group_lazy_load() {
 group_lazy_load node npm yarn
 unset -f group_lazy_load
 
-# Túnel SSH al ollama del cluster (gpuserver02:11652 vía login node).
 otun-up()   { setsid ssh -fN ollama-tunnel && echo "túnel arriba → localhost:11652 (sobrevive al cerrar la terminal)"; }
 otun-down() { pkill -f 'ssh -fN ollama-tunnel' && echo "túnel cerrado"; }
-

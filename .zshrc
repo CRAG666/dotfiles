@@ -174,8 +174,8 @@ if [[ -r ~/.config/nushell/aliases.nu ]]; then
   unset _l _r _n _c
 fi
 # HACK: Command alternatives
-alias ls="exa --icons"
-alias la="exa --icons -la"
+alias vi="NVIM_APPNAME=nvim-minimal nvim"
+alias ls='eza --group-directories-first --icons'
 alias grep='grep --color=auto'
 cd() { pushd $1 && ls; }
 alias rm='rm -i'
@@ -195,16 +195,29 @@ alias Usb="cd /run/media/$USER"
 # HACK: fzf alias
 alias paci="pacman -Slq | fzf --multi --preview 'pacman -Si {1}' | xargs -ro sudo pacman -S"
 alias pacr="pacman -Qq | fzf --multi --preview 'pacman -Qi {1}' | xargs -ro sudo pacman -Rns"
+
 ys() {
   pacman -Slq | fzf --multi --preview 'pacman -Si {1}' | xargs -ro sudo pacman -S
 }
+
 yclean() {
   local orphans=$(pacman -Qtdq)
   [ -n "$orphans" ] && sudo pacman -Rns $orphans
   sudo pacman -Scc
 }
-h(){ curl -s "cheat.sh/$*"; }
+
+h() {
+    hour=$(date +%H)
+    if [ "$hour" -ge 7 ] && [ "$hour" -lt 19 ]; then
+        style="?style=emacs"
+    else
+        style=""
+    fi
+    curl -s "cheat.sh/$*$style"
+}
+
 q(){ pi --tools bash,read -p "Read the man page (or --help if none exists) for the following Linux command and output ONLY a cheat.sh-style reference in plain shell-script format: a one-line comment summarizing the command at the top, then 4-8 realistic example invocations from basic to advanced, each preceded by a one-line comment starting with # explaining what it does. Every line must be either a comment starting with # or an actual runnable shell command exactly as it would appear in a .sh file - no markdown code fences, no headers, no bullet points, no bold text, no prose paragraphs. End with one comment starting with # gotcha: describing a common mistake. Keep it under 25 lines total. The command is: $*" | bat -l bash --style=plain --paging=never --color=always; }
+
 alias ci="{ find . -xdev -printf '%h\n' | sort | uniq -c | sort -k 1 -n; } 2>/dev/null"
 alias fontl="fc-list | cut -d ':' -f2 | sort | uniq"
 
@@ -215,12 +228,6 @@ source "$HOME/Git/dotfiles/config/shell/colors.env"
 set +a
 export PATH="$HOME/.config/emacs/bin:$HOME/.local/bin:$HOME/.dotnet/tools:$HOME/.local/share/bob/nvim-bin:$HOME/.local/share/nvim/mason/bin:$PATH"
 
-# mise: expone los runtimes/herramientas de ~/.config/mise/config.toml en el PATH
-# (carapace, zsh-patina, hunk, topgrade, oama, cpx, node…). Reemplaza los binarios
-# que antes venían de AUR en /usr/bin. Debe ir antes de usar cualquiera (p.ej. zsh-patina activate).
-eval "$(mise activate zsh)"
-
-# gpg: el agente necesita saber el terminal actual para el pinentry (pass, git sign…).
 export GPG_TTY=$TTY
 
 zmodload -F zsh/stat b:zstat 2>/dev/null
@@ -255,3 +262,4 @@ for _f in ~/.zshrc ~/.zshfunc ${ZIM_HOME}/init.zsh; do
   [[ -s $_f && ( ! -s $_f.zwc || $_f -nt $_f.zwc ) ]] && zcompile "$_f" 2>/dev/null
 done
 unset _f
+zmodload zsh/zprof

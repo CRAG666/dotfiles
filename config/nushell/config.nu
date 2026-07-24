@@ -1,5 +1,5 @@
-# $env.LSI_THEME_PATH = $"($env.HOME)/.config/yazi/theme.toml"
-# source ~/.config/nushell/lsi.nu
+$env.LSI_THEME_PATH = $"($env.HOME)/.config/yazi/theme.toml"
+source ~/.config/nushell/lsi.nu
 $env.config.hooks = ($env.config.hooks | upsert env_change {
     PWD: [
         {|before, after|
@@ -31,15 +31,10 @@ $env.config.table = {
 }
 
 alias rm = rm -ti
-# alias help = cht.sh
-alias la = ls -la
-alias ll = ls -l
 
 def vi [...args] {
-    NVIM_APPNAME=nvim-minimal nvim ...$args
-}
-def vim [...args] {
-    NVIM_NF=true nvim ...$args
+    $env.NVIM_APPNAME = "nvim-minimal"
+    nvim ...$args
 }
 
 alias Applications = cd /usr/share/applications
@@ -51,10 +46,15 @@ alias Music = cd $"($env.HOME)/Música"
 alias Videos = cd $"($env.HOME)/Vídeos"
 alias Git = cd $"($env.HOME)/Git"
 alias Usb = cd $env.USB
-alias h = do {|x| curl -s $"cheat.sh/($x)" }
 alias q = do {|x|
   pi --tools bash,read -p $"Read the man page \(or --help if none exists\) for the following Linux command and output ONLY a cheat.sh-style reference in plain shell-script format: a one-line comment summarizing the command at the top, then 4-8 realistic example invocations from basic to advanced, each preceded by a one-line comment starting with # explaining what it does. Every line must be either a comment starting with # or an actual runnable shell command exactly as it would appear in a .sh file - no markdown code fences, no headers, no bullet points, no bold text, no prose paragraphs. End with one comment starting with # gotcha: describing a common mistake. Keep it under 25 lines total. The command is: ($x)"
   | bat -l bash --style=plain --paging=never --color=always
+}
+def h [...args: string] {
+    let hour = (date now | format date "%H" | into int)
+    let style = if $hour >= 7 and $hour < 19 { "?style=emacs" } else { "" }
+    let query = ($args | str join " ")
+    curl -s $"cheat.sh/($query)($style)"
 }
 
 def sar [find_text: string, replace_text: string] {
@@ -79,23 +79,6 @@ def encrypt [infile: path, outfile: path] {
 
 def decrypt [infile: path, outfile: path] {
     openssl enc -d -aes-256-cbc -md sha512 -pbkdf2 -iter 100000 -salt -in $infile -out $outfile
-}
-
-def get_commit_info [] {
-    let TYPE = (gum choose "fix" "feat" "docs" "style" "refactor" "test" "chore" "revert")
-    let SCOPE_INPUT = (gum input --placeholder "scope")
-    let SCOPE = if not ($SCOPE_INPUT | is-empty) { $"($SCOPE_INPUT)" } else { "" }
-    let SUMMARY = (gum input --value $"($TYPE)($SCOPE): " --placeholder "Resumen de este cambio")
-    let DESCRIPTION = (gum write --placeholder "Detalles de este cambio")
-    { summary: $SUMMARY, description: $DESCRIPTION }
-}
-
-def gac [] {
-    let commit_info = (get_commit_info)
-    if (gum confirm "Hacer commit de los cambios?") {
-        git add .
-        git commit -m $commit_info.summary -m $commit_info.description
-    }
 }
 
 def vims [pattern: string] {
@@ -171,7 +154,6 @@ def dirsum [directory?: string] {
 }
 
 def du1 [] { du -d 1 | sort-by apparent }
-def aicli [] { ^bash -c 'eval $(gum choose "gemini" "qwen" "crush")' }
 def paci [] { ^bash -c "pacman -Slq | fzf --multi --preview 'pacman -Si {1}' | xargs -ro sudo pacman -S" }
 def pacr [] { ^bash -c "pacman -Qq | fzf --multi --preview 'pacman -Qi {1}' | xargs -ro sudo pacman -Rns" }
 def ys [] {
@@ -188,52 +170,12 @@ def yclean [] {
     }
     sudo pacman -Scc
 }
+
 def ci [] { ^bash -c "{ find . -xdev -printf '%h\n' | sort | uniq -c | sort -k 1 -n; } 2>/dev/null" }
 def fontl [] { ^bash -c "fc-list | cut -d ':' -f2 | sort | uniq" }
-# def atm [flag: string] { ^bash -c $'atm "($flag)"' }
 
 def polars-open [file: path] {
     polars open $file | polars into-nu
-}
-
-def hyprctl-monitors [] {
-    hyprctl monitors -j | from json
-}
-
-def hyprctl-clients [] {
-    hyprctl clients -j | from json
-}
-
-def hyprctl-workspaces [] {
-    hyprctl workspaces -j | from json
-}
-
-def hyprctl-activewindow [] {
-    hyprctl activewindow -j | from json
-}
-
-def hyprctl-devices [] {
-    hyprctl devices -j | from json
-}
-
-def hyprctl-layers [] {
-    hyprctl layers -j | from json
-}
-
-def hyprctl-animations [] {
-    hyprctl animations -j | from json
-}
-
-def hyprctl-cursorpos [] {
-    hyprctl cursorpos -j | from json
-}
-
-def hyprctl-plugins [] {
-    hyprctl plugin list -j | from json
-}
-
-def hyprctl-activeworkspace [] {
-    hyprctl activeworkspace -j | from json
 }
 
 def norg [
@@ -287,14 +229,12 @@ $env.config = (
         }
     )
 )
-# source ~/.config/nushell/catppuccin_mocha.nu
+
 source ~/.config/nushell/theme.nu
 source ~/.config/nushell/podman.nu
 source ~/.config/nushell/git.nu
 source ~/.config/nushell/aliases.nu
 
-# Hot-reload: si cambia ~/.config/eyes/mode, recarga colors.env y re-source theme.nu en el próximo prompt.
-# Va como string para re-parsearse en el scope actual (así source y $env persisten).
 $env._EYES_MODE_MTIME = (try { ls $"($env.HOME)/.config/eyes/mode" | get 0.modified | into int } catch { -1 })
 $env.config.hooks.pre_prompt = (
     $env.config.hooks.pre_prompt? | default [] | append {
@@ -308,4 +248,3 @@ $env.config.hooks.pre_prompt = (
         '
     }
 )
-

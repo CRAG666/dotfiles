@@ -7,7 +7,6 @@ UV_PRERELEASE = "allow"
 [tools]
 carapace = "latest"
 "cargo:cpx" = "latest"
-"cargo:ripdrag" = "latest"
 "cargo:zsh-patina" = "latest"
 claude = "latest"
 dotnet = "10.0"

@@ -5,7 +5,7 @@
     "edit": "ask",
     "webfetch": "ask"
   },
-  "model": "ollama/devstral-small-2:latest",
+  "model": "ollama/qwen3-coder-next:latest",
   "provider": {
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",
@@ -14,11 +14,11 @@
         "baseURL": "http://localhost:11652/v1"
       },
       "models": {
-        "qwen3.6:35b-a3b": { "name": "Qwen3.6" },
         "science-assistant:latest": { "name": "Science Assistant" },
         "gpt-oss:120b": { "name": "GPT OSS" },
-        "devstral-small-2:latest": { "name": "DevStral Small 2" }
+        "qwen3-coder-next:latest": { "name": "Qwen-Coder-Next" },
       }
     }
-  }
+  },
+ "plugin": ["@dietrichgebert/ponytail"]
 }
