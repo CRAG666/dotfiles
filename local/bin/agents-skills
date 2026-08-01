@@ -74,7 +74,7 @@ mapfile -t skills < <(find "$SKILLS_SRC" -maxdepth 1 -mindepth 1 -type d ! -name
 
 target=$(gum choose --header "¿Dónde instalar las skills?" \
   "Global  →  $GLOBAL_DEST" \
-  "Local   →  $LOCAL_DEST")
+  "Local   →  $LOCAL_DEST") || exit 0
 
 case "$target" in
   Global*) DEST="$GLOBAL_DEST"; LINK="$GLOBAL_LINK" ;;
@@ -86,19 +86,18 @@ ensure_link "$DEST" "$LINK"
 
 available=()
 for skill in "${skills[@]}"; do
-  [[ -L "$GLOBAL_DEST/$skill" || -e "$GLOBAL_DEST/$skill" ]] && continue
-  [[ -L "$LOCAL_DEST/$skill"  || -e "$LOCAL_DEST/$skill"  ]] && continue
+  [[ -L "$DEST/$skill" || -e "$DEST/$skill" ]] && continue
   available+=("$skill")
 done
 
 [[ ${#available[@]} -gt 0 ]] || {
-                                  echo "Todas las skills ya están instaladas en global o local"
+                                  echo "Todas las skills ya están instaladas en $DEST"
                                   exit 0
 }
 
 selected=$(gum choose --no-limit \
   --header "Selecciona skills (espacio para marcar, enter para confirmar)" \
-  "${available[@]}")
+  "${available[@]}") || exit 0
 
 [[ -n "$selected" ]] || {
                           echo "Nada seleccionado"
