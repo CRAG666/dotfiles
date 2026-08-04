@@ -166,19 +166,19 @@ end
 -- 🌸 🌺 🌼 💮 💠 🪷
 local f_blossom, f_hibiscus, f_daisy, f_white, f_diamond, f_lotus
 if vim.go.bg == 'dark' then
-  f_blossom  = { '#e6a0b8', 175 }  -- 🌸 rosa cerezo
-  f_hibiscus = { '#e0607f', 168 }  -- 🌺 rosa fucsia
-  f_daisy    = { '#e0c060', 179 }  -- 🌼 amarillo dorado
-  f_white    = { '#f2ccd8', 218 }  -- 💮 rosa muy pálido
-  f_diamond  = { '#6fd0e0', 81  }  -- 💠 diamante cian
-  f_lotus    = { '#c49ad6', 182 }  -- 🪷 lavanda violeta
+  f_blossom = { '#e6a0b8', 175 } -- 🌸 rosa cerezo
+  f_hibiscus = { '#e0607f', 168 } -- 🌺 rosa fucsia
+  f_daisy = { '#e0c060', 179 } -- 🌼 amarillo dorado
+  f_white = { '#f2ccd8', 218 } -- 💮 rosa muy pálido
+  f_diamond = { '#6fd0e0', 81 } -- 💠 diamante cian
+  f_lotus = { '#c49ad6', 182 } -- 🪷 lavanda violeta
 else
-  f_blossom  = { '#a83a5e', 89  }  -- 🌸 rosa cerezo (oscuro)
-  f_hibiscus = { '#b22a52', 125 }  -- 🌺 rosa fucsia (oscuro)
-  f_daisy    = { '#6e5410', 94  }  -- 🌼 dorado (oscuro)
-  f_white    = { '#9c4e70', 95  }  -- 💮 rosa (oscuro)
-  f_diamond  = { '#16687a', 30  }  -- 💠 diamante cian (oscuro)
-  f_lotus    = { '#6a2c7c', 54  }  -- 🪷 violeta (oscuro)
+  f_blossom = { '#a83a5e', 89 } -- 🌸 rosa cerezo (oscuro)
+  f_hibiscus = { '#b22a52', 125 } -- 🌺 rosa fucsia (oscuro)
+  f_daisy = { '#6e5410', 94 } -- 🌼 dorado (oscuro)
+  f_white = { '#9c4e70', 95 } -- 💮 rosa (oscuro)
+  f_diamond = { '#16687a', 30 } -- 💠 diamante cian (oscuro)
+  f_lotus = { '#6a2c7c', 54 } -- 🪷 violeta (oscuro)
 end
 -- }}}
 

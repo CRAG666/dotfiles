@@ -1,4 +1,4 @@
-$env.LSI_THEME_PATH = $"($env.HOME)/.config/yazi/flavors/eyes-dark.yazi/flavor.toml"
+$env.LSI_THEME_PATH = $"($env.HOME)/.config/yazi/flavors/eyes-(try { open $"($env.HOME)/.config/eyes/mode" | str trim } catch { 'light' }).yazi/flavor.toml"
 source ~/.config/nushell/lsi.nu
 $env.config.hooks = ($env.config.hooks | upsert env_change {
     PWD: [
