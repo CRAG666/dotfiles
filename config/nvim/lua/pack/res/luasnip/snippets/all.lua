@@ -1,6 +1,6 @@
 local M = {}
-local us = require('my.utils.snip.snips')
-local conds = require('my.utils.snip.conds')
+local us = require('utils.snip.snips')
+local conds = require('utils.snip.conds')
 local ls = require('luasnip')
 local i = ls.insert_node
 local c = ls.choice_node
@@ -24,6 +24,8 @@ M.snippets = {
     c(1, {
       i(nil, os.date()),
       i(nil, os.date('%Y-%m-%d')), -- ISO
+      i(nil, os.date('%Y%m%d')),
+      i(nil, os.date("%Y%m%d_%H%M%S")),
       i(nil, os.date('%m.%d.%Y')),
     })
   ),

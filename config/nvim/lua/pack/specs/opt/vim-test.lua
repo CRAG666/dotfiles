@@ -181,10 +181,24 @@ return {
         table.remove(opts.fargs, 1)
         opts.fargs[#opts.fargs + 1] = '-strategy=yank'
 
-        if scope == 'last' then
-          vim.fn['test#run_last'](opts.fargs)
-        else
-          vim.fn['test#run'](scope, opts.fargs)
+        local last_command = vim.g['test#last_command']
+        local last_strategy = vim.g['test#last_strategy']
+
+        -- Use `pcall` to ensure the last command and strategy are restored
+        -- even if yanking fails
+        local ok, err = pcall(function()
+          if scope == 'last' then
+            vim.fn['test#run_last'](opts.fargs)
+          else
+            vim.fn['test#run'](scope, opts.fargs)
+          end
+        end)
+
+        vim.g['test#last_command'] = last_command
+        vim.g['test#last_strategy'] = last_strategy
+
+        if not ok then
+          error(err)
         end
       end, {
         nargs = '*',

@@ -95,6 +95,57 @@ M.restore_heights = M.restore(M.win_safe_set_height)
 M.save_widths = M.save(vim.api.nvim_win_get_width)
 M.restore_widths = M.restore(vim.api.nvim_win_set_width)
 
+local split_directions = {
+  vertical = {
+    aboveleft = 'left',
+    belowright = 'right',
+    botright = 'right',
+    topleft = 'left',
+  },
+  horizontal = {
+    aboveleft = 'above',
+    belowright = 'below',
+    botright = 'below',
+    topleft = 'above',
+  },
+}
+
+---Open a buffer according to command modifiers
+---@param buf integer
+---@param mods vim.api.keyset.cmd_mods
+---@param win? integer target window, default to current window
+---@return integer win opened and entered window
+function M.open_with_mods(buf, mods, win)
+  if not win or not vim.api.nvim_win_is_valid(win) then
+    win = vim.api.nvim_get_current_win()
+  end
+
+  if mods.tab >= 0 then
+    vim.api.nvim_set_current_win(win)
+    vim.cmd.tabnew()
+    vim.api.nvim_win_set_buf(0, buf)
+    return vim.api.nvim_get_current_win()
+  end
+
+  local vertical = mods.vertical and not mods.horizontal
+  local orientation = vertical and 'vertical' or 'horizontal'
+  local split = vertical and (vim.o.splitright and 'right' or 'left')
+    or (vim.o.splitbelow and 'below' or 'above')
+  split = split_directions[orientation][mods.split] or split
+
+  local target = win
+  if mods.split == 'botright' or mods.split == 'topleft' then
+    vim.api.nvim_set_current_win(win)
+    target = -1
+  end
+
+  return vim.api.nvim_open_win(buf, true, {
+    split = split,
+    win = target,
+    noautocmd = mods.noautocmd,
+  })
+end
+
 ---Save window ratios as { height_ratio, width_ratio } tuple
 M.save_ratio = M.save(function(win)
   return {

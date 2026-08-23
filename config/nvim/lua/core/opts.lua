@@ -30,10 +30,10 @@ vim.opt.smoothscroll = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.completeopt = 'menuone'
-vim.opt.selection = 'old'
 vim.opt.tabclose = 'uselast'
-vim.opt.relativenumber = true
-vim.opt.cmdheight = 0
+
+-- Find recursively under current directory
+vim.opt.path:append('**')
 
 -- Defer shada reading
 do

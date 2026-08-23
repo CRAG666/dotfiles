@@ -1,13 +1,14 @@
 local M = {}
-local u = require('my.utils')
-local uf = require('my.utils.snip.funcs')
-local un = require('my.utils.snip.nodes')
-local us = require('my.utils.snip.snips')
-local conds = require('my.utils.snip.conds')
+local u = require('utils')
+local uf = require('utils.snip.funcs')
+local un = require('utils.snip.nodes')
+local us = require('utils.snip.snips')
+local conds = require('utils.snip.conds')
 local ls = require('luasnip')
 local sn = ls.snippet_node
 local t = ls.text_node
 local i = ls.insert_node
+local f = ls.function_node
 local c = ls.choice_node
 local d = ls.dynamic_node
 
@@ -591,11 +592,28 @@ M.snippets = {
       )
     end)
   ),
+  us.sn(
+    { trig = 'has', desc = 'Check if a command exists' },
+    c(1, {
+      un.fmtad('command -v <cmd> >>/dev/null 2>>&1', {
+        cmd = i(1, 'cmd'),
+      }),
+      un.fmtad('<brak_l> -z "${<var>+x}" <brak_r>', {
+        brak_l = f(function()
+          return is_bash() and '[[' or '['
+        end),
+        brak_r = f(function()
+          return is_bash() and ']]' or ']'
+        end),
+        var = i(1, 'var'),
+      }),
+    })
+  ),
   us.msn({
     { trig = 'hr' },
     { trig = 'here' },
     common = { desc = 'Get script dir' },
-  }, t('"$(dirname -- "$(readlink -f -- "$0")")/"')),
+  }, t('"$(cd "$(dirname "$0")" && pwd)/"')),
   us.msn(
     {
       { trig = 'bs' },
