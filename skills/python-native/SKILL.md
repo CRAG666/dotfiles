@@ -1,6 +1,6 @@
 ---
 name: python-native
-description: 'Push Python stdlib idioms over hand-rolled code. Use whenever the user writes, refactors, optimizes, or reviews Python — including one-liners and code-review feedback. Replaces common reinventions: manual dict counters with `Counter`, `dict.setdefault` loops with `defaultdict`, `isinstance` chains with `singledispatch` or `match`/`case`, hand-rolled memoization with `functools.cache`, `os.path.join` with `pathlib.Path`, `sorted(..., reverse=True)[:k]` with `heapq.nlargest`, manual class boilerplate with `dataclass(slots=True, frozen=True)`, `zip(lst, lst[1:])` with `itertools.pairwise`. Covers Python 3.9-3.14 with per-version reference files. Trigger phrases: "write a Python function", "refactor this Python", "Pythonic way to X", "optimize Python code", "make this more Pythonic", "implement X in Python", or any task whose answer involves Python source.'
+description: 'STRICT: stdlib idioms are mandatory — reinventing a stdlib feature is a defect, not a style choice. Apply whenever the user writes, refactors, optimizes, or reviews Python, including one-liners and code-review feedback. Verify non-trivial stdlib APIs against docs.python.org with WebFetch (exact signatures + official code examples) instead of recalling them from memory. Replaces common reinventions: manual dict counters with `Counter`, `dict.setdefault` loops with `defaultdict`, `isinstance` chains with `singledispatch` or `match`/`case`, hand-rolled memoization with `functools.cache`, `os.path.join` with `pathlib.Path`, `sorted(..., reverse=True)[:k]` with `heapq.nlargest`, manual class boilerplate with `dataclass(slots=True, frozen=True)`, `zip(lst, lst[1:])` with `itertools.pairwise`. Covers Python 3.9-3.14 with per-version reference files. Trigger phrases: "write a Python function", "refactor this Python", "Pythonic way to X", "optimize Python code", "make this more Pythonic", "implement X in Python", or any task whose answer involves Python source.'
 ---
 
 # Python Native: Use the Standard Library Before Writing Code
@@ -12,6 +12,36 @@ hand-rolled context managers, reinvented `namedtuple`s — is already a one-line
 > **Core Principle**: Before writing a loop, a class, or a helper, ask:
 > *"Is this already in `functools`, `itertools`, `collections`, `operator`, or `contextlib`?"*
 > The answer is "yes" more often than not. **Check the stdlib first.**
+
+---
+
+## Enforcement — strict, not advisory
+
+Every rule in this skill is a requirement. Read every "prefer X" as "emit X".
+
+- Any pattern in §17 or `references/anti-patterns.md` appearing in emitted code is a defect, same severity as a logic bug. Rewrite before presenting.
+- Logic that already exists as a stdlib primitive is replaced at its first occurrence. Your own logic repeated a third time is extracted into one function. Do NOT emit copy-pasted variants of the same block.
+- Two passes, every time: the §0 checklist BEFORE writing; a scan against the §17 table AFTER writing.
+- Deviating from a rule requires one stated line: the target version lacks the feature, a measured performance need, or the user's explicit instruction. No silent deviations.
+- Only the user's explicit instruction and the edited file's existing convention outrank this skill.
+
+## Verify APIs in the official docs — WebFetch, not memory
+
+Do NOT emit a stdlib call whose signature, parameter names, defaults, or version availability you are not certain of — fetch the doc page and read its code examples first.
+
+| Need | URL |
+|---|---|
+| Module API + official code examples | `https://docs.python.org/3/library/<module>.html` |
+| Behavior on a pinned version | `https://docs.python.org/3.<X>/library/<module>.html` |
+| What a version added or removed | `https://docs.python.org/3/whatsnew/3.<X>.html` |
+| Design rationale / edge semantics | `https://peps.python.org/pep-XXXX/` |
+
+- DO determine the target version first: `python --version`, or `requires-python` in `pyproject.toml`.
+- DO check `references/python-3.<X>.md` for version availability before fetching; fetch whatsnew only for detail those files lack.
+- DO mirror the documented example closest to the task instead of inventing a shape.
+- DO make the fetch prompt ask for the exact signature and the nearest code example, not a summary.
+- DO fetch when a behavior detail decides correctness: `groupby` requires sorted input, `tee` buffers unevenly-consumed iterators, `lru_cache` pins `self`, `zip` truncates silently without `strict=True`.
+- Do NOT fetch for trivial unambiguous built-ins (`len`, `range`, bare `enumerate`) or an API already verified this session.
 
 ---
 
@@ -35,7 +65,7 @@ Every time you're about to write Python, walk this checklist:
 14. **Random sampling without replacement?** → `random.sample` (not a manual loop).
 15. **Need an iterator-aware helper?** → `itertools.tee`, `accumulate`, `starmap`, `groupby`.
 
-If any answer is "yes", **stop and use the stdlib feature**. Reinventing it is a code smell.
+If any answer is "yes", **stop and use the stdlib feature**. Reinventing it is a defect — rewrite before emitting.
 
 ---
 
@@ -699,6 +729,8 @@ for line in non_empty(lines_of("big.txt")):
 
 ## 17. Things AI Routinely Reinvents (Stop Doing These)
 
+This is the post-write scan table: any left-column pattern in emitted code is a bug — replace it with the right column before presenting.
+
 | Reinvention | Replace with |
 |---|---|
 | Manual `freq = {}` loop | `Counter(iterable)` |
@@ -798,5 +830,7 @@ BEFORE list.pop(0):           Use collections.deque.
 BEFORE sorted(...)[:k] (smallest):       Use heapq.nsmallest.
 BEFORE sorted(..., reverse=True)[:k]:    Use heapq.nlargest.
 WHEN dispatching:             functools.singledispatch or match/case.
+WHEN unsure of an API:        WebFetch docs.python.org/3/library/<module>.html — signature + examples.
+AFTER writing:                Scan against §17 — any match is a defect; fix before emitting.
 WHEN in doubt:                Search the stdlib index before writing code.
 ```

@@ -1,48 +1,17 @@
 ---
 name: senior-dev-principles
-description: 'Apply senior-level engineering judgment on non-trivial code work: designing systems, writing new modules, refactoring, implementing algorithms, or making structural decisions. Triggers: "design X", "refactor this", "implement an algorithm/feature/service", "optimize this", "review this code", "what''s the best way to structure X", or any task that involves architecture, complexity reasoning, or multi-file changes. SKIP for trivial edits (rename, typo, single-line fix), config tweaks, documentation edits, or tasks already covered by the base "match request scope" guidance. Languages: Python, TypeScript, C, C++, SQL.'
+description: 'STRICT structure-and-complexity layer for non-trivial code work: designing systems, writing new modules, refactoring, implementing algorithms, or making structural decisions. Complements code-style-defaults (form of the output) and python-native (Python stdlib): this skill decides how code is structured and how fast it runs — target big-O before writing, single-responsibility grain, policy constants, testability, and per-language defaults for TypeScript, C, C++, and SQL. Triggers: "design X", "refactor this", "implement an algorithm/feature/service", "optimize this", "review this code", "what''s the best way to structure X", or any task involving architecture, complexity reasoning, or multi-file changes. SKIP for trivial edits (rename, typo, single-line fix), config tweaks, and documentation edits.'
 ---
 
-# Senior Code Quality
+# Senior Dev Principles
 
-Principles for non-trivial code work. These are defaults and signals, not absolutes.
-The base system prompt already enforces "match request scope, no speculative additions,
-no premature abstraction" — this skill layers quality criteria on top for when you
-genuinely are designing or building.
+Structure and complexity layer. `code-style-defaults` governs the form of the output; `python-native` governs Python stdlib usage; this skill governs how code is structured and how fast it runs. Every rule is a requirement, not a suggestion.
 
-When a rule here conflicts with the system prompt's "don't over-engineer" guidance,
-the system prompt wins.
+Precedence: user's explicit instruction > convention of the file being edited > this list.
 
----
+## 1. Algorithmic complexity — reason before writing
 
-## 1. Single Responsibility — balanced against YAGNI
-
-Every unit should have one clear reason to change. But SRP taken too far fragments
-code into a maze of tiny files and helpers nobody can navigate. Pick the right grain
-for the project.
-
-**Apply SRP when:**
-- A unit mixes concerns touched by different kinds of changes (e.g. DB access + business rules + serialization).
-- You can name each resulting piece with a single noun phrase, no "and".
-- The split removes hidden coupling rather than introducing cross-file ceremony.
-
-**Hold off on SRP when:**
-- Three similar lines could become one shared helper — leave them. Premature DRY hurts more than duplication.
-- A function is long but cohesive and reads top-to-bottom without abstraction jumps.
-- Splitting forces names nobody would search for (`OrderHelperUtils`, `ProcessingManagerImpl`).
-
-**Size is a signal, not a law.** A 50-line function doing one cohesive operation is
-fine. A 400-line module that is mostly a dispatch table or a schema is fine. A 30-line
-file mixing two domains is not. When a file or function feels heavy, ask whether the
-weight is *cohesion* (keep) or *multiple concerns* (split).
-
----
-
-## 2. Algorithmic complexity — when to reason about it
-
-For algorithmic code, hot paths, and anything touching user-controlled input size,
-reason about complexity before writing. For glue code, CRUD handlers, or a transform
-over a known-small list, skip the analysis.
+Mandatory for algorithmic code, hot paths, and anything touching unbounded or user-controlled input size. Skip for glue code, CRUD handlers, and transforms over known-small data.
 
 | Problem                  | Naive      | Target       | Technique                |
 |--------------------------|------------|--------------|--------------------------|
@@ -56,94 +25,52 @@ over a known-small list, skip the analysis.
 | Range sum queries        | O(n) each  | O(1) each    | prefix sum array         |
 | Repeated subproblem      | O(2ⁿ)      | states × transition cost | memoization / DP (e.g. matrix-chain O(n³), 0/1 knapsack pseudo-polynomial O(nW)) |
 
-**Rules of thumb:**
-- Don't use nested loops when a hash map flattens them.
-- Don't sort inside a loop if a single sort outside suffices.
-- Prefer `set` / `dict` membership over `in list` when n is unbounded.
-- Note complexity in a comment **only when non-obvious** — recursive DP, custom data
-  structures, loops with early exits. Don't annotate obvious linear scans.
+- Do NOT use nested loops when a hash map flattens them.
+- Do NOT sort inside a loop when one sort outside suffices.
+- Do NOT use `in list` membership when n is unbounded — use `set`/`dict`.
+- Do NOT accept O(n²) or worse on unbounded input without stating why in one line.
+- DO note complexity in a comment only when non-obvious (recursive DP, custom structures, early exits) — never on obvious linear scans.
 
----
+## 2. Structure
 
-## 3. Senior mindset
+- Do NOT put two reasons-to-change in one unit — DB access + business rules + serialization is three units.
+- Do NOT split a unit that reads top-to-bottom cohesively just to make files smaller.
+- Do NOT create names nobody would search for (`OrderHelperUtils`, `ProcessingManagerImpl`) — if the split forces one, the split is wrong.
+- Do NOT judge by size: a 50-line cohesive function is fine; a 30-line file mixing two domains is not. Split concerns, keep cohesion.
+- Do NOT inline a literal that encodes policy — `MAX_RETRIES`, not `3`. DO inline intrinsic literals (`bytes[0]`, `len(parts) == 2`).
+- Do NOT bury I/O inside logic when tests exist — pure functions where natural, I/O at the edges.
+- Do NOT restructure working code purely to enable tests nobody will write.
 
-**Names are documentation.** Single letters are fine inside a short math formula or
-tight loop. Outside, give the reader something to grip.
+## 3. Per-language
 
-**Lift magic numbers when they encode policy.** `if retries > MAX_RETRIES` beats
-`if retries > 3` when 3 is a tunable. Inline literals are fine when they're intrinsic
-(`bytes[0]`, `len(parts) == 2`).
-
-**Validate at boundaries, trust internals.** Check inputs at the system edge — HTTP
-handlers, CLI parsing, file reads, external API responses. Don't re-validate every
-internal call. If a function is only reachable from code you control and the
-precondition is guaranteed, no defensive check.
-
-```python
-# At the boundary: validate, fail with context.
-def handle_request(payload: dict) -> Response:
-    user_id = payload.get("user_id")
-    if not isinstance(user_id, int):
-        raise BadRequest("user_id must be an integer")
-    return _build_response(user_id)
-
-# Internal: trust the caller.
-def _build_response(user_id: int) -> Response:
-    ...
-```
-
-**Write for testability when tests exist.** Pure functions where natural, I/O isolated
-at the edges. Don't restructure working code purely to enable tests nobody will write.
-
-**Default to no comments.** A comment is debt unless it captures a non-obvious
-constraint, a workaround, or a surprise. "Increment counter" is noise; "Skip header
-row from this vendor's CSV export" is signal.
-
----
-
-## 4. Self-review before presenting code
-
-- Does each unit have a purpose a peer could state in one sentence?
-- For algorithmic work: is the complexity acceptable for realistic input sizes?
-- Are edge cases handled, or explicitly out of scope?
-- Are there names a reader would have to look up?
-- Is duplicated logic worth extracting, or is it just three similar lines that should stay?
-
----
-
-## 5. Language defaults
-
-### Python
-- Type hints on public APIs; skip for one-off internal helpers.
-- Comprehensions for simple transforms; loops when there's branching or side effects.
-- `dataclasses` / `pydantic` for structured data when the shape is used in more than one place.
-- `with` for resources (files, locks, connections).
+Python lives in `python-native`.
 
 ### TypeScript
-- `const` by default, `let` only when mutation is necessary, never `var`.
+- `const` by default, `let` only on mutation, never `var`.
 - Explicit return types on exported functions.
-- `strict: true`. Prefer `unknown` + narrowing over `any`; reach for `any` only when interop genuinely needs it.
-- `async` / `await` over raw `.then` chains.
+- `strict: true`; `unknown` + narrowing over `any`.
+- `async`/`await` over raw `.then` chains.
 
 ### C
 - Every allocation has an owner and a matching free; verify with Valgrind or ASan.
 - No implicit `switch` fallthrough — `break` or `/* fallthrough */`.
-- `size_t` for sizes and indices; don't mix signed/unsigned.
+- `size_t` for sizes and indices; never mix signed/unsigned.
 - Header guards on every `.h`.
 
 ### C++
-- RAII: resources owned by objects, not managed manually.
-- `unique_ptr` / `shared_ptr` over raw owning pointers.
+- RAII: resources owned by objects, never managed manually.
+- `unique_ptr`/`shared_ptr` over raw owning pointers.
 - `const` on non-mutating methods; `const&` for non-trivial parameters.
-- `std::vector` / `std::array` over raw arrays. Rule of Zero when possible. `explicit` on single-argument constructors.
+- `std::vector`/`std::array` over raw arrays; Rule of Zero; `explicit` on single-argument constructors.
 
 ### SQL
 - Explicit column lists, never `SELECT *` in production paths.
-- Consider an index for new WHERE / JOIN columns — but watch for over-indexing on write-heavy tables.
+- Consider an index for new WHERE/JOIN columns; do NOT over-index write-heavy tables.
 - Run `EXPLAIN` on queries that will scan large tables.
 
----
+## Self-review before presenting
 
-Optimal code is correct, clear, efficient, and maintainable — in that order. The
-shortest path to typing is rarely the right one; the goal is the path a future reader
-will thank you for.
+- State each unit's purpose in one sentence — if you can't, restructure.
+- Is the complexity acceptable for realistic input sizes?
+- Edge cases handled, or explicitly out of scope?
+- Correct > clear > efficient > maintainable — in that order.

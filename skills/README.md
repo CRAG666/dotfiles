@@ -19,12 +19,6 @@ Equivalent skill for **Spanish** scientific writing. Supplies idiomatic, formal 
 ### [literature-review](./literature-review)
 Conducts systematic, comprehensive literature reviews across multiple databases (PubMed, arXiv, bioRxiv, Semantic Scholar, etc.). Generates professionally formatted Markdown/PDF documents with verified citations in APA, Nature, Vancouver, and other styles.
 
-### [citation-management](./citation-management)
-Searches Google Scholar and PubMed, extracts accurate metadata from CrossRef/PubMed/arXiv, validates references, and produces properly formatted BibTeX entries. Pairs naturally with `literature-review` for end-to-end research workflows.
-
-### [latex-posters](./latex-posters)
-Creates professional research posters in LaTeX using `beamerposter`, `tikzposter`, or `baposter`. Covers layout, color schemes, multi-column formats, figure integration, and visual hierarchy best practices for conference presentations.
-
 ---
 
 ## Machine Learning
@@ -66,6 +60,9 @@ Biosignal processing for ECG, EEG, EDA, RSP, PPG, EMG, and EOG. Heart rate varia
 ### [networkx](./networkx)
 Graph and network analysis: creation, manipulation, centrality, shortest paths, community detection, and visualization. Applies to social networks, biological networks, transportation, citation graphs, and any pairwise-relationship domain.
 
+### [markitdown](./markitdown)
+Converts files and office documents to Markdown: PDF, DOCX, PPTX, XLSX, images (with OCR), audio (with transcription), HTML, CSV, JSON, XML, ZIP, EPub, and YouTube URLs. The ingestion step for feeding arbitrary documents into any other workflow.
+
 ---
 
 ## Visualization
@@ -81,10 +78,13 @@ Foundational Python plotting with fine-grained control over every element. Cover
 GPU-accelerates Python with CuPy, Numba CUDA, Warp, cuDF, cuML, cuGraph, KvikIO, cuCIM, cuxfilter, cuVS, cuSpatial, and RAFT. Targets NumPy, pandas, scikit-learn, NetworkX, GeoPandas, and Faiss workloads — typically 10×–1000× speedups for suitable cases.
 
 ### [python-native](./python-native)
-Pushes stdlib idioms over hand-rolled code: `Counter`, `defaultdict`, `singledispatch`, `functools.cache`, `pathlib`, `heapq.nlargest`, `dataclass(slots=True, frozen=True)`, `itertools.pairwise`, and more. Per-version reference files for Python 3.9–3.14.
+Strict enforcement of stdlib idioms over hand-rolled code — reinventions (`Counter`, `defaultdict`, `singledispatch`, `functools.cache`, `pathlib`, `heapq.nlargest`, `itertools.pairwise`, …) are defects to rewrite, and non-trivial APIs are verified against docs.python.org via WebFetch before use. Per-version reference files for Python 3.9–3.14.
+
+### [code-style-defaults](./code-style-defaults)
+Standing personal directives for generated code: check for an existing library (WebSearch + WebFetch) before writing anything, then emit the smallest correct implementation — KISS, YAGNI, DRY, SRP, "less code is less debt" — with no unrequested comments, docstrings, demo blocks, or explanatory padding. Always-on layer that the other engineering skills build on.
 
 ### [senior-dev-principles](./senior-dev-principles)
-Senior-level engineering judgment for non-trivial work: system design, refactoring, algorithm implementation, and structural decisions in Python, TypeScript, C, C++, and SQL. Layers quality criteria on top of "match request scope" defaults.
+Strict structure-and-complexity layer for non-trivial work: target big-O before writing (naive→target table), single-responsibility grain, policy constants, testability, and per-language defaults for TypeScript, C, C++, and SQL. Complements code-style-defaults (form) and python-native (Python stdlib).
 
 ---
 

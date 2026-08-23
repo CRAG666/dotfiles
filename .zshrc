@@ -262,4 +262,3 @@ for _f in ~/.zshrc ~/.zshfunc ${ZIM_HOME}/init.zsh; do
   [[ -s $_f && ( ! -s $_f.zwc || $_f -nt $_f.zwc ) ]] && zcompile "$_f" 2>/dev/null
 done
 unset _f
-zmodload zsh/zprof

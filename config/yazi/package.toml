@@ -1,39 +1,39 @@
 [[plugin.deps]]
 use = "yazi-rs/plugins:no-status"
-rev = "b9598e6"
+rev = "72f9e3c"
 hash = "3e023d31f29201efdac2a6ae35fedb78"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:full-border"
-rev = "b9598e6"
-hash = "7b625412411be411153886894d9acaf"
+rev = "72f9e3c"
+hash = "f281261ff04ad7ec867c3f802a50835f"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:chmod"
-rev = "b9598e6"
-hash = "5b1c276b75cae91cbbdbe7863f39a540"
+rev = "72f9e3c"
+hash = "87472b05a8c420100f6a2b9cde1e7746"
 
 [[plugin.deps]]
 use = "Rolv-Apneseth/starship"
-rev = "159eaba"
-hash = "7de446280b1ba8c49ffd86dbc24bbbe6"
+rev = "ea92cf4"
+hash = "9776f378459072b6c2875eae5addc49d"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:toggle-pane"
-rev = "b9598e6"
-hash = "15e5b67a241172cbb86b8fbf9e63692"
+rev = "72f9e3c"
+hash = "5b2fbef7d1513ce38ff72623a071a5e"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:mount"
-rev = "b9598e6"
+rev = "72f9e3c"
 hash = "46cbdc05596a3ecd730b288e28c7079d"
 
 [[plugin.deps]]
 use = "AminurAlam/yazi-plugins:preview-audio"
-rev = "ce325af"
+rev = "8c2ce96"
 hash = "fdb9c99b81d675a3098ba8e380048b00"
 
 [[flavor.deps]]
 use = "yazi-rs/flavors:catppuccin-mocha"
-rev = "1a5f787"
-hash = "7dfe41c9c3d9be76da8a844263d0bbed"
+rev = "20b47bf"
+hash = "ce320f877fe709b189433941aba747c4"

@@ -15,8 +15,11 @@ return {
           sections = {
             {
               section = 'terminal',
-              cmd = 'oh-my-logo "Aguilar" fire --filled',
-              height = 8,
+              cmd = 'oh-my-logo "Diego\nCrag" ocean --filled -d diagonal --block-font block',
+              height = 15,
+              align = 'center',
+              indent = 0,
+              ttl = 60 * 60,
               padding = 1,
             },
             { section = 'keys', gap = 1 },

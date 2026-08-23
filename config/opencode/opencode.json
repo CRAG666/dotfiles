@@ -5,20 +5,5 @@
     "edit": "ask",
     "webfetch": "ask"
   },
-  "model": "ollama/qwen3-coder-next:latest",
-  "provider": {
-    "ollama": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "Ollama (cluster vía túnel)",
-      "options": {
-        "baseURL": "http://localhost:11652/v1"
-      },
-      "models": {
-        "science-assistant:latest": { "name": "Science Assistant" },
-        "gpt-oss:120b": { "name": "GPT OSS" },
-        "qwen3-coder-next:latest": { "name": "Qwen-Coder-Next" },
-      }
-    }
-  },
  "plugin": ["@dietrichgebert/ponytail"]
 }

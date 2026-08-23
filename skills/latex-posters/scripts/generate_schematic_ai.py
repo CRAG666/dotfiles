@@ -1,1 +1,0 @@
-../../literature-review/scripts/generate_schematic_ai.py
