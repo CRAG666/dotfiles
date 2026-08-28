@@ -171,6 +171,9 @@ animations {
 
 ### Key bindings
 
+# Lock as soon as the lid closes; before-sleep alone can race the suspend
+    bindswitch --locked lid:on exec pidof swaylock || swaylock -f
+
 # Basics
     bindsym $mod+q kill
     bindsym $mod+Shift+q kill all
@@ -657,6 +660,9 @@ bindsym --locked XF86AudioPrev  exec playerctl previous
 bindsym --locked XF86AudioNext  exec playerctl next
 bindsym --locked XF86AudioPlay  exec playerctl --all-players play-pause
 bindsym --locked XF86AudioMicMute exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+
+# Caffeine: stop swayidle = no auto-lock/DPMS; lid lock (bindswitch) still applies
+bindsym $mod+Shift+c exec 'if pkill swayidle; then notify-send -t 2000 "Caffeine on"; else swayidle -w & notify-send -t 2000 "Caffeine off"; fi'
 
 # =============================================================================
 # SCREENSHOTS

@@ -186,14 +186,15 @@ scroll: wayland ## Configure Scroll (Wayland)
 	@echo "==> Installing Scroll packages..."
 	$(call install_pkgs,$(SCROLL_PKGS))
 
-suspend: ## Configure suspend-on-lid (battery only); idle lock/DPMS via swayidle
+suspend: ## Configure suspend-on-lid (skipped when docked); idle lock/DPMS via swayidle
 	@echo "==> Installing power-profile auto-switch udev rule..."
 	sudo install -Dm 644 ${PWD}/etc/udev/rules.d/99-power-profile.rules \
 		/etc/udev/rules.d/99-power-profile.rules
 	@sudo udevadm control --reload || true
-	@echo "==> Configuring logind (suspend on lid, battery only)..."
-	sudo install -Dm 644 ${PWD}/etc/systemd/logind.conf.d/10-lid-battery.conf \
-		/etc/systemd/logind.conf.d/10-lid-battery.conf
+	@echo "==> Configuring logind (suspend on lid, skipped when docked)..."
+	sudo rm -f /etc/systemd/logind.conf.d/10-lid-battery.conf
+	sudo install -Dm 644 ${PWD}/etc/systemd/logind.conf.d/10-lid.conf \
+		/etc/systemd/logind.conf.d/10-lid.conf
 	@echo "==> Restarting systemd-logind to apply..."
 	@sudo systemctl restart systemd-logind || true
 

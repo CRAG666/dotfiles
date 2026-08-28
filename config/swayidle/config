@@ -4,5 +4,8 @@ timeout 600 'pidof swaylock || swaylock -f'
 # Apagar pantallas a los 10 min; reactivar al volver de la inactividad
 timeout 900 'scrollmsg "output * dpms off"' resume 'scrollmsg "output * dpms on"'
 
-# Bloquear SIEMPRE antes de cualquier suspensión (tapa con batería, suspend manual, etc.)
+# Suspender a los 30 min SOLO con batería (online=0); enchufado no hace nada
+timeout 1800 'grep -q 0 /sys/class/power_supply/AC/online && systemctl suspend'
+
+# Bloquear SIEMPRE antes de cualquier suspensión (cierre de tapa, suspend manual, etc.)
 before-sleep 'pidof swaylock || swaylock -f'

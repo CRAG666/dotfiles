@@ -204,7 +204,45 @@ let carapace_completer = {|spans|
     carapace $spans.0 nushell ...$spans | from json
 }
 source ~/.zoxide.nu
+
+# atuin#3929: su init.nu registra dos keybindings llamados "atuin" y nu >=0.115
+# los fusiona por nombre (ctrl-r deja de funcionar). Regeneramos el script sin su
+# sección de keybindings y añadimos las nuestras con nombres únicos.
+let atuin_bin = (which atuin | get 0?.path?)
+let atuin_init = $"($env.HOME)/.local/share/atuin/init.nu"
+if $atuin_bin != null and (
+    (not ($atuin_init | path exists))
+    or ((ls $atuin_bin).0.modified > (ls $atuin_init).0.modified)
+) {
+    ^atuin init nu
+    | lines
+    | take while {|line| $line != '$env.config = ($env.config | default [] keybindings)'}
+    | str join "\n"
+    | save -f $atuin_init
+}
 source ~/.local/share/atuin/init.nu
+$env.config.keybindings = (
+    $env.config.keybindings
+    | append {
+        name: atuin_ctrl_r
+        modifier: control
+        keycode: char_r
+        mode: [emacs, vi_normal, vi_insert]
+        event: { send: executehostcommand cmd: (_atuin_search_cmd) }
+    }
+    | append {
+        name: atuin_up
+        modifier: none
+        keycode: up
+        mode: [emacs, vi_normal, vi_insert]
+        event: {
+            until: [
+                {send: menuup}
+                {send: executehostcommand cmd: (_atuin_search_cmd '--shell-up-key-binding')}
+            ]
+        }
+    }
+)
 
 $env.config = (
     $env.config | upsert keybindings (
