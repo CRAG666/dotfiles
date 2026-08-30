@@ -14,10 +14,12 @@ Aeon distinguishes between:
 
 Fast, scalable feature generation using random kernels:
 
-- `Rocket` - Random convolutional kernels
-- `MiniRocket` - Simplified ROCKET for speed
-- `MultiRocket` - Enhanced ROCKET variant
+- `RocketTransformer` - Random convolutional kernels
+- `MiniRocketTransformer` - Simplified ROCKET for speed
+- `MultiRocketTransformer` - Enhanced ROCKET variant
 - `HydraTransformer` - Multi-resolution dilated convolutions
+- `MultiRocketHydraTransformer` - Combines ROCKET and Hydra
+- `ROCKETGPU` - GPU-accelerated variant
 
 **Use when**: Need fast, scalable features for any ML algorithm, strong baseline performance.
 
@@ -83,10 +85,12 @@ Data preparation and normalization:
 
 Advanced analysis methods:
 
-- `MatrixProfile` - Computes distance profiles for pattern discovery (deprecated since 1.4.0, removed in 1.5.0; use the series `MatrixProfileTransformer` with `SeriesToCollectionBroadcaster`)
+- `MatrixProfile` - Computes distance profiles for pattern discovery
 - `DWTTransformer` - Discrete Wavelet Transform
 - `AutocorrelationFunctionTransformer` - ACF computation
-- `SignatureTransformer` - Path signature methods (import from `aeon.transformations.collection.signature_based`)
+- `Dobin` - Distance-based Outlier BasIs using Neighbors
+- `SignatureTransformer` - Path signature methods
+- `PLATransformer` - Piecewise Linear Approximation
 
 ### Class Imbalance Handling
 
@@ -116,7 +120,7 @@ Transform individual time series (e.g., for preprocessing in forecasting).
 - `MovingAverage` - Simple or weighted moving average
 - `SavitzkyGolayFilter` - Polynomial smoothing
 - `GaussianFilter` - Gaussian kernel smoothing
-- `BKFilter` - Baxter-King bandpass filter (import from `aeon.transformations.series`, not the `.smoothing` submodule)
+- `BKFilter` - Baxter-King bandpass filter
 - `DiscreteFourierApproximation` - Fourier-based filtering
 
 **Use when**: Need noise reduction, trend extraction, or frequency filtering.
@@ -124,8 +128,7 @@ Transform individual time series (e.g., for preprocessing in forecasting).
 ### Dimensionality Reduction
 
 - `PCASeriesTransformer` - Principal component analysis
-- `PLASeriesTransformer` - Piecewise Linear Approximation
-- `Dobin` - Distance-based Outlier BasIs using Neighbors (dimension reduction for outlier detection)
+- `PlASeriesTransformer` - Piecewise Linear Approximation
 
 ### Transformations
 
@@ -140,8 +143,8 @@ Transform individual time series (e.g., for preprocessing in forecasting).
 ## Quick Start: Feature Extraction
 
 ```python
-from aeon.transformations.collection.convolution_based import Rocket
-from aeon.classification.sklearn import RotationForestClassifier
+from aeon.transformations.collection.convolution_based import RocketTransformer
+from aeon.classification.sklearn import RotationForest
 from aeon.datasets import load_classification
 
 # Load data
@@ -149,12 +152,12 @@ X_train, y_train = load_classification("GunPoint", split="train")
 X_test, y_test = load_classification("GunPoint", split="test")
 
 # Extract ROCKET features
-rocket = Rocket()
+rocket = RocketTransformer()
 X_train_features = rocket.fit_transform(X_train)
 X_test_features = rocket.transform(X_test)
 
 # Use with any sklearn classifier
-clf = RotationForestClassifier()
+clf = RotationForest()
 clf.fit(X_train_features, y_train)
 accuracy = clf.score(X_test_features, y_test)
 ```
@@ -162,8 +165,11 @@ accuracy = clf.score(X_test_features, y_test)
 ## Quick Start: Preprocessing Pipeline
 
 ```python
-from aeon.transformations.collection import MinMaxScaler, SimpleImputer
-from aeon.transformations.collection.compose import CollectionTransformerPipeline
+from aeon.transformations.collection import (
+    MinMaxScaler,
+    SimpleImputer,
+    CollectionTransformerPipeline
+)
 
 # Build preprocessing pipeline
 pipeline = CollectionTransformerPipeline([
@@ -177,7 +183,7 @@ X_transformed = pipeline.fit_transform(X_train)
 ## Quick Start: Series Smoothing
 
 ```python
-from aeon.transformations.series.smoothing import MovingAverage
+from aeon.transformations.series import MovingAverage
 
 # Smooth individual time series
 smoother = MovingAverage(window_size=5)
@@ -187,7 +193,7 @@ y_smoothed = smoother.fit_transform(y)
 ## Algorithm Selection
 
 ### For Feature Extraction:
-- **Speed + Performance**: MiniRocket
+- **Speed + Performance**: MiniRocketTransformer
 - **Interpretability**: Catch22, TSFresh
 - **Dimensionality reduction**: PAA, SAX, PCA
 - **Discriminative patterns**: Shapelet transforms
@@ -218,7 +224,7 @@ y_smoothed = smoother.fit_transform(y)
    pipeline = CollectionTransformerPipeline([
        ('imputer', SimpleImputer()),
        ('scaler', Normalizer()),
-       ('features', Rocket())
+       ('features', RocketTransformer())
    ])
    ```
 
@@ -232,6 +238,7 @@ y_smoothed = smoother.fit_transform(y)
 4. **Memory considerations**: Some transformers memory-intensive on large datasets
    - Use MiniRocket instead of ROCKET for speed
    - Consider downsampling for very long series
+   - Use ROCKETGPU for GPU acceleration
 
 5. **Domain knowledge**: Choose transformations matching domain:
    - Periodic data: Fourier-based methods

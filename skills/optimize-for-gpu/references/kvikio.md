@@ -24,13 +24,13 @@ KvikIO is part of the RAPIDS ecosystem and interoperates with CuPy, cuDF, Numba,
 
 ```bash
 # CUDA 12.x
-uv add kvikio-cu12
+uv add "kvikio-cu12==26.6.*"
 
 # CUDA 13.x
-uv add kvikio-cu13
+uv add "kvikio-cu13==26.6.*"
 
 # For Zarr support (optional)
-uv add zarr
+uv add "zarr==3.*"
 ```
 
 Verify installation:
@@ -278,7 +278,7 @@ Zarr + KvikIO is useful for:
 - Bioinformatics (genomic arrays)
 - Any workload using chunked arrays that need GPU processing
 
-Requires: `uv add zarr` in addition to kvikio.
+Requires: `uv add "zarr==3.*"` in addition to KvikIO 26.06.
 
 ---
 
@@ -456,9 +456,14 @@ import kvikio
 pages_cached, total_pages = kvikio.get_page_cache_info("data.bin")
 print(f"{pages_cached}/{total_pages} pages in cache")
 
-# Clear page cache (requires root or appropriate permissions)
-kvikio.clear_page_cache()
+# Drop the page cache for a single file (no elevated privileges needed; added in 26.04)
+kvikio.drop_file_page_cache("data.bin")
+
+# Drop the system-wide page cache (requires elevated permissions)
+kvikio.drop_system_page_cache()
 ```
+
+`kvikio.clear_page_cache()` is deprecated since 26.04 — use `drop_system_page_cache()` (or the per-file `drop_file_page_cache()`) instead.
 
 ---
 

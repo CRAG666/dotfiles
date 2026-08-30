@@ -138,9 +138,10 @@ Benchmarks on real-world genomic datasets (from the polars-bio paper, Bioinforma
 
 | Operation | bioframe | polars-bio | Speedup |
 |-----------|----------|------------|---------|
-| count_overlaps | 1.0x | 38x | 38x |
-| nearest | 1.0x | 15.5x | 15.5x |
-| coverage | 1.0x | 15x | 15x |
+| overlap | 1.0x | 6.5x | 6.5x |
+| nearest | 1.0x | 38x | 38x |
+| merge | 1.0x | 8.2x | 8.2x |
+| coverage | 1.0x | 12x | 12x |
 
 Speedups come from:
 - Rust-based interval tree implementation
@@ -213,7 +214,7 @@ result = pb.merge(lf).collect(engine="streaming")
 For gradual migration, install with pandas support:
 
 ```bash
-pip install polars-bio[pandas]
+uv pip install "polars-bio[pandas]==0.31.0"
 ```
 
 This enables conversion between pandas and Polars DataFrames:

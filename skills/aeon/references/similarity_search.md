@@ -36,7 +36,7 @@ Find similar time series across collections.
 ## Quick Start: Motif Discovery
 
 ```python
-from aeon.similarity_search.series import StompMotif
+from aeon.similarity_search import StompMotif
 import numpy as np
 
 # Create time series with repeated patterns
@@ -49,19 +49,18 @@ y = np.concatenate([
 ])
 
 # Find top-3 motifs
-motif_finder = StompMotif(length=50)
-motif_indices, motif_distances = motif_finder.fit_predict(y, k=3)
+motif_finder = StompMotif(window_size=50, k=3)
+motifs = motif_finder.fit_predict(y)
 
-# each entry is a (1, 2) array of the two matched start positions
-for i, pair in enumerate(motif_indices):
-    idx1, idx2 = pair[0]
+# motifs contains indices of motif occurrences
+for i, (idx1, idx2) in enumerate(motifs):
     print(f"Motif {i+1} at positions {idx1} and {idx2}")
 ```
 
 ## Quick Start: Subsequence Search
 
 ```python
-from aeon.similarity_search.series import MassSNN
+from aeon.similarity_search import MassSNN
 import numpy as np
 
 # Time series to search within
@@ -70,10 +69,9 @@ y = np.sin(np.linspace(0, 20, 500))
 # Query subsequence
 query = np.sin(np.linspace(0, 2, 50))
 
-# Find nearest subsequences (series are shaped (n_channels, n_timepoints))
-searcher = MassSNN(length=len(query))
-searcher.fit(y.reshape(1, -1))
-distances = searcher.compute_distance_profile(query.reshape(1, -1))
+# Find nearest subsequences
+searcher = MassSNN()
+distances = searcher.fit_transform(y, query)
 
 # Find best match
 best_match_idx = np.argmin(distances)
@@ -83,19 +81,19 @@ print(f"Best match at index {best_match_idx}")
 ## Quick Start: Approximate NN on Collections
 
 ```python
-from aeon.similarity_search.collection import RandomProjectionIndexANN
+from aeon.similarity_search import RandomProjectionIndexANN
 from aeon.datasets import load_classification
 
 # Load time series collection
 X_train, _ = load_classification("GunPoint", split="train")
 
 # Build index
-ann = RandomProjectionIndexANN(n_hash_funcs=8)
+ann = RandomProjectionIndexANN(n_projections=8, n_bits=4)
 ann.fit(X_train)
 
 # Find approximate nearest neighbors
 query = X_train[0]
-neighbors, distances = ann.predict(query, k=5)
+neighbors, distances = ann.kneighbors(query, k=5)
 ```
 
 ## Matrix Profile
@@ -108,14 +106,18 @@ The matrix profile is a fundamental data structure for many similarity search ta
 - **Discord**: Subsequence with maximum minimum distance (anomaly)
 
 ```python
-from aeon.similarity_search.series import StompMotif
+from aeon.similarity_search import StompMotif
 
-# StompMotif finds the top-k motif pairs; it has no matrix_profile_ attribute
-mp = StompMotif(length=50)
-motif_indices, motif_distances = mp.fit_predict(y, k=3)
+# Compute matrix profile and find motifs/discords
+mp = StompMotif(window_size=50)
+mp.fit(y)
 
-# motif_indices[i][0] holds the two matched start positions of motif i
-first_motif = motif_indices[0][0]
+# Access matrix profile
+profile = mp.matrix_profile_
+profile_indices = mp.matrix_profile_index_
+
+# Find discords (anomalies)
+discord_idx = np.argmax(profile)
 ```
 
 ## Algorithm Selection
@@ -133,9 +135,8 @@ Find where a pattern occurs in a long series:
 
 ```python
 # Find heartbeat pattern in ECG data
-searcher = MassSNN(length=len(heartbeat_pattern))
-searcher.fit(ecg_data.reshape(1, -1))
-distances = searcher.compute_distance_profile(heartbeat_pattern.reshape(1, -1))
+searcher = MassSNN()
+distances = searcher.fit_transform(ecg_data, heartbeat_pattern)
 occurrences = np.where(distances < threshold)[0]
 ```
 
@@ -144,8 +145,8 @@ Identify recurring patterns:
 
 ```python
 # Find repeated behavioral patterns
-motif_finder = StompMotif(length=100)
-motifs = motif_finder.fit_predict(activity_data, k=5)
+motif_finder = StompMotif(window_size=100, k=5)
+motifs = motif_finder.fit_predict(activity_data)
 ```
 
 ### Time Series Retrieval
@@ -157,7 +158,7 @@ ann = RandomProjectionIndexANN()
 ann.fit(time_series_database)
 
 # Query for similar series
-neighbors, distances = ann.predict(query_series, k=10)
+neighbors = ann.kneighbors(query_series, k=10)
 ```
 
 ## Best Practices

@@ -151,8 +151,8 @@ combined = pl.concat([df1, df2, df3], rechunk=True)
 ```python
 df.with_columns(
     status=pl.when(pl.col("age") >= 18)
-        .then("adult")
-        .otherwise("minor")
+        .then(pl.lit("adult"))
+        .otherwise(pl.lit("minor"))
 )
 ```
 
@@ -160,14 +160,14 @@ df.with_columns(
 ```python
 df.with_columns(
     grade=pl.when(pl.col("score") >= 90)
-        .then("A")
+        .then(pl.lit("A"))
         .when(pl.col("score") >= 80)
-        .then("B")
+        .then(pl.lit("B"))
         .when(pl.col("score") >= 70)
-        .then("C")
+        .then(pl.lit("C"))
         .when(pl.col("score") >= 60)
-        .then("D")
-        .otherwise("F")
+        .then(pl.lit("D"))
+        .otherwise(pl.lit("F"))
 )
 ```
 
@@ -177,12 +177,12 @@ df.with_columns(
     category=pl.when(
         (pl.col("revenue") > 1000000) & (pl.col("customers") > 100)
     )
-    .then("enterprise")
+    .then(pl.lit("enterprise"))
     .when(
         (pl.col("revenue") > 100000) | (pl.col("customers") > 50)
     )
-    .then("business")
-    .otherwise("starter")
+    .then(pl.lit("business"))
+    .otherwise(pl.lit("starter"))
 )
 ```
 
@@ -234,13 +234,13 @@ df.select("col1", "col2", "col3")
 df.select(pl.col("^sales_.*$"))
 
 # Starts with
-df.select(pl.col("^sales.*$"))
+df.select(pl.col("^sales"))
 
 # Ends with
-df.select(pl.col("^.*_total$"))
+df.select(pl.col("_total$"))
 
 # Contains
-df.select(pl.col("^.*revenue.*$"))
+df.select(pl.col(".*revenue.*"))
 ```
 
 **By type:**
@@ -251,7 +251,7 @@ import polars.selectors as cs
 df.select(cs.numeric())
 
 # All string columns
-df.select(pl.col(pl.Utf8))
+df.select(cs.string())
 
 # Multiple types
 df.select(cs.numeric() | cs.boolean())
@@ -338,7 +338,7 @@ df = df.with_columns(result=pl.col("value") * 2)
 
 ```python
 # Bad: Polars is immutable, this doesn't work as expected
-df["new_col"] = df["old_col"] * 2  # Raises TypeError: Series assignment by index is unsupported
+df["new_col"] = df["old_col"] * 2  # May work but not recommended
 
 # Good: Functional style
 df = df.with_columns(new_col=pl.col("old_col") * 2)
@@ -480,7 +480,7 @@ print(df.schema)
 # Ensure schema matches expectation
 expected_schema = {
     "id": pl.Int64,
-    "name": pl.Utf8,
+    "name": pl.String,
     "date": pl.Date
 }
 
@@ -575,10 +575,10 @@ df.write_parquet(
 # Define reusable expressions
 age_group = (
     pl.when(pl.col("age") < 18)
-    .then("minor")
+    .then(pl.lit("minor"))
     .when(pl.col("age") < 65)
-    .then("adult")
-    .otherwise("senior")
+    .then(pl.lit("adult"))
+    .otherwise(pl.lit("senior"))
 )
 
 revenue_per_customer = pl.col("revenue") / pl.col("customer_count")

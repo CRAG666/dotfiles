@@ -29,7 +29,8 @@ from sklearn.decomposition import PCA, NMF
 # Metrics
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
-    mean_squared_error, r2_score, confusion_matrix, classification_report
+    mean_squared_error, root_mean_squared_error, r2_score,
+    confusion_matrix, classification_report
 )
 
 # Pipeline
@@ -44,12 +45,14 @@ import matplotlib.pyplot as plt
 
 ## Installation
 
+Tested against scikit-learn **1.8.0** (Python 3.11–3.14). Install the PyPI package `scikit-learn` (import as `sklearn`).
+
 ```bash
 # Using uv (recommended)
-uv pip install scikit-learn
+uv pip install "scikit-learn>=1.7"
 
 # Optional dependencies
-uv pip install scikit-learn[plots]  # For plotting utilities
+uv pip install "scikit-learn[plots]"  # For plotting utilities
 uv pip install pandas numpy matplotlib seaborn  # Common companions
 ```
 
@@ -89,7 +92,7 @@ print(confusion_matrix(y_test, y_pred))
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, root_mean_squared_error, r2_score
 
 # Split
 X_train, X_test, y_train, y_test = train_test_split(
@@ -106,7 +109,7 @@ model.fit(X_train_scaled, y_train)
 
 # Evaluate
 y_pred = model.predict(X_test_scaled)
-print(f"RMSE: {mean_squared_error(y_test, y_pred, squared=False):.3f}")
+print(f"RMSE: {root_mean_squared_error(y_test, y_pred):.3f}")
 print(f"R² Score: {r2_score(y_test, y_pred):.3f}")
 ```
 

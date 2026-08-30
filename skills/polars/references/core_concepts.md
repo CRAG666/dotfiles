@@ -150,7 +150,7 @@ Convert between types explicitly:
 df.select(
     pl.col("age").cast(pl.Float64),
     pl.col("date_string").str.strptime(pl.Date, "%Y-%m-%d"),
-    pl.col("id").cast(pl.Utf8)
+    pl.col("id").cast(pl.String)
 )
 ```
 
@@ -360,7 +360,7 @@ Polars enforces strict typing:
 
 # Must cast explicitly
 df.with_columns(
-    pl.col("int_col").cast(pl.Utf8) + "_suffix"
+    pl.col("int_col").cast(pl.String) + "_suffix"
 )
 ```
 

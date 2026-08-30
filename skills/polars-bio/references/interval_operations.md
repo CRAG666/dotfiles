@@ -45,6 +45,12 @@ result_df = result_lf.collect()
 
 # Or get DataFrame directly
 result_df = pb.overlap(df1, df2, suffixes=("_1", "_2"), output_type="polars.DataFrame")
+
+# Left output: keep df1 rows that overlap df2 (original column names, no suffixes)
+left_hits = pb.overlap(df1, df2, overlap_output="left", output_type="polars.DataFrame")
+
+# Left output with one row per df1 interval (deduplicated)
+left_unique = pb.overlap(df1, df2, overlap_output="left", distinct_output=True, output_type="polars.DataFrame")
 ```
 
 ### Method-Chaining API (LazyFrame only)
@@ -65,6 +71,8 @@ result = df1.lazy().pb.overlap(df2, suffixes=("_1", "_2")).collect()
 | `cols2` | list[str] | `["chrom", "start", "end"]` | Column names in df2 |
 | `algorithm` | str | `"Coitrees"` | Interval algorithm |
 | `low_memory` | bool | `False` | Low memory mode |
+| `overlap_output` | str | `"join"` | `"join"` returns both sides with suffixes; `"left"` returns only overlapping df1 rows with original column names |
+| `distinct_output` | bool | `False` | When `overlap_output="left"`, deduplicate df1 rows by row identity |
 | `output_type` | str | `"polars.LazyFrame"` | Output format: `"polars.LazyFrame"`, `"polars.DataFrame"`, `"pandas.DataFrame"` |
 | `projection_pushdown` | bool | `True` | Enable projection pushdown optimization |
 

@@ -1,8 +1,12 @@
 # Numba CUDA Reference
 
-Numba compiles Python directly into CUDA kernels, giving you full control over GPU threads, blocks, shared memory, and synchronization. Use Numba when your algorithm needs custom GPU logic that can't be expressed as standard array operations.
+The established Numba-CUDA target compiles Python into CUDA kernels with explicit control over
+threads, blocks, shared memory, and synchronization. It is now in maintenance mode. For new kernel
+projects, evaluate Numba-CUDA-MLIR first; use this reference for existing `numba.cuda` code,
+compatibility work, or features not yet available in the MLIR implementation.
 
-> **Full documentation:** https://numba.readthedocs.io/en/stable/cuda/index.html
+> **Full documentation:** https://nvidia.github.io/numba-cuda/
+> **New-development path:** https://nvidia.github.io/numba-cuda-mlir/
 
 ## Table of Contents
 
@@ -29,15 +33,22 @@ Numba compiles Python directly into CUDA kernels, giving you full control over G
 
 ## Installation and Setup
 
-Always use `uv add` (never `pip install` or `conda install`) in all install instructions, docstrings, comments, and error messages.
+Use `uv add` in standalone examples; follow the user's existing project package manager when one
+is already configured.
 
 ```bash
-uv add numba numba-cuda
+uv add "numba-cuda[cu12]==0.30.*"    # For CUDA 12.x (pulls in numba and CUDA components)
+uv add "numba-cuda[cu13]==0.30.*"    # For CUDA 13.x
 ```
 
-The `numba-cuda` package is the actively maintained NVIDIA implementation. It implements functionality under the `numba.cuda` namespace — no code changes needed vs the old built-in target.
+The NVIDIA `numba-cuda` package is the out-of-tree implementation of the established
+`numba.cuda` target (Numba's built-in target is deprecated). It keeps the `numba.cuda` namespace
+and depends on `numba`, so a single install command suffices. NVIDIA limits this implementation to
+security and critical fixes through the CUDA 13 lifetime; new feature development targets the
+separate `numba-cuda-mlir` package. Follow its migration guide before choosing a compiler for new
+code because feature coverage continues to evolve.
 
-**Requirements:** CUDA Toolkit >= 11.2, GPU with Compute Capability >= 3.5 (>= 5.0 recommended).
+**Requirements:** CUDA Toolkit 12 or 13. GPU with Compute Capability >= 5.0 (Maxwell or newer) on CUDA 12, or >= 7.5 (Turing or newer) on CUDA 13.
 
 ```python
 from numba import cuda
@@ -312,7 +323,9 @@ def kernel(points, distances):
         )
 ```
 
-**Cross-compilation note:** A function decorated with `@numba.jit` (CPU JIT) can also be called from CUDA kernels — useful for sharing logic between CPU and GPU code paths.
+CPU `@numba.jit` dispatchers are not CUDA device functions. If CPU and GPU paths need the same
+formula, keep a small undecorated source function and create explicit CPU (`@njit`) and GPU
+(`@cuda.jit(device=True)`) implementations or wrappers; test them against the same fixtures.
 
 ---
 
@@ -340,13 +353,20 @@ Multi-dimensional indexing works via tuples: `cuda.atomic.add(result, (row, col)
 
 ```python
 @cuda.jit
-def histogram(data, bins):
+def histogram(data, bins, min_value, max_value):
     i = cuda.grid(1)
     if i < data.size:
-        bin_idx = int(data[i] * len(bins))
-        if 0 <= bin_idx < len(bins):
+        value = data[i]
+        n_bins = bins.size
+        if min_value <= value <= max_value:
+            bin_idx = int((value - min_value) * n_bins / (max_value - min_value))
+            if bin_idx == n_bins:  # Include the rightmost edge.
+                bin_idx = n_bins - 1
             cuda.atomic.add(bins, bin_idx, 1)
 ```
+
+Validate `max_value > min_value` on the host before launch. For production histograms, prefer
+CuPy/CUB unless a custom binning rule is required.
 
 ---
 
@@ -382,7 +402,7 @@ For operations on sub-arrays (not just scalars). Uses NumPy's generalized ufunc 
 ```python
 from numba import guvectorize, float32
 
-@guvectorize([(float32[:,:], float32[:,:], float32[:,:])],
+@guvectorize([float32[:,:], float32[:,:], float32[:,:]],
              '(m,n),(n,p)->(m,p)', target='cuda')
 def gpu_matmul(A, B, C):
     for i in range(A.shape[0]):
@@ -545,7 +565,8 @@ def matmul_shared(A, B, C):
     tx, ty = cuda.threadIdx.x, cuda.threadIdx.y
 
     tmp = float32(0.0)
-    for tile in range(cuda.gridDim.x):
+    n_tiles = (A.shape[1] + TPB - 1) // TPB
+    for tile in range(n_tiles):
         # Load tile into shared memory (with bounds check)
         col = tx + tile * TPB
         row = ty + tile * TPB
@@ -562,11 +583,11 @@ def matmul_shared(A, B, C):
         C[y, x] = tmp
 ```
 
-### Parallel Prefix Sum (Scan)
+### Block-Local Inclusive Prefix Sum
 
 ```python
 @cuda.jit
-def inclusive_scan(data, output):
+def block_inclusive_scan(data, output):
     shared = cuda.shared.array(256, dtype=float32)
     tid = cuda.threadIdx.x
     i = cuda.grid(1)
@@ -574,17 +595,25 @@ def inclusive_scan(data, output):
     shared[tid] = data[i] if i < data.size else 0
     cuda.syncthreads()
 
-    # Up-sweep
+    # Hillis-Steele scan within one block. Two barriers prevent read/write races.
     offset = 1
     while offset < cuda.blockDim.x:
+        addend = float32(0.0)
         if tid >= offset:
-            shared[tid] += shared[tid - offset]
-        offset *= 2
+            addend = shared[tid - offset]
         cuda.syncthreads()
+        if tid >= offset:
+            shared[tid] += addend
+        cuda.syncthreads()
+        offset *= 2
 
     if i < data.size:
         output[i] = shared[tid]
 ```
+
+This computes an independent scan per block, not a whole-array scan. A complete multi-block scan
+also scans block totals and adds block offsets. Prefer `cupy.cumsum()`/CUB unless a custom scan
+operator is required.
 
 ### Shared Memory Reduction
 
@@ -642,9 +671,11 @@ def stencil_1d(data, output, radius):
 
 ### GPU-Specific Tips
 
-1. **Minimize host-device transfers.** Use `cuda.to_device()` and keep data on GPU across multiple kernel calls. Every PCI-e transfer is expensive (~12 GB/s) vs GPU memory bandwidth (~900+ GB/s).
+1. **Minimize host-device transfers.** Use `cuda.to_device()` and keep data on GPU across multiple
+kernel calls. Measure on the target system; interconnect and device-memory bandwidth vary widely.
 
-2. **Use shared memory** for data reused across threads in a block. Shared memory bandwidth is ~10-100x higher than global memory.
+2. **Use shared memory** for data reused across threads in a block when profiling shows global
+memory traffic is limiting performance. Shared memory is finite and can reduce occupancy.
 
 3. **Coalesce memory accesses.** Adjacent threads (consecutive `threadIdx.x`) should access adjacent memory locations. This lets the hardware combine accesses into fewer wide transactions.
 
@@ -652,7 +683,8 @@ def stencil_1d(data, output, radius):
 
 5. **Use `fastmath=True`** when IEEE-754 strictness isn't required. Enables FMA, fast sqrt/division, and faster trig/exp/log for float32.
 
-6. **Prefer float32 over float64** when precision allows. GPU float32 throughput is 2x-32x higher depending on the GPU (consumer GPUs heavily penalize float64).
+6. **Prefer float32 over float64** when precision and stability requirements allow. The throughput
+ratio is architecture-specific, so benchmark the target GPU.
 
 7. **Use streams** to overlap data transfer with computation.
 
@@ -667,7 +699,8 @@ def stencil_1d(data, output, radius):
 - Don't use Python objects, strings, or dynamic memory allocation inside kernels — Numba CUDA supports a restricted Python subset.
 - Don't put `syncthreads()` inside divergent branches — if threads in a block take different paths through a barrier, behavior is undefined (deadlock or corruption).
 - Don't forget `cuda.synchronize()` before reading results on CPU — kernel launches are async.
-- Don't launch kernels with tiny data sizes — kernel launch overhead (~5-20us) dominates for small arrays.
+- Don't assume a custom kernel helps small arrays. Measure launch and transfer overhead on the
+  target system and batch or fuse work when overhead dominates.
 
 ---
 

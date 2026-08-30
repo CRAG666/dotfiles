@@ -1,442 +1,277 @@
-# Survival Support Vector Machines
+# Survival support vector machines
 
-## Overview
+Verified for scikit-survival 0.28.0 on 2026-07-23.
 
-Survival Support Vector Machines (SVMs) adapt the traditional SVM framework to survival analysis with censored data. They optimize a ranking objective that encourages correct ordering of survival times.
+## What survival SVMs predict
 
-### Core Idea
+Survival SVMs optimize ranking, regression, or a mixture. They generally return a
+scalar score, not a baseline survival function or cumulative hazard function.
+Therefore:
 
-SVMs for survival analysis learn a function f(x) that produces risk scores, where the optimization ensures that subjects with shorter survival times receive higher risk scores than those with longer times.
+- use concordance or cumulative/dynamic AUC only after confirming score direction;
+- do not pass SVM output to Brier metrics;
+- do not convert a margin to event probability without a separately validated
+  calibration model and protocol.
 
-## When to Use Survival SVMs
-
-**Appropriate for:**
-- Medium-sized datasets (typically 100-10,000 samples)
-- Need for non-linear decision boundaries (kernel SVMs)
-- Want margin-based learning with regularization
-- Have well-defined feature space
-
-**Not ideal for:**
-- Very large datasets (>100,000 samples) - ensemble methods may be faster
-- Need interpretable coefficients - use Cox models instead
-- Require survival function estimates - use Random Survival Forest
-- Very high dimensional data - use regularized Cox or gradient boosting
-
-## Model Types
-
-### FastSurvivalSVM
-
-Linear survival SVM optimized for speed using coordinate descent.
-
-**When to Use:**
-- Linear relationships expected
-- Large datasets where speed matters
-- Want fast training and prediction
-
-**Key Parameters:**
-- `alpha`: Regularization parameter (default: 1.0)
-  - Higher = more regularization
-- `rank_ratio`: Trade-off between ranking and regression (default: 1.0)
-- `max_iter`: Maximum iterations (default: 20)
-- `tol`: Tolerance for stopping criterion (default: None)
+## Fast linear survival SVM
 
 ```python
-from sksurv.svm import FastSurvivalSVM
-
-# Fit linear survival SVM
-estimator = FastSurvivalSVM(alpha=1.0, max_iter=100, tol=1e-5, random_state=42)
-estimator.fit(X, y)
-
-# Predict risk scores
-risk_scores = estimator.predict(X_test)
-```
-
-### FastKernelSurvivalSVM
-
-Kernel survival SVM for non-linear relationships.
-
-**When to Use:**
-- Non-linear relationships between features and survival
-- Medium-sized datasets
-- Can afford longer training time for better performance
-
-**Kernel Options:**
-- `'linear'`: Linear kernel, equivalent to FastSurvivalSVM
-- `'poly'`: Polynomial kernel
-- `'rbf'`: Radial basis function (Gaussian) kernel - most common
-- `'sigmoid'`: Sigmoid kernel
-- Custom kernel function
-
-**Key Parameters:**
-- `alpha`: Regularization parameter (default: 1.0)
-- `kernel`: Kernel function (default: 'rbf')
-- `gamma`: Kernel coefficient for rbf, poly, sigmoid
-- `degree`: Degree for polynomial kernel
-- `coef0`: Independent term for poly and sigmoid
-- `rank_ratio`: Trade-off parameter (default: 1.0)
-- `max_iter`: Maximum iterations (default: 20)
-
-```python
-from sksurv.svm import FastKernelSurvivalSVM
-
-# Fit RBF kernel survival SVM
-# gamma must be a float in [0, inf) or None (no 'scale'/'auto' strings)
-estimator = FastKernelSurvivalSVM(
-    alpha=1.0,
-    kernel='rbf',
-    gamma=0.1,
-    max_iter=50,
-    random_state=42
-)
-estimator.fit(X, y)
-
-# Predict risk scores
-risk_scores = estimator.predict(X_test)
-```
-
-### HingeLossSurvivalSVM
-
-Survival SVM using hinge loss, more similar to classification SVM.
-
-**When to Use:**
-- Want hinge loss instead of squared hinge
-- Sparse solutions desired
-- Similar behavior to classification SVMs
-
-**Key Parameters:**
-- `alpha`: Regularization parameter
-- `solver`: Optimization solver (e.g. 'ecos')
-- `kernel`: Kernel function
-- `pairs`: Which comparable pairs to use
-- `max_iter`: Maximum iterations
-
-```python
-from sksurv.svm import HingeLossSurvivalSVM
-
-# Fit hinge loss SVM
-estimator = HingeLossSurvivalSVM(alpha=1.0)
-estimator.fit(X, y)
-
-# Predict risk scores
-risk_scores = estimator.predict(X_test)
-```
-
-### NaiveSurvivalSVM
-
-Original formulation of survival SVM using quadratic programming.
-
-**When to Use:**
-- Small datasets
-- Research/benchmarking purposes
-- Other methods don't converge
-
-**Limitations:**
-- Slower than Fast variants
-- Less scalable
-
-```python
-from sksurv.svm import NaiveSurvivalSVM
-
-# Fit naive SVM (slower)
-estimator = NaiveSurvivalSVM(alpha=1.0, random_state=42)
-estimator.fit(X, y)
-
-# Predict
-risk_scores = estimator.predict(X_test)
-```
-
-### MinlipSurvivalAnalysis
-
-Survival analysis using minimizing Lipschitz constant approach.
-
-**When to Use:**
-- Want different optimization objective
-- Research applications
-- Alternative to standard survival SVMs
-
-```python
-from sksurv.svm import MinlipSurvivalAnalysis
-
-# Fit Minlip model
-estimator = MinlipSurvivalAnalysis(alpha=1.0)
-estimator.fit(X, y)
-
-# Predict
-risk_scores = estimator.predict(X_test)
-```
-
-## Hyperparameter Tuning
-
-### Tuning Alpha (Regularization)
-
-```python
-import numpy as np
-from sklearn.model_selection import GridSearchCV
-from sksurv.metrics import as_concordance_index_ipcw_scorer
-
-# Define parameter grid (namespace with estimator__ for the wrapper)
-param_grid = {
-    'estimator__alpha': [0.1, 0.5, 1.0, 5.0, 10.0, 50.0]
-}
-
-# Set tau (a truncation time within the training follow-up) so IPCW folds do not
-# raise "time must be smaller than largest observed time point".
-event_field, time_field = y.dtype.names
-tau = np.percentile(y[time_field][y[event_field]], 80)
-
-# Grid search
-# as_concordance_index_ipcw_scorer wraps the estimator; use default scoring
-cv = GridSearchCV(
-    as_concordance_index_ipcw_scorer(FastSurvivalSVM(), tau=tau),
-    param_grid,
-    cv=5,
-    n_jobs=-1
-)
-cv.fit(X, y)
-
-print(f"Best alpha: {cv.best_params_['estimator__alpha']}")
-print(f"Best C-index: {cv.best_score_:.3f}")
-```
-
-### Tuning Kernel Parameters
-
-```python
-import numpy as np
-from sklearn.model_selection import GridSearchCV
-from sksurv.metrics import as_concordance_index_ipcw_scorer
-
-# Define parameter grid for kernel SVM (namespace with estimator__ for the wrapper)
-# gamma must be a float in [0, inf) or None (no 'scale'/'auto' strings)
-param_grid = {
-    'estimator__alpha': [0.1, 1.0, 10.0],
-    'estimator__gamma': [None, 0.001, 0.01, 0.1, 1.0]
-}
-
-# Set tau (a truncation time within the training follow-up) so IPCW folds do not
-# raise "time must be smaller than largest observed time point".
-event_field, time_field = y.dtype.names
-tau = np.percentile(y[time_field][y[event_field]], 80)
-
-# Grid search
-# as_concordance_index_ipcw_scorer wraps the estimator; use default scoring
-cv = GridSearchCV(
-    as_concordance_index_ipcw_scorer(FastKernelSurvivalSVM(kernel='rbf'), tau=tau),
-    param_grid,
-    cv=5,
-    n_jobs=-1
-)
-cv.fit(X, y)
-
-print(f"Best parameters: {cv.best_params_}")
-print(f"Best C-index: {cv.best_score_:.3f}")
-```
-
-## Clinical Kernel Transform
-
-### ClinicalKernelTransform
-
-Special kernel that combines clinical features with molecular data for improved predictions in medical applications.
-
-**Use Case:**
-- Have both clinical variables (age, stage, etc.) and high-dimensional molecular data (gene expression, genomics)
-- Clinical features should have different weighting
-- Want to integrate heterogeneous data types
-
-**Key Parameters:**
-- `fit_once`: Whether to fit kernel once or refit during cross-validation (default: False)
-- Clinical features should be passed separately from molecular features
-
-```python
-from sksurv.kernels import ClinicalKernelTransform
-from sksurv.svm import FastKernelSurvivalSVM
 from sklearn.pipeline import make_pipeline
-
-# Separate clinical and molecular features
-clinical_features = ['age', 'stage', 'grade']
-X_clinical = X[clinical_features]
-X_molecular = X.drop(clinical_features, axis=1)
-
-# Create pipeline with clinical kernel
-estimator = make_pipeline(
-    ClinicalKernelTransform(),
-    FastKernelSurvivalSVM()
-)
-
-# Fit model
-# ClinicalKernelTransform expects tuple (clinical, molecular)
-X_combined = list(zip(X_clinical.values, X_molecular.values))
-estimator.fit(X_combined, y)
-```
-
-## Practical Examples
-
-### Example 1: Linear SVM with Cross-Validation
-
-```python
-import numpy as np
+from sklearn.preprocessing import StandardScaler
 from sksurv.svm import FastSurvivalSVM
-from sklearn.model_selection import cross_val_score
-from sksurv.metrics import as_concordance_index_ipcw_scorer
-from sklearn.preprocessing import StandardScaler
 
-# Standardize features (important for SVMs!)
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-
-# Create model
-svm = FastSurvivalSVM(alpha=1.0, max_iter=100, random_state=42)
-
-# Set tau (a truncation time within the training follow-up) so IPCW folds do not
-# raise "time must be smaller than largest observed time point".
-event_field, time_field = y.dtype.names
-tau = np.percentile(y[time_field][y[event_field]], 80)
-
-# Cross-validation
-# Wrap the estimator (the scorer wrapper, not scoring=); use default scoring
-scores = cross_val_score(
-    as_concordance_index_ipcw_scorer(svm, tau=tau), X_scaled, y,
-    cv=5,
-    n_jobs=-1
+model = make_pipeline(
+    StandardScaler(),
+    FastSurvivalSVM(
+        alpha=1.0,
+        rank_ratio=1.0,
+        max_iter=1000,
+        tol=1e-5,
+        random_state=20260723,
+    ),
 )
-
-print(f"Mean C-index: {scores.mean():.3f} (±{scores.std():.3f})")
+model.fit(X_train, y_train)
+risk = model.predict(X_test)
 ```
 
-### Example 2: Kernel SVM with Different Kernels
+Current signature:
+
+```text
+FastSurvivalSVM(
+    alpha=1, *,
+    rank_ratio=1.0,
+    fit_intercept=False,
+    max_iter=20,
+    verbose=False,
+    tol=None,
+    optimizer=None,
+    random_state=None,
+    timeit=False,
+)
+```
+
+Key semantics:
+
+- `rank_ratio=1.0`: ranking-only objective; higher predictions indicate shorter
+  survival/higher event risk.
+- `0 < rank_ratio < 1`: mixed ranking and regression.
+- `rank_ratio=0.0`: regression-only objective.
+- When `rank_ratio < 1`, prediction is time-oriented (internally based on log
+  observed time): lower prediction means shorter survival. For a metric requiring
+  higher event risk, use `-prediction` and document the conversion.
+- `alpha` controls regularization; tune it within inner CV.
+
+Do not use an arbitrary sign simply because a C-index improves. The sign follows
+the model objective and target interpretation.
+
+## Fast kernel survival SVM
 
 ```python
 from sksurv.svm import FastKernelSurvivalSVM
-from sklearn.model_selection import train_test_split
-from sksurv.metrics import concordance_index_ipcw
 
-# Split data
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Standardize
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
-
-# Compare different kernels
-kernels = ['linear', 'poly', 'rbf', 'sigmoid']
-results = {}
-
-for kernel in kernels:
-    # Fit model
-    svm = FastKernelSurvivalSVM(kernel=kernel, alpha=1.0, random_state=42)
-    svm.fit(X_train_scaled, y_train)
-
-    # Predict
-    risk_scores = svm.predict(X_test_scaled)
-
-    # Evaluate
-    c_index = concordance_index_ipcw(y_train, y_test, risk_scores)[0]
-    results[kernel] = c_index
-
-    print(f"{kernel:10s}: C-index = {c_index:.3f}")
-
-# Best kernel
-best_kernel = max(results, key=results.get)
-print(f"\nBest kernel: {best_kernel} (C-index = {results[best_kernel]:.3f})")
-```
-
-### Example 3: Full Pipeline with Hyperparameter Tuning
-
-```python
-import numpy as np
-from sksurv.svm import FastKernelSurvivalSVM
-from sklearn.model_selection import GridSearchCV, train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-from sksurv.metrics import as_concordance_index_ipcw_scorer
-
-# Split data
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Create pipeline
-pipeline = Pipeline([
-    ('scaler', StandardScaler()),
-    ('svm', FastKernelSurvivalSVM(kernel='rbf'))
-])
-
-# Define parameter grid
-# The scorer wrapper nests the pipeline under estimator__; gamma must be float or None
-param_grid = {
-    'estimator__svm__alpha': [0.1, 1.0, 10.0],
-    'estimator__svm__gamma': [None, 0.01, 0.1, 1.0]
-}
-
-# Set tau (a truncation time within the training follow-up) so IPCW folds do not
-# raise "time must be smaller than largest observed time point".
-event_field, time_field = y_train.dtype.names
-tau = np.percentile(y_train[time_field][y_train[event_field]], 80)
-
-# Grid search
-# as_concordance_index_ipcw_scorer wraps the pipeline; use default scoring
-cv = GridSearchCV(
-    as_concordance_index_ipcw_scorer(pipeline, tau=tau),
-    param_grid,
-    cv=5,
-    n_jobs=-1,
-    verbose=1
+model = FastKernelSurvivalSVM(
+    alpha=1.0,
+    rank_ratio=1.0,
+    kernel="rbf",
+    gamma=0.05,
+    max_iter=100,
+    tol=1e-5,
+    random_state=20260723,
 )
-cv.fit(X_train, y_train)
-
-# Best model
-best_model = cv.best_estimator_.estimator_
-print(f"Best parameters: {cv.best_params_}")
-print(f"Best CV C-index: {cv.best_score_:.3f}")
-
-# Evaluate on test set
-risk_scores = best_model.predict(X_test)
-c_index = concordance_index_ipcw(y_train, y_test, risk_scores)[0]
-print(f"Test C-index: {c_index:.3f}")
+model.fit(X_train_scaled, y_train)
+risk = model.predict(X_test_scaled)
 ```
 
-## Important Considerations
+Current signature:
 
-### Feature Scaling
+```text
+FastKernelSurvivalSVM(
+    alpha=1, *,
+    rank_ratio=1.0,
+    fit_intercept=False,
+    kernel="rbf",
+    gamma=None,
+    degree=3,
+    coef0=1,
+    kernel_params=None,
+    max_iter=20,
+    verbose=False,
+    tol=None,
+    optimizer=None,
+    random_state=None,
+    timeit=False,
+)
+```
 
-**CRITICAL**: Always standardize features before using SVMs!
+Kernel choices follow scikit-learn pairwise-kernel behavior, including `"linear"`,
+`"poly"`, `"rbf"`, `"sigmoid"`, callable kernels, and `"precomputed"` where
+supported. Do not copy older examples that use `gamma="scale"` without checking
+the current API; the current scikit-survival parameter default is `None`.
+
+Kernel fitting and prediction depend on training rows and can require
+quadratic-size kernel matrices. Enforce row/memory bounds before fitting.
+
+## Hinge, Minlip, and naive formulations
+
+Current additional estimators:
+
+- `HingeLossSurvivalSVM(alpha=1.0, solver="ecos", kernel="linear", pairs="all", ...)`
+- `MinlipSurvivalAnalysis(alpha=1.0, solver="ecos", kernel="linear",
+  pairs="nearest", ...)`
+- `NaiveSurvivalSVM(penalty="l2", loss="squared_hinge", dual=False,
+  alpha=1.0, ...)`
+
+Important current differences:
+
+- `HingeLossSurvivalSVM` and `MinlipSurvivalAnalysis` do not have a
+  `random_state` constructor parameter.
+- Their convex optimization defaults to the ECOS solver.
+- Pair construction and kernel matrices can become expensive.
+- `NaiveSurvivalSVM` uses a linear-SVM-style formulation and is mainly useful for
+  small comparisons; it is not the fast implementation.
+
+Use the exact current signature rather than transferring parameters across SVM
+classes.
+
+## Scaling and explicit preprocessing
+
+Scale continuous features and fit scaling only on training folds:
 
 ```python
-from sklearn.preprocessing import StandardScaler
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
+preprocess = ColumnTransformer(
+    [
+        (
+            "num",
+            make_pipeline(SimpleImputer(strategy="median"), StandardScaler()),
+            numeric_columns,
+        ),
+        (
+            "cat",
+            make_pipeline(
+                SimpleImputer(strategy="most_frequent"),
+                OneHotEncoder(
+                    drop="first",
+                    handle_unknown="ignore",
+                    sparse_output=False,
+                ),
+            ),
+            categorical_columns,
+        ),
+    ],
+    sparse_threshold=0.0,
+)
+model = make_pipeline(
+    preprocess,
+    FastSurvivalSVM(rank_ratio=1.0, random_state=20260723),
+)
 ```
 
-### Computational Complexity
+Do not call `StandardScaler.fit_transform(X)` before cross-validation. Keeping it
+inside the pipeline makes every inner and outer fold independent.
 
-- **FastSurvivalSVM**: O(n × p) per iteration - fast
-- **FastKernelSurvivalSVM**: O(n² × p) - slower, scales quadratically
-- **NaiveSurvivalSVM**: O(n³) - very slow for large datasets
+## Kernel preprocessing
 
-For large datasets (>10,000 samples), prefer:
-- FastSurvivalSVM (linear)
-- Gradient Boosting
-- Random Survival Forest
+For `"precomputed"`, training input must be a square
+`(n_train, n_train)` kernel matrix; test input must be
+`(n_test, n_train)` with columns in the identical training order.
 
-### When SVMs May Not Be Best Choice
+`sksurv.kernels.ClinicalKernelTransform` and `clinical_kernel()` support mixed
+continuous, ordinal, and nominal DataFrame columns, including pandas/Polars in
+0.28. They do not accept an ad hoc list of `(clinical, molecular)` tuples as a
+special API. Fit the transform on a clearly typed training DataFrame or explicitly
+precompute the kernel:
 
-- **Very large datasets**: Ensemble methods are faster
-- **Need survival functions**: Use Random Survival Forest or Cox models
-- **Need interpretability**: Use Cox models
-- **Very high dimensional**: Use penalized Cox (Coxnet) or gradient boosting with feature selection
+```python
+from sksurv.kernels import clinical_kernel
+from sksurv.svm import FastKernelSurvivalSVM
 
-## Model Selection Guide
+kernel_train = clinical_kernel(X_train_typed)
+kernel_test = clinical_kernel(X_test_typed, X_train_typed)
 
-| Model | Speed | Non-linearity | Scalability | Interpretability |
-|-------|-------|---------------|-------------|------------------|
-| FastSurvivalSVM | Fast | No | High | Medium |
-| FastKernelSurvivalSVM | Medium | Yes | Medium | Low |
-| HingeLossSurvivalSVM | Fast | No | High | Medium |
-| NaiveSurvivalSVM | Slow | No | Low | Medium |
+model = FastKernelSurvivalSVM(
+    kernel="precomputed",
+    rank_ratio=1.0,
+    random_state=20260723,
+)
+model.fit(kernel_train, y_train)
+risk = model.predict(kernel_test)
+```
 
-**General Recommendations:**
-- Start with **FastSurvivalSVM** for baseline
-- Try **FastKernelSurvivalSVM** with RBF if non-linearity expected
-- Use grid search to tune alpha and gamma
-- Always standardize features
-- Compare with Random Survival Forest and Gradient Boosting
+Any data-dependent kernel typing, scaling, or parameter choice belongs inside the
+training/CV protocol.
+
+## Nested tuning
+
+Tune at least `alpha`; for kernel models also tune kernel and its parameters.
+Keep the grid bounded:
+
+```python
+from sklearn.model_selection import GridSearchCV
+
+search = GridSearchCV(
+    pipeline,
+    {
+        "fastkernelsurvivalsvm__alpha": [0.1, 1.0, 10.0],
+        "fastkernelsurvivalsvm__gamma": [0.01, 0.05, 0.2],
+    },
+    cv=inner_splits,
+    error_score="raise",
+    n_jobs=1,
+)
+search.fit(X_outer_train, y_outer_train)
+```
+
+The actual parameter prefix depends on pipeline step names. Run this search within
+each outer fold for a nested-CV performance estimate. Do not:
+
+- fit a scaler or kernel transform before the outer split;
+- select the sign, kernel, or horizon on outer-validation results;
+- reuse the final test set to choose `alpha`/`gamma`;
+- compare SVM Brier scores, because SVMs do not output survival probabilities.
+
+For IPCW metrics, fit the censoring distribution on the corresponding outer
+training outcomes and keep the time grid within that fold's support.
+
+## Choosing an SVM candidate
+
+- Linear ranking objective: a scalable margin-based discrimination baseline.
+- Kernel ranking objective: nonlinear relationships when row count permits.
+- Mixed/regression objective: time-oriented score, with different sign semantics.
+- Need absolute survival probability: choose a model with
+  `predict_survival_function()` or add a separately validated calibration stage.
+- Need coefficient/hazard-ratio interpretation: use an appropriate Cox model,
+  not an SVM margin.
+
+These are capability distinctions, not guarantees of performance.
+
+## Interpretation
+
+SVM margins are arbitrary-scale predictions. A high C-index or dynamic AUC says
+that orderings discriminate under the chosen censoring estimator and horizon; it
+does not establish:
+
+- probability calibration;
+- causal or treatment effects;
+- transportability;
+- subgroup fairness;
+- clinical or decision utility.
+
+Report optimization convergence, score direction, kernel, preprocessing, tuning
+resamples, and censoring assumptions.
+
+## Sources
+
+Official sources checked 2026-07-23:
+
+- [Survival SVM user guide](https://scikit-survival.readthedocs.io/en/stable/user_guide/survival-svm.html)
+- [FastSurvivalSVM API](https://scikit-survival.readthedocs.io/en/stable/api/generated/sksurv.svm.FastSurvivalSVM.html)
+- [FastKernelSurvivalSVM API](https://scikit-survival.readthedocs.io/en/stable/api/generated/sksurv.svm.FastKernelSurvivalSVM.html)
+- [HingeLossSurvivalSVM API](https://scikit-survival.readthedocs.io/en/stable/api/generated/sksurv.svm.HingeLossSurvivalSVM.html)
+- [MinlipSurvivalAnalysis API](https://scikit-survival.readthedocs.io/en/stable/api/generated/sksurv.svm.MinlipSurvivalAnalysis.html)
+- [NaiveSurvivalSVM API](https://scikit-survival.readthedocs.io/en/stable/api/generated/sksurv.svm.NaiveSurvivalSVM.html)
+- [Clinical kernels API](https://scikit-survival.readthedocs.io/en/stable/api/kernels.html)

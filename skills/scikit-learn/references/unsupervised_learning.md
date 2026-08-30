@@ -66,8 +66,8 @@ print(f"Clusters: {n_clusters}, Noise points: {n_noise}")
 ```
 
 **HDBSCAN (`sklearn.cluster.HDBSCAN`)**
-- Hierarchical DBSCAN with adaptive epsilon
-- More robust than DBSCAN
+- Hierarchical DBSCAN with adaptive epsilon (added in scikit-learn 1.3)
+- More robust than DBSCAN; prefer this over the separate `hdbscan` PyPI package for new projects
 - Key parameter: `min_cluster_size`
 - Use when: Varying density clusters
 - Example:
@@ -277,14 +277,14 @@ X_reduced = pca.fit_transform(X)
   - `n_components`: Usually 2 or 3
   - `perplexity`: Balance between local and global structure (5-50)
   - `learning_rate`: Usually 10-1000
-  - `n_iter`: Number of iterations (min 250)
+  - `max_iter`: Number of iterations (minimum 250; renamed from `n_iter` in 1.5)
 - Use when: Visualizing high-dimensional data
 - Note: Slow on large datasets, no transform() method
 - Example:
 ```python
 from sklearn.manifold import TSNE
 
-tsne = TSNE(n_components=2, perplexity=30, learning_rate=200, n_iter=1000, random_state=42)
+tsne = TSNE(n_components=2, perplexity=30, learning_rate=200, max_iter=1000, random_state=42)
 X_embedded = tsne.fit_transform(X)
 
 # Visualize
@@ -331,13 +331,25 @@ X_embedded = lle.fit_transform(X)
 
 **MDS (Multidimensional Scaling)**
 - Preserves pairwise distances
-- Key parameter: `n_components`, `metric` (True/False)
+- Key parameters: `n_components`, `metric`, `metric_params`, `init` (e.g. `'classical_mds'` in 1.8+)
+- Note: `dissimilarity` is deprecated; the former `metric` boolean was renamed to `metric_mds`
 - Example:
 ```python
 from sklearn.manifold import MDS
 
-mds = MDS(n_components=2, metric=True, random_state=42)
+mds = MDS(n_components=2, metric='euclidean', init='classical_mds', random_state=42)
 X_embedded = mds.fit_transform(X)
+```
+
+**ClassicalMDS (`sklearn.manifold.ClassicalMDS`)**
+- Classical (Torgerson) MDS via eigendecomposition of the double-centered distance matrix
+- Added in scikit-learn 1.8; faster initialization path for `MDS`
+- Example:
+```python
+from sklearn.manifold import ClassicalMDS
+
+cmds = ClassicalMDS(n_components=2, random_state=42)
+X_embedded = cmds.fit_transform(X)
 ```
 
 ### Matrix Factorization

@@ -22,7 +22,7 @@ path = nx.bellman_ford_path(G, source=1, target=5, weight='weight')
 for source, paths in nx.all_pairs_shortest_path(G):
     print(f"From {source}: {paths}")
 
-# All pairs shortest path lengths
+# Floyd-Warshall algorithm
 lengths = dict(nx.all_pairs_shortest_path_length(G))
 ```
 
@@ -112,9 +112,8 @@ approx_betweenness = nx.betweenness_centrality(G, k=100)  # Sample 100 nodes
 # Reciprocal of average shortest path length
 closeness = nx.closeness_centrality(G)
 
-# wf_improved=True (the default) scales by reachable fraction for disconnected graphs;
-# pass wf_improved=False to disable the Wasserman-Faust correction
-closeness = nx.closeness_centrality(G, wf_improved=False)
+# For disconnected graphs
+closeness = nx.closeness_centrality(G, wf_improved=True)
 ```
 
 ### Eigenvector Centrality
@@ -224,8 +223,9 @@ mst = nx.minimum_spanning_tree(G, weight='weight')
 # Maximum spanning tree
 mst_max = nx.maximum_spanning_tree(G, weight='weight')
 
-# Enumerate all spanning trees
-all_spanning = nx.SpanningTreeIterator(G)
+# Iterate over spanning trees in order of increasing total weight
+for tree in nx.SpanningTreeIterator(G):
+    process(tree)
 ```
 
 ### Tree Properties
@@ -242,14 +242,14 @@ is_arborescence = nx.is_arborescence(G)
 
 ### Maximum Flow
 ```python
-# Maximum flow value (source and sink are positional arguments)
-flow_value = nx.maximum_flow_value(G, 1, 5, capacity='capacity')
+# Maximum flow value
+flow_value = nx.maximum_flow_value(G, s=1, t=5, capacity='capacity')
 
 # Maximum flow with flow dict
-flow_value, flow_dict = nx.maximum_flow(G, 1, 5, capacity='capacity')
+flow_value, flow_dict = nx.maximum_flow(G, s=1, t=5, capacity='capacity')
 
 # Minimum cut
-cut_value, partition = nx.minimum_cut(G, 1, 5, capacity='capacity')
+cut_value, partition = nx.minimum_cut(G, s=1, t=5, capacity='capacity')
 ```
 
 ### Cost Flow
@@ -295,11 +295,11 @@ cliques = list(nx.find_cliques(G))
 # Maximum clique (NP-complete, approximate)
 max_clique = nx.approximation.max_clique(G)
 
-# Clique number (graph_clique_number was removed; derive from find_cliques)
+# Clique number (nx.graph_clique_number was removed in NetworkX 3.0)
 clique_number = max(len(c) for c in nx.find_cliques(G))
 
-# Number of maximal cliques containing each node
-clique_counts = nx.node_clique_number(G)
+# Size of the largest maximal clique containing each node
+clique_sizes = nx.node_clique_number(G)
 ```
 
 ## Graph Coloring

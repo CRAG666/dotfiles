@@ -64,7 +64,7 @@ Analyze statistical distributions:
 
 ### Isolation-Based Methods
 
-Use isolation principles (import these from `aeon.anomaly_detection.series.outlier_detection`):
+Use isolation principles:
 
 - `IsolationForest` - Random forest-based isolation
   - Anomalies easier to isolate than normal points
@@ -87,8 +87,7 @@ Use isolation principles (import these from `aeon.anomaly_detection.series.outli
 ## Quick Start
 
 ```python
-# STOMP requires the optional 'stumpy' soft dependency (pip install stumpy)
-from aeon.anomaly_detection.series.distance_based import STOMP
+from aeon.anomaly_detection import STOMP
 import numpy as np
 
 # Create time series with anomaly

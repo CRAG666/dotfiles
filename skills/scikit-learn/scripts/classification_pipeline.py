@@ -145,7 +145,7 @@ def train_and_evaluate_model(X, y, numeric_features, categorical_features,
     else:  # Logistic Regression
         param_grid = {
             'classifier__C': [0.1, 1.0, 10.0],
-            'classifier__penalty': ['l2']
+            'classifier__l1_ratio': [0.0]
         }
 
     print("\n" + "="*60)

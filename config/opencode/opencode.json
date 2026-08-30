@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "model": "zai/glm-4.5-air"
   "permission": {
     "bash": "ask",
     "edit": "ask",

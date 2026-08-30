@@ -470,7 +470,7 @@ selected_features = selector.get_support()
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_selection import SelectFromModel
 
-model = LogisticRegression(penalty='l1', solver='liblinear', C=0.1)
+model = LogisticRegression(l1_ratio=1.0, solver='liblinear', C=0.1)
 selector = SelectFromModel(model)
 selector.fit(X_train, y_train)
 X_selected = selector.transform(X_train)

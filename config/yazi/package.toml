@@ -30,8 +30,8 @@ hash = "b95f898e6dc60b52edbc415952e14395"
 
 [[plugin.deps]]
 use = "AminurAlam/yazi-plugins:preview-audio"
-rev = "8c2ce96"
-hash = "fdb9c99b81d675a3098ba8e380048b00"
+rev = "5c1711e"
+hash = "475141b0337cf9934b0bc81202e2537c"
 
 [[flavor.deps]]
 use = "yazi-rs/flavors:catppuccin-mocha"

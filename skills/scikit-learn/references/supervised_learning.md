@@ -64,14 +64,15 @@ model.fit(X_train, y_train)
 
 **Logistic Regression (`sklearn.linear_model.LogisticRegression`)**
 - Binary and multiclass classification
-- Key parameters: `C` (inverse regularization), `penalty` ('l1', 'l2', 'elasticnet')
+- Key parameters: `C` (inverse regularization), `l1_ratio` (0=L2, 1=L1, between for elastic net)
 - Returns probability estimates
 - Use when: Need probabilistic predictions, interpretability
+- Note: The `penalty` parameter is deprecated since 1.8; use `l1_ratio` instead
 - Example:
 ```python
 from sklearn.linear_model import LogisticRegression
 
-model = LogisticRegression(C=1.0, max_iter=1000)
+model = LogisticRegression(C=1.0, l1_ratio=0.0, max_iter=1000)
 model.fit(X_train, y_train)
 probas = model.predict_proba(X_test)
 ```

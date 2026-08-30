@@ -1,16 +1,21 @@
 ---
 name: aeon
-description: 'This skill should be used for time series machine learning tasks including classification, regression, clustering, forecasting, anomaly detection, segmentation, and similarity search. Use when working with temporal data, sequential patterns, or time-indexed observations requiring specialized algorithms beyond standard ML approaches. Particularly suited for univariate and multivariate time series analysis with scikit-learn compatible APIs.'
+description: This skill should be used for time series machine learning tasks including classification, regression, clustering, forecasting, anomaly detection, segmentation, and similarity search. Use when working with temporal data, sequential patterns, or time-indexed observations requiring specialized algorithms beyond standard ML approaches. Particularly suited for univariate and multivariate time series analysis with scikit-learn compatible APIs.
 license: BSD-3-Clause license
+allowed-tools: Read Write Edit Bash
+compatibility: Requires Python 3.10+ and the aeon package (uv pip install). Optional aeon[all_extras] for deep learning and extended dependencies.
 metadata:
-    skill-author: K-Dense Inc.
+  version: "1.0"
+  skill-author: K-Dense Inc.
 ---
 
 # Aeon Time Series Machine Learning
 
 ## Overview
 
-Aeon is a scikit-learn compatible Python toolkit for time series machine learning. It provides state-of-the-art algorithms for classification, regression, clustering, forecasting, anomaly detection, segmentation, and similarity search.
+Aeon is a scikit-learn compatible Python toolkit for time series machine learning ([aeon-toolkit.org](https://www.aeon-toolkit.org/)). It provides algorithms across classification, regression, clustering, forecasting, anomaly detection, segmentation, similarity search, distances, transformations, benchmarking, and visualization — with a consistent estimator API.
+
+**Version note:** Examples target **aeon 1.x** (stable docs: v1.4.0, March 2026). The v1.0 release reworked forecasting and transformations; import paths differ from aeon 0.x/sktime-era code.
 
 ## When to Use This Skill
 
@@ -25,9 +30,23 @@ Apply this skill when:
 
 ## Installation
 
+Requires **Python 3.10+** (3.11+ recommended). Pin a 1.x release for reproducibility:
+
 ```bash
-uv pip install aeon
+uv pip install "aeon>=1.4,<2"
 ```
+
+For deep learning forecasters/classifiers and other optional estimators:
+
+```bash
+uv pip install "aeon[all_extras]>=1.4,<2"
+```
+
+On zsh, quote the extras: `uv pip install "aeon[all_extras]>=1.4,<2"`.
+
+### Experimental modules
+
+Upstream treats **forecasting**, **anomaly_detection**, **segmentation**, **similarity_search**, and **visualisation** as experimental — interfaces may change between minor releases. Prefer stable modules (classification, regression, clustering, distances, transformations) for production pipelines unless you need these tasks.
 
 ## Core Capabilities
 
@@ -92,15 +111,25 @@ centers = clusterer.cluster_centers_
 
 ### 4. Forecasting
 
-Predict future time series values. See `references/forecasting.md` for forecasters.
+Predict future time series values (experimental module in aeon 1.x). See `references/forecasting.md` for forecasters.
 
 **Quick Start:**
 ```python
+import numpy as np
+from aeon.forecasting import NaiveForecaster
 from aeon.forecasting.stats import ARIMA
 
-forecaster = ARIMA(p=1, d=1, q=1)
-# Multi-step forecast (horizon of 5)
-y_pred = forecaster.iterative_forecast(y_train, prediction_horizon=5)
+y_train = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
+
+# Set horizon in the constructor; predict passes the series to forecast from
+naive = NaiveForecaster(strategy="last", horizon=5)
+naive.fit(y_train)
+y_pred = naive.predict(y_train)
+
+# ARIMA uses p/d/q (not order=); multi-step via iterative_forecast
+arima = ARIMA(p=1, d=1, q=1)
+arima.fit(y_train)
+y_pred = arima.iterative_forecast(y_train, prediction_horizon=5)
 ```
 
 ### 5. Anomaly Detection
@@ -109,10 +138,7 @@ Identify unusual patterns or outliers. See `references/anomaly_detection.md` for
 
 **Quick Start:**
 ```python
-# STOMP needs the optional 'stumpy' and 'psutil' soft dependencies
-# (pip install stumpy psutil, or pip install aeon[all_extras])
-from aeon.anomaly_detection.series.distance_based import STOMP
-import numpy as np
+from aeon.anomaly_detection import STOMP
 
 detector = STOMP(window_size=50)
 anomaly_scores = detector.fit_predict(y)
@@ -140,11 +166,11 @@ Find similar patterns within or across time series. See `references/similarity_s
 
 **Quick Start:**
 ```python
-from aeon.similarity_search.series import StompMotif
+from aeon.similarity_search import StompMotif
 
 # Find recurring patterns
-motif_finder = StompMotif(length=50)
-motifs = motif_finder.fit_predict(y, k=3)
+motif_finder = StompMotif(window_size=50, k=3)
+motifs = motif_finder.fit_predict(y)
 ```
 
 ## Feature Extraction and Transformations
@@ -153,9 +179,9 @@ Transform time series for feature engineering. See `references/transformations.m
 
 **ROCKET Features:**
 ```python
-from aeon.transformations.collection.convolution_based import Rocket
+from aeon.transformations.collection.convolution_based import RocketTransformer
 
-rocket = Rocket()
+rocket = RocketTransformer()
 X_features = rocket.fit_transform(X_train)
 
 # Use features with any sklearn classifier
@@ -218,7 +244,7 @@ Neural architectures for time series. See `references/networks.md`.
 - Recurrent: `RecurrentNetwork`, `TCNNetwork`
 - Autoencoders: `AEFCNClusterer`, `AEResNetClusterer`
 
-**Usage:** (deep-learning estimators require the optional `tensorflow` soft dependency: `pip install aeon[dl]`)
+**Usage:**
 ```python
 from aeon.classification.deep_learning import InceptionTimeClassifier
 
@@ -231,12 +257,13 @@ predictions = clf.predict(X_test)
 
 Load standard benchmarks and evaluate performance. See `references/datasets_benchmarking.md`.
 
-**Load Datasets:** (in aeon 1.4.0 `load_classification`/`load_regression` are deprecated; their `load_equal_length` and `load_no_missing` arguments default to `True` now but will default to `False` in 1.5.0. Pass them explicitly if you need stable behavior across versions.)
+**Load Datasets:**
 ```python
-from aeon.datasets import load_classification, load_regression
+from aeon.datasets import load_classification, load_gunpoint, load_regression
 
-# Classification
-X_train, y_train = load_classification("ArrowHead", split="train")
+# Classification (generic loader or dataset-specific helper)
+X_train, y_train = load_classification("GunPoint", split="train")
+X_train, y_train = load_gunpoint(split="train")  # same UCR dataset
 
 # Regression
 X_train, y_train = load_regression("Covid3Month", split="train")
@@ -244,10 +271,10 @@ X_train, y_train = load_regression("Covid3Month", split="train")
 
 **Benchmarking:**
 ```python
-from aeon.benchmarking.results_loaders import get_estimator_results
+from aeon.benchmarking import get_estimator_results
 
 # Compare with published results
-published = get_estimator_results("ROCKET", ["GunPoint"])  # nested: published["ROCKET"]["GunPoint"]
+published = get_estimator_results("ROCKET", "GunPoint")
 ```
 
 ## Common Workflows
@@ -271,11 +298,11 @@ accuracy = pipeline.score(X_test, y_test)
 ### Feature Extraction + Traditional ML
 
 ```python
-from aeon.transformations.collection.convolution_based import Rocket
+from aeon.transformations.collection import RocketTransformer
 from sklearn.ensemble import GradientBoostingClassifier
 
 # Extract features
-rocket = Rocket()
+rocket = RocketTransformer()
 X_train_features = rocket.fit_transform(X_train)
 X_test_features = rocket.transform(X_test)
 
@@ -288,9 +315,8 @@ predictions = clf.predict(X_test_features)
 ### Anomaly Detection with Visualization
 
 ```python
-from aeon.anomaly_detection.series.distance_based import STOMP
+from aeon.anomaly_detection import STOMP
 import matplotlib.pyplot as plt
-import numpy as np
 
 detector = STOMP(window_size=50)
 scores = detector.fit_predict(y)
@@ -323,7 +349,7 @@ plt.show()
    X_train = imputer.fit_transform(X_train)
    ```
 
-3. **Check Data Format**: Aeon expects shape `(n_samples, n_channels, n_timepoints)`
+3. **Check Data Format**: Collections use `(n_cases, n_channels, n_timepoints)`; single series use `(n_channels, n_timepoints)` (see [data format](https://www.aeon-toolkit.org/en/stable/api_reference/data_format.html))
 
 ### Model Selection
 
@@ -342,7 +368,7 @@ plt.show()
 **For Maximum Accuracy:**
 - Classification: `HIVECOTEV2`, `InceptionTimeClassifier`
 - Regression: `InceptionTimeRegressor`
-- Forecasting: `ARIMA`, `TCNForecaster`
+- Forecasting: `AutoARIMA`, `AutoETS`, `TCNForecaster` (requires `[all_extras]` for deep learning)
 
 **For Interpretability:**
 - Classification: `ShapeletTransformClassifier`, `Catch22Classifier`

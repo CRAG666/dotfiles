@@ -7,7 +7,6 @@ Verifies DOIs, URLs, and citation metadata for accuracy.
 import re
 import requests
 import json
-from pathlib import Path
 from typing import Dict, List, Tuple
 from urllib.parse import urlparse
 import time
@@ -21,29 +20,8 @@ class CitationVerifier:
 
     def extract_dois(self, text: str) -> List[str]:
         """Extract all DOIs from text."""
-        # Allow ')' inside the match so legacy parenthesized (SICI-style) DOIs
-        # such as 10.1002/(SICI)1097-0258(...)... are captured whole instead of
-        # being truncated at the first ')'.
-        doi_pattern = r'10\.\d{4,}/[^\s\]"]+'
-        return [self._strip_doi_tail(doi) for doi in re.findall(doi_pattern, text)]
-
-    @staticmethod
-    def _strip_doi_tail(doi: str) -> str:
-        """Strip terminal punctuation a sentence or list can append to a DOI.
-
-        Removes a trailing period, comma, or semicolon (never part of a DOI). A
-        trailing ')' is stripped only when it is unbalanced (more ')' than '('
-        in the token), i.e. a DOI wrapped in prose like "(10.x/y)"; a ')' that
-        is balanced by an earlier '(' is structural (SICI DOIs) and kept.
-        """
-        while doi and doi[-1] in '.,;)':
-            if doi[-1] == ')':
-                if doi.count('(') >= doi.count(')'):
-                    break
-                doi = doi[:-1]
-            else:
-                doi = doi[:-1]
-        return doi
+        doi_pattern = r'10\.\d{4,}/[^\s\]\)"]+'
+        return re.findall(doi_pattern, text)
 
     def verify_doi(self, doi: str) -> Tuple[bool, Dict]:
         """
@@ -73,18 +51,12 @@ class CitationVerifier:
                 data = response.json()
                 message = data.get('message', {})
 
-                # Extract key metadata. CrossRef can return a present-but-empty
-                # list for title / container-title (e.g. datasets, some books);
-                # a bare [0] would raise IndexError, so take the first element
-                # only when one exists and fall back to '' otherwise.
-                def _first(seq) -> str:
-                    return seq[0] if isinstance(seq, list) and seq else ''
-
+                # Extract key metadata
                 metadata = {
-                    'title': _first(message.get('title', [])),
+                    'title': message.get('title', [''])[0],
                     'authors': self._format_authors(message.get('author', [])),
                     'year': self._extract_year(message),
-                    'journal': _first(message.get('container-title', [])),
+                    'journal': message.get('container-title', [''])[0],
                     'volume': message.get('volume', ''),
                     'pages': message.get('page', ''),
                     'doi': doi
@@ -112,16 +84,13 @@ class CitationVerifier:
         return ", ".join(formatted)
 
     def _extract_year(self, message: Dict) -> str:
-        """Extract publication year.
+        """Extract publication year."""
+        date_parts = message.get('published-print', {}).get('date-parts', [[]])
+        if not date_parts or not date_parts[0]:
+            date_parts = message.get('published-online', {}).get('date-parts', [[]])
 
-        CrossRef's canonical publication date is ``issued``; ``published`` is a
-        newer unified field, and ``published-print`` / ``published-online`` are
-        format-specific. Fall back through them in order of preference.
-        """
-        for field in ('issued', 'published', 'published-print', 'published-online'):
-            date_parts = message.get(field, {}).get('date-parts', [[]])
-            if date_parts and date_parts[0] and date_parts[0][0] is not None:
-                return str(date_parts[0][0])
+        if date_parts and date_parts[0]:
+            return str(date_parts[0][0])
         return ""
 
     def verify_url(self, url: str) -> Tuple[bool, int]:
@@ -242,12 +211,8 @@ def main():
             citation = verifier.format_citation_apa(metadata)
             print(f"\n{citation}")
 
-    # Save detailed report. Derive the report path from the input's stem so it
-    # is always a distinct sibling file; a naive str.replace('.md', ...) is a
-    # no-op (and would overwrite the source) for any non-.md or differently
-    # cased input, and mangles names that contain '.md' more than once.
-    src = Path(filepath)
-    output_file = str(src.with_name(f"{src.stem}_citation_report.json"))
+    # Save detailed report
+    output_file = filepath.replace('.md', '_citation_report.json')
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
 

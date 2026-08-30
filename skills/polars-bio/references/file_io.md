@@ -10,6 +10,7 @@ polars-bio provides `read_*`, `scan_*`, `write_*`, and `sink_*` functions for co
 |--------|------|------|-----------------|-------|------|
 | BED | `read_bed` | `scan_bed` | `register_bed` | — | — |
 | VCF | `read_vcf` | `scan_vcf` | `register_vcf` | `write_vcf` | `sink_vcf` |
+| VCF Zarr | `read_vcf_zarr` | `scan_vcf_zarr` | — | — | — |
 | BAM | `read_bam` | `scan_bam` | `register_bam` | `write_bam` | `sink_bam` |
 | CRAM | `read_cram` | `scan_cram` | `register_cram` | `write_cram` | `sink_cram` |
 | GFF | `read_gff` | `scan_gff` | `register_gff` | — | — |
@@ -43,7 +44,7 @@ Not all functions support all parameters. SAM functions lack cloud parameters. F
 
 ### read_bed / scan_bed
 
-Read BED files. Only **BED4** is supported in v0.31 (chrom, start, end, name); the 4th (name) column is required. BED3 input is NOT read as its first three columns: each record fails to parse and the call returns an empty frame (shape `(0, 4)`) with no exception raised to the caller. Pad BED3 to BED4, or read it through `read_table(schema="bed3")` instead. BED files use 0-based half-open coordinates; polars-bio attaches coordinate metadata automatically. Note: plain (non-BGZF) GZIP is not supported for BED.
+Read BED files. Columns are auto-detected (BED3 through BED12). BED files use 0-based half-open coordinates; polars-bio attaches coordinate metadata automatically.
 
 ```python
 import polars_bio as pb
@@ -55,16 +56,15 @@ df = pb.read_bed("regions.bed")
 lf = pb.scan_bed("regions.bed")
 ```
 
-### Column Schema (BED4)
+### Column Schema (BED3)
 
 | Column | Type | Description |
 |--------|------|-------------|
 | `chrom` | String | Chromosome name |
-| `start` | UInt32 | Start position |
-| `end` | UInt32 | End position |
-| `name` | String | Feature name |
+| `start` | Int64 | Start position |
+| `end` | Int64 | End position |
 
-Only BED4 is supported in v0.31; the extended BED fields (`score`, `strand`, `thickStart`, `thickEnd`, `itemRgb`, `blockCount`, `blockSizes`, `blockStarts`) are not parsed. For files with extra columns, use `read_table` with the bioframe schema whose column count equals the file's columns exactly (e.g., `schema="bed12"` for a 12-column file); the count must match, so a higher schema than the data does not work.
+Extended BED fields (auto-detected) add: `name`, `score`, `strand`, `thickStart`, `thickEnd`, `itemRgb`, `blockCount`, `blockSizes`, `blockStarts`.
 
 ## VCF Format
 
@@ -104,10 +104,11 @@ df = pb.read_vcf("variants.vcf.gz", samples=["SAMPLE1", "SAMPLE2"])
 | `id` | String | Variant ID |
 | `ref` | String | Reference allele |
 | `alt` | String | Alternate allele(s) |
-| `qual` | Float64 | Quality score |
+| `qual` | Float32 | Quality score |
 | `filter` | String | Filter status |
+| `info` | String | INFO field (raw, unless `info_fields` specified) |
 
-INFO fields are not kept as a single raw `info` string. By default (`info_fields=None`) every INFO field declared in the VCF header is exploded into its own typed column (e.g., `AF` as `List(Float32)`, `DP` as `Int32`). Pass `info_fields=[...]` to restrict which ones are materialized. FORMAT fields are top-level columns for single-sample VCFs and a nested `genotypes` struct column for multi-sample VCFs.
+**Genotype columns:** In single-sample VCFs, requested `format_fields` (e.g., `GT`, `DP`, `GQ`) appear as top-level columns. In multi-sample VCFs, per-sample FORMAT data is nested in a `genotypes` column.
 
 ### write_vcf / sink_vcf
 
@@ -121,11 +122,40 @@ rows_written = pb.write_vcf(df, "output.vcf")
 pb.sink_vcf(lf, "output.vcf")
 ```
 
+## VCF Zarr Format
+
+### read_vcf_zarr / scan_vcf_zarr
+
+Read analysis-ready [VCF Zarr](https://github.com/sgkit-dev/vcf-zarr-spec) stores (local directory paths). Supports the same INFO/FORMAT projection and predicate pushdown as VCF readers.
+
+```python
+import polars_bio as pb
+
+# Eager read from a Zarr store directory
+df = pb.read_vcf_zarr("/path/to/vcf.zarr")
+
+# Lazy scan (preferred for large stores)
+lf = pb.scan_vcf_zarr(
+    "/path/to/vcf.zarr",
+    info_fields=["AF", "END"],
+    format_fields=["GT", "DP"],
+)
+
+# Disable INFO/FORMAT discovery explicitly
+lf = pb.scan_vcf_zarr("/path/to/vcf.zarr", info_fields=[], format_fields=[])
+```
+
+### Additional Parameters
+
+Same as VCF where applicable: `info_fields`, `format_fields`, `samples`, `projection_pushdown`, `predicate_pushdown`, `use_zero_based`, `genotype_encoding_raw`.
+
+**Note:** VCF Zarr is currently local-path only (no cloud URI support). There is no `register_vcf_zarr` SQL helper yet — use `scan_vcf_zarr` + `from_polars` if needed.
+
 ## BAM Format
 
 ### read_bam / scan_bam
 
-Read aligned sequencing reads from BAM files. A `.bai`/`.csi` index is optional: `read_bam` and `scan_bam` work without one. An index is only needed for indexed parallel reads and predicate pushdown (region-based filtering); create one with `samtools index` to enable them.
+Read aligned sequencing reads from BAM files. Requires a `.bai` index file.
 
 ```python
 import polars_bio as pb
@@ -155,8 +185,8 @@ df = pb.read_bam("aligned.bam", tag_fields=["NM", "MD"])
 | Column | Type | Description |
 |--------|------|-------------|
 | `chrom` | String | Reference sequence name |
-| `start` | UInt32 | Alignment start position |
-| `end` | UInt32 | Alignment end position |
+| `start` | Int64 | Alignment start position |
+| `end` | Int64 | Alignment end position |
 | `name` | String | Read name |
 | `flags` | UInt32 | SAM flags |
 | `mapping_quality` | UInt32 | Mapping quality |
@@ -164,8 +194,8 @@ df = pb.read_bam("aligned.bam", tag_fields=["NM", "MD"])
 | `sequence` | String | Read sequence |
 | `quality_scores` | String | Base quality string |
 | `mate_chrom` | String | Mate reference name |
-| `mate_start` | UInt32 | Mate start position |
-| `template_length` | Int32 | Template length |
+| `mate_start` | Int64 | Mate start position |
+| `template_length` | Int64 | Template length |
 
 ### write_bam / sink_bam
 
@@ -239,12 +269,12 @@ df = pb.read_gff("annotations.gff3", attr_fields=["gene_id", "gene_name"])
 | `chrom` | String | Sequence name |
 | `source` | String | Feature source |
 | `type` | String | Feature type (gene, exon, etc.) |
-| `start` | UInt32 | Start position |
-| `end` | UInt32 | End position |
+| `start` | Int64 | Start position |
+| `end` | Int64 | End position |
 | `score` | Float32 | Score |
 | `strand` | String | Strand (+/-/.) |
 | `phase` | UInt32 | Phase (0/1/2) |
-| `attributes` | List(Struct) | Tag/value pairs (`List(Struct{tag: String, value: String})`) when `attr_fields=None`; named fields become their own String columns when `attr_fields` is set |
+| `attributes` | String | Attributes string |
 
 ## FASTA Format
 
@@ -268,9 +298,15 @@ df = pb.read_fasta("reference.fasta")
 
 ### write_fasta / sink_fasta
 
+Write sequences from DataFrames with `name` and `sequence` columns (optional `description`):
+
 ```python
+import polars_bio as pb
+
 rows_written = pb.write_fasta(df, "output.fasta")
-pb.sink_fasta(lf, "output.fasta")
+rows_written = pb.write_fasta(df, "output.fasta.gz")
+
+pb.sink_fasta(lf, "output.fasta.bgz")
 ```
 
 ## FASTQ Format
@@ -347,10 +383,10 @@ lf = pb.scan_pairs("contacts.pairs")
 | Column | Type | Description |
 |--------|------|-------------|
 | `readID` | String | Read identifier |
-| `chr1` | String | Chromosome of first contact |
-| `pos1` | UInt32 | Position of first contact |
-| `chr2` | String | Chromosome of second contact |
-| `pos2` | UInt32 | Position of second contact |
+| `chrom1` | String | Chromosome of first contact |
+| `pos1` | Int32 | Position of first contact |
+| `chrom2` | String | Chromosome of second contact |
+| `pos2` | Int32 | Position of second contact |
 | `strand1` | String | Strand of first contact |
 | `strand2` | String | Strand of second contact |
 
@@ -358,13 +394,13 @@ lf = pb.scan_pairs("contacts.pairs")
 
 ### read_table / scan_table
 
-Read tab-delimited (BED-like) files. The `schema` argument is a bioframe schema **name string** (e.g., `"bed3"`, `"bed4"`, `"bed6"`, `"bed9"`, `"bed12"`), not a dict of column types; passing a dict raises `TypeError: unhashable type: 'dict'`. The bedN schema must match the file's column count exactly (e.g., `"bed12"` for a 12-column file); a mismatch raises `ValueError: Schema incompatible with the input`.
+Read tab-delimited files with custom schema. Useful for non-standard formats or bioframe-compatible tables.
 
 ```python
 import polars_bio as pb
 
-df = pb.read_table("custom.tsv", schema="bed4")
-lf = pb.scan_table("custom.tsv", schema="bed3")
+df = pb.read_table("custom.tsv", schema={"chrom": str, "start": int, "end": int, "name": str})
+lf = pb.scan_table("custom.tsv", schema={"chrom": str, "start": int, "end": int})
 ```
 
 ## Cloud Storage
@@ -394,7 +430,15 @@ df = pb.read_vcf("gs://bucket/variants.vcf.gz", allow_anonymous=True)
 df = pb.read_bam("az://container/aligned.bam", allow_anonymous=False)
 ```
 
-**Note:** For authenticated access, configure credentials via environment variables or cloud SDK configuration (e.g., `AWS_ACCESS_KEY_ID`, `GOOGLE_APPLICATION_CREDENTIALS`).
+**Cloud credential usage:** Cloud paths (`s3://`, `gs://`, `az://`) trigger reads through Apache OpenDAL using your environment's cloud SDK credentials. Credentials are read only when a cloud URI is accessed — not from broad `.env` scanning.
+
+| Provider | Example path | Typical env vars |
+|----------|--------------|------------------|
+| AWS S3 | `s3://bucket/file.bed` | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION` |
+| GCS | `gs://bucket/file.vcf.gz` | `GOOGLE_APPLICATION_CREDENTIALS` |
+| Azure | `az://container/file.bam` | Azure SDK defaults (`AZURE_STORAGE_ACCOUNT`, etc.) |
+
+Set `allow_anonymous=True` (default) for public buckets; set `allow_anonymous=False` when authenticated access is required.
 
 ## Compression Support
 
@@ -421,3 +465,5 @@ schema_df = pb.describe_bam("aligned.bam")
 schema_df = pb.describe_sam("alignments.sam")
 schema_df = pb.describe_cram("aligned.cram", reference_path="ref.fasta")
 ```
+
+Use `describe_bam`/`describe_sam` to auto-discover optional SAM tags before specifying `tag_fields`.

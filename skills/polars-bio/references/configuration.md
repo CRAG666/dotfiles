@@ -45,7 +45,7 @@ pb.set_option("datafusion.execution.target_partitions", 8)
 
 ## Coordinate Systems
 
-polars-bio defaults to 1-based coordinates (standard genomic convention).
+polars-bio defaults to **1-based** coordinates (genomic convention). Configure globally with the DataFusion bio option (boolean, not a string):
 
 ### Global Coordinate System
 
@@ -53,14 +53,24 @@ polars-bio defaults to 1-based coordinates (standard genomic convention).
 import polars_bio as pb
 
 # Switch to 0-based half-open coordinates
-pb.set_option(pb.POLARS_BIO_COORDINATE_SYSTEM_ZERO_BASED, True)
+pb.set_option("datafusion.bio.coordinate_system_zero_based", True)
 
 # Switch back to 1-based (default)
-pb.set_option(pb.POLARS_BIO_COORDINATE_SYSTEM_ZERO_BASED, False)
+pb.set_option("datafusion.bio.coordinate_system_zero_based", False)
 
-# Check current setting
-print(pb.get_option("coordinate_system"))
+# Check current setting ("true" or "false")
+print(pb.get_option("datafusion.bio.coordinate_system_zero_based"))
 ```
+
+### Strict Coordinate Metadata Checking
+
+By default, missing coordinate metadata on manually constructed DataFrames triggers a warning and falls back to the global setting. Enable strict checking to raise `MissingCoordinateSystemError`:
+
+```python
+pb.set_option("datafusion.bio.coordinate_system_check", True)
+```
+
+When both inputs have metadata but different coordinate systems, interval operations raise `CoordinateSystemMismatchError`.
 
 ### Per-File Override via I/O Functions
 
@@ -71,16 +81,16 @@ I/O functions accept `use_zero_based` to set coordinate metadata on the resultin
 df = pb.read_bed("regions.bed", use_zero_based=True)
 ```
 
-**Note:** Interval operations (overlap, nearest, etc.) do **not** accept `use_zero_based`. They read coordinate metadata from the DataFrames, which is set by I/O functions or the global option. When using manually constructed DataFrames, polars-bio warns about missing metadata and falls back to the global setting.
-
-### Setting Metadata on Manual DataFrames
+**Note:** Interval operations (overlap, nearest, etc.) do **not** accept `use_zero_based`. They read coordinate metadata from the DataFrames, which is set by I/O functions or the global option. For manually constructed Polars DataFrames, attach metadata before calling interval ops:
 
 ```python
-import polars_bio as pb
+import polars as pl
 
-# Set coordinate metadata on a manually created DataFrame
-pb.set_source_metadata(df, format="bed", path="")
+df = pl.DataFrame({"chrom": ["chr1"], "start": [1], "end": [100]})
+df.config_meta.set(coordinate_system_zero_based=False)  # 1-based
 ```
+
+Alternatively, use `pb.set_source_metadata(df, format="bed", path="")` or I/O functions that set metadata automatically.
 
 ### File Format Conventions
 
@@ -109,7 +119,7 @@ result = pb.overlap(lf1, lf2)  # Streams if inputs are LazyFrames
 Use Polars' native streaming for post-processing operations:
 
 ```python
-# Collect with Polars streaming
+# Collect with Polars streaming engine
 result = lf.collect(engine="streaming")
 ```
 
@@ -142,7 +152,7 @@ pb.set_loglevel("info")    # Standard messages
 pb.set_loglevel("warn")    # Warnings only (default)
 ```
 
-**Note:** Valid log levels are `"debug"`, `"info"`, `"warn"`, and `"warning"` (`"warn"` and `"warning"` are equivalent).
+**Note:** Only `"debug"`, `"info"`, and `"warn"` are valid log levels.
 
 ## Metadata Management
 
@@ -172,4 +182,6 @@ pb.from_polars("my_table", df)
 | Option | Default | Description |
 |--------|---------|-------------|
 | `datafusion.execution.target_partitions` | `1` | Number of parallel execution partitions |
-| `coordinate_system` | `None` | Legacy key; `get_option("coordinate_system")` returns `None` (unset). The effective runtime switch is `datafusion.bio.coordinate_system_zero_based` (default `"false"`, i.e. 1-based), settable via `pb.set_option(pb.POLARS_BIO_COORDINATE_SYSTEM_ZERO_BASED, True/False)` |
+| `datafusion.bio.coordinate_system_zero_based` | `false` | Global coordinate system (`true` = 0-based half-open, `false` = 1-based) |
+| `datafusion.bio.coordinate_system_check` | `false` | When `true`, raise `MissingCoordinateSystemError` if inputs lack coordinate metadata |
+| `bio.interval_join_algorithm` | `"coitrees"` | Interval join algorithm (`Coitrees`, `IntervalTree`, `ArrayIntervalTree`, `Lapper`, `SuperIntervals`) |

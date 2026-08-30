@@ -216,7 +216,7 @@ h() {
     curl -s "cheat.sh/$*$style"
 }
 
-q(){ pi --tools bash,read -p "Read the man page (or --help if none exists) for the following Linux command and output ONLY a cheat.sh-style reference in plain shell-script format: a one-line comment summarizing the command at the top, then 4-8 realistic example invocations from basic to advanced, each preceded by a one-line comment starting with # explaining what it does. Every line must be either a comment starting with # or an actual runnable shell command exactly as it would appear in a .sh file - no markdown code fences, no headers, no bullet points, no bold text, no prose paragraphs. End with one comment starting with # gotcha: describing a common mistake. Keep it under 25 lines total. The command is: $*" | bat -l bash --style=plain --paging=never --color=always; }
+q(){ pi --model zai/glm-4.7 --tools bash,read -p "Read the man page (or --help if none exists) for the following Linux command and output ONLY a cheat.sh-style reference in plain shell-script format: a one-line comment summarizing the command at the top, then 4-8 realistic example invocations from basic to advanced, each preceded by a one-line comment starting with # explaining what it does. Every line must be either a comment starting with # or an actual runnable shell command exactly as it would appear in a .sh file - no markdown code fences, no headers, no bullet points, no bold text, no prose paragraphs. End with one comment starting with # gotcha: describing a common mistake. Keep it under 25 lines total. The command is: $*" | bat -l bash --style=plain --paging=never --color=always; }
 
 alias ci="{ find . -xdev -printf '%h\n' | sort | uniq -c | sort -k 1 -n; } 2>/dev/null"
 alias fontl="fc-list | cut -d ':' -f2 | sort | uniq"

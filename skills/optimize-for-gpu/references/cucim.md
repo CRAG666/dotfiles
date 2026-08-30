@@ -1,6 +1,9 @@
 # cuCIM Reference
 
-cuCIM (CUDA Clara IMage) is NVIDIA's GPU-accelerated computer vision and image processing library within the RAPIDS ecosystem. Its `cucim.skimage` module is a near-drop-in GPU replacement for scikit-image, with 200+ GPU-accelerated functions. It also provides a high-performance whole-slide image (WSI) reader via `cucim.clara.CuImage` that is 5-6x faster than OpenSlide.
+cuCIM (CUDA Clara IMage) is NVIDIA's GPU-accelerated computer vision and image processing library
+within the RAPIDS ecosystem. Its `cucim.skimage` module mirrors a substantial part of scikit-image
+on CuPy arrays, and `cucim.CuImage` reads tiled whole-slide images. Verify function coverage and
+benchmark the actual image sizes, storage path, and processing chain.
 
 > **Full documentation:** https://docs.rapids.ai/api/cucim/stable/
 > **GitHub:** https://github.com/rapidsai/cucim
@@ -33,14 +36,18 @@ cuCIM (CUDA Clara IMage) is NVIDIA's GPU-accelerated computer vision and image p
 
 ## Installation and Setup
 
-Always use `uv add` (never `pip install` or `conda install`) in all install instructions, docstrings, comments, and error messages.
+Use `uv add` in standalone examples; follow the user's existing project package manager when one
+is already configured.
 
 ```bash
-uv add --extra-index-url=https://pypi.nvidia.com cucim-cu12    # For CUDA 12.x
+uv add --extra-index-url=https://pypi.nvidia.com "cucim-cu12==26.6.*"    # For CUDA 12.x
+uv add --extra-index-url=https://pypi.nvidia.com "cucim-cu13==26.6.*"    # For CUDA 13.x
 ```
 
+cuCIM wheels are also published directly to PyPI, so the extra index is optional.
+
 **Platform:** Linux only (x86-64 and aarch64) — no Windows or macOS GPU support.
-**Requires:** NVIDIA GPU with CUDA 12.x, Python 3.9+, CuPy, NumPy, SciPy, scikit-image.
+**Requires:** NVIDIA GPU with CUDA 12.x or 13.x, Python 3.11+, CuPy, NumPy, SciPy, scikit-image.
 
 Verify:
 ```python
@@ -277,6 +284,8 @@ tophat = white_tophat(gray_image_gpu, footprint=disk(10))
 
 **Isotropic operations:** `isotropic_erosion`, `isotropic_dilation`, `isotropic_opening`, `isotropic_closing`
 
+**Extrema (added in 26.06):** `h_maxima`, `h_minima`, `local_maxima`, `local_minima`
+
 ---
 
 ## Segmentation
@@ -332,7 +341,8 @@ flow = optical_flow_tvl1(frame1_gpu, frame2_gpu)
 from cucim.skimage.restoration import (
     denoise_tv_chambolle,
     richardson_lucy,
-    wiener, unsupervised_wiener
+    wiener, unsupervised_wiener,
+    rolling_ball
 )
 
 # Total variation denoising
@@ -340,6 +350,9 @@ denoised = denoise_tv_chambolle(noisy_image_gpu, weight=0.1)
 
 # Richardson-Lucy deconvolution
 restored = richardson_lucy(blurred_image_gpu, psf_gpu, num_iter=30)
+
+# Rolling-ball background subtraction (added in 26.04)
+background = rolling_ball(image_gpu, radius=100)
 ```
 
 ---
@@ -466,7 +479,7 @@ distances = distance_transform_edt(binary_image_gpu)
 
 ## Whole-Slide Image Reading
 
-`cucim.clara.CuImage` — high-performance WSI reader, compatible with OpenSlide API, 5-6x faster.
+`cucim.CuImage` is the public whole-slide image reader:
 
 ```python
 from cucim import CuImage
@@ -504,34 +517,27 @@ cache = ImageCache(memory_capacity=2 * 1024**3)  # 2 GB cache
 
 ### GPUDirect Storage
 
-For large files (2GB+), GPUDirect Storage bypasses CPU memory for 25%+ additional speedup:
-
-```python
-from cucim.clara.filesystem import CuFileDriver
-
-# Read directly into GPU memory, bypassing CPU
-driver = CuFileDriver(path, flags)
-driver.pread(gpu_buffer, size, offset)
-```
+GPUDirect Storage can reduce CPU staging on a supported Linux, driver, filesystem, storage, and
+container configuration. Treat it as a deployment capability, not an automatic size-based
+optimization. Confirm that GDS is active and compare end-to-end tile throughput; otherwise use
+cuCIM's normal reader path. Use KvikIO for explicit raw-buffer I/O rather than depending on
+cuCIM-internal filesystem classes.
 
 ---
 
 ## Performance Characteristics
 
-**Headline numbers:**
-- Up to **1245x faster** than scikit-image for certain operations on large images
-- **5-6x faster** than OpenSlide for WSI multi-threaded patch reading
-- **25%+ additional speedup** with GPUDirect Storage on 2GB+ files
+Benchmark each operation and the complete pipeline. Image dimensions alone do not predict a
+speedup: kernel type, footprint size, channels, dtype, storage, tiling, transfer, and downstream
+reuse all matter.
 
-**Scaling behavior:**
-- **4K resolution and above:** GPU parallelism fully utilized, maximum speedups
-- **~1000x1000:** Moderate but measurable speedups for most operations
-- **Below ~512x512:** Diminishing returns; GPU overhead starts to matter
-- **Below ~64x64:** CPU may be faster due to CUDA kernel launch overhead
-
-**First-call overhead:** JIT compilation on first kernel execution (cached after). Benchmark on subsequent calls.
-
-**Best strategy:** Transfer image to GPU once, chain all processing operations, transfer back once at the end.
+1. Warm the CUDA context and lazy kernels before timed repetitions.
+2. Compare equivalent border modes, interpolation, connectivity, dtype, and output semantics.
+3. Report decode/read, host-device transfer, processing, and end-to-end times separately.
+4. For WSI workloads, record tile size, level, compression, access pattern, worker count, cache
+   state, storage device, and whether GDS was active.
+5. Transfer an image to the GPU once, chain compatible operations, and transfer only the result
+   required by the next CPU consumer.
 
 ---
 
@@ -568,7 +574,8 @@ result = gaussian(cp.asarray(image), sigma=5)
 
 4. **Data must be explicitly moved to GPU.** cuCIM does not auto-transfer; you must call `cp.asarray()`.
 
-5. **Small image penalty.** Images below ~512x512 may not benefit. Below ~64x64, CPU is likely faster.
+5. **Small image penalty.** Small or one-shot operations may not amortize context, launch, and
+transfer overhead. Benchmark the real tile size and batching strategy.
 
 6. **GPU memory constraints.** Very large images must be tiled. GPU memory is typically smaller than system RAM.
 

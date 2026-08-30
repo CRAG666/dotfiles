@@ -79,9 +79,9 @@ plt.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.15)
 # Solution 4: Save with bbox_inches='tight'
 plt.savefig('figure.png', bbox_inches='tight')
 
-# Solution 5: Rotate long tick labels (set tick positions first so set_xticklabels does not warn)
-ax.set_xticks(range(len(labels)))
-ax.set_xticklabels(labels, rotation=45, ha='right')
+# Solution 5: Rotate long tick labels
+ax.set_xticks(positions, labels)
+plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
 ```
 
 ### Issue: Colorbar Affects Subplot Size
@@ -162,7 +162,7 @@ ax.plot(x, y, rasterized=True)
 plt.savefig('figure.pdf')  # or .svg
 
 # Solution 4: Compress PNG
-plt.savefig('figure.png', dpi=300, pil_kwargs={'optimize': True})
+plt.savefig('figure.png', dpi=300, optimize=True)
 ```
 
 ### Issue: Slow Plotting with Large Datasets
@@ -197,11 +197,11 @@ ax.hexbin(x, y, gridsize=50, cmap='viridis')
 ```python
 # Solution 1: Use available fonts
 from matplotlib.font_manager import findfont, FontProperties
-print(findfont(FontProperties(family=['sans-serif'])))
+print(findfont(FontProperties(family='sans-serif')))
 
-# Solution 2: Rebuild font cache
-import matplotlib.font_manager
-matplotlib.font_manager._load_fontmanager(try_read_cache=False)
+# Solution 2: Check Matplotlib's cache directory, then restart Python
+import matplotlib
+print(matplotlib.get_cachedir())
 
 # Solution 3: Suppress warnings
 import warnings
@@ -435,8 +435,6 @@ scatter = ax.scatter(x, y, z, c=z, cmap='viridis')
 
 **Solution:**
 ```python
-from mpl_toolkits.mplot3d import Axes3D
-
 fig = plt.figure(figsize=(10, 8))
 ax = fig.add_subplot(111, projection='3d')
 ax.plot_surface(X, Y, Z)

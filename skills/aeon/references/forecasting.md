@@ -1,138 +1,109 @@
 # Time Series Forecasting
 
-Aeon provides forecasting algorithms for predicting future time series values.
+The `aeon.forecasting` module provides forecasters for univariate and multivariate series. In aeon **1.x**, forecasting was rebuilt on array-native `BaseForecaster` estimators (replacing the old sktime-style `fh` API). The module is marked **experimental** — expect API evolution between releases.
+
+Import paths (aeon 1.4+):
+
+- `from aeon.forecasting import NaiveForecaster, RegressionForecaster`
+- `from aeon.forecasting.stats import ARIMA, AutoARIMA, ETS, AutoETS, Theta, TAR, AutoTAR, TVP`
+- `from aeon.forecasting.deep_learning import TCNForecaster, DeepARForecaster`
+
+List all forecasters: `aeon.utils.discovery.all_estimators(type_filter="forecaster")`.
 
 ## Naive and Baseline Methods
 
-Simple forecasting strategies for comparison:
-
-- `NaiveForecaster` - Multiple strategies: last value, mean, seasonal naive
-  - Parameters: `strategy` ("last", "mean", "seasonal_last"), `seasonal_period`
+- `NaiveForecaster` — `strategy` in `"last"`, `"mean"`, `"seasonal_last"`; set `horizon` and `seasonal_period` in the constructor
   - **Use when**: Establishing baselines or simple patterns
 
 ## Statistical Models
 
-Classical time series forecasting methods:
-
-### ARIMA
-- `ARIMA` - AutoRegressive Integrated Moving Average
-  - Parameters: `p` (AR order), `d` (differencing), `q` (MA order)
-  - **Use when**: Linear patterns, stationary or difference-stationary series
-
-### Exponential Smoothing
-- `ETS` - Error-Trend-Seasonal decomposition
-  - Parameters: `error_type`, `trend_type`, `seasonality_type` (plus `seasonal_period`)
-  - **Use when**: Trend and seasonal patterns present
-
-### Threshold Autoregressive
-- `TAR` - Threshold Autoregressive model for regime switching
-- `AutoTAR` - Automated threshold discovery
-  - **Use when**: Series exhibits different behaviors in different regimes
-
-### Theta Method
-- `Theta` - Classical Theta forecasting
-  - Parameters: `theta`, `weight` for decomposition
-  - **Use when**: Simple but effective baseline needed
-
-### Time-Varying Parameter
-- `TVP` - Time-varying parameter model with Kalman filtering
-  - **Use when**: Parameters change over time
+- `ARIMA` / `AutoARIMA` — `p`, `d`, `q` orders (not `order=(p,d,q)`); supports exogenous variables via `exog`
+- `ETS` / `AutoETS` — exponential smoothing (native implementations in aeon 1.4+)
+- `Theta` — classical Theta method
+- `TAR` / `AutoTAR` — threshold autoregressive models for regime switching
+- `TVP` — time-varying parameter (Kalman-style) models
 
 ## Deep Learning Forecasters
 
-Neural networks for complex temporal patterns:
+Requires `aeon[all_extras]` (PyTorch stack):
 
-- `TCNForecaster` - Temporal Convolutional Network
-  - Dilated convolutions for large receptive fields
-  - **Use when**: Long sequences, need non-recurrent architecture
-
-- `DeepARNetwork` - Probabilistic forecasting with RNNs
-  - Provides prediction intervals
-  - **Use when**: Need probabilistic forecasts, uncertainty quantification
+- `TCNForecaster` — temporal convolutional network
+- `DeepARForecaster` — probabilistic RNN forecaster (replaces legacy `DeepARNetwork` naming)
 
 ## Regression-Based Forecasting
 
-Apply regression to lagged features:
-
-- `RegressionForecaster` - Wraps regressors for forecasting
-  - Parameters: `window_length`, `horizon`
-  - **Use when**: Want to use any regressor as forecaster
+- `RegressionForecaster` — sliding `window` over history, `horizon` steps ahead, any sklearn/aeon regressor
 
 ## Quick Start
 
 ```python
-from aeon.forecasting import NaiveForecaster
-from aeon.forecasting.stats import ARIMA
 import numpy as np
+from aeon.forecasting import NaiveForecaster
+from aeon.forecasting.stats import ARIMA, AutoETS
 
-# Create time series
-y = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+y = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
 
-# Naive baseline
-naive = NaiveForecaster(strategy="last")
+# Naive — horizon is a constructor argument; predict(y) forecasts from series y
+naive = NaiveForecaster(strategy="last", horizon=3)
 naive.fit(y)
-forecast_naive = naive.iterative_forecast(y, prediction_horizon=3)
+pred_naive = naive.predict(y)
 
-# ARIMA model
+# ARIMA — one-step by default; multi-step via iterative_forecast
 arima = ARIMA(p=1, d=1, q=1)
-# Multi-step forecast (next 3 steps)
-forecast_arima = arima.iterative_forecast(y, prediction_horizon=3)
+arima.fit(y)
+pred_arima = arima.iterative_forecast(y, prediction_horizon=3)
+
+# Auto model selection
+auto_ets = AutoETS(horizon=3)
+auto_ets.fit(y)
+pred_ets = auto_ets.predict(y)
 ```
 
 ## Forecasting Horizon
 
-The forecasting horizon (`fh`) specifies which future time points to predict:
+In aeon 1.x, set `horizon` on the estimator (number of steps ahead). `predict(y)` returns the forecast `horizon` steps beyond the end of `y`.
 
-```python
-# aeon forecasters take an integer prediction horizon (number of future steps ahead)
-prediction_horizon = 3
-# multi-step forecast with an iterative forecaster:
-# y_pred = forecaster.iterative_forecast(y, prediction_horizon=prediction_horizon)
-```
+Multi-step strategies:
+
+- **`iterative_forecast(y, prediction_horizon)`** — reuse one fitted model, feed predictions back (ARIMA, many stats models)
+- **`direct_forecast(y, prediction_horizon)`** — refit per horizon (requires `capability:horizon` tag; e.g. `RegressionForecaster`)
+- **`NaiveForecaster`** — set `horizon>1` directly when `strategy` supports it
+
+There is no `ForecastingHorizon` / `fh=[1,2,3]` API in aeon 1.x.
 
 ## Model Selection
 
-- **Baseline**: NaiveForecaster with seasonal_last strategy
-- **Linear patterns**: ARIMA
-- **Trend + seasonality**: ETS
-- **Regime changes**: TAR, AutoTAR
-- **Complex patterns**: TCNForecaster
-- **Probabilistic**: DeepARNetwork
-- **Long sequences**: TCNForecaster
-- **Short sequences**: ARIMA, ETS
+- **Baseline**: `NaiveForecaster(strategy="seasonal_last", seasonal_period=12, horizon=h)`
+- **Linear / stationary**: `ARIMA`, `AutoARIMA`
+- **Trend + seasonality**: `ETS`, `AutoETS`
+- **Regime changes**: `TAR`, `AutoTAR`
+- **Complex patterns**: `TCNForecaster`, `RegressionForecaster` with aeon regressors
+- **Probabilistic**: `DeepARForecaster`
 
 ## Evaluation Metrics
 
-Use standard forecasting metrics:
+Use scikit-learn or standard numpy metrics on hold-out forecasts:
 
 ```python
-from sklearn.metrics import (
-    mean_absolute_error,
-    mean_squared_error,
-    mean_absolute_percentage_error
-)
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-# Calculate error
 mae = mean_absolute_error(y_true, y_pred)
 mse = mean_squared_error(y_true, y_pred)
-mape = mean_absolute_percentage_error(y_true, y_pred)
 ```
 
 ## Exogenous Variables
 
-Many forecasters support exogenous features:
+Pass aligned exogenous arrays as `exog` (not `X`):
 
 ```python
-# Train with exogenous variables
-forecaster.fit(y, exog=X_train)
-
-# Multi-step forecast with future exogenous values
-y_pred = forecaster.iterative_forecast(y, prediction_horizon=3, exog=X_test)
+forecaster.fit(y_train, exog=exog_train)
+y_pred = forecaster.predict(y_test, exog=exog_test)
 ```
 
 ## Base Classes
 
-- `BaseForecaster` - Abstract base for all forecasters
-- `BaseDeepForecaster` - Base for deep learning forecasters
+- `BaseForecaster` — `horizon`, `axis`, `fit`, `predict`, `forecast`
+- `DirectForecastingMixin` / `IterativeForecastingMixin` — multi-step helpers
+- `BaseDeepForecaster` — deep learning forecasters
 
-Extend these to implement custom forecasting algorithms.
+Extend `BaseForecaster` for custom forecasters.

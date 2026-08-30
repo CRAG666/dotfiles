@@ -9,6 +9,7 @@ mkdir -p "$STATE_DIR"
 readonly DOTFILES_DIR="$(cd -- "$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
 readonly CLAUDE_THEME_SRC_DIR="$DOTFILES_DIR/themes/claude"
 readonly OPENCODE_THEME_SRC_DIR="$DOTFILES_DIR/themes/opencode"
+readonly PI_THEME_SRC_DIR="$DOTFILES_DIR/themes/pi"
 
 readonly PALETTE=(
   'bg0:add4a0:1a211a' 'bg1:a4cc98:202820'
@@ -278,6 +279,46 @@ ensure_claude_theme() {
 }
 
 # ---------------------------------------------------------------------------
+# pi theme bootstrap (outside the repo; light/dark as separate themes)
+# ---------------------------------------------------------------------------
+
+ensure_pi_theme() {
+  local mode="$1"
+  local themes_dir="$HOME/.pi/agent/themes"
+  local settings="$HOME/.pi/agent/settings.json"
+  local theme_name="eyes-light"
+  [[ "$mode" == "dark" ]] && theme_name="eyes-dark"
+  local src_light="$PI_THEME_SRC_DIR/eyes-light.json"
+  local src_dark="$PI_THEME_SRC_DIR/eyes-dark.json"
+
+  if ((DRY_RUN)); then
+    info "  would ensure pi theme=$theme_name"
+    return
+  fi
+
+  mkdir -p "$themes_dir"
+  [[ -e "$themes_dir/eyes-light.json" ]] || ln -sfn "$src_light" "$themes_dir/eyes-light.json"
+  [[ -e "$themes_dir/eyes-dark.json" ]]  || ln -sfn "$src_dark"  "$themes_dir/eyes-dark.json"
+
+  mkdir -p "$(dirname "$settings")"
+  if [[ ! -f "$settings" ]]; then
+    printf '{\n  "theme": "%s"\n}\n' "$theme_name" >"$settings"
+  elif command -v jq >/dev/null; then
+    local tmp
+    tmp="$(mktemp)"
+    if jq --arg t "$theme_name" '.theme = $t' "$settings" >"$tmp"; then
+      mv "$tmp" "$settings"
+    else
+      rm -f "$tmp"
+      warn "  failed to set theme key in $settings (jq error)"
+    fi
+  elif ! grep -q '"theme"' "$settings"; then
+    warn "  $settings lacks a \"theme\" key and jq is unavailable;"
+    warn "  add manually:  \"theme\": \"$theme_name\""
+  fi
+}
+
+# ---------------------------------------------------------------------------
 # opencode theme bootstrap (outside the repo; one theme covers both modes)
 # ---------------------------------------------------------------------------
 
@@ -430,6 +471,7 @@ set_mode() {
   apply_switches      "$target"
   apply_gtk           "$target"
   ensure_claude_theme "$target"
+  ensure_pi_theme     "$target"
   ensure_opencode_theme
 
   ((DRY_RUN)) || echo "$target" >"$STATE_FILE"

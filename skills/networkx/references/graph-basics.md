@@ -245,8 +245,8 @@ G_directed = G.to_directed()
 
 ### Basic Information
 ```python
-# nx.info was removed in NetworkX 3.0; use direct attributes instead
-print(G.number_of_nodes(), "nodes,", G.number_of_edges(), "edges")
+print(G)            # Summary string, e.g. "Graph with 5 nodes and 4 edges"
+                    # (nx.info was removed in NetworkX 3.0)
 
 # Density (ratio of actual edges to possible edges)
 nx.density(G)

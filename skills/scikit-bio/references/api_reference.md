@@ -39,7 +39,7 @@ protein = rna.translate(genetic_code=11)  # Bacterial code
 ```python
 # Find motifs using regex
 dna = DNA('ATGCGATCGATGCATCG')
-motif_locs = dna.find_with_regex('(ATG.{3})')  # Start codons (needs a capture group)
+motif_locs = dna.find_with_regex('ATG.{3}')  # Start codons
 
 # Find all positions
 import re
@@ -47,6 +47,7 @@ for match in re.finditer('ATG', str(dna)):
     print(f"ATG found at position {match.start()}")
 
 # k-mer counting
+from skbio.sequence import _motifs
 kmers = dna.kmer_frequencies(k=3)
 ```
 
@@ -78,85 +79,66 @@ seq2 = DNA('ATCG--CG')
 dist = seq1.distance(seq2)
 
 # Custom distance function
-# kmer_distance requires a `k` argument, so bind it with functools.partial
-import functools
 from skbio.sequence.distance import kmer_distance
-dist = seq1.distance(seq2, metric=functools.partial(kmer_distance, k=3))
+dist = seq1.distance(seq2, metric=kmer_distance)
 ```
 
 ## Alignment Methods
 
 ### Pairwise Alignment
 
-```python
-from skbio.alignment import local_pairwise_align_nucleotide, global_pairwise_align_nucleotide
-from skbio import DNA, Protein
+scikit-bio 0.7.0 introduced `pair_align`, a single fast engine for global, local, and semi-global alignment. The convenience wrappers `pair_align_nucl` and `pair_align_prot` ship with BLASTN/BLASTP-like scoring. The old SSW wrapper (`local_pairwise_align_ssw`, `StripedSmithWaterman`) was removed, and the pure-Python `global_pairwise_align`/`local_pairwise_align_*` functions are deprecated.
 
-# Local alignment (Smith-Waterman)
+```python
+from skbio import DNA, Protein
+from skbio.alignment import pair_align_nucl, pair_align_prot, pair_align, align_score
+
+# Nucleotide alignment with BLASTN-like defaults
 seq1 = DNA('ATCGATCGATCG')
 seq2 = DNA('ATCGGGGATCG')
-# Returns a (TabularMSA, score, positions) tuple
-msa, score, positions = local_pairwise_align_nucleotide(seq1, seq2)
+aln = pair_align_nucl(seq1, seq2)
 
-# Access alignment details
-print(f"Score: {score}")
-print(f"Aligned positions (per sequence): {positions}")
-aligned_seqs = list(msa)
+# Inspect the result (PairAlignResult: score + paths [+ matrices])
+print(f"Score: {aln.score}")
+path = aln.paths[0]                       # PairAlignPath; repr shows the CIGAR
+aligned_seqs = path.to_aligned((seq1, seq2))   # list of gapped strings
 
-# Global alignment with custom scoring (penalties are positional/keyword args)
-msa, score, positions = global_pairwise_align_nucleotide(
+# Global alignment with custom affine scoring via pair_align
+aln = pair_align(
     seq1, seq2,
-    match_score=2,
-    mismatch_score=-3,
-    gap_open_penalty=5,
-    gap_extend_penalty=2
+    mode='global',          # 'global' (default), 'local', or semi-global via free_ends
+    sub_score=(2, -3),      # (match, mismatch)
+    gap_cost=(5, 2),        # (open, extend) -> affine; a single number -> linear
 )
 
-# Protein alignment with substitution matrix
-from skbio.alignment import local_pairwise_align_protein
+# Use a named substitution matrix instead of match/mismatch scores
+aln = pair_align(seq1, seq2, mode='global', sub_score='NUC.4.4', gap_cost=3)
 
+# Protein alignment with BLASTP-like defaults (BLOSUM62)
 protein_query = Protein('ACDEFGHIKLMNPQRSTVWY')
 protein_target = Protein('ACDEFMNPQRSTVWY')
+aln = pair_align_prot(protein_query, protein_target)
 
-msa, score, positions = local_pairwise_align_protein(
-    protein_query,
-    protein_target,
-    gap_open_penalty=11,
-    gap_extend_penalty=1
-)
-```
+# Re-score an existing alignment with the same parameters
+score = align_score((aln.paths[0], (protein_query, protein_target)),
+                    sub_score='BLOSUM62', gap_cost=(11, 1))
 
-> Note: `local_pairwise_align_nucleotide`, `global_pairwise_align_nucleotide`, and
-> `local_pairwise_align_protein` are pure-Python implementations that emit a
-> PendingDeprecationWarning on every call (they are slow). The recommended
-> replacement is `skbio.alignment.pair_align`.
-
-```python
-from skbio.alignment import pair_align
-from skbio import DNA
-
-seq1 = DNA('ATCGATCGATCG')
-seq2 = DNA('ATCGGGGATCG')
-
-# Recommended pairwise alignment (mode='global' default; use mode='local' for Smith-Waterman)
-result = pair_align(seq1, seq2)
-
-# Access the alignment score
-print(f"Score: {result.score}")
-
-# Materialize the alignment as a TabularMSA from the first optimal path
-msa = result.paths[0].to_aligned((seq1, seq2))
-aligned_seqs = list(msa)
+# PairAlignResult also unpacks as a tuple
+score, (path,), _ = pair_align_nucl(seq1, seq2)
 ```
 
 ### Multiple Sequence Alignment
 
 ```python
-from skbio.alignment import TabularMSA
+from skbio.alignment import TabularMSA, pair_align_nucl
 from skbio import DNA
 
 # Read MSA from file
 msa = TabularMSA.read('alignment.fasta', constructor=DNA)
+
+# Build a TabularMSA from a pairwise alignment path + original sequences
+score, (path,), _ = pair_align_nucl(DNA('ATCGATCG'), DNA('ATCGGGGATCG'))
+msa = TabularMSA.from_path_seqs(path, (DNA('ATCGATCG'), DNA('ATCGGGGATCG')))
 
 # Create MSA manually
 seqs = [
@@ -168,6 +150,7 @@ msa = TabularMSA(seqs)
 
 # MSA operations
 consensus = msa.consensus()
+majority_consensus = msa.majority_consensus()
 
 # Calculate conservation
 conservation = msa.conservation()
@@ -176,21 +159,32 @@ conservation = msa.conservation()
 first_seq = msa[0]
 column = msa[:, 2]  # Third column
 
-# Per-position gap frequencies
-gap_freqs = msa.gap_frequencies(axis='position')
+# Filter gaps
+degapped_msa = msa.omit_gap_positions(maximum_gap_frequency=0.5)
+
+# Calculate position-specific scores
+position_entropies = msa.position_entropies()
 ```
 
-### CIGAR String Handling
+### CIGAR Strings and Alignment Paths
 
 ```python
-from skbio.alignment import PairAlignPath
+from skbio.alignment import PairAlignPath, AlignPath, pair_align_nucl
+from skbio import DNA
 
-# Parse CIGAR string (CIGAR parsing lives on PairAlignPath)
-cigar = "10M2I5M3D10M"
-align_path = PairAlignPath.from_cigar(cigar)
+# Parse a CIGAR string into a pairwise alignment path
+path = PairAlignPath.from_cigar('10M2I5M3D10M')
+print(repr(path))   # <PairAlignPath, ..., CIGAR: '10M2I5M3D10M'>
 
-# Convert an alignment path back to a CIGAR string
-cigar_string = align_path.to_cigar()
+# A path produced by pair_align already carries its CIGAR
+aln = pair_align_nucl(DNA('ATCGATCG'), DNA('ATCGGGGATCG'))
+cigar_string = aln.paths[0].cigar
+
+# AlignPath generalizes to >2 sequences (e.g., from aligned strings)
+path3 = AlignPath.from_aligned(['CGTCGTGC', 'CA--GT-C', 'CGTCGT-T'])
+
+# Parse CIGAR output from external tools such as parasail
+# path = PairAlignPath.from_cigar(res.cigar.decode)
 ```
 
 ## Phylogenetic Trees
@@ -264,22 +258,26 @@ node_to_remove.parent.remove(node_to_remove)
 ### Tree Distances and Comparisons
 
 ```python
-# Patristic distance (branch-length distance)
+# Patristic distance (branch-length distance) between two nodes
 node1 = tree.find('taxon1')
 node2 = tree.find('taxon2')
 patristic = node1.distance(node2)
 
-# Cophenetic matrix (all pairwise tip-to-tip distances)
-cophenetic_dm = tree.tip_tip_distances()
+# Cophenetic (patristic) distance matrix among all tips
+# cophenet() replaces the former tip_tip_distances()
+cophenetic_dm = tree.cophenet()
 
-# Robinson-Foulds distance (topology comparison)
-rf_dist = tree.compare_rfd(other_tree)
+# Robinson-Foulds distance between two trees (compare_rfd, added in 0.6.3)
+rf_dist = tree.compare_rfd(other_tree)              # count (float)
+rf_prop = tree.compare_rfd(other_tree, proportion=True)  # normalized to [0, 1]
 
-# Normalized RF distance (proportion in [0, 1])
-rf_proportion = tree.compare_rfd(other_tree, proportion=True)
+# Weighted Robinson-Foulds and cophenetic-correlation comparisons
+wrf = tree.compare_wrfd(other_tree)
+coph = tree.compare_cophenet(other_tree)
 
-# Tip-to-tip distances
-tip_distances = tree.tip_tip_distances()
+# Pairwise RF distances among many trees -> DistanceMatrix
+from skbio.tree import rf_dists
+rf_dm = rf_dists([tree, other_tree, third_tree])
 ```
 
 ### Tree Visualization
@@ -316,17 +314,18 @@ print(get_alpha_diversity_metrics())
 # Calculate various alpha diversity metrics
 shannon = alpha_diversity('shannon', counts, ids=sample_ids)
 simpson = alpha_diversity('simpson', counts, ids=sample_ids)
-observed_otus = alpha_diversity('sobs', counts, ids=sample_ids)
+observed = alpha_diversity('observed_features', counts, ids=sample_ids)  # was 'observed_otus'
 chao1 = alpha_diversity('chao1', counts, ids=sample_ids)
+hill_q2 = alpha_diversity('hill', counts, ids=sample_ids)  # effective number of species
 
-# Phylogenetic alpha diversity (requires tree)
+# Phylogenetic alpha diversity (requires tree). Note: taxa= replaces otu_ids=
 from skbio import TreeNode
 
 tree = TreeNode.read('tree.nwk')
 feature_ids = ['OTU1', 'OTU2', 'OTU3', 'OTU4']
 
 faith_pd = alpha_diversity('faith_pd', counts, ids=sample_ids,
-                          tree=tree, taxa=feature_ids)
+                           tree=tree, taxa=feature_ids)
 ```
 
 ### Beta Diversity
@@ -340,16 +339,16 @@ bc_dm = beta_diversity('braycurtis', counts, ids=sample_ids)
 # Jaccard (presence/absence)
 jaccard_dm = beta_diversity('jaccard', counts, ids=sample_ids)
 
-# Phylogenetic beta diversity
+# Phylogenetic beta diversity (taxa= replaces the deprecated otu_ids=)
 unifrac_dm = beta_diversity('unweighted_unifrac', counts,
-                           ids=sample_ids,
-                           tree=tree,
-                           taxa=feature_ids)
+                            ids=sample_ids,
+                            tree=tree,
+                            taxa=feature_ids)
 
 weighted_unifrac_dm = beta_diversity('weighted_unifrac', counts,
-                                    ids=sample_ids,
-                                    tree=tree,
-                                    taxa=feature_ids)
+                                     ids=sample_ids,
+                                     tree=tree,
+                                     taxa=feature_ids)
 
 # Compute only specific pairs (more efficient)
 pairs = [('Sample1', 'Sample2'), ('Sample1', 'Sample3')]
@@ -361,17 +360,17 @@ partial_dm = partial_beta_diversity('braycurtis', counts,
 ### Rarefaction and Subsampling
 
 ```python
-from skbio.stats import subsample_counts
+from skbio.diversity import subsample_counts
 
-# Rarefy to the minimum per-sample sequencing depth (smallest total count)
-min_depth = counts.sum(axis=1).min()
+# Rarefy to minimum depth
+min_depth = counts.min(axis=1).max()
 rarefied = [subsample_counts(row, n=min_depth) for row in counts]
 
 # Multiple rarefactions for confidence intervals
 import numpy as np
 rarefactions = []
 for i in range(100):
-    rarefied_counts = np.array([subsample_counts(row, n=min_depth) for row in counts])
+    rarefied_counts = np.array([subsample_counts(row, n=1000) for row in counts])
     shannon_rare = alpha_diversity('shannon', rarefied_counts)
     rarefactions.append(shannon_rare)
 
@@ -437,7 +436,7 @@ env = pd.DataFrame({
 # CCA
 cca_results = cca(species, env,
                  sample_ids=['Site1', 'Site2', 'Site3'],
-                 feature_ids=['SpeciesA', 'SpeciesB', 'SpeciesC'])
+                 species_ids=['SpeciesA', 'SpeciesB', 'SpeciesC'])
 
 # Access constrained axes
 cca1 = cca_results.samples['CCA1']
@@ -455,7 +454,7 @@ from skbio.stats.ordination import rda
 # Similar to CCA but for linear relationships
 rda_results = rda(species, env,
                  sample_ids=['Site1', 'Site2', 'Site3'],
-                 feature_ids=['SpeciesA', 'SpeciesB', 'SpeciesC'])
+                 species_ids=['SpeciesA', 'SpeciesB', 'SpeciesC'])
 ```
 
 ## Statistical Tests
@@ -527,24 +526,17 @@ print(f"Sample size: {n}")
 r_spearman, p, n = mantel(dm1, dm2, method='spearman', permutations=999)
 ```
 
-### Pairwise Mantel Test
+### Partial Mantel Test
 
 ```python
-from skbio.stats.distance import mantel, pwmantel
+from skbio.stats.distance import mantel
 
-# Two-sided alternative
-r, p_value, n = mantel(dm1, dm2, method='pearson',
-                       permutations=999, alternative='two-sided')
+# Control for a third matrix
+dm3 = DistanceMatrix(...)  # controlling variable
 
-# Pairwise Mantel across several matrices at once
-dm3 = DistanceMatrix(...)
-results = pwmantel([dm1, dm2, dm3], labels=['dm1', 'dm2', 'dm3'],
-                   method='pearson', permutations=999)
+r_partial, p_value, n = mantel(dm1, dm2, method='pearson',
+                               permutations=999, alternative='two-sided')
 ```
-
-> Note: scikit-bio does not provide a partial Mantel test; `mantel` has no
-> controlling-matrix argument, and `pwmantel` only runs pairwise tests (it does
-> not partial out a third matrix).
 
 ## Distance Matrices
 
@@ -552,7 +544,7 @@ results = pwmantel([dm1, dm2, dm3], labels=['dm1', 'dm2', 'dm3'],
 
 ```python
 from skbio import DistanceMatrix
-from skbio.stats.distance import DissimilarityMatrix
+from skbio.stats.distance import PairwiseMatrix
 import numpy as np
 
 # Create from array
@@ -568,11 +560,12 @@ row_a = dm['A']
 # Slicing
 subset_dm = dm.filter(['A', 'C'])
 
-# Asymmetric dissimilarity matrix
+# General/asymmetric matrix: PairwiseMatrix (renamed from DissimilarityMatrix,
+# which is kept as a deprecated alias)
 asym_data = np.array([[0, 1, 2],
                       [3, 0, 4],
                       [5, 6, 0]])
-dissim = DissimilarityMatrix(asym_data, ids=['X', 'Y', 'Z'])
+pwm = PairwiseMatrix(asym_data, ids=['X', 'Y', 'Z'])
 
 # Read/write
 dm.write('distances.txt')
@@ -615,9 +608,9 @@ for seq in skbio.io.read('reads.fastq', format='fastq', constructor=skbio.DNA):
 # Write single sequence
 dna.write('output.fasta', format='fasta')
 
-# Write multiple sequences (pass a generator; there is no list writer)
+# Write multiple sequences
 sequences = [dna1, dna2, dna3]
-skbio.io.write((seq for seq in sequences), format='fasta', into='output.fasta')
+skbio.io.write(sequences, format='fasta', into='output.fasta')
 
 # Write with custom line wrapping
 dna.write('output.fasta', format='fasta', max_width=60)
@@ -629,7 +622,7 @@ dna.write('output.fasta', format='fasta', max_width=60)
 from skbio import Table
 
 # Read BIOM table
-table = Table.read('table.biom', format='biom')
+table = Table.read('table.biom', format='hdf5')
 
 # Access data
 sample_ids = table.ids(axis='sample')
@@ -647,7 +640,7 @@ prevalent_features = table.filter(lambda col, id_, md: (col > 0).sum() >= 3,
 relative_abundance = table.norm(axis='sample', inplace=False)
 
 # Write
-table.write('filtered_table.biom', format='biom')
+table.write('filtered_table.biom', format='hdf5')
 ```
 
 ### Format Conversion
@@ -678,16 +671,11 @@ for seq in sequences:
         seen.add(seq.metadata['id'])
 ```
 
-#### Issue: "Cannot cast array data from dtype('float64') to dtype('int64')"
+#### Issue: "ValueError: Counts must be integers"
 ```python
-# Problem: A count-based alpha-diversity metric received floats (e.g. relative abundances).
-# These metrics are defined on integer count vectors. `ace` enforces this and raises
-# this TypeError on float input; chao1/shannon/simpson do not strictly enforce it but
-# still expect counts, so passing relative abundances yields meaningless values.
-# (skbio also raises ValueError "Counts must be integers or floating-point
-# numbers." when the input is neither, such as strings.)
-# Solution: pass raw integer counts, not relative abundances.
-counts_int = (abundance_table * 1000).round().astype(int)
+# Problem: Relative abundances instead of counts
+# Solution: Convert to integer counts or use appropriate metrics
+counts_int = (abundance_table * 1000).astype(int)
 ```
 
 #### Issue: Memory error with large files
@@ -718,7 +706,7 @@ tree_pruned = tree.shear(feature_ids)
 # Solution: Degap sequences first or ensure sequences are unaligned
 seq1_degapped = seq1.degap()
 seq2_degapped = seq2.degap()
-msa, score, positions = local_pairwise_align_nucleotide(seq1_degapped, seq2_degapped)
+alignment = pair_align_nucl(seq1_degapped, seq2_degapped)
 ```
 
 ### Performance Tips

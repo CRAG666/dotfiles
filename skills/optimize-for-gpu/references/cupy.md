@@ -25,11 +25,15 @@ CuPy is a NumPy/SciPy-compatible array library for GPU-accelerated computing. It
 
 ## Installation and Setup
 
-Always use `uv add` (never `pip install` or `conda install`) in all install instructions, docstrings, comments, and error messages.
+Use `uv add` in standalone examples; follow the user's existing project package manager when one
+is already configured.
 
 ```bash
-uv add cupy-cuda12x    # For CUDA 12.x (most common)
+uv add "cupy-cuda12x==14.1.*"    # For CUDA 12.x
+uv add "cupy-cuda13x==14.1.*"    # For CUDA 13.x
 ```
+
+CuPy v14 (current) requires CUDA >= 12.0, Python >= 3.10, and NumPy >= 2.0 (it follows NumPy 2 type-promotion rules, NEP 50), and supports free-threaded Python. The `[ctk]` extra (e.g. `cupy-cuda13x[ctk]`) pulls the required CUDA runtime components from PyPI, so only the NVIDIA driver needs to be pre-installed.
 
 Verify:
 ```python
@@ -134,7 +138,7 @@ CuPy implements most of NumPy and large parts of SciPy. All are GPU-accelerated.
 `reshape`, `ravel`, `flatten`, `transpose`, `swapaxes`, `concatenate`, `stack`, `vstack`, `hstack`, `dstack`, `split`, `hsplit`, `vsplit`, `tile`, `repeat`, `pad`, `flip`, `fliplr`, `flipud`, `roll`, `rot90`, `broadcast_to`, `expand_dims`, `squeeze`
 
 ### Sparse Matrices (`cupyx.scipy.sparse`)
-CSR, CSC, COO formats. Matrix-vector multiply, matrix-matrix multiply, conversions between formats. Powered by cuSPARSE.
+CSR, CSC, COO formats. Matrix-vector multiply, matrix-matrix multiply, conversions between formats. Powered by cuSPARSE. CuPy v14 adds support for large sparse matrices with 64-bit dimensions and nonzero counts.
 
 ### Signal Processing (`cupyx.scipy.signal`)
 Convolution, correlation, filtering, window functions.
@@ -372,8 +376,10 @@ When using CuPy alongside cuDF/RAPIDS, align on a single allocator:
 
 ```python
 import rmm
+from rmm.allocators.cupy import rmm_cupy_allocator
+
 rmm.reinitialize(pool_allocator=True)
-cp.cuda.set_allocator(rmm.rmm_cupy_allocator)
+cp.cuda.set_allocator(rmm_cupy_allocator)
 ```
 
 ---
@@ -495,19 +501,23 @@ export CUPY_ACCELERATORS=cub          # CUB only (default)
 export CUPY_ACCELERATORS=cub,cutensor # Both (requires cuTENSOR installed)
 ```
 
-CUB accelerates: reductions (`sum`, `prod`, `amin`, `amax`, `argmin`, `argmax`), inclusive scans (`cumsum`), histograms, sparse matrix-vector multiply, and `ReductionKernel`. Can provide ~100x speedup for reductions.
+CUB accelerates reductions (`sum`, `prod`, `amin`, `amax`, `argmin`, `argmax`),
+inclusive scans (`cumsum`), histograms, sparse matrix-vector multiply, and `ReductionKernel`.
+The benefit depends on dtype, shape, axis, and hardware; benchmark the target operation.
 
 cuTENSOR accelerates: binary elementwise ufuncs, reduction, tensor contraction.
 
 ### Key Optimization Strategies
 
-1. **Prefer float32 over float64.** Consumer GPUs have 2x-32x higher float32 throughput. Use `dtype=cp.float32` when precision allows.
+1. **Prefer float32 over float64 when the numerical contract allows it.** Throughput differences
+depend on GPU architecture; validate accuracy and benchmark the target device.
 
 2. **Minimize CPU-GPU transfers.** Every `cp.asnumpy()` / `.get()` triggers synchronization and PCI-e transfer. Keep data on GPU as long as possible.
 
 3. **Use kernel fusion.** `@cp.fuse()` combines multiple elementwise operations into one kernel, eliminating intermediate arrays.
 
-4. **Batch operations.** Fewer large operations beat many small ones (kernel launch overhead ~5-20us each).
+4. **Batch operations.** Fewer large operations usually beat many small ones. Measure launch
+overhead on the target system rather than relying on a fixed latency.
 
 5. **Pre-allocate output arrays.** Use `out=` parameter in ufuncs to avoid repeated allocation:
    ```python

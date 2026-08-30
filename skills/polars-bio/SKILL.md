@@ -1,9 +1,12 @@
 ---
 name: polars-bio
-description: 'High-performance genomic interval operations and bioinformatics file I/O on Polars DataFrames. Overlap, nearest, merge, coverage, complement, subtract for BED/VCF/BAM/GFF intervals. Streaming, cloud-native, faster bioframe alternative.'
-license: https://github.com/biodatageeks/polars-bio/blob/main/LICENSE
+description: High-performance genomic interval operations and bioinformatics file I/O on Polars DataFrames. Overlap, nearest, merge, coverage, complement, subtract for BED/VCF/BAM/GFF intervals. Streaming, cloud-native, faster bioframe alternative.
+license: Apache-2.0
+allowed-tools: Read Write Edit Bash
+compatibility: Requires Python 3.11–3.14 and polars-bio (uv pip install). Cloud I/O uses standard AWS/GCS/Azure SDK env vars when paths use s3://, gs://, or az:// URIs.
 metadata:
-    skill-author: K-Dense Inc.
+  version: "1.0"
+  skill-author: K-Dense Inc.
 ---
 
 # polars-bio
@@ -34,15 +37,16 @@ Use this skill when:
 
 ### Installation
 
+Requires Python 3.11–3.14 (see [PyPI](https://pypi.org/project/polars-bio/)).
+
 ```bash
-pip install polars-bio
-# or
-uv pip install polars-bio
+uv pip install "polars-bio==0.31.0"
 ```
 
-For pandas compatibility:
+For pandas compatibility (pandas ≥3.0):
+
 ```bash
-pip install polars-bio[pandas]
+uv pip install "polars-bio[pandas]==0.31.0"
 ```
 
 ### Basic Overlap Example
@@ -96,7 +100,7 @@ result = lf.collect()
 polars-bio provides 8 core interval operations for genomic range arithmetic. All operations accept Polars DataFrames with `chrom`, `start`, `end` columns (configurable). All operations return a `LazyFrame` by default (use `output_type="polars.DataFrame"` for eager results).
 
 **Operations:**
-- `overlap` / `count_overlaps` - Find or count overlapping intervals between two sets
+- `overlap` / `count_overlaps` - Find or count overlapping intervals between two sets (`overlap_output="left"` returns df1-only hits since 0.30.0)
 - `nearest` - Find nearest intervals (with configurable `k`, `overlap`, `distance` params)
 - `merge` - Merge overlapping/bookended intervals within a set
 - `cluster` - Assign cluster IDs to overlapping intervals
@@ -131,13 +135,14 @@ result_df = result.collect()
 Read and write common bioinformatics formats with `read_*`, `scan_*`, `write_*`, and `sink_*` functions. Supports cloud storage (S3, GCS, Azure) and compression (GZIP, BGZF).
 
 **Supported formats:**
-- **BED** - Genomic intervals (`read_bed`, `scan_bed`; no BED writer; write via Polars `df.write_csv("out.bed", separator="\t", include_header=False)`)
+- **BED** - Genomic intervals (`read_bed`, `scan_bed`, `write_*` via generic)
 - **VCF** - Genetic variants (`read_vcf`, `scan_vcf`, `write_vcf`, `sink_vcf`)
+- **VCF Zarr** - Analysis-ready Zarr stores (`read_vcf_zarr`, `scan_vcf_zarr`; local directory paths)
 - **BAM** - Aligned reads (`read_bam`, `scan_bam`, `write_bam`, `sink_bam`)
 - **CRAM** - Compressed alignments (`read_cram`, `scan_cram`, `write_cram`, `sink_cram`)
 - **GFF** - Gene annotations (`read_gff`, `scan_gff`)
 - **GTF** - Gene annotations (`read_gtf`, `scan_gtf`)
-- **FASTA** - Reference sequences (`read_fasta`, `scan_fasta`)
+- **FASTA** - Reference sequences (`read_fasta`, `scan_fasta`, `write_fasta`, `sink_fasta`)
 - **FASTQ** - Sequencing reads (`read_fastq`, `scan_fastq`, `write_fastq`, `sink_fastq`)
 - **SAM** - Text alignments (`read_sam`, `scan_sam`, `write_sam`, `sink_sam`)
 - **Hi-C pairs** - Chromatin contacts (`read_pairs`, `scan_pairs`)
@@ -211,14 +216,14 @@ polars-bio defaults to **1-based** coordinates (genomic convention). This can be
 ```python
 import polars_bio as pb
 
-# Switch to 0-based coordinates
-pb.set_option(pb.POLARS_BIO_COORDINATE_SYSTEM_ZERO_BASED, True)
+# Switch to 0-based half-open coordinates (default is 1-based / False)
+pb.set_option("datafusion.bio.coordinate_system_zero_based", True)
 
 # Switch back to 1-based (default)
-pb.set_option(pb.POLARS_BIO_COORDINATE_SYSTEM_ZERO_BASED, False)
+pb.set_option("datafusion.bio.coordinate_system_zero_based", False)
 ```
 
-Coordinate-bearing readers (BED, VCF, BAM, CRAM, GFF, GTF, Hi-C pairs) also accept `use_zero_based` to set coordinate metadata on the resulting DataFrame (sequence-only readers like `read_fasta`/`read_fastq` do not):
+I/O functions also accept `use_zero_based` to set coordinate metadata on the resulting DataFrame:
 
 ```python
 # Read BED with explicit 0-based metadata
@@ -302,7 +307,7 @@ For datasets larger than available RAM, use `scan_*` functions and streaming exe
 # Scan files lazily
 lf = pb.scan_bed("large_intervals.bed")
 
-# Process with streaming
+# Process with Polars streaming (requires polars ≥1.37, bundled with polars-bio)
 result = lf.collect(engine="streaming")
 ```
 
@@ -316,20 +321,20 @@ DataFusion streaming is enabled by default for interval operations, processing d
 
 3. **Column name mismatches:** polars-bio expects `chrom`, `start`, `end` by default. Use `cols1`/`cols2` parameters (as lists) if your columns have different names.
 
-4. **Coordinate system metadata:** When constructing DataFrames manually (not via `read_*`/`scan_*`), polars-bio warns about missing coordinate metadata. Use `pb.set_option(pb.POLARS_BIO_COORDINATE_SYSTEM_ZERO_BASED, True)` globally, or use I/O functions that set metadata automatically.
+4. **Coordinate system metadata:** Interval operations read coordinate metadata from I/O functions or DataFrame `config_meta`. For manually built DataFrames, set `df.config_meta.set(coordinate_system_zero_based=True)` (0-based) or `False` (1-based). If metadata is missing, polars-bio falls back to the global `datafusion.bio.coordinate_system_zero_based` setting (with a warning). Set `pb.set_option("datafusion.bio.coordinate_system_check", True)` to raise `MissingCoordinateSystemError` instead. Mismatched systems between inputs raise `CoordinateSystemMismatchError`.
 
 5. **Probe-build order matters:** For overlap, nearest, and coverage, the first DataFrame is probed against the second. Swapping arguments changes which intervals appear in the left vs right output columns, and can affect performance.
 
 6. **INT32 position limit:** Genomic positions are stored as 32-bit integers, limiting coordinates to ~2.1 billion. This is sufficient for all known genomes but may be an issue with custom coordinate spaces.
 
-7. **BAM index is optional:** `read_bam` and `scan_bam` work without a `.bai`/`.csi` index. An index is only needed for indexed parallel reads and predicate pushdown (region-based filtering), which become automatic when an index is present. Create one with `samtools index` to enable them.
+7. **BAM index requirements:** `read_bam` and `scan_bam` require a `.bai` index file alongside the BAM. Create one with `samtools index` if missing.
 
 8. **Parallel execution disabled by default:** DataFusion parallelism defaults to 1 partition. Enable for large datasets:
    ```python
    pb.set_option("datafusion.execution.target_partitions", 8)
    ```
 
-9. **CRAM has separate functions:** Use `read_cram`/`scan_cram`/`register_cram` for CRAM files (not `read_bam`). Only `write_cram`/`sink_cram` require a `reference_path`; `read_cram`/`scan_cram` accept `reference_path=None` (the embedded reference / MD5 lookup is used when available).
+9. **CRAM has separate functions:** Use `read_cram`/`scan_cram`/`register_cram` for CRAM files (not `read_bam`). CRAM functions require a `reference_path` parameter.
 
 ## Best Practices
 
@@ -341,14 +346,14 @@ DataFusion streaming is enabled by default for interval operations, processing d
    pb.set_option("datafusion.execution.target_partitions", os.cpu_count())
    ```
 
-3. **Use BGZF compression:** BGZF-compressed files (`.bed.gz`, `.vcf.gz`) support parallel block decompression, significantly faster than plain GZIP. For BED specifically, plain (non-BGZF) GZIP is unsupported and panics, so BED `.gz` files must be BGZF-compressed (e.g., created with `bgzip`).
+3. **Use BGZF compression:** BGZF-compressed files (`.bed.gz`, `.vcf.gz`) support parallel block decompression, significantly faster than plain GZIP.
 
 4. **Select columns early:** When only specific columns are needed, select them early to reduce memory usage:
    ```python
    df = pb.read_vcf("large.vcf.gz").select("chrom", "start", "end", "ref", "alt")
    ```
 
-5. **Use cloud paths directly:** Pass S3/GCS/Azure URIs directly to read/scan functions instead of downloading files first:
+5. **Use cloud paths directly:** Pass S3/GCS/Azure URIs directly to read/scan/register functions instead of downloading files first. Authenticated access uses your cloud SDK credentials (`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`, `GOOGLE_APPLICATION_CREDENTIALS`, Azure defaults) only when those cloud paths are accessed:
    ```python
    df = pb.read_bed("s3://my-bucket/regions.bed", allow_anonymous=True)
    ```

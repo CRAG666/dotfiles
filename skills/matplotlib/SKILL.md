@@ -1,9 +1,12 @@
 ---
 name: matplotlib
-description: 'Low-level plotting library for full customization. Use when you need fine-grained control over every plot element, creating novel plot types, or integrating with specific scientific workflows. Export to PNG/PDF/SVG for publication. For quick statistical plots use seaborn; for interactive plots use plotly; for publication-ready multi-panel figures with journal styling, use scientific-visualization.'
+description: Low-level plotting library for full customization. Use when you need fine-grained control over every plot element, creating novel plot types, or integrating with specific scientific workflows. Export to PNG/PDF/SVG for publication. For quick statistical plots use seaborn; for interactive plots use plotly; for publication-ready multi-panel figures with journal styling, use scientific-visualization.
+allowed-tools: Read Write Bash
 license: https://github.com/matplotlib/matplotlib/tree/main/LICENSE
+compatibility: Requires Python 3.10+ and Matplotlib 3.10.x. Use `uv add matplotlib` in projects; interactive Jupyter widgets require `ipympl`.
 metadata:
-    skill-author: K-Dense Inc.
+  version: "1.1"
+  skill-author: K-Dense Inc.
 ---
 
 # Matplotlib
@@ -23,6 +26,24 @@ This skill should be used when:
 - Building interactive plots or animations
 - Working with 3D visualizations
 - Integrating plots into Jupyter notebooks or GUI applications
+
+## Setup
+
+For project work, install Matplotlib with uv:
+
+```bash
+uv add matplotlib
+```
+
+For notebook interactivity:
+
+```bash
+uv add matplotlib ipympl
+```
+
+Then enable the widget backend in Jupyter with `%matplotlib widget` or `%matplotlib ipympl`.
+
+Matplotlib 3.10 requires Python 3.10+ and NumPy 1.23+. Non-interactive file output works through backends such as Agg, PDF, and SVG. For GUI windows, Matplotlib auto-selects an available backend; if `TkAgg` fails in a uv-managed Python, update uv and Python builds with `uv self update` and `uv python upgrade --reinstall`, or install a Qt backend with `uv add pyside6`.
 
 ## Core Concepts
 
@@ -88,7 +109,7 @@ ax.legend()
 ax.grid(True, alpha=0.3)
 
 # Save and/or display
-plt.savefig('plot.png', dpi=300, bbox_inches='tight')
+fig.savefig('plot.png', dpi=300, bbox_inches='tight')
 plt.show()
 ```
 
@@ -208,14 +229,14 @@ For detailed styling options and colormap guidelines, see `references/styling_gu
 **Export to various formats:**
 ```python
 # High-resolution PNG for presentations/papers
-plt.savefig('figure.png', dpi=300, bbox_inches='tight', facecolor='white')
+fig.savefig('figure.png', dpi=300, bbox_inches='tight', facecolor='white')
 
 # Vector format for publications (scalable)
-plt.savefig('figure.pdf', bbox_inches='tight')
-plt.savefig('figure.svg', bbox_inches='tight')
+fig.savefig('figure.pdf', bbox_inches='tight')
+fig.savefig('figure.svg', bbox_inches='tight')
 
 # Transparent background
-plt.savefig('figure.png', dpi=300, bbox_inches='tight', transparent=True)
+fig.savefig('figure.png', dpi=300, bbox_inches='tight', transparent=True)
 ```
 
 **Important parameters:**
@@ -227,8 +248,6 @@ plt.savefig('figure.png', dpi=300, bbox_inches='tight', transparent=True)
 ### 6. Working with 3D Plots
 
 ```python
-from mpl_toolkits.mplot3d import Axes3D
-
 fig = plt.figure(figsize=(10, 8))
 ax = fig.add_subplot(111, projection='3d')
 
@@ -302,7 +321,7 @@ def create_analysis_plot(data, title):
 
 # Use the function
 fig, ax = create_analysis_plot(my_data, 'My Analysis')
-plt.savefig('analysis.png', dpi=300, bbox_inches='tight')
+fig.savefig('analysis.png', dpi=300, bbox_inches='tight')
 ```
 
 ## Quick Reference Scripts
@@ -314,7 +333,7 @@ Template script demonstrating various plot types with best practices. Use this a
 
 **Usage:**
 ```bash
-python scripts/plot_template.py
+uv run python scripts/plot_template.py
 ```
 
 ### `style_configurator.py`
@@ -322,7 +341,7 @@ Interactive utility to configure matplotlib style preferences and generate custo
 
 **Usage:**
 ```bash
-python scripts/style_configurator.py
+uv run python scripts/style_configurator.py
 ```
 
 ## Detailed References

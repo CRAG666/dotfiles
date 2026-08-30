@@ -296,9 +296,9 @@ df.with_columns(
 **Time-based rolling:**
 ```python
 df.with_columns(
-    rolling_avg=pl.col("value").rolling_mean_by(
-        "date",
-        window_size="7d"
+    rolling_avg=pl.col("value").rolling_mean(
+        window_size="7d",
+        by="date"
     )
 )
 ```
@@ -386,19 +386,19 @@ df.sort(
 # Basic conditional
 df.with_columns(
     status=pl.when(pl.col("age") >= 18)
-        .then("adult")
-        .otherwise("minor")
+        .then(pl.lit("adult"))
+        .otherwise(pl.lit("minor"))
 )
 
 # Multiple conditions
 df.with_columns(
     category=pl.when(pl.col("score") >= 90)
-        .then("A")
+        .then(pl.lit("A"))
         .when(pl.col("score") >= 80)
-        .then("B")
+        .then(pl.lit("B"))
         .when(pl.col("score") >= 70)
-        .then("C")
-        .otherwise("F")
+        .then(pl.lit("C"))
+        .otherwise(pl.lit("F"))
 )
 
 # Conditional computation
@@ -483,7 +483,7 @@ df.with_columns(
 # Add duration
 df.with_columns(
     next_week=pl.col("date") + pl.duration(weeks=1),
-    next_month=pl.col("date").dt.offset_by("1mo")
+    next_month=pl.col("date") + pl.duration(months=1)
 )
 
 # Difference between dates
@@ -529,10 +529,8 @@ df.with_columns(
 # Explode lists to rows
 df.explode("items")
 
-# Filter list elements
-df.with_columns(
-    filtered=pl.col("items").list.eval(pl.element() > 10)
-)
+# For element-wise list filtering, use Polars' native list-expression
+# methods with pl.element(); avoid Python callbacks in hot paths.
 ```
 
 ## Struct Operations

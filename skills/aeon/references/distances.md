@@ -75,9 +75,8 @@ from aeon.distances import dtw_cost_matrix, dtw_alignment_path
 cost_matrix = dtw_cost_matrix(x, y)
 
 # Get optimal alignment path
-path, distance = dtw_alignment_path(x, y)
-# Returns a 2-tuple: (list of index pairs, distance)
-# path -> [(0,0), (1,1), (2,1), (2,2), ...]; distance -> float
+path = dtw_alignment_path(x, y)
+# Returns indices: [(0,0), (1,1), (2,1), (2,2), ...]
 ```
 
 ### Using with Estimators
@@ -104,8 +103,8 @@ Limit warping path deviation (improves speed and prevents pathological warping):
 # Sakoe-Chiba band: window as fraction of series length
 dtw_distance(x, y, window=0.1)  # Allow 10% deviation
 
-# Itakura parallelogram: slopes constrain path (value must be in (0, 1])
-dtw_distance(x, y, itakura_max_slope=0.5)
+# Itakura parallelogram: slopes constrain path
+dtw_distance(x, y, itakura_max_slope=2.0)
 ```
 
 ### Normalization
@@ -113,10 +112,8 @@ dtw_distance(x, y, itakura_max_slope=0.5)
 Control whether to z-normalize series before distance computation:
 
 ```python
-# aeon distance functions have no `normalize` argument; z-normalize the series yourself first
-x_z = (x - x.mean()) / x.std()
-y_z = (y - y.mean()) / y.std()
-distance = dtw_distance(x_z, y_z)
+# Most elastic distances support normalization
+distance = dtw_distance(x, y, normalize=True)
 ```
 
 ### Distance-Specific Parameters

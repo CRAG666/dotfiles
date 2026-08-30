@@ -1,9 +1,12 @@
 ---
 name: polars
-description: 'Fast DataFrame library built on Apache Arrow with lazy evaluation, a query optimizer, and multithreaded parallel execution. Use as a faster pandas replacement for ETL and analytics on datasets from megabytes to roughly 100GB, and use its streaming, out-of-core engine to process larger-than-memory data that does not fit in RAM, with predicate and projection pushdown when scanning Parquet or CSV, plus joins, group-bys, window and rolling operations. For distributed multi-machine clusters consider dask or Spark.'
+description: High-performance DataFrame library for Python ETL, analytics, and pandas migration. Use for expression-based data manipulation with lazy query optimization, parallel execution, streaming out-of-core processing, Arrow interoperability, and optional GPU execution.
 license: https://github.com/pola-rs/polars/blob/main/LICENSE
+allowed-tools: Read
+compatibility: Requires Python 3.10+ for polars 1.41.x. Install with uv pip install; optional extras enable Excel, database, cloud, pandas/NumPy, and GPU integrations.
 metadata:
-    skill-author: K-Dense Inc.
+  version: "1.1"
+  skill-author: K-Dense Inc.
 ---
 
 # Polars
@@ -16,9 +19,14 @@ Polars is a lightning-fast DataFrame library for Python and Rust built on Apache
 
 ### Installation and Basic Usage
 
-Install Polars:
-```python
-uv add polars
+Install the current stable Polars release verified during this refresh:
+```bash
+uv pip install "polars==1.41.2"
+```
+
+Install optional integrations only when needed:
+```bash
+uv pip install "polars[excel,database,fsspec,pandas,numpy]==1.41.2"
 ```
 
 Basic DataFrame creation and operations:
@@ -140,8 +148,8 @@ df.with_columns(
 
 # Parallel computation (all columns computed in parallel)
 df.with_columns(
-    value_x10=pl.col("value") * 10,
-    value_x100=pl.col("value") * 100,
+    pl.col("value") * 10,
+    pl.col("value") * 100,
 )
 ```
 
@@ -175,7 +183,7 @@ Common aggregations within `group_by` context:
 - `pl.col("x").sum()` - sum values
 - `pl.col("x").mean()` - average
 - `pl.col("x").min()` / `pl.col("x").max()` - extremes
-- `pl.col("x").first()` / `pl.col("x").last()` - first/last values (give each an explicit `.alias()` when both are used in one agg, or they collide)
+- `pl.first()` / `pl.last()` - first/last values
 
 ### Window Functions with `over()`
 Apply aggregations while preserving row count:
@@ -266,7 +274,7 @@ pl.concat([df1, df2], how="diagonal")
 Reshape data:
 ```python
 # Pivot (wide format)
-df.pivot("product", index="date", values="sales")
+df.pivot(on="product", values="sales", index="date")
 
 # Unpivot (long format)
 df.unpivot(index="id", on=["col1", "col2"])

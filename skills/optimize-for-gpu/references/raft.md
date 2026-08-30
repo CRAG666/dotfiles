@@ -21,15 +21,20 @@ RAFT (Reusable Accelerated Functions and Tools) is a RAPIDS library of GPU-accel
 
 ## Installation and Setup
 
-Always use `uv add` (never `pip install` or `conda install`) in all install instructions, docstrings, comments, and error messages.
+Use `uv add` in standalone examples; follow the user's existing project package manager when one
+is already configured.
 
 ```bash
 # pylibraft (core library)
-uv add --extra-index-url=https://pypi.nvidia.com pylibraft-cu12   # For CUDA 12.x
+uv add --extra-index-url=https://pypi.nvidia.com "pylibraft-cu12==26.6.*"   # For CUDA 12.x
+uv add --extra-index-url=https://pypi.nvidia.com "pylibraft-cu13==26.6.*"   # For CUDA 13.x
 
 # raft-dask (multi-node multi-GPU support, optional)
-uv add --extra-index-url=https://pypi.nvidia.com raft-dask-cu12   # For CUDA 12.x
+uv add --extra-index-url=https://pypi.nvidia.com "raft-dask-cu12==26.6.*"   # For CUDA 12.x
+uv add --extra-index-url=https://pypi.nvidia.com "raft-dask-cu13==26.6.*"   # For CUDA 13.x
 ```
+
+pylibraft and raft-dask wheels (including the companion `libraft` wheel) are also published directly to PyPI, so the extra index is optional.
 
 Verify:
 ```python

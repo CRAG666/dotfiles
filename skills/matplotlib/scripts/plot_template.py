@@ -13,6 +13,7 @@ Plot types:
 """
 
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 import argparse
@@ -63,8 +64,8 @@ def generate_sample_data():
 
 def create_line_plot(data, ax=None):
     """Create line plot with best practices."""
-    standalone = ax is None
-    if standalone:
+    created_fig = ax is None
+    if ax is None:
         fig, ax = plt.subplots(figsize=(10, 6), constrained_layout=True)
 
     ax.plot(data['x'], data['y1'], label='sin(x)', linewidth=2, marker='o',
@@ -81,15 +82,15 @@ def create_line_plot(data, ax=None):
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
-    if standalone:
+    if created_fig:
         return fig
     return ax
 
 
 def create_scatter_plot(data, ax=None):
     """Create scatter plot with color and size variations."""
-    standalone = ax is None
-    if standalone:
+    created_fig = ax is None
+    if ax is None:
         fig, ax = plt.subplots(figsize=(10, 6), constrained_layout=True)
 
     # Color based on distance from origin
@@ -109,15 +110,15 @@ def create_scatter_plot(data, ax=None):
     cbar = plt.colorbar(scatter, ax=ax)
     cbar.set_label('Distance from origin')
 
-    if standalone:
+    if created_fig:
         return fig
     return ax
 
 
 def create_bar_chart(data, ax=None):
     """Create bar chart with error bars and styling."""
-    standalone = ax is None
-    if standalone:
+    created_fig = ax is None
+    if ax is None:
         fig, ax = plt.subplots(figsize=(10, 6), constrained_layout=True)
 
     x_pos = np.arange(len(data['categories']))
@@ -128,30 +129,29 @@ def create_bar_chart(data, ax=None):
                   capsize=5, alpha=0.8)
 
     # Color bars by value
-    colors = plt.cm.viridis(data['bar_values'] / data['bar_values'].max())
+    colors = mpl.colormaps['viridis'](data['bar_values'] / data['bar_values'].max())
     for bar, color in zip(bars, colors):
         bar.set_facecolor(color)
 
     ax.set_xlabel('Category')
     ax.set_ylabel('Values')
     ax.set_title('Bar Chart Example')
-    ax.set_xticks(x_pos)
-    ax.set_xticklabels(data['categories'])
+    ax.set_xticks(x_pos, data['categories'])
     ax.grid(True, axis='y', alpha=0.3, linestyle='--')
 
     # Remove top and right spines
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
-    if standalone:
+    if created_fig:
         return fig
     return ax
 
 
 def create_histogram(data, ax=None):
     """Create histogram with density overlay."""
-    standalone = ax is None
-    if standalone:
+    created_fig = ax is None
+    if ax is None:
         fig, ax = plt.subplots(figsize=(10, 6), constrained_layout=True)
 
     n, bins, patches = ax.hist(data['hist_data'], bins=30, density=True,
@@ -170,15 +170,15 @@ def create_histogram(data, ax=None):
     ax.legend()
     ax.grid(True, axis='y', alpha=0.3, linestyle='--')
 
-    if standalone:
+    if created_fig:
         return fig
     return ax
 
 
 def create_heatmap(data, ax=None):
     """Create heatmap with colorbar and annotations."""
-    standalone = ax is None
-    if standalone:
+    created_fig = ax is None
+    if ax is None:
         fig, ax = plt.subplots(figsize=(10, 8), constrained_layout=True)
 
     im = ax.imshow(data['matrix'], cmap='coolwarm', aspect='auto',
@@ -198,15 +198,15 @@ def create_heatmap(data, ax=None):
     ax.set_ylabel('Y Index')
     ax.set_title('Heatmap Example')
 
-    if standalone:
+    if created_fig:
         return fig
     return ax
 
 
 def create_contour_plot(data, ax=None):
     """Create contour plot with filled contours and labels."""
-    standalone = ax is None
-    if standalone:
+    created_fig = ax is None
+    if ax is None:
         fig, ax = plt.subplots(figsize=(10, 8), constrained_layout=True)
 
     # Filled contours
@@ -229,40 +229,40 @@ def create_contour_plot(data, ax=None):
     ax.set_title('Contour Plot Example')
     ax.set_aspect('equal')
 
-    if standalone:
+    if created_fig:
         return fig
     return ax
 
 
 def create_box_plot(data, ax=None):
     """Create box plot comparing distributions."""
-    standalone = ax is None
-    if standalone:
+    created_fig = ax is None
+    if ax is None:
         fig, ax = plt.subplots(figsize=(10, 6), constrained_layout=True)
 
     # Generate multiple distributions
     box_data = [np.random.normal(0, std, 100) for std in range(1, 5)]
 
-    bp = ax.boxplot(box_data, tick_labels=['Group 1', 'Group 2', 'Group 3', 'Group 4'],
-                    patch_artist=True, showmeans=True,
-                    boxprops=dict(facecolor='lightblue', edgecolor='black'),
-                    medianprops=dict(color='red', linewidth=2),
-                    meanprops=dict(marker='D', markerfacecolor='green', markersize=8))
+    ax.boxplot(box_data, tick_labels=['Group 1', 'Group 2', 'Group 3', 'Group 4'],
+               patch_artist=True, showmeans=True,
+               boxprops=dict(facecolor='lightblue', edgecolor='black'),
+               medianprops=dict(color='red', linewidth=2),
+               meanprops=dict(marker='D', markerfacecolor='green', markersize=8))
 
     ax.set_xlabel('Groups')
     ax.set_ylabel('Values')
     ax.set_title('Box Plot Example')
     ax.grid(True, axis='y', alpha=0.3, linestyle='--')
 
-    if standalone:
+    if created_fig:
         return fig
     return ax
 
 
 def create_violin_plot(data, ax=None):
     """Create violin plot showing distribution shapes."""
-    standalone = ax is None
-    if standalone:
+    created_fig = ax is None
+    if ax is None:
         fig, ax = plt.subplots(figsize=(10, 6), constrained_layout=True)
 
     # Generate multiple distributions
@@ -280,19 +280,16 @@ def create_violin_plot(data, ax=None):
     ax.set_xlabel('Groups')
     ax.set_ylabel('Values')
     ax.set_title('Violin Plot Example')
-    ax.set_xticks(range(1, 5))
-    ax.set_xticklabels(['Group 1', 'Group 2', 'Group 3', 'Group 4'])
+    ax.set_xticks(range(1, 5), ['Group 1', 'Group 2', 'Group 3', 'Group 4'])
     ax.grid(True, axis='y', alpha=0.3, linestyle='--')
 
-    if standalone:
+    if created_fig:
         return fig
     return ax
 
 
 def create_3d_plot():
     """Create 3D surface plot."""
-    from mpl_toolkits.mplot3d import Axes3D
-
     fig = plt.figure(figsize=(12, 9))
     ax = fig.add_subplot(111, projection='3d')
 

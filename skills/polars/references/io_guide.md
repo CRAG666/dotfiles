@@ -21,7 +21,7 @@ df = pl.read_csv(
     columns=["col1", "col2"],  # Select specific columns
     n_rows=1000,  # Read only first 1000 rows
     skip_rows=10,  # Skip first 10 rows
-    schema_overrides={"col1": pl.Int64, "col2": pl.Utf8},  # Specify types
+    schema_overrides={"col1": pl.Int64, "col2": pl.String},  # Specify types
     null_values=["NA", "null", ""],  # Define null values
     encoding="utf-8",
     ignore_errors=False
@@ -146,8 +146,8 @@ lf = pl.scan_ndjson("data.ndjson")
 ```python
 df = pl.read_json("data.json")
 
-# From JSON string (a str is treated as a path; pass bytes for a literal document)
-df = pl.read_json('{"col1": [1, 2], "col2": ["a", "b"]}'.encode())
+# From JSON string
+df = pl.read_json('{"col1": [1, 2], "col2": ["a", "b"]}')
 ```
 
 ### Writing JSON
@@ -159,9 +159,8 @@ df.write_ndjson("output.ndjson")
 # Write standard JSON
 df.write_json("output.json")
 
-# write_json takes only `file` in polars 1.x; for pretty/row-oriented output, serialize rows yourself
-import json
-json.dump(df.to_dicts(), open("output.json", "w"), indent=2)
+# Pretty printed
+df.write_json("output.json", pretty=True, row_oriented=False)
 ```
 
 ## Excel Files
@@ -174,16 +173,17 @@ df = pl.read_excel("data.xlsx")
 
 # Specific sheet
 df = pl.read_excel("data.xlsx", sheet_name="Sheet1")
-# Or by index (sheet_id is 1-indexed; sheet_id=0 returns a dict of all sheets)
-df = pl.read_excel("data.xlsx", sheet_id=1)
+# Or by index
+df = pl.read_excel("data.xlsx", sheet_id=0)
 
 # With options
 df = pl.read_excel(
     "data.xlsx",
     sheet_name="Sheet1",
-    columns=["name", "age", "city"],  # by column name (or integer index), not Excel letters
-    has_header=True,
-    read_options={"n_rows": 100, "skip_rows": 5}  # engine-specific (calamine)
+    columns=["A", "B", "C"],  # Excel columns
+    n_rows=100,
+    skip_rows=5,
+    has_header=True
 )
 ```
 
@@ -193,11 +193,10 @@ df = pl.read_excel(
 # Write to Excel
 df.write_excel("output.xlsx")
 
-# Multiple sheets: pass a shared xlsxwriter Workbook (pl.ExcelWriter does not exist)
-import xlsxwriter
-with xlsxwriter.Workbook("output.xlsx") as wb:
-    df1.write_excel(workbook=wb, worksheet="Sheet1")
-    df2.write_excel(workbook=wb, worksheet="Sheet2")
+# Multiple sheets
+with pl.ExcelWriter("output.xlsx") as writer:
+    df1.write_excel(writer, worksheet="Sheet1")
+    df2.write_excel(writer, worksheet="Sheet2")
 ```
 
 ## Database Connectivity
@@ -208,7 +207,7 @@ with xlsxwriter.Workbook("output.xlsx") as wb:
 import polars as pl
 
 # Read entire table
-df = pl.read_database("SELECT * FROM users", connection=conn)  # conn: a DBAPI2/SQLAlchemy connection
+df = pl.read_database("SELECT * FROM users", connection_uri="postgresql://...")
 
 # Using connectorx for better performance
 df = pl.read_database_uri(
@@ -230,7 +229,7 @@ df.write_database("table_name", connection=engine)
 df.write_database(
     "table_name",
     connection=engine,
-    if_table_exists="replace",  # or "append", "fail"
+    if_exists="replace",  # or "append", "fail"
 )
 ```
 
@@ -266,13 +265,13 @@ lf = pl.scan_parquet("s3://bucket/path/*.parquet")
 # Write to S3
 df.write_parquet("s3://bucket/path/output.parquet")
 
-# With credentials
-import os
-os.environ["AWS_ACCESS_KEY_ID"] = "your_key"
-os.environ["AWS_SECRET_ACCESS_KEY"] = "your_secret"
-os.environ["AWS_REGION"] = "us-west-2"
-
-df = pl.read_parquet("s3://bucket/file.parquet")
+# Prefer cloud profiles, IAM roles, or Polars credential providers over
+# hardcoding secrets in scripts.
+lf = pl.scan_parquet(
+    "s3://bucket/file.parquet",
+    credential_provider=pl.CredentialProviderAWS(profile_name="analytics"),
+)
+df = lf.collect()
 ```
 
 ### Azure Blob Storage
@@ -284,9 +283,15 @@ df = pl.read_parquet("az://container/path/file.parquet")
 # Write to Azure
 df.write_parquet("az://container/path/output.parquet")
 
-# With credentials
-os.environ["AZURE_STORAGE_ACCOUNT_NAME"] = "account"
-os.environ["AZURE_STORAGE_ACCOUNT_KEY"] = "key"
+# Prefer managed identity or an Azure SDK credential provider.
+from azure.identity import DefaultAzureCredential
+
+df = pl.read_parquet(
+    "abfss://container@account.dfs.core.windows.net/path/file.parquet",
+    credential_provider=pl.CredentialProviderAzure(
+        credential=DefaultAzureCredential()
+    ),
+)
 ```
 
 ### Google Cloud Storage (GCS)
@@ -298,17 +303,18 @@ df = pl.read_parquet("gs://bucket/path/file.parquet")
 # Write to GCS
 df.write_parquet("gs://bucket/path/output.parquet")
 
-# With credentials
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/path/to/credentials.json"
+# Prefer Application Default Credentials or workload identity configured
+# outside the script.
+df = pl.read_parquet("gs://bucket/path/file.parquet")
 ```
 
 ## Google BigQuery
 
 ```python
 # Read from BigQuery
-df = pl.read_database_uri(
+df = pl.read_database(
     "SELECT * FROM project.dataset.table",
-    uri="bigquery://project"
+    connection_uri="bigquery://project"
 )
 
 # Or using Google Cloud SDK
@@ -420,7 +426,7 @@ rows = df.to_dicts()
 
 # From list of tuples
 data = [("Alice", 25), ("Bob", 30)]
-df = pl.DataFrame(data, schema=["name", "age"], orient="row")
+df = pl.DataFrame(data, schema=["name", "age"])
 ```
 
 ## Streaming Large Files
@@ -505,15 +511,15 @@ lf.sink_parquet("output.parquet")  # Streaming write
 # 1. Specify dtypes when reading CSV
 df = pl.read_csv(
     "data.csv",
-    schema_overrides={"id": pl.Int64, "name": pl.Utf8}  # Avoids inference
+    schema_overrides={"id": pl.Int64, "name": pl.String}  # Avoids inference
 )
 
 # 2. Use appropriate compression
 df.write_parquet("output.parquet", compression="snappy")  # Fast
 df.write_parquet("output.parquet", compression="zstd")    # Better compression
 
-# 3. CSV reads parallelize automatically (read_csv has no `parallel` argument)
-df = pl.read_csv("data.csv")
+# 3. Parallel reading
+df = pl.read_csv("data.csv", parallel="auto")
 
 # 4. Read multiple files in parallel
 lf = pl.scan_parquet("data/*.parquet")  # Automatic parallel read
@@ -545,14 +551,14 @@ else:
 schema = pl.read_csv("data.csv", n_rows=1000).schema
 
 # Use inferred schema for full read
-df = pl.read_csv("data.csv", schema_overrides=schema)
+df = pl.read_csv("data.csv", schema=schema)
 
 # Define schema explicitly
 schema = {
     "id": pl.Int64,
-    "name": pl.Utf8,
+    "name": pl.String,
     "date": pl.Date,
     "value": pl.Float64
 }
-df = pl.read_csv("data.csv", schema_overrides=schema)
+df = pl.read_csv("data.csv", schema=schema)
 ```

@@ -2,8 +2,11 @@
 name: scikit-learn
 description: Machine learning in Python with scikit-learn. Use when working with supervised learning (classification, regression), unsupervised learning (clustering, dimensionality reduction), model evaluation, hyperparameter tuning, preprocessing, or building ML pipelines. Provides comprehensive reference documentation for algorithms, preprocessing techniques, pipelines, and best practices.
 license: BSD-3-Clause license
+allowed-tools: Read Write Edit Bash
+compatibility: Requires Python 3.11+ and scikit-learn 1.7+. NumPy and SciPy are required dependencies. Optional matplotlib/seaborn for bundled example scripts that save plots.
 metadata:
-    skill-author: K-Dense Inc.
+  version: "1.2"
+  skill-author: K-Dense Inc.
 ---
 
 # Scikit-learn
@@ -14,15 +17,26 @@ This skill provides comprehensive guidance for machine learning tasks using scik
 
 ## Installation
 
+Tested against **scikit-learn 1.8.0** (stable; December 2025). Requires **Python 3.11–3.14** (free-threaded CPython 3.14 wheels available in 1.8+).
+
+Install the PyPI package **`scikit-learn`** (not the deprecated `sklearn` package on PyPI). Import in code as `sklearn`.
+
 ```bash
 # Install scikit-learn using uv
-uv pip install scikit-learn
+uv pip install "scikit-learn>=1.7"
 
-# Optional: Install visualization dependencies
-uv pip install matplotlib seaborn
+# Optional: plotting utilities and bundled script dependencies
+uv pip install "scikit-learn[plots]" matplotlib seaborn
 
 # Commonly used with
 uv pip install pandas numpy
+```
+
+Check your version:
+
+```python
+import sklearn
+print(sklearn.__version__)
 ```
 
 ## When to Use This Skill
@@ -111,130 +125,25 @@ y_pred = model.predict(X_test)
 
 ## Core Capabilities
 
-### 1. Supervised Learning
+Five capability areas are documented in
+[references/core_capabilities.md](references/core_capabilities.md), with per-topic detail
+in [references/supervised_learning.md](references/supervised_learning.md),
+[references/unsupervised_learning.md](references/unsupervised_learning.md),
+[references/model_evaluation.md](references/model_evaluation.md),
+[references/preprocessing.md](references/preprocessing.md), and
+[references/pipelines_and_composition.md](references/pipelines_and_composition.md):
 
-Comprehensive algorithms for classification and regression tasks.
+1. **Supervised learning** — classification and regression estimator families.
+2. **Unsupervised learning** — clustering, decomposition, and manifold learning.
+3. **Model evaluation and selection** — metrics, cross-validation, and hyperparameter search.
+4. **Data preprocessing** — scaling, encoding, imputation, and feature selection.
+5. **Pipelines and composition** — `Pipeline` and `ColumnTransformer`.
 
-**Key algorithms:**
-- **Linear models**: Logistic Regression, Linear Regression, Ridge, Lasso, ElasticNet
-- **Tree-based**: Decision Trees, Random Forest, Gradient Boosting
-- **Support Vector Machines**: SVC, SVR with various kernels
-- **Ensemble methods**: AdaBoost, Voting, Stacking
-- **Neural Networks**: MLPClassifier, MLPRegressor
-- **Others**: Naive Bayes, K-Nearest Neighbors
+Always fit preprocessing inside a `Pipeline` so it is refit per cross-validation fold;
+scaling or imputing before splitting leaks test information into training.
 
-**When to use:**
-- Classification: Predicting discrete categories (spam detection, image classification, fraud detection)
-- Regression: Predicting continuous values (price prediction, demand forecasting)
-
-**See:** `references/supervised_learning.md` for detailed algorithm documentation, parameters, and usage examples.
-
-### 2. Unsupervised Learning
-
-Discover patterns in unlabeled data through clustering and dimensionality reduction.
-
-**Clustering algorithms:**
-- **Partition-based**: K-Means, MiniBatchKMeans
-- **Density-based**: DBSCAN, HDBSCAN, OPTICS
-- **Hierarchical**: AgglomerativeClustering
-- **Probabilistic**: Gaussian Mixture Models
-- **Others**: MeanShift, SpectralClustering, BIRCH
-
-**Dimensionality reduction:**
-- **Linear**: PCA, TruncatedSVD, NMF
-- **Manifold learning**: t-SNE, UMAP, Isomap, LLE
-- **Feature extraction**: FastICA, LatentDirichletAllocation
-
-**When to use:**
-- Customer segmentation, anomaly detection, data visualization
-- Reducing feature dimensions, exploratory data analysis
-- Topic modeling, image compression
-
-**See:** `references/unsupervised_learning.md` for detailed documentation.
-
-### 3. Model Evaluation and Selection
-
-Tools for robust model evaluation, cross-validation, and hyperparameter tuning.
-
-**Cross-validation strategies:**
-- KFold, StratifiedKFold (classification)
-- TimeSeriesSplit (temporal data)
-- GroupKFold (grouped samples)
-
-**Hyperparameter tuning:**
-- GridSearchCV (exhaustive search)
-- RandomizedSearchCV (random sampling)
-- HalvingGridSearchCV (successive halving)
-
-**Metrics:**
-- **Classification**: accuracy, precision, recall, F1-score, ROC AUC, confusion matrix
-- **Regression**: MSE, RMSE, MAE, R², MAPE
-- **Clustering**: silhouette score, Calinski-Harabasz, Davies-Bouldin
-
-**When to use:**
-- Comparing model performance objectively
-- Finding optimal hyperparameters
-- Preventing overfitting through cross-validation
-- Understanding model behavior with learning curves
-
-**See:** `references/model_evaluation.md` for comprehensive metrics and tuning strategies.
-
-### 4. Data Preprocessing
-
-Transform raw data into formats suitable for machine learning.
-
-**Scaling and normalization:**
-- StandardScaler (zero mean, unit variance)
-- MinMaxScaler (bounded range)
-- RobustScaler (robust to outliers)
-- Normalizer (sample-wise normalization)
-
-**Encoding categorical variables:**
-- OneHotEncoder (nominal categories)
-- OrdinalEncoder (ordered categories)
-- LabelEncoder (target encoding)
-
-**Handling missing values:**
-- SimpleImputer (mean, median, most frequent)
-- KNNImputer (k-nearest neighbors)
-- IterativeImputer (multivariate imputation)
-
-**Feature engineering:**
-- PolynomialFeatures (interaction terms)
-- KBinsDiscretizer (binning)
-- Feature selection (RFE, SelectKBest, SelectFromModel)
-
-**When to use:**
-- Before training any algorithm that requires scaled features (SVM, KNN, Neural Networks)
-- Converting categorical variables to numeric format
-- Handling missing data systematically
-- Creating non-linear features for linear models
-
-**See:** `references/preprocessing.md` for detailed preprocessing techniques.
-
-### 5. Pipelines and Composition
-
-Build reproducible, production-ready ML workflows.
-
-**Key components:**
-- **Pipeline**: Chain transformers and estimators sequentially
-- **ColumnTransformer**: Apply different preprocessing to different columns
-- **FeatureUnion**: Combine multiple transformers in parallel
-- **TransformedTargetRegressor**: Transform target variable
-
-**Benefits:**
-- Prevents data leakage in cross-validation
-- Simplifies code and improves maintainability
-- Enables joint hyperparameter tuning
-- Ensures consistency between training and prediction
-
-**When to use:**
-- Always use Pipelines for production workflows
-- When mixing numerical and categorical features (use ColumnTransformer)
-- When performing cross-validation with preprocessing steps
-- When hyperparameter tuning includes preprocessing parameters
-
-**See:** `references/pipelines_and_composition.md` for comprehensive pipeline patterns.
+Two worked workflows are in
+[references/common_workflows.md](references/common_workflows.md).
 
 ## Example Scripts
 
@@ -243,7 +152,7 @@ Build reproducible, production-ready ML workflows.
 Run a complete classification workflow with preprocessing, model comparison, hyperparameter tuning, and evaluation:
 
 ```bash
-python scripts/classification_pipeline.py
+uv run python scripts/classification_pipeline.py
 ```
 
 This script demonstrates:
@@ -258,7 +167,7 @@ This script demonstrates:
 Perform clustering analysis with algorithm comparison and visualization:
 
 ```bash
-python scripts/clustering_analysis.py
+uv run python scripts/clustering_analysis.py
 ```
 
 This script demonstrates:
@@ -318,109 +227,6 @@ This skill includes comprehensive reference files for deep dives into specific t
 - FeatureUnion for parallel transformations
 - Complete end-to-end examples
 - Best practices
-
-## Common Workflows
-
-### Building a Classification Model
-
-1. **Load and explore data**
-   ```python
-   import pandas as pd
-   df = pd.read_csv('data.csv')
-   X = df.drop('target', axis=1)
-   y = df['target']
-   ```
-
-2. **Split data with stratification**
-   ```python
-   from sklearn.model_selection import train_test_split
-   X_train, X_test, y_train, y_test = train_test_split(
-       X, y, test_size=0.2, stratify=y, random_state=42
-   )
-   ```
-
-3. **Create preprocessing pipeline**
-   ```python
-   from sklearn.pipeline import Pipeline
-   from sklearn.preprocessing import StandardScaler
-   from sklearn.compose import ColumnTransformer
-
-   # Handle numeric and categorical features separately
-   preprocessor = ColumnTransformer([
-       ('num', StandardScaler(), numeric_features),
-       ('cat', OneHotEncoder(), categorical_features)
-   ])
-   ```
-
-4. **Build complete pipeline**
-   ```python
-   model = Pipeline([
-       ('preprocessor', preprocessor),
-       ('classifier', RandomForestClassifier(random_state=42))
-   ])
-   ```
-
-5. **Tune hyperparameters**
-   ```python
-   from sklearn.model_selection import GridSearchCV
-
-   param_grid = {
-       'classifier__n_estimators': [100, 200],
-       'classifier__max_depth': [10, 20, None]
-   }
-
-   grid_search = GridSearchCV(model, param_grid, cv=5)
-   grid_search.fit(X_train, y_train)
-   ```
-
-6. **Evaluate on test set**
-   ```python
-   from sklearn.metrics import classification_report
-
-   best_model = grid_search.best_estimator_
-   y_pred = best_model.predict(X_test)
-   print(classification_report(y_test, y_pred))
-   ```
-
-### Performing Clustering Analysis
-
-1. **Preprocess data**
-   ```python
-   from sklearn.preprocessing import StandardScaler
-
-   scaler = StandardScaler()
-   X_scaled = scaler.fit_transform(X)
-   ```
-
-2. **Find optimal number of clusters**
-   ```python
-   from sklearn.cluster import KMeans
-   from sklearn.metrics import silhouette_score
-
-   scores = []
-   for k in range(2, 11):
-       kmeans = KMeans(n_clusters=k, random_state=42)
-       labels = kmeans.fit_predict(X_scaled)
-       scores.append(silhouette_score(X_scaled, labels))
-
-   optimal_k = range(2, 11)[np.argmax(scores)]
-   ```
-
-3. **Apply clustering**
-   ```python
-   model = KMeans(n_clusters=optimal_k, random_state=42)
-   labels = model.fit_predict(X_scaled)
-   ```
-
-4. **Visualize with dimensionality reduction**
-   ```python
-   from sklearn.decomposition import PCA
-
-   pca = PCA(n_components=2)
-   X_2d = pca.fit_transform(X_scaled)
-
-   plt.scatter(X_2d[:, 0], X_2d[:, 1], c=labels, cmap='viridis')
-   ```
 
 ## Best Practices
 
@@ -516,4 +322,3 @@ model = MiniBatchKMeans(n_clusters=8, batch_size=100)
 - User Guide: https://scikit-learn.org/stable/user_guide.html
 - API Reference: https://scikit-learn.org/stable/api/index.html
 - Examples Gallery: https://scikit-learn.org/stable/auto_examples/index.html
-

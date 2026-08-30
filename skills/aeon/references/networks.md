@@ -95,7 +95,7 @@ Networks designed for representation learning and clustering.
 - LITEMV variant for multivariate series
 - **Use when**: Need efficiency with strong performance
 
-**DeepARNetwork** - Probabilistic Forecasting
+**DeepARForecaster** - Probabilistic forecasting (use via `aeon.forecasting.deep_learning`)
 - Autoregressive RNN for forecasting
 - Produces probabilistic predictions
 - **Use when**: Need forecast uncertainty quantification
@@ -192,7 +192,7 @@ clf.fit(X_train, y_train)
 
 **Classification**: InceptionNetwork, ResNetNetwork, FCNNetwork
 **Regression**: InceptionNetwork, ResNetNetwork, TCNNetwork
-**Forecasting**: TCNNetwork, DeepARNetwork, RecurrentNetwork
+**Forecasting**: TCNForecaster, DeepARForecaster, RecurrentNetwork
 **Clustering**: AEFCNNetwork, AEResNetNetwork, AEAttentionBiGRUNetwork
 
 ### By Data Characteristics:

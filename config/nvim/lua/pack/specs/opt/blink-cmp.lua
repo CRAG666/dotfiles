@@ -212,9 +212,6 @@ return {
             'path',
             'buffer',
           },
-          per_filetype = {
-            codecompanion = { 'codecompanion', 'path' },
-          },
           providers = {
             lsp = {
               -- Don't wait for LSP completions for a long time before fallback to
