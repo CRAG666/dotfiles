@@ -26,6 +26,7 @@ RUN pacman -S xdg-user-dirs --noconfirm
 RUN pacman -S git --noconfirm
 RUN pacman -S go --noconfirm
 RUN pacman -S wget --noconfirm
+RUN pacman -S just --noconfirm
 
 ENV HOME /home/${USERNAME}
 WORKDIR /home/${USERNAME}

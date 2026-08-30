@@ -5,6 +5,7 @@
 UV_PRERELEASE = "allow"
 
 [tools]
+agy = "latest"
 carapace = "latest"
 "cargo:cpx" = "latest"
 "cargo:tuicr" = "latest"

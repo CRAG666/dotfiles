@@ -2,28 +2,28 @@
 
 ## Quick start
 
-This repository is built with Makefile. It is an attempt to set up a minimal environment for development and entertainment on arch linux.
+This repository is built with [just](https://github.com/casey/just). It is an attempt to set up a minimal environment for development and entertainment on arch linux.
 
 ### List of commands
 
 ```bash
-make help
+just --list
 ```
 
 ### For P53
 
 ```bash
-make p53
-make scroll
-make dns
+just p53
+just scroll
+just dns
 ```
 
 ### L14
 
 ```bash
-make l14
-make scroll
-make dns
+just l14
+just scroll
+just dns
 ```
 
 ## Results
