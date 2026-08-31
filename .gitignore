@@ -588,6 +588,7 @@ config/oama/*.auth
 /.tmux.colors.conf
 /.Xresources
 /config/hunk/config.toml
+/config/herdr/config.toml
 /config/eza/theme.yml
 /config/zsh-patina/theme.toml
 /config/swaylock/config
@@ -616,6 +617,4 @@ config/oama/*.auth
 **/.agents
 **/.crush
 /config/nvim/nvim-pack-lock.json
-/config/opencode/tui.json
-/config/opencode/themes/
 /config/nushell/mise.nu

@@ -9,12 +9,25 @@ levelfile="$rt/ddc-brightness.level"
 
 clamp() { local v=$1; ((v<0)) && v=0; ((v>100)) && v=100; echo "$v"; }
 
-# Detecta los buses i2c de los monitores externos y los cachea en busfile.
-# Escribe "none" si no hay ninguno (solo pantalla de laptop).
+# Detecta los buses DDC de monitores externos sondendo lectura real de VCP 10
+# y cachea los que responden en busfile. No usamos `ddcutil detect`: su mapeo
+# conector↔bus falla segun driver (amdgpu expone el bus AUX en card1-*/ y
+# clasifica monitores validos como "Invalid display"), y los nombres varian
+# por GPU ("DM i2c hw bus" en amd, "i915 gmbus" en intel). Candidatos = buses
+# i2c que cuelgan de la GPU (drm): cubre amd/intel/nouveau y excluye los
+# peligrosos (SMBus, touchpad DesignWare). Sonda de bus muerto: ~80ms.
 detect_buses() {
-    ddcutil detect --brief 2>/dev/null |
-        awk '/^Display/{ok=1} ok && /I2C bus:/{sub(".*i2c-",""); print}' \
-        > "$busfile"
+    local dev devdir bus
+    : > "$busfile"
+    for dev in /sys/class/i2c-dev/i2c-*; do
+        devdir="$(readlink -f "$dev/device")"
+        # buses DDC: cuelgan de un dispositivo con drm (padre) o de un cardN
+        [[ -d "${devdir%/*}/drm" || "$devdir" == */drm/* ]] || continue
+        bus="${dev##*/i2c-}"
+        timeout 3 ddcutil --bus "$bus" --skip-ddc-checks --noverify \
+            --sleep-multiplier .05 getvcp 10 >/dev/null 2>&1 || continue
+        echo "$bus" >> "$busfile"
+    done
     [[ -s $busfile ]] || echo none > "$busfile"
 }
 

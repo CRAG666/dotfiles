@@ -1,0 +1,29 @@
+# Paleta eyes (light, canónico) para [theme.custom] de herdr.
+# El dark (colors.eyes-dark.toml) se genera desde aquí con
+# `eyes-theme generate` (sed de PALETTE).
+
+[theme.custom]
+# Superficies (eyes: bg1/bg3/bg4)
+panel_bg      = "#202820"  # bg1 NormalFloat
+sidebar_bg    = "#202820"  # bg1 (distingue el sidebar del fondo #1a211a de kitty)
+active_row_bg = "#2d382d"  # bg3 = active_tab_background en tu kitty eyes
+selection_bg  = "#3a463a"  # bg4 = Visual
+# Niveles de superficie (eyes: bg2/bg3/bg1)
+surface0      = "#263026"  # bg2 CursorLine
+surface1      = "#2d382d"  # bg3 StatusLine
+surface_dim   = "#202820"  # bg1
+# Texto (eyes: fg0/fg1)
+text          = "#d0dcc8"  # fg0
+subtext0      = "#b8c8b0"  # fg1
+# Muted (eyes: bg5/gray2)
+overlay0      = "#536053"  # bg5 WinSeparator
+overlay1      = "#6a7868"  # gray2 SignColumn
+# Acentos: mismos ANSI que tu kitty eyes (eyes.lua terminal_color_*)
+accent = "#6a94a8"  # blue0 (active_border_color / url_color en kitty)
+blue   = "#82aab8"  # blue1 = color4
+green  = "#88b878"  # green1 = color2
+red    = "#c87868"  # = color1
+yellow = "#d4b85a"  # = color3
+mauve  = "#b890b0"  # pink = color5
+teal   = "#5ab8a8"  # = color14
+peach  = "#b89a6a"  # orange0 = color11

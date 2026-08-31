@@ -26,15 +26,18 @@ let theme = {
 }
 
 let scheme = {
-  recognized_command: $theme.blue
+  # Token mapping mirrors config/nvim/colors/eyes.lua:
+  # recognized_command/Function=blue1, operator/Operator=teal,
+  # string/String=green1, filepath/Directory=blue1, Number=pink.
+  recognized_command: $theme.flamingo
   unrecognized_command: $theme.text
   constant: $theme.peach
   punctuation: $theme.overlay2
-  operator: $theme.sky
-  string: $theme.green
+  operator: $theme.teal
+  string: $theme.rosewater
   virtual_text: $theme.surface2
-  variable: { fg: $theme.flamingo attr: i }
-  filepath: $theme.yellow
+  variable: $theme.text
+  filepath: $theme.flamingo
 }
 
 $env.config.color_config = {
@@ -46,14 +49,14 @@ $env.config.color_config = {
   list: $theme.text
   hints: $scheme.virtual_text
   search_result: { fg: $theme.base bg: $theme.yellow }
-  shape_closure: $theme.teal
-  closure: $theme.teal
+  shape_closure: $theme.flamingo
+  closure: $theme.flamingo
   shape_flag: { fg: $theme.maroon attr: i }
   shape_matching_brackets: { attr: u }
   shape_garbage: $theme.red
   shape_keyword: $theme.mauve
-  shape_match_pattern: $theme.green
-  shape_signature: $theme.teal
+  shape_match_pattern: $theme.peach
+  shape_signature: $theme.flamingo
   shape_table: $scheme.punctuation
   cell-path: $scheme.punctuation
   shape_list: $scheme.punctuation
@@ -132,15 +135,15 @@ $env.config.color_config = {
   shape_filepath: $scheme.filepath
   shape_glob_interpolation: $scheme.filepath
   shape_globpattern: $scheme.filepath
-  shape_int: $scheme.constant
-  int: $scheme.constant
+  shape_int: $theme.pink
+  int: $theme.pink
   bool: $scheme.constant
-  float: $scheme.constant
+  float: $theme.pink
   nothing: $scheme.constant
   binary: $scheme.constant
   shape_nothing: $scheme.constant
   shape_bool: $scheme.constant
-  shape_float: $scheme.constant
+  shape_float: $theme.pink
   shape_binary: $scheme.constant
   shape_datetime: $scheme.constant
   shape_literal: $scheme.constant

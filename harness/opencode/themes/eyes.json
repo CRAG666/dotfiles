@@ -76,7 +76,7 @@
     "markdownHeading":         { "light": "blue0_l",   "dark": "blue0_d"   },
     "markdownLink":            { "light": "blue1_l",   "dark": "blue1_d"   },
     "markdownLinkText":        { "light": "blue0_l",   "dark": "blue0_d"   },
-    "markdownCode":            { "light": "green0_l",  "dark": "green0_d"  },
+    "markdownCode":            { "light": "green1_l",  "dark": "green1_d"  },
     "markdownBlockQuote":      { "light": "gray0_l",   "dark": "gray0_d"   },
     "markdownEmph":            { "light": "orange0_l", "dark": "orange0_d" },
     "markdownStrong":          { "light": "orange1_l", "dark": "orange1_d" },
@@ -87,14 +87,14 @@
     "markdownImageText":       { "light": "aqua_l",    "dark": "aqua_d"    },
     "markdownCodeBlock":       { "light": "fg1_l",     "dark": "fg1_d"     },
 
-    "syntaxComment":     { "light": "gray0_l",   "dark": "gray0_d"   },
-    "syntaxKeyword":     { "light": "blue0_l",   "dark": "blue0_d"   },
+    "syntaxComment":     { "light": "ash_l",     "dark": "ash_d"     },
+    "syntaxKeyword":     { "light": "violet_l",  "dark": "violet_d"  },
     "syntaxFunction":    { "light": "blue1_l",   "dark": "blue1_d"   },
-    "syntaxVariable":    { "light": "aqua_l",    "dark": "aqua_d"    },
+    "syntaxVariable":    { "light": "fg0_l",     "dark": "fg0_d"     },
     "syntaxString":      { "light": "green1_l",  "dark": "green1_d"  },
-    "syntaxNumber":      { "light": "orange0_l", "dark": "orange0_d" },
-    "syntaxType":        { "light": "teal_l",    "dark": "teal_d"    },
-    "syntaxOperator":    { "light": "red_l",     "dark": "red_d"     },
-    "syntaxPunctuation": { "light": "fg1_l",     "dark": "fg1_d"     }
+    "syntaxNumber":      { "light": "pink_l",    "dark": "pink_d"    },
+    "syntaxType":        { "light": "aqua_l",    "dark": "aqua_d"    },
+    "syntaxOperator":    { "light": "teal_l",    "dark": "teal_d"    },
+    "syntaxPunctuation": { "light": "gray1_l",   "dark": "gray1_d"   }
   }
 }

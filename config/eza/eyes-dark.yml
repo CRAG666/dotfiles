@@ -2,8 +2,8 @@ colourful: true
 
 filekinds:
   normal: {foreground: "#9090b8"}
-  directory: {foreground: "#c87868"}
-  symlink: {foreground: "#82aab8"}
+  directory: {foreground: "#82aab8"}
+  symlink: {foreground: "#6ab8b0"}
   pipe: {foreground: "#b890b0"}
   block_device: {foreground: "#c8a870"}
   char_device: {foreground: "#c8a870"}
@@ -50,8 +50,8 @@ users:
   group_root: {foreground: "#c87868"}
 
 links:
-  normal: {foreground: "#82aab8"}
-  multi_link_file: {foreground: "#82aab8"}
+  normal: {foreground: "#6ab8b0"}
+  multi_link_file: {foreground: "#6ab8b0"}
 
 git:
   new: {foreground: "#88b878"}
@@ -95,7 +95,7 @@ header: {foreground: "#7aab72"}
 octal: {foreground: "#82aab8"}
 flags: {foreground: "#6ab8b0"}
 
-symlink_path: {foreground: "#82aab8"}
+symlink_path: {foreground: "#6ab8b0"}
 control_char: {foreground: "#5ab8a8"}
 broken_symlink: {foreground: "#c87868"}
 broken_path_overlay: {foreground: "#8a9a88"}

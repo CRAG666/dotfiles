@@ -1,0 +1,21 @@
+{
+  "components": {
+    "editor": {
+      "enabled": true,
+      "style": "accent-rail"
+    },
+    "userMessages": {
+      "enabled": true,
+      "style": "framed"
+    },
+    "workingLine": {
+      "enabled": false
+    },
+    "footer": {
+      "style": "starship"
+    }
+  },
+  "icons": {
+    "mode": "auto"
+  }
+}

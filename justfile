@@ -1,7 +1,7 @@
 home := env_var("HOME")
 src := justfile_directory()
 
-export PATH := home + "/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/bin/core_perl"
+export PATH := home + "/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/bin/core_perl:" + home + "/.local/share/mise/shims"
 export GOPATH := home
 
 hypr_pkgs := "hyprland xdg-desktop-portal-hyprland hyprland-guiutils hyprland-qt-support hyprsunset hyprtoolkit hyprutils"
@@ -88,7 +88,7 @@ install: makepkg
     command -v bob >/dev/null 2>&1 && bob use nightly || echo "bob not installed, skipping..."
 
 # Deploy the initial dotfiles
-init: theme systemd-user bin user-tools
+init: theme systemd-user bin user-tools harness
     #!/usr/bin/env bash
     set -eu
     echo "==> Creating symlinks in the HOME directory"
@@ -146,6 +146,56 @@ user-tools:
     chmod +x "$HOME/.local/bin/cht.sh"
     echo "==> Installing Tridactyl native messenger (user-level, sin root)..."
     curl -fsSL https://raw.githubusercontent.com/tridactyl/native_messenger/master/installers/install.sh | sh
+
+# Install the AI harness configs (pi, claude, opencode) + shared skills
+harness:
+    #!/usr/bin/env bash
+    set -eu
+    echo "==> pi (~/.pi/agent)..."
+    mkdir -p "$HOME/.pi/agent"
+    for f in APPEND_SYSTEM.md web-search.json zentui.json; do
+        ln -vsfn "{{ src }}/harness/pi/$f" "$HOME/.pi/agent/$f"
+    done
+    # pi rewrites settings.json (theme key, lastChangelogVersion): install a copy
+    if [ -f "$HOME/.pi/agent/settings.json" ] && [ ! -f "$HOME/.pi/agent/settings.json.bak" ]; then
+        cp -v "$HOME/.pi/agent/settings.json" "$HOME/.pi/agent/settings.json.bak"
+    fi
+    install -m 644 "{{ src }}/harness/pi/settings.json" "$HOME/.pi/agent/settings.json"
+    mkdir -p "$HOME/.pi/agent/themes"
+    for f in eyes-light.json eyes-dark.json; do
+        ln -vsfn "{{ src }}/harness/pi/themes/$f" "$HOME/.pi/agent/themes/$f"
+    done
+    echo "==> claude (~/.claude)..."
+    ln -vsfn "{{ src }}/harness/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+    # eyes-theme rewrites settings.json on every theme switch (jq + mv): install a copy
+    if [ -f "$HOME/.claude/settings.json" ] && [ ! -f "$HOME/.claude/settings.json.bak" ]; then
+        cp -v "$HOME/.claude/settings.json" "$HOME/.claude/settings.json.bak"
+    fi
+    install -m 644 "{{ src }}/harness/claude/settings.json" "$HOME/.claude/settings.json"
+    if [ ! -f "$HOME/.claude/settings.local.json" ]; then
+        cp -v "{{ src }}/harness/claude/settings.local.json.example" "$HOME/.claude/settings.local.json"
+        echo "    WARNING: set your ANTHROPIC_AUTH_TOKEN in ~/.claude/settings.local.json"
+    fi
+    mkdir -p "$HOME/.claude/themes"
+    for f in eyes.json eyes-dark.json; do
+        ln -vsfn "{{ src }}/harness/claude/themes/$f" "$HOME/.claude/themes/$f"
+    done
+    echo "==> opencode (~/.config/opencode, enlaces por archivo)..."
+    mkdir -p "$HOME/.config/opencode/themes"
+    ln -vsfn "{{ src }}/harness/opencode/opencode.json" "$HOME/.config/opencode/opencode.json"
+    ln -vsfn "{{ src }}/harness/opencode/themes/eyes.json" "$HOME/.config/opencode/themes/eyes.json"
+    echo "==> shared skills (~/.agents/skills)..."
+    mkdir -p "$HOME/.agents/skills"
+    for skill in "{{ src }}/skills/"*/; do
+        ln -vsfn "{{ src }}/skills/$(basename "$skill")" "$HOME/.agents/skills/$(basename "$skill")"
+    done
+    ln -vsfn "$HOME/.agents/skills" "$HOME/.claude/skills"
+    echo "==> herdr integrations (self-installed, skipped if herdr is absent)..."
+    if command -v herdr >/dev/null 2>&1; then
+        for agent in claude pi opencode; do
+            herdr integration install "$agent"
+        done
+    fi
 
 # Install makepkg.conf in /etc (optimized compilation)
 makepkg:

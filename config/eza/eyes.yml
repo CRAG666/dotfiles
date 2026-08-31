@@ -2,8 +2,8 @@ colourful: true
 
 filekinds:
   normal: {foreground: "#3a2860"}
-  directory: {foreground: "#7a1e18"}
-  symlink: {foreground: "#143c52"}
+  directory: {foreground: "#143c52"}
+  symlink: {foreground: "#1a5858"}
   pipe: {foreground: "#5a2858"}
   block_device: {foreground: "#7a4a18"}
   char_device: {foreground: "#7a4a18"}
@@ -50,8 +50,8 @@ users:
   group_root: {foreground: "#7a1e18"}
 
 links:
-  normal: {foreground: "#143c52"}
-  multi_link_file: {foreground: "#143c52"}
+  normal: {foreground: "#1a5858"}
+  multi_link_file: {foreground: "#1a5858"}
 
 git:
   new: {foreground: "#1e4a18"}

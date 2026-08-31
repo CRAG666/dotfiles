@@ -7,9 +7,8 @@ readonly STATE_FILE="$STATE_DIR/mode"
 mkdir -p "$STATE_DIR"
 
 readonly DOTFILES_DIR="$(cd -- "$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
-readonly CLAUDE_THEME_SRC_DIR="$DOTFILES_DIR/themes/claude"
-readonly OPENCODE_THEME_SRC_DIR="$DOTFILES_DIR/themes/opencode"
-readonly PI_THEME_SRC_DIR="$DOTFILES_DIR/themes/pi"
+readonly CLAUDE_THEME_SRC_DIR="$DOTFILES_DIR/harness/claude/themes"
+readonly PI_THEME_SRC_DIR="$DOTFILES_DIR/harness/pi/themes"
 
 readonly PALETTE=(
   'bg0:add4a0:1a211a' 'bg1:a4cc98:202820'
@@ -29,13 +28,6 @@ readonly PALETTE=(
   'pink:5a2858:b890b0'
   'winterRed:d8a8a0:402828' 'winterBlue:90bcd0:223040'
   'winterGreen:94cc88:243224' 'winterYellow:d0c890:3a3420'
-)
-
-readonly PALETTE_EXTRAS=(
-  'yz_blue_deep:1e4a60:6aa0b0' 'yz_teal_green:206860:6cb0a4'
-  'yz_off_black:222222:ddd8d0' 'yz_blue:2a5872:8aaec8'
-  'yz_mauve:6a3868:b89cb8' 'yz_yellow:786018:c8b070'
-  'yz_orange:8a5820:d0b078'
 )
 
 readonly SWITCHES=(
@@ -71,8 +63,16 @@ readonly SWITCHES=(
   'config/hunk/config.toml|config.eyes.toml|config.eyes-dark.toml'
 )
 
+# App reads a single config file and has no include support: assemble the
+# consumed file from one base config plus a colors-only variant pair.
+readonly COMPOSE=(
+  'config/herdr/config.toml|config/herdr/base.toml|config/herdr/colors.eyes.toml|config/herdr/colors.eyes-dark.toml'
+)
+
 readonly GENERATE=(
-  'config/foot/colors.eyes.ini|config/foot/colors.eyes-dark.ini|bare'
+  # NOTE: foot + termusic tui are hand-paired, not generated: their ANSI 0/7
+  # semantic slots cannot survive a palette sed swap (fg0/bg4 would invert
+  # black/white). Edit both variants by hand, like kitty.
   'config/dunst/colors.eyes.conf|config/dunst/colors.eyes-dark.conf|hash'
   '.tmux.colors.eyes.conf|.tmux.colors.eyes-dark.conf|hash'
   '.Xresources.eyes|.Xresources.eyes-dark|hash'
@@ -85,8 +85,8 @@ readonly GENERATE=(
   'config/starship.eyes.toml|config/starship.eyes-dark.toml|starship'
   'config/yazi/init.eyes.lua|config/yazi/init.eyes-dark.lua|hash'
   'config/yazi/flavors/eyes-light.yazi|config/yazi/flavors/eyes-dark.yazi|yaziflavor'
-  'config/termusic/tui.eyes.toml|config/termusic/tui.eyes-dark.toml|hash'
   'config/mpv/colors.eyes.conf|config/mpv/colors.eyes-dark.conf|bare'
+  'config/herdr/colors.eyes.toml|config/herdr/colors.eyes-dark.toml|hash'
 )
 
 DRY_RUN=0
@@ -125,7 +125,7 @@ auto_mode_for_now() {
 build_hex_sed_script() {
   local direction="$1" style="${2:-hash}"
   local entry slot light dark from_hex to_hex from_sgr to_sgr
-  for entry in "${PALETTE[@]}" "${PALETTE_EXTRAS[@]}"; do
+  for entry in "${PALETTE[@]}"; do
     IFS=: read -r slot light dark <<<"$entry"
     if [[ "$direction" == "to-dark" ]]; then
       from_hex="$light"
@@ -191,6 +191,7 @@ generate() {
     esac
     info "  generated $dark"
   done
+  compose_configs "$(current_mode)"
 }
 
 # ---------------------------------------------------------------------------
@@ -218,6 +219,26 @@ apply_switches() {
     else
       ln -sfn "$target" "$pointer"
     fi
+  done
+}
+
+# ---------------------------------------------------------------------------
+# compose_configs — assemble single-file configs (base + colors variant)
+# ---------------------------------------------------------------------------
+
+compose_configs() {
+  local mode="$1" entry rel base light dark variant pointer
+  for entry in "${COMPOSE[@]}"; do
+    IFS='|' read -r rel base light dark <<<"$entry"
+    pointer="$DOTFILES_DIR/$rel"
+    variant="$light"
+    [[ "$mode" == "dark" ]] && variant="$dark"
+    if ((DRY_RUN)); then
+      info "  would compose $rel  ($base + $(basename "$variant"))"
+      continue
+    fi
+    cat "$DOTFILES_DIR/$base" "$DOTFILES_DIR/$variant" >"$pointer"
+    info "  composed $rel  ($base + $(basename "$variant"))"
   done
 }
 
@@ -325,15 +346,15 @@ ensure_pi_theme() {
 ensure_opencode_theme() {
   local themes_dir="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/themes"
   local tui="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/tui.json"
-  local src="$OPENCODE_THEME_SRC_DIR/eyes.json"
 
   if ((DRY_RUN)); then
     info "  would ensure opencode theme=eyes"
     return
   fi
 
+  # eyes.json lives in the repo (harness/opencode/themes/) and reaches
+  # ~/.config/opencode through the whole-dir symlink: nothing to link here.
   mkdir -p "$themes_dir"
-  [[ -e "$themes_dir/eyes.json" ]] || ln -sfn "$src" "$themes_dir/eyes.json"
 
   mkdir -p "$(dirname "$tui")"
   if [[ ! -f "$tui" ]]; then
@@ -411,6 +432,11 @@ reload_daemons() {
     pkill -SIGUSR1 -x kitty 2>/dev/null || true
   fi
 
+  # herdr: reload applies the composed config.toml (base + eyes colors).
+  if command -v herdr >/dev/null 2>&1; then
+    herdr server reload-config >/dev/null 2>&1 || true
+  fi
+
   # zsh-patina: restart to pick up the new theme.toml symlink.
   if mise which zsh-patina >/dev/null 2>&1; then
     zsh -c "mise exec -- zsh-patina restart" 2>/dev/null || true
@@ -469,6 +495,7 @@ set_mode() {
 
   info "Switching to $target..."
   apply_switches      "$target"
+  compose_configs     "$target"
   apply_gtk           "$target"
   ensure_claude_theme "$target"
   ensure_pi_theme     "$target"

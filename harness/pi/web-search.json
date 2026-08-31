@@ -1,0 +1,7 @@
+{
+  "provider": "exa",
+  "allowBrowserCookies": false,
+  "summaryModel": "zai/glm-4.7",
+  "workflow": "none",
+  "curatorTimeoutSeconds": 20
+}

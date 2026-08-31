@@ -1,0 +1,59 @@
+# Base de herdr (todo menos la paleta). config.toml lo ensambla eyes-theme
+# concatenando este archivo + colors.eyes[-dark].toml, porque herdr no
+# soporta include: un solo archivo con colores inline.
+# La paleta dark se genera desde el light con `eyes-theme generate`.
+
+onboarding = false
+
+[theme]
+# Base "terminal": los colores derivados siguen la paleta ANSI de kitty,
+# que eyes-theme ya intercambia en sincronía. La paleta eyes exacta
+# (bg1/bg3/bg4 no-ANSI) vive en colors.eyes[-dark].toml.
+name = "terminal"
+
+[terminal]
+# Igual que kitty.conf: paneles nuevos en nu ($SHELL es zsh)
+default_shell = "nu"
+
+[keys]
+# El prefix no puede ser un modificador solo ("alt"): herdr necesita una
+# tecla concreta que el terminal transmita.
+# alt+space = pulgar derecho en Alt + pulgar izquierdo en space: ambos
+# pulgares en reposo, cero desplazamiento de dedos. Verificado libre en
+# tu setup: scroll usa $mod=Mod4 (solo tiene Super+Alt), kitty no lo
+# mapea, nvim/nu/zsh tampoco.
+# Ojo: en tus teclados space es LT(2) (hold = capa de navegación):
+# dale el toque corto; si lo mantienes se activa la capa y el prefix
+# no dispara (inofensivo, reintenta).
+# Descartados: alt+a/i/d/h/l (nvim), alt+backspace/alt+enter (shells/nu)
+# Bonus: al liberar ctrl+b, en copy mode vuelve a ser page-up.
+prefix = "alt+space"
+# Alternativas sin choque:
+#   prefix = "alt+j" # pulgar derecho + índice home, una mano
+#   prefix = "f17"   # MO(4)+N en tu keychron: tecla virtual, cero choques
+
+# Migración desde kitty: descomenta al borrar los map alt+* de kitty.conf
+# (mientras existan ahí, kitty intercepta los acordes antes que herdr).
+# new_tab         = ["prefix+c", "alt+;"]
+# next_tab        = ["prefix+n", "alt+."]
+# previous_tab    = ["prefix+p", "alt+,"]
+# split_vertical  = ["prefix+v", "alt+/"]
+# close_pane      = ["prefix+x", "alt+backspace"]
+# focus_pane_left  = ["prefix+h", "alt+left"]
+# focus_pane_down  = ["prefix+j", "alt+down"]
+# focus_pane_up    = ["prefix+k", "alt+up"]
+# focus_pane_right = ["prefix+l", "alt+right"]
+# swap_pane_left   = ["prefix+shift+h", "ctrl+alt+h"]
+# swap_pane_down   = ["prefix+shift+j", "ctrl+alt+j"]
+# swap_pane_up     = ["prefix+shift+k", "ctrl+alt+k"]
+# swap_pane_right  = ["prefix+shift+l", "ctrl+alt+l"]
+
+[ui]
+# Ocultar sidebar y tab bar: sidebar a ancho cero desde el arranque,
+# fila de tabs oculta mientras solo haya un tab.
+sidebar_start_collapsed = true
+sidebar_collapsed_mode = "hidden"
+hide_tab_bar_when_single_tab = true
+
+[ui.toast]
+delivery = "system"
