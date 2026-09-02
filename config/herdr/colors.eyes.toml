@@ -20,10 +20,10 @@ overlay0      = "#6a9060"  # bg5 WinSeparator
 overlay1      = "#2c4028"  # gray2 SignColumn
 # Acentos: mismos ANSI que tu kitty eyes (eyes.lua terminal_color_*)
 accent = "#1e4868"  # blue0 (active_border_color / url_color en kitty)
-blue   = "#143c52"  # blue1 = color4
-green  = "#1e4a18"  # green1 = color2
-red    = "#7a1e18"  # = color1
-yellow = "#5a4808"  # = color3
+blue   = "#90bcd0"  # blue1 = color4
+green  = "#2a5c22"  # green1 = color2
+red    = "#d8a8a0"  # = color1
+yellow = "#d0c890"  # = color3
 mauve  = "#5a2858"  # pink = color5
 teal   = "#145850"  # = color14
 peach  = "#6a3c10"  # orange0 = color11

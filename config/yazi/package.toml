@@ -30,7 +30,7 @@ hash = "b95f898e6dc60b52edbc415952e14395"
 
 [[plugin.deps]]
 use = "AminurAlam/yazi-plugins:preview-audio"
-rev = "5c1711e"
+rev = "9997d5b"
 hash = "475141b0337cf9934b0bc81202e2537c"
 
 [[flavor.deps]]

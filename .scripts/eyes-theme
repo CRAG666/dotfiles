@@ -433,8 +433,10 @@ reload_daemons() {
   fi
 
   # herdr: reload applies the composed config.toml (base + eyes colors).
-  if command -v herdr >/dev/null 2>&1; then
-    herdr server reload-config >/dev/null 2>&1 || true
+  # Vía mise como zsh-patina abajo: los shims de mise no están en el PATH
+  # de las unidades systemd, pero /usr/bin/mise sí.
+  if mise which herdr >/dev/null 2>&1; then
+    mise exec -- herdr server reload-config >/dev/null 2>&1 || true
   fi
 
   # zsh-patina: restart to pick up the new theme.toml symlink.

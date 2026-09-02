@@ -28,6 +28,10 @@ set notification-error-fg     rgba(200,120,104,1)     # c_red
 set notification-warning-bg   rgba(32,40,32,1)        # c_bg1
 set notification-warning-fg   rgba(212,184,90,1)      # c_yellow
 
+set signature-success-color   rgba(136,184,120,1)     # c_green1
+set signature-warning-color   rgba(212,184,90,1)      # c_yellow
+set signature-error-color     rgba(200,120,104,1)     # c_red
+
 set recolor                   "true"
 set recolor-lightcolor        rgba(26,33,26,1)        # c_bg0  — fondo del PDF
 set recolor-darkcolor         rgba(208,220,200,1)     # c_fg0  — texto del PDF
@@ -42,7 +46,7 @@ set render-loading-fg         rgba(122,140,114,1)     # c_ash
 
 set highlight-color           rgba(58,70,58,0.45)     # c_bg4 semitransparente
 set highlight-fg              rgba(208,220,200,1)     # c_fg0
-set highlight-active-color    rgba(106,148,168,0.45)  # c_blue0 semitransparente
+set highlight-active-color    rgba(212,184,90,0.45)   # c_yellow — IncSearch
 
 #
 # End Theme

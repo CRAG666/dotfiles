@@ -18,19 +18,34 @@ default_shell = "nu"
 [keys]
 # El prefix no puede ser un modificador solo ("alt"): herdr necesita una
 # tecla concreta que el terminal transmita.
-# alt+space = pulgar derecho en Alt + pulgar izquierdo en space: ambos
-# pulgares en reposo, cero desplazamiento de dedos. Verificado libre en
-# tu setup: scroll usa $mod=Mod4 (solo tiene Super+Alt), kitty no lo
-# mapea, nvim/nu/zsh tampoco.
-# Ojo: en tus teclados space es LT(2) (hold = capa de navegación):
+# ctrl+space = verificado libre en todo el stack (2025): scroll usa
+# $mod=Mod4 y ninguno de sus bindsym toca space; kitty no lo mapea;
+# nvim/nu/zsh sin bindings (y herdr se come el NUL antes de nvim, asi que
+# ni siquiera dispara el default i_CTRL-@); sin fcitx/ibus que lo robe como
+# conmutador de IME. Unico riesgo prospectivo: <C-Space> es el mapping
+# tipico de completion (nvim-cmp) si algun dia lo agregas.
+# Bonus: al liberar alt+space, queda libre para el hyprlock del config
+# legacy de hypr (bindd = ALT, Space) por si ese WM vuelve.
+# Ojo: en tus teclados space es LT(2) (hold = capa de navegacion):
 # dale el toque corto; si lo mantienes se activa la capa y el prefix
 # no dispara (inofensivo, reintenta).
 # Descartados: alt+a/i/d/h/l (nvim), alt+backspace/alt+enter (shells/nu)
-# Bonus: al liberar ctrl+b, en copy mode vuelve a ser page-up.
-prefix = "alt+space"
+prefix = "ctrl+space"
 # Alternativas sin choque:
-#   prefix = "alt+j" # pulgar derecho + índice home, una mano
-#   prefix = "f17"   # MO(4)+N en tu keychron: tecla virtual, cero choques
+#   prefix = "alt+space" # ambos pulgares, verificado (choca con hyprlock legacy de hypr)
+#   prefix = "alt+j"     # pulgar derecho + indice home, una mano
+#   prefix = "f17"       # MO(4)+N en tu keychron: tecla virtual, cero choques
+
+# Vim-style. Un binding custom sustituye al default completo (no se añade).
+goto         = "prefix+space"  # picker: <leader><space> de telescope/fzf (antes prefix+g)
+next_tab     = "prefix+t"      # vim gt
+previous_tab = "prefix+shift+t" # vim gT (libera shift+t de rename)
+rename_tab   = "prefix+comma"  # tmux rename-window
+last_pane    = "prefix+enter"  # jumplist ctrl+o: volver al último pane
+new_worktree = "prefix+g"      # liberado al mover goto a prefix+space (antes prefix+shift+g)
+new_tab      = ["prefix+n", "prefix+c"] # n = new (c de tmux como secundario)
+# Ya ergonómicos de serie (defaults): focus hjkl, swap shift+hjkl, zoom z,
+# copy [, resize r, switch_tab prefix+1..9 (={N}gt).
 
 # Migración desde kitty: descomenta al borrar los map alt+* de kitty.conf
 # (mientras existan ahí, kitty intercepta los acordes antes que herdr).

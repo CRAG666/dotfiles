@@ -133,6 +133,7 @@ input type:touchpad {
     tap enabled
     natural_scroll disabled
     dwt enabled
+    middle_emulation enabled
 }
 
 ### Windows defaults
@@ -157,6 +158,14 @@ maximize_if_single true
 cycle_size_wrap yes
 scratchpad_minimize true
 
+cursor_shake_magnify true
+
+snap_window_gap 10
+snap_workspace_gap 10
+snap_respect_gaps_inner true
+snap_respect_gaps_outer true
+snap_border_overlap true
+
 animations {
     enabled yes
     default yes 300 var 3 [ 0.215 0.61 0.355 1 ]
@@ -165,6 +174,8 @@ animations {
     window_size yes 300 var 3 [ -0.35 0 0 0.5 ]
     workspace_switch yes 500 var simple [ 0.215 0.61 0.355 1 ]
     window_fullscreen yes 500 var simple [ 0.3 0.5 0.4 1 ]
+    jump yes 500 var simple [ 0.215 0.61 0.355 1 ]
+    layer_shell yes 300 var 3 [ 0 0 1 1 ]
     fade_in yes 300 var simple [ 0.32 0 0.67 0 ]
     fade_out yes 300 var simple [ 0.33 1 0.68 1 ]
 }
@@ -191,27 +202,23 @@ animations {
     #     u  k  o      h=left   l=right
     #     h     l      k=up     j=down
     #     m  j  .      u/o/m/.=diagonals
-    bindsym $mod+u      exec scrollmsg "lua $lua_scripts/focus_diag.lua ul"
-    bindsym $mod+o      exec scrollmsg "lua $lua_scripts/focus_diag.lua ur"
-    bindsym $mod+m      exec scrollmsg "lua $lua_scripts/focus_diag.lua dl"
-    bindsym $mod+period exec scrollmsg "lua $lua_scripts/focus_diag.lua dr"
     # Move (Ctrl variant respects current mode, Alt variant uses nomode)
-    bindsym $mod+Ctrl+$left move left
-    bindsym $mod+Ctrl+$down move down
-    bindsym $mod+Ctrl+$up move up
-    bindsym $mod+Ctrl+$right move right
-    bindsym $mod+Ctrl+home move beginning
-    bindsym $mod+Ctrl+end move end
-    bindsym $mod+Alt+$left move left nomode
-    bindsym $mod+Alt+$down move down nomode
-    bindsym $mod+Alt+$up move up nomode
-    bindsym $mod+Alt+$right move right nomode
-    bindsym $mod+Alt+home move beginning nomode
-    bindsym $mod+Alt+end move end nomode
+    bindsym $mod+Shift+$left move left
+    bindsym $mod+Shift+$down move down
+    bindsym $mod+Shift+$up move up
+    bindsym $mod+Shift+$right move right
+    bindsym $mod+Shift+home move beginning
+    bindsym $mod+Shift+end move end
+    bindsym $mod+Ctrl+$left move left nomode
+    bindsym $mod+Ctrl+$down move down nomode
+    bindsym $mod+Ctrl+$up move up nomode
+    bindsym $mod+Ctrl+$right move right nomode
+    bindsym $mod+Ctrl+home move beginning nomode
+    bindsym $mod+Ctrl+end move end nomode
 
     # Cross-output focus / move
-    bindsym $mod+Shift+$left focus output left
-    bindsym $mod+Shift+$right focus output right
+    # bindsym $mod+Shift+Left focus output left
+    # bindsym $mod+Shift+Right focus output right
     bindsym $mod+Shift+Left move workspace to output left
     bindsym $mod+Shift+Right move workspace to output right
 
@@ -262,7 +269,7 @@ animations {
         bindsym 0 workspace swap number 10 name_only; mode default
         bindsym Escape mode "default"
     }
-    bindsym $mod+Ctrl+w mode "wsswap_name"
+    bindsym $mod+Shift+w mode "wsswap_name"
 
     bindsym $mod+Left workspace prev
     bindsym $mod+Right workspace next
@@ -270,11 +277,17 @@ animations {
     bindsym $mod+Down workspace next_on_output
 
 # Scaling
-    bindsym $mod+Shift+comma scale_workspace incr -0.05
+    bindsym $mod+comma scale_workspace incr -0.05
     bindsym --whole-window $mod+Shift+button4 scale_workspace incr -0.05
-    bindsym $mod+Shift+period scale_workspace incr 0.05
+    bindsym $mod+period scale_workspace incr 0.05
     bindsym --whole-window $mod+Shift+button5 scale_workspace incr 0.05
-    bindsym $mod+Shift+Ctrl+period scale_workspace reset
+    bindsym $mod+Shift+period scale_workspace reset
+
+    bindsym $mod+Ctrl+comma scale_content incr -0.05
+    bindsym --whole-window $mod+button4 scale_content incr -0.05
+    bindsym $mod+Ctrl+period scale_content incr 0.05
+    bindsym --whole-window $mod+button5 scale_content incr 0.05
+    bindsym $mod+Shift+comma scale_content reset
 
     # Overview
     bindsym --no-repeat $mod+tab scale_workspace overview
@@ -286,8 +299,8 @@ animations {
     jump_labels_keys asdfqwer
 
     mode "jump" {
-        bindsym  semicolon jump tiling; mode default
-        bindsym  Shift+semicolon jump tiling all; mode default
+        bindsym  Shift+semicolon jump tiling; mode default
+        bindsym  semicolon jump tiling all; mode default
         bindsym  c jump container; mode default
         bindsym  w jump workspaces; mode default
         bindsym  f jump floating; mode default
@@ -373,7 +386,7 @@ animations {
         bindsym t layout_transpose; mode default
         bindsym Escape mode "default"
     }
-    bindsym $mod+e mode "layout"
+    bindsym $mod+Shift+M mode "layout"
 
     # NxM grid script. Picks the per-column cap or turns it off.
     mode "grid" {
@@ -386,7 +399,7 @@ animations {
         bindsym r exec scrollmsg "lua $lua_scripts/grid_NxM.lua repack"; mode default
         bindsym Escape mode "default"
     }
-    bindsym $mod+Mod1+g mode "grid"
+    bindsym $mod+g mode "grid"
 
     bindsym $mod+y focus mode_toggle
 
@@ -394,7 +407,7 @@ animations {
     bindsym --no-repeat $mod+Shift+p pin end
 
     # Marks
-    bindsym $mod+Shift+m exec ~/.config/scroll/scroll-mark-toggle.sh
+    bindsym $mod+m exec ~/.config/scroll/scroll-mark-toggle.sh
     bindsym $mod+apostrophe exec ~/.config/scroll/scroll-mark-switch.sh
 
     # bindsym $mod+Mod1+h exec scrollmsg output DP-1 hdr toggle && rm -f "${XDG_RUNTIME_DIR:-/tmp}/ddc-brightness.bus"
@@ -430,9 +443,23 @@ mode "modifiers" {
     bindsym Shift+v set_mode nocenter_vert; mode default
     bindsym r set_mode reorder_auto; mode default
     bindsym Shift+r set_mode noreorder_auto; mode default
+    bindsym w set_mode fitfraction; mode default
+    bindsym Shift+w set_mode fitsplit; mode default
+    bindsym Ctrl+w set_mode nofit; mode default
     bindsym Escape mode "default"
 }
 bindsym $mod+backslash mode "modifiers"
+
+mode "focus_ring" {
+    bindsym bracketleft focus_ring prev
+    bindsym bracketright focus_ring next
+    bindsym Return focus_ring set
+    bindsym Home focus_ring first
+    bindsym End focus_ring last
+    bindsym Delete focus_ring remove
+    bindsym Escape mode "default"
+}
+bindsym $mod+bracketleft mode "focus_ring"
 
 # left/right shrink/grow container width; up/down shrink/grow container height.
 mode "resize" {
@@ -603,13 +630,13 @@ mode "spaces" {
     bindsym Ctrl+Shift+0 space restore 0; mode default
     bindsym Escape mode "default"
 }
-bindsym $mod+g mode "spaces"
+bindsym $mod+Shift+s mode "spaces"
 
 # =============================================================================
 # APPLICATIONS
 # =============================================================================
 
-# bindsym Alt+space exec swaylock
+bindsym Alt+space exec swaylock
 
 bindsym $mod+Return exec $term
 
@@ -619,25 +646,25 @@ bindsym $mod+BackSpace exec pkill rofi || $ROFI_SCRIPTS powermenu
 bindsym $mod+v exec pkill rofi || $ROFI_SCRIPTS clipboard
 bindsym XF86Launch6 exec pkill rofi || $ROFI_SCRIPTS clipboard
 
-bindsym XF86Mail exec $term -T aerc aerc
-bindsym XF86Search exec $BROWSER
+bindsym XF86Mail exec $term -T aerc aerc # x + o
+bindsym XF86Search exec $BROWSER # x + i
 
 # Launchers
-bindsym XF86Open exec pkill rofi || $ROFI_SCRIPTS menu drun
-bindsym $mod+Shift+Return exec pkill rofi || $ROFI_SCRIPTS launcher # F14
 bindsym XF86Launch7 exec pkill rofi || $ROFI_SCRIPTS menu run # F16
-bindsym Find exec pkill rofi || $ROFI_SCRIPTS menu window
+bindsym $mod+space exec pkill rofi || $ROFI_SCRIPTS menu drun
+bindsym XF86Open exec pkill rofi || $ROFI_SCRIPTS launcher
+bindsym Find exec pkill rofi || $ROFI_SCRIPTS menu window # x + ;
 
 # Tools / Bookmarks
-bindsym XF86Tools exec pkill rofi || $ROFI_SCRIPTS apps # F13
-bindsym XF86Favorites exec pkill rofi || $ROFI_SCRIPTS bookmarks
+bindsym XF86Tools exec pkill rofi || $ROFI_SCRIPTS apps # F13 / + A
+bindsym XF86Favorites exec pkill rofi || $ROFI_SCRIPTS bookmarks # ; + B
 bindsym $mod+b exec pkill rofi || $ROFI_SCRIPTS quicklinks
 
 # WiFi / Bluetooth / File manager / Volume control
-bindsym XF86Launch5 exec $RUN_TUI_DIALOG -T wiremix wiremix # F14
-bindsym XF86Launch8 exec $RUN_TUI_DIALOG -T impala impala # F17
-bindsym XF86Launch9 exec $RUN_TUI_DIALOG -T bluetui bluetui # F18
-bindsym XF86Explorer exec $RUN_TUI_DIALOG -T yazi yazi
+bindsym XF86Launch5 exec $RUN_TUI_DIALOG -T wiremix wiremix # F14 / + V
+bindsym XF86Launch8 exec $RUN_TUI_DIALOG -T impala impala # F17 / + N
+bindsym XF86Launch9 exec $RUN_TUI_DIALOG -T bluetui bluetui # F18 / + B
+bindsym XF86Explorer exec $RUN_TUI_DIALOG -T yazi yazi # / + G
 
 # Credentials / Notes
 bindsym $mod+c exec pkill rofi || $ROFI_SCRIPTS passman
@@ -671,7 +698,7 @@ bindsym $mod+Shift+c exec 'if pkill swayidle; then notify-send -t 2000 "Caffeine
 set $satty swappy -f -
 set $printscreen_mode 'printscreen (r:region f:full o:output w:window)'
 mode $printscreen_mode {
-    bindsym r exec grim -g "$(slurp -d)" - | $satty; mode default
+    bindsym s exec grim -g "$(slurp -d)" - | $satty; mode default
     bindsym f exec grim - | $satty; mode default
     bindsym o exec grim -o "$(scrollmsg -t get_outputs | jq -r '.[] | select(.focused) | .name')" - | $satty; mode default
     bindsym w exec scrollmsg -t get_tree | jq -r '.. | select(.focused?) | .rect | "\(.x),\(.y) \(.width)x\(.height)"' | grim -g - - | $satty; mode default
@@ -684,9 +711,19 @@ bindsym --locked XF86MonBrightnessDown exec ~/.config/scroll/brightness.sh down
 
 focus_wrapping no
 
+### Gestures
+# Workspaces (GNOME-style, 4 dedos)
 bindgesture swipe:4:right workspace next
 bindgesture swipe:4:left workspace prev
+# Overview local vs. global
 bindgesture swipe:4:up scale_workspace overview
+bindgesture swipe:4:down scale_workspaces toggle
+# Zoom del workspace; 3 dedos para no tocar el pinch de 2 dedos de las apps
+bindgesture pinch:3:outward scale_workspace incr 0.05
+bindgesture pinch:3:inward scale_workspace incr -0.05
+# Volumen con rotación
+bindgesture pinch:clockwise exec $DUNST_SCRIPTS/vol up
+bindgesture pinch:counterclockwise exec $DUNST_SCRIPTS/vol down
 
 # Window rules
 for_window [app_id="dialog"] floating enable, resize set 80ppt 80ppt
