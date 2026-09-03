@@ -608,7 +608,6 @@ config/oama/*.auth
 /config/nushell/theme.nu
 /config/tridactyl/themes/theme.css
 /config/starship.toml
-/config/yazi/init.lua
 /config/yazi/flavors/eyes.yazi
 /config/termusic/tui.toml
 /config/mpv/colors.conf

@@ -1,16 +1,16 @@
 [[plugin.deps]]
 use = "yazi-rs/plugins:no-status"
-rev = "c591a36"
+rev = "4dc7f1b"
 hash = "3e023d31f29201efdac2a6ae35fedb78"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:full-border"
-rev = "c591a36"
+rev = "4dc7f1b"
 hash = "f281261ff04ad7ec867c3f802a50835f"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:chmod"
-rev = "c591a36"
+rev = "4dc7f1b"
 hash = "87472b05a8c420100f6a2b9cde1e7746"
 
 [[plugin.deps]]
@@ -20,12 +20,12 @@ hash = "9776f378459072b6c2875eae5addc49d"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:toggle-pane"
-rev = "c591a36"
+rev = "4dc7f1b"
 hash = "5b2fbef7d1513ce38ff72623a071a5e"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:mount"
-rev = "c591a36"
+rev = "4dc7f1b"
 hash = "b95f898e6dc60b52edbc415952e14395"
 
 [[plugin.deps]]
@@ -33,7 +33,10 @@ use = "AminurAlam/yazi-plugins:preview-audio"
 rev = "9997d5b"
 hash = "475141b0337cf9934b0bc81202e2537c"
 
-[[flavor.deps]]
-use = "yazi-rs/flavors:catppuccin-mocha"
-rev = "20b47bf"
-hash = "ce320f877fe709b189433941aba747c4"
+[[plugin.deps]]
+use = "kirasok/epub-preview"
+rev = "8d894db"
+hash = "d972564b42bb6c1c830b635d9ffc3d27"
+
+[flavor]
+deps = []

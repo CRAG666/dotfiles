@@ -14,11 +14,7 @@ tab_size        = 2
 
 [[plugin.prepend_previewers]]
 mime = "application/epub+zip"
-run = "preview-epub"
-
-[[plugin.prepend_preloaders]]
-mime = "application/epub+zip"
-run = "preview-epub"
+run = "epub-preview"
 
 [[plugin.prepend_previewers]]
 mime = "audio/mpegurl"

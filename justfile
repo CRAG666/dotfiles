@@ -34,21 +34,34 @@ systemd_enable_user := "systemctl --user --now enable"
 default:
     @just --list
 
-# Install packages one by one, routing each to pacman (repo) or paru (AUR)
+# Install packages, routing each to pacman (repo) or paru (AUR)
 [private]
 install-pkgs *pkgs:
     #!/usr/bin/env bash
     set -eu
-    failed=""
-    for pkg in {{ pkgs }}; do
-        if pacman -Si "$pkg" >/dev/null 2>&1; then
-            echo "==> pacman: $pkg"
-            installer="sudo pacman -S --needed --noconfirm"
+    pkgs="{{ pkgs }}"
+    if [ -z "$pkgs" ]; then exit 0; fi
+    sync_pkgs=$(pacman -Slq)
+    repo_pkgs=""
+    aur_pkgs=""
+    for pkg in $pkgs; do
+        if grep -qx "$pkg" <<<"$sync_pkgs"; then
+            repo_pkgs="$repo_pkgs $pkg"
         else
-            echo "==> paru (AUR): $pkg"
-            installer="paru -S --needed --noconfirm"
+            aur_pkgs="$aur_pkgs $pkg"
         fi
-        if ! $installer "$pkg"; then
+    done
+    failed=""
+    if [ -n "$repo_pkgs" ]; then
+        echo "==> pacman:$repo_pkgs"
+        if ! sudo pacman -S --needed --noconfirm $repo_pkgs; then
+            echo "  ✗ Failed repo install"
+            failed="$failed$repo_pkgs"
+        fi
+    fi
+    for pkg in $aur_pkgs; do
+        echo "==> paru (AUR): $pkg"
+        if ! paru -S --needed --noconfirm "$pkg"; then
             echo "  ✗ Failed: $pkg"
             failed="$failed $pkg"
         fi
@@ -59,40 +72,65 @@ install-pkgs *pkgs:
         echo "==> All packages installed successfully."
     fi
 
-# Install Arch Linux packages using paru
-install: makepkg
+# Install makepkg.conf in /etc (optimized compilation)
+[private]
+makepkg-conf:
+    sudo install -m 644 "{{ src }}/etc/makepkg.conf" /etc/makepkg.conf
+
+# Ensure paru is installed and sync databases are fresh
+[private]
+bootstrap-paru:
     #!/usr/bin/env bash
     set -eu
-    echo "==> Refreshing package databases (needed to route repo vs AUR)..."
+    echo "==> Refreshing package databases..."
     sudo pacman -Sy
     echo "==> Installing paru if necessary..."
     sudo pacman -S --needed --noconfirm paru || { echo "Error installing paru"; exit 1; }
-    echo "==> Installing official-repo packages from pkglist.txt (one by one)..."
-    just install-pkgs $(grep -v '^#' "{{ src }}/pkglist.txt" | grep -v '^$' || true)
-    echo "==> Installing AUR packages from pkglist-aur.txt (one by one)..."
-    just install-pkgs $(grep -v '^#' "{{ src }}/pkglist-aur.txt" | grep -v '^$' || true)
+
+# Install official-repo packages from pkglist.txt
+[private]
+install-repo:
+    #!/usr/bin/env bash
+    set -eu
+    echo "==> Installing official-repo packages from pkglist.txt..."
+    pkgs=$(grep -v '^#' "{{ src }}/pkglist.txt" | grep -v '^$' || true)
+    if [ -n "$pkgs" ]; then just install-pkgs $pkgs; fi
+
+# Install AUR packages from pkglist-aur.txt
+[private]
+install-aur:
+    #!/usr/bin/env bash
+    set -eu
+    echo "==> Installing AUR packages from pkglist-aur.txt..."
+    pkgs=$(grep -v '^#' "{{ src }}/pkglist-aur.txt" | grep -v '^$' || true)
+    if [ -n "$pkgs" ]; then just install-pkgs $pkgs; fi
+
+# Apply base system configuration (keyd, sysctl, services)
+[private]
+system-config:
+    #!/usr/bin/env bash
+    set -eu
     echo "==> Enabling services..."
     {{ systemd_enable }} ananicy-cpp
     echo "==> Configuring keyd..."
     if [ -L /etc/keyd ]; then sudo rm /etc/keyd; fi
     if [ -d /etc/keyd ] && [ ! -L /etc/keyd ]; then sudo rm -rf /etc/keyd; fi
     sudo cp -r "{{ src }}/etc/keyd" /etc/
-    echo "==> Configuring nftables..."
-    if [ -L /etc/nftables.conf ]; then sudo rm /etc/nftables.conf; fi
-    sudo cp "{{ src }}/etc/nftables.conf" /etc/
-    sudo nft -f /etc/nftables.conf
     echo "==> Configuring sysctl..."
     sudo cp "{{ src }}/etc/sysctl.d/99-sysctl.conf" /etc/sysctl.d/
-    {{ systemd_enable }} keyd nftables
+    {{ systemd_enable }} keyd
     echo "==> Configuring bob (neovim version manager)..."
     command -v bob >/dev/null 2>&1 && bob use nightly || echo "bob not installed, skipping..."
+
+# Install Arch Linux packages and apply base system configuration
+install: makepkg-conf bootstrap-paru install-repo install-aur system-config nftables
 
 # Deploy the initial dotfiles
 init: theme systemd-user bin user-tools harness
     #!/usr/bin/env bash
     set -eu
-    echo "==> Creating symlinks in the HOME directory"
     src_dir="{{ src }}"
+    echo "==> Creating symlinks in the HOME directory"
     dotfiles=$(find "$src_dir" -mindepth 1 -maxdepth 1 -name ".*" \
         ! -name .git ! -name .gitignore ! -name .gitattributes \
         ! -name .gitmodules ! -name .claude ! -name .a5c ! -name .crush \
@@ -101,25 +139,79 @@ init: theme systemd-user bin user-tools harness
         ! -name .gitignore ! -name systemd -exec basename {} \;)
     echo "==> Processing dotfiles..."
     for file in $dotfiles; do
-        if [ -L "$HOME/$file" ]; then
-            echo "Link $file already exists, skipping..."
-        elif [ -e "$HOME/$file" ]; then
+        dst="$HOME/$file"
+        if [ -e "$dst" ] && [ ! -L "$dst" ]; then
             echo "WARNING: $file exists but is not a symlink. Back it up manually."
         else
-            ln -vfs "$src_dir/$file" "$HOME/$file"
+            ln -vsfn "$src_dir/$file" "$dst"
         fi
     done
     echo "==> Processing configs..."
     mkdir -p "$HOME/.config"
     for config in $configs; do
-        if [ -L "$HOME/.config/$config" ]; then
-            echo "Link $config already exists, skipping..."
-        elif [ -e "$HOME/.config/$config" ]; then
+        dst="$HOME/.config/$config"
+        if [ -e "$dst" ] && [ ! -L "$dst" ]; then
             echo "WARNING: $config exists but is not a symlink. Back it up manually."
         else
-            ln -vfs "$src_dir/config/$config" "$HOME/.config/$config"
+            ln -vsfn "$src_dir/config/$config" "$dst"
         fi
     done
+
+# Remove symlinks created by init/bin/systemd-user/harness (only if they point into this repo)
+rollback:
+    #!/usr/bin/env bash
+    set -eu
+    src_dir="{{ src }}"
+    echo "==> Removing home dotfile symlinks..."
+    for file in $(find "$src_dir" -mindepth 1 -maxdepth 1 -name ".*" \
+        ! -name .git ! -name .gitignore ! -name .gitattributes \
+        ! -name .gitmodules ! -name .claude ! -name .a5c ! -name .crush \
+        -exec basename {} \;); do
+        dst="$HOME/$file"
+        if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then
+            rm -v "$dst"
+        fi
+    done
+    echo "==> Removing config symlinks..."
+    for config in $(find "$src_dir/config" -mindepth 1 -maxdepth 1 \
+        ! -name .gitignore ! -name systemd -exec basename {} \;); do
+        dst="$HOME/.config/$config"
+        if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then
+            rm -v "$dst"
+        fi
+    done
+    echo "==> Removing local/bin symlinks..."
+    for script in $(find "$src_dir/local/bin" -mindepth 1 -maxdepth 1 ! -name ".*" -exec basename {} \;); do
+        dst="$HOME/.local/bin/$script"
+        if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then
+            rm -v "$dst"
+        fi
+    done
+    echo "==> Removing systemd user unit symlinks..."
+    for unit in $(find "$src_dir/config/systemd/user" -maxdepth 1 -type f \
+                    \( -name '*.service' -o -name '*.timer' -o -name '*.target' \) -exec basename {} \;); do
+        dst="$HOME/.config/systemd/user/$unit"
+        if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then
+            rm -v "$dst"
+        fi
+    done
+    systemctl --user daemon-reload || true
+    echo "==> Removing harness symlinks..."
+    for f in APPEND_SYSTEM.md web-search.json zentui.json settings.json; do
+        dst="$HOME/.pi/agent/$f"
+        if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then rm -v "$dst"; fi
+    done
+    for f in eyes-light.json eyes-dark.json; do
+        dst="$HOME/.pi/agent/themes/$f"
+        if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then rm -v "$dst"; fi
+    done
+    dst="$HOME/.claude/CLAUDE.md"
+    if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then rm -v "$dst"; fi
+    dst="$HOME/.config/opencode/opencode.json"
+    if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then rm -v "$dst"; fi
+    dst="$HOME/.config/opencode/themes/eyes.json"
+    if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then rm -v "$dst"; fi
+    echo "==> Rollback complete."
 
 # Apply the eyes theme (active symlinks + claude/opencode themes)
 theme:
@@ -153,14 +245,9 @@ harness:
     set -eu
     echo "==> pi (~/.pi/agent)..."
     mkdir -p "$HOME/.pi/agent"
-    for f in APPEND_SYSTEM.md web-search.json zentui.json; do
+    for f in APPEND_SYSTEM.md web-search.json zentui.json settings.json; do
         ln -vsfn "{{ src }}/harness/pi/$f" "$HOME/.pi/agent/$f"
     done
-    # pi rewrites settings.json (theme key, lastChangelogVersion): install a copy
-    if [ -f "$HOME/.pi/agent/settings.json" ] && [ ! -f "$HOME/.pi/agent/settings.json.bak" ]; then
-        cp -v "$HOME/.pi/agent/settings.json" "$HOME/.pi/agent/settings.json.bak"
-    fi
-    install -m 644 "{{ src }}/harness/pi/settings.json" "$HOME/.pi/agent/settings.json"
     mkdir -p "$HOME/.pi/agent/themes"
     for f in eyes-light.json eyes-dark.json; do
         ln -vsfn "{{ src }}/harness/pi/themes/$f" "$HOME/.pi/agent/themes/$f"
@@ -184,22 +271,12 @@ harness:
     mkdir -p "$HOME/.config/opencode/themes"
     ln -vsfn "{{ src }}/harness/opencode/opencode.json" "$HOME/.config/opencode/opencode.json"
     ln -vsfn "{{ src }}/harness/opencode/themes/eyes.json" "$HOME/.config/opencode/themes/eyes.json"
-    echo "==> shared skills (~/.agents/skills)..."
-    mkdir -p "$HOME/.agents/skills"
-    for skill in "{{ src }}/skills/"*/; do
-        ln -vsfn "{{ src }}/skills/$(basename "$skill")" "$HOME/.agents/skills/$(basename "$skill")"
-    done
-    ln -vsfn "$HOME/.agents/skills" "$HOME/.claude/skills"
     echo "==> herdr integrations (self-installed, skipped if herdr is absent)..."
     if command -v herdr >/dev/null 2>&1; then
         for agent in claude pi opencode; do
             herdr integration install "$agent"
         done
     fi
-
-# Install makepkg.conf in /etc (optimized compilation)
-makepkg:
-    sudo install -m 644 "{{ src }}/etc/makepkg.conf" /etc/makepkg.conf
 
 # Link the user unit files (eyes-theme*) and enable timers/boot
 systemd-user:

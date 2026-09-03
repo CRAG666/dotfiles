@@ -1,42 +1,12 @@
 {
-  "theme": "eyes-dark",
-  "defaultProvider": "zai",
-  "defaultModel": "glm-5.3",
+  "theme": "eyes-light",
+  "defaultProvider": "ollama-cloud",
+  "defaultModel": "gpt-oss:120b",
   "packages": [
-    "npm:pi-subagents",
     "npm:pi-web-access",
-    "npm:pi-zentui"
+    "npm:pi-zentui",
+    "npm:pi-ollama-cloud",
+    "npm:pi-herdr-agents"
   ],
-  "subagents": {
-    "defaultModel": "zai/glm-5.3",
-    "defaultProvider": "zai",
-    "defaultThinking": "medium",
-    "agentOverrides": {
-      "scout": {
-        "model": "zai/glm-5.3-flash",
-        "thinking": "low"
-      },
-      "delegate": {
-        "model": "zai/glm-5.3-flash"
-      },
-      "researcher": {
-        "model": "zai/glm-5.3-flash"
-      },
-      "worker": {
-        "model": "zai/glm-5.3",
-        "thinking": "medium",
-        "fallbackModels": ["zai/glm-5.2"]
-      },
-      "reviewer": {
-        "model": "zai/glm-5.3",
-        "thinking": "high",
-        "fallbackModels": ["zai/glm-5.2"]
-      },
-      "oracle": {
-        "model": "zai/glm-5.3",
-        "thinking": "high",
-        "fallbackModels": ["zai/glm-5.2"]
-      }
-    }
-  }
+  "lastChangelogVersion": "0.84.4"
 }

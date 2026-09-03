@@ -158,7 +158,7 @@ maximize_if_single true
 cycle_size_wrap yes
 scratchpad_minimize true
 
-cursor_shake_magnify true
+cursor_shake_magnify false
 
 snap_window_gap 10
 snap_workspace_gap 10
