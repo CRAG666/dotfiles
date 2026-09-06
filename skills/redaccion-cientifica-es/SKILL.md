@@ -37,18 +37,19 @@ No son reglas arbitrarias; cada una previene un patrón concreto que delata el t
 
    **IMPORTANTE - excepción del español:** esta regla NO afecta a los caracteres propios del idioma, que SÍ debes conservar siempre: letras acentuadas (`á é í ó ú`), diéresis (`ü`), la `ñ`, y los signos de apertura `¿` y `¡`. Estos no son adornos tipográficos: son ortografía obligatoria del español. La prohibición se limita a la puntuación y los símbolos decorativos Unicode, no a las letras.
 
-## Cómo trabajar
+## Pasos
 
-1. **Identifica la sección** que el usuario necesita (Abstract, Introducción, Método, Resultados, Discusión, Conclusiones, o función transversal - comparar, definir, ser crítico, etc.).
-2. **Lee SOLO el archivo de referencia relevante** de `references/` antes de redactar. No los cargues todos - cada uno tiene cientos de líneas.
-3. **Elige frases del banco** y adáptalas al contexto del usuario sustituyendo las X, Y, Z y "Autor" por los términos reales.
-4. **Combina y varía** - no encadenes tres frases del mismo subapartado seguidas; el texto debe fluir como prosa, no parecer un collage de frasebook.
-5. **Entrega prosa terminada, no un menú de frases.** Por defecto, devuelve un párrafo pulido que el usuario pueda pegar en su documento. Solo devuelve listas de opciones si el usuario pide explícitamente "dame opciones" o "muéstrame alternativas".
-6. Si la sección pedida no encaja con ningún archivo, lee `redaccion-critica.md` y `conectores-y-tiempo.md` - son transversales.
+1. **Analiza el contexto y la intención.** Determina el alcance primero:
+   - **Párrafo o pasaje corto:** léelo (más cualquier encabezado que el usuario proporcione); si la sección sigue ambigua, infiere a partir de pistas retóricas (tiempo verbal, citas, "medimos" vs "sugiere"); si aún no está claro, pregunta.
+   - **Documento completo o largo (para corregir, revisar, traducir o redactar):** léelo sección por sección, nunca todo de una vez. Los límites son los encabezados del documento, que normalmente nombran la sección explícitamente ("Introducción", "3. Material y Métodos"). Procesa una sección a la vez y, dentro de cada sección, aplica los siguientes pasos párrafo a párrafo.
+2. **Identifica la sección y la función.** Identifica la sección principalmente a partir de su encabezado; recurre a pistas retóricas (tiempo, citas, "medimos" vs "sugiere") cuando el encabezado sea escaso o poco informativo. Luego, por párrafo, determina la función retórica que cumple (cautela, ejemplificación, contraste, ...) – ver "## Índice de referencias".
+3. **Carga las referencias.** Lee las referencias que correspondan a la sección actual y a las funciones del párrafo que estés procesando, si aún no están cargadas en esta sesión. Decide ahora: carga o descarta con una razón – "quizá" no es un estado final. Reclamaciones fuertes o universales en el párrafo ("el único", "ningún estudio ha", "prueba") hacen obligatorio `precaucion-y-hipotesis.md`.
+4. **Redacta la prosa terminada**, no un menú de frases. Elige frases del banco, adáptalas al contenido real del usuario (sustituye X/Y/Z/"Autor" por los términos concretos) y combínalas/varíalas para que el resultado lea como prosa natural, no como un collage de frasebook.
+5. **Auto‑chequeo** usando `references/qa-checklist.md`; revisa internamente antes de continuar.
+6. **Pasada final:** revisa contra `references/quick-replacements.md` para detectar frases de LLM y rellenos. Recorta o sustituye lo que coincida.
+7. **Entrega sección por sección**, en orden del documento, antes de pasar a la siguiente sección.
 
 ## Índice de referencias
-
-Estructura IMRyD y secciones frontales:
 
 - `agradecimientos-autores.md` - Agradecimientos, financiación, conflictos, sobre los autores, colaboradores.
 - `introduccion.md` - Contexto, importancia, síntesis de literatura, problema, controversia, vacío de conocimiento, objetivos, hipótesis, estructura, limitaciones.
@@ -56,9 +57,6 @@ Estructura IMRyD y secciones frontales:
 - `resultados.md` - Referencia al método, presentación de datos, tablas/figuras, resultados positivos/negativos, inesperados, cuestionarios, datos cualitativos, síntesis.
 - `discusion.md` - Antecedentes, vinculación con resultados, acuerdo, contradicción, apoyo en literatura previa, explicación, precaución, hipótesis tentativas, consecuencias, investigación futura.
 - `conclusiones-abstract.md` - Resumen del contenido, sumario, reformulación del propósito, síntesis de hallazgos, limitaciones, implicaciones, impacto en la literatura, recomendaciones prácticas y políticas.
-
-Funciones transversales (útiles en toda sección):
-
 - `redaccion-critica.md` - Limitaciones argumentales, debilidades de un estudio, críticas generalizadas o a un autor concreto, sugerencias constructivas, adjetivos evaluativos.
 - `clasificar-comparar.md` - Clasificaciones y listas; diferencias, similitudes, contrastes y correspondencias.
 - `definir-causa-efecto.md` - Definiciones, dificultades de definición, definiciones de autores, excepciones, causalidad, correlación.
@@ -80,7 +78,3 @@ Para sustituir construcciones "de IA" frecuentes:
 - En lugar de **"En conclusión,"** -> "Tomados en conjunto...", "Sintetizando...", "A la luz de estos resultados...", "Estos hallazgos sugieren, en general,...", "En síntesis...".
 - En lugar de **"Como todos sabemos..."** -> eliminar; en ciencia no se apela al lector así. Sustituir por "Es ampliamente aceptado que..." o "La literatura coincide en que..." con cita.
 - En lugar de **"Profundizar en..."** -> "Examinar con mayor detalle...", "Abordar en profundidad...", "Adentrarse en el estudio de...".
-
-## Atribución
-
-Banco basado en *5000 frases precocinadas para textos científicos* de Pedro Margolles García (NeoScientia.com), licencia CC BY-NC; a su vez inspirado en *Academic Phrasebank* (Morley, 2014) y *PhraseBook for Writing Papers and Research in English* (Howe & Henriksson, 2007).

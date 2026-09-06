@@ -6,4 +6,4 @@
   unnecessary adverbs, or overly formal phrasing.
 - Use en dashes (–) not em dashes (—).
 - If you write code, use this skill `code-style-default`.
-- If it is a non-plain text file, read it using the `markitdown` skill.
+- Before read a non-plain text file, read it using the `markitdown` skill.

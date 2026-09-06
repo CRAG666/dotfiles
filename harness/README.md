@@ -12,12 +12,12 @@ Configs for the AI coding harnesses, installed with `just harness`
 Plus `skills/` (repo root) linked into `~/.agents/skills`, shared by pi and
 claude (`~/.claude/skills` → `~/.agents/skills`). Each harness also carries
 its `themes/` (eyes light/dark variants); `just harness` links them into the
-live theme dirs and `.scripts/eyes-theme` flips the active one.
+live theme dirs and `local/bin/eyes-theme` flips the active one.
 
 ## Why copies instead of symlinks for settings.json
 
 Both pi and `eyes-theme` rewrite `settings.json` in place: pi updates
-`lastChangelogVersion`, and `.scripts/eyes-theme` flips the `theme` key with
+`lastChangelogVersion`, and `local/bin/eyes-theme` flips the `theme` key with
 `jq` + `mv` on every light/dark switch. A symlink would be replaced by those
 writes, so these two files install as **copies** (first existing copy is kept
 as `settings.json.bak`). Edit them here and re-run `just harness`.

@@ -205,6 +205,8 @@ rollback:
         dst="$HOME/.pi/agent/themes/$f"
         if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then rm -v "$dst"; fi
     done
+    dst="$HOME/.pi/agent/themes/eyes.json"
+    if [ -f "$dst" ]; then rm -v "$dst"; fi
     dst="$HOME/.claude/CLAUDE.md"
     if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then rm -v "$dst"; fi
     dst="$HOME/.config/opencode/opencode.json"
@@ -216,7 +218,7 @@ rollback:
 # Apply the eyes theme (active symlinks + claude/opencode themes)
 theme:
     @echo "==> Applying eyes theme (creates the gitignored active symlinks)..."
-    @{{ src }}/.scripts/eyes-theme auto
+    @{{ src }}/local/bin/eyes-theme auto
 
 # Link the local/bin scripts into ~/.local/bin
 bin:

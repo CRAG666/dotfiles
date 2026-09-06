@@ -1,7 +1,6 @@
 ---
 name: scientific-writing-en
-description: 'Use whenever the user writes, drafts, revises, edits, polishes, or translates scientific or academic prose in ENGLISH - Q1 research articles, theses, dissertations, abstracts, introductions, methods, results, discussions, conclusions, acknowledgments, literature reviews, grant proposals, conference papers, or any IMRaD section. Provides 5000+ pre-cooked, idiomatic, native-academic phrases plus paragraph- and sentence-level guidance for every standard section of a scientific document, avoiding robotic / LLM-style prose. Triggers: "write the introduction", "draft the abstract", "help me with the discussion", "polish this scientific paragraph", "translate this paper to English", "this sounds like AI, rewrite it", "write the methods section", "I need phrases for...", "academic English", "make this sound more academic", "make this Q1-ready".'
-allowed-tools: Read, Grep, Glob
+description: 'Use whenever the user writes, drafts, revises, edits, polishes, or translates scientific or academic prose in ENGLISH - Q1 research articles, theses, dissertations, abstracts, introductions, methods, results, discussions, conclusions, acknowledgments, literature reviews, grant proposals, conference papers, or any IMRaD section. Triggers: "write the introduction", "draft the abstract", "help me with the discussion", "polish this scientific paragraph", "translate this paper to English", "this sounds like AI, rewrite it", "write the methods section", "I need phrases for...", "academic English", "make this sound more academic", "make this Q1-ready".'
 ---
 
 # Scientific Writing in English
@@ -10,21 +9,23 @@ Do NOT activate for code comments, docstrings, commit messages, casual emails an
 
 ## Goal
 
-Replace generic "LLM-default" prose with established academic English constructions, and lift drafts to Q1-journal structural and rhetorical standards. See `references/core-principles.md` for what "Q1 quality" means and the 11 non-negotiable rules (hedging, tense discipline, US spelling, ASCII-only punctuation, citation grammar, etc.) - read this file on first use in a session, before drafting anything.
+Improve the text to Q1 paper level. See `references/core-principles.md` for what "Q1 quality" means and the 11 non-negotiable rules (hedging, tense discipline, US spelling, ASCII-only punctuation, citation grammar, etc.) - read this file on first use in a session, before drafting anything.
 
 ## Steps
 
-1. **Analyze the context and intent.** Read the section or the indicated paragraph; if you are asked to correct a file, read it section by section.
-2. **Identify the section or function** the text belongs to (see "Reference index").
-3. **Load references.** Read `references/core-principles.md` AND the relevant `references/*.md` if not already loaded this session.
-4. **Draft finished prose**, not a phrase menu. Pick phrases from the loaded bank, adapt them to the user's actual content (replace X/Y/Z/"Author" placeholders), and combine/varry them so the result reads as natural prose, not a phrasebook collage.
-5. **Self-check before delivering** using `references/qa-checklist.md`. If the draft fails any check, revise it internally before moving on.
+1. **Analyze the context and intent.** Determine the scope first:
+   - **Single paragraph or short passage:** read it (plus any heading the user supplies); if its section is still ambiguous, infer it from rhetorical cues (tense, citations, "we measured" vs "this suggests"); if still ambiguous, ask.
+   - **Whole file or long document (to correct, revise, translate, or draft):** read it section by section, never the whole file at once. Section boundaries are the document headings, which usually name the section explicitly ("Introduction", "3. Materials and Methods"). Process one section at a time and, within each section, apply the following steps paragraph by paragraph.
+2. **Identify section and function.** Identify the section primarily from its heading; fall back to rhetorical cues (tense, citations, "we measured" vs "this suggests") when the heading is missing or uninformative. Then, per paragraph, determine the rhetorical functions it performs (caution, exemplify, contrast, ...) - see "## Reference index".
+3. **Load references.** Read the references matching the current section and the functions of the paragraph being processed, if not already loaded this session. Decide each candidate now: load it or discard it with a reason - "maybe" is not an end state. Strong or universal claims in the paragraph ("the only", "no study has", "proves") make `references/caution-hypothesis.md` mandatory; register-level problems beyond the section bank make `references/academic-style.md` mandatory.
+4. **Draft finished prose**, not a phrase menu. Pick phrases from the loaded bank, adapt them to the user's actual content (replace X/Y/Z/"Author" placeholders), and combine/vary them so the result reads as natural prose, not a phrasebook collage.
+5. **Self-check** using `references/qa-checklist.md`; revise internally before moving on.
 6. **Final pass:** scan against `references/quick-replacements.md` for LLM-tell phrases and padding. Cut or replace anything that matches.
-
-Default output is a polished paragraph ready to paste into the document. Only return a list of phrase options if the user explicitly asks for alternatives.
+7. **Deliver section by section**, in document order, before starting the next section.
 
 ## Reference index
 
+- `references/academic-style.md` - Formality register, colloquialism/contraction/tautology/cliche avoidance, weak-verb replacement, bias-free language, nominalization, confused word pairs, US/British spelling conversion.
 - `references/acknowledgments-authors.md` - Acknowledgments, funding, conflicts of interest, about-the-author, contributor statements.
 - `references/introduction.md` - Background, importance, literature synthesis, problem statement, controversy, knowledge gap, study aim, research questions, hypotheses, structure, limitations. Follows Swales' CARS model (territory -> niche -> occupy niche).
 - `references/methods.md` - Study type, data sources, design, methodology justification, sample, procedure, instruments, methodological limitations.
@@ -32,13 +33,10 @@ Default output is a polished paragraph ready to paste into the document. Only re
 - `references/discussion.md` - Background, linking results to discussion, agreement/contradiction with prior literature, explaining results, caution, tentative hypotheses, consequences, future research. Follows Hopkins & Dudley-Evans' move structure (restate -> compare -> explain -> limitations -> implications).
 - `references/conclusion-abstract.md` - Restating, summary, synthesis of findings, strengths, limitations, implications, contribution, recommendations.
 - `references/statistics-and-measurement.md` - Measurement/quantification language; statistical procedures and tests (t-test, ANOVA, regression, correlation, chi-square); reporting statistics, p-values, effect sizes; descriptive statistics; Likert-scale design. Mainly Methods/Results.
-
 - `references/paragraph-structure.md` - Topic sentences, controlling idea + supporting detail, given-new ordering, cohesion devices.
-- `references/academic-style.md` - Formality register, colloquialism/contraction/tautology/cliche avoidance, weak-verb replacement, bias-free language, nominalization, confused word pairs, US/British spelling conversion.
 - `references/shared-knowledge-signposting.md` - Indicating shared knowledge, previewing/transitioning between sections, summarizing and re-orienting the reader.
 - `references/punctuation-articles.md` - Comma/semicolon/colon/quotation/dash/apostrophe rules, abbreviations, capitalization, article use (a/an/the/zero). Use when editing for mechanical correctness.
 - `references/grammar-numbers-units.md` - Irregular plurals (datum/data, criterion/criteria...), subject-verb agreement on borrowed nouns, noncount nouns, number style, SI units. Use when editing Methods/Results for correctness.
-
 - `references/critical-writing.md` - Limitations, weaknesses, criticism of specific authors, constructive suggestions, evaluative language.
 - `references/classify-compare.md` - Classifications, lists, differences, similarities, contrasts.
 - `references/define-cause-effect.md` - Definitions, exceptions, causality, correlation.
@@ -50,8 +48,4 @@ Default output is a polished paragraph ready to paste into the document. Only re
 - `references/support-contrast.md` - Contrasting own work, supporting a viewpoint, explanations.
 - `references/quantity-order-change-interpretation.md` - Quantity, order, change (increase/decrease), interpretation of findings.
 
-If a request doesn't map to a single file, read `references/critical-writing.md` and `references/connectors-time.md` - they cut across sections.
-
-## Attribution
-
-Phrase bank adapted from *PhraseBook for Writing Papers and Research in English* (Howe & Henriksson, 2007, EnglishforResearch.com) and *Academic Phrasebank* (Morley, 2021, University of Manchester), with structural framing from *5000 frases precocinadas para textos cientificos* (Margolles Garcia, NeoScientia, CC BY-NC) and Swales (1990) CARS model.
+Always read `references/critical-writing.md` and `references/connectors-time.md` regardless of the section being drafted: calibrated evaluative language and varied connectives are needed in every section, not only in Discussion.

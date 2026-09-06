@@ -582,7 +582,7 @@ config/oama/*.auth
 
 
 # ── eyes-theme: active-variant pointers ──────────────────────────────────
-# Gitignored symlinks repointed by .scripts/eyes-theme on each light/dark
+# Gitignored symlinks repointed by local/bin/eyes-theme on each light/dark
 # switch. The two committed variants live beside them; only the pointer
 # moves, so toggling the theme never dirties the repo.
 /.tmux.colors.conf

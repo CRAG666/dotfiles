@@ -15,7 +15,7 @@ Reviewers at top-quartile journals reject not for missing data but for prose tha
 
 ## The 11 rules
 
-1. **Avoid LLM-tell phrases.** "Delve into", "navigate the complexities of", "tapestry of", "in the realm of", "it is important to note that", "in today's fast-paced world", "a testament to", "stands as", "underscores the importance of [generic-noun]", "pivotal", "showcases", "leverages", "robust framework" (non-statistical use), "comprehensive understanding". These are statistical fingerprints of LLM output. See `quick-replacements.md`.
+1. **Avoid LLM-tell phrases.** Phrases such as "delve into", "a testament to", or non-statistical "robust" are statistical fingerprints of LLM output. The canonical catalog of banned phrases and their replacements is `quick-replacements.md` - the single source of truth. Consult and update it there; do not duplicate the list elsewhere.
 2. **Hedge with epistemic caution.** Prefer "suggest", "indicate", "appear to", "the data are consistent with" over "prove", "show clearly", "demonstrate" - unless evidence is genuinely conclusive. Overclaiming is a hallmark of inexperienced (or AI) writing. See `caution-hypothesis.md`.
 3. **Vary connectives.** Repeated "however", "moreover", "furthermore", "therefore" make prose mechanical. Rotate with alternatives in `connectors-time.md`.
 4. **Tense discipline.**

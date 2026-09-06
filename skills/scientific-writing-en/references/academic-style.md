@@ -136,22 +136,7 @@ This is a guideline, not an absolute rule: a vivid phrase can occasionally work 
 
 ## Vague intensifiers and hedges to cut or sharpen
 
-The following adverbs and adjectives add length without precision. Either delete them or replace with a quantified term.
-
-- very, really, extremely, absolutely, incredibly, totally, completely, utterly
-- quite, rather, fairly, somewhat (acceptable as deliberate hedges, but not in every sentence)
-- a lot, lots of, tons of
-- kind of, sort of
-- pretty (as in "pretty effective")
-
-Replacements:
-
-- "very important" -> "central", "of central importance", "fundamental"
-- "very large" -> "substantial", "considerable" (or a number)
-- "very different" -> "markedly different", "qualitatively different"
-- "very small" -> "negligible", "minimal" (or a number)
-- "really" -> cut
-- "extremely high" -> quantify
+Adverbs and adjectives such as "very", "really", "extremely", "a lot of", "kind of", and "pretty" add length without precision: delete them or replace with a quantified term. The replacement catalog lives in `quick-replacements.md` (single source of truth). Note that "quite", "rather", "fairly", and "somewhat" are acceptable as deliberate hedges, but not in every sentence.
 
 ## Reporting verbs by stance
 
@@ -225,22 +210,7 @@ Listed research questions in an introduction (e.g., "*RQ1: Does X affect Y?*") a
 
 ## Padding to delete
 
-These constructions add words without meaning:
-
-- "in order to" -> "to"
-- "due to the fact that" -> "because"
-- "in spite of the fact that" -> "although"
-- "with regard to" / "in respect of" -> "regarding", "for", or recast
-- "for the purpose of" + gerund -> infinitive ("for the purpose of measuring" -> "to measure")
-- "it is important to note that" -> cut, or simply assert
-- "it should be pointed out that" -> cut
-- "there are X studies that have shown..." -> "X studies have shown..."
-- "the fact that" -> recast ("Despite the fact that X" -> "Although X")
-- "a large number of" -> "many"
-- "a small number of" -> "few"
-- "a wide range of" -> "a range of", or be specific
-- "in the event that" -> "if"
-- "at the present moment" -> "now", "at present"
+Wordy constructions ("in order to", "due to the fact that", "the fact that", "with regard to", ...) and their replacements are cataloged in `quick-replacements.md` - the single source of truth. Do not duplicate the list here.
 
 ## Quantity expressions
 
@@ -316,21 +286,3 @@ These pairs change the meaning of a term entirely; verify by sense:
 
 - **quite** and **rather** are ambiguous in academic prose: each can mean either *relatively* or *very*. Replace with the precise sense: *the results were relatively poor* or *the results were very poor*, not *quite poor*.
 - **the former / the latter** are now stilted and force the reader to backtrack; repeat the noun instead.
-
-## US / British spelling
-
-SKILL.md principle 8 mandates US spelling throughout. The differences fall into regular patterns; convert the British form (left) to the US form (right):
-
-- **-our -> -or:** colour -> color, behaviour -> behavior, favour -> favor, labour -> labor, tumour -> tumor, vapour -> vapor, rigour -> rigor.
-- **-ae-/-oe- -> -e-:** anaemia -> anemia, anaesthesia -> anesthesia, haematology -> hematology, leukaemia -> leukemia, paediatric -> pediatric, orthopaedic -> orthopedic; oesophagus -> esophagus, oestrogen -> estrogen, diarrhoea -> diarrhea, coeliac -> celiac, foetus -> fetus.
-- **-re -> -er:** centre -> center, fibre -> fiber, litre -> liter, metre -> meter, theatre -> theater. (Exceptions kept in both: *acre*; and *-er* device names.)
-- **-ce -> -se (nouns):** defence -> defense, offence -> offense, licence -> license, practice/practise -> US uses *practice* for both noun and verb.
-- **-ise/-yse -> -ize/-yze:** organise -> organize, analyse -> analyze, catalyse -> catalyze, paralyse -> paralyze, hydrolyse -> hydrolyze.
-- **-ph- -> -f-:** sulphur -> sulfur, sulphate -> sulfate.
-- **-ll- -> -l- (before suffix):** travelled -> traveled, modelling -> modeling, labelled -> labeled, counselling -> counseling, cancelled -> canceled. (But some go the other way: *fulfil -> fulfill*, *enrol -> enroll*, *skilful -> skillful*.)
-- **long -> short ending:** catalogue -> catalog, dialogue -> dialog (often kept), analogue -> analog (computing), programme -> program. (Both keep *diagram, histogram, synagogue*.)
-- **other:** grey -> gray, mould -> mold, plough -> plow, cheque -> check, kerb -> curb, tyre -> tire.
-
-**Exception - always *-s*, never *-ize*:** a set of verbs are spelled with *-ise/-yse* (or just *s*) in **both** US and British English because the ending is not the *-ize* suffix. Do not "correct" these: *advertise, advise, arise, comprise, compromise, despise, devise, exercise, improvise, revise, supervise, surmise, surprise, televise*. Likewise *-yse* exceptions do not apply to *lyse* (same in both).
-
-When unsure, set the document language to US English and use one dictionary throughout; consistency matters as much as the individual choice.

@@ -24,11 +24,12 @@ pi = "latest"
 "pipx:BeatPrints" = "latest"
 "pipx:markitdown" = { version = "latest", extras = "all" }
 topgrade = "latest"
-"ubi:immanuwell/dockerfile-roast" = "latest"
+"github:immanuwell/dockerfile-roast" = "latest"
 uv = "latest"
 yq = "latest"
 
 [settings]
+minimum_release_age = "0"
 
 [settings.pipx]
 uvx = true

@@ -1,5 +1,5 @@
 {
-  "theme": "eyes-light",
+  "theme": "eyes",
   "defaultProvider": "ollama-cloud",
   "defaultModel": "gpt-oss:120b",
   "packages": [
@@ -8,5 +8,5 @@
     "npm:pi-ollama-cloud",
     "npm:pi-herdr-agents"
   ],
-  "lastChangelogVersion": "0.84.4"
+  "lastChangelogVersion": "0.85.1"
 }

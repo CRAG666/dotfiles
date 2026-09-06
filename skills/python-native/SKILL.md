@@ -1,6 +1,6 @@
 ---
 name: python-native
-description: 'STRICT: stdlib idioms are mandatory — reinventing a stdlib feature is a defect, not a style choice. Apply whenever the user writes, refactors, optimizes, or reviews Python, including one-liners and code-review feedback. Verify non-trivial stdlib APIs against docs.python.org with WebFetch (signatures + code examples). Replaces common reinventions: manual dict counters with `Counter`, `dict.setdefault` loops with `defaultdict`, `isinstance` chains with `singledispatch` or `match`/`case`, hand-rolled memoization with `functools.cache`, `os.path.join` with `pathlib.Path`, `sorted(..., reverse=True)[:k]` with `heapq.nlargest`, manual class boilerplate with `dataclass(slots=True, frozen=True)`, `zip(lst, lst[1:])` with `itertools.pairwise`. Covers Python 3.9-3.14 with per-version reference files. Trigger phrases: "write a Python function", "refactor this Python", "Pythonic way to X", "optimize Python code", "make this more Pythonic", "implement X in Python", or any task whose answer involves Python source.'
+description: 'STRICT: stdlib idioms are mandatory — reinventing a stdlib feature is a defect, not a style choice. Apply whenever the user writes, refactors, optimizes, or reviews Python, including one-liners and code-review feedback. MANDATORY: check references/ locally first, then WebFetch docs.python.org for every non-trivial stdlib API before using it — memory alone is a defect. Replaces common reinventions: manual dict counters with `Counter`, `dict.setdefault` loops with `defaultdict`, `isinstance` chains with `singledispatch` or `match`/`case`, hand-rolled memoization with `functools.cache`, `os.path.join` with `pathlib.Path`, `sorted(...)[:k]` with `heapq.nlargest`, manual class boilerplate with `dataclass(slots=True, frozen=True)`, `zip(lst, lst[1:])` with `itertools.pairwise`. Covers Python 3.9-3.14 via references/python-3.X.md. Trigger phrases: "write a Python function", "refactor this Python", "Pythonic way to X", "optimize Python code", "implement X in Python", or any task whose answer involves Python source.'
 ---
 
 # Python Native: Use the Standard Library Before Writing Code
@@ -15,19 +15,43 @@ hand-rolled context managers, reinvented `namedtuple`s — is already a one-line
 
 ---
 
+## Steps
+
+1. **Determine the scope.**
+   - **Single function or short snippet (to write, refactor, or review):** read it whole, plus any surrounding context that defines its inputs/outputs.
+   - **Whole file or module (to refactor, optimize, or review):** read it function by function, never the whole file at once. Function boundaries are the top-level `def`/`async def` blocks (and methods inside a class). Process one function at a time and, within each function, apply the following steps statement by statement.
+2. **Determine the target version first**, before writing anything: `python --version`, or `requires-python` in `pyproject.toml`. Every replacement you propose must exist in that version — check `references/python-3.<X>.md` when in doubt.
+3. **Detect what must change.** For each function, walk the §0 Mental Checklist item by item: does the body show any of the listed triggers (a dict-building loop, an `isinstance` chain, a hand-rolled memo dict, `sorted(...)[:k]`, `list.pop(0)`, ...)? Also scan its statements against the left column of the §17 table. Each match is a defect to fix, not a style hint. If nothing matches, the function passes — do not rewrite working stdlib code.
+4. **Rewrite only the matched fragments.** Pick the stdlib replacement from §0/§17, then WebFetch `docs.python.org/3/library/<module>.html` for its exact signature and nearest code example — REQUIRED even if you remember the API — and mirror the documented shape when applying targeted edits. Keep the function's logic, variable names, and style intact outside the replaced fragment.
+5. **Self-check the replacement** before moving on: version available? Caveats respected (`groupby` needs sorted input, `@cache` pins `self`, `zip` needs `strict=True`, hashable fields in `frozen` dataclasses, ...)? Deviation needs one stated reason.
+6. **Final pass, once per file:** re-scan the whole edited source against the §17 table and `references/anti-patterns.md`. Fix anything still matching before delivering.
+7. **Deliver function by function**, with one line per change (function name + what was replaced and with what), before moving to the next function.
+
+---
+
 ## Enforcement — strict, not advisory
 
 Every rule in this skill is a requirement. Read every "prefer X" as "emit X".
 
 - Any pattern in §17 or `references/anti-patterns.md` appearing in emitted code is a defect, same severity as a logic bug. Rewrite before presenting.
 - Logic that already exists as a stdlib primitive is replaced at its first occurrence. Your own logic repeated a third time is extracted into one function. Do NOT emit copy-pasted variants of the same block.
+- Fetching docs.python.org for every non-trivial stdlib API is a REQUIRED step, not advisory. Code emitted without the corresponding fetch (where WebFetch is available) is a defect, same severity as a §17 match.
 - Two passes, every time: the §0 checklist BEFORE writing; a scan against the §17 table AFTER writing.
 - Deviating from a rule requires one stated line: the target version lacks the feature, a measured performance need, or the user's explicit instruction. No silent deviations.
 - Only the user's explicit instruction and the edited file's existing convention outrank this skill.
 
-## Verify APIs in the official docs — WebFetch, not memory
+## Verify APIs in the official docs — WebFetch is MANDATORY, never memory
 
-Do NOT emit a stdlib call whose signature, parameter names, defaults, or version availability you are not certain of — fetch the doc page and read its code examples first.
+You MUST fetch the official documentation BEFORE emitting or proposing any stdlib API call beyond trivial built-ins. This is a hard precondition, not a fallback for uncertainty: do not rely on memory even for APIs you "know". One fetch per module can cover several functions from that module; a module already fetched this session does not need a re-fetch.
+
+Division of labor — `references/` covers LOOKUP, docs.python.org covers the SIGNATURE:
+
+- `references/stdlib-decision-tree.md` picks WHICH module/function solves the task.
+- `references/python-3.<X>.md` settles VERSION availability for the pinned target — do not fetch whatsnew for what these files already state.
+- `references/anti-patterns.md` catalogs what to replace.
+- docs.python.org supplies the exact signature, parameter names, defaults, and the nearest official code example. The local files deliberately omit full signatures — that gap is exactly what the mandatory fetch fills.
+
+So the mandatory order is: consult `references/` first (local, instant), then fetch the doc page for the chosen API. Skipping the fetch is only allowed when the local file fully answers the question (pure version availability) or for the trivial built-ins listed below.
 
 | Need | URL |
 |---|---|
@@ -37,11 +61,11 @@ Do NOT emit a stdlib call whose signature, parameter names, defaults, or version
 | Design rationale / edge semantics | `https://peps.python.org/pep-XXXX/` |
 
 - DO determine the target version first: `python --version`, or `requires-python` in `pyproject.toml`.
-- DO check `references/python-3.<X>.md` for version availability before fetching; fetch whatsnew only for detail those files lack.
+- DO check `references/python-3.<X>.md` for version availability BEFORE fetching; if those files settle the question, no whatsnew fetch is needed.
 - DO mirror the documented example closest to the task instead of inventing a shape.
 - DO make the fetch prompt ask for the exact signature and the nearest code example, not a summary.
 - DO fetch when a behavior detail decides correctness: `groupby` requires sorted input, `tee` buffers unevenly-consumed iterators, `lru_cache` pins `self`, `zip` truncates silently without `strict=True`.
-- Do NOT fetch for trivial unambiguous built-ins (`len`, `range`, bare `enumerate`) or an API already verified this session.
+- Do NOT fetch ONLY when one of these holds: trivial unambiguous built-ins (`len`, `range`, `print`, bare `enumerate`); a module already fetched this session; or a version-availability question fully answered by `references/python-3.<X>.md`. Signature-level detail NEVER has a local substitute — it REQUIRES the fetch. If WebFetch is unavailable in the environment, say so explicitly and mark the affected API as unverified; do not silently fall back to memory.
 
 ---
 
@@ -830,7 +854,7 @@ BEFORE list.pop(0):           Use collections.deque.
 BEFORE sorted(...)[:k] (smallest):       Use heapq.nsmallest.
 BEFORE sorted(..., reverse=True)[:k]:    Use heapq.nlargest.
 WHEN dispatching:             functools.singledispatch or match/case.
-WHEN unsure of an API:        WebFetch docs.python.org/3/library/<module>.html — signature + examples.
+FOR EVERY non-trivial API:   Check references/ (decision-tree + python-3.<X>) locally, then WebFetch docs.python.org/3/library/<module>.html for the signature. Memory alone is a defect; "I already know this API" is NOT an excuse.
 AFTER writing:                Scan against §17 — any match is a defect; fix before emitting.
 WHEN in doubt:                Search the stdlib index before writing code.
 ```

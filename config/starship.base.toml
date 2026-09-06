@@ -1,7 +1,9 @@
+# Base de starship SIN paleta activa (formato, módulos, tablas [palettes.*]).
+# starship.toml lo ensambla eyes-theme: palette.variant + base (la clave
+# top-level palette debe preceder a las tablas TOML).
 add_newline = false
 format = """$all"""
 # right_format = """$all"""
-palette = "eyes"
 
 [character]
 # success_symbol = "[ﰉ](fg:red)[ ﰉ](fg:yellow)[ ﰉ](fg:cyan)"

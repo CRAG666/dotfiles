@@ -1,0 +1,867 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+readonly STATE_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/eyes"
+readonly STATE_FILE="$STATE_DIR/mode"
+mkdir -p "$STATE_DIR"
+
+readonly DOTFILES_DIR="$(cd -- "$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}")")/../.." && pwd)"
+readonly CLAUDE_THEME_SRC_DIR="$DOTFILES_DIR/harness/claude/themes"
+readonly PI_THEME_SRC_DIR="$DOTFILES_DIR/harness/pi/themes"
+
+DRY_RUN=0
+FORCE=0
+
+# ---------------------------------------------------------------------------
+# Palette
+# ---------------------------------------------------------------------------
+
+readonly PALETTE=(
+  'bg0:add4a0:1a211a'
+  'bg1:a4cc98:202820'
+  'bg2:9fc895:263026'
+  'bg3:96be8c:2d382d'
+  'bg4:88b07e:3a463a'
+  'bg5:6a9060:536053'
+  'fg0:1a1a1a:d0dcc8'
+  'fg1:1e2e1c:b8c8b0'
+  'fg2:3d5c38:9aab94'
+  'gray0:486040:8a9a88'
+  'gray1:385030:7a8a78'
+  'gray2:2c4028:6a7868'
+  'green0:2a5c22:7aab72'
+  'green1:1e4a18:88b878'
+  'green2:3a5030:6a9460'
+  'ash:365c25:7a8c72'
+  'teal:145850:5ab8a8'
+  'blue0:1e4868:6a94a8'
+  'blue1:143c52:82aab8'
+  'violet:3a2860:9090b8'
+  'aqua:1a5858:6ab8b0'
+  'orange0:6a3c10:b89a6a'
+  'orange1:7a4a18:c8a870'
+  'red:7a1e18:c87868'
+  'yellow:5a4808:d4b85a'
+  'pink:5a2858:b890b0'
+  'winterRed:d8a8a0:402828'
+  'winterBlue:90bcd0:223040'
+  'winterGreen:94cc88:243224'
+  'winterYellow:d0c890:3a3420'
+)
+
+# ---------------------------------------------------------------------------
+# Theme definitions
+#
+# Format per entry:  rel|light|dark  or  rel|light|dark|style
+# style is used by generate() and defaults to hash.
+# ---------------------------------------------------------------------------
+
+readonly SWITCHES=(
+  'config/eza/theme.yml|eyes.yml|eyes-dark.yml'
+  'config/zsh-patina/theme.toml|eyes-light.toml|eyes-dark.toml'
+  'config/hypr/colors/theme.conf|eyes-light.conf|eyes-dark.conf'
+  'config/btop/themes/eyes-active.theme|eyes.theme|eyes-dark.theme'
+  'config/kitty/colorschemes/eyes-active.conf|eyes.conf|eyes-dark.conf'
+  'config/kitty/colorschemes/diff-eyes-active.conf|diff-eyes.conf|diff-eyes-dark.conf'
+  'config/atuin/themes/eyes-active.toml|eyes.toml|eyes-dark.toml'
+  'config/termusic/themes/eyes-active.yml|eyes.yml|eyes-dark.yml'
+  'config/zathura/eyes-activerc|eyesrc|eyes-darkrc'
+  'config/foot/colors.ini|colors.eyes.ini|colors.eyes-dark.ini'
+  'config/dunst/dunstrc.d/50-colors.conf|../colors.eyes.conf|../colors.eyes-dark.conf'
+  '.tmux.colors.conf|.tmux.colors.eyes.conf|.tmux.colors.eyes-dark.conf'
+  '.Xresources|.Xresources.eyes|.Xresources.eyes-dark'
+  'config/shell/colors.env|colors.eyes.env|colors.eyes-dark.env'
+  'config/scroll/colors.conf|colors.eyes.conf|colors.eyes-dark.conf'
+  'config/rofi/colors/theme.rasi|eyes.rasi|eyes-dark.rasi'
+  'config/rofi/colors/colors.txt|eyes.txt|eyes-dark.txt'
+  'config/nushell/theme.nu|eyes.nu|eyes-dark.nu'
+  'config/tridactyl/themes/theme.css|eyes.css|eyes-dark.css'
+  'config/yazi/flavors/eyes.yazi|eyes-light.yazi|eyes-dark.yazi'
+  'config/mpv/colors.conf|colors.eyes.conf|colors.eyes-dark.conf'
+  'config/hunk/config.toml|config.eyes.toml|config.eyes-dark.toml'
+)
+
+# Compose: rel|base|light|dark[|v+b] — ensambla base estática (SIN colores)
+# + variante de solo-colores en cada switch. Para herramientas sin include
+# (herdr, swaylock, termusic, starship) es la alternativa a conmutar una
+# config completa por symlink: el switch solo toca la parte de color.
+# v+b = variante ANTES que base (starship: la clave top-level palette debe
+# preceder a las tablas TOML).
+readonly COMPOSE=(
+  'config/herdr/config.toml|config/herdr/base.toml|config/herdr/colors.eyes.toml|config/herdr/colors.eyes-dark.toml'
+  'config/swaylock/config|config/swaylock/base.conf|config/swaylock/colors.eyes.conf|config/swaylock/colors.eyes-dark.conf'
+  'config/termusic/tui.toml|config/termusic/tui.base.toml|config/termusic/tui.colors.eyes.toml|config/termusic/tui.colors.eyes-dark.toml'
+  'config/starship.toml|config/starship.base.toml|config/starship.palette.eyes.toml|config/starship.palette.eyes-dark.toml|v+b'
+)
+
+readonly GENERATE=(
+  'config/dunst/colors.eyes.conf|config/dunst/colors.eyes-dark.conf'
+  '.tmux.colors.eyes.conf|.tmux.colors.eyes-dark.conf'
+  '.Xresources.eyes|.Xresources.eyes-dark'
+  'config/shell/colors.eyes.env|config/shell/colors.eyes-dark.env|colorsenv'
+  'config/rofi/colors/eyes.rasi|config/rofi/colors/eyes-dark.rasi'
+  'config/rofi/colors/eyes.txt|config/rofi/colors/eyes-dark.txt'
+  'config/nushell/eyes.nu|config/nushell/eyes-dark.nu'
+  'config/tridactyl/themes/eyes.css|config/tridactyl/themes/eyes-dark.css'
+  'config/swaylock/colors.eyes.conf|config/swaylock/colors.eyes-dark.conf|hexa'
+  'config/yazi/flavors/eyes-light.yazi|config/yazi/flavors/eyes-dark.yazi|yaziflavor'
+  'config/mpv/colors.eyes.conf|config/mpv/colors.eyes-dark.conf|bare'
+)
+
+# Pares mantenidos a mano, PROHIBIDO regenerar: sus acentos light↔dark no
+# siguen el mapeo 1:1 de PALETTE (el light usa pastel winter*, el dark acentos
+# ANSI vividos). `generate` los clobberaría con casi-negros. Editar ambos
+# lados a mano:
+#   config/herdr/colors.eyes.toml  + config/herdr/colors.eyes-dark.toml
+#   config/scroll/colors.eyes.conf + config/scroll/colors.eyes-dark.conf
+#   config/termusic/tui.colors.eyes.toml + tui.colors.eyes-dark.toml (ANSI cruzados)
+
+# Consumidores verificados por `doctor`: label;regex;archivo (repo-relativo
+# o ~/vivo). Separador ';' porque el regex puede contener '|'. Comprueba que
+# cada archivo conmutado SIGA referenciado por su herramienta — un switch que
+# nadie lee es un fallo silencioso.
+readonly DOCTOR_WIRING=(
+  'kitty;eyes-active;config/kitty/kitty.conf'
+  'kitty (diff);diff-eyes-active;config/kitty/kitty.conf'
+  'btop;eyes-active;config/btop/btop.conf'
+  'atuin;eyes-active;config/atuin/config.toml'
+  'termusic;file_name = "eyes-active";config/termusic/tui.colors.eyes.toml'
+  'termusic (dark);file_name = "eyes-active";config/termusic/tui.colors.eyes-dark.toml'
+  'zathura;eyes-activerc;config/zathura/zathurarc'
+  'foot;colors\.ini;config/foot/foot.ini'
+  'tmux;tmux\.colors\.conf;.tmux.conf'
+  'zsh;colors\.env;.zshrc'
+  'scroll;colors\.conf;config/scroll/config'
+  'rofi;colors/theme\.rasi;config/rofi'
+  'rofi (txt);colors/colors\.txt;config/rofi'
+  'nushell;theme\.nu;config/nushell/config.nu'
+  'tridactyl;colorscheme theme;config/tridactyl/tridactylrc'
+  'yazi;eyes-(light|dark);config/yazi/theme.toml'
+  'mpv;colors\.conf;config/mpv/mpv.conf'
+  'patina;theme\.toml;config/zsh-patina/config.toml'
+  'hypr;colors/theme\.conf;config/hypr/hyprland.conf'
+  'swayidle;swaylock;config/swayidle/config'
+  'gtk3;prefer-dark-theme;~/.config/gtk-3.0/settings.ini'
+  'gtk4;prefer-dark-theme;~/.config/gtk-4.0/settings.ini'
+)
+
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
+
+info() { printf '%s\n' "$*"; }
+warn() { printf '%s\n' "$*" >&2; }
+
+# ---------------------------------------------------------------------------
+# Mode
+# ---------------------------------------------------------------------------
+
+current_mode() {
+  local m=""
+  [[ -f "$STATE_FILE" ]] && m="$(cat "$STATE_FILE")"
+  case "$m" in dark) echo dark ;; *) echo light ;; esac
+}
+
+auto_mode_for_now() {
+  local hour
+  hour="$(date +%-H)"
+  ((hour >= 6 && hour < 19)) && echo light || echo dark
+}
+
+# ---------------------------------------------------------------------------
+# Palette -> sed script
+# ---------------------------------------------------------------------------
+
+build_hex_sed_script() {
+  local direction="$1" style="${2:-hash}"
+  local entry slot light dark from_hex to_hex from_sgr to_sgr
+  for entry in "${PALETTE[@]}"; do
+    IFS=: read -r slot light dark <<<"$entry"
+    if [[ "$direction" == "to-dark" ]]; then
+      from_hex="$light"
+      to_hex="$dark"
+    else
+      from_hex="$dark"
+      to_hex="$light"
+    fi
+    if [[ "$style" == "bare" || "$style" == "hexa" ]]; then
+      printf 's/\\b%s\\b/%s/gI\n' "$from_hex" "$to_hex"
+      # hexa: hex de 6 + sufijo alpha de 2 (p.ej. color=add4a080 en swaylock)
+      if [[ "$style" == "hexa" ]]; then
+        printf 's/\\b%s([0-9a-fA-F]{2})\\b/%s\\1/gI\n' "$from_hex" "$to_hex"
+      fi
+    else
+      from_sgr="$((16#${from_hex:0:2}));$((16#${from_hex:2:2}));$((16#${from_hex:4:2}))"
+      to_sgr="$((16#${to_hex:0:2}));$((16#${to_hex:2:2}));$((16#${to_hex:4:2}))"
+      printf 's/#%s/#%s/gI\n' "$from_hex" "$to_hex"
+      printf 's/38;2;%s/38;2;%s/g\n' "$from_sgr" "$to_sgr"
+      printf 's/48;2;%s/48;2;%s/g\n' "$from_sgr" "$to_sgr"
+    fi
+  done
+}
+
+# ---------------------------------------------------------------------------
+# Generate dark variants from light canonicals
+# ---------------------------------------------------------------------------
+
+generate_hash() {
+  local src="$1" out="$2"
+  sed -E "$(build_hex_sed_script to-dark hash)" "$src" >"$out"
+}
+
+generate_bare() {
+  local src="$1" out="$2"
+  sed -E "$(build_hex_sed_script to-dark bare)" "$src" >"$out"
+}
+
+generate_colorsenv() {
+  local src="$1" out="$2"
+  generate_hash "$src" "$out"
+  sed -i -E 's/BAT_THEME="eyes"/BAT_THEME="eyes-dark"/' "$out"
+  bat cache --build
+}
+
+generate_hexa() {
+  local src="$1" out="$2"
+  sed -E "$(build_hex_sed_script to-dark hexa)" "$src" >"$out"
+}
+
+generate_yaziflavor() {
+  local src="$1" out="$2" script
+  script="$(build_hex_sed_script to-dark hash)"
+  rm -rf "$out"
+  cp -a "$src" "$out"
+  [[ -f "$out/flavor.toml" ]] && sed -i -E "$script" "$out/flavor.toml"
+  [[ -f "$out/tmtheme.xml" ]] && sed -i -E "$script" "$out/tmtheme.xml"
+}
+
+generate() {
+  local entry light dark style src out
+  for entry in "${GENERATE[@]}"; do
+    IFS='|' read -r light dark style <<<"$entry"
+    style="${style:-hash}"
+    src="$DOTFILES_DIR/$light"
+    out="$DOTFILES_DIR/$dark"
+
+    [[ -e "$src" ]] || { warn "  skip (missing light source): $light"; continue; }
+
+    if ((DRY_RUN)); then
+      info "  would generate $dark  [$style]"
+      continue
+    fi
+
+    case "$style" in
+      hash)       generate_hash "$src" "$out" ;;
+      bare)       generate_bare "$src" "$out" ;;
+      colorsenv)  generate_colorsenv "$src" "$out" ;;
+      hexa)       generate_hexa "$src" "$out" ;;
+      yaziflavor) generate_yaziflavor "$src" "$out" ;;
+      *) warn "  unknown generate style '$style' for $dark" ;;
+    esac
+
+    info "  generated $dark"
+  done
+
+  compose_configs "$(current_mode)"
+}
+
+# ---------------------------------------------------------------------------
+# Symlink switching
+# ---------------------------------------------------------------------------
+
+apply_switches() {
+  local mode="$1" entry rel light dark pointer dir target
+  for entry in "${SWITCHES[@]}"; do
+    IFS='|' read -r rel light dark <<<"$entry"
+    pointer="$DOTFILES_DIR/$rel"
+    dir="$(dirname "$pointer")"
+    [[ -d "$dir" ]] || continue
+
+    target="$light"
+    [[ "$mode" == "dark" ]] && target="$dark"
+
+    if [[ -e "$pointer" && ! -L "$pointer" ]]; then
+      if ((DRY_RUN)); then
+        info "  would remove non-symlink at $rel before linking"
+      else
+        rm -rf "$pointer"
+      fi
+    fi
+
+    if ((DRY_RUN)); then
+      info "  would link $rel -> $target"
+    else
+      ln -sfn "$target" "$pointer"
+    fi
+  done
+}
+
+# ---------------------------------------------------------------------------
+# Compose single-file configs
+# ---------------------------------------------------------------------------
+
+compose_configs() {
+  local mode="$1" entry rel base light dark order variant pointer
+  for entry in "${COMPOSE[@]}"; do
+    IFS='|' read -r rel base light dark order <<<"$entry"
+    pointer="$DOTFILES_DIR/$rel"
+    variant="$light"
+    [[ "$mode" == "dark" ]] && variant="$dark"
+
+    if ((DRY_RUN)); then
+      info "  would compose $rel"
+      continue
+    fi
+
+    # El pointer puede ser un symlink residual del mecanismo SWITCHES: quitarlo
+    # antes de escribir, o cat escribiría a través del link al target.
+    [[ -L "$pointer" ]] && rm -f "$pointer"
+
+    if [[ "$order" == "v+b" ]]; then
+      # starship: la clave top-level palette debe preceder a las tablas TOML
+      cat "$DOTFILES_DIR/$variant" "$DOTFILES_DIR/$base" >"$pointer"
+      info "  composed $rel  ($(basename "$variant") + $base)"
+    else
+      cat "$DOTFILES_DIR/$base" "$DOTFILES_DIR/$variant" >"$pointer"
+      info "  composed $rel  ($base + $(basename "$variant"))"
+    fi
+  done
+}
+
+# ---------------------------------------------------------------------------
+# GTK
+# ---------------------------------------------------------------------------
+
+apply_gtk() {
+  local mode="$1" f val="0"
+  [[ "$mode" == "dark" ]] && val="1"
+  for f in "$HOME/.config/gtk-3.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"; do
+    [[ -f "$f" ]] || continue
+    if ((DRY_RUN)); then
+      info "  would set gtk-application-prefer-dark-theme=$val in $f"
+    else
+      sed -i -E "s/^gtk-application-prefer-dark-theme=[01]$/gtk-application-prefer-dark-theme=$val/" "$f"
+    fi
+  done
+}
+
+# ---------------------------------------------------------------------------
+# External theme bootstraps (Claude, pi, opencode)
+# ---------------------------------------------------------------------------
+
+ensure_json_theme() {
+  local app="$1" mode="$2" key="$3" light="$4" dark="$5" prefix="${6:-}" themes_dir settings theme_name
+  themes_dir="$HOME/.$app/themes"
+  settings="$HOME/.$app/settings.json"
+  theme_name="$prefix$light"
+  [[ "$mode" == "dark" ]] && theme_name="$prefix$dark"
+
+  if ((DRY_RUN)); then
+    info "  would ensure $app theme=$theme_name"
+    return
+  fi
+
+  mkdir -p "$themes_dir"
+  [[ -e "$themes_dir/$light.json" ]]  || ln -sfn "$DOTFILES_DIR/harness/$app/themes/$light.json" "$themes_dir/$light.json"
+  [[ -e "$themes_dir/$dark.json" ]]   || ln -sfn "$DOTFILES_DIR/harness/$app/themes/$dark.json"  "$themes_dir/$dark.json"
+
+  # settings.json puede ser un symlink al dotfile: resolvemos para que
+  # jq+mv no lo sustituya por un archivo regular.
+  settings="$(readlink -f "$settings")"
+  mkdir -p "$(dirname "$settings")"
+  if [[ ! -f "$settings" ]]; then
+    printf '{\n  "%s": "%s"\n}\n' "$key" "$theme_name" >"$settings"
+  elif command -v jq >/dev/null; then
+    local tmp
+    tmp="$(mktemp)"
+    if jq --arg t "$theme_name" ".\"$key\" = \$t" "$settings" >"$tmp"; then
+      mv "$tmp" "$settings"
+    else
+      rm -f "$tmp"
+      warn "  failed to set $key in $settings (jq error)"
+    fi
+  elif ! grep -q "\"$key\"" "$settings"; then
+    warn "  $settings lacks a \"$key\" key and jq is unavailable; add manually:  \"$key\": \"$theme_name\""
+  fi
+}
+
+ensure_claude_theme() {
+  ensure_json_theme claude "$1" theme eyes eyes-dark "custom:"
+}
+
+ensure_pi_theme() {
+  local mode="$1" agent_dir themes_dir settings variant
+  # pi >= 0.8: la config vive en ~/.pi/agent (override: PI_CODING_AGENT_DIR)
+  agent_dir="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}"
+  themes_dir="$agent_dir/themes"
+  settings="$agent_dir/settings.json"
+  variant="eyes-light.json"
+  [[ "$mode" == "dark" ]] && variant="eyes-dark.json"
+
+  if ((DRY_RUN)); then
+    info "  would ensure pi theme=eyes (from $variant)"
+    return
+  fi
+
+  [[ -f "$PI_THEME_SRC_DIR/$variant" ]] || { warn "  skip pi theme (missing $variant)"; return; }
+
+  mkdir -p "$themes_dir"
+  # Variantes seleccionables a mano en /settings
+  [[ -e "$themes_dir/eyes-light.json" ]] || ln -sfn "$PI_THEME_SRC_DIR/eyes-light.json" "$themes_dir/eyes-light.json"
+  [[ -e "$themes_dir/eyes-dark.json"  ]] || ln -sfn "$PI_THEME_SRC_DIR/eyes-dark.json"  "$themes_dir/eyes-dark.json"
+
+  # pi lee la clave "theme" solo al arrancar, pero vigila el archivo del tema
+  # activo (themes/<name>.json) y lo recarga en caliente al editarlo. Por eso
+  # el tema estable es "eyes" y el switch reescribe su contenido: las
+  # instancias abiertas se actualizan solas.
+  sed -E 's/"name":[[:space:]]*"eyes-(light|dark)"/"name": "eyes"/' \
+    "$PI_THEME_SRC_DIR/$variant" >"$themes_dir/eyes.json"
+
+  # settings.json suele ser symlink al dotfile (just harness): resolvemos
+  # para que jq+mv no lo sustituya por un archivo regular.
+  settings="$(readlink -f "$settings")"
+  mkdir -p "$(dirname "$settings")"
+  if [[ ! -f "$settings" ]]; then
+    printf '{\n  "theme": "eyes"\n}\n' >"$settings"
+  elif command -v jq >/dev/null; then
+    local tmp
+    tmp="$(mktemp)"
+    if jq --arg t eyes '.theme = $t' "$settings" >"$tmp"; then
+      mv "$tmp" "$settings"
+    else
+      rm -f "$tmp"
+      warn "  failed to set theme in $settings (jq error)"
+    fi
+  elif ! grep -q '"theme"' "$settings"; then
+    warn "  $settings lacks a \"theme\" key and jq is unavailable; add manually:  \"theme\": \"eyes\""
+  fi
+}
+
+ensure_opencode_theme() {
+  local themes_dir tui
+  themes_dir="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/themes"
+  tui="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/tui.json"
+
+  if ((DRY_RUN)); then
+    info "  would ensure opencode theme=eyes"
+    return
+  fi
+
+  mkdir -p "$themes_dir"
+
+  mkdir -p "$(dirname "$tui")"
+  if [[ ! -f "$tui" ]]; then
+    printf '{\n  "$schema": "https://opencode.ai/tui.json",\n  "theme": "eyes"\n}\n' >"$tui"
+  elif ! grep -q '"theme"[[:space:]]*:[[:space:]]*"eyes"' "$tui"; then
+    if command -v jq >/dev/null; then
+      local tmp
+      tmp="$(mktemp)"
+      if jq '.theme = "eyes"' "$tui" >"$tmp"; then
+        mv "$tmp" "$tui"
+      else
+        rm -f "$tmp"
+        warn "  failed to set theme key in $tui (jq error)"
+      fi
+    else
+      warn "  $tui exists without theme=\"eyes\" and jq is unavailable."
+    fi
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# Daemon reloads
+# ---------------------------------------------------------------------------
+
+reload_if() {
+  local desc="$1" check="$2" action="$3"
+  if eval "$check"; then
+    eval "$action" >/dev/null 2>&1 || true
+  fi
+}
+
+reload_daemons() {
+  local mode="$1"
+  if ((DRY_RUN)); then
+    info "  would reload running daemons"
+    return
+  fi
+
+  reload_if "tmux"           "command -v tmux >/dev/null && tmux list-sessions >/dev/null 2>&1" \
+                            "tmux source-file $HOME/.tmux.conf"
+  reload_if "foot"           "pgrep -x foot >/dev/null 2>&1" \
+                            "pkill -SIGUSR1 -x foot"
+  reload_if "X resources"    "command -v xrdb >/dev/null && [[ -f $HOME/.Xresources ]] && [[ -n \${DISPLAY:-} ]]" \
+                            "xrdb -merge $HOME/.Xresources"
+  reload_if "hyprland"       "command -v hyprctl >/dev/null && pgrep -x Hyprland >/dev/null 2>&1" \
+                            "hyprctl reload"
+  reload_if "scroll"         "command -v scrollmsg >/dev/null && pgrep -x scroll >/dev/null 2>&1" \
+                            "scrollmsg reload"
+
+  if pgrep -x dunst >/dev/null 2>&1; then
+    pkill -x dunst 2>/dev/null || true
+    sleep 0.3
+    setsid dunst >/dev/null 2>&1 &
+  fi
+
+  if command -v kitty >/dev/null; then
+    local ksock
+    for ksock in "${KITTY_LISTEN_ON:-}" /tmp/kitty-*; do
+      ksock="${ksock#unix:}"
+      [[ -S "$ksock" ]] || continue
+      kitty @ --to "unix:$ksock" set-colors --all --configured \
+        "$HOME/.config/kitty/colorschemes/eyes-active.conf" 2>/dev/null || true
+    done
+  fi
+  if pgrep -x kitty >/dev/null 2>&1; then
+    pkill -SIGUSR1 -x kitty 2>/dev/null || true
+  fi
+
+  if mise which herdr >/dev/null 2>&1; then
+    mise exec -- herdr server reload-config >/dev/null 2>&1 || true
+  fi
+
+  if mise which zsh-patina >/dev/null 2>&1; then
+    zsh -c "mise exec -- zsh-patina restart" 2>/dev/null || true
+  fi
+
+  if command -v gsettings >/dev/null; then
+    local pref="prefer-light"
+    [[ "$mode" == "dark" ]] && pref="prefer-dark"
+    gsettings set org.gnome.desktop.interface color-scheme "$pref" 2>/dev/null || true
+  fi
+
+  if command -v nvim >/dev/null; then
+    local sock
+    for sock in /tmp/nvim-*.sock "${XDG_RUNTIME_DIR:-/tmp}"/nvim.*.0; do
+      [[ -S "$sock" ]] || continue
+      nvim --server "$sock" --remote-expr \
+        "execute('set background=${mode}|colorscheme eyes')" \
+        >/dev/null 2>&1 || true
+    done
+  fi
+
+  if command -v notify-send >/dev/null; then
+    notify-send -a eyes-theme "Eyes theme switched" "Now in ${mode} mode" 2>/dev/null || true
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# Orchestration
+# ---------------------------------------------------------------------------
+
+pointers_present() {
+  local entry rel pointer
+  for entry in "${SWITCHES[@]}"; do
+    IFS='|' read -r rel _ _ <<<"$entry"
+    pointer="$DOTFILES_DIR/$rel"
+    [[ -d "$(dirname "$pointer")" ]] || continue
+    [[ -L "$pointer" ]] || return 1
+  done
+  return 0
+}
+
+set_mode() {
+  local target="$1" cur
+
+  # Serialize concurrent invocations (e.g. both timers firing on wake)
+  exec 9>"$STATE_DIR/.lock"
+  flock -w 60 9 || { warn "could not acquire lock after 60s"; exit 1; }
+
+  cur="$(current_mode)"
+
+  if [[ -f "$STATE_FILE" && "$cur" == "$target" && $FORCE -eq 0 ]] && pointers_present; then
+    info "Already in $target mode. (use --force / reapply to re-apply anyway)"
+    return 0
+  fi
+
+  info "Switching to $target..."
+  apply_switches      "$target"
+  compose_configs     "$target"
+  apply_gtk           "$target"
+  ensure_claude_theme "$target"
+  ensure_pi_theme     "$target"
+  ensure_opencode_theme
+
+  ((DRY_RUN)) || echo "$target" >"$STATE_FILE"
+
+  # Liberar el lock antes de recargar demonios: reload_daemons lanza dunst
+  # en background y heredaría el fd 9, reteniendo el flock para siempre
+  # (la siguiente ejecución, p.ej. el timer, moriría esperando el lock).
+  exec 9>&-
+
+  if ((DRY_RUN)); then
+    info "(dry-run: no se aplicó nada)"
+  else
+    reload_daemons "$target"
+    info "Switched to $target mode."
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# Doctor: verificación de solo-lectura del estado completo del tema
+# ---------------------------------------------------------------------------
+
+doctor() {
+  local mode tmp ok_n=0 fail_n=0 warn_n=0
+  local entry rel light dark pointer want live errs
+  local gsrc gout gstyle out_label
+  local unit st f found absent ksock nsock variant claude_want pi_dir oc_base
+  mode="$(current_mode)"
+  tmp="$(mktemp -d)"
+
+  d_ok()   { ok_n=$((ok_n+1));   printf '  ok    %s\n' "$1"; }
+  d_bad()  { fail_n=$((fail_n+1)); printf '  FAIL  %s\n' "$1"; }
+  d_warn() { warn_n=$((warn_n+1)); printf '  warn  %s\n' "$1"; }
+  d_head() { printf '\n[%s]\n' "$1"; }
+
+  info "doctor — mode: $mode"
+  [[ -f "$STATE_FILE" ]] || d_warn "sin state file ($STATE_FILE); se asume light"
+
+  d_head "pointers"
+  for entry in "${SWITCHES[@]}"; do
+    IFS='|' read -r rel light dark <<<"$entry"
+    pointer="$DOTFILES_DIR/$rel"
+    want="$dark"
+    [[ "$mode" == light ]] && want="$light"
+    if [[ "$rel" == config/* ]]; then live="$HOME/.config/${rel#config/}"; else live="$HOME/$rel"; fi
+    errs=""
+    [[ -L "$pointer" ]] || errs="no es symlink"
+    if [[ -L "$pointer" ]]; then
+      [[ "$(readlink "$pointer")" == "$want" ]] \
+        || errs="${errs:+$errs; }apunta a '$(readlink "$pointer")', esperaba '$want'"
+    fi
+    [[ -e "$DOTFILES_DIR/$(dirname "$rel")/$want" ]] \
+      || errs="${errs:+$errs; }falta target $(dirname "$rel")/$want"
+    if [[ -e "$live" || -L "$live" ]]; then
+      [[ "$(readlink -f "$live" 2>/dev/null)" == "$(readlink -f "$pointer" 2>/dev/null)" ]] \
+        || errs="${errs:+$errs; }la ruta viva ($live) no resuelve igual que el repo"
+    else
+      errs="${errs:+$errs; }no existe $live"
+    fi
+    if [[ -z "$errs" ]]; then d_ok "$rel -> $want"; else d_bad "$rel — $errs"; fi
+  done
+
+  d_head "compose"
+  local base order
+  for entry in "${COMPOSE[@]}"; do
+    IFS='|' read -r rel base light dark order <<<"$entry"
+    want="$dark"
+    [[ "$mode" == light ]] && want="$light"
+    if [[ "$order" == "v+b" ]]; then
+      cat "$DOTFILES_DIR/$want" "$DOTFILES_DIR/$base" >"$tmp/compose" 2>/dev/null || true
+    else
+      cat "$DOTFILES_DIR/$base" "$DOTFILES_DIR/$want" >"$tmp/compose" 2>/dev/null || true
+    fi
+    if [[ -f "$DOTFILES_DIR/$rel" ]] && diff -q "$tmp/compose" "$DOTFILES_DIR/$rel" >/dev/null 2>&1; then
+      if [[ "$order" == "v+b" ]]; then
+        d_ok "$rel ($(basename "$want") + $base)"
+      else
+        d_ok "$rel ($base + $(basename "$want"))"
+      fi
+    else
+      d_bad "$rel — difiere del ensamblado esperado (corre: eyes-theme reapply)"
+    fi
+  done
+
+  d_head "variantes dark generadas (drift vs canónica light)"
+  for entry in "${GENERATE[@]}"; do
+    IFS='|' read -r gsrc gout gstyle <<<"$entry"
+    gstyle="${gstyle:-hash}"
+    gsrc="$DOTFILES_DIR/$gsrc"
+    gout="$DOTFILES_DIR/$gout"
+    [[ -e "$gsrc" ]] || { d_bad "${gsrc#$DOTFILES_DIR/} — falta canónica light"; continue; }
+    case "$gstyle" in
+      hash)      sed -E "$(build_hex_sed_script to-dark hash)" "$gsrc" >"$tmp/gen" 2>/dev/null || true ;;
+      bare)      sed -E "$(build_hex_sed_script to-dark bare)" "$gsrc" >"$tmp/gen" 2>/dev/null || true ;;
+      colorsenv) sed -E "$(build_hex_sed_script to-dark hash)" "$gsrc" 2>/dev/null \
+                   | sed -E 's/BAT_THEME="eyes"/BAT_THEME="eyes-dark"/' >"$tmp/gen" || true ;;
+      hexa)      sed -E "$(build_hex_sed_script to-dark hexa)" "$gsrc" >"$tmp/gen" 2>/dev/null || true ;;
+      yaziflavor)
+        rm -rf "$tmp/yazi"
+        cp -a "$gsrc" "$tmp/yazi" 2>/dev/null || true
+        local yscript="$(build_hex_sed_script to-dark hash)"
+        [[ -f "$tmp/yazi/flavor.toml" ]] && sed -i -E "$yscript" "$tmp/yazi/flavor.toml" 2>/dev/null
+        [[ -f "$tmp/yazi/tmtheme.xml" ]] && sed -i -E "$yscript" "$tmp/yazi/tmtheme.xml" 2>/dev/null
+        local yf
+        for yf in flavor.toml tmtheme.xml; do
+          [[ -f "$tmp/yazi/$yf" ]] || continue
+          if diff -q "$tmp/yazi/$yf" "$gout/$yf" >/dev/null 2>&1; then
+            d_ok "${gout#$DOTFILES_DIR/}/$yf"
+          else
+            d_bad "${gout#$DOTFILES_DIR/}/$yf — drift (corre: eyes-theme generate)"
+          fi
+        done
+        continue ;;
+      *) d_warn "${gout#$DOTFILES_DIR/} — estilo '$gstyle' no verificado"; continue ;;
+    esac
+    if [[ -f "$gout" ]] && diff -q "$tmp/gen" "$gout" >/dev/null 2>&1; then
+      d_ok "${gout#$DOTFILES_DIR/}"
+    else
+      d_bad "${gout#$DOTFILES_DIR/} — drift vs ${gsrc#$DOTFILES_DIR/} (corre: eyes-theme generate o revisa edición a mano)"
+    fi
+  done
+
+  d_head "consumers (wiring)"
+  local wire label pattern path
+  for wire in "${DOCTOR_WIRING[@]}"; do
+    IFS=';' read -r label pattern path <<<"$wire"
+    path="${path/#\~/$HOME}"
+    if [[ -e "$path" ]]; then
+      if grep -rEq "$pattern" "$path" 2>/dev/null; then d_ok "$label"; else d_bad "$label — '$pattern' no referenciado en $path"; fi
+    else
+      d_warn "$label — no existe $path (¿herramienta no instalada?)"
+    fi
+  done
+
+  d_head "harness (claude / pi / opencode)"
+  claude_want="custom:eyes"
+  [[ "$mode" == dark ]] && claude_want="custom:eyes-dark"
+  f="$HOME/.claude/settings.json"
+  if [[ -f "$f" ]]; then
+    grep -Eq "\"theme\"[[:space:]]*:[[:space:]]*\"$claude_want\"" "$f" \
+      && d_ok "claude theme=$claude_want" \
+      || d_bad "claude — theme debería ser '$claude_want' (corre: eyes-theme $mode)"
+  else
+    d_warn "claude — sin $f"
+  fi
+  for f in "$HOME/.claude/themes/eyes.json" "$HOME/.claude/themes/eyes-dark.json"; do
+    [[ -e "$f" ]] && d_ok "claude themes/$(basename "$f")" || d_bad "claude — falta $f"
+  done
+
+  pi_dir="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}"
+  variant="eyes-light.json"
+  [[ "$mode" == dark ]] && variant="eyes-dark.json"
+  f="$pi_dir/settings.json"
+  if [[ -f "$f" ]]; then
+    grep -Eq '"theme"[[:space:]]*:[[:space:]]*"eyes"' "$f" \
+      && d_ok "pi theme=eyes" \
+      || d_bad "pi — theme debería ser 'eyes' (corre: eyes-theme reapply)"
+  else
+    d_warn "pi — sin $f"
+  fi
+  for f in eyes-light.json eyes-dark.json; do
+    [[ -e "$pi_dir/themes/$f" ]] && d_ok "pi themes/$f" || d_bad "pi — falta themes/$f"
+  done
+  if [[ -f "$PI_THEME_SRC_DIR/$variant" ]]; then
+    sed -E 's/"name":[[:space:]]*"eyes-(light|dark)"/"name": "eyes"/' "$PI_THEME_SRC_DIR/$variant" >"$tmp/pi-eyes.json" 2>/dev/null || true
+    if [[ -f "$pi_dir/themes/eyes.json" ]] && diff -q "$tmp/pi-eyes.json" "$pi_dir/themes/eyes.json" >/dev/null 2>&1; then
+      d_ok "pi themes/eyes.json == $variant (hot-reload vivo)"
+    else
+      d_bad "pi — themes/eyes.json no coincide con $variant (corre: eyes-theme reapply)"
+    fi
+  else
+    d_bad "pi — falta canónica $PI_THEME_SRC_DIR/$variant"
+  fi
+
+  oc_base="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
+  f="$oc_base/tui.json"
+  if [[ -f "$f" ]]; then
+    grep -Eq '"theme"[[:space:]]*:[[:space:]]*"eyes"' "$f" \
+      && d_ok "opencode theme=eyes" \
+      || d_bad "opencode — theme debería ser 'eyes'"
+  else
+    d_warn "opencode — sin $f"
+  fi
+  [[ -e "$oc_base/themes/eyes.json" ]] && d_ok "opencode themes/eyes.json" || d_bad "opencode — falta themes/eyes.json"
+
+  d_head "systemd (auto-switch)"
+  if command -v systemctl >/dev/null; then
+    st="$(systemctl --user is-enabled eyes-theme-boot.service 2>/dev/null || true)"
+    [[ "$st" == enabled ]] && d_ok "eyes-theme-boot.service enabled" \
+      || d_bad "eyes-theme-boot.service — '$st' (restaurar: just systemd-user; systemctl --user enable eyes-theme-boot.service)"
+    for unit in eyes-theme-light.timer eyes-theme-dark.timer; do
+      st="$(systemctl --user is-enabled "$unit" 2>/dev/null || true)"
+      [[ "$st" == enabled ]] && d_ok "$unit enabled" \
+        || d_bad "$unit — '$st' (restaurar: just systemd-user; systemctl --user enable --now $unit)"
+      st="$(systemctl --user is-active "$unit" 2>/dev/null || true)"
+      [[ "$st" == active ]] || d_warn "$unit inactivo ('$st')"
+    done
+  else
+    d_warn "systemctl no disponible"
+  fi
+
+  d_head "alcance de recarga en vivo"
+  absent=""
+  for f in tmux foot hyprctl xrdb; do
+    command -v "$f" >/dev/null || absent="$absent $f"
+  done
+  [[ -n "$absent" ]] && d_warn "sin instalar (recarga no-op):$absent"
+  if pgrep -x kitty >/dev/null 2>&1; then
+    found=0
+    for ksock in "${KITTY_LISTEN_ON:-}" /tmp/kitty-*; do
+      ksock="${ksock#unix:}"
+      [[ -S "$ksock" ]] && found=1
+    done
+    ((found)) || d_warn "kitty activo sin socket de control — set-colors no lo alcanza (allow_remote_control/listen_on)"
+  fi
+  if pgrep -x nvim >/dev/null 2>&1; then
+    found=0
+    for nsock in /tmp/nvim-*.sock "${XDG_RUNTIME_DIR:-/tmp}"/nvim.*.0; do
+      [[ -S "$nsock" ]] && found=1
+    done
+    ((found)) || d_warn "nvim activo sin sockets — no se recarga en vivo"
+  fi
+  if pgrep -x scroll >/dev/null 2>&1 && ! command -v scrollmsg >/dev/null; then
+    d_warn "scroll activo sin scrollmsg"
+  fi
+
+  rm -rf "$tmp"
+  printf '\n'
+  info "resultado: $ok_n ok, $fail_n fail, $warn_n warn"
+  ((fail_n == 0))
+}
+
+usage() {
+  cat >&2 <<EOF
+Usage: $(basename "$0") [--dry-run] {light|dark|toggle|auto|reapply|status|generate|doctor}
+
+  light     switch to the light variant (repoint symlinks)
+  dark      switch to the dark variant
+  toggle    flip the current variant
+  auto      pick light (06:00–18:59) or dark based on local time
+  reapply   re-apply the current mode even if already set (repairs drift)
+  status    print the current variant
+  generate  (re)build the dark variants from the light canonicals via the palette
+  doctor    read-only check: pointers, compose, drift, wiring, harness, systemd
+
+  --dry-run    print what would happen without modifying anything
+  --force      re-apply even if the saved mode already matches the target
+  -h, --help   show this help
+
+State file: $STATE_FILE
+EOF
+  exit 2
+}
+
+main() {
+  local cmd=()
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --dry-run) DRY_RUN=1 ;;
+      --force)   FORCE=1 ;;
+      -h|--help) usage ;;
+      -*)        warn "unknown option: $1"; usage ;;
+      *)         cmd+=("$1") ;;
+    esac
+    shift
+  done
+
+  case "${cmd[0]:-status}" in
+    light)   set_mode light ;;
+    dark)    set_mode dark ;;
+    toggle)  [[ "$(current_mode)" == dark ]] && set_mode light || set_mode dark ;;
+    auto)    set_mode "$(auto_mode_for_now)" ;;
+    reapply) FORCE=1; set_mode "$(current_mode)" ;;
+    status)  current_mode ;;
+    doctor)  doctor ;;
+    generate)
+      info "Generating dark variants from light canonicals..."
+      generate
+      info "Done. Review with: git diff --stat"
+      ;;
+    *) warn "unknown command: ${cmd[0]:-}"; usage ;;
+  esac
+}
+
+main "$@"
