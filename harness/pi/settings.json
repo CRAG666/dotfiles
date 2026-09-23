@@ -1,12 +1,13 @@
 {
   "theme": "eyes",
-  "defaultProvider": "ollama-cloud",
-  "defaultModel": "gpt-oss:120b",
+  "defaultProvider": "nvidia",
+  "defaultModel": "nvidia/nemotron-3-ultra-550b-a55b",
   "packages": [
     "npm:pi-web-access",
     "npm:pi-zentui",
     "npm:pi-ollama-cloud",
-    "npm:pi-herdr-agents"
+    "npm:pi-herdr-agents",
+    "npm:@bacnh85/pi-notebooklm"
   ],
-  "lastChangelogVersion": "0.85.1"
+  "lastChangelogVersion": "0.86.1"
 }

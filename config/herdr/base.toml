@@ -73,3 +73,6 @@ hide_tab_bar_when_single_tab = true
 
 [ui.toast]
 delivery = "system"
+
+[experimental]
+kitty_graphics = true

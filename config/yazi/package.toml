@@ -1,16 +1,16 @@
 [[plugin.deps]]
 use = "yazi-rs/plugins:no-status"
-rev = "4dc7f1b"
+rev = "f703392"
 hash = "3e023d31f29201efdac2a6ae35fedb78"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:full-border"
-rev = "4dc7f1b"
+rev = "f703392"
 hash = "f281261ff04ad7ec867c3f802a50835f"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:chmod"
-rev = "4dc7f1b"
+rev = "f703392"
 hash = "87472b05a8c420100f6a2b9cde1e7746"
 
 [[plugin.deps]]
@@ -20,12 +20,12 @@ hash = "9776f378459072b6c2875eae5addc49d"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:toggle-pane"
-rev = "4dc7f1b"
+rev = "f703392"
 hash = "5b2fbef7d1513ce38ff72623a071a5e"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:mount"
-rev = "4dc7f1b"
+rev = "f703392"
 hash = "b95f898e6dc60b52edbc415952e14395"
 
 [[plugin.deps]]
@@ -34,9 +34,14 @@ rev = "9997d5b"
 hash = "475141b0337cf9934b0bc81202e2537c"
 
 [[plugin.deps]]
-use = "kirasok/epub-preview"
-rev = "8d894db"
-hash = "d972564b42bb6c1c830b635d9ffc3d27"
+use = "AminurAlam/yazi-plugins:preview-epub"
+rev = "9997d5b"
+hash = "475ca512768cd51412461ee58b17188e"
+
+[[plugin.deps]]
+use = "AminurAlam/yazi-plugins:preview-typst"
+rev = "9997d5b"
+hash = "2aacd8b872663cc36ac6c5bf6b6dc867"
 
 [flavor]
 deps = []

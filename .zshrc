@@ -175,7 +175,7 @@ if [[ -r ~/.config/nushell/aliases.nu ]]; then
 fi
 # HACK: Command alternatives
 alias vi="NVIM_APPNAME=nvim-minimal nvim"
-alias ls='eza --group-directories-first --icons'
+alias ls='logo-ls'
 alias grep='grep --color=auto'
 cd() { pushd $1 && ls; }
 alias rm='rm -i'

@@ -31,6 +31,6 @@ For non-trivial code (parser, client, retry, date/units/path/config, named algor
 - **Types:** no `Any`/`any` as an escape hatch. Annotate everything exported or crossing a module boundary; skip obvious short local helpers.
 - **Tests:** only when asked, or when project convention makes an untested change incomplete. Never mock the thing under test or assert what the code does not guarantee just to go green. Test behaviour, one assertion theme per test.
 - **Dependencies:** never add a package without saying so, or pin a version you have not verified exists.
-- **Formatting:** never hand-format against a configured formatter (`ruff`, `black`, `prettier`, `clang-format`, `.editorconfig`).
+- **Formatting:** never hand-format against a configured formatter (`ruff`, `black`, `prettier`, `clang-format`, `.editorconfig`). After generating or editing a code file, run the project's configured formatter on it (`ruff format`, `prettier --write`, `gofmt`, etc.) and show the code as formatted; if no formatter is configured for the language, say so instead of guessing.
 - **Edits:** patch existing files (unified diff or search/replace blocks), never re-emit the whole file unless rewriting it entirely; include only the minimum context needed. A snippet shown in chat is not a file edit – emit it in full.
 - **Verification:** verify with a command (compiler, interpreter, linter, formatter check mode), never by re-reading the output. If no command exists for the language, say the code is unverified.

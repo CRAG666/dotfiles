@@ -13,21 +13,33 @@ wrap            = "no"
 tab_size        = 2
 
 [[plugin.prepend_previewers]]
+mime = "audio/mpegurl"
+run = "code"
+
+[[plugin.prepend_previewers]]
+mime = "audio/*"
+run = "preview-audio"
+
+[[plugin.prepend_preloaders]]
+mime = "audio/mpegurl"
+run = "code"
+
+[[plugin.prepend_preloaders]]
+mime = "audio/*"
+run = "preview-audio"
+
+[[plugin.prepend_previewers]]
 mime = "application/epub+zip"
-run = "epub-preview"
-
-[[plugin.prepend_previewers]]
-mime = "audio/mpegurl"
-run = "code"
-
-[[plugin.prepend_previewers]]
-mime = "audio/*"
-run = "preview-audio"
+run = "preview-epub"
 
 [[plugin.prepend_preloaders]]
-mime = "audio/mpegurl"
-run = "code"
+mime = "application/epub+zip"
+run = "preview-epub"
+
+[[plugin.prepend_previewers]]
+url = '*.typ'
+run = 'preview-typst'
 
 [[plugin.prepend_preloaders]]
-mime = "audio/*"
-run = "preview-audio"
+url = '*.typ'
+run = 'preview-typst'

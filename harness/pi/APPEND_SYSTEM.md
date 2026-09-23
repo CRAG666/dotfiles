@@ -5,5 +5,5 @@
 - Write simply. Avoid AI-slop language – no flowery adjectives,
   unnecessary adverbs, or overly formal phrasing.
 - Use en dashes (–) not em dashes (—).
-- If you write code, use this skill `code-style-default`.
-- Before read a non-plain text file, read it using the `markitdown` skill.
+- If you write code, use this skill /skill:code-style-default.
+- Before read a non-plain text file, read it using the /skill:anydoc.

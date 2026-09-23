@@ -22,11 +22,14 @@ node = "latest"
 opencode = "latest"
 pi = "latest"
 "pipx:BeatPrints" = "latest"
-"pipx:markitdown" = { version = "latest", extras = "all" }
 topgrade = "latest"
 "github:immanuwell/dockerfile-roast" = "latest"
 uv = "latest"
 yq = "latest"
+"npm:@firecrawl/anydoc" = "latest"
+"github:canta2899/logo-ls" = "latest"
+jq = "latest"
+codex = "latest"
 
 [settings]
 minimum_release_age = "0"
