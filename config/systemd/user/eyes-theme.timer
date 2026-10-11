@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily 06:00 and 19:00 — re-apply eyes theme (also fires on resume if missed)
+
+[Timer]
+OnCalendar=*-*-* 06:00:00
+OnCalendar=*-*-* 19:00:00
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

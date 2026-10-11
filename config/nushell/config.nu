@@ -1,4 +1,4 @@
-$env.LSI_THEME_PATH = $"($env.HOME)/.config/yazi/flavors/eyes-(try { open $"($env.HOME)/.config/eyes/mode" | str trim } catch { 'light' }).yazi/flavor.toml"
+$env.LSI_THEME_PATH = $"($env.HOME)/.config/yazi/flavors/eyes.yazi/flavor.toml"
 source ~/.config/nushell/lsi.nu
 $env.config.hooks = ($env.config.hooks | upsert env_change {
     PWD: [
@@ -269,6 +269,7 @@ $env.config = (
 )
 
 source ~/.config/nushell/theme.nu
+source ~/.config/nushell/theme-base.nu
 source ~/.config/nushell/podman.nu
 source ~/.config/nushell/git.nu
 source ~/.config/nushell/aliases.nu
@@ -283,6 +284,8 @@ $env.config.hooks.pre_prompt = (
             $env._EYES_MODE_MTIME = (try { ls $"($env.HOME)/.config/eyes/mode" | get 0.modified | into int } catch { -1 })
             try { load-shared-env $"($env.HOME)/Git/dotfiles/config/shell/colors.env" }
             source ~/.config/nushell/theme.nu
+            source ~/.config/nushell/theme-base.nu
+            source ~/.config/nushell/lsi.nu
         '
     }
 )

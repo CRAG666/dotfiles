@@ -1,6 +1,0 @@
-[Unit]
-Description=Switch eyes theme to light variant
-
-[Service]
-Type=oneshot
-ExecStart=%h/.local/bin/eyes-theme light

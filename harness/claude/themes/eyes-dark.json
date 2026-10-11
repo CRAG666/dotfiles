@@ -33,6 +33,38 @@
     "userMessageBackground":      "#263026",
     "userMessageBackgroundHover": "#2d382d",
     "bashMessageBackgroundColor": "#202820",
-    "memoryBackgroundColor":      "#3a3420"
+    "memoryBackgroundColor":      "#3a3420",
+    "composerSidebarBackground":  "#202820",
+    "selectionBg":                "#3a463a",
+
+    "claudeShimmer":                        "#82aab8",
+    "promptBorderShimmer":                  "#82aab8",
+    "claudeBlue_FOR_SYSTEM_SPINNER":        "#6a94a8",
+    "claudeBlueShimmer_FOR_SYSTEM_SPINNER": "#82aab8",
+    "warningShimmer":                       "#c8a870",
+    "permissionShimmer":                    "#d4b85a",
+    "inactiveShimmer":                      "#8a9a88",
+    "fastModeShimmer":                      "#9090b8",
+    "autoAcceptShimmer":                    "#88b878",
+
+    "effortUltra":      "#9090b8",
+    "skill":            "#5ab8a8",
+    "professionalBlue": "#6a94a8",
+    "chromeYellow":     "#d4b85a",
+    "clawd_body":       "#b89a6a",
+    "clawd_background": "#1a211a",
+    "briefLabelYou":    "#7aab72",
+    "briefLabelClaude": "#6a94a8",
+    "rate_limit_fill":  "#7aab72",
+    "rate_limit_empty": "#3a463a",
+
+    "red_FOR_SUBAGENTS_ONLY":    "#c87868",
+    "blue_FOR_SUBAGENTS_ONLY":   "#6a94a8",
+    "green_FOR_SUBAGENTS_ONLY":  "#7aab72",
+    "yellow_FOR_SUBAGENTS_ONLY": "#d4b85a",
+    "purple_FOR_SUBAGENTS_ONLY": "#9090b8",
+    "orange_FOR_SUBAGENTS_ONLY": "#b89a6a",
+    "pink_FOR_SUBAGENTS_ONLY":   "#b890b0",
+    "cyan_FOR_SUBAGENTS_ONLY":   "#6ab8b0"
   }
 }

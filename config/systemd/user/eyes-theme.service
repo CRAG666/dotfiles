@@ -1,11 +1,13 @@
 [Unit]
-Description=Apply eyes theme matching current local time at session start
+Description=Apply eyes theme matching current local time
 After=graphical-session.target
 PartOf=graphical-session.target
 
 [Service]
 Type=oneshot
 ExecStart=%h/.local/bin/eyes-theme auto
+# El switch reinicia demonios (zsh-patina) que deben sobrevivir al oneshot
+KillMode=process
 
 [Install]
 WantedBy=default.target

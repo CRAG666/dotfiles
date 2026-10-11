@@ -594,8 +594,6 @@ config/oama/*.auth
 /config/swaylock/config
 /config/hypr/colors/theme.conf
 /config/btop/themes/eyes-active.theme
-/config/kitty/colorschemes/eyes-active.conf
-/config/kitty/colorschemes/diff-eyes-active.conf
 /config/atuin/themes/eyes-active.toml
 /config/termusic/themes/eyes-active.yml
 /config/zathura/eyes-activerc
@@ -609,6 +607,7 @@ config/oama/*.auth
 /config/tridactyl/themes/theme.css
 /config/starship.toml
 /config/yazi/flavors/eyes.yazi
+/config/yazi/colors.lua
 /config/termusic/tui.toml
 /config/mpv/colors.conf
 **/.a5c

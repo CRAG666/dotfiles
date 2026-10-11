@@ -62,8 +62,6 @@ readonly SWITCHES=(
   'config/zsh-patina/theme.toml|eyes-light.toml|eyes-dark.toml'
   'config/hypr/colors/theme.conf|eyes-light.conf|eyes-dark.conf'
   'config/btop/themes/eyes-active.theme|eyes.theme|eyes-dark.theme'
-  'config/kitty/colorschemes/eyes-active.conf|eyes.conf|eyes-dark.conf'
-  'config/kitty/colorschemes/diff-eyes-active.conf|diff-eyes.conf|diff-eyes-dark.conf'
   'config/atuin/themes/eyes-active.toml|eyes.toml|eyes-dark.toml'
   'config/termusic/themes/eyes-active.yml|eyes.yml|eyes-dark.yml'
   'config/zathura/eyes-activerc|eyesrc|eyes-darkrc'
@@ -76,8 +74,8 @@ readonly SWITCHES=(
   'config/rofi/colors/theme.rasi|eyes.rasi|eyes-dark.rasi'
   'config/rofi/colors/colors.txt|eyes.txt|eyes-dark.txt'
   'config/nushell/theme.nu|eyes.nu|eyes-dark.nu'
-  'config/tridactyl/themes/theme.css|eyes.css|eyes-dark.css'
   'config/yazi/flavors/eyes.yazi|eyes-light.yazi|eyes-dark.yazi'
+  'config/yazi/colors.lua|colors.eyes.lua|colors.eyes-dark.lua'
   'config/mpv/colors.conf|colors.eyes.conf|colors.eyes-dark.conf'
   'config/hunk/config.toml|config.eyes.toml|config.eyes-dark.toml'
 )
@@ -92,6 +90,7 @@ readonly COMPOSE=(
   'config/herdr/config.toml|config/herdr/base.toml|config/herdr/colors.eyes.toml|config/herdr/colors.eyes-dark.toml'
   'config/swaylock/config|config/swaylock/base.conf|config/swaylock/colors.eyes.conf|config/swaylock/colors.eyes-dark.conf'
   'config/termusic/tui.toml|config/termusic/tui.base.toml|config/termusic/tui.colors.eyes.toml|config/termusic/tui.colors.eyes-dark.toml'
+  'config/tridactyl/themes/theme.css|config/tridactyl/themes/base.css|config/tridactyl/themes/colors.eyes.css|config/tridactyl/themes/colors.eyes-dark.css'
   'config/starship.toml|config/starship.base.toml|config/starship.palette.eyes.toml|config/starship.palette.eyes-dark.toml|v+b'
 )
 
@@ -103,7 +102,8 @@ readonly GENERATE=(
   'config/rofi/colors/eyes.rasi|config/rofi/colors/eyes-dark.rasi'
   'config/rofi/colors/eyes.txt|config/rofi/colors/eyes-dark.txt'
   'config/nushell/eyes.nu|config/nushell/eyes-dark.nu'
-  'config/tridactyl/themes/eyes.css|config/tridactyl/themes/eyes-dark.css'
+  'config/tridactyl/themes/colors.eyes.css|config/tridactyl/themes/colors.eyes-dark.css'
+  'config/yazi/colors.eyes.lua|config/yazi/colors.eyes-dark.lua'
   'config/swaylock/colors.eyes.conf|config/swaylock/colors.eyes-dark.conf|hexa'
   'config/yazi/flavors/eyes-light.yazi|config/yazi/flavors/eyes-dark.yazi|yaziflavor'
   'config/mpv/colors.eyes.conf|config/mpv/colors.eyes-dark.conf|bare'
@@ -122,8 +122,10 @@ readonly GENERATE=(
 # cada archivo conmutado SIGA referenciado por su herramienta — un switch que
 # nadie lee es un fallo silencioso.
 readonly DOCTOR_WIRING=(
-  'kitty;eyes-active;config/kitty/kitty.conf'
-  'kitty (diff);diff-eyes-active;config/kitty/kitty.conf'
+  'kitty (light);name: +Eyes \(Light\);config/kitty/light-theme.auto.conf'
+  'kitty (dark);name: +Eyes \(Dark\);config/kitty/dark-theme.auto.conf'
+  'kitty (diff);diff-eyes-dark;config/kitty/diff.conf'
+  'yazi (searchjump);yazi/colors\.lua;config/yazi/init.lua'
   'btop;eyes-active;config/btop/btop.conf'
   'atuin;eyes-active;config/atuin/config.toml'
   'termusic;file_name = "eyes-active";config/termusic/tui.colors.eyes.toml'
@@ -275,7 +277,7 @@ apply_switches() {
   for entry in "${SWITCHES[@]}"; do
     IFS='|' read -r rel light dark <<<"$entry"
     pointer="$DOTFILES_DIR/$rel"
-    dir="$(dirname "$pointer")"
+    dir="${pointer%/*}"
     [[ -d "$dir" ]] || continue
 
     target="$light"
@@ -321,10 +323,10 @@ compose_configs() {
     if [[ "$order" == "v+b" ]]; then
       # starship: la clave top-level palette debe preceder a las tablas TOML
       cat "$DOTFILES_DIR/$variant" "$DOTFILES_DIR/$base" >"$pointer"
-      info "  composed $rel  ($(basename "$variant") + $base)"
+      info "  composed $rel  (${variant##*/} + $base)"
     else
       cat "$DOTFILES_DIR/$base" "$DOTFILES_DIR/$variant" >"$pointer"
-      info "  composed $rel  ($base + $(basename "$variant"))"
+      info "  composed $rel  ($base + ${variant##*/})"
     fi
   done
 }
@@ -350,44 +352,46 @@ apply_gtk() {
 # External theme bootstraps (Claude, pi, opencode)
 # ---------------------------------------------------------------------------
 
-ensure_json_theme() {
-  local app="$1" mode="$2" key="$3" light="$4" dark="$5" prefix="${6:-}" themes_dir settings theme_name
-  themes_dir="$HOME/.$app/themes"
-  settings="$HOME/.$app/settings.json"
-  theme_name="$prefix$light"
-  [[ "$mode" == "dark" ]] && theme_name="$prefix$dark"
+ensure_claude_theme() {
+  local mode="$1" themes_dir="$HOME/.claude/themes" settings variant tmp
+  variant="eyes-light.json"
+  [[ "$mode" == "dark" ]] && variant="eyes-dark.json"
 
   if ((DRY_RUN)); then
-    info "  would ensure $app theme=$theme_name"
+    info "  would ensure claude theme=custom:eyes (from $variant)"
     return
   fi
 
+  [[ -f "$CLAUDE_THEME_SRC_DIR/$variant" ]] || { warn "  skip claude theme (missing $variant)"; return; }
+
   mkdir -p "$themes_dir"
-  [[ -e "$themes_dir/$light.json" ]]  || ln -sfn "$DOTFILES_DIR/harness/$app/themes/$light.json" "$themes_dir/$light.json"
-  [[ -e "$themes_dir/$dark.json" ]]   || ln -sfn "$DOTFILES_DIR/harness/$app/themes/$dark.json"  "$themes_dir/$dark.json"
+  [[ -e "$themes_dir/eyes-light.json" ]] || ln -sfn "$CLAUDE_THEME_SRC_DIR/eyes-light.json" "$themes_dir/eyes-light.json"
+  [[ -e "$themes_dir/eyes-dark.json"  ]] || ln -sfn "$CLAUDE_THEME_SRC_DIR/eyes-dark.json"  "$themes_dir/eyes-dark.json"
+
+  # Claude Code relee en vivo el contenido de ~/.claude/themes/, pero el panel
+  # lateral y el resaltado de diffs se quedan con el nombre de tema del
+  # arranque. Por eso el nombre es fijo (custom:eyes) y el switch reescribe su
+  # contenido; mv deja el reemplazo atómico para el watcher.
+  [[ -L "$themes_dir/eyes.json" ]] && rm -f "$themes_dir/eyes.json"
+  tmp="$(mktemp "$themes_dir/.eyes.XXXXXX")"
+  cp "$CLAUDE_THEME_SRC_DIR/$variant" "$tmp"
+  mv "$tmp" "$themes_dir/eyes.json"
 
   # settings.json puede ser un symlink al dotfile: resolvemos para que
   # jq+mv no lo sustituya por un archivo regular.
-  settings="$(readlink -f "$settings")"
-  mkdir -p "$(dirname "$settings")"
+  settings="$(readlink -f "$HOME/.claude/settings.json")"
   if [[ ! -f "$settings" ]]; then
-    printf '{\n  "%s": "%s"\n}\n' "$key" "$theme_name" >"$settings"
-  elif command -v jq >/dev/null; then
-    local tmp
+    mkdir -p "${settings%/*}"
+    printf '{\n  "theme": "custom:eyes"\n}\n' >"$settings"
+  elif ! grep -Eq '"theme"[[:space:]]*:[[:space:]]*"custom:eyes"' "$settings"; then
     tmp="$(mktemp)"
-    if jq --arg t "$theme_name" ".\"$key\" = \$t" "$settings" >"$tmp"; then
+    if jq '.theme = "custom:eyes"' "$settings" >"$tmp"; then
       mv "$tmp" "$settings"
     else
       rm -f "$tmp"
-      warn "  failed to set $key in $settings (jq error)"
+      warn "  failed to set theme in $settings (jq error)"
     fi
-  elif ! grep -q "\"$key\"" "$settings"; then
-    warn "  $settings lacks a \"$key\" key and jq is unavailable; add manually:  \"$key\": \"$theme_name\""
   fi
-}
-
-ensure_claude_theme() {
-  ensure_json_theme claude "$1" theme eyes eyes-dark "custom:"
 }
 
 ensure_pi_theme() {
@@ -473,77 +477,49 @@ ensure_opencode_theme() {
 # Daemon reloads
 # ---------------------------------------------------------------------------
 
-reload_if() {
-  local desc="$1" check="$2" action="$3"
-  if eval "$check"; then
-    eval "$action" >/dev/null 2>&1 || true
-  fi
-}
-
 reload_daemons() {
-  local mode="$1"
+  local mode="$1" pid comm pref="prefer-light"
+  [[ "$mode" == "dark" ]] && pref="prefer-dark"
   if ((DRY_RUN)); then
     info "  would reload running daemons"
     return
   fi
 
-  reload_if "tmux"           "command -v tmux >/dev/null && tmux list-sessions >/dev/null 2>&1" \
-                            "tmux source-file $HOME/.tmux.conf"
-  reload_if "foot"           "pgrep -x foot >/dev/null 2>&1" \
-                            "pkill -SIGUSR1 -x foot"
-  reload_if "X resources"    "command -v xrdb >/dev/null && [[ -f $HOME/.Xresources ]] && [[ -n \${DISPLAY:-} ]]" \
-                            "xrdb -merge $HOME/.Xresources"
-  reload_if "hyprland"       "command -v hyprctl >/dev/null && pgrep -x Hyprland >/dev/null 2>&1" \
-                            "hyprctl reload"
-  reload_if "scroll"         "command -v scrollmsg >/dev/null && pgrep -x scroll >/dev/null 2>&1" \
-                            "scrollmsg reload"
+  # Un solo escaneo de /proc (cada pgrep cuesta ~50ms) y todas las recargas en
+  # paralelo: el tiempo total es el de la más lenta (scrollmsg reload).
+  local -A pids=()
+  while read -r pid comm; do
+    pids[$comm]+=" $pid"
+  done < <(ps -eo pid=,comm=)
 
-  if pgrep -x dunst >/dev/null 2>&1; then
-    pkill -x dunst 2>/dev/null || true
-    sleep 0.3
-    setsid dunst >/dev/null 2>&1 &
-  fi
-
-  if command -v kitty >/dev/null; then
-    local ksock
-    for ksock in "${KITTY_LISTEN_ON:-}" /tmp/kitty-*; do
-      ksock="${ksock#unix:}"
-      [[ -S "$ksock" ]] || continue
-      kitty @ --to "unix:$ksock" set-colors --all --configured \
-        "$HOME/.config/kitty/colorschemes/eyes-active.conf" 2>/dev/null || true
+  {
+    command -v tmux >/dev/null && tmux source-file "$HOME/.tmux.conf" &
+    [[ -n "${DISPLAY:-}" && -f "$HOME/.Xresources" ]] && command -v xrdb >/dev/null \
+      && xrdb -merge "$HOME/.Xresources" &
+    [[ -v pids[foot] ]] && kill -USR1 ${pids[foot]} &
+    [[ -v pids[Hyprland] ]] && hyprctl reload &
+    # jump_labels_* solo se aplica en reload (no es comando IPC de runtime).
+    # Bajo systemd no hay SWAYSOCK; el socket lleva el pid del compositor.
+    if [[ -v pids[scroll] ]]; then
+      read -r pid _ <<<"${pids[scroll]}"
+      SWAYSOCK="${SWAYSOCK:-${XDG_RUNTIME_DIR:-/run/user/$UID}/scroll-ipc.$UID.$pid.sock}" scrollmsg reload &
+    fi
+    [[ -v pids[dunst] ]] && dunstctl reload &
+    [[ -v pids[btop] ]] && kill -USR2 ${pids[btop]} &
+    for pid in ${pids[zathura]:-}; do
+      busctl --user call "org.pwmt.zathura.PID-$pid" /org/pwmt/zathura \
+        org.pwmt.zathura ExecuteCommand s source &
     done
-  fi
-  if pgrep -x kitty >/dev/null 2>&1; then
-    pkill -SIGUSR1 -x kitty 2>/dev/null || true
-  fi
-
-  if mise which herdr >/dev/null 2>&1; then
-    mise exec -- herdr server reload-config >/dev/null 2>&1 || true
-  fi
-
-  if mise which zsh-patina >/dev/null 2>&1; then
-    zsh -c "mise exec -- zsh-patina restart" 2>/dev/null || true
-  fi
-
-  if command -v gsettings >/dev/null; then
-    local pref="prefer-light"
-    [[ "$mode" == "dark" ]] && pref="prefer-dark"
-    gsettings set org.gnome.desktop.interface color-scheme "$pref" 2>/dev/null || true
-  fi
-
-  if command -v nvim >/dev/null; then
-    local sock
-    for sock in /tmp/nvim-*.sock "${XDG_RUNTIME_DIR:-/tmp}"/nvim.*.0; do
-      [[ -S "$sock" ]] || continue
-      nvim --server "$sock" --remote-expr \
-        "execute('set background=${mode}|colorscheme eyes')" \
-        >/dev/null 2>&1 || true
-    done
-  fi
-
-  if command -v notify-send >/dev/null; then
-    notify-send -a eyes-theme "Eyes theme switched" "Now in ${mode} mode" 2>/dev/null || true
-  fi
+    [[ -v pids[herdr] ]] && mise exec -- herdr server reload-config &
+    [[ -v pids[zsh-patina] ]] && mise exec -- zsh-patina restart &
+    # kitty (*-theme.auto.conf), GTK4 y navegadores siguen este valor vía el
+    # portal; kitty avisa del cambio de fondo (DEC 2031) a nvim, opencode y Claude.
+    command -v gsettings >/dev/null \
+      && gsettings set org.gnome.desktop.interface color-scheme "$pref" &
+    command -v notify-send >/dev/null \
+      && notify-send -a eyes-theme "Eyes theme switched" "Now in ${mode} mode" &
+    wait
+  } >/dev/null 2>&1
 }
 
 # ---------------------------------------------------------------------------
@@ -555,7 +531,7 @@ pointers_present() {
   for entry in "${SWITCHES[@]}"; do
     IFS='|' read -r rel _ _ <<<"$entry"
     pointer="$DOTFILES_DIR/$rel"
-    [[ -d "$(dirname "$pointer")" ]] || continue
+    [[ -d "${pointer%/*}" ]] || continue
     [[ -L "$pointer" ]] || return 1
   done
   return 0
@@ -585,9 +561,8 @@ set_mode() {
 
   ((DRY_RUN)) || echo "$target" >"$STATE_FILE"
 
-  # Liberar el lock antes de recargar demonios: reload_daemons lanza dunst
-  # en background y heredaría el fd 9, reteniendo el flock para siempre
-  # (la siguiente ejecución, p.ej. el timer, moriría esperando el lock).
+  # Liberar el lock antes de recargar: los procesos lanzados (p.ej. el demonio
+  # de zsh-patina) heredarían el fd 9 y retendrían el flock para siempre.
   exec 9>&-
 
   if ((DRY_RUN)); then
@@ -606,7 +581,7 @@ doctor() {
   local mode tmp ok_n=0 fail_n=0 warn_n=0
   local entry rel light dark pointer want live errs
   local gsrc gout gstyle out_label
-  local unit st f found absent ksock nsock variant claude_want pi_dir oc_base
+  local unit st f absent variant pi_dir oc_base
   mode="$(current_mode)"
   tmp="$(mktemp -d)"
 
@@ -707,6 +682,7 @@ doctor() {
   for wire in "${DOCTOR_WIRING[@]}"; do
     IFS=';' read -r label pattern path <<<"$wire"
     path="${path/#\~/$HOME}"
+    [[ "$path" == /* ]] || path="$DOTFILES_DIR/$path"
     if [[ -e "$path" ]]; then
       if grep -rEq "$pattern" "$path" 2>/dev/null; then d_ok "$label"; else d_bad "$label — '$pattern' no referenciado en $path"; fi
     else
@@ -715,23 +691,26 @@ doctor() {
   done
 
   d_head "harness (claude / pi / opencode)"
-  claude_want="custom:eyes"
-  [[ "$mode" == dark ]] && claude_want="custom:eyes-dark"
+  variant="eyes-light.json"
+  [[ "$mode" == dark ]] && variant="eyes-dark.json"
   f="$HOME/.claude/settings.json"
   if [[ -f "$f" ]]; then
-    grep -Eq "\"theme\"[[:space:]]*:[[:space:]]*\"$claude_want\"" "$f" \
-      && d_ok "claude theme=$claude_want" \
-      || d_bad "claude — theme debería ser '$claude_want' (corre: eyes-theme $mode)"
+    grep -Eq '"theme"[[:space:]]*:[[:space:]]*"custom:eyes"' "$f" \
+      && d_ok "claude theme=custom:eyes" \
+      || d_bad "claude — theme debería ser 'custom:eyes' (corre: eyes-theme reapply)"
   else
     d_warn "claude — sin $f"
   fi
-  for f in "$HOME/.claude/themes/eyes.json" "$HOME/.claude/themes/eyes-dark.json"; do
-    [[ -e "$f" ]] && d_ok "claude themes/$(basename "$f")" || d_bad "claude — falta $f"
+  for f in eyes-light.json eyes-dark.json; do
+    [[ -e "$HOME/.claude/themes/$f" ]] && d_ok "claude themes/$f" || d_bad "claude — falta themes/$f"
   done
+  if cmp -s "$CLAUDE_THEME_SRC_DIR/$variant" "$HOME/.claude/themes/eyes.json"; then
+    d_ok "claude themes/eyes.json == $variant (hot-reload vivo)"
+  else
+    d_bad "claude — themes/eyes.json no coincide con $variant (corre: eyes-theme reapply)"
+  fi
 
   pi_dir="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}"
-  variant="eyes-light.json"
-  [[ "$mode" == dark ]] && variant="eyes-dark.json"
   f="$pi_dir/settings.json"
   if [[ -f "$f" ]]; then
     grep -Eq '"theme"[[:space:]]*:[[:space:]]*"eyes"' "$f" \
@@ -767,16 +746,13 @@ doctor() {
 
   d_head "systemd (auto-switch)"
   if command -v systemctl >/dev/null; then
-    st="$(systemctl --user is-enabled eyes-theme-boot.service 2>/dev/null || true)"
-    [[ "$st" == enabled ]] && d_ok "eyes-theme-boot.service enabled" \
-      || d_bad "eyes-theme-boot.service — '$st' (restaurar: just systemd-user; systemctl --user enable eyes-theme-boot.service)"
-    for unit in eyes-theme-light.timer eyes-theme-dark.timer; do
+    for unit in eyes-theme.service eyes-theme.timer; do
       st="$(systemctl --user is-enabled "$unit" 2>/dev/null || true)"
       [[ "$st" == enabled ]] && d_ok "$unit enabled" \
-        || d_bad "$unit — '$st' (restaurar: just systemd-user; systemctl --user enable --now $unit)"
-      st="$(systemctl --user is-active "$unit" 2>/dev/null || true)"
-      [[ "$st" == active ]] || d_warn "$unit inactivo ('$st')"
+        || d_bad "$unit — '$st' (restaurar: just systemd-user)"
     done
+    st="$(systemctl --user is-active eyes-theme.timer 2>/dev/null || true)"
+    [[ "$st" == active ]] || d_warn "eyes-theme.timer inactivo ('$st')"
   else
     d_warn "systemctl no disponible"
   fi
@@ -787,21 +763,6 @@ doctor() {
     command -v "$f" >/dev/null || absent="$absent $f"
   done
   [[ -n "$absent" ]] && d_warn "sin instalar (recarga no-op):$absent"
-  if pgrep -x kitty >/dev/null 2>&1; then
-    found=0
-    for ksock in "${KITTY_LISTEN_ON:-}" /tmp/kitty-*; do
-      ksock="${ksock#unix:}"
-      [[ -S "$ksock" ]] && found=1
-    done
-    ((found)) || d_warn "kitty activo sin socket de control — set-colors no lo alcanza (allow_remote_control/listen_on)"
-  fi
-  if pgrep -x nvim >/dev/null 2>&1; then
-    found=0
-    for nsock in /tmp/nvim-*.sock "${XDG_RUNTIME_DIR:-/tmp}"/nvim.*.0; do
-      [[ -S "$nsock" ]] && found=1
-    done
-    ((found)) || d_warn "nvim activo sin sockets — no se recarga en vivo"
-  fi
   if pgrep -x scroll >/dev/null 2>&1 && ! command -v scrollmsg >/dev/null; then
     d_warn "scroll activo sin scrollmsg"
   fi

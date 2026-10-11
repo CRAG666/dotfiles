@@ -266,7 +266,7 @@ harness:
         echo "    WARNING: set your ANTHROPIC_AUTH_TOKEN in ~/.claude/settings.local.json"
     fi
     mkdir -p "$HOME/.claude/themes"
-    for f in eyes.json eyes-dark.json; do
+    for f in eyes-light.json eyes-dark.json; do
         ln -vsfn "{{ src }}/harness/claude/themes/$f" "$HOME/.claude/themes/$f"
     done
     echo "==> opencode (~/.config/opencode, enlaces por archivo)..."
@@ -296,7 +296,7 @@ systemd-user:
         fi
     done
     systemctl --user daemon-reload
-    {{ systemd_enable_user }} eyes-theme-boot.service eyes-theme-light.timer eyes-theme-dark.timer
+    {{ systemd_enable_user }} eyes-theme.service eyes-theme.timer
 
 # Install packages required for Wayland
 wayland:
