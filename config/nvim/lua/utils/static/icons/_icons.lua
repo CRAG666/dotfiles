@@ -152,6 +152,7 @@ return {
     Markdown            = 'M ',
     Object              = 'O ',
     Pdf                 = 'P ',
+    Python              = 'Py ',
     Raw                 = 'R ',
     Sh                  = 'S ',
     Txt                 = 'T ',
@@ -200,6 +201,7 @@ return {
     TriangleLeft        = '◀ ',
     TriangleRight       = '▶ ',
     TriangleUp          = '▲ ',
+    Words               = 'W ',
   },
   keys = {
     BackSpace           = 'Bksp ',

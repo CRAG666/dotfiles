@@ -1,7 +1,7 @@
 return {
   src = 'https://github.com/dimtion/guttermarks.nvim',
   data = {
-    event = { 'BufReadPost', 'BufNewFile', 'BufWritePre' },
+    events = { 'BufReadPost', 'BufNewFile', 'BufWritePre' },
     postload = function()
       require('guttermarks').setup({
         global_mark = { enabled = true },

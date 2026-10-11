@@ -88,24 +88,32 @@ local function update_hl_hex()
   C_CC = get_hl_hex('ColorColumn', 'bg')
 end
 
+---Set the window's ColorColumn highlight mapping in 'winhl' if it changed,
+---reading the raw option string since `vim.opt` parsing is slow on hot paths
+---@param winid integer? window handler
+---@param hlgroup string
+local function cc_set_winhl(winid, hlgroup)
+  winid = winid or 0
+  local winhl = vim.wo[winid].winhl
+  local _, mapping_end = winhl:find('ColorColumn:', 1, true)
+  if mapping_end and winhl:match('^[^,]*', mapping_end + 1) == hlgroup then
+    return
+  end
+  vim.api.nvim_win_call(winid, function()
+    vim.opt_local.winhl:append({ ColorColumn = hlgroup }) ---@diagnostic disable-line: undefined-field
+  end)
+end
+
 ---Hide colorcolumn
 ---@param winid integer? window handler
 local function cc_conceal(winid)
-  vim.api.nvim_win_call(winid or 0, function()
-    if vim.opt_local.winhl:get().ColorColumn ~= '' then ---@diagnostic disable-line: undefined-field
-      vim.opt_local.winhl:append({ ColorColumn = '' }) ---@diagnostic disable-line: undefined-field
-    end
-  end)
+  cc_set_winhl(winid, '')
 end
 
 ---Show colorcolumn
 ---@param winid integer? window handler
 local function cc_show(winid)
-  vim.api.nvim_win_call(winid or 0, function()
-    if vim.opt_local.winhl:get().ColorColumn ~= '_ColorColumn' then ---@diagnostic disable-line: undefined-field
-      vim.opt_local.winhl:append({ ColorColumn = '_ColorColumn' }) ---@diagnostic disable-line: undefined-field
-    end
-  end)
+  cc_set_winhl(winid, '_ColorColumn')
 end
 
 ---@param opt_name string name of the mode option
@@ -136,8 +144,12 @@ local cc_link = nil
 ---@return nil
 local function cc_update(winid)
   winid = winid or 0
+  if not check_mode() then
+    cc_conceal(winid)
+    return
+  end
   local cc = cc_resolve(vim.wo[winid].cc)
-  if not check_mode() or not cc then
+  if not cc then
     cc_conceal(winid)
     return
   end

@@ -17,8 +17,8 @@ return {
     -- underscores (e.g. 'cmp_menu') to improve initial cmdline responsiveness
     -- on slower systems
     events = { event = 'FileType', pattern = '[^_]\\+' },
-    postload = function()
+    postload = vim.schedule_wrap(function()
       require('nvim-treesitter').install(vim.g.ts or {})
-    end,
+    end),
   },
 }

@@ -269,7 +269,8 @@ function M.restart(args)
     vim.fn.fnameescape(session),
     args and '|' .. args or ''
   )
-  vim.cmd.restart(cmd)
+  -- Bang skips `:restart`'s own session save/restore, we restore ours
+  vim.cmd('restart! ' .. cmd)
 end
 
 ---Session completion function that returns a list of available sessions

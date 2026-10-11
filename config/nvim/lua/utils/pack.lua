@@ -39,6 +39,8 @@ local M = {}
 ---be loaded on specific keys, events, commands, or manually using
 ---`utils.pack.load()`
 ---@field lazy? boolean
+---Defer loading triggered during startup until after the first redraw
+---@field defer? boolean
 ---Whether the plugin is registered as a dependency/extension of another plugin
 ---Plugins that are both explicitly registered as stand-alone and as deps/exts
 ---have `asdeps=false`
@@ -156,18 +158,25 @@ function M.lazy_load(spec, path)
   ---cmd/key/event triggers to serve as a 'library'
   local lazy = spec.data.lazy
 
+  local function load()
+    if not spec.data.defer or vim.v.vim_did_enter == 1 then
+      M.load(spec, path)
+      return
+    end
+    vim.api.nvim_create_autocmd('VimEnter', {
+      once = true,
+      callback = vim.schedule_wrap(function()
+        M.load(spec, path)
+      end),
+    })
+  end
+
   for _, trig in ipairs({ 'cmds', 'keys', 'events' }) do
     if not spec.data[trig] then
       goto continue
     end
     lazy = true
-    require('utils.load')['on_' .. trig](
-      spec.data[trig],
-      spec.src,
-      function()
-        M.load(spec, path)
-      end
-    )
+    require('utils.load')['on_' .. trig](spec.data[trig], spec.src, load)
     ::continue::
   end
 
@@ -231,12 +240,13 @@ function M.register(specs, default)
     end
 
     -- Then register self
+    -- A plugin is only a dependency if every registration of it is one
     local existing_spec = specs_registry[spec.src]
-    local asdeps = existing_spec
-      and existing_spec.data
-      and existing_spec.data.asdeps
-      and spec.data
-      and spec.data.asdeps
+    local asdeps = (
+      spec.data.asdeps
+      or vim.tbl_get(default or {}, 'data', 'asdeps')
+      or false
+    ) and (not existing_spec or existing_spec.data.asdeps or false)
 
     specs_registry[spec.src] =
       vim.tbl_deep_extend('force', existing_spec or default or {}, spec)

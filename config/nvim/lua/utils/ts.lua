@@ -9,6 +9,18 @@ end
 
 local ts_get_node = vim.treesitter.get_node
 
+---Cursor position (0-indexed) of the current window, shifted to the character
+---before the cursor in insert mode
+---@return integer[]
+local function cursor_pos()
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  return {
+    cursor[1] - 1,
+    cursor[2]
+      - (cursor[2] >= 1 and vim.startswith(vim.fn.mode(), 'i') and 1 or 0),
+  }
+end
+
 ---Wrapper of `vim.treesitter.get_node()` that fixes the cursor pos in
 ---insert mode
 ---@param opts vim.treesitter.get_node.Opts?
@@ -42,20 +54,18 @@ function M.get_node(opts)
   --
   -- Also useful when the cursor is at the end of line and is not on any
   -- text (and of course treesitter nodes)
-  opts.pos = (function()
-    local cursor = opts and opts.pos or vim.api.nvim_win_get_cursor(0)
-    return {
-      cursor[1] - 1,
-      cursor[2]
-        - (cursor[2] >= 1 and vim.startswith(vim.fn.mode(), 'i') and 1 or 0),
-    }
-  end)()
+  opts.pos = cursor_pos()
 
   return ts_get_node(opts)
 end
 
 ---@class ts.get_node.opts : vim.treesitter.get_node.Opts
 ---@field depth? integer
+
+---`find_node()` results for the current buffer state and cursor position,
+---snippet conditions query the same nodes many times per key
+---@type { state: string?, parsed: boolean, nodes: table<string, TSNode|false> }
+local find_node_cache = { parsed = false, nodes = {} }
 
 ---Returns whether cursor is in a specific type of treesitter node
 ---@param types string|string[]|fun(types: string|string[]): boolean type of node, or function to check node type
@@ -71,6 +81,33 @@ function M.find_node(types, opts)
   local parser = vim.treesitter.get_parser(buf)
   if not parser then
     return
+  end
+
+  -- Only cache lookups at the cursor of the current buffer with plain types
+  local cache_key ---@type string?
+  if
+    not vim.is_callable(types) and not (opts and (opts.bufnr or opts.pos))
+  then
+    local cur_buf = vim.api.nvim_get_current_buf()
+    local pos = cursor_pos()
+    local state = table.concat({
+      cur_buf,
+      vim.api.nvim_buf_get_changedtick(cur_buf),
+      pos[1],
+      pos[2],
+    }, ':')
+    if find_node_cache.state ~= state then
+      find_node_cache = { state = state, parsed = false, nodes = {} }
+    end
+    cache_key = table.concat({
+      type(types) == 'table' and table.concat(types, ',') or types,
+      tostring(opts and opts.ignore_injections),
+      tostring(opts and opts.depth),
+    }, ':')
+    local node = find_node_cache.nodes[cache_key]
+    if node ~= nil then
+      return node or nil
+    end
   end
 
   ---Check if given node type matches any of the types given in `types`
@@ -102,9 +139,18 @@ function M.find_node(types, opts)
     end
   end
 
-  local node = reverse_traverse()
-  if node or parser:is_valid() then
+  ---@param node TSNode?
+  ---@return TSNode?
+  local function cached(node)
+    if cache_key then
+      find_node_cache.nodes[cache_key] = node or false
+    end
     return node
+  end
+
+  local node = reverse_traverse()
+  if node or parser:is_valid() or (cache_key and find_node_cache.parsed) then
+    return cached(node)
   end
 
   -- If the node wasn't found, re-parse the current tree and try again
@@ -115,7 +161,10 @@ function M.find_node(types, opts)
   -- cursor is within the node boundaries
   local lnum = vim.fn.line('.')
   parser:parse({ lnum - 1, lnum })
-  return reverse_traverse()
+  if cache_key then
+    find_node_cache.parsed = true
+  end
+  return cached(reverse_traverse())
 end
 
 ---Get language at given buffer position, useful in files with injected syntax

@@ -143,5 +143,4 @@ gnome-disk-utility
 acpi
 syncthing
 sshpass
-typst
 otf-font-awesome

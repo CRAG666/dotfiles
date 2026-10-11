@@ -36,10 +36,12 @@ M.root_markers = {
   },
 }
 
-local fs_root = vim.fs.root
-
 ---Wrapper of `vim.fs.root()` that accepts layered root markers like
----`vim.lsp.Config.root_markers`
+---`vim.lsp.Config.root_markers`, consecutive string markers share the same
+---priority
+---
+---Walks up the directory tree once for all marker groups instead of once
+---per group
 ---@param source? integer|string default to current working directory
 ---@param marker? (string|string[]|string[][]|fun(name: string, path: string): boolean) default to `utils.fs.root_markers`
 ---@return string?
@@ -48,36 +50,52 @@ function M.root(source, marker)
   marker = marker or M.root_markers
 
   if type(marker) ~= 'table' then
-    return fs_root(source, marker)
+    return vim.fs.root(source, marker)
   end
 
-  local joined_markers = {} ---@type string[]
-
+  local groups = {} ---@type string[][]
+  local strings = {} ---@type string[]
   for _, m in ipairs(marker) do
-    -- `m` is a string, join with previous string markers as they are
-    -- considered to have the same priority
     if type(m) == 'string' then
-      table.insert(joined_markers, m)
-      goto continue
+      table.insert(strings, m)
+    else
+      if #strings > 0 then
+        table.insert(groups, strings)
+        strings = {}
+      end
+      table.insert(groups, m)
     end
+  end
+  if #strings > 0 then
+    table.insert(groups, strings)
+  end
 
-    -- `m` is a set of markers of the same priority, search them directly
-    -- with `vim.fs.root()`, but before that we have to deal with previous
-    -- unresolved marker set
-    if not vim.tbl_isempty(joined_markers) then
-      local root = fs_root(source, joined_markers)
-      joined_markers = {}
-      if root then
-        return root
+  local path = source --[[@as string]]
+  if type(source) == 'number' then
+    path = vim.bo[source].bt == '' and vim.api.nvim_buf_get_name(source) or ''
+  end
+
+  ---Nearest directory containing a marker of each group
+  local found = {} ---@type table<integer, string>
+  ---Index of the highest priority group found so far, only groups with higher
+  ---priority need to be searched in parent directories
+  local best = #groups + 1
+  for dir in vim.fs.parents(vim.fs.abspath(path)) do
+    local prefix = dir == '/' and dir or dir .. '/'
+    for i = 1, best - 1 do
+      for _, name in ipairs(groups[i]) do
+        if vim.uv.fs_stat(prefix .. name) then
+          found[i] = dir
+          best = i
+          break
+        end
       end
     end
-
-    local root = fs_root(source, m)
-    if root then
-      return root
+    if best == 1 then
+      break
     end
-    ::continue::
   end
+  return found[best]
 end
 
 ---Read file contents

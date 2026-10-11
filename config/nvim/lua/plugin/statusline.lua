@@ -4,18 +4,6 @@ local groupid = vim.api.nvim_create_augroup('statusline', {})
 
 _G._statusline = {}
 
-local diag_signs_default_text = { 'E', 'W', 'I', 'H' }
-local diag_severity_map = {
-  [1] = 'ERROR',
-  [2] = 'WARN',
-  [3] = 'INFO',
-  [4] = 'HINT',
-  ERROR = 1,
-  WARN = 2,
-  INFO = 3,
-  HINT = 4,
-}
-
 -- Maximum widths
 local gitbranch_max_width = 0.3 -- maximum width of git branch name
 local wordcount_max_width = 0.2 -- maximum width of word count info
@@ -59,22 +47,6 @@ local function str_shorten(str, percent, str_alt)
   local substr_nchars = math.max(1, vim.fn.strcharlen(str) - width_diff)
 
   return vim.fn.strcharpart(str, 0, substr_nchars) .. ellipsis
-end
-
----@param severity integer|string
----@return string
-local function get_diag_sign_text(severity)
-  local diag_config = vim.diagnostic.config()
-  local signs_text = diag_config
-    and diag_config.signs
-    and type(diag_config.signs) == 'table'
-    and diag_config.signs.text
-  return signs_text
-      and (signs_text[severity] or signs_text[diag_severity_map[severity]])
-    or (
-      diag_signs_default_text[severity]
-      or diag_signs_default_text[diag_severity_map[severity]]
-    )
 end
 
 -- stylua: ignore start
@@ -122,8 +94,11 @@ local modes = {
 function _G._statusline.mode()
   local hl = vim.bo.mod and 'StatusLineHeaderModified' or 'StatusLineHeader'
   local mode = vim.fn.mode()
-  local mode_str = (mode == 'n' and (vim.bo.ro or not vim.bo.ma)) and 'RO'
-    or modes[mode]
+  local readonly = mode == 'n' and (vim.bo.ro or not vim.bo.ma)
+  local mode_str = readonly and 'RO' or modes[mode]
+  if vim.g.has_nf then
+    mode_str = (readonly and icons.Lock or icons.Vim) .. mode_str
+  end
   return utils.stl.hl(string.format(' %s ', mode_str), hl) .. ' '
 end
 
@@ -236,11 +211,20 @@ function _G._statusline.gitbranch()
     .. utils.stl.escape(str_shorten(branch, gitbranch_max_width))
 end
 
----Get current filetype
+---Get current filetype, prefixed with its devicon in nerd font mode
 ---@return string
 function _G._statusline.ft()
-  local ft = vim.bo.ft == '' and '' or vim.bo.ft:gsub('^%l', string.upper)
-  return utils.stl.hl(ft, 'StatuslineItalic')
+  local ft = vim.bo.ft
+  if ft == '' then
+    return ''
+  end
+  local ft_str = utils.stl.hl(ft:gsub('^%l', string.upper), 'StatuslineItalic')
+  local devicons = vim.g.has_nf and package.loaded['nvim-web-devicons']
+  if not devicons then
+    return ft_str
+  end
+  local icon, icon_hl = devicons.get_icon_by_filetype(ft, { default = true })
+  return utils.stl.hl(icon, icon_hl) .. ' ' .. ft_str
 end
 
 ---@return string
@@ -279,25 +263,26 @@ function _G._statusline.wordcount()
   local words_s_str = nwords > 1 and 's' or ''
   local chars_s_str = nchars > 1 and 's' or ''
 
-  return str_shorten(
-    string.format(
-      '%s%d word%s, %s%d char%s',
-      vwords_count_str,
-      nwords,
-      words_s_str,
-      vchars_count_str,
-      nchars,
-      chars_s_str
-    ),
-    wordcount_max_width,
-    string.format(
-      '%s%dW, %s%dC',
-      vwords_count_str,
-      nwords,
-      vchars_count_str,
-      nchars
+  return (vim.g.has_nf and icons.Words or '')
+    .. str_shorten(
+      string.format(
+        '%s%d word%s, %s%d char%s',
+        vwords_count_str,
+        nwords,
+        words_s_str,
+        vchars_count_str,
+        nchars,
+        chars_s_str
+      ),
+      wordcount_max_width,
+      string.format(
+        '%s%dW, %s%dC',
+        vwords_count_str,
+        nwords,
+        vchars_count_str,
+        nchars
+      )
     )
-  )
 end
 
 ---Record file name of normal buffers, key:val = fname:buffers_with_fname
@@ -499,12 +484,13 @@ function _G._statusline.fname()
     local path, pid, cmd, comment = utils.term.parse_name(bufname)
     if not path or not pid or not cmd then
       return string.format(
-        '[Terminal] %s',
+        vim.g.has_nf and icons.Terminal .. '%s' or '[Terminal] %s',
         str_shorten(bufname, fname_max_width)
       )
     end
     return string.format(
-      '[Terminal %s] %s [%s]',
+      vim.g.has_nf and icons.Terminal .. '%s %s [%s]'
+        or '[Terminal %s] %s [%s]',
       utils.stl.escape(
         str_shorten(
           comment ~= '' and comment or pid,
@@ -550,7 +536,10 @@ function _G._statusline.venv()
   local venv_name = vim.env.VIRTUAL_ENV
       and vim.fn.fnamemodify(vim.env.VIRTUAL_ENV, ':~:.')
     or vim.env.CONDA_DEFAULT_ENV
-  return venv_name and string.format('venv: %s', venv_name) or ''
+  if not venv_name then
+    return ''
+  end
+  return (vim.g.has_nf and icons.Python or 'venv: ') .. venv_name
 end
 
 ---Text filetypes
@@ -624,14 +613,15 @@ function _G._statusline.diag()
   end
   local str = ''
   local buf_cnt = vim.b.diag_cnt_cache or {}
-  for serverity_nr, severity in ipairs({ 'Error', 'Warn', 'INFO', 'Hint' }) do
-    local cnt = buf_cnt[serverity_nr] ~= vim.NIL and buf_cnt[serverity_nr] or 0
+  for severity_nr, severity in ipairs({ 'Error', 'Warn', 'Info', 'Hint' }) do
+    local cnt = buf_cnt[severity_nr] ~= vim.NIL and buf_cnt[severity_nr] or 0
     if cnt > 0 then
-      local icon_text = get_diag_sign_text(serverity_nr)
-      local icon_hl = 'StatusLineDiagnostic' .. severity
       str = str
         .. (str == '' and '' or ' ')
-        .. utils.stl.hl(icon_text, icon_hl)
+        .. utils.stl.hl(
+          icons['DiagnosticSign' .. severity],
+          'StatusLineDiagnostic' .. severity
+        )
         .. cnt
     end
   end
@@ -728,7 +718,8 @@ function _G._statusline.spinner()
   end
 
   return string.format(
-    '%s %s ',
+    '%s%s %s ',
+    vim.g.has_nf and icons.Lsp or '',
     utils.stl.hl(table.concat(progs, ', '), 'StatuslineItalic'),
     utils.stl.hl(spinner.icon, 'StatuslineSpinner')
   )

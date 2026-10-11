@@ -26,7 +26,7 @@ local function enable_ts_hl(buf)
   -- to `vim.treesitter.start()` and improve startup time
   -- Don't re-enable in the same buffer, else buffers loaded from session can
   -- have blank highlighting
-  if vim.b[buf].ft == '' or ts.is_active(buf) then
+  if vim.bo[buf].ft == '' or ts.is_active(buf) then
     return
   end
   pcall(vim.treesitter.start, buf)
@@ -47,12 +47,15 @@ local function enable_ts_folding(buf)
     return
   end
 
+  local ts_foldexpr = 'v:lua.vim.treesitter.foldexpr()'
   for _, win in ipairs(vim.fn.win_findbuf(buf)) do
     local wo = vim.wo[win][0]
-    if wo.foldexpr ~= '0' then
+    -- Builtin ftplugins (e.g. lua) already set treesitter `foldexpr` without
+    -- changing `foldmethod`
+    if wo.foldexpr ~= '0' and wo.foldexpr ~= ts_foldexpr then
       goto continue
     end
-    wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+    wo.foldexpr = ts_foldexpr
 
     -- Default `foldmethod` is 'manual', set to 'indent' in `core.opts`
     -- Prefer treesitter folding over indent folding

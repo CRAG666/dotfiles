@@ -84,6 +84,7 @@ run_cmd() {
         zen-browser -P Inaoe 'https://zenodo.org'
         zen-browser -P Inaoe 'https://europepmc.org'
         zen-browser -P Inaoe 'https://fabian-beck.github.io/pure-suggest'
+        zen-browser -P Inaoe 'https://www.tandfonline.com'
 
     elif [[ "$1" == '--opt2' ]]; then
         xdg-open 'https://web.whatsapp.com/'

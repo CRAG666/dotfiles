@@ -1,6 +1,6 @@
 local M = {}
 
-local utils = require('my.utils')
+local utils = require('utils')
 
 ---@type my.dap.cache
 local cache = utils.dap.new_cache()

@@ -41,7 +41,7 @@ return {
         },
         bigfile = { enabled = true },
         animate = { enabled = true },
-        scroll = { enabled = true },
+        scroll = { enabled = false },
         quickfile = { enabled = false },
         statuscolumn = { enabled = false },
         dim = { enabled = false },

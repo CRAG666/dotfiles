@@ -13,7 +13,8 @@ local specs_opt_path = vim.fs.joinpath(config_path, 'lua/pack/specs/opt')
 local function collect_specs(path)
   local specs = {} ---@type vim.pack.Spec[]
   for spec in vim.fs.dir(path) do
-    table.insert(specs, dofile(vim.fs.joinpath(path, spec)))
+    -- `loadfile()` uses `vim.loader`'s byte-compiled cache, `dofile()` does not
+    table.insert(specs, assert(loadfile(vim.fs.joinpath(path, spec)))())
   end
   return specs
 end

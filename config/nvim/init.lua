@@ -19,7 +19,20 @@ local load = require('utils.load')
 
 load.on_events('FileType', 'core.treesitter')
 load.on_events('DiagnosticChanged', 'core.diagnostic')
-load.on_events('FileType', 'core.lsp')
+-- Start language servers after the first redraw instead of blocking it,
+-- `vim.lsp.enable()` only attaches to existing buffers after `VimEnter`
+load.on_events('FileType', 'core.lsp', function()
+  local function setup()
+    vim.schedule(function()
+      require('core.lsp')
+    end)
+  end
+  if vim.v.vim_did_enter == 1 then
+    setup()
+  else
+    vim.api.nvim_create_autocmd('VimEnter', { once = true, callback = setup })
+  end
+end)
 require('core.format')
 vim.cmd.colorscheme('eyes')
 

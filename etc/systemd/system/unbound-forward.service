@@ -1,0 +1,11 @@
+[Unit]
+Description=Elegir salida DNS de unbound (recursion o DoH) en cada cambio de red
+After=unbound.service
+
+[Service]
+ExecStartPre=-/usr/local/bin/unbound-forward
+ExecStart=/bin/sh -c 'ip -4 monitor route | while read -r route _; do [ "$route" = default ] && /usr/local/bin/unbound-forward; done'
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

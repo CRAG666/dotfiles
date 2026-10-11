@@ -1,7 +1,7 @@
-set sandbox none
-set statusbar-h-padding 0
-set statusbar-v-padding 0
-set page-padding 1
+set statusbar-h-padding 14
+set statusbar-v-padding 8
+set page-v-padding 12
+set page-h-padding 12
 set guioptions none
 map <C-;> toggle_statusbar
 set synctex true
@@ -9,8 +9,16 @@ set synctex-editor-command "nvim --server $NVIM --remote-send ':VimtexInverseSea
 set selection-clipboard "clipboard"
 set window-title-home-tilde "true"
 set window-title-basename "true"
+set window-title-page true
 set statusbar-basename "true"
+set statusbar-home-tilde true
+set statusbar-page-percent true
 set adjust-open width
 set recolor-keephue "true"
-set font "SFPro Nerd Font Propo Display 16"
+set recolor-reverse-video true
+set render-loading false
+set scroll-page-aware true
+set font "SFProText Nerd Font Propo Medium 13"
+set selection-notification false
+set zoom-center true
 include ./eyes-activerc

@@ -168,53 +168,70 @@ augroup('last_pos_jmp', {
 })
 
 do
+  ---Set the buffer-local directory (`:bcd`) of `buf` to its project root
+  ---@param buf integer
+  local function set_root_dir(buf)
+    local file = vim.api.nvim_buf_get_name(buf)
+    -- Don't change cwd of special buffers, e.g. help buffers or oil preview
+    -- buffers
+    if file == '' or vim.bo[buf].bt ~= '' then
+      return
+    end
+
+    local fs_utils = require('utils.fs')
+    local root_dir =
+      fs_utils.root(file, vim.b[buf].root_markers or fs_utils.root_markers)
+    if
+      not root_dir
+      or fs_utils.is_home_dir(root_dir)
+      or fs_utils.is_root_dir(root_dir)
+    then
+      root_dir = vim.fs.dirname(file)
+    end
+
+    vim.b[buf]._root_dir = root_dir
+    vim.api.nvim_buf_call(buf, function()
+      pcall(vim.cmd.bcd, {
+        root_dir,
+        mods = { silent = true, emsg_silent = true },
+      })
+    end)
+  end
+
+  -- `BufWinEnter` comes after `FileType`, so ftplugins can set
+  -- `b:root_markers` before the root is resolved once per buffer
   augroup('auto_cwd', {
-    'BufEnter',
+    'BufWinEnter',
     {
-      desc = 'Automatically change local current directory.',
-      nested = true,
+      desc = 'Set buffer-local directory to project root.',
       callback = function(args)
-        local file = args.file
-        local buf = args.buf
-
-        -- Don't automatically change cwd in special buffers, e.g. help buffers
-        -- or oil preview buffers
-        if file == '' or vim.bo[buf].bt ~= '' then
+        if vim.b[args.buf]._root_dir == nil then
+          set_root_dir(args.buf)
+        end
+      end,
+    },
+  }, {
+    'BufFilePost',
+    {
+      desc = 'Update buffer-local directory after renaming.',
+      callback = function(args)
+        set_root_dir(args.buf)
+      end,
+    },
+  }, {
+    'FileType',
+    {
+      desc = 'Update buffer-local directory after filetype change.',
+      callback = function(args)
+        if vim.b[args.buf]._root_dir == nil then
           return
         end
-
-        local fs_utils = require('utils.fs')
-        local root_dir =
-          fs_utils.root(file, vim.b.root_markers or fs_utils.root_markers)
-
-        if
-          not root_dir
-          or fs_utils.is_home_dir(root_dir)
-          or fs_utils.is_root_dir(root_dir)
-        then
-          root_dir = vim.fs.dirname(file)
-        end
-
-        if not root_dir then
-          return
-        end
-
-        for _, win in ipairs(vim.fn.win_findbuf(buf)) do
-          vim.api.nvim_win_call(win, function()
-            -- Prevent unnecessary directory change, which triggers
-            -- DirChanged autocmds that may update winbar unexpectedly
-            if root_dir == vim.fn.getcwd(0) then
-              return
-            end
-            pcall(vim.cmd.lcd, {
-              root_dir,
-              mods = {
-                silent = true,
-                emsg_silent = true,
-              },
-            })
-          end)
-        end
+        -- Wait for ftplugins to set `b:root_markers`
+        vim.schedule(function()
+          if vim.api.nvim_buf_is_valid(args.buf) then
+            set_root_dir(args.buf)
+          end
+        end)
       end,
     },
   })
@@ -343,7 +360,7 @@ do
         -- Quickfix window height can be incorrectly set to a value larger
         -- than 10 (the default value) if there's vertical splits with winbar
         -- attached above the quickfix window
-        vim.api.nvim_win_set_height(vim.fn.bufwinid(args.buf), 10)
+        vim.api.nvim_win_resize(vim.fn.bufwinid(args.buf), -1, 10)
       end,
     },
   })

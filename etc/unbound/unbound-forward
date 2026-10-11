@@ -3,14 +3,8 @@
 #   - ¿el root me da su DNSKEY firmado por el 53? -> recursión pura (sin terceros)
 #   - 53 bloqueado o MANIPULADO (lab, o router que secuestra el :53 y quita las
 #     firmas) -> reenvia a dnscrypt-proxy (DoH/443), que sale por HTTPS limpio.
-# Se reevalua en cada cambio de red; sin estado per-red.
+# Lo ejecuta unbound-forward.service con cada nueva ruta por defecto; sin estado per-red.
 # ponytail: dig +dnssec como sonda; la RRSIG del root como discriminador.
-
-action="$2"
-case "$action" in
-    up|down|dhcp4-change|connectivity-change) ;;
-    *) exit 0 ;;
-esac
 
 FWD=/etc/unbound/forward.d/active.conf
 DOH='127.0.0.1@5300'                 # dnscrypt-proxy -> DoH/443

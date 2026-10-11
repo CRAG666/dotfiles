@@ -7,6 +7,19 @@ vim.api.nvim_create_autocmd({ 'BufWrite', 'FileChangedShellPost' }, {
   end,
 })
 
+---Output of git commands, indexed by buffer and joined command args
+---@type table<integer, table<string, { tick: integer, out: string? }>>
+local exec_cache = vim.defaulttable(function()
+  return {}
+end)
+
+vim.api.nvim_create_autocmd('BufWipeout', {
+  group = vim.api.nvim_create_augroup('git.clear_exec_cache', {}),
+  callback = function(args)
+    exec_cache[args.buf] = nil
+  end,
+})
+
 ---@class git.diffstat
 ---@field add? integer
 ---@field removed? integer
@@ -28,6 +41,7 @@ function M.diffstat(buf, args)
     local bufname = vim.api.nvim_buf_get_name(buf)
     local dirname = vim.fs.dirname(bufname)
     local now = vim.uv.hrtime()
+    vim.b[buf].git_diffstat_writetick = now
     pcall(
       vim.system,
       vim.list_extend({ 'git', '-C', dirname, unpack(args or {}) }, {
@@ -62,9 +76,8 @@ function M.diffstat(buf, args)
           end
         end
 
-        if (vim.b[buf].git_diffstat_writetick or 0) < now then
+        if vim.b[buf].git_diffstat_writetick == now then
           vim.b[buf].git_diffstat = o.code == 0 and stat or nil
-          vim.b[buf].git_diffstat_writetick = now
         end
       end)
     )
@@ -84,13 +97,12 @@ function M.execute(buf, args)
     return
   end
 
-  local cache_key = vim.fn.sha256(table.concat(args)):sub(1, 8)
-  local cache_key_writetick = cache_key .. '_writetick'
-
-  if
-    (vim.b[buf][cache_key_writetick] or 0) < (vim.b[buf].git_writetick or 1)
-  then
+  local key = table.concat(args, '\0')
+  local entry = exec_cache[buf][key]
+  if not entry or entry.tick < (vim.b[buf].git_writetick or 1) then
     local now = vim.uv.hrtime()
+    entry = { tick = now, out = entry and entry.out }
+    exec_cache[buf][key] = entry
     pcall(
       vim.system,
       {
@@ -101,19 +113,14 @@ function M.execute(buf, args)
       },
       { stderr = false },
       vim.schedule_wrap(function(o)
-        if not vim.api.nvim_buf_is_valid(buf) then
-          return
-        end
-
-        if (vim.b[buf][cache_key_writetick] or 0) < now then
-          vim.b[buf][cache_key] = o.code == 0 and vim.trim(o.stdout) or nil
-          vim.b[buf][cache_key_writetick] = now
+        if entry.tick == now then
+          entry.out = o.code == 0 and vim.trim(o.stdout) or nil
         end
       end)
     )
   end
 
-  return vim.b[buf][cache_key]
+  return entry.out
 end
 
 ---Get buffer's current work tree and git dir with fallback

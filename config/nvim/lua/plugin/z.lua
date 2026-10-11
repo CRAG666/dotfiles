@@ -87,9 +87,10 @@ local z_backends = {
 
 ---@type z.backend
 local z = (function()
-  for _, backend in pairs(z_backends) do
-    if backend.exists() then
-      return backend
+  -- Check zoxide first, detecting `z` spawns a blocking shell
+  for _, name in ipairs({ 'zoxide', 'z' }) do
+    if z_backends[name].exists() then
+      return z_backends[name]
     end
   end
 

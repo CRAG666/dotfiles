@@ -1,4 +1,4 @@
-local icons = require('my.utils.static.icons')
+local icons = require('utils.static.icons')
 
 -- Diagnostic configs
 vim.diagnostic.config({

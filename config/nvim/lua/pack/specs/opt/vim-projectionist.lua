@@ -44,7 +44,7 @@ return {
       -- Lazy load projections for each filetype
       require('utils.load').ft_auto_load_once(
         'pack.res.vim-projectionist.projections',
-        function(_, projections)
+        function(ft, projections)
           if not projections then
             return
           end
@@ -53,6 +53,14 @@ return {
             vim.g.projectionist_heuristics or {},
             projections
           )
+          -- Re-detect with the new heuristics, only for projectionist to
+          -- avoid re-running every `FileType` handler
+          if ft == vim.bo.ft then
+            vim.api.nvim_exec_autocmds(
+              'FileType',
+              { group = 'projectionist', pattern = ft }
+            )
+          end
         end
       )
     end,

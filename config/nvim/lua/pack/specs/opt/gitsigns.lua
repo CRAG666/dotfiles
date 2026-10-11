@@ -5,6 +5,7 @@ return {
     events = { 'BufReadPre', 'SessionLoadPost' },
     cmds = 'Gitsigns',
     keys = { lhs = '<Leader>gH', opts = { desc = 'Git list repo hunks' } },
+    defer = true,
     postload = function()
       local icons = require('utils.static.icons')
       local gs = require('gitsigns')

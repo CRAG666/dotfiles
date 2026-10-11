@@ -446,25 +446,32 @@ unbound:
     sudo chown -R unbound:unbound /etc/unbound
     {{ systemd_enable }} unbound
 
-# Configure NetworkManager (DNS + wifi backend)
-networkmanager:
+# Configure networking: iwd (wifi + DHCP) + systemd-networkd (cable) + DNS egress probe
+network:
     #!/usr/bin/env bash
     set -eu
-    echo "==> Configuring NetworkManager/conf.d..."
-    sudo install -d -m 755 /etc/NetworkManager/conf.d
-    sudo install -m 644 "{{ src }}/etc/NetworkManager/conf.d/"*.conf /etc/NetworkManager/conf.d/
-    echo "==> Installing dynamic unbound-forward dispatcher hook..."
-    sudo install -d -m 755 /etc/NetworkManager/dispatcher.d
-    sudo install -o root -g root -m 755 "{{ src }}/etc/NetworkManager/dispatcher.d/90-unbound-forward" \
-        /etc/NetworkManager/dispatcher.d/90-unbound-forward
+    echo "==> Installing iwd + impala..."
+    just install-pkgs iwd impala
+    echo "==> Configuring iwd (DHCP propio, sin tocar resolv.conf)..."
+    sudo install -Dm 644 "{{ src }}/etc/iwd/main.conf" /etc/iwd/main.conf
+    echo "==> Configuring systemd-networkd for wired interfaces..."
+    sudo install -Dm 644 "{{ src }}/etc/systemd/network/20-wired.network" /etc/systemd/network/20-wired.network
+    echo "==> Masking systemd-networkd-wait-online (bloquea el arranque sin cable)..."
+    sudo systemctl mask systemd-networkd-wait-online.service
+    echo "==> Installing unbound-forward probe + service..."
+    sudo install -Dm 755 "{{ src }}/etc/unbound/unbound-forward" /usr/local/bin/unbound-forward
+    sudo install -m 644 "{{ src }}/etc/systemd/system/unbound-forward.service" /etc/systemd/system/
     sudo install -d -o unbound -g unbound -m 755 /etc/unbound/forward.d
-    echo "==> Probing the network now to pick DNS mode (recursión vs DoH) sin esperar a NM..."
-    sudo /etc/NetworkManager/dispatcher.d/90-unbound-forward "" up || true
-    echo "==> Reloading NetworkManager (skipped over SSH to avoid disconnection)..."
+    sudo rm -f /etc/NetworkManager/conf.d/{dns,wifi_backend}.conf /etc/NetworkManager/dispatcher.d/90-unbound-forward
+    sudo systemctl daemon-reload
+    {{ systemd_enable }} unbound-forward.service
+    echo "==> Switching from NetworkManager to iwd + systemd-networkd (skipped over SSH)..."
     if [ -z "${SSH_CONNECTION:-}" ]; then
-        sudo systemctl reload NetworkManager || true
+        sudo systemctl disable --now NetworkManager 2>/dev/null || true
+        sudo systemctl enable systemd-networkd iwd
+        sudo systemctl restart systemd-networkd iwd
     else
-        echo "    SSH detected: reload manually with 'sudo systemctl reload NetworkManager'"
+        echo "    SSH detected: run 'sudo systemctl disable --now NetworkManager && sudo systemctl enable --now systemd-networkd iwd' locally"
     fi
 
 # Install AND (re)load the nftables firewall (evita el config drift)
@@ -510,8 +517,8 @@ dnscrypt:
     echo "==> Enabling dnscrypt-proxy (first start should be at home to cache the resolver list)..."
     {{ systemd_enable }} dnscrypt-proxy
 
-# Configure the whole local DNS stack (unbound + dnscrypt + NM)
-dns: unbound dnscrypt networkmanager
+# Configure the whole local DNS stack (unbound + dnscrypt + network)
+dns: unbound dnscrypt network
 
 # Install Tailscale + unirse al tailnet (base para P53 y L14)
 tailscale: nftables

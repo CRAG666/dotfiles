@@ -26,9 +26,9 @@ load.on_events(
 load.on_events(
   { 'Syntax', 'FileType', 'LspAttach', 'DiagnosticChanged' },
   'plugin.lsp-commands',
-  function()
+  vim.schedule_wrap(function()
     require('plugin.lsp-commands').setup()
-  end
+  end)
 )
 
 -- readline
@@ -98,7 +98,7 @@ if vim.g.loaded_z == nil then
   end
 
   load.on_events('UIEnter', 'plugin.z', vim.schedule_wrap(setup))
-  load.on_events('DirChanged', 'plugin.z', setup)
+  load.on_events('DirChanged', 'plugin.z', vim.schedule_wrap(setup))
   load.on_cmds({ 'Z', 'ZSelect' }, 'plugin.z', setup)
 end
 
@@ -135,6 +135,6 @@ if vim.g.loaded_session == nil then
   }, 'plugin.session', setup)
 end
 
-require('plugin.term').setup()
+require('plugin.term')
 require('plugin.run_code')
 require('plugin.colorify').run()

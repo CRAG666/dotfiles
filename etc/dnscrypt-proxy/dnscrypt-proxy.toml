@@ -1,5 +1,5 @@
 # dnscrypt-proxy: salida DNS cifrada por DoH (puerto 443).
-# unbound le reenvia aqui SOLO cuando el hook de NetworkManager detecta el 53
+# unbound le reenvia aqui SOLO cuando unbound-forward detecta el 53
 # bloqueado (p.ej. lab). En casa unbound recursa y esto queda ocioso.
 # Solo DoH -> siempre 443 -> atraviesa firewalls que filtran 53/853.
 

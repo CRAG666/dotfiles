@@ -15,7 +15,16 @@ return {
           line_up = '<A-k>',
         },
       })
-      require('mini.ai').setup({})
+      require('mini.ai').setup({
+        -- Keep nvim's builtin `an`/`in` (treesitter incremental selection)
+        -- and `al`/`il` (all lines / inner line) text objects
+        mappings = {
+          around_next = '',
+          inside_next = '',
+          around_last = '',
+          inside_last = '',
+        },
+      })
     end,
   },
 }

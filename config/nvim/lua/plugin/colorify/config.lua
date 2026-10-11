@@ -1,7 +1,7 @@
 return {
   highlight = {
     hex = true,
-    lspvars = true,
+    lspvars = false,
   },
   -- mode = 'virtual', -- "fg" | "bg" | "virtual"
   mode = 'bg', -- "fg" | "bg" | "virtual"

@@ -5,10 +5,16 @@ vim.lsp.config('*', lsp.default_config)
 -- Override to perform additional checks on starting language servers
 vim.lsp.start = lsp.start
 
-for _, dir in ipairs(vim.api.nvim__get_runtime({ 'lsp' }, true, {})) do
-  for config_file in vim.fs.dir(dir) do
-    vim.lsp.enable(vim.fn.fnamemodify(config_file, ':r'))
+-- Enable all configs in a single call, each `vim.lsp.enable()` call re-runs
+-- `FileType` autocmds for every buffer
+do
+  local names = {}
+  for _, dir in ipairs(vim.api.nvim__get_runtime({ 'lsp' }, true, {})) do
+    for config_file in vim.fs.dir(dir) do
+      table.insert(names, (config_file:gsub('%.lua$', '')))
+    end
   end
+  vim.lsp.enable(names)
 end
 
 -- Show notification if no references, definition, declaration,

@@ -20,12 +20,6 @@ function M.ft_load_once(ft, from, after_load)
   end
 
   after_load(ft, mod)
-
-  -- Only trigger FileType event when ft matches current buffer's ft, else
-  -- it will mess up current buffer's hl and conceal
-  if ft == vim.bo.ft then
-    vim.api.nvim_exec_autocmds('FileType', { pattern = ft })
-  end
 end
 
 ---Automatically load filetype-specific lua file from given module once
@@ -370,7 +364,7 @@ function M.on_keys(key_specs, name, load)
       spec.mode,
       spec.lhs,
       rhs,
-      vim.tbl_deep_extend('force', spec.opts, {
+      vim.tbl_deep_extend('force', spec.opts or {}, {
         expr = true, -- make operator-pending mode work
       })
     )

@@ -50,8 +50,15 @@ end
 ---@type vim.lsp.Config
 return {
   cmd = { 'tinymist' },
+  -- tinymist logs every compile and its whole pending request queue to stderr
+  -- at info/warn level, flooding the LSP log; per-module levels must be
+  -- overridden too
+  cmd_env = { TINYMIST_LOG = 'error,tinymist=error,sync_ls=error' },
   filetypes = { 'typst' },
   root_markers = { '.git' },
+  settings = {
+    formatterMode = 'typstyle',
+  },
   on_attach = function(client, bufnr)
     for _, command in ipairs({
       'tinymist.exportSvg',

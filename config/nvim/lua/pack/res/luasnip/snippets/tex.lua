@@ -606,6 +606,28 @@ M.math = {
     t('\\right)'),
   }),
 
+  -- Close delimiters typed in full, autopairs only handle single-key openings.
+  -- No math condition: the unclosed delimiter breaks math zone detection
+  us.saW({ trig = '\\left\\lfloor' }, {
+    t('\\left\\lfloor'),
+    i(1),
+    t('\\right\\rfloor'),
+  }),
+  us.saW({ trig = '\\left\\lceil' }, {
+    t('\\left\\lceil'),
+    i(1),
+    t('\\right\\rceil'),
+  }),
+  us.saW({ trig = '\\left\\vert' }, {
+    t('\\left\\vert'),
+    i(1),
+    t('\\right\\vert'),
+  }),
+  us.saW({ trig = '\\left\\lVert' }, {
+    t('\\left\\lVert'),
+    i(1),
+    t('\\right\\rVert'),
+  }),
   us.sam({ trig = 'flr' }, {
     t('\\left\\lfloor '),
     i(1),

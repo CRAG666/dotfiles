@@ -77,20 +77,6 @@ local subcommand_arg_handler = {
       return type(item) == 'string' and vim.uv.fs_realpath(item) or item
     end
   end,
-  ---Convert the args of the form '<id_1> (<name_1>) <id_2> (<name_2) ...' to
-  ---list of client ids
-  ---@param args lsp.cmd.parsed_args
-  ---@return integer[]
-  lsp_client_ids = function(args)
-    local ids = {}
-    for _, arg in ipairs(args) do
-      local id = tonumber(arg:match('^%d+'))
-      if id then
-        table.insert(ids, id)
-      end
-    end
-    return ids
-  end,
 }
 
 ---@type table<string, lsp.cmd.completion>
@@ -137,19 +123,6 @@ local subcommand_completions = {
       client_names[client.name] = true
     end
     return vim.tbl_keys(client_names)
-  end,
-  ---Get completion for enabled LSP configs
-  ---@return integer[]
-  lsp_enabled_config_names = function(arglead)
-    if arglead ~= '' and not vim.endswith(arglead, '=') then
-      return {}
-    end
-    return vim
-      .iter(vim.lsp.get_configs({ enabled = true }))
-      :map(function(config) ---@param config vim.lsp.Config
-        return config.name
-      end)
-      :totable()
   end,
 }
 
@@ -214,16 +187,7 @@ local subcommands = {
   ---LSP subcommands
   ---@type table<string, lsp.cmd.info>
   lsp = {
-    -- Builtin `:lsp` commands in nvim v0.13 provides
-    -- `:lsp {enable,disable,restart,stop}`
-    enable = {},
-    disable = {
-      ---@param config_names string[]
-      fn_override = function(config_names)
-        vim.lsp.enable(config_names, false)
-      end,
-      completion = subcommand_completions.lsp_enabled_config_names,
-    },
+    -- `:lsp {enable,disable,restart,stop}` are builtin since nvim v0.12
     info = {
       opts = {
         'filter',
@@ -243,32 +207,6 @@ local subcommands = {
             name = client.name,
             root_dir = client.config.root_dir,
             attached_buffers = vim.tbl_keys(client.attached_buffers),
-          })
-        end
-      end,
-    },
-    restart = {
-      completion = subcommand_completions.lsp_clients,
-      arg_handler = subcommand_arg_handler.lsp_client_ids,
-      fn_override = function(ids)
-        -- Restart all clients attached to current buffer if no ids are given
-        local clients = not vim.tbl_isempty(ids)
-            and vim.tbl_map(function(id)
-              return vim.lsp.get_client_by_id(id)
-            end, ids)
-          or vim.lsp.get_clients({ bufnr = 0 })
-        for _, client in ipairs(clients) do
-          utils.lsp.restart(client, {
-            on_restart = function(new_client_id)
-              vim.notify(
-                string.format(
-                  '[LSP] restarted client %d (%s) as client %d',
-                  client.id,
-                  client.name,
-                  new_client_id
-                )
-              )
-            end,
           })
         end
       end,
@@ -297,31 +235,6 @@ local subcommands = {
         local clients = vim.lsp.get_clients(filter)
         for _, client in ipairs(clients) do
           vim.print(client)
-        end
-      end,
-    },
-    stop = {
-      completion = subcommand_completions.lsp_clients,
-      arg_handler = subcommand_arg_handler.lsp_client_ids,
-      fn_override = function(ids)
-        -- Stop all clients attached to current buffer if no ids are given
-        local clients = not vim.tbl_isempty(ids)
-            and vim.tbl_map(function(id)
-              return vim.lsp.get_client_by_id(id)
-            end, ids)
-          or vim.lsp.get_clients({ bufnr = 0 })
-        for _, client in ipairs(clients) do
-          utils.lsp.soft_stop(client, {
-            on_close = function()
-              vim.notify(
-                string.format(
-                  '[LSP] stopped client %d (%s)',
-                  client.id,
-                  client.name
-                )
-              )
-            end,
-          })
         end
       end,
     },
@@ -503,19 +416,16 @@ local subcommands = {
     },
     type_definition = {
       opts = {
-        'reuse_win',
         ['on_list'] = subcommand_opt_vals.bool,
       },
     },
     declaration = {
       opts = {
-        'reuse_win',
         ['on_list'] = subcommand_opt_vals.bool,
       },
     },
     definition = {
       opts = {
-        'reuse_win',
         ['on_list'] = subcommand_opt_vals.bool,
       },
     },

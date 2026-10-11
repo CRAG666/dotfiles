@@ -65,7 +65,7 @@ function M.start(config, opts)
     require('utils.fs').root(
       bufname,
       vim.list_extend(
-        config.root_markers or {},
+        vim.list_extend({}, config.root_markers or {}),
         M.default_config.root_markers or {}
       )
     )
@@ -114,39 +114,6 @@ function M.soft_stop(client_or_id, opts)
     opts.retry = opts.retry - 1
     M.soft_stop(client, opts)
   end, opts.interval)
-end
-
----Restart and reattach LSP client
----@param client_or_id integer|vim.lsp.Client
----@param opts { on_restart: fun(client_id: integer)? }?
-function M.restart(client_or_id, opts)
-  local client = type(client_or_id) == 'number'
-      and vim.lsp.get_client_by_id(client_or_id)
-    or client_or_id --[[@as vim.lsp.Client]]
-  if not client then
-    return
-  end
-
-  -- `client.attached_buffers` will be empty after client is stopped,
-  -- save it before stopping
-  local attached_buffers = vim.deepcopy(client.attached_buffers, true)
-  local config = client.config
-  M.soft_stop(client, {
-    on_close = function()
-      for buf, _ in pairs(attached_buffers) do
-        if not vim.api.nvim_buf_is_valid(buf) then
-          return
-        end
-        vim.api.nvim_buf_call(buf, function()
-          ---@cast config lsp.config
-          local id = M.start(config)
-          if id and opts and opts.on_restart then
-            opts.on_restart(id)
-          end
-        end)
-      end
-    end,
-  })
 end
 
 ---@class lsp.range

@@ -32,9 +32,6 @@ vim.opt.smartcase = true
 vim.opt.completeopt = 'menuone'
 vim.opt.tabclose = 'uselast'
 
--- Find recursively under current directory
-vim.opt.path:append('**')
-
 -- Defer shada reading
 do
   vim.opt.shada = ''
