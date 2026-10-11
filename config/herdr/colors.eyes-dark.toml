@@ -1,6 +1,6 @@
 # Paleta eyes (light, canónico) para [theme.custom] de herdr.
-# El dark (colors.eyes-dark.toml) se genera desde aquí con
-# `eyes-theme generate` (sed de PALETTE).
+# El dark (colors.eyes-dark.toml) se mantiene a mano: sus acentos no siguen
+# la paleta 1:1, así que `eyes-theme generate` no lo toca.
 
 [theme.custom]
 # Superficies (eyes: bg1/bg3/bg4)

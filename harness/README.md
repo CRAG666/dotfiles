@@ -17,8 +17,8 @@ live theme dirs and `local/bin/eyes-theme` flips the active one.
 ## Why copies instead of symlinks for settings.json
 
 Both pi and `eyes-theme` rewrite `settings.json` in place: pi updates
-`lastChangelogVersion`, and `local/bin/eyes-theme` flips the `theme` key with
-`jq` + `mv` on every light/dark switch. A symlink would be replaced by those
+`lastChangelogVersion`, and `local/bin/eyes-theme` sets the fixed `theme` key
+(atomic replace) whenever it differs. A symlink would be replaced by those
 writes, so these two files install as **copies** (first existing copy is kept
 as `settings.json.bak`). Edit them here and re-run `just harness`.
 

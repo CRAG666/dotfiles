@@ -1,828 +1,845 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+import argparse
+import fcntl
+import json
+import logging
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import tomllib
+from abc import ABC, abstractmethod
+from collections import Counter, defaultdict
+from collections.abc import Callable, Iterator, Mapping
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import contextmanager, suppress
+from dataclasses import dataclass, field, replace
+from datetime import UTC, datetime
+from enum import StrEnum, auto
+from functools import partial
+from itertools import chain
+from pathlib import Path
+from signal import Signals
+from typing import ClassVar
 
-set -euo pipefail
+type Toml = str | int | float | bool | list[Toml] | dict[str, Toml]
+type Table = Mapping[str, Toml]
 
-readonly STATE_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/eyes"
-readonly STATE_FILE="$STATE_DIR/mode"
-mkdir -p "$STATE_DIR"
+ROOT = Path(__file__).resolve().parents[2]
+HOME = Path.home()
+MANIFEST = ROOT / "local/share/eyes-theme/manifest.toml"
+STATE_DIR = Path(os.environ.get("XDG_CONFIG_HOME", HOME / ".config")) / "eyes"
+COMMANDS = ("light", "dark", "toggle", "auto", "reapply", "status", "generate", "doctor")
 
-readonly DOTFILES_DIR="$(cd -- "$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}")")/../.." && pwd)"
-readonly CLAUDE_THEME_SRC_DIR="$DOTFILES_DIR/harness/claude/themes"
-readonly PI_THEME_SRC_DIR="$DOTFILES_DIR/harness/pi/themes"
+log = logging.getLogger("eyes-theme")
 
-DRY_RUN=0
-FORCE=0
 
-# ---------------------------------------------------------------------------
-# Palette
-# ---------------------------------------------------------------------------
+class Mode(StrEnum):
+    LIGHT = auto()
+    DARK = auto()
 
-readonly PALETTE=(
-  'bg0:add4a0:1a211a'
-  'bg1:a4cc98:202820'
-  'bg2:9fc895:263026'
-  'bg3:96be8c:2d382d'
-  'bg4:88b07e:3a463a'
-  'bg5:6a9060:536053'
-  'fg0:1a1a1a:d0dcc8'
-  'fg1:1e2e1c:b8c8b0'
-  'fg2:3d5c38:9aab94'
-  'gray0:486040:8a9a88'
-  'gray1:385030:7a8a78'
-  'gray2:2c4028:6a7868'
-  'green0:2a5c22:7aab72'
-  'green1:1e4a18:88b878'
-  'green2:3a5030:6a9460'
-  'ash:365c25:7a8c72'
-  'teal:145850:5ab8a8'
-  'blue0:1e4868:6a94a8'
-  'blue1:143c52:82aab8'
-  'violet:3a2860:9090b8'
-  'aqua:1a5858:6ab8b0'
-  'orange0:6a3c10:b89a6a'
-  'orange1:7a4a18:c8a870'
-  'red:7a1e18:c87868'
-  'yellow:5a4808:d4b85a'
-  'pink:5a2858:b890b0'
-  'winterRed:d8a8a0:402828'
-  'winterBlue:90bcd0:223040'
-  'winterGreen:94cc88:243224'
-  'winterYellow:d0c890:3a3420'
-)
+    @property
+    def opposite(self) -> Mode:
+        return Mode.LIGHT if self is Mode.DARK else Mode.DARK
 
-# ---------------------------------------------------------------------------
-# Theme definitions
-#
-# Format per entry:  rel|light|dark  or  rel|light|dark|style
-# style is used by generate() and defaults to hash.
-# ---------------------------------------------------------------------------
+    @classmethod
+    def for_hour(cls, hour: int) -> Mode:
+        return cls.LIGHT if 6 <= hour < 19 else cls.DARK
 
-readonly SWITCHES=(
-  'config/eza/theme.yml|eyes.yml|eyes-dark.yml'
-  'config/zsh-patina/theme.toml|eyes-light.toml|eyes-dark.toml'
-  'config/hypr/colors/theme.conf|eyes-light.conf|eyes-dark.conf'
-  'config/btop/themes/eyes-active.theme|eyes.theme|eyes-dark.theme'
-  'config/atuin/themes/eyes-active.toml|eyes.toml|eyes-dark.toml'
-  'config/termusic/themes/eyes-active.yml|eyes.yml|eyes-dark.yml'
-  'config/zathura/eyes-activerc|eyesrc|eyes-darkrc'
-  'config/foot/colors.ini|colors.eyes.ini|colors.eyes-dark.ini'
-  'config/dunst/dunstrc.d/50-colors.conf|../colors.eyes.conf|../colors.eyes-dark.conf'
-  '.tmux.colors.conf|.tmux.colors.eyes.conf|.tmux.colors.eyes-dark.conf'
-  '.Xresources|.Xresources.eyes|.Xresources.eyes-dark'
-  'config/shell/colors.env|colors.eyes.env|colors.eyes-dark.env'
-  'config/scroll/colors.conf|colors.eyes.conf|colors.eyes-dark.conf'
-  'config/rofi/colors/theme.rasi|eyes.rasi|eyes-dark.rasi'
-  'config/rofi/colors/colors.txt|eyes.txt|eyes-dark.txt'
-  'config/nushell/theme.nu|eyes.nu|eyes-dark.nu'
-  'config/yazi/flavors/eyes.yazi|eyes-light.yazi|eyes-dark.yazi'
-  'config/yazi/colors.lua|colors.eyes.lua|colors.eyes-dark.lua'
-  'config/mpv/colors.conf|colors.eyes.conf|colors.eyes-dark.conf'
-  'config/hunk/config.toml|config.eyes.toml|config.eyes-dark.toml'
-)
 
-# Compose: rel|base|light|dark[|v+b] — ensambla base estática (SIN colores)
-# + variante de solo-colores en cada switch. Para herramientas sin include
-# (herdr, swaylock, termusic, starship) es la alternativa a conmutar una
-# config completa por symlink: el switch solo toca la parte de color.
-# v+b = variante ANTES que base (starship: la clave top-level palette debe
-# preceder a las tablas TOML).
-readonly COMPOSE=(
-  'config/herdr/config.toml|config/herdr/base.toml|config/herdr/colors.eyes.toml|config/herdr/colors.eyes-dark.toml'
-  'config/swaylock/config|config/swaylock/base.conf|config/swaylock/colors.eyes.conf|config/swaylock/colors.eyes-dark.conf'
-  'config/termusic/tui.toml|config/termusic/tui.base.toml|config/termusic/tui.colors.eyes.toml|config/termusic/tui.colors.eyes-dark.toml'
-  'config/tridactyl/themes/theme.css|config/tridactyl/themes/base.css|config/tridactyl/themes/colors.eyes.css|config/tridactyl/themes/colors.eyes-dark.css'
-  'config/starship.toml|config/starship.base.toml|config/starship.palette.eyes.toml|config/starship.palette.eyes-dark.toml|v+b'
-)
+@dataclass(frozen=True, slots=True)
+class Pair[T]:
+    light: T
+    dark: T
 
-readonly GENERATE=(
-  'config/dunst/colors.eyes.conf|config/dunst/colors.eyes-dark.conf'
-  '.tmux.colors.eyes.conf|.tmux.colors.eyes-dark.conf'
-  '.Xresources.eyes|.Xresources.eyes-dark'
-  'config/shell/colors.eyes.env|config/shell/colors.eyes-dark.env|colorsenv'
-  'config/rofi/colors/eyes.rasi|config/rofi/colors/eyes-dark.rasi'
-  'config/rofi/colors/eyes.txt|config/rofi/colors/eyes-dark.txt'
-  'config/nushell/eyes.nu|config/nushell/eyes-dark.nu'
-  'config/tridactyl/themes/colors.eyes.css|config/tridactyl/themes/colors.eyes-dark.css'
-  'config/yazi/colors.eyes.lua|config/yazi/colors.eyes-dark.lua'
-  'config/swaylock/colors.eyes.conf|config/swaylock/colors.eyes-dark.conf|hexa'
-  'config/yazi/flavors/eyes-light.yazi|config/yazi/flavors/eyes-dark.yazi|yaziflavor'
-  'config/mpv/colors.eyes.conf|config/mpv/colors.eyes-dark.conf|bare'
-)
+    def __getitem__(self, mode: Mode) -> T:
+        return self.dark if mode is Mode.DARK else self.light
 
-# Pares mantenidos a mano, PROHIBIDO regenerar: sus acentos light↔dark no
-# siguen el mapeo 1:1 de PALETTE (el light usa pastel winter*, el dark acentos
-# ANSI vividos). `generate` los clobberaría con casi-negros. Editar ambos
-# lados a mano:
-#   config/herdr/colors.eyes.toml  + config/herdr/colors.eyes-dark.toml
-#   config/scroll/colors.eyes.conf + config/scroll/colors.eyes-dark.conf
-#   config/termusic/tui.colors.eyes.toml + tui.colors.eyes-dark.toml (ANSI cruzados)
 
-# Consumidores verificados por `doctor`: label;regex;archivo (repo-relativo
-# o ~/vivo). Separador ';' porque el regex puede contener '|'. Comprueba que
-# cada archivo conmutado SIGA referenciado por su herramienta — un switch que
-# nadie lee es un fallo silencioso.
-readonly DOCTOR_WIRING=(
-  'kitty (light);name: +Eyes \(Light\);config/kitty/light-theme.auto.conf'
-  'kitty (dark);name: +Eyes \(Dark\);config/kitty/dark-theme.auto.conf'
-  'kitty (diff);diff-eyes-dark;config/kitty/diff.conf'
-  'yazi (searchjump);yazi/colors\.lua;config/yazi/init.lua'
-  'btop;eyes-active;config/btop/btop.conf'
-  'atuin;eyes-active;config/atuin/config.toml'
-  'termusic;file_name = "eyes-active";config/termusic/tui.colors.eyes.toml'
-  'termusic (dark);file_name = "eyes-active";config/termusic/tui.colors.eyes-dark.toml'
-  'zathura;eyes-activerc;config/zathura/zathurarc'
-  'foot;colors\.ini;config/foot/foot.ini'
-  'tmux;tmux\.colors\.conf;.tmux.conf'
-  'zsh;colors\.env;.zshrc'
-  'scroll;colors\.conf;config/scroll/config'
-  'rofi;colors/theme\.rasi;config/rofi'
-  'rofi (txt);colors/colors\.txt;config/rofi'
-  'nushell;theme\.nu;config/nushell/config.nu'
-  'tridactyl;colorscheme theme;config/tridactyl/tridactylrc'
-  'yazi;eyes-(light|dark);config/yazi/theme.toml'
-  'mpv;colors\.conf;config/mpv/mpv.conf'
-  'patina;theme\.toml;config/zsh-patina/config.toml'
-  'hypr;colors/theme\.conf;config/hypr/hyprland.conf'
-  'swayidle;swaylock;config/swayidle/config'
-  'gtk3;prefer-dark-theme;~/.config/gtk-3.0/settings.ini'
-  'gtk4;prefer-dark-theme;~/.config/gtk-4.0/settings.ini'
-)
+class Level(StrEnum):
+    OK = "ok"
+    WARN = "warn"
+    FAIL = "FAIL"
 
-# ---------------------------------------------------------------------------
-# Logging
-# ---------------------------------------------------------------------------
 
-info() { printf '%s\n' "$*"; }
-warn() { printf '%s\n' "$*" >&2; }
+@dataclass(frozen=True, slots=True)
+class Finding:
+    level: Level
+    message: str
 
-# ---------------------------------------------------------------------------
-# Mode
-# ---------------------------------------------------------------------------
+    @classmethod
+    def verdict(cls, passed: bool, ok: str, fail: str) -> Finding:
+        return cls(Level.OK, ok) if passed else cls(Level.FAIL, fail)
 
-current_mode() {
-  local m=""
-  [[ -f "$STATE_FILE" ]] && m="$(cat "$STATE_FILE")"
-  case "$m" in dark) echo dark ;; *) echo light ;; esac
+
+def located(spec: str) -> Path:
+    return Path(spec).expanduser() if spec.startswith("~") else ROOT / spec
+
+
+def shown(path: Path) -> str:
+    if path.is_relative_to(ROOT):
+        return str(path.relative_to(ROOT))
+    if path.is_relative_to(HOME):
+        return f"~/{path.relative_to(HOME)}"
+    return str(path)
+
+
+def live(path: Path) -> Path:
+    relative = path.relative_to(ROOT)
+    if relative.parts[0] == "config":
+        return HOME / ".config" / relative.relative_to("config")
+    return HOME / relative
+
+
+def has_text(path: Path, text: str) -> bool:
+    return path.is_file() and path.read_text(encoding="utf-8") == text
+
+
+def write_atomic(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.")
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            stream.write(text)
+        os.replace(temporary, path)
+    finally:
+        Path(temporary).unlink(missing_ok=True)
+
+
+def link_atomic(path: Path, target: str | Path) -> None:
+    temporary = path.with_name(f".{path.name}.eyes-tmp")
+    temporary.unlink(missing_ok=True)
+    temporary.symlink_to(target)
+    os.replace(temporary, path)
+
+
+def running_processes() -> dict[str, tuple[int, ...]]:
+    table: defaultdict[str, list[int]] = defaultdict(list)
+    for comm in Path("/proc").glob("[0-9]*/comm"):
+        with suppress(FileNotFoundError, ProcessLookupError):
+            table[comm.read_text(encoding="utf-8").rstrip("\n")].append(int(comm.parent.name))
+    return {name: tuple(pids) for name, pids in table.items()}
+
+
+def systemctl(verb: str, unit: str) -> str:
+    return subprocess.run(
+        ["systemctl", "--user", verb, unit], capture_output=True, text=True, check=False
+    ).stdout.strip()
+
+
+def unit_findings(unit: str) -> Iterator[Finding]:
+    enabled = systemctl("is-enabled", unit)
+    yield Finding.verdict(
+        enabled == "enabled", f"{unit} enabled", f"{unit} — '{enabled}' (restaurar: just systemd-user)"
+    )
+    if unit.endswith(".timer") and (active := systemctl("is-active", unit)) != "active":
+        yield Finding(Level.WARN, f"{unit} inactivo ('{active}')")
+
+
+class HexStyle(StrEnum):
+    HASH = auto()
+    BARE = auto()
+    HEXA = auto()
+
+
+def sgr(hex_color: str) -> str:
+    return ";".join(map(str, bytes.fromhex(hex_color)))
+
+
+@dataclass(frozen=True, slots=True)
+class Palette:
+    to_dark: Mapping[str, str]
+
+    @classmethod
+    def from_table(cls, table: Table) -> Palette:
+        return cls({light.lower(): dark.lower() for light, dark in table.values()})
+
+    def translate(self, text: str, style: HexStyle) -> str:
+        lights = "|".join(self.to_dark)
+        match style:
+            case HexStyle.HASH:
+                text = re.sub(
+                    f"#({lights})", lambda found: f"#{self.to_dark[found[1].lower()]}", text, flags=re.IGNORECASE
+                )
+                triplets = {sgr(light): sgr(dark) for light, dark in self.to_dark.items()}
+                alternatives = "|".join(map(re.escape, triplets))
+                return re.sub(
+                    rf"([34]8;2;)({alternatives})(?!\d)", lambda found: found[1] + triplets[found[2]], text
+                )
+            case HexStyle.BARE:
+                return re.sub(
+                    rf"\b({lights})\b", lambda found: self.to_dark[found[1].lower()], text, flags=re.IGNORECASE
+                )
+            case HexStyle.HEXA:
+                return re.sub(
+                    rf"\b({lights})((?:[0-9a-f]{{2}})?)\b",
+                    lambda found: self.to_dark[found[1].lower()] + found[2],
+                    text,
+                    flags=re.IGNORECASE,
+                )
+
+
+@dataclass(frozen=True, slots=True)
+class Generation:
+    variants: Pair[Path]
+    style: HexStyle
+    files: tuple[str, ...] = ()
+    replacements: tuple[tuple[str, str], ...] = ()
+    after: tuple[str, ...] = ()
+
+    @classmethod
+    def from_table(cls, spec: Table, variants: Pair[Path]) -> Generation | None:
+        match spec.get("generate"):
+            case None:
+                return None
+            case str(style):
+                return cls(
+                    variants,
+                    HexStyle(style),
+                    tuple(spec.get("generate_files", ())),
+                    tuple(map(tuple, spec.get("generate_replace", ()))),
+                    tuple(spec.get("generate_after", ())),
+                )
+            case invalid:
+                raise ValueError(f"generate inválido: {invalid!r}")
+
+    def outputs(self, palette: Palette) -> Iterator[tuple[Path, str]]:
+        light, dark = self.variants.light, self.variants.dark
+        sources = [(light / name, dark / name) for name in self.files] if self.files else [(light, dark)]
+        for source, output in sources:
+            text = palette.translate(source.read_text(encoding="utf-8"), self.style)
+            for old, new in self.replacements:
+                text = text.replace(old, new)
+            yield output, text
+
+    def run(self, palette: Palette) -> None:
+        if self.files:
+            with suppress(FileNotFoundError):
+                shutil.rmtree(self.variants.dark)
+            self.variants.light.copy(self.variants.dark, follow_symlinks=False, preserve_metadata=True)
+        for output, text in self.outputs(palette):
+            output.write_text(text, encoding="utf-8")
+        if self.after:
+            subprocess.run(self.after, check=True)
+
+    def check(self, palette: Palette) -> Iterator[Finding]:
+        if not self.variants.light.exists():
+            yield Finding(Level.FAIL, f"{shown(self.variants.light)} — falta la variante clara")
+            return
+        for output, text in self.outputs(palette):
+            yield Finding.verdict(
+                has_text(output, text),
+                shown(output),
+                f"{shown(output)} — difiere de lo generado (corre: eyes-theme generate)",
+            )
+
+
+class Target(ABC):
+    __slots__ = ()
+    section: ClassVar[str]
+
+    @property
+    def generation(self) -> Generation | None:
+        return None
+
+    def is_present(self) -> bool:
+        return True
+
+    @abstractmethod
+    def plan(self, mode: Mode) -> str: ...
+
+    @abstractmethod
+    def apply(self, mode: Mode) -> None: ...
+
+    @abstractmethod
+    def check(self, mode: Mode) -> Iterator[Finding]: ...
+
+
+@dataclass(frozen=True, slots=True)
+class Switch(Target):
+    section: ClassVar[str] = "enlaces"
+    pointer: Path
+    variants: Pair[str]
+    generation: Generation | None = None
+
+    @classmethod
+    def from_table(cls, spec: Table) -> Switch:
+        match spec:
+            case {"pointer": str(pointer), "light": str(light), "dark": str(dark)}:
+                path = located(pointer)
+                files = Pair((path.parent / light).resolve(), (path.parent / dark).resolve())
+                return cls(path, Pair(light, dark), Generation.from_table(spec, files))
+            case _:
+                raise ValueError(f"switch inválido: {spec}")
+
+    def is_present(self) -> bool:
+        return not self.pointer.parent.is_dir() or self.pointer.is_symlink()
+
+    def plan(self, mode: Mode) -> str:
+        return f"link {shown(self.pointer)} -> {self.variants[mode]}"
+
+    def apply(self, mode: Mode) -> None:
+        if not self.pointer.parent.is_dir():
+            return
+        if self.pointer.is_dir() and not self.pointer.is_symlink():
+            shutil.rmtree(self.pointer)
+        link_atomic(self.pointer, self.variants[mode])
+
+    def check(self, mode: Mode) -> Iterator[Finding]:
+        want = self.variants[mode]
+        problems = []
+        if not self.pointer.is_symlink():
+            problems.append("no es symlink")
+        elif (current := str(self.pointer.readlink())) != want:
+            problems.append(f"apunta a '{current}', esperaba '{want}'")
+        if not (self.pointer.parent / want).exists():
+            problems.append(f"falta {want}")
+        path = live(self.pointer)
+        if not path.exists(follow_symlinks=False):
+            problems.append(f"no existe {shown(path)}")
+        elif path.resolve() != self.pointer.resolve():
+            problems.append(f"{shown(path)} no resuelve igual que el repo")
+        yield Finding.verdict(
+            not problems, f"{shown(self.pointer)} -> {want}", f"{shown(self.pointer)} — {'; '.join(problems)}"
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class Compose(Target):
+    section: ClassVar[str] = "compuestos"
+    target: Path
+    base: Path
+    variants: Pair[Path]
+    variant_first: bool = False
+    generation: Generation | None = None
+
+    @classmethod
+    def from_table(cls, spec: Table) -> Compose:
+        match spec:
+            case {"target": str(target), "base": str(base), "light": str(light), "dark": str(dark)}:
+                variants = Pair(located(light), located(dark))
+                return cls(
+                    located(target),
+                    located(base),
+                    variants,
+                    bool(spec.get("variant_first", False)),
+                    Generation.from_table(spec, variants),
+                )
+            case _:
+                raise ValueError(f"compose inválido: {spec}")
+
+    def parts(self, mode: Mode) -> tuple[Path, Path]:
+        return (self.variants[mode], self.base) if self.variant_first else (self.base, self.variants[mode])
+
+    def expected(self, mode: Mode) -> str:
+        return "".join(part.read_text(encoding="utf-8") for part in self.parts(mode))
+
+    def plan(self, mode: Mode) -> str:
+        return f"compose {shown(self.target)}"
+
+    def apply(self, mode: Mode) -> None:
+        write_atomic(self.target, self.expected(mode))
+
+    def check(self, mode: Mode) -> Iterator[Finding]:
+        label = " + ".join(part.name for part in self.parts(mode))
+        yield Finding.verdict(
+            has_text(self.target, self.expected(mode)),
+            f"{shown(self.target)} ({label})",
+            f"{shown(self.target)} — difiere de {label} (corre: eyes-theme reapply)",
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class Copy(Target):
+    section: ClassVar[str] = "copias"
+    target: Path
+    variants: Pair[Path]
+    rename: tuple[str, str] | None = None
+
+    @classmethod
+    def from_table(cls, spec: Table) -> Copy:
+        match spec:
+            case {"target": str(target), "light": str(light), "dark": str(dark)}:
+                rename = tuple(spec["replace"]) if "replace" in spec else None
+                return cls(located(target), Pair(located(light), located(dark)), rename)
+            case _:
+                raise ValueError(f"copy inválido: {spec}")
+
+    def expected(self, mode: Mode) -> str:
+        text = self.variants[mode].read_text(encoding="utf-8")
+        return re.sub(*self.rename, text) if self.rename else text
+
+    def plan(self, mode: Mode) -> str:
+        return f"write {shown(self.target)} from {self.variants[mode].name}"
+
+    def apply(self, mode: Mode) -> None:
+        write_atomic(self.target, self.expected(mode))
+
+    def check(self, mode: Mode) -> Iterator[Finding]:
+        variant = self.variants[mode].name
+        yield Finding.verdict(
+            has_text(self.target, self.expected(mode)),
+            f"{shown(self.target)} == {variant} (hot-reload vivo)",
+            f"{shown(self.target)} no coincide con {variant} (corre: eyes-theme reapply)",
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class Link(Target):
+    section: ClassVar[str] = "instalaciones"
+    path: Path
+    target: Path
+
+    @classmethod
+    def from_table(cls, spec: Table) -> Link:
+        match spec:
+            case {"path": str(path), "target": str(target)}:
+                return cls(located(path), located(target))
+            case _:
+                raise ValueError(f"link inválido: {spec}")
+
+    def plan(self, mode: Mode) -> str:
+        return f"link {shown(self.path)} -> {shown(self.target)}"
+
+    def apply(self, mode: Mode) -> None:
+        if not self.path.exists():
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            link_atomic(self.path, self.target)
+
+    def check(self, mode: Mode) -> Iterator[Finding]:
+        yield Finding.verdict(
+            self.path.exists(), shown(self.path), f"falta {shown(self.path)} (corre: eyes-theme reapply)"
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class JsonSetting(Target):
+    section: ClassVar[str] = "ajustes"
+    file: Path
+    key: str
+    value: str
+    defaults: Mapping[str, str] = field(default_factory=dict)
+
+    @classmethod
+    def from_table(cls, spec: Table) -> JsonSetting:
+        match spec:
+            case {"file": str(file), "key": str(key), "value": str(value)}:
+                return cls(located(file), key, value, dict(spec.get("defaults", {})))
+            case _:
+                raise ValueError(f"json inválido: {spec}")
+
+    def load(self) -> dict[str, Toml]:
+        return json.loads(self.file.read_text(encoding="utf-8"))
+
+    def plan(self, mode: Mode) -> str:
+        return f"set {self.key}={self.value} in {shown(self.file)}"
+
+    def apply(self, mode: Mode) -> None:
+        try:
+            settings = self.load()
+        except FileNotFoundError:
+            settings = dict(self.defaults)
+        except json.JSONDecodeError as error:
+            log.error("%s no es JSON válido; no se cambia %s: %s", shown(self.file), self.key, error)
+            return
+        if settings.get(self.key) != self.value:
+            text = json.dumps(settings | {self.key: self.value}, indent=2, ensure_ascii=False)
+            write_atomic(self.file.resolve(), f"{text}\n")
+
+    def check(self, mode: Mode) -> Iterator[Finding]:
+        try:
+            current = self.load().get(self.key)
+        except FileNotFoundError:
+            yield Finding(Level.WARN, f"no existe {shown(self.file)}")
+            return
+        except json.JSONDecodeError as error:
+            yield Finding(Level.FAIL, f"{shown(self.file)} no es JSON válido: {error}")
+            return
+        yield Finding.verdict(
+            current == self.value,
+            f"{shown(self.file)}: {self.key}={self.value}",
+            f"{shown(self.file)} — {self.key}={current!r}, debería ser '{self.value}' (corre: eyes-theme reapply)",
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class IniSetting(Target):
+    section: ClassVar[str] = "ajustes"
+    file: Path
+    key: str
+    values: Pair[str]
+
+    @classmethod
+    def from_table(cls, spec: Table) -> IniSetting:
+        match spec:
+            case {"file": str(file), "key": str(key), "light": str(light), "dark": str(dark)}:
+                return cls(located(file), key, Pair(light, dark))
+            case _:
+                raise ValueError(f"ini inválido: {spec}")
+
+    def line(self, mode: Mode) -> str:
+        return f"{self.key}={self.values[mode]}"
+
+    def plan(self, mode: Mode) -> str:
+        return f"set {self.line(mode)} in {shown(self.file)}"
+
+    def apply(self, mode: Mode) -> None:
+        real = self.file.resolve()
+        if not real.is_file():
+            return
+        text = real.read_text(encoding="utf-8")
+        updated = re.sub(rf"^{re.escape(self.key)}=.*$", self.line(mode), text, flags=re.MULTILINE)
+        if updated != text:
+            write_atomic(real, updated)
+
+    def check(self, mode: Mode) -> Iterator[Finding]:
+        if not self.file.is_file():
+            return
+        text = self.file.read_text(encoding="utf-8")
+        yield Finding.verdict(
+            re.search(rf"^{re.escape(self.line(mode))}$", text, flags=re.MULTILINE) is not None,
+            f"{shown(self.file)}: {self.line(mode)}",
+            f"{shown(self.file)} — falta {self.line(mode)} (corre: eyes-theme reapply)",
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class Wiring:
+    label: str
+    path: Path
+    pattern: str
+
+    @classmethod
+    def from_table(cls, label: str, spec: Table) -> Wiring:
+        match spec:
+            case {"file": str(file), "pattern": str(pattern)}:
+                return cls(label, located(file), pattern)
+            case _:
+                raise ValueError(f"wired inválido en {label}: {spec}")
+
+    def check(self) -> Finding:
+        if not self.path.exists():
+            return Finding(Level.WARN, f"{self.label} — no existe {shown(self.path)} (¿herramienta no instalada?)")
+        candidates = (
+            (candidate for candidate in self.path.rglob("*") if candidate.is_file())
+            if self.path.is_dir()
+            else (self.path,)
+        )
+        found = any(
+            re.search(self.pattern, candidate.read_text(encoding="utf-8", errors="ignore"))
+            for candidate in candidates
+        )
+        return Finding.verdict(
+            found,
+            f"{self.label}: {shown(self.path)}",
+            f"{self.label} — '{self.pattern}' no aparece en {shown(self.path)}",
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class Job:
+    name: str
+    action: Callable[[], object]
+
+
+@dataclass(frozen=True, slots=True)
+class ReloadContext:
+    mode: Mode
+    processes: Mapping[str, tuple[int, ...]]
+
+    def placeholders(self, pid: int | None) -> dict[str, object]:
+        uid = os.getuid()
+        return {
+            "mode": self.mode,
+            "pid": pid,
+            "uid": uid,
+            "home": HOME,
+            "runtime_dir": os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{uid}"),
+        }
+
+
+class Reload(ABC):
+    __slots__ = ()
+
+    @classmethod
+    def from_table(cls, spec: Table) -> Reload:
+        match spec:
+            case {"process": str(process), "signal": str(name)}:
+                return SignalReload(process, Signals[name])
+            case {"run": [*run]}:
+                return CommandReload(
+                    run=tuple(run),
+                    process=spec.get("process"),
+                    binary=spec.get("binary"),
+                    env_required=spec.get("env_required"),
+                    env=dict(spec.get("env", {})),
+                )
+            case _:
+                raise ValueError(f"reload inválido: {spec}")
+
+    @abstractmethod
+    def jobs(self, context: ReloadContext) -> Iterator[Job]: ...
+
+    def check(self, context: ReloadContext) -> Iterator[Finding]:
+        yield from ()
+
+
+@dataclass(frozen=True, slots=True)
+class SignalReload(Reload):
+    process: str
+    signum: Signals
+
+    def jobs(self, context: ReloadContext) -> Iterator[Job]:
+        for pid in context.processes.get(self.process, ()):
+            yield Job(f"{self.signum.name} {self.process}[{pid}]", partial(os.kill, pid, self.signum))
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class CommandReload(Reload):
+    run: tuple[str, ...]
+    process: str | None = None
+    binary: str | None = None
+    env_required: str | None = None
+    env: Mapping[str, str] = field(default_factory=dict)
+
+    @property
+    def program(self) -> str:
+        return self.binary or self.run[0]
+
+    def applies(self, context: ReloadContext) -> bool:
+        return (self.env_required is None or self.env_required in os.environ) and (
+            self.process is None or self.process in context.processes
+        )
+
+    def jobs(self, context: ReloadContext) -> Iterator[Job]:
+        if not self.applies(context) or shutil.which(self.program) is None:
+            return
+        per_process = any("{pid}" in part for part in chain(self.run, self.env.values()))
+        for pid in context.processes[self.process] if per_process else (None,):
+            values = context.placeholders(pid)
+            argv = [part.format_map(values) for part in self.run]
+            env = os.environ | {
+                name: template.format_map(values) for name, template in self.env.items() if name not in os.environ
+            }
+            yield Job(
+                " ".join(argv),
+                partial(
+                    subprocess.run,
+                    argv,
+                    env=env,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    check=True,
+                    timeout=30,
+                ),
+            )
+
+    def check(self, context: ReloadContext) -> Iterator[Finding]:
+        if self.applies(context) and shutil.which(self.program) is None:
+            yield Finding(
+                Level.WARN, f"{self.program} no está instalado: la recarga de {self.process or self.program} no hace nada"
+            )
+
+
+TARGET_KINDS: Mapping[str, Callable[[Table], Target]] = {
+    "switch": Switch.from_table,
+    "compose": Compose.from_table,
+    "copy": Copy.from_table,
+    "link": Link.from_table,
+    "json": JsonSetting.from_table,
+    "ini": IniSetting.from_table,
 }
+APP_KEYS = TARGET_KINDS.keys() | {"wired", "reload"}
 
-auto_mode_for_now() {
-  local hour
-  hour="$(date +%-H)"
-  ((hour >= 6 && hour < 19)) && echo light || echo dark
-}
 
-# ---------------------------------------------------------------------------
-# Palette -> sed script
-# ---------------------------------------------------------------------------
+@dataclass(frozen=True, slots=True)
+class Manifest:
+    palette: Palette
+    targets: tuple[Target, ...]
+    wirings: tuple[Wiring, ...]
+    reloads: tuple[Reload, ...]
+    units: tuple[str, ...]
 
-build_hex_sed_script() {
-  local direction="$1" style="${2:-hash}"
-  local entry slot light dark from_hex to_hex from_sgr to_sgr
-  for entry in "${PALETTE[@]}"; do
-    IFS=: read -r slot light dark <<<"$entry"
-    if [[ "$direction" == "to-dark" ]]; then
-      from_hex="$light"
-      to_hex="$dark"
-    else
-      from_hex="$dark"
-      to_hex="$light"
-    fi
-    if [[ "$style" == "bare" || "$style" == "hexa" ]]; then
-      printf 's/\\b%s\\b/%s/gI\n' "$from_hex" "$to_hex"
-      # hexa: hex de 6 + sufijo alpha de 2 (p.ej. color=add4a080 en swaylock)
-      if [[ "$style" == "hexa" ]]; then
-        printf 's/\\b%s([0-9a-fA-F]{2})\\b/%s\\1/gI\n' "$from_hex" "$to_hex"
-      fi
-    else
-      from_sgr="$((16#${from_hex:0:2}));$((16#${from_hex:2:2}));$((16#${from_hex:4:2}))"
-      to_sgr="$((16#${to_hex:0:2}));$((16#${to_hex:2:2}));$((16#${to_hex:4:2}))"
-      printf 's/#%s/#%s/gI\n' "$from_hex" "$to_hex"
-      printf 's/38;2;%s/38;2;%s/g\n' "$from_sgr" "$to_sgr"
-      printf 's/48;2;%s/48;2;%s/g\n' "$from_sgr" "$to_sgr"
-    fi
-  done
-}
+    @classmethod
+    def load(cls, path: Path) -> Manifest:
+        with path.open("rb") as stream:
+            table = tomllib.load(stream)
+        targets: list[Target] = []
+        wirings: list[Wiring] = []
+        reloads: list[Reload] = []
+        for name, app in table["apps"].items():
+            if unknown := app.keys() - APP_KEYS:
+                raise ValueError(f"{shown(path)}: claves desconocidas en apps.{name}: {sorted(unknown)}")
+            targets += chain.from_iterable(map(build, app.get(kind, ())) for kind, build in TARGET_KINDS.items())
+            wirings += (Wiring.from_table(name, spec) for spec in app.get("wired", ()))
+            reloads += map(Reload.from_table, app.get("reload", ()))
+        return cls(
+            Palette.from_table(table["palette"]),
+            tuple(targets),
+            tuple(wirings),
+            tuple(reloads),
+            tuple(table["systemd"]["units"]),
+        )
 
-# ---------------------------------------------------------------------------
-# Generate dark variants from light canonicals
-# ---------------------------------------------------------------------------
+    @property
+    def generations(self) -> tuple[Generation, ...]:
+        return tuple(target.generation for target in self.targets if target.generation is not None)
 
-generate_hash() {
-  local src="$1" out="$2"
-  sed -E "$(build_hex_sed_script to-dark hash)" "$src" >"$out"
-}
 
-generate_bare() {
-  local src="$1" out="$2"
-  sed -E "$(build_hex_sed_script to-dark bare)" "$src" >"$out"
-}
+@dataclass(frozen=True, slots=True)
+class ModeStore:
+    directory: Path
 
-generate_colorsenv() {
-  local src="$1" out="$2"
-  generate_hash "$src" "$out"
-  sed -i -E 's/BAT_THEME="eyes"/BAT_THEME="eyes-dark"/' "$out"
-  bat cache --build
-}
+    @property
+    def file(self) -> Path:
+        return self.directory / "mode"
 
-generate_hexa() {
-  local src="$1" out="$2"
-  sed -E "$(build_hex_sed_script to-dark hexa)" "$src" >"$out"
-}
+    def read(self) -> Mode:
+        try:
+            saved = self.file.read_text(encoding="utf-8").strip()
+        except FileNotFoundError:
+            return Mode.LIGHT
+        return Mode.DARK if saved == Mode.DARK else Mode.LIGHT
 
-generate_yaziflavor() {
-  local src="$1" out="$2" script
-  script="$(build_hex_sed_script to-dark hash)"
-  rm -rf "$out"
-  cp -a "$src" "$out"
-  [[ -f "$out/flavor.toml" ]] && sed -i -E "$script" "$out/flavor.toml"
-  [[ -f "$out/tmtheme.xml" ]] && sed -i -E "$script" "$out/tmtheme.xml"
-}
+    def write(self, mode: Mode) -> None:
+        write_atomic(self.file, f"{mode}\n")
 
-generate() {
-  local entry light dark style src out
-  for entry in "${GENERATE[@]}"; do
-    IFS='|' read -r light dark style <<<"$entry"
-    style="${style:-hash}"
-    src="$DOTFILES_DIR/$light"
-    out="$DOTFILES_DIR/$dark"
+    @contextmanager
+    def locked(self) -> Iterator[None]:
+        self.directory.mkdir(parents=True, exist_ok=True)
+        with (self.directory / ".lock").open("w") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            yield
 
-    [[ -e "$src" ]] || { warn "  skip (missing light source): $light"; continue; }
 
-    if ((DRY_RUN)); then
-      info "  would generate $dark  [$style]"
-      continue
-    fi
+@dataclass(frozen=True, slots=True)
+class Switcher:
+    manifest: Manifest
+    store: ModeStore
+    dry_run: bool = False
+    force: bool = False
 
-    case "$style" in
-      hash)       generate_hash "$src" "$out" ;;
-      bare)       generate_bare "$src" "$out" ;;
-      colorsenv)  generate_colorsenv "$src" "$out" ;;
-      hexa)       generate_hexa "$src" "$out" ;;
-      yaziflavor) generate_yaziflavor "$src" "$out" ;;
-      *) warn "  unknown generate style '$style' for $dark" ;;
-    esac
+    def switch(self, mode: Mode) -> None:
+        if self.dry_run:
+            for target in self.manifest.targets:
+                print(f"  would {target.plan(mode)}")
+            print("  would reload running daemons\n(dry-run: no se aplicó nada)")
+            return
+        with self.store.locked():
+            if self.is_current(mode):
+                print(f"Already in {mode} mode. (use --force / reapply to re-apply anyway)")
+                return
+            print(f"Switching to {mode}...")
+            self.apply(mode)
+            self.store.write(mode)
+        self.reload(mode)
+        print(f"Switched to {mode} mode.")
 
-    info "  generated $dark"
-  done
+    def is_current(self, mode: Mode) -> bool:
+        return (
+            not self.force
+            and self.store.file.exists()
+            and self.store.read() is mode
+            and all(target.is_present() for target in self.manifest.targets)
+        )
 
-  compose_configs "$(current_mode)"
-}
+    def apply(self, mode: Mode) -> None:
+        for target in self.manifest.targets:
+            target.apply(mode)
 
-# ---------------------------------------------------------------------------
-# Symlink switching
-# ---------------------------------------------------------------------------
+    def reload(self, mode: Mode) -> None:
+        context = ReloadContext(mode, running_processes())
+        jobs = list(chain.from_iterable(reload.jobs(context) for reload in self.manifest.reloads))
+        if not jobs:
+            return
+        with ThreadPoolExecutor(max_workers=len(jobs)) as pool:
+            futures = {pool.submit(job.action): job for job in jobs}
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except (OSError, subprocess.SubprocessError) as error:
+                    log.warning("falló la recarga «%s»: %s", futures[future].name, error)
 
-apply_switches() {
-  local mode="$1" entry rel light dark pointer dir target
-  for entry in "${SWITCHES[@]}"; do
-    IFS='|' read -r rel light dark <<<"$entry"
-    pointer="$DOTFILES_DIR/$rel"
-    dir="${pointer%/*}"
-    [[ -d "$dir" ]] || continue
+    def generate(self) -> None:
+        print("Generating dark variants from light canonicals...")
+        if self.dry_run:
+            for generation in self.manifest.generations:
+                print(f"  would generate {shown(generation.variants.dark)} [{generation.style}]")
+            return
+        for generation in self.manifest.generations:
+            generation.run(self.manifest.palette)
+            print(f"  generated {shown(generation.variants.dark)}")
+        with self.store.locked():
+            self.apply(self.store.read())
+        print("Done. Review with: git diff --stat")
 
-    target="$light"
-    [[ "$mode" == "dark" ]] && target="$dark"
 
-    if [[ -e "$pointer" && ! -L "$pointer" ]]; then
-      if ((DRY_RUN)); then
-        info "  would remove non-symlink at $rel before linking"
-      else
-        rm -rf "$pointer"
-      fi
-    fi
+@dataclass(frozen=True, slots=True)
+class Doctor:
+    manifest: Manifest
+    store: ModeStore
 
-    if ((DRY_RUN)); then
-      info "  would link $rel -> $target"
-    else
-      ln -sfn "$target" "$pointer"
-    fi
-  done
-}
+    def findings(self, mode: Mode) -> dict[str, list[Finding]]:
+        sections: defaultdict[str, list[Finding]] = defaultdict(list)
+        if not self.store.file.exists():
+            sections["estado"].append(Finding(Level.WARN, f"sin {shown(self.store.file)}; se asume light"))
+        for target in self.manifest.targets:
+            sections[target.section].extend(target.check(mode))
+        for generation in self.manifest.generations:
+            sections["generadas"].extend(generation.check(self.manifest.palette))
+        sections["consumidores"].extend(wiring.check() for wiring in self.manifest.wirings)
+        context = ReloadContext(mode, running_processes())
+        sections["recarga en vivo"].extend(chain.from_iterable(reload.check(context) for reload in self.manifest.reloads))
+        if shutil.which("systemctl") is None:
+            sections["systemd"].append(Finding(Level.WARN, "systemctl no disponible"))
+        else:
+            sections["systemd"].extend(chain.from_iterable(map(unit_findings, self.manifest.units)))
+        return sections
 
-# ---------------------------------------------------------------------------
-# Compose single-file configs
-# ---------------------------------------------------------------------------
+    def run(self) -> bool:
+        mode = self.store.read()
+        print(f"doctor — mode: {mode}")
+        sections = self.findings(mode)
+        for title, findings in sections.items():
+            if findings:
+                print(f"\n[{title}]")
+                for finding in findings:
+                    print(f"  {finding.level:<5} {finding.message}")
+        counts = Counter(finding.level for finding in chain.from_iterable(sections.values()))
+        print(f"\nresultado: {counts[Level.OK]} ok, {counts[Level.FAIL]} fail, {counts[Level.WARN]} warn")
+        return not counts[Level.FAIL]
 
-compose_configs() {
-  local mode="$1" entry rel base light dark order variant pointer
-  for entry in "${COMPOSE[@]}"; do
-    IFS='|' read -r rel base light dark order <<<"$entry"
-    pointer="$DOTFILES_DIR/$rel"
-    variant="$light"
-    [[ "$mode" == "dark" ]] && variant="$dark"
 
-    if ((DRY_RUN)); then
-      info "  would compose $rel"
-      continue
-    fi
-
-    # El pointer puede ser un symlink residual del mecanismo SWITCHES: quitarlo
-    # antes de escribir, o cat escribiría a través del link al target.
-    [[ -L "$pointer" ]] && rm -f "$pointer"
-
-    if [[ "$order" == "v+b" ]]; then
-      # starship: la clave top-level palette debe preceder a las tablas TOML
-      cat "$DOTFILES_DIR/$variant" "$DOTFILES_DIR/$base" >"$pointer"
-      info "  composed $rel  (${variant##*/} + $base)"
-    else
-      cat "$DOTFILES_DIR/$base" "$DOTFILES_DIR/$variant" >"$pointer"
-      info "  composed $rel  ($base + ${variant##*/})"
-    fi
-  done
-}
-
-# ---------------------------------------------------------------------------
-# GTK
-# ---------------------------------------------------------------------------
-
-apply_gtk() {
-  local mode="$1" f val="0"
-  [[ "$mode" == "dark" ]] && val="1"
-  for f in "$HOME/.config/gtk-3.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"; do
-    [[ -f "$f" ]] || continue
-    if ((DRY_RUN)); then
-      info "  would set gtk-application-prefer-dark-theme=$val in $f"
-    else
-      sed -i -E "s/^gtk-application-prefer-dark-theme=[01]$/gtk-application-prefer-dark-theme=$val/" "$f"
-    fi
-  done
-}
-
-# ---------------------------------------------------------------------------
-# External theme bootstraps (Claude, pi, opencode)
-# ---------------------------------------------------------------------------
-
-ensure_claude_theme() {
-  local mode="$1" themes_dir="$HOME/.claude/themes" settings variant tmp
-  variant="eyes-light.json"
-  [[ "$mode" == "dark" ]] && variant="eyes-dark.json"
-
-  if ((DRY_RUN)); then
-    info "  would ensure claude theme=custom:eyes (from $variant)"
-    return
-  fi
-
-  [[ -f "$CLAUDE_THEME_SRC_DIR/$variant" ]] || { warn "  skip claude theme (missing $variant)"; return; }
-
-  mkdir -p "$themes_dir"
-  [[ -e "$themes_dir/eyes-light.json" ]] || ln -sfn "$CLAUDE_THEME_SRC_DIR/eyes-light.json" "$themes_dir/eyes-light.json"
-  [[ -e "$themes_dir/eyes-dark.json"  ]] || ln -sfn "$CLAUDE_THEME_SRC_DIR/eyes-dark.json"  "$themes_dir/eyes-dark.json"
-
-  # Claude Code relee en vivo el contenido de ~/.claude/themes/, pero el panel
-  # lateral y el resaltado de diffs se quedan con el nombre de tema del
-  # arranque. Por eso el nombre es fijo (custom:eyes) y el switch reescribe su
-  # contenido; mv deja el reemplazo atómico para el watcher.
-  [[ -L "$themes_dir/eyes.json" ]] && rm -f "$themes_dir/eyes.json"
-  tmp="$(mktemp "$themes_dir/.eyes.XXXXXX")"
-  cp "$CLAUDE_THEME_SRC_DIR/$variant" "$tmp"
-  mv "$tmp" "$themes_dir/eyes.json"
-
-  # settings.json puede ser un symlink al dotfile: resolvemos para que
-  # jq+mv no lo sustituya por un archivo regular.
-  settings="$(readlink -f "$HOME/.claude/settings.json")"
-  if [[ ! -f "$settings" ]]; then
-    mkdir -p "${settings%/*}"
-    printf '{\n  "theme": "custom:eyes"\n}\n' >"$settings"
-  elif ! grep -Eq '"theme"[[:space:]]*:[[:space:]]*"custom:eyes"' "$settings"; then
-    tmp="$(mktemp)"
-    if jq '.theme = "custom:eyes"' "$settings" >"$tmp"; then
-      mv "$tmp" "$settings"
-    else
-      rm -f "$tmp"
-      warn "  failed to set theme in $settings (jq error)"
-    fi
-  fi
-}
-
-ensure_pi_theme() {
-  local mode="$1" agent_dir themes_dir settings variant
-  # pi >= 0.8: la config vive en ~/.pi/agent (override: PI_CODING_AGENT_DIR)
-  agent_dir="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}"
-  themes_dir="$agent_dir/themes"
-  settings="$agent_dir/settings.json"
-  variant="eyes-light.json"
-  [[ "$mode" == "dark" ]] && variant="eyes-dark.json"
-
-  if ((DRY_RUN)); then
-    info "  would ensure pi theme=eyes (from $variant)"
-    return
-  fi
-
-  [[ -f "$PI_THEME_SRC_DIR/$variant" ]] || { warn "  skip pi theme (missing $variant)"; return; }
-
-  mkdir -p "$themes_dir"
-  # Variantes seleccionables a mano en /settings
-  [[ -e "$themes_dir/eyes-light.json" ]] || ln -sfn "$PI_THEME_SRC_DIR/eyes-light.json" "$themes_dir/eyes-light.json"
-  [[ -e "$themes_dir/eyes-dark.json"  ]] || ln -sfn "$PI_THEME_SRC_DIR/eyes-dark.json"  "$themes_dir/eyes-dark.json"
-
-  # pi lee la clave "theme" solo al arrancar, pero vigila el archivo del tema
-  # activo (themes/<name>.json) y lo recarga en caliente al editarlo. Por eso
-  # el tema estable es "eyes" y el switch reescribe su contenido: las
-  # instancias abiertas se actualizan solas.
-  sed -E 's/"name":[[:space:]]*"eyes-(light|dark)"/"name": "eyes"/' \
-    "$PI_THEME_SRC_DIR/$variant" >"$themes_dir/eyes.json"
-
-  # settings.json suele ser symlink al dotfile (just harness): resolvemos
-  # para que jq+mv no lo sustituya por un archivo regular.
-  settings="$(readlink -f "$settings")"
-  mkdir -p "$(dirname "$settings")"
-  if [[ ! -f "$settings" ]]; then
-    printf '{\n  "theme": "eyes"\n}\n' >"$settings"
-  elif command -v jq >/dev/null; then
-    local tmp
-    tmp="$(mktemp)"
-    if jq --arg t eyes '.theme = $t' "$settings" >"$tmp"; then
-      mv "$tmp" "$settings"
-    else
-      rm -f "$tmp"
-      warn "  failed to set theme in $settings (jq error)"
-    fi
-  elif ! grep -q '"theme"' "$settings"; then
-    warn "  $settings lacks a \"theme\" key and jq is unavailable; add manually:  \"theme\": \"eyes\""
-  fi
-}
-
-ensure_opencode_theme() {
-  local themes_dir tui
-  themes_dir="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/themes"
-  tui="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/tui.json"
-
-  if ((DRY_RUN)); then
-    info "  would ensure opencode theme=eyes"
-    return
-  fi
-
-  mkdir -p "$themes_dir"
-
-  mkdir -p "$(dirname "$tui")"
-  if [[ ! -f "$tui" ]]; then
-    printf '{\n  "$schema": "https://opencode.ai/tui.json",\n  "theme": "eyes"\n}\n' >"$tui"
-  elif ! grep -q '"theme"[[:space:]]*:[[:space:]]*"eyes"' "$tui"; then
-    if command -v jq >/dev/null; then
-      local tmp
-      tmp="$(mktemp)"
-      if jq '.theme = "eyes"' "$tui" >"$tmp"; then
-        mv "$tmp" "$tui"
-      else
-        rm -f "$tmp"
-        warn "  failed to set theme key in $tui (jq error)"
-      fi
-    else
-      warn "  $tui exists without theme=\"eyes\" and jq is unavailable."
-    fi
-  fi
-}
-
-# ---------------------------------------------------------------------------
-# Daemon reloads
-# ---------------------------------------------------------------------------
-
-reload_daemons() {
-  local mode="$1" pid comm pref="prefer-light"
-  [[ "$mode" == "dark" ]] && pref="prefer-dark"
-  if ((DRY_RUN)); then
-    info "  would reload running daemons"
-    return
-  fi
-
-  # Un solo escaneo de /proc (cada pgrep cuesta ~50ms) y todas las recargas en
-  # paralelo: el tiempo total es el de la más lenta (scrollmsg reload).
-  local -A pids=()
-  while read -r pid comm; do
-    pids[$comm]+=" $pid"
-  done < <(ps -eo pid=,comm=)
-
-  {
-    command -v tmux >/dev/null && tmux source-file "$HOME/.tmux.conf" &
-    [[ -n "${DISPLAY:-}" && -f "$HOME/.Xresources" ]] && command -v xrdb >/dev/null \
-      && xrdb -merge "$HOME/.Xresources" &
-    [[ -v pids[foot] ]] && kill -USR1 ${pids[foot]} &
-    [[ -v pids[Hyprland] ]] && hyprctl reload &
-    # jump_labels_* solo se aplica en reload (no es comando IPC de runtime).
-    # Bajo systemd no hay SWAYSOCK; el socket lleva el pid del compositor.
-    if [[ -v pids[scroll] ]]; then
-      read -r pid _ <<<"${pids[scroll]}"
-      SWAYSOCK="${SWAYSOCK:-${XDG_RUNTIME_DIR:-/run/user/$UID}/scroll-ipc.$UID.$pid.sock}" scrollmsg reload &
-    fi
-    [[ -v pids[dunst] ]] && dunstctl reload &
-    [[ -v pids[btop] ]] && kill -USR2 ${pids[btop]} &
-    for pid in ${pids[zathura]:-}; do
-      busctl --user call "org.pwmt.zathura.PID-$pid" /org/pwmt/zathura \
-        org.pwmt.zathura ExecuteCommand s source &
-    done
-    [[ -v pids[herdr] ]] && mise exec -- herdr server reload-config &
-    [[ -v pids[zsh-patina] ]] && mise exec -- zsh-patina restart &
-    # kitty (*-theme.auto.conf), GTK4 y navegadores siguen este valor vía el
-    # portal; kitty avisa del cambio de fondo (DEC 2031) a nvim, opencode y Claude.
-    command -v gsettings >/dev/null \
-      && gsettings set org.gnome.desktop.interface color-scheme "$pref" &
-    command -v notify-send >/dev/null \
-      && notify-send -a eyes-theme "Eyes theme switched" "Now in ${mode} mode" &
-    wait
-  } >/dev/null 2>&1
-}
-
-# ---------------------------------------------------------------------------
-# Orchestration
-# ---------------------------------------------------------------------------
-
-pointers_present() {
-  local entry rel pointer
-  for entry in "${SWITCHES[@]}"; do
-    IFS='|' read -r rel _ _ <<<"$entry"
-    pointer="$DOTFILES_DIR/$rel"
-    [[ -d "${pointer%/*}" ]] || continue
-    [[ -L "$pointer" ]] || return 1
-  done
-  return 0
-}
-
-set_mode() {
-  local target="$1" cur
-
-  # Serialize concurrent invocations (e.g. both timers firing on wake)
-  exec 9>"$STATE_DIR/.lock"
-  flock -w 60 9 || { warn "could not acquire lock after 60s"; exit 1; }
-
-  cur="$(current_mode)"
-
-  if [[ -f "$STATE_FILE" && "$cur" == "$target" && $FORCE -eq 0 ]] && pointers_present; then
-    info "Already in $target mode. (use --force / reapply to re-apply anyway)"
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        prog="eyes-theme", description="Cambia el tema eyes entre claro y oscuro según el manifiesto."
+    )
+    parser.add_argument("command", nargs="?", default="status", choices=COMMANDS)
+    parser.add_argument("--dry-run", action="store_true", help="muestra lo que haría sin cambiar nada")
+    parser.add_argument("--force", action="store_true", help="reaplica aunque el modo guardado coincida")
+    args = parser.parse_args()
+    sys.stdout.reconfigure(line_buffering=True)
+    logging.basicConfig(format="eyes-theme: %(levelname)s: %(message)s")
+    store = ModeStore(STATE_DIR)
+    switcher = Switcher(Manifest.load(MANIFEST), store, dry_run=args.dry_run, force=args.force)
+    match args.command:
+        case "light" | "dark":
+            switcher.switch(Mode(args.command))
+        case "toggle":
+            switcher.switch(store.read().opposite)
+        case "auto":
+            switcher.switch(Mode.for_hour(datetime.now(UTC).astimezone().hour))
+        case "reapply":
+            replace(switcher, force=True).switch(store.read())
+        case "status":
+            print(store.read())
+        case "generate":
+            switcher.generate()
+        case "doctor":
+            return 0 if Doctor(switcher.manifest, store).run() else 1
     return 0
-  fi
 
-  info "Switching to $target..."
-  apply_switches      "$target"
-  compose_configs     "$target"
-  apply_gtk           "$target"
-  ensure_claude_theme "$target"
-  ensure_pi_theme     "$target"
-  ensure_opencode_theme
 
-  ((DRY_RUN)) || echo "$target" >"$STATE_FILE"
-
-  # Liberar el lock antes de recargar: los procesos lanzados (p.ej. el demonio
-  # de zsh-patina) heredarían el fd 9 y retendrían el flock para siempre.
-  exec 9>&-
-
-  if ((DRY_RUN)); then
-    info "(dry-run: no se aplicó nada)"
-  else
-    reload_daemons "$target"
-    info "Switched to $target mode."
-  fi
-}
-
-# ---------------------------------------------------------------------------
-# Doctor: verificación de solo-lectura del estado completo del tema
-# ---------------------------------------------------------------------------
-
-doctor() {
-  local mode tmp ok_n=0 fail_n=0 warn_n=0
-  local entry rel light dark pointer want live errs
-  local gsrc gout gstyle out_label
-  local unit st f absent variant pi_dir oc_base
-  mode="$(current_mode)"
-  tmp="$(mktemp -d)"
-
-  d_ok()   { ok_n=$((ok_n+1));   printf '  ok    %s\n' "$1"; }
-  d_bad()  { fail_n=$((fail_n+1)); printf '  FAIL  %s\n' "$1"; }
-  d_warn() { warn_n=$((warn_n+1)); printf '  warn  %s\n' "$1"; }
-  d_head() { printf '\n[%s]\n' "$1"; }
-
-  info "doctor — mode: $mode"
-  [[ -f "$STATE_FILE" ]] || d_warn "sin state file ($STATE_FILE); se asume light"
-
-  d_head "pointers"
-  for entry in "${SWITCHES[@]}"; do
-    IFS='|' read -r rel light dark <<<"$entry"
-    pointer="$DOTFILES_DIR/$rel"
-    want="$dark"
-    [[ "$mode" == light ]] && want="$light"
-    if [[ "$rel" == config/* ]]; then live="$HOME/.config/${rel#config/}"; else live="$HOME/$rel"; fi
-    errs=""
-    [[ -L "$pointer" ]] || errs="no es symlink"
-    if [[ -L "$pointer" ]]; then
-      [[ "$(readlink "$pointer")" == "$want" ]] \
-        || errs="${errs:+$errs; }apunta a '$(readlink "$pointer")', esperaba '$want'"
-    fi
-    [[ -e "$DOTFILES_DIR/$(dirname "$rel")/$want" ]] \
-      || errs="${errs:+$errs; }falta target $(dirname "$rel")/$want"
-    if [[ -e "$live" || -L "$live" ]]; then
-      [[ "$(readlink -f "$live" 2>/dev/null)" == "$(readlink -f "$pointer" 2>/dev/null)" ]] \
-        || errs="${errs:+$errs; }la ruta viva ($live) no resuelve igual que el repo"
-    else
-      errs="${errs:+$errs; }no existe $live"
-    fi
-    if [[ -z "$errs" ]]; then d_ok "$rel -> $want"; else d_bad "$rel — $errs"; fi
-  done
-
-  d_head "compose"
-  local base order
-  for entry in "${COMPOSE[@]}"; do
-    IFS='|' read -r rel base light dark order <<<"$entry"
-    want="$dark"
-    [[ "$mode" == light ]] && want="$light"
-    if [[ "$order" == "v+b" ]]; then
-      cat "$DOTFILES_DIR/$want" "$DOTFILES_DIR/$base" >"$tmp/compose" 2>/dev/null || true
-    else
-      cat "$DOTFILES_DIR/$base" "$DOTFILES_DIR/$want" >"$tmp/compose" 2>/dev/null || true
-    fi
-    if [[ -f "$DOTFILES_DIR/$rel" ]] && diff -q "$tmp/compose" "$DOTFILES_DIR/$rel" >/dev/null 2>&1; then
-      if [[ "$order" == "v+b" ]]; then
-        d_ok "$rel ($(basename "$want") + $base)"
-      else
-        d_ok "$rel ($base + $(basename "$want"))"
-      fi
-    else
-      d_bad "$rel — difiere del ensamblado esperado (corre: eyes-theme reapply)"
-    fi
-  done
-
-  d_head "variantes dark generadas (drift vs canónica light)"
-  for entry in "${GENERATE[@]}"; do
-    IFS='|' read -r gsrc gout gstyle <<<"$entry"
-    gstyle="${gstyle:-hash}"
-    gsrc="$DOTFILES_DIR/$gsrc"
-    gout="$DOTFILES_DIR/$gout"
-    [[ -e "$gsrc" ]] || { d_bad "${gsrc#$DOTFILES_DIR/} — falta canónica light"; continue; }
-    case "$gstyle" in
-      hash)      sed -E "$(build_hex_sed_script to-dark hash)" "$gsrc" >"$tmp/gen" 2>/dev/null || true ;;
-      bare)      sed -E "$(build_hex_sed_script to-dark bare)" "$gsrc" >"$tmp/gen" 2>/dev/null || true ;;
-      colorsenv) sed -E "$(build_hex_sed_script to-dark hash)" "$gsrc" 2>/dev/null \
-                   | sed -E 's/BAT_THEME="eyes"/BAT_THEME="eyes-dark"/' >"$tmp/gen" || true ;;
-      hexa)      sed -E "$(build_hex_sed_script to-dark hexa)" "$gsrc" >"$tmp/gen" 2>/dev/null || true ;;
-      yaziflavor)
-        rm -rf "$tmp/yazi"
-        cp -a "$gsrc" "$tmp/yazi" 2>/dev/null || true
-        local yscript="$(build_hex_sed_script to-dark hash)"
-        [[ -f "$tmp/yazi/flavor.toml" ]] && sed -i -E "$yscript" "$tmp/yazi/flavor.toml" 2>/dev/null
-        [[ -f "$tmp/yazi/tmtheme.xml" ]] && sed -i -E "$yscript" "$tmp/yazi/tmtheme.xml" 2>/dev/null
-        local yf
-        for yf in flavor.toml tmtheme.xml; do
-          [[ -f "$tmp/yazi/$yf" ]] || continue
-          if diff -q "$tmp/yazi/$yf" "$gout/$yf" >/dev/null 2>&1; then
-            d_ok "${gout#$DOTFILES_DIR/}/$yf"
-          else
-            d_bad "${gout#$DOTFILES_DIR/}/$yf — drift (corre: eyes-theme generate)"
-          fi
-        done
-        continue ;;
-      *) d_warn "${gout#$DOTFILES_DIR/} — estilo '$gstyle' no verificado"; continue ;;
-    esac
-    if [[ -f "$gout" ]] && diff -q "$tmp/gen" "$gout" >/dev/null 2>&1; then
-      d_ok "${gout#$DOTFILES_DIR/}"
-    else
-      d_bad "${gout#$DOTFILES_DIR/} — drift vs ${gsrc#$DOTFILES_DIR/} (corre: eyes-theme generate o revisa edición a mano)"
-    fi
-  done
-
-  d_head "consumers (wiring)"
-  local wire label pattern path
-  for wire in "${DOCTOR_WIRING[@]}"; do
-    IFS=';' read -r label pattern path <<<"$wire"
-    path="${path/#\~/$HOME}"
-    [[ "$path" == /* ]] || path="$DOTFILES_DIR/$path"
-    if [[ -e "$path" ]]; then
-      if grep -rEq "$pattern" "$path" 2>/dev/null; then d_ok "$label"; else d_bad "$label — '$pattern' no referenciado en $path"; fi
-    else
-      d_warn "$label — no existe $path (¿herramienta no instalada?)"
-    fi
-  done
-
-  d_head "harness (claude / pi / opencode)"
-  variant="eyes-light.json"
-  [[ "$mode" == dark ]] && variant="eyes-dark.json"
-  f="$HOME/.claude/settings.json"
-  if [[ -f "$f" ]]; then
-    grep -Eq '"theme"[[:space:]]*:[[:space:]]*"custom:eyes"' "$f" \
-      && d_ok "claude theme=custom:eyes" \
-      || d_bad "claude — theme debería ser 'custom:eyes' (corre: eyes-theme reapply)"
-  else
-    d_warn "claude — sin $f"
-  fi
-  for f in eyes-light.json eyes-dark.json; do
-    [[ -e "$HOME/.claude/themes/$f" ]] && d_ok "claude themes/$f" || d_bad "claude — falta themes/$f"
-  done
-  if cmp -s "$CLAUDE_THEME_SRC_DIR/$variant" "$HOME/.claude/themes/eyes.json"; then
-    d_ok "claude themes/eyes.json == $variant (hot-reload vivo)"
-  else
-    d_bad "claude — themes/eyes.json no coincide con $variant (corre: eyes-theme reapply)"
-  fi
-
-  pi_dir="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}"
-  f="$pi_dir/settings.json"
-  if [[ -f "$f" ]]; then
-    grep -Eq '"theme"[[:space:]]*:[[:space:]]*"eyes"' "$f" \
-      && d_ok "pi theme=eyes" \
-      || d_bad "pi — theme debería ser 'eyes' (corre: eyes-theme reapply)"
-  else
-    d_warn "pi — sin $f"
-  fi
-  for f in eyes-light.json eyes-dark.json; do
-    [[ -e "$pi_dir/themes/$f" ]] && d_ok "pi themes/$f" || d_bad "pi — falta themes/$f"
-  done
-  if [[ -f "$PI_THEME_SRC_DIR/$variant" ]]; then
-    sed -E 's/"name":[[:space:]]*"eyes-(light|dark)"/"name": "eyes"/' "$PI_THEME_SRC_DIR/$variant" >"$tmp/pi-eyes.json" 2>/dev/null || true
-    if [[ -f "$pi_dir/themes/eyes.json" ]] && diff -q "$tmp/pi-eyes.json" "$pi_dir/themes/eyes.json" >/dev/null 2>&1; then
-      d_ok "pi themes/eyes.json == $variant (hot-reload vivo)"
-    else
-      d_bad "pi — themes/eyes.json no coincide con $variant (corre: eyes-theme reapply)"
-    fi
-  else
-    d_bad "pi — falta canónica $PI_THEME_SRC_DIR/$variant"
-  fi
-
-  oc_base="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
-  f="$oc_base/tui.json"
-  if [[ -f "$f" ]]; then
-    grep -Eq '"theme"[[:space:]]*:[[:space:]]*"eyes"' "$f" \
-      && d_ok "opencode theme=eyes" \
-      || d_bad "opencode — theme debería ser 'eyes'"
-  else
-    d_warn "opencode — sin $f"
-  fi
-  [[ -e "$oc_base/themes/eyes.json" ]] && d_ok "opencode themes/eyes.json" || d_bad "opencode — falta themes/eyes.json"
-
-  d_head "systemd (auto-switch)"
-  if command -v systemctl >/dev/null; then
-    for unit in eyes-theme.service eyes-theme.timer; do
-      st="$(systemctl --user is-enabled "$unit" 2>/dev/null || true)"
-      [[ "$st" == enabled ]] && d_ok "$unit enabled" \
-        || d_bad "$unit — '$st' (restaurar: just systemd-user)"
-    done
-    st="$(systemctl --user is-active eyes-theme.timer 2>/dev/null || true)"
-    [[ "$st" == active ]] || d_warn "eyes-theme.timer inactivo ('$st')"
-  else
-    d_warn "systemctl no disponible"
-  fi
-
-  d_head "alcance de recarga en vivo"
-  absent=""
-  for f in tmux foot hyprctl xrdb; do
-    command -v "$f" >/dev/null || absent="$absent $f"
-  done
-  [[ -n "$absent" ]] && d_warn "sin instalar (recarga no-op):$absent"
-  if pgrep -x scroll >/dev/null 2>&1 && ! command -v scrollmsg >/dev/null; then
-    d_warn "scroll activo sin scrollmsg"
-  fi
-
-  rm -rf "$tmp"
-  printf '\n'
-  info "resultado: $ok_n ok, $fail_n fail, $warn_n warn"
-  ((fail_n == 0))
-}
-
-usage() {
-  cat >&2 <<EOF
-Usage: $(basename "$0") [--dry-run] {light|dark|toggle|auto|reapply|status|generate|doctor}
-
-  light     switch to the light variant (repoint symlinks)
-  dark      switch to the dark variant
-  toggle    flip the current variant
-  auto      pick light (06:00–18:59) or dark based on local time
-  reapply   re-apply the current mode even if already set (repairs drift)
-  status    print the current variant
-  generate  (re)build the dark variants from the light canonicals via the palette
-  doctor    read-only check: pointers, compose, drift, wiring, harness, systemd
-
-  --dry-run    print what would happen without modifying anything
-  --force      re-apply even if the saved mode already matches the target
-  -h, --help   show this help
-
-State file: $STATE_FILE
-EOF
-  exit 2
-}
-
-main() {
-  local cmd=()
-  while [[ $# -gt 0 ]]; do
-    case "$1" in
-      --dry-run) DRY_RUN=1 ;;
-      --force)   FORCE=1 ;;
-      -h|--help) usage ;;
-      -*)        warn "unknown option: $1"; usage ;;
-      *)         cmd+=("$1") ;;
-    esac
-    shift
-  done
-
-  case "${cmd[0]:-status}" in
-    light)   set_mode light ;;
-    dark)    set_mode dark ;;
-    toggle)  [[ "$(current_mode)" == dark ]] && set_mode light || set_mode dark ;;
-    auto)    set_mode "$(auto_mode_for_now)" ;;
-    reapply) FORCE=1; set_mode "$(current_mode)" ;;
-    status)  current_mode ;;
-    doctor)  doctor ;;
-    generate)
-      info "Generating dark variants from light canonicals..."
-      generate
-      info "Done. Review with: git diff --stat"
-      ;;
-    *) warn "unknown command: ${cmd[0]:-}"; usage ;;
-  esac
-}
-
-main "$@"
+sys.exit(main())

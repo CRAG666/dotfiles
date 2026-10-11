@@ -1,8 +1,8 @@
 # Base de herdr (todo menos la paleta). config.toml lo ensambla eyes-theme
 # concatenando este archivo + colors.eyes[-dark].toml, porque herdr no
 # soporta include: un solo archivo con colores inline.
-# La paleta dark NO se genera: par manual con acentos propios (ver nota en
-# eyes-theme). Editar colors.eyes.toml Y colors.eyes-dark.toml.
+# La paleta dark NO se genera: par manual con acentos propios (ver
+# local/share/eyes-theme/manifest.toml). Editar colors.eyes.toml Y colors.eyes-dark.toml.
 
 onboarding = false
 

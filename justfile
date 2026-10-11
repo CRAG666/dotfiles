@@ -256,7 +256,7 @@ harness:
     done
     echo "==> claude (~/.claude)..."
     ln -vsfn "{{ src }}/harness/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
-    # eyes-theme rewrites settings.json on every theme switch (jq + mv): install a copy
+    # eyes-theme rewrites settings.json when its theme key differs (atomic replace): install a copy
     if [ -f "$HOME/.claude/settings.json" ] && [ ! -f "$HOME/.claude/settings.json.bak" ]; then
         cp -v "$HOME/.claude/settings.json" "$HOME/.claude/settings.json.bak"
     fi

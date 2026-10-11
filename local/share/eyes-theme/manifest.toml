@@ -1,0 +1,197 @@
+# Rutas "~/..." viven en $HOME; el resto es relativo a la raíz del repo.
+# Variantes de `switch` son relativas a la carpeta del puntero.
+# Comandos de `reload` aceptan {mode} {pid} {uid} {runtime_dir} {home}; con
+# {pid} se ejecutan una vez por proceso.
+
+[palette]
+bg0          = ["add4a0", "1a211a"]
+bg1          = ["a4cc98", "202820"]
+bg2          = ["9fc895", "263026"]
+bg3          = ["96be8c", "2d382d"]
+bg4          = ["88b07e", "3a463a"]
+bg5          = ["6a9060", "536053"]
+fg0          = ["1a1a1a", "d0dcc8"]
+fg1          = ["1e2e1c", "b8c8b0"]
+fg2          = ["3d5c38", "9aab94"]
+gray0        = ["486040", "8a9a88"]
+gray1        = ["385030", "7a8a78"]
+gray2        = ["2c4028", "6a7868"]
+green0       = ["2a5c22", "7aab72"]
+green1       = ["1e4a18", "88b878"]
+green2       = ["3a5030", "6a9460"]
+ash          = ["365c25", "7a8c72"]
+teal         = ["145850", "5ab8a8"]
+blue0        = ["1e4868", "6a94a8"]
+blue1        = ["143c52", "82aab8"]
+violet       = ["3a2860", "9090b8"]
+aqua         = ["1a5858", "6ab8b0"]
+orange0      = ["6a3c10", "b89a6a"]
+orange1      = ["7a4a18", "c8a870"]
+red          = ["7a1e18", "c87868"]
+yellow       = ["5a4808", "d4b85a"]
+pink         = ["5a2858", "b890b0"]
+winterRed    = ["d8a8a0", "402828"]
+winterBlue   = ["90bcd0", "223040"]
+winterGreen  = ["94cc88", "243224"]
+winterYellow = ["d0c890", "3a3420"]
+
+[systemd]
+units = ["eyes-theme.service", "eyes-theme.timer"]
+
+[apps.kitty]
+wired = [
+  { file = "config/kitty/light-theme.auto.conf", pattern = 'name: +Eyes \(Light\)' },
+  { file = "config/kitty/dark-theme.auto.conf", pattern = 'name: +Eyes \(Dark\)' },
+  { file = "config/kitty/diff.conf", pattern = "diff-eyes-dark" },
+]
+
+[apps.eza]
+switch = [{ pointer = "config/eza/theme.yml", light = "eyes.yml", dark = "eyes-dark.yml" }]
+
+[apps.zsh-patina]
+switch = [{ pointer = "config/zsh-patina/theme.toml", light = "eyes-light.toml", dark = "eyes-dark.toml" }]
+wired = [{ file = "config/zsh-patina/config.toml", pattern = 'theme\.toml' }]
+reload = [{ process = "zsh-patina", run = ["mise", "exec", "--", "zsh-patina", "restart"] }]
+
+[apps.hypr]
+switch = [{ pointer = "config/hypr/colors/theme.conf", light = "eyes-light.conf", dark = "eyes-dark.conf" }]
+wired = [{ file = "config/hypr/hyprland.conf", pattern = 'colors/theme\.conf' }]
+reload = [{ process = "Hyprland", run = ["hyprctl", "reload"] }]
+
+[apps.btop]
+switch = [{ pointer = "config/btop/themes/eyes-active.theme", light = "eyes.theme", dark = "eyes-dark.theme" }]
+wired = [{ file = "config/btop/btop.conf", pattern = "eyes-active" }]
+reload = [{ process = "btop", signal = "SIGUSR2" }]
+
+[apps.atuin]
+switch = [{ pointer = "config/atuin/themes/eyes-active.toml", light = "eyes.toml", dark = "eyes-dark.toml" }]
+wired = [{ file = "config/atuin/config.toml", pattern = "eyes-active" }]
+
+# Par tui.colors mantenido a mano: sus ANSI claros/oscuros están cruzados.
+[apps.termusic]
+switch = [{ pointer = "config/termusic/themes/eyes-active.yml", light = "eyes.yml", dark = "eyes-dark.yml" }]
+compose = [{ target = "config/termusic/tui.toml", base = "config/termusic/tui.base.toml", light = "config/termusic/tui.colors.eyes.toml", dark = "config/termusic/tui.colors.eyes-dark.toml" }]
+wired = [
+  { file = "config/termusic/tui.colors.eyes.toml", pattern = 'file_name = "eyes-active"' },
+  { file = "config/termusic/tui.colors.eyes-dark.toml", pattern = 'file_name = "eyes-active"' },
+]
+
+[apps.zathura]
+switch = [{ pointer = "config/zathura/eyes-activerc", light = "eyesrc", dark = "eyes-darkrc" }]
+wired = [{ file = "config/zathura/zathurarc", pattern = "eyes-activerc" }]
+reload = [{ process = "zathura", run = ["busctl", "--user", "call", "org.pwmt.zathura.PID-{pid}", "/org/pwmt/zathura", "org.pwmt.zathura", "ExecuteCommand", "s", "source"] }]
+
+[apps.foot]
+switch = [{ pointer = "config/foot/colors.ini", light = "colors.eyes.ini", dark = "colors.eyes-dark.ini" }]
+wired = [{ file = "config/foot/foot.ini", pattern = 'colors\.ini' }]
+reload = [{ process = "foot", signal = "SIGUSR1" }]
+
+[apps.dunst]
+switch = [{ pointer = "config/dunst/dunstrc.d/50-colors.conf", light = "../colors.eyes.conf", dark = "../colors.eyes-dark.conf", generate = "hash" }]
+reload = [{ process = "dunst", run = ["dunstctl", "reload"] }]
+
+[apps.tmux]
+switch = [{ pointer = ".tmux.colors.conf", light = ".tmux.colors.eyes.conf", dark = ".tmux.colors.eyes-dark.conf", generate = "hash" }]
+wired = [{ file = ".tmux.conf", pattern = 'tmux\.colors\.conf' }]
+reload = [{ process = "tmux: server", run = ["tmux", "source-file", "{home}/.tmux.conf"] }]
+
+[apps.xresources]
+switch = [{ pointer = ".Xresources", light = ".Xresources.eyes", dark = ".Xresources.eyes-dark", generate = "hash" }]
+reload = [{ binary = "xrdb", env_required = "DISPLAY", run = ["xrdb", "-merge", "{home}/.Xresources"] }]
+
+[apps.shell]
+switch = [{ pointer = "config/shell/colors.env", light = "colors.eyes.env", dark = "colors.eyes-dark.env", generate = "hash", generate_replace = [['BAT_THEME="eyes"', 'BAT_THEME="eyes-dark"']], generate_after = ["bat", "cache", "--build"] }]
+wired = [{ file = ".zshrc", pattern = 'colors\.env' }]
+
+# Par mantenido a mano: los acentos oscuros no siguen la paleta 1:1.
+[apps.scroll]
+switch = [{ pointer = "config/scroll/colors.conf", light = "colors.eyes.conf", dark = "colors.eyes-dark.conf" }]
+wired = [{ file = "config/scroll/config", pattern = 'colors\.conf' }]
+# jump_labels_* solo se aplica con reload; bajo systemd no hay SWAYSOCK.
+reload = [{ process = "scroll", run = ["scrollmsg", "reload"], env = { SWAYSOCK = "{runtime_dir}/scroll-ipc.{uid}.{pid}.sock" } }]
+
+[apps.rofi]
+switch = [
+  { pointer = "config/rofi/colors/theme.rasi", light = "eyes.rasi", dark = "eyes-dark.rasi", generate = "hash" },
+  { pointer = "config/rofi/colors/colors.txt", light = "eyes.txt", dark = "eyes-dark.txt", generate = "hash" },
+]
+wired = [
+  { file = "config/rofi", pattern = 'colors/theme\.rasi' },
+  { file = "config/rofi", pattern = 'colors/colors\.txt' },
+]
+
+[apps.nushell]
+switch = [{ pointer = "config/nushell/theme.nu", light = "eyes.nu", dark = "eyes-dark.nu", generate = "hash" }]
+wired = [{ file = "config/nushell/config.nu", pattern = 'theme\.nu' }]
+
+[apps.yazi]
+switch = [
+  { pointer = "config/yazi/flavors/eyes.yazi", light = "eyes-light.yazi", dark = "eyes-dark.yazi", generate = "hash", generate_files = ["flavor.toml", "tmtheme.xml"] },
+  { pointer = "config/yazi/colors.lua", light = "colors.eyes.lua", dark = "colors.eyes-dark.lua", generate = "hash" },
+]
+wired = [
+  { file = "config/yazi/theme.toml", pattern = "eyes-(light|dark)" },
+  { file = "config/yazi/init.lua", pattern = 'yazi/colors\.lua' },
+]
+
+[apps.mpv]
+switch = [{ pointer = "config/mpv/colors.conf", light = "colors.eyes.conf", dark = "colors.eyes-dark.conf", generate = "bare" }]
+wired = [{ file = "config/mpv/mpv.conf", pattern = 'colors\.conf' }]
+
+[apps.hunk]
+switch = [{ pointer = "config/hunk/config.toml", light = "config.eyes.toml", dark = "config.eyes-dark.toml" }]
+
+# Par mantenido a mano: acentos propios del modo oscuro.
+[apps.herdr]
+compose = [{ target = "config/herdr/config.toml", base = "config/herdr/base.toml", light = "config/herdr/colors.eyes.toml", dark = "config/herdr/colors.eyes-dark.toml" }]
+reload = [{ process = "herdr", run = ["mise", "exec", "--", "herdr", "server", "reload-config"] }]
+
+[apps.swaylock]
+compose = [{ target = "config/swaylock/config", base = "config/swaylock/base.conf", light = "config/swaylock/colors.eyes.conf", dark = "config/swaylock/colors.eyes-dark.conf", generate = "hexa" }]
+wired = [{ file = "config/swayidle/config", pattern = "swaylock" }]
+
+[apps.tridactyl]
+compose = [{ target = "config/tridactyl/themes/theme.css", base = "config/tridactyl/themes/base.css", light = "config/tridactyl/themes/colors.eyes.css", dark = "config/tridactyl/themes/colors.eyes-dark.css", generate = "hash" }]
+wired = [{ file = "config/tridactyl/tridactylrc", pattern = "colorscheme theme" }]
+
+# La clave top-level `palette` debe preceder a las tablas TOML.
+[apps.starship]
+compose = [{ target = "config/starship.toml", base = "config/starship.base.toml", light = "config/starship.palette.eyes.toml", dark = "config/starship.palette.eyes-dark.toml", variant_first = true }]
+
+[apps.gtk]
+ini = [
+  { file = "~/.config/gtk-3.0/settings.ini", key = "gtk-application-prefer-dark-theme", light = "0", dark = "1" },
+  { file = "~/.config/gtk-4.0/settings.ini", key = "gtk-application-prefer-dark-theme", light = "0", dark = "1" },
+]
+wired = [
+  { file = "~/.config/gtk-3.0/settings.ini", pattern = "prefer-dark-theme" },
+  { file = "~/.config/gtk-4.0/settings.ini", pattern = "prefer-dark-theme" },
+]
+# kitty (*-theme.auto.conf), GTK4 y navegadores siguen este valor vía el portal;
+# kitty avisa del cambio de fondo (DEC 2031) a nvim, opencode y Claude.
+reload = [{ binary = "gsettings", run = ["gsettings", "set", "org.gnome.desktop.interface", "color-scheme", "prefer-{mode}"] }]
+
+# El panel lateral de Claude conserva el nombre de tema del arranque: el
+# nombre es fijo y el cambio reescribe el contenido.
+[apps.claude]
+copy = [{ target = "~/.claude/themes/eyes.json", light = "harness/claude/themes/eyes-light.json", dark = "harness/claude/themes/eyes-dark.json" }]
+link = [
+  { path = "~/.claude/themes/eyes-light.json", target = "harness/claude/themes/eyes-light.json" },
+  { path = "~/.claude/themes/eyes-dark.json", target = "harness/claude/themes/eyes-dark.json" },
+]
+json = [{ file = "~/.claude/settings.json", key = "theme", value = "custom:eyes" }]
+
+[apps.pi]
+copy = [{ target = "~/.pi/agent/themes/eyes.json", light = "harness/pi/themes/eyes-light.json", dark = "harness/pi/themes/eyes-dark.json", replace = ['"name":\s*"eyes-(light|dark)"', '"name": "eyes"'] }]
+link = [
+  { path = "~/.pi/agent/themes/eyes-light.json", target = "harness/pi/themes/eyes-light.json" },
+  { path = "~/.pi/agent/themes/eyes-dark.json", target = "harness/pi/themes/eyes-dark.json" },
+]
+json = [{ file = "~/.pi/agent/settings.json", key = "theme", value = "eyes" }]
+
+[apps.opencode]
+link = [{ path = "~/.config/opencode/themes/eyes.json", target = "harness/opencode/themes/eyes.json" }]
+json = [{ file = "~/.config/opencode/tui.json", key = "theme", value = "eyes", defaults = { "$schema" = "https://opencode.ai/tui.json" } }]
+
+[apps.notify]
+reload = [{ binary = "notify-send", run = ["notify-send", "-a", "eyes-theme", "Eyes theme switched", "Now in {mode} mode"] }]
