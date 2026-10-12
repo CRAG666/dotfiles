@@ -105,7 +105,7 @@
        pdf               ; pdf enhancements
        ;;terraform         ; infrastructure as code
        ;;tmux              ; an API for interacting with tmux
-       ;;tree-sitter       ; legacy; reemplazado por treesit nativo + treesit-auto
+       ;;tree-sitter       ; legacy; replaced by native treesit + treesit-auto
        ;;upload            ; map local to remote projects via ssh/ftp
 
        :os
@@ -150,7 +150,7 @@
        ;;lean              ; for folks with too much to prove
        ;;ledger            ; be audit you can be
        (lua +lsp)                            ; one-based indices? one-based indices
-       (markdown +grip)               ; writing docs (preview vía grip)
+       (markdown +grip)               ; writing docs (preview via grip)
        ;;nim               ; python + lisp at the speed of c
        ;;nix               ; I hereby declare "nix geht mehr!"
        ;;ocaml             ; an objective camel

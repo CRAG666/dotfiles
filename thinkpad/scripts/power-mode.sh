@@ -1,5 +1,7 @@
 #!/bin/sh
 
+script_dir=$(dirname "$(readlink -f "$0")")
+
 if [ "$1" == "battery" ]; then
 	logger "La computadora está en modo batería."
 
@@ -26,7 +28,7 @@ if [ "$1" == "battery" ]; then
 	iw dev wlan0 set power_save on
 	ethtool -s enp0s31f6 wol d
 
-	sysctl -p /home/think-crag/Git/dotfiles/thinkpad/scripts/98-power-saving.conf
+	sysctl -p "$script_dir/98-power-saving.conf"
 
 	echo auto | tee /sys/bus/pci/devices/{0000:00:00.0,0000:00:12.0,0000:00:14.0,0000:00:14.2,0000:00:17.0,0000:00:1f.0,0000:00:1f.5,0000:00:1f.6,0000:01:00.0,0000:02:00.0,0000:52:00.0}/power/control
 
@@ -56,7 +58,7 @@ elif [ "$1" == "ac" ]; then
 	iw dev wlan0 set power_save off
 	ethtool -s enp0s31f6 wol g
 
-	sysctl -p /home/think-crag/Git/dotfiles/thinkpad/scripts/99-performance.conf
+	sysctl -p "$script_dir/99-performance.conf"
 
 	echo on | tee /sys/bus/pci/devices/{0000:00:00.0,0000:00:12.0,0000:00:14.0,0000:00:14.2,0000:00:17.0,0000:00:1f.0,0000:00:1f.5,0000:00:1f.6,0000:01:00.0,0000:02:00.0,0000:52:00.0}/power/control
 

@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """Compara layouts VIA entre teclados, ignorando luces y huecos.
 
-Uso:
-  compare-layouts                      # cidoo vs keychron con el mapeo por defecto
-  compare-layouts a.json b.json        # otros archivos (a = principal/referencia)
+Usage:
+  compare-layouts                      # cidoo vs keychron with the default mapping
+  compare-layouts a.json b.json        # other files (a = primary/reference)
   compare-layouts --map 0:0,1:2,2:3,3:4
 
-El mapeo es capa_de_A:capa_de_B. Los numeros de capa dentro de LT()/MO()
-se normalizan segun el mapeo, asi un corrimiento de capas no cuenta como
-diferencia. Se ignoran KC_NO, KC_TRNS y teclas de iluminacion/placa
-(RGB_*, BL_*, QK_*, CUSTOM(*) salvo --with-custom).
+The mapping is layer_of_A:layer_of_B. Layer numbers inside LT()/MO()
+are normalized through the mapping, so a layer shift does not count as a
+difference. KC_NO, KC_TRNS and lighting/board keys are ignored
+(RGB_*, BL_*, QK_*, CUSTOM(*) unless --with-custom).
 """
 import argparse
 import difflib
@@ -37,7 +37,7 @@ def parse_map(spec):
 
 
 def normalize(kc, layer_map):
-    """Reescribe el numero de capa de LT()/MO()/etc. de A a su capa en B."""
+    """Rewrites the layer number in LT()/MO()/etc. from A to its layer in B."""
     m = LAYER_REF.match(kc)
     if m and int(m.group(2)) in layer_map:
         target = layer_map[int(m.group(2))]

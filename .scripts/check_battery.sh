@@ -40,6 +40,6 @@ while true; do
 		touch $NOTIFIED_LOW_FLAG
 	fi
 
-	# 60 s: la bateria cambia en minutos; sondear mas seguido es spawns de fondo inutiles.
+	# 60 s: battery level changes over minutes; polling faster just adds useless background spawns.
 	sleep 60
 done

@@ -1,5 +1,5 @@
-# Colores del tema eyes (dark) — solo tablas [theme*]. Par manual con
-# tui.colors.eyes.toml (el mapeo dark usa ANSI cruzados, no PALETTE sed).
+# eyes theme colors (dark) — [theme*] tables only. Manual pair with
+# tui.colors.eyes.toml (the dark mapping uses crossed ANSI, not PALETTE sed).
 [theme]
 file_name = "eyes-active"
 name = "Eyes (light)"

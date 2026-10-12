@@ -25,8 +25,8 @@ Wall_Set() {
         exit 1
     fi
 
-    : "${xtrans:=grow}"  # Valor predeterminado si xtrans está vacío
-    : "${xpos:=center}"  # Valor predeterminado si xpos está vacío
+    : "${xtrans:=grow}"  # Default value if xtrans is empty
+    : "${xpos:=center}"  # Default value if xpos is empty
 
     awww img "$wallPath" \
         --transition-bezier .43,1.19,1,.4 \

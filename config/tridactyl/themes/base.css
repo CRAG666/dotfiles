@@ -18,9 +18,9 @@
   --tridactyl-hintspan-fg: var(--bg) !important;
   --tridactyl-hintspan-bg: var(--green) !important;
   /* Element Highlights */
-  --tridactyl-hint-active-fg: var(-currentline) !important;     /* texto del hint activo */
-  --tridactyl-hint-active-bg: var(--fg) !important;  /* fondo del hint activo */
-  --tridactyl-hint-active-outline: 2px solid var(--peach) !important; /* borde opcional, queda bonito */
+  --tridactyl-hint-active-fg: var(-currentline) !important;     /* active hint text */
+  --tridactyl-hint-active-bg: var(--fg) !important;  /* active hint background */
+  --tridactyl-hint-active-outline: 2px solid var(--peach) !important; /* optional border, looks nice */
   --tridactyl-hint-bg: none;
   --tridactyl-hint-outline: none;
 }
@@ -88,7 +88,7 @@
   font-size: 22px !important;
 }
 
-/* Hint activo cuando estás tecleando las letras (al presionar F y siguientes) */
+/* Active hint while you are typing the letters (after pressing F and onwards) */
 .TridactylHintActive {
     color: var(--tridactyl-hint-active-fg) !important;
     background-color: var(--tridactyl-hint-active-bg) !important;

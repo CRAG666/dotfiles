@@ -38,7 +38,7 @@ exec rfkill block bluetooth
 exec ~/.config/scroll/ktc-brightness.sh
 
 ### Lua scripts
-set $lua_scripts /home/think-crag/.config/scroll/lua
+set $lua_scripts ~/.config/scroll/lua
 
 # Auto 2xN grid (tile pattern). Edit MAX_PER_COL inside the script to change
 # the vertical cap per column.
@@ -298,7 +298,7 @@ animations {
     bindsym --no-repeat $mod+Shift+tab scale_workspaces toggle
 
     # Jump
-    # jump_labels_color: vive en colors.conf (include de tema)
+    # jump_labels_color: lives in colors.conf (theme include)
     jump_labels_keys asdfqwer
 
     mode "jump" {
@@ -341,8 +341,8 @@ animations {
     }
     bindsym  $mod+slash mode "filter"
 
-    # Remoto: suelta todos los binds locales para que lleguen a la ventana
-    # enfocada (p.ej. el visor VNC de la P53). $mod+F12 entra y sale.
+    # Remote: release all local binds so they reach the focused
+    # window (e.g. the P53 VNC viewer). $mod+F12 enters and exits.
     mode "passthrough" {
         bindsym $mod+F12 mode "default"
     }
@@ -715,16 +715,16 @@ bindsym --locked XF86MonBrightnessDown exec ~/.config/scroll/brightness.sh down
 focus_wrapping no
 
 ### Gestures
-# Workspaces (GNOME-style, 4 dedos)
+# Workspaces (GNOME-style, 4 fingers)
 bindgesture swipe:4:right workspace next
 bindgesture swipe:4:left workspace prev
 # Overview local vs. global
 bindgesture swipe:4:up scale_workspace overview
 bindgesture swipe:4:down scale_workspaces toggle
-# Zoom del workspace; 3 dedos para no tocar el pinch de 2 dedos de las apps
+# Workspace zoom; 3 fingers to leave the apps' 2-finger pinch alone
 bindgesture pinch:3:outward scale_workspace incr 0.05
 bindgesture pinch:3:inward scale_workspace incr -0.05
-# Volumen con rotación
+# Volume via rotation
 bindgesture pinch:clockwise exec $DUNST_SCRIPTS/vol up
 bindgesture pinch:counterclockwise exec $DUNST_SCRIPTS/vol down
 

@@ -3,51 +3,51 @@ vim.g.colors_name = 'eyes'
 
 -- Palette {{{
 -- stylua: ignore start
--- Base: fondo #add4a0 (verde salvia suave, ideal para protección visual)
--- Todos los colores están calibrados para bajo contraste sin perder legibilidad
+-- Base: background #add4a0 (soft sage green, ideal for eye protection)
+-- All colors are tuned for low contrast without losing legibility
 
-local c_bg0          -- fondo principal
-local c_bg1          -- fondo alternativo ligero
+local c_bg0          -- main background
+local c_bg1          -- light alternate background
 local c_bg2          -- cursorline / colorcolumn
 local c_bg3          -- pmenu / statusline
-local c_bg4          -- selección / match
-local c_bg5          -- separadores / nontext oscuro
+local c_bg4          -- selection / match
+local c_bg5          -- separators / dark nontext
 
-local c_fg0          -- texto principal
-local c_fg1          -- texto secundario
-local c_fg2          -- texto tenue
+local c_fg0          -- main text
+local c_fg1          -- secondary text
+local c_fg2          -- dim text
 
-local c_green0       -- verde comentarios
-local c_green1       -- verde strings
-local c_green2       -- verde funciones (más profundo)
+local c_green0       -- comment green
+local c_green1       -- string green
+local c_green2       -- function green (deeper)
 
-local c_teal         -- teal para tipos/especiales
-local c_blue0        -- azul tranquilo para keywords
-local c_blue1        -- azul claro para funciones/dirs
+local c_teal         -- teal for types/specials
+local c_blue0        -- calm blue for keywords
+local c_blue1        -- light blue for functions/dirs
 
-local c_violet       -- violeta suave para statements
-local c_aqua         -- aqua para constructores
+local c_violet       -- soft violet for statements
+local c_aqua         -- aqua for constructors
 
-local c_orange0      -- naranja cálido constantes
-local c_orange1      -- naranja oscuro números
+local c_orange0      -- warm orange constants
+local c_orange1      -- dark orange numbers
 
-local c_red          -- rojo apagado para errores/ops
-local c_yellow       -- amarillo tierra para warnings
-local c_pink         -- rosa suave para números/macros
+local c_red          -- muted red for errors/ops
+local c_yellow       -- earthy yellow for warnings
+local c_pink         -- soft pink for numbers/macros
 
-local c_ash          -- gris para comentarios / info discreta
-local c_gray0        -- gris medio
-local c_gray1        -- gris más oscuro
-local c_gray2        -- gris para signcolumn
+local c_ash          -- gray for comments / subtle info
+local c_gray0        -- medium gray
+local c_gray1        -- darker gray
+local c_gray2        -- gray for signcolumn
 
--- Colores diff / winter (tintes sobre el fondo verde)
+-- Diff / winter colors (tints over the green background)
 local c_winterGreen
 local c_winterBlue
 local c_winterRed
 local c_winterYellow
 
 if vim.go.bg == 'dark' then
--- Versión oscura corregida
+-- Corrected dark variant
 c_bg0        = { '#1a211a', 234 }
 c_bg1        = { '#202820', 235 }
 c_bg2        = { '#263026', 236 }
@@ -58,17 +58,17 @@ c_fg0        = { '#d0dcc8', 251 }
 c_fg1        = { '#b8c8b0', 249 }
 c_fg2        = { '#9aab94', 247 }
 c_green0     = { '#7aab72', 107 }
-c_green1     = { '#88b878', 107 }   -- ligeramente más claro que green0
+c_green1     = { '#88b878', 107 }   -- slightly lighter than green0
 c_green2     = { '#6a9460', 101 }
-c_teal       = { '#5ab8a8', 72  }   -- más saturado, diferenciado
+c_teal       = { '#5ab8a8', 72  }   -- more saturated, distinct
 c_blue0      = { '#6a94a8', 67  }
 c_blue1      = { '#82aab8', 109 }
-c_violet     = { '#9090b8', 103 }   -- más claro para destacar
-c_aqua       = { '#6ab8b0', 72  }   -- diferenciado del teal
+c_violet     = { '#9090b8', 103 }   -- lighter to stand out
+c_aqua       = { '#6ab8b0', 72  }   -- distinct from teal
 c_orange0    = { '#b89a6a', 137 }
 c_orange1    = { '#c8a870', 137 }
-c_red        = { '#c87868', 131 }   -- más vivo, errores más visibles
-c_yellow     = { '#d4b85a', 179 }   -- más saturado, warnings claros
+c_red        = { '#c87868', 131 }   -- brighter, errors more visible
+c_yellow     = { '#d4b85a', 179 }   -- more saturated, clear warnings
 c_pink       = { '#b890b0', 139 }
 c_ash        = { '#7a8c72', 242 }
 c_gray0      = { '#8a9a88', 244 }
@@ -79,30 +79,30 @@ c_winterBlue   = { '#223040', 237 }
 c_winterRed    = { '#402828', 52  }
 c_winterYellow = { '#3a3420', 236 }
 else
-  -- Versión clara corregida (modo claro)
+  -- Corrected light variant (light mode)
   c_bg0        = { '#add4a0', 151 }
   c_bg1        = { '#a4cc98', 150 }
   c_bg2        = { '#9fc895', 150 }
   c_bg3        = { '#96be8c', 149 }
   c_bg4        = { '#88b07e', 107 }
   c_bg5        = { '#6a9060', 65  }
-  c_fg0        = { '#1a1a1a', 234 }   -- negro puro, 9:1+
+  c_fg0        = { '#1a1a1a', 234 }   -- pure black, 9:1+
   c_fg1        = { '#1e2e1c', 235 }
-  c_fg2        = { '#3d5c38', 239 }   -- subido para pasar AA
-  c_green0     = { '#2a5c22', 28  }   -- comentarios (más oscuro)
-  c_green1     = { '#1e4a18', 22  }   -- strings (más oscuro aún, separado)
+  c_fg2        = { '#3d5c38', 239 }   -- raised to pass AA
+  c_green0     = { '#2a5c22', 28  }   -- comments (darker)
+  c_green1     = { '#1e4a18', 22  }   -- strings (darker still, distinct)
   c_green2     = { '#3a5030', 65  }
-  c_teal       = { '#145850', 23  }   -- tipos (más azulado-oscuro)
+  c_teal       = { '#145850', 23  }   -- types (darker, bluer)
   c_blue0      = { '#1e4868', 24  }   -- keywords
-  c_blue1      = { '#143c52', 23  }   -- funciones
+  c_blue1      = { '#143c52', 23  }   -- functions
   c_violet     = { '#3a2860', 54  }   -- statements
-  c_aqua       = { '#1a5858', 23  }   -- constructores (diferenciado del teal)
-  c_orange0    = { '#6a3c10', 130 }   -- constantes
-  c_orange1    = { '#7a4a18', 130 }   -- números
-  c_red        = { '#7a1e18', 88  }   -- errores
-  c_yellow     = { '#5a4808', 58  }   -- warnings (corregido, pasa AA ~4.6:1)
+  c_aqua       = { '#1a5858', 23  }   -- constructors (distinct from teal)
+  c_orange0    = { '#6a3c10', 130 }   -- constants
+  c_orange1    = { '#7a4a18', 130 }   -- numbers
+  c_red        = { '#7a1e18', 88  }   -- errors
+  c_yellow     = { '#5a4808', 58  }   -- warnings (corrected, passes AA ~4.6:1)
   c_pink       = { '#5a2858', 90  }   -- macros
-  c_ash        = { '#365c25', 65  }   -- comentarios discretos (aclarado, separado de green1)
+  c_ash        = { '#365c25', 65  }   -- subtle comments (lightened, distinct from green1)
   c_gray0      = { '#486040', 66  }
   c_gray1      = { '#385030', 65  }
   c_gray2      = { '#2c4028', 64  }
@@ -162,23 +162,23 @@ local function tint(color, alpha)
   return { hl.cblend(color[1], c_bg0[1], alpha).hex, -1 }
 end
 
--- Neorg flower heading palette (tono igualado a cada emoji) {{{
+-- Neorg flower heading palette (hue matched to each emoji) {{{
 -- 🌸 🌺 🌼 💮 💠 🪷
 local f_blossom, f_hibiscus, f_daisy, f_white, f_diamond, f_lotus
 if vim.go.bg == 'dark' then
-  f_blossom = { '#e6a0b8', 175 } -- 🌸 rosa cerezo
-  f_hibiscus = { '#e0607f', 168 } -- 🌺 rosa fucsia
-  f_daisy = { '#e0c060', 179 } -- 🌼 amarillo dorado
-  f_white = { '#f2ccd8', 218 } -- 💮 rosa muy pálido
-  f_diamond = { '#6fd0e0', 81 } -- 💠 diamante cian
-  f_lotus = { '#c49ad6', 182 } -- 🪷 lavanda violeta
+  f_blossom = { '#e6a0b8', 175 } -- 🌸 cherry pink
+  f_hibiscus = { '#e0607f', 168 } -- 🌺 fuchsia pink
+  f_daisy = { '#e0c060', 179 } -- 🌼 golden yellow
+  f_white = { '#f2ccd8', 218 } -- 💮 very pale pink
+  f_diamond = { '#6fd0e0', 81 } -- 💠 cyan diamond
+  f_lotus = { '#c49ad6', 182 } -- 🪷 violet lavender
 else
-  f_blossom = { '#a83a5e', 89 } -- 🌸 rosa cerezo (oscuro)
-  f_hibiscus = { '#b22a52', 125 } -- 🌺 rosa fucsia (oscuro)
-  f_daisy = { '#6e5410', 94 } -- 🌼 dorado (oscuro)
-  f_white = { '#9c4e70', 95 } -- 💮 rosa (oscuro)
-  f_diamond = { '#16687a', 30 } -- 💠 diamante cian (oscuro)
-  f_lotus = { '#6a2c7c', 54 } -- 🪷 violeta (oscuro)
+  f_blossom = { '#a83a5e', 89 } -- 🌸 cherry pink (dark)
+  f_hibiscus = { '#b22a52', 125 } -- 🌺 fuchsia pink (dark)
+  f_daisy = { '#6e5410', 94 } -- 🌼 golden (dark)
+  f_white = { '#9c4e70', 95 } -- 💮 pink (dark)
+  f_diamond = { '#16687a', 30 } -- 💠 cyan diamond (dark)
+  f_lotus = { '#6a2c7c', 54 } -- 🪷 violet (dark)
 end
 -- }}}
 

@@ -10,7 +10,7 @@ output * pos 0 0
 
 default_border none
 
-# Lanzar gtkgreet y salir cuando termine
+# Launch gtkgreet and exit when it finishes
 exec "regreet; scrollmsg exit"
 
 input type:touchpad {

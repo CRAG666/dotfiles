@@ -60,15 +60,15 @@ show_marks() {
         return
     fi
 
-    # Contar el número de elementos
+    # Count the number of items
     num_items=$(echo "$data" | wc -l)
 
-    # Definir parámetros para el cálculo del alto
-    item_height=45                                    # Alto estimado por elemento en píxeles
-    base_height=50                                    # Alto base para la ventana
-    height=$((num_items * item_height + base_height)) # Calcular el alto total
+    # Define parameters for the height calculation
+    item_height=45                                    # Estimated height per item in pixels
+    base_height=50                                    # Base height for the window
+    height=$((num_items * item_height + base_height)) # Compute the total height
 
-    # Establecer límites mínimo y máximo
+    # Set minimum and maximum limits
     min_height=150
     max_height=800
     if ((height < min_height)); then
@@ -77,13 +77,13 @@ show_marks() {
         height=$max_height
     fi
 
-    # Construir los argumentos para YAD
+    # Build the arguments for YAD
     yad_args=()
     while IFS=$'\t' read -r mark title; do
         yad_args+=("$mark" "$title")
     done <<<"$data"
 
-    # Mostrar el diálogo con el alto calculado
+    # Show the dialog with the computed height
     selected=$(yad --list \
         --title="Marks" \
         --text="Select a mark:" \

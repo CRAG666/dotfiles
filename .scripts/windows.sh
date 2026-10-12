@@ -1,22 +1,22 @@
 #!/bin/bash
 
-# Configuración de la VM
+# VM configuration
 WIN_USER="MyWindowsUser"
 WIN_PASS="MyWindowsPassword"
 WIN_IP="localhost"
-HOST_SHARE_PATH="/home/think-crag/Público/Windows"
+HOST_SHARE_PATH="$(xdg-user-dir PUBLICSHARE)/Windows"
 GUEST_SHARE_NAME="Linux"
 COMPOSE_FILE=~/Git/winapps/compose.yaml
 CONTAINER_NAME="WinApps"
 
-# Obtener información del monitor enfocado
+# Get the focused monitor's info
 MONITOR_INFO=$(hyprctl monitors -j | jq '.[] | select(.focused == true)')
 WIDTH=$(echo "$MONITOR_INFO" | jq -r '.width')
 HEIGHT=$(echo "$MONITOR_INFO" | jq -r '.height')
 WIDTH=$((WIDTH - 16))
 HEIGHT=$((HEIGHT - 16))
 
-# Verificar estado del contenedor
+# Check the container status
 STATUS=$(podman ps -a --filter "name=$CONTAINER_NAME" --format "{{.Status}}")
 
 if [ -z "$STATUS" ]; then
@@ -35,7 +35,7 @@ fi
 
 notify-send "Windows 11" "Abriendo..." --icon=windows --urgency=normal
 
-# Iniciar sesión RDP
+# Start the RDP session
 xfreerdp3 \
 	/u:$WIN_USER /p:$WIN_PASS /v:$WIN_IP \
 	/t:Windows \

@@ -86,7 +86,7 @@ def gst [] {
   git status --short --porcelain
   | lines
   | each { |line|
-      let status = ($line | str substring 0..1)  # Solo 2 caracteres
+      let status = ($line | str substring 0..1)  # Only 2 characters
       let file = ($line | str substring 3..)
       {status: $status, file: $file}
   }

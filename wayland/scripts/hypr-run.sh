@@ -18,9 +18,9 @@ validate_mode() {
     esac
 }
 
-# Detecta si está enchufado o con batería (solo relevante en GPU híbrida)
+# Detect whether on AC power or battery (only relevant on hybrid GPUs)
 detect_power_mode() {
-    # Método 1: usando acpi
+    # Method 1: using acpi
     if command -v acpi &>/dev/null; then
         if acpi -a | grep -q "on-line"; then
             echo "nvidia"
@@ -30,7 +30,7 @@ detect_power_mode() {
         return
     fi
 
-    # Método 2: checar /sys/class/power_supply
+    # Method 2: check /sys/class/power_supply
     for adapter in /sys/class/power_supply/A*/online; do
         if [ -f "$adapter" ] && [ "$(cat "$adapter")" = "1" ]; then
             echo "nvidia"
@@ -38,11 +38,11 @@ detect_power_mode() {
         fi
     done
 
-    # Por defecto: batería (Intel)
+    # Default: battery (Intel)
     echo "intel"
 }
 
-# Devuelve "card render" (dos líneas) para el patrón de proveedor dado, o nada.
+# Prints "card render" (two lines) for the given vendor pattern, or nothing.
 detect_device() {
     local pci
     pci=$(lspci -k | grep -E '(VGA|3D)' | grep -iE "$1" | awk '{print $1}')
@@ -78,7 +78,7 @@ done
 
 shift $((OPTIND - 1))
 
-# ─── Detectar dispositivos ────────────────────────────────────────────────────
+# ─── Detect devices ───────────────────────────────────────────────────────────
 
 DEVICE_INTEL=$(detect_device 'intel')
 DEVICE_NVIDIA=$(detect_device 'nvidia')
@@ -95,11 +95,11 @@ RENDER_AMD=$(echo "$DEVICE_AMD" | awk 'NR==2')
 [ -n "$DEVICE_NVIDIA" ] && echo "NVIDIA: $CARD_NVIDIA (render: $RENDER_NVIDIA)"
 [ -n "$DEVICE_AMD" ] && echo "AMD   : $CARD_AMD (render: $RENDER_AMD)"
 
-# ─── Modo automático ──────────────────────────────────────────────────────────
+# ─── Automatic mode ───────────────────────────────────────────────────────────
 
 if [ "$AUTO_MODE" = true ]; then
     if [ -n "$DEVICE_NVIDIA" ]; then
-        # GPU híbrida Intel+NVIDIA: alternar según alimentación.
+        # Hybrid Intel+NVIDIA GPU: switch based on power source.
         MODE=$(detect_power_mode)
     elif [ -n "$DEVICE_AMD" ]; then
         MODE="amd"
@@ -109,17 +109,17 @@ if [ "$AUTO_MODE" = true ]; then
     echo "Modo detectado automáticamente: $MODE"
 fi
 
-# Si no se especificó modo ni auto, mostrar ayuda
+# If neither a mode nor auto was given, show help
 if [ -z "$MODE" ]; then
     echo "Debe especificar un modo (-m) o usar detección automática (-a)."
     show_help
 fi
 
-# ─── Aplicar configuración ────────────────────────────────────────────────────
+# ─── Apply configuration ──────────────────────────────────────────────────────
 
 HYPR_CONF="$HOME/.config/hypr/hyprland.conf"
 
-# Apuntar hyprland.conf al archivo de GPU correcto, sea cual sea el actual.
+# Point hyprland.conf at the right GPU file, whatever the current one is.
 sed -i -E "s#^source = \./(intel|nvidia|amd)\.conf#source = ./${MODE}.conf#" "$HYPR_CONF"
 
 case "$MODE" in

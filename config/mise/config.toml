@@ -1,7 +1,7 @@
 [env]
-# markitdown[all] (0.1.6+) arrastra azure-ai-contentunderstanding (pre-release) como
-# dependencia transitiva; uv la rechaza por defecto. "allow" es el único modo que la
-# resuelve (los modos acotados no cubren pre-releases transitivas). OJO: es global a uv.
+# markitdown[all] (0.1.6+) pulls in azure-ai-contentunderstanding (pre-release) as a
+# transitive dependency; uv rejects it by default. "allow" is the only mode that
+# resolves it (the scoped modes don't cover transitive pre-releases). NOTE: it is global to uv.
 UV_PRERELEASE = "allow"
 
 [tools]

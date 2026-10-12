@@ -125,94 +125,74 @@ system-config:
 # Install Arch Linux packages and apply base system configuration
 install: makepkg-conf bootstrap-paru install-repo install-aur system-config nftables
 
-# Deploy the initial dotfiles
-init: theme systemd-user bin user-tools harness
+# Print "<source>\t<link>" for every symlink of a group: home, config, bin, systemd, harness
+[private]
+links group:
     #!/usr/bin/env bash
     set -eu
-    src_dir="{{ src }}"
-    echo "==> Creating symlinks in the HOME directory"
-    dotfiles=$(find "$src_dir" -mindepth 1 -maxdepth 1 -name ".*" \
-        ! -name .git ! -name .gitignore ! -name .gitattributes \
-        ! -name .gitmodules ! -name .claude ! -name .a5c ! -name .crush \
-        -exec basename {} \;)
-    configs=$(find "$src_dir/config" -mindepth 1 -maxdepth 1 \
-        ! -name .gitignore ! -name systemd -exec basename {} \;)
-    echo "==> Processing dotfiles..."
-    for file in $dotfiles; do
-        dst="$HOME/$file"
-        if [ -e "$dst" ] && [ ! -L "$dst" ]; then
-            echo "WARNING: $file exists but is not a symlink. Back it up manually."
+    case "{{ group }}" in
+        home)
+            find "{{ src }}" -mindepth 1 -maxdepth 1 -name ".*" \
+                ! -name .git ! -name .gitignore ! -name .gitattributes \
+                ! -name .claude ! -name .a5c ! -name .crush \
+                -printf "%p\t$HOME/%f\n" ;;
+        config)
+            find "{{ src }}/config" -mindepth 1 -maxdepth 1 ! -name .gitignore ! -name systemd \
+                -printf "%p\t$HOME/.config/%f\n" ;;
+        bin)
+            find "{{ src }}/local/bin" -mindepth 1 -maxdepth 1 ! -name ".*" \
+                -printf "%p\t$HOME/.local/bin/%f\n" ;;
+        systemd)
+            find "{{ src }}/config/systemd/user" -maxdepth 1 -type f \
+                \( -name '*.service' -o -name '*.timer' -o -name '*.target' \) \
+                -printf "%p\t$HOME/.config/systemd/user/%f\n" ;;
+        harness)
+            find "{{ src }}/harness/pi" -type f -printf "%p\t$HOME/.pi/agent/%P\n"
+            find "{{ src }}/harness/opencode" -type f -printf "%p\t$HOME/.config/opencode/%P\n"
+            # settings*.json are installed as copies by the harness recipe
+            find "{{ src }}/harness/claude" -type f ! -name 'settings*' -printf "%p\t$HOME/.claude/%P\n" ;;
+        *)
+            echo "Unknown link group: {{ group }}" >&2
+            exit 1 ;;
+    esac
+
+# Symlink a group into HOME, never replacing real files
+[private]
+link group:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "==> Linking {{ group }}..."
+    just links {{ group }} | while IFS=$'\t' read -r from to; do
+        if [ -e "$to" ] && [ ! -L "$to" ]; then
+            echo "WARNING: $to exists but is not a symlink. Back it up manually."
         else
-            ln -vsfn "$src_dir/$file" "$dst"
-        fi
-    done
-    echo "==> Processing configs..."
-    mkdir -p "$HOME/.config"
-    for config in $configs; do
-        dst="$HOME/.config/$config"
-        if [ -e "$dst" ] && [ ! -L "$dst" ]; then
-            echo "WARNING: $config exists but is not a symlink. Back it up manually."
-        else
-            ln -vsfn "$src_dir/config/$config" "$dst"
+            mkdir -p "$(dirname "$to")"
+            ln -vsfn "$from" "$to"
         fi
     done
 
+# Remove the symlinks of a group that point into this repo
+[private]
+unlink group:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "==> Unlinking {{ group }}..."
+    just links {{ group }} | while IFS=$'\t' read -r from to; do
+        if [ -L "$to" ] && [ "$(readlink "$to")" = "$from" ]; then
+            rm -v "$to"
+        fi
+    done
+
+# Deploy the initial dotfiles
+init: theme systemd-user bin user-tools uosc mpv-assets harness (link "home") (link "config")
+
 # Remove symlinks created by init/bin/systemd-user/harness (only if they point into this repo)
-rollback:
+rollback: (unlink "home") (unlink "config") (unlink "bin") (unlink "systemd") (unlink "harness")
     #!/usr/bin/env bash
     set -eu
-    src_dir="{{ src }}"
-    echo "==> Removing home dotfile symlinks..."
-    for file in $(find "$src_dir" -mindepth 1 -maxdepth 1 -name ".*" \
-        ! -name .git ! -name .gitignore ! -name .gitattributes \
-        ! -name .gitmodules ! -name .claude ! -name .a5c ! -name .crush \
-        -exec basename {} \;); do
-        dst="$HOME/$file"
-        if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then
-            rm -v "$dst"
-        fi
-    done
-    echo "==> Removing config symlinks..."
-    for config in $(find "$src_dir/config" -mindepth 1 -maxdepth 1 \
-        ! -name .gitignore ! -name systemd -exec basename {} \;); do
-        dst="$HOME/.config/$config"
-        if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then
-            rm -v "$dst"
-        fi
-    done
-    echo "==> Removing local/bin symlinks..."
-    for script in $(find "$src_dir/local/bin" -mindepth 1 -maxdepth 1 ! -name ".*" -exec basename {} \;); do
-        dst="$HOME/.local/bin/$script"
-        if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then
-            rm -v "$dst"
-        fi
-    done
-    echo "==> Removing systemd user unit symlinks..."
-    for unit in $(find "$src_dir/config/systemd/user" -maxdepth 1 -type f \
-                    \( -name '*.service' -o -name '*.timer' -o -name '*.target' \) -exec basename {} \;); do
-        dst="$HOME/.config/systemd/user/$unit"
-        if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then
-            rm -v "$dst"
-        fi
-    done
     systemctl --user daemon-reload || true
-    echo "==> Removing harness symlinks..."
-    for f in APPEND_SYSTEM.md web-search.json zentui.json settings.json; do
-        dst="$HOME/.pi/agent/$f"
-        if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then rm -v "$dst"; fi
-    done
-    for f in eyes-light.json eyes-dark.json; do
-        dst="$HOME/.pi/agent/themes/$f"
-        if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then rm -v "$dst"; fi
-    done
     dst="$HOME/.pi/agent/themes/eyes.json"
     if [ -f "$dst" ]; then rm -v "$dst"; fi
-    dst="$HOME/.claude/CLAUDE.md"
-    if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then rm -v "$dst"; fi
-    dst="$HOME/.config/opencode/opencode.json"
-    if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then rm -v "$dst"; fi
-    dst="$HOME/.config/opencode/themes/eyes.json"
-    if [ -L "$dst" ] && readlink "$dst" | grep -q "^$src_dir"; then rm -v "$dst"; fi
     echo "==> Rollback complete."
 
 # Apply the eyes theme (active symlinks + claude/opencode themes)
@@ -221,41 +201,86 @@ theme:
     @{{ src }}/local/bin/eyes-theme auto
 
 # Link the local/bin scripts into ~/.local/bin
-bin:
-    #!/usr/bin/env bash
-    set -eu
-    echo "==> Linking scripts into ~/.local/bin..."
-    mkdir -p "$HOME/.local/bin"
-    for script in $(find "{{ src }}/local/bin" -mindepth 1 -maxdepth 1 ! -name ".*" -exec basename {} \;); do
-        ln -vsfn "{{ src }}/local/bin/$script" "$HOME/.local/bin/$script"
-    done
+bin: (link "bin")
 
-# Install user-level tools sin AUR (cht.sh + tridactyl native messenger)
+# Install user-level tools without AUR (cht.sh + tridactyl native messenger)
 user-tools:
     #!/usr/bin/env bash
     set -eu
     echo "==> Installing cht.sh into ~/.local/bin..."
     mkdir -p "$HOME/.local/bin"
-    curl -fsSL https://cht.sh/:cht.sh -o "$HOME/.local/bin/cht.sh"
+    curl -fsSL https://raw.githubusercontent.com/chubin/cheat.sh/master/share/cht.sh.txt -o "$HOME/.local/bin/cht.sh"
     chmod +x "$HOME/.local/bin/cht.sh"
     echo "==> Installing Tridactyl native messenger (user-level, sin root)..."
     curl -fsSL https://raw.githubusercontent.com/tridactyl/native_messenger/master/installers/install.sh | sh
 
+# Install or update uosc (mpv UI) to its latest release in the gitignored config/mpv/{scripts/uosc,fonts}
+uosc:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    main="{{ src }}/config/mpv/scripts/uosc/main.lua"
+    release=$(curl -fsSL https://api.github.com/repos/tomasklaen/uosc/releases/latest)
+    latest=$(jq -er .tag_name <<<"$release")
+    installed=none
+    if [ -f "$main" ]; then
+        installed=$(sed -n "s/^local uosc_version = '\(.*\)'$/\1/p" "$main")
+    fi
+    if [ "$installed" = "$latest" ]; then
+        echo "==> uosc $latest is already the latest release"
+        exit 0
+    fi
+    echo "==> Installing uosc $latest (installed: $installed)..."
+    asset=$(jq -ec '.assets[] | select(.name == "uosc.zip")' <<<"$release")
+    url=$(jq -er .browser_download_url <<<"$asset")
+    sha256=$(jq -er '.digest | ltrimstr("sha256:")' <<<"$asset")
+    tmp=$(mktemp -d)
+    trap 'rm -rf "$tmp"' EXIT
+    curl -fsSL -o "$tmp/uosc.zip" "$url"
+    echo "$sha256  $tmp/uosc.zip" | sha256sum -c --quiet
+    rm -rf "{{ src }}/config/mpv/scripts/uosc"
+    bsdtar -xf "$tmp/uosc.zip" -C "{{ src }}/config/mpv" \
+        --exclude 'scripts/uosc/bin/ziggy-darwin' --exclude 'scripts/uosc/bin/ziggy-windows.exe'
+
+# Install or update the mpv shaders and thumbfast from upstream into the gitignored config/mpv/{shaders,scripts}
+mpv-assets:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mpv="{{ src }}/config/mpv"
+    tmp=$(mktemp -d)
+    trap 'rm -rf "$tmp"' EXIT
+    mkdir "$tmp/shaders"
+    release_assets() {
+        curl -fsSL "https://api.github.com/repos/$1/releases/latest" \
+            | jq -er --arg pattern "$2" '.assets[] | select(.name | test($pattern)) | .browser_download_url'
+    }
+    echo "==> Downloading Anime4K and FSRCNNX (latest releases)..."
+    anime4k=$(release_assets bloc97/Anime4K '\.zip$')
+    curl -fsSL -o "$tmp/anime4k.zip" "$anime4k"
+    bsdtar -xf "$tmp/anime4k.zip" -C "$tmp/shaders"
+    fsrcnnx=$(release_assets igv/FSRCNN-TensorFlow '^FSRCNNX_.*\.glsl$')
+    for url in $fsrcnnx; do
+        curl -fsSL -o "$tmp/shaders/${url##*/}" "$url"
+    done
+    echo "==> Downloading nnedi3, CAS, FSR, NVScaler, KrigBilateral and SSimDownscaler (default branches/gists)..."
+    for url in \
+        https://raw.githubusercontent.com/bjin/mpv-prescalers/master/nnedi3-nns{16,32,64,128,256}-win8x6.hook \
+        https://gist.githubusercontent.com/agyild/bbb4e58298b2f86aa24da3032a0d2ee6/raw/CAS-scaled.glsl \
+        https://gist.githubusercontent.com/agyild/82219c545228d70c5604f865ce0b0ce5/raw/FSR.glsl \
+        https://gist.githubusercontent.com/agyild/7e8951915b2bf24526a9343d951db214/raw/NVScaler.glsl \
+        https://gist.githubusercontent.com/igv/a015fc885d5c22e6891820ad89555637/raw/KrigBilateral.glsl \
+        https://gist.githubusercontent.com/igv/36508af3ffc84410fe39761d6969be10/raw/SSimDownscaler.glsl; do
+        curl -fsSL -o "$tmp/shaders/${url##*/}" "$url"
+    done
+    echo "==> Downloading thumbfast (default branch)..."
+    curl -fsSL -o "$tmp/thumbfast.lua" https://raw.githubusercontent.com/po5/thumbfast/master/thumbfast.lua
+    mkdir -p "$mpv/shaders" "$mpv/scripts"
+    cp "$tmp"/shaders/* "$mpv/shaders/"
+    cp "$tmp/thumbfast.lua" "$mpv/scripts/"
+
 # Install the AI harness configs (pi, claude, opencode) + shared skills
-harness:
+harness: (link "harness")
     #!/usr/bin/env bash
     set -eu
-    echo "==> pi (~/.pi/agent)..."
-    mkdir -p "$HOME/.pi/agent"
-    for f in APPEND_SYSTEM.md web-search.json zentui.json settings.json; do
-        ln -vsfn "{{ src }}/harness/pi/$f" "$HOME/.pi/agent/$f"
-    done
-    mkdir -p "$HOME/.pi/agent/themes"
-    for f in eyes-light.json eyes-dark.json; do
-        ln -vsfn "{{ src }}/harness/pi/themes/$f" "$HOME/.pi/agent/themes/$f"
-    done
-    echo "==> claude (~/.claude)..."
-    ln -vsfn "{{ src }}/harness/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
     # eyes-theme rewrites settings.json when its theme key differs (atomic replace): install a copy
     if [ -f "$HOME/.claude/settings.json" ] && [ ! -f "$HOME/.claude/settings.json.bak" ]; then
         cp -v "$HOME/.claude/settings.json" "$HOME/.claude/settings.json.bak"
@@ -265,14 +290,6 @@ harness:
         cp -v "{{ src }}/harness/claude/settings.local.json.example" "$HOME/.claude/settings.local.json"
         echo "    WARNING: set your ANTHROPIC_AUTH_TOKEN in ~/.claude/settings.local.json"
     fi
-    mkdir -p "$HOME/.claude/themes"
-    for f in eyes-light.json eyes-dark.json; do
-        ln -vsfn "{{ src }}/harness/claude/themes/$f" "$HOME/.claude/themes/$f"
-    done
-    echo "==> opencode (~/.config/opencode, enlaces por archivo)..."
-    mkdir -p "$HOME/.config/opencode/themes"
-    ln -vsfn "{{ src }}/harness/opencode/opencode.json" "$HOME/.config/opencode/opencode.json"
-    ln -vsfn "{{ src }}/harness/opencode/themes/eyes.json" "$HOME/.config/opencode/themes/eyes.json"
     echo "==> herdr integrations (self-installed, skipped if herdr is absent)..."
     if command -v herdr >/dev/null 2>&1; then
         for agent in claude pi opencode; do
@@ -281,20 +298,7 @@ harness:
     fi
 
 # Link the user unit files (eyes-theme*) and enable timers/boot
-systemd-user:
-    #!/usr/bin/env bash
-    set -eu
-    echo "==> Linking systemd --user units..."
-    mkdir -p "$HOME/.config/systemd/user"
-    for unit in $(find "{{ src }}/config/systemd/user" -maxdepth 1 -type f \
-                    \( -name '*.service' -o -name '*.timer' -o -name '*.target' \) -exec basename {} \;); do
-        dst="$HOME/.config/systemd/user/$unit"
-        if [ -e "$dst" ] && [ ! -L "$dst" ]; then
-            echo "WARNING: $dst exists but is not a symlink. Back it up manually."
-        else
-            ln -vsfn "{{ src }}/config/systemd/user/$unit" "$dst"
-        fi
-    done
+systemd-user: (link "systemd")
     systemctl --user daemon-reload
     {{ systemd_enable_user }} eyes-theme.service eyes-theme.timer
 
@@ -468,13 +472,14 @@ network:
     echo "==> Switching from NetworkManager to iwd + systemd-networkd (skipped over SSH)..."
     if [ -z "${SSH_CONNECTION:-}" ]; then
         sudo systemctl disable --now NetworkManager 2>/dev/null || true
+        sudo pacman -Rnsc --noconfirm networkmanager
         sudo systemctl enable systemd-networkd iwd
         sudo systemctl restart systemd-networkd iwd
     else
         echo "    SSH detected: run 'sudo systemctl disable --now NetworkManager && sudo systemctl enable --now systemd-networkd iwd' locally"
     fi
 
-# Install AND (re)load the nftables firewall (evita el config drift)
+# Install AND (re)load the nftables firewall (avoids config drift)
 nftables:
     #!/usr/bin/env bash
     set -eu
@@ -483,7 +488,7 @@ nftables:
     sudo nft -f /etc/nftables.conf
     {{ systemd_enable }} nftables
 
-# P53: servidor SSH accesible solo por el tailnet (aplica firewall + habilita sshd)
+# P53: SSH server reachable only over the tailnet (applies firewall + enables sshd)
 ssh: nftables
     #!/usr/bin/env bash
     set -eu
@@ -491,14 +496,14 @@ ssh: nftables
     just install-pkgs openssh
     {{ systemd_enable }} sshd
 
-# P53: servidor VNC del escritorio Wayland, solo por el tailnet (wayvnc <ip-tailscale>)
+# P53: VNC server for the Wayland desktop, only over the tailnet (wayvnc <tailscale-ip>)
 wayvnc: nftables
     #!/usr/bin/env bash
     set -eu
     echo "==> Installing wayvnc..."
     just install-pkgs wayvnc
 
-# L14: cliente VNC nativo Wayland para ver la P53 (AUR: wlvncc-git)
+# L14: native Wayland VNC client to view the P53 (AUR: wlvncc-git)
 vncviewer:
     #!/usr/bin/env bash
     set -eu
@@ -520,7 +525,7 @@ dnscrypt:
 # Configure the whole local DNS stack (unbound + dnscrypt + network)
 dns: unbound dnscrypt network
 
-# Install Tailscale + unirse al tailnet (base para P53 y L14)
+# Install Tailscale + join the tailnet (base for P53 and L14)
 tailscale: nftables
     #!/usr/bin/env bash
     set -eu

@@ -1,14 +1,14 @@
 ;;; autocmds.el -*- lexical-binding: t; -*-
 ;;
-;; Autocomandos que NO son defaults de Doom.
-;; (Doom ya provee: save-place-mode, evil-goggles, so-long-mode,
-;;  ws-butler para trim no-destructivo en líneas tocadas, etc.)
+;; Autocommands that are NOT Doom defaults.
+;; (Doom already provides: save-place-mode, evil-goggles, so-long-mode,
+;;  ws-butler for non-destructive trim on touched lines, etc.)
 
-;; ---------- Trim agresivo en TODO el buffer al guardar (nvim parity) ----------
-;; ws-butler de Doom sólo trimea líneas que tocaste. nvim usa %s/\s\+$//e
-;; que trimea TODO. Paridad con nvim añadiendo el hook agresivo.
+;; ---------- Aggressive trim of the WHOLE buffer on save (nvim parity) ----------
+;; Doom's ws-butler only trims lines you touched. nvim uses %s/\s\+$//e
+;; which trims EVERYTHING. nvim parity by adding the aggressive hook.
 (add-hook! 'before-save-hook #'delete-trailing-whitespace)
 
-;; ---------- Projectile: rutas de búsqueda para switch-project ----------
+;; ---------- Projectile: search paths for switch-project ----------
 (after! projectile
   (setq projectile-project-search-path '("~/Git/" "~/Documents/")))

@@ -1,25 +1,25 @@
 ;;; keybinds.el -*- lexical-binding: t; -*-
 ;;
-;; Keymaps custom. Verificado contra:
+;; Custom keymaps. Verified against:
 ;;   modules/config/default/+evil-bindings.el
 ;;   modules/editor/evil/config.el
 ;;   modules/ui/workspaces/config.el
 ;;
-;; NO se duplican defaults de Doom:
-;;   ]b/[b           cambiar buffer (NO uso Tab/S-Tab)
-;;   M-1..M-9        saltar workspace (NO uso SPC 1..9)
-;;   SPC TAB n/d/r/o gestionar workspaces (NO uso SPC tn/tc/to)
+;; Doom defaults NOT duplicated:
+;;   ]b/[b           switch buffer (NOT using Tab/S-Tab)
+;;   M-1..M-9        jump to workspace (NOT using SPC 1..9)
+;;   SPC TAB n/d/r/o manage workspaces (NOT using SPC tn/tc/to)
 ;;   C-=/C--         zoom (doom/zoom-frame)
 ;;
-;; SÍ se sobrescriben (paridad con nvim):
+;; Overridden (parity with nvim):
 ;;   s / S           → avy jump-to-char / word (port flash.nvim)
 ;;   C-d / C-u       → scroll + recenter
 ;;   n / N           → search + recenter
-;;   C-w >/</+/-     → resize con factor 2 (nvim default)
+;;   C-w >/</+/-     → resize by factor 2 (nvim default)
 ;;   <BS>            → buffer alternate
 
 ;; ============================================================
-;; PACKAGES adicionales
+;; Extra PACKAGES
 ;; ============================================================
 
 (use-package! evil-textobj-anyblock
@@ -55,7 +55,7 @@
                 (eval `(evil-textobj-tree-sitter-get-textobj ,(concat name ".inner")) t))))
 
 ;; ============================================================
-;; VTERM toggle (popup persistente)
+;; VTERM toggle (persistent popup)
 ;; ============================================================
 
 (defvar my/vterm-counter 2)
@@ -64,7 +64,7 @@
   (format "*doom:vterm:%d*" n))
 
 (defun my/toggle-vterm (&optional n)
-  "Toggle de un vterm popup persistente numerado N (default 0)."
+  "Toggle persistent vterm popup number N (default 0)."
   (interactive)
   (let* ((name (my/vterm-buffer-name (or n 0)))
          (buf  (get-buffer name)))
@@ -76,7 +76,7 @@
       (pop-to-buffer name))))
 
 (defun my/vterm-select ()
-  "Selector entre buffers vterm existentes."
+  "Pick among existing vterm buffers."
   (interactive)
   (let ((names (cl-loop for b in (buffer-list)
                         for n = (buffer-name b)
@@ -87,13 +87,13 @@
       (message "No hay buffers vterm"))))
 
 (defun my/vterm-new ()
-  "Abre un nuevo vterm numerado e incrementa el contador."
+  "Open a new numbered vterm and bump the counter."
   (interactive)
   (my/toggle-vterm my/vterm-counter)
   (setq my/vterm-counter (1+ my/vterm-counter)))
 
 (defun my/vterm-rename (new-name)
-  "Renombra el buffer vterm actual."
+  "Rename the current vterm buffer."
   (interactive "sNuevo nombre: ")
   (when (derived-mode-p 'vterm-mode)
     (rename-buffer new-name t)))
@@ -115,27 +115,27 @@
 (defun my/replace-in-structure () (interactive) (evil-ex "%s/\\(.*\\)/\\1/g"))
 
 (defun my/replace-word-in-file ()
-  "Reemplaza la palabra bajo cursor en todo el archivo."
+  "Replace the word under cursor across the whole file."
   (interactive)
   (when-let ((word (thing-at-point 'word t)))
     (evil-ex (format "%%s/\\<%s\\>/" word))))
 
 (defun my/replace-next-word ()
-  "Cambia la siguiente ocurrencia de la palabra bajo cursor."
+  "Change the next occurrence of the word under cursor."
   (interactive)
   (when-let ((word (thing-at-point 'word t)))
     (evil-search word 'forward t)
     (evil-change (point) (progn (evil-search word 'forward t) (point)))))
 
 (defun my/replace-prev-word ()
-  "Cambia la ocurrencia anterior de la palabra bajo cursor."
+  "Change the previous occurrence of the word under cursor."
   (interactive)
   (when-let ((word (thing-at-point 'word t)))
     (evil-search word 'backward t)
     (evil-change (point) (progn (evil-search word 'backward t) (point)))))
 
 (defun my/replace-in-visual ()
-  "Replace dentro de la selección visual."
+  "Replace within the visual selection."
   (interactive)
   (evil-ex (format "%d,%ds/"
                    (line-number-at-pos (region-beginning))
@@ -157,7 +157,7 @@
 ;; ============================================================
 
 (defun my/toggle-flyspell ()
-  "Toggle flyspell; al activar pregunta es/en."
+  "Toggle flyspell; prompt for es/en when enabling."
   (interactive)
   (if (bound-and-true-p flyspell-mode)
       (progn (flyspell-mode -1) (message "Flyspell off"))
@@ -173,16 +173,16 @@
       :localleader :desc "Toggle spell" "s"   #'my/toggle-flyspell)
 
 ;; ============================================================
-;; MOVIMIENTO — nvim parity
+;; MOVEMENT — nvim parity
 ;; ============================================================
 
-;; g{ / g}  → primera/última línea del párrafo
+;; g{ / g}  → first/last line of paragraph
 (map! :nv "g {" #'backward-paragraph
       :nv "g }" #'forward-paragraph)
 
-;; gz → re-seleccionar último yank/cambio
+;; gz → reselect last yank/change
 (defun my/select-last-yank-or-change ()
-  "Selecciona el texto del último yank o cambio."
+  "Select the text of the last yank or change."
   (interactive)
   (when (and (evil-get-marker ?\[) (evil-get-marker ?\]))
     (goto-char (evil-get-marker ?\[))
@@ -192,9 +192,9 @@
 
 (map! :n "g z" #'my/select-last-yank-or-change)
 
-;; gy → yank uniendo párrafos en una línea (útil para pegar en navegador)
+;; gy → yank joining paragraphs into one line (handy for pasting in a browser)
 (defun my/yank-joined-paragraphs (beg end)
-  "Yank de la región uniendo cada párrafo en una sola línea."
+  "Yank the region, joining each paragraph into a single line."
   (interactive "r")
   (let* ((text       (buffer-substring-no-properties beg end))
          (paragraphs (split-string text "\n[ \t]*\n+"))
@@ -208,28 +208,28 @@
 (map! :v "g y" #'my/yank-joined-paragraphs)
 
 ;; ============================================================
-;; EVIL: text-objects, ex-cmds, no-yank, paste — todo agrupado
+;; EVIL: text-objects, ex-cmds, no-yank, paste — all grouped
 ;; ============================================================
 
 (after! evil
-  ;; --- Text-object: buffer entero (af/if) ---
+  ;; --- Text-object: whole buffer (af/if) ---
   (evil-define-text-object my/textobj-buffer (count &optional beg end type)
-    "Text-object: buffer entero."
+    "Text-object: whole buffer."
     (evil-range (point-min) (point-max) 'line))
   (define-key evil-outer-text-objects-map "f" #'my/textobj-buffer)
   (define-key evil-inner-text-objects-map "f" #'my/textobj-buffer)
 
-  ;; --- a"/a'/a` se comportan como i" (sin espacios alrededor) ---
+  ;; --- a"/a'/a` behave like i" (no surrounding spaces) ---
   (define-key evil-outer-text-objects-map "\"" #'evil-inner-double-quote)
   (define-key evil-outer-text-objects-map "'"  #'evil-inner-single-quote)
   (define-key evil-outer-text-objects-map "`"  #'evil-inner-back-quote)
 
-  ;; --- x → black hole register (no llena el yank) ---
+  ;; --- x → black hole register (does not fill the yank) ---
   (define-key evil-normal-state-map "x"
               (lambda (count) (interactive "p")
                 (evil-delete (point) (+ (point) count) 'char ?_)))
 
-  ;; --- Visual paste no machaca el register ---
+  ;; --- Visual paste does not clobber the register ---
   (define-key evil-visual-state-map "p" #'evil-paste-after)
 
   ;; --- Ex command abbreviations (nvim cabbrev parity) ---
@@ -239,13 +239,13 @@
   (evil-ex-define-cmd "git"   (lambda (&rest _) (call-interactively #'magit-status)))
   (evil-ex-define-cmd "man"   (lambda (&rest _) (call-interactively #'man))))
 
-;; Insert: C-v pega del clipboard del sistema
+;; Insert: C-v pastes from the system clipboard
 (map! :i "C-v" #'clipboard-yank)
 
 ;; ============================================================
-;; AVY: jump-to-char (port de flash.nvim)
+;; AVY: jump-to-char (port of flash.nvim)
 ;; ============================================================
-;; Doom bindea s/S a `evil-snipe' por default; lo desactivamos y usamos avy.
+;; Doom binds s/S to `evil-snipe' by default; we disable it and use avy.
 
 (after! evil-snipe
   (map! :map evil-snipe-local-mode-map
@@ -272,11 +272,11 @@
 ;; ============================================================
 ;; HUNK text-object + preview (gitsigns parity)
 ;; ============================================================
-;; Doom ya provee SPC g s/r/[/] vía +vc-gutter. Sumo preview y text-object.
+;; Doom already provides SPC g s/r/[/] via +vc-gutter. Adds preview and text-object.
 
 (after! evil
   (evil-define-text-object my/textobj-hunk (count &optional beg end type)
-    "Text-object: el hunk diff-hl bajo el cursor."
+    "Text-object: the diff-hl hunk under the cursor."
     (require 'diff-hl)
     (let ((ov (diff-hl-hunk-overlay-at (point))))
       (unless ov (user-error "No hay hunk en este punto"))
@@ -289,10 +289,10 @@
        :desc "Preview hunk at point" "p" #'diff-hl-show-hunk))
 
 ;; ============================================================
-;; KEYMAPS varios (nvim parity)
+;; Misc KEYMAPS (nvim parity)
 ;; ============================================================
 
-;; <BS> → buffer alterno (nvim: <bs> = :b#)
+;; <BS> → alternate buffer (nvim: <bs> = :b#)
 (map! :n "<backspace>" #'evil-switch-to-windows-last-buffer)
 
 ;; C-l → redraw + nohlsearch
@@ -302,20 +302,20 @@
   (recenter))
 (map! :n "C-l" #'my/redraw-and-nohlsearch)
 
-;; M-/ / M-? → buscar dentro de la selección visual
+;; M-/ / M-? → search within the visual selection
 (map! :v "M-/" #'evil-ex-search-forward
       :v "M-?" #'evil-ex-search-backward)
 
-;; gF → ir a archivo + número de línea (nvim: gF / ]f)
+;; gF → go to file + line number (nvim: gF / ]f)
 (map! :n "g F" #'find-file-at-point)
 
-;; C-w >/< → resize con factor 2 (nvim default; Doom default es 1)
+;; C-w >/< → resize by factor 2 (nvim default; Doom default is 1)
 (map! :n "C-w >" (cmd! (evil-window-increase-width 2))
       :n "C-w <" (cmd! (evil-window-decrease-width 2))
       :n "C-w +" (cmd! (evil-window-increase-height 2))
       :n "C-w -" (cmd! (evil-window-decrease-height 2)))
 
-;; zV → cerrar todos los folds excepto el actual
+;; zV → close all folds except the current one
 (defun my/fold-all-except-current ()
   "Hide all folds, then show only the block at point."
   (interactive)
@@ -324,7 +324,7 @@
     (hs-show-block)))
 (map! :n "z V" #'my/fold-all-except-current)
 
-;; C-g + / C-g = → corregir spelling en insert
+;; C-g + / C-g = → fix spelling in insert
 (after! flyspell-correct
   (map! :i "C-g +" #'flyspell-correct-at-point
         :i "C-g =" #'flyspell-correct-previous))
@@ -334,7 +334,7 @@
 ;; ============================================================
 (after! evil
   (evil-define-text-object my/textobj-fold (count &optional beg end type)
-    "Text-object: el fold bajo el cursor (hideshow)."
+    "Text-object: the fold under the cursor (hideshow)."
     (when (bound-and-true-p hs-minor-mode)
       (save-excursion
         (let ((start (progn (back-to-indentation) (point)))
@@ -349,7 +349,7 @@
 ;; DOOM plugin manager wrapper (nvim: <Leader>P {u,r,d})
 ;; ============================================================
 (defun my/doom-shell (subcmd)
-  "Run `doom SUBCMD' asíncrono desde `user-emacs-directory'."
+  "Run `doom SUBCMD' asynchronously from `user-emacs-directory'."
   (let ((default-directory user-emacs-directory))
     (compile (format "doom %s" subcmd))))
 
@@ -366,15 +366,15 @@
        :desc "Doctor"   "?" #'my/doom-doctor))
 
 ;; ============================================================
-;; OTROS
+;; OTHER
 ;; ============================================================
 
-;; SPC ; → eval-expression rápido (nvim: cabbrev `;` → :=)
+;; SPC ; → quick eval-expression (nvim: cabbrev `;` → :=)
 (map! :leader :desc "Eval expression" ";" #'eval-expression)
 
-;; yc → yank line comentada (nvim parity)
+;; yc → yank line commented (nvim parity)
 (defun my/yank-line-commented ()
-  "Duplica la línea actual y comenta la copia debajo."
+  "Duplicate the current line and comment out the copy below."
   (interactive)
   (let ((line (buffer-substring (line-beginning-position) (line-end-position))))
     (save-excursion (end-of-line) (newline) (insert line))
@@ -383,5 +383,5 @@
 
 (map! :n "y c" #'my/yank-line-commented)
 
-;; SPC c c → limpiar hl búsqueda
+;; SPC c c → clear search hl
 (map! :leader :desc "Clear search hl" "c c" #'evil-ex-nohighlight)

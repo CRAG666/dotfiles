@@ -1,33 +1,33 @@
 #!/bin/sh
-# Decide la salida DNS de unbound segun la red:
-#   - ¿el root me da su DNSKEY firmado por el 53? -> recursión pura (sin terceros)
-#   - 53 bloqueado o MANIPULADO (lab, o router que secuestra el :53 y quita las
-#     firmas) -> reenvia a dnscrypt-proxy (DoH/443), que sale por HTTPS limpio.
-# Lo ejecuta unbound-forward.service con cada nueva ruta por defecto; sin estado per-red.
-# ponytail: dig +dnssec como sonda; la RRSIG del root como discriminador.
+# Picks unbound's DNS egress based on the network:
+#   - does the root give me its signed DNSKEY over 53? -> pure recursion (no third parties)
+#   - 53 blocked or TAMPERED (lab, or a router that hijacks :53 and strips the
+#     signatures) -> forward to dnscrypt-proxy (DoH/443), which exits over clean HTTPS.
+# Run by unbound-forward.service on every new default route; no per-network state.
+# ponytail: dig +dnssec as the probe; the root's RRSIG as the discriminator.
 
 FWD=/etc/unbound/forward.d/active.conf
 DOH='127.0.0.1@5300'                 # dnscrypt-proxy -> DoH/443
 
 reload() { systemctl reload-or-restart unbound; }
 
-# Recursión viable = el root me devuelve su DNSKEY CON la RRSIG intacta.
-# OJO 1: el firewall solo deja el 53 saliente a 'skuid unbound'; la sonda DEBE
-# correr como unbound o el firewall la tira y creeria que el 53 esta bloqueado.
-# OJO 2: NO basta con que el root "responda": un router que secuestra el :53 te
-# contesta cualquier cosa (incluso a IPs inexistentes). Hay que exigir la RRSIG:
-# los interceptores transparentes la quitan -> sin RRSIG = :53 manipulado -> DoH.
+# Recursion is viable = the root returns its DNSKEY WITH the RRSIG intact.
+# NOTE 1: the firewall only allows outbound 53 for 'skuid unbound'; the probe MUST
+# run as unbound, or the firewall drops it and we'd think 53 is blocked.
+# NOTE 2: it is NOT enough for the root to "answer": a router hijacking :53
+# answers anything (even for nonexistent IPs). The RRSIG must be required:
+# transparent interceptors strip it -> no RRSIG = :53 tampered -> DoH.
 if runuser -u unbound -- dig +time=2 +tries=1 +dnssec @198.41.0.4 . DNSKEY 2>/dev/null | grep -q RRSIG; then
     if [ -f "$FWD" ]; then rm -f "$FWD"; reload; fi
     exit 0
 fi
 
-# 53 bloqueado -> reenviar todo a dnscrypt (sale por 443).
+# 53 blocked -> forward everything to dnscrypt (exits via 443).
 conf="forward-zone:
     name: \".\"
     forward-addr: $DOH"
 
-[ "$(cat "$FWD" 2>/dev/null)" = "$conf" ] && exit 0   # sin cambios: no recargar
+[ "$(cat "$FWD" 2>/dev/null)" = "$conf" ] && exit 0   # unchanged: don't reload
 mkdir -p "$(dirname "$FWD")"
 printf '%s\n' "$conf" > "$FWD"
 reload

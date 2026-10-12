@@ -1,25 +1,25 @@
-# Paleta eyes (light, canónico) para [theme.custom] de herdr.
-# El dark (colors.eyes-dark.toml) se mantiene a mano: sus acentos no siguen
-# la paleta 1:1, así que `eyes-theme generate` no lo toca.
+# eyes palette (light, canonical) for herdr's [theme.custom].
+# The dark one (colors.eyes-dark.toml) is maintained by hand: its accents don't follow
+# the palette 1:1, so `eyes-theme generate` leaves it alone.
 
 [theme.custom]
-# Superficies (eyes: bg1/bg3/bg4)
+# Surfaces (eyes: bg1/bg3/bg4)
 panel_bg      = "#a4cc98"  # bg1 NormalFloat
-sidebar_bg    = "#a4cc98"  # bg1 (distingue el sidebar del fondo #add4a0 de kitty)
-active_row_bg = "#96be8c"  # bg3 = active_tab_background en tu kitty eyes
+sidebar_bg    = "#a4cc98"  # bg1 (sets the sidebar apart from kitty's #add4a0 background)
+active_row_bg = "#96be8c"  # bg3 = active_tab_background in your kitty eyes
 selection_bg  = "#88b07e"  # bg4 = Visual
-# Niveles de superficie (eyes: bg2/bg3/bg1)
+# Surface levels (eyes: bg2/bg3/bg1)
 surface0      = "#9fc895"  # bg2 CursorLine
 surface1      = "#96be8c"  # bg3 StatusLine
 surface_dim   = "#a4cc98"  # bg1
-# Texto (eyes: fg0/fg1)
+# Text (eyes: fg0/fg1)
 text          = "#1a1a1a"  # fg0
 subtext0      = "#1e2e1c"  # fg1
 # Muted (eyes: bg5/gray2)
 overlay0      = "#6a9060"  # bg5 WinSeparator
 overlay1      = "#2c4028"  # gray2 SignColumn
-# Acentos: mismos ANSI que tu kitty eyes (eyes.lua terminal_color_*)
-accent = "#1e4868"  # blue0 (active_border_color / url_color en kitty)
+# Accents: same ANSI as your kitty eyes (eyes.lua terminal_color_*)
+accent = "#1e4868"  # blue0 (active_border_color / url_color in kitty)
 blue   = "#90bcd0"  # blue1 = color4
 green  = "#2a5c22"  # green1 = color2
 red    = "#d8a8a0"  # = color1

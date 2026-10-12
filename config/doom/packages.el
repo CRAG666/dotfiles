@@ -1,30 +1,30 @@
 ;; -*- no-byte-compile: t; -*-
 ;;; $DOOMDIR/packages.el
 ;;
-;; Cambios aquí requieren `doom sync` + restart de Emacs.
-;; Referencia de :recipe: https://github.com/radian-software/straight.el#the-recipe-format
+;; Changes here require `doom sync` + an Emacs restart.
+;; :recipe reference: https://github.com/radian-software/straight.el#the-recipe-format
 
-;; ---------- Edición ----------
+;; ---------- Editing ----------
 (package! evil-textobj-anyblock)
 (package! embrace)
 
 ;; Tree-sitter text-objects (am/im function, ak/ik class, a,/i, param, etc.)
-;; — port de nvim-treesitter-textobjects.
+;; — port of nvim-treesitter-textobjects.
 (package! evil-textobj-tree-sitter)
 
-;; HTML/JSX auto-close + auto-rename de tags (port de ts-autotag.nvim).
+;; HTML/JSX tag auto-close + auto-rename (port of ts-autotag.nvim).
 (package! auto-rename-tag)
 
-;; CSV con border view nativo (port de csvview.nvim).
+;; CSV with native border view (port of csvview.nvim).
 (package! csv-mode)
 
-;; Alinea tablas en markdown/org (similar a render-markdown.nvim)
+;; Align tables in markdown/org (similar to render-markdown.nvim)
 (package! valign)
 
-;; ---------- Tree-sitter nativo (treesit.el, Emacs 29+) ----------
-;; Migración fuera de :tools tree-sitter + flag +tree-sitter. `treesit-auto'
-;; instala gramáticas faltantes y remappea *-mode → *-ts-mode.
-;; `evil-textobj-tree-sitter' auto-detecta `*-ts-mode' y usa el backend
-;; nativo (treesit.el), así que el paquete legacy `tree-sitter' viene como
-;; dep transitiva pero queda dormido (sin highlight ni parser activo).
+;; ---------- Native tree-sitter (treesit.el, Emacs 29+) ----------
+;; Migration away from :tools tree-sitter + the +tree-sitter flag. `treesit-auto'
+;; installs missing grammars and remaps *-mode → *-ts-mode.
+;; `evil-textobj-tree-sitter' auto-detects `*-ts-mode' and uses the native
+;; backend (treesit.el), so the legacy `tree-sitter' package comes in as a
+;; transitive dep but stays dormant (no highlight or active parser).
 (package! treesit-auto)

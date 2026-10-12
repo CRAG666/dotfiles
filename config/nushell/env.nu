@@ -1,10 +1,10 @@
-# gpg: el agente necesita el terminal actual para el pinentry (pass, git sign…).
+# gpg: the agent needs the current terminal for pinentry (pass, git sign…).
 try { $env.GPG_TTY = (^tty | str trim) }
 
 $env.PROMPT_INDICATOR_VI_INSERT = ""
 $env.PROMPT_INDICATOR_VI_NORMAL = ""
 
-# PATH como lista (nushell): añade directorios personalizados.
+# PATH as a list (nushell): prepend custom directories.
 let zsh_paths = [
     $"($env.HOME)/.config/emacs/bin",
     $"($env.HOME)/.local/bin",
@@ -33,6 +33,7 @@ def --env load-shared-env [file: path] {
     }
     | load-env
 }
-try { load-shared-env $"($env.HOME)/Git/dotfiles/config/shell/vars.env" }
-try { load-shared-env $"($env.HOME)/Git/dotfiles/config/shell/colors.env" }
+$env.DOT_DIR = ($nu.env-path | path expand | path dirname | path dirname | path dirname)
+try { load-shared-env $"($env.DOT_DIR)/config/shell/vars.env" }
+try { load-shared-env $"($env.DOT_DIR)/config/shell/colors.env" }
 # <<< load-shared-env <<<

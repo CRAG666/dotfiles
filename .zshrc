@@ -223,8 +223,9 @@ alias fontl="fc-list | cut -d ':' -f2 | sort | uniq"
 
 # -< Environ variable >-
 set -a
-source "$HOME/Git/dotfiles/config/shell/vars.env"
-source "$HOME/Git/dotfiles/config/shell/colors.env"
+DOT_DIR=${${(%):-%x}:A:h}
+source "$DOT_DIR/config/shell/vars.env"
+source "$DOT_DIR/config/shell/colors.env"
 set +a
 export PATH="$HOME/.config/emacs/bin:$HOME/.local/bin:$HOME/.dotnet/tools:$HOME/.local/share/bob/nvim-bin:$HOME/.local/share/nvim/mason/bin:$PATH"
 
@@ -238,7 +239,7 @@ _eyes_hotreload() {
   [[ "$m" == "$_eyes_mode_mtime" ]] && return 0
   _eyes_mode_mtime="$m"
   set -a
-  source "$HOME/Git/dotfiles/config/shell/colors.env"
+  source "$DOT_DIR/config/shell/colors.env"
   set +a
 }
 autoload -Uz add-zsh-hook

@@ -1,16 +1,16 @@
 ;;; tectonic.el --- Tectonic minimal compile + PDF preview -*- lexical-binding: t; -*-
 ;;
-;; Comandos:
-;;   - SPC m c : elegir Project/Single y lanzar `tectonic -X watch`
-;;   - SPC m v : toggle ventana del PDF
-;;   - SPC m k : detener el watch
+;; Commands:
+;;   - SPC m c : pick Project/Single and launch `tectonic -X watch`
+;;   - SPC m v : toggle the PDF window
+;;   - SPC m k : stop the watch
 ;;   - SPC m f : SyncTeX forward search (TeX → PDF)
-;;   - SPC m s : toggle follow-mode (cursor TeX sincroniza el PDF en vivo)
+;;   - SPC m s : toggle follow-mode (TeX cursor syncs the PDF live)
 ;;
-;; Inverse search (PDF → TeX): doble click en el PDF (pdf-sync-minor-mode).
+;; Inverse search (PDF → TeX): double click in the PDF (pdf-sync-minor-mode).
 
 ;; ============================================================
-;; AucTeX: deshabilitar chequeo TeX Live + PATH
+;; AucTeX: disable TeX Live check + PATH
 ;; ============================================================
 (after! tex
   (setq TeX-check-TeX nil
@@ -26,7 +26,7 @@
       (expand-file-name "~/.local/bin/tectonic")))
 
 ;; ============================================================
-;; Estado
+;; State
 ;; ============================================================
 
 (defvar tectonic-watch-process nil)
@@ -35,10 +35,10 @@
 (defvar tectonic--last-mode nil)            ; 'project | 'single
 (defvar tectonic--last-source-file nil)
 (defvar tectonic--last-project-root nil)
-(defvar tectonic--pdf-watch nil)            ; handle de file-notify activo
+(defvar tectonic--pdf-watch nil)            ; active file-notify handle
 
 ;; ============================================================
-;; Detección + path del PDF
+;; Detection + PDF path
 ;; ============================================================
 
 (defun tectonic--project-root ()
@@ -53,7 +53,7 @@
     (_        (concat (file-name-sans-extension (or (buffer-file-name) "")) ".pdf"))))
 
 ;; ============================================================
-;; Watch process + apertura asíncrona del PDF (file-notify)
+;; Watch process + asynchronous PDF opening (file-notify)
 ;; ============================================================
 
 (defun tectonic--cancel-pdf-watch ()
@@ -62,10 +62,10 @@
     (setq tectonic--pdf-watch nil)))
 
 (defun tectonic--schedule-pdf-open (src-buffer &optional retries)
-  "Abre el PDF asíncronamente apenas exista. Sin polling activo: usa
-`file-notify' sobre el directorio del PDF. Si ese directorio aún no
-existe (p.ej. project mode antes del primer build), reintenta a 1 s
-hasta RETRIES veces (default 60)."
+  "Open the PDF asynchronously as soon as it exists. No active polling: uses
+`file-notify' on the PDF directory. If that directory does not exist
+yet (e.g. project mode before the first build), retry every 1 s
+up to RETRIES times (default 60)."
   (require 'filenotify)
   (tectonic--cancel-pdf-watch)
   (when (buffer-live-p src-buffer)
@@ -106,7 +106,7 @@ hasta RETRIES veces (default 60)."
     (setq tectonic-watch-process
           (start-process-shell-command "tectonic-watch" tectonic-watch-buffer cmd))
     (message "Tectonic: %s" cmd)
-    ;; Deferido al siguiente tick: el control vuelve al usuario sin esperar.
+    ;; Deferred to the next tick: control returns to the user without waiting.
     (run-at-time 0 nil #'tectonic--schedule-pdf-open src-buffer)))
 
 (defun tectonic-watch-project ()
@@ -135,7 +135,7 @@ hasta RETRIES veces (default 60)."
              (shell-quote-argument file)))))
 
 (defun tectonic-compile ()
-  "SPC m c → elegir Project/Project+logs/Single y arrancar watch."
+  "SPC m c → pick Project/Project+logs/Single and start watch."
   (interactive)
   (unless (buffer-file-name) (user-error "Buffer sin archivo"))
   (let* ((in-project (tectonic--project-root))
@@ -148,7 +148,7 @@ hasta RETRIES veces (default 60)."
       (_                (message "Tectonic: cancelado")))))
 
 (defun tectonic-stop ()
-  "SPC m k → detener watch."
+  "SPC m k → stop watch."
   (interactive)
   (tectonic--cancel-pdf-watch)
   (if (process-live-p tectonic-watch-process)
@@ -166,7 +166,7 @@ hasta RETRIES veces (default 60)."
   (when (bound-and-true-p hl-line-mode) (hl-line-mode -1)))
 
 (defun tectonic-show-pdf ()
-  "Abre/refresca el PDF en split derecho."
+  "Open/refresh the PDF in a right split."
   (interactive)
   (let ((pdf (tectonic--current-pdf)))
     (cond
@@ -177,8 +177,8 @@ hasta RETRIES veces (default 60)."
         (when (eq major-mode 'pdf-view-mode)
           (pdf-view-revert-buffer nil t))))
      (t
-      ;; auto-revert + disable-conflicting-modes los hace el hook global
-      ;; sobre `pdf-view-mode-hook' más abajo.
+      ;; auto-revert + disable-conflicting-modes are handled by the global
+      ;; hook on `pdf-view-mode-hook' further below.
       (let ((current (selected-window)))
         (setq tectonic-pdf-window (split-window-right))
         (select-window tectonic-pdf-window)
@@ -186,7 +186,7 @@ hasta RETRIES veces (default 60)."
         (select-window current))))))
 
 (defun tectonic-toggle-pdf ()
-  "SPC m v → toggle ventana del PDF."
+  "SPC m v → toggle the PDF window."
   (interactive)
   (if (and tectonic-pdf-window (window-live-p tectonic-pdf-window))
       (progn (delete-window tectonic-pdf-window)
@@ -198,8 +198,8 @@ hasta RETRIES veces (default 60)."
 ;; ============================================================
 
 (defun tectonic-forward-search ()
-  "SPC m f → SyncTeX forward search: salta desde la línea actual del .tex
-al punto correspondiente del PDF."
+  "SPC m f → SyncTeX forward search: jump from the current .tex line
+to the matching spot in the PDF."
   (interactive)
   (require 'pdf-sync)
   (let* ((source (or (buffer-file-name) (user-error "Buffer sin archivo")))
@@ -223,11 +223,11 @@ al punto correspondiente del PDF."
             (pdf-util-tooltip-arrow (round top))))))))
 
 ;; ============================================================
-;; Follow mode: TeX → PDF en vivo al mover el cursor
+;; Follow mode: TeX → PDF live as the cursor moves
 ;; ============================================================
 
 (defcustom tectonic-follow-idle-delay 0.4
-  "Segundos de idle antes de sincronizar el PDF con el cursor."
+  "Idle seconds before syncing the PDF with the cursor."
   :type 'number
   :group 'tectonic)
 
@@ -255,7 +255,7 @@ al punto correspondiente del PDF."
                              #'tectonic--follow-do-sync (current-buffer))))
 
 (define-minor-mode tectonic-follow-mode
-  "Auto-SyncTeX: al mover el cursor en el .tex, el PDF salta al punto correspondiente."
+  "Auto-SyncTeX: when the cursor moves in the .tex, the PDF jumps to the matching spot."
   :lighter " TecFollow"
   (if tectonic-follow-mode
       (progn
@@ -267,7 +267,7 @@ al punto correspondiente del PDF."
       (setq tectonic--follow-timer nil))))
 
 ;; ============================================================
-;; Auto-revert para todo buffer pdf-view (cuando tectonic recompila)
+;; Auto-revert for every pdf-view buffer (when tectonic recompiles)
 ;; ============================================================
 (add-hook! 'pdf-view-mode-hook
   #'auto-revert-mode

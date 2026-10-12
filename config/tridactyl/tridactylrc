@@ -158,11 +158,11 @@ bind zp !s wtype -s 30 -M ctrl -M alt -k left
 " zk = Close All Unpinned Tabs (Ctrl+Shift+K)
 bind zk !s wtype -s 30 -M ctrl -M shift -k k
 
-" --- Tabs verticales del sidebar ---
-" Navegar tabs (J/K rebindeados a scroll, usamos gj/gk)
+" --- Sidebar vertical tabs ---
+" Navigate tabs (J/K rebound to scroll, so we use gj/gk)
 bind gj tabnext
 bind gk tabprev
-" Mover el tab actual en el sidebar
+" Move the current tab in the sidebar
 bind <C-S-k> tabmove -1
 bind <C-S-j> tabmove +1
 
@@ -188,12 +188,12 @@ bind zg !s wtype -M ctrl -k o
 bind zN !s wtype -s 30 -M ctrl -M shift -k n
 
 " ============================================================================
-" HARDCORE VIM - EDITOR EXTERNO (Neovim)
+" HARDCORE VIM - EXTERNAL EDITOR (Neovim)
 " ============================================================================
 set editorcmd kitty -e nvim
 
 " ============================================================================
-" HARDCORE VIM - HINTS AVANZADOS
+" HARDCORE VIM - ADVANCED HINTS
 " ============================================================================
 set hintautoselect true
 set hintfocusinput-mode auto
@@ -213,7 +213,7 @@ bind ]] followpage next
 bind [[ followpage prev
 
 " ============================================================================
-" HARDCORE VIM - MARCAS Y QUICK SCROLL
+" HARDCORE VIM - MARKS AND QUICK SCROLL
 " ============================================================================
 bind gh scrollto 0
 bind gl scrollto 100
@@ -224,30 +224,30 @@ bind gm scrollto 50
 " ============================================================================
 bind gu urlparent
 bind gU urlroot
-" Editar URL actual en la cmdline antes de abrir en tab nueva
+" Edit the current URL in the cmdline before opening in a new tab
 bind gE composite get_current_url | fillcmdline tabopen
-" Recargar duro
+" Hard reload
 bind <C-r> reload
 bind <C-S-r> reloadhard
 
 " ============================================================================
-" HARDCORE VIM - INSERT MODE / DOMINIO DE INPUTS
+" HARDCORE VIM - INSERT MODE / INPUT MASTERY
 " ============================================================================
 set allowautofocus false
 
 " ============================================================================
-" HARDCORE VIM - SITIOS QUE PREFIEREN SUS PROPIOS KEYBINDINGS
+" HARDCORE VIM - SITES THAT PREFER THEIR OWN KEYBINDINGS
 " ============================================================================
-" Desactivar Tridactyl en sitios con vim mode propio
+" Disable Tridactyl on sites with their own vim mode
 seturl ^https://mail.google.com mode ignore
 seturl ^https://app.element.io mode ignore
-" Re-activar con <C-,> (default: shift+esc para toggle)
+" Re-enable with <C-,> (default: shift+esc to toggle)
 " Toggle Tridactyl on/off
 bind <A-Escape> mode ignore
 bind --mode=ignore <A-Escape> mode normal
 
 " ============================================================================
-" HARDCORE VIM - GUI MINIMAL (oculta UI de Firefox/Zen)
+" HARDCORE VIM - MINIMAL GUI (hides Firefox/Zen UI)
 " ============================================================================
 guiset_quiet hoverlink right
 guiset_quiet tabs count

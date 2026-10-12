@@ -1,24 +1,24 @@
 #!/bin/bash
 
-# Script para descargar canciones desde Tidal usando tidal-dl
-# Archivo de entrada: canciones.txt (debe contener URLs, una por línea)
+# Script to download songs from Tidal using tidal-dl
+# Input file: canciones.txt (must contain URLs, one per line)
 
 ARCHIVO="canciones"
 LOG_FILE="descarga_log.txt"
 
-# Verificar si el archivo existe
+# Check that the file exists
 if [ ! -f "$ARCHIVO" ]; then
 	echo "Error: El archivo '$ARCHIVO' no existe."
 	exit 1
 fi
 
-# Verificar si tidal-dl está instalado
+# Check that tidal-dl is installed
 if ! command -v tidal-dl &>/dev/null; then
 	echo "Error: tidal-dl no está instalado o no está en el PATH."
 	exit 1
 fi
 
-# Contar el número total de canciones
+# Count the total number of songs
 TOTAL=$(wc -l <"$ARCHIVO")
 CONTADOR=0
 
@@ -27,12 +27,12 @@ echo "Iniciando descarga de $TOTAL canciones"
 echo "======================================"
 echo ""
 
-# Iniciar log
+# Start log
 echo "Inicio de descarga: $(date)" >"$LOG_FILE"
 
-# Leer el archivo línea por línea
+# Read the file line by line
 while IFS= read -r url || [ -n "$url" ]; do
-	# Saltar líneas vacías o comentarios
+	# Skip empty lines or comments
 	if [[ -z "$url" ]] || [[ "$url" =~ ^# ]]; then
 		continue
 	fi
@@ -40,7 +40,7 @@ while IFS= read -r url || [ -n "$url" ]; do
 	CONTADOR=$((CONTADOR + 1))
 	echo "[$CONTADOR/$TOTAL] Descargando: $url"
 
-	# Ejecutar tidal-dl
+	# Run tidal-dl
 	if tidal-dl -l "$url"; then
 		echo "  ✓ Descarga exitosa" | tee -a "$LOG_FILE"
 	else
@@ -55,5 +55,5 @@ echo "Proceso completado: $CONTADOR/$TOTAL canciones procesadas"
 echo "Revisa '$LOG_FILE' para más detalles"
 echo "======================================"
 
-# Finalizar log
+# Finish log
 echo "Fin de descarga: $(date)" >>"$LOG_FILE"

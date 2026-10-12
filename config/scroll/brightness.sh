@@ -3,25 +3,25 @@ rt="${XDG_RUNTIME_DIR:-/tmp}"
 busfile="$rt/ddc-brightness.bus"
 pend="$rt/ddc-brightness.pending"
 lock="$rt/ddc-brightness.lock"
-# Ultimo % del monitor externo. La laptop la recuerda systemd; el externo no
-# (y ktc-brightness.sh pone el backlight de laptop en 0, asi que no sirve de proxy).
+# Last % of the external monitor. systemd remembers the laptop's; not the external's
+# (and ktc-brightness.sh sets the laptop backlight to 0, so it can't act as a proxy).
 levelfile="$rt/ddc-brightness.level"
 
 clamp() { local v=$1; ((v<0)) && v=0; ((v>100)) && v=100; echo "$v"; }
 
-# Detecta los buses DDC de monitores externos sondendo lectura real de VCP 10
-# y cachea los que responden en busfile. No usamos `ddcutil detect`: su mapeo
-# conector↔bus falla segun driver (amdgpu expone el bus AUX en card1-*/ y
-# clasifica monitores validos como "Invalid display"), y los nombres varian
-# por GPU ("DM i2c hw bus" en amd, "i915 gmbus" en intel). Candidatos = buses
-# i2c que cuelgan de la GPU (drm): cubre amd/intel/nouveau y excluye los
-# peligrosos (SMBus, touchpad DesignWare). Sonda de bus muerto: ~80ms.
+# Detects the DDC buses of external monitors by probing a real VCP 10 read
+# and caches the responsive ones in busfile. We don't use `ddcutil detect`: its
+# connector↔bus mapping fails per driver (amdgpu exposes the AUX bus under card1-*/ and
+# classifies valid monitors as "Invalid display"), and the names vary
+# by GPU ("DM i2c hw bus" on amd, "i915 gmbus" on intel). Candidates = i2c
+# buses hanging off the GPU (drm): covers amd/intel/nouveau and excludes the
+# dangerous ones (SMBus, DesignWare touchpad). Dead-bus probe: ~80ms.
 detect_buses() {
     local dev devdir bus
     : > "$busfile"
     for dev in /sys/class/i2c-dev/i2c-*; do
         devdir="$(readlink -f "$dev/device")"
-        # buses DDC: cuelgan de un dispositivo con drm (padre) o de un cardN
+        # DDC buses: hang off a device with drm (parent) or off a cardN
         [[ -d "${devdir%/*}/drm" || "$devdir" == */drm/* ]] || continue
         bus="${dev##*/i2c-}"
         timeout 3 ddcutil --bus "$bus" --skip-ddc-checks --noverify \
@@ -35,7 +35,7 @@ case $1 in
 up)   d=1 ;;
 down) d=-1 ;;
 init)
-    # Restaura el ultimo % guardado (arg explicito > levelfile > 50).
+    # Restore the last saved % (explicit arg > levelfile > 50).
     level="$2"
     [[ -z $level && -s $levelfile ]] && read -r level < "$levelfile"
     : "${level:=50}"
@@ -69,8 +69,8 @@ worker() {
     [[ -s $busfile ]] || detect_buses
     local -a buses
     mapfile -t buses < "$busfile"
-    # "none" = solo pantalla de laptop: sin buses externos, pero igual
-    # ajustamos el backlight interno con brightnessctl más abajo.
+    # "none" = laptop screen only: no external buses, but we still
+    # adjust the internal backlight with brightnessctl further down.
     [[ "${buses[0]}" == none ]] && buses=()
     local level=50
     [[ -s $levelfile ]] && read -r level < "$levelfile"
@@ -92,7 +92,7 @@ worker() {
         op=+
         if [[ $n -lt 0 ]]; then op=-; n=$((-n)); fi
 
-        # brightnessctl escala con el delta real acumulado
+        # brightnessctl scales with the real accumulated delta
         if [[ $op == + ]]; then
             brightnessctl s +"${n}%" >/dev/null 2>&1 &
         else
@@ -105,9 +105,9 @@ worker() {
                 ddcutil --bus "$bus" --skip-ddc-checks --noverify --sleep-multiplier .1 \
                     setvcp 10 $op $n >/dev/null 2>&1 && ok=1
             done
-            # Redetecta solo si NINGUN bus respondio (desconexion total). Un
-            # monitor sin DDC o un timeout puntual se ignora; los demas siguen
-            # y el fallido se reintenta en la proxima pulsacion.
+            # Re-detect only if NO bus responded (full disconnect). A
+            # monitor without DDC or a one-off timeout is ignored; the rest continue
+            # and the failed one is retried on the next keypress.
             [[ $ok -eq 0 ]] && { rm -f "$busfile"; break; }
             level=$(clamp $((level $op n)))
             echo "$level" > "$levelfile"

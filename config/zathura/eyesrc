@@ -3,7 +3,7 @@
 #
 
 set default-fg                rgba(26,26,26,1)        # c_fg0
-set default-bg                rgba(150,190,140,1)     # c_bg3 — marco alrededor de las páginas
+set default-bg                rgba(150,190,140,1)     # c_bg3 — frame around the pages
 
 set completion-bg             rgba(150,190,140,1)     # c_bg3
 set completion-fg             rgba(26,26,26,1)        # c_fg0
@@ -33,8 +33,8 @@ set signature-warning-color   rgba(90,72,8,1)         # c_yellow
 set signature-error-color     rgba(122,30,24,1)       # c_red
 
 set recolor                   "true"
-set recolor-lightcolor        rgba(173,212,160,1)     # c_bg0  — fondo del PDF
-set recolor-darkcolor         rgba(26,26,26,1)        # c_fg0  — texto del PDF
+set recolor-lightcolor        rgba(173,212,160,1)     # c_bg0  — PDF background
+set recolor-darkcolor         rgba(26,26,26,1)        # c_fg0  — PDF text
 
 set index-fg                  rgba(26,26,26,1)        # c_fg0
 set index-bg                  rgba(173,212,160,1)     # c_bg0
@@ -44,7 +44,7 @@ set index-active-bg           rgba(30,72,104,1)       # c_blue0
 set render-loading-bg         rgba(173,212,160,1)     # c_bg0
 set render-loading-fg         rgba(54,92,37,1)        # c_ash
 
-set highlight-color           rgba(30,72,104,0.30)    # c_blue0 semitransparente
+set highlight-color           rgba(30,72,104,0.30)    # c_blue0 semi-transparent
 set highlight-fg              rgba(26,26,26,1)        # c_fg0
 set highlight-active-color    rgba(90,72,8,0.45)      # c_yellow — IncSearch
 

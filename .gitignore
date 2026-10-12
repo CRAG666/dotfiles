@@ -568,17 +568,32 @@ config/quickshell/theme.state
 config/termusic/*.db
 config/termusic/*.db-wal
 config/termusic/*.db-shm
+# termusic — bundled themes it writes on its own; only the eyes pair is ours
+/config/termusic/themes/*
+!/config/termusic/themes/eyes.yml
+!/config/termusic/themes/eyes-dark.yml
 
 # w3m — browser session state (never commit)
 .w3m/cookie
 .w3m/history
 .w3m/w3mtmp*
 
-# aerc — cuentas con metadata privada
+# aerc — accounts with private metadata
 config/aerc/accounts.conf
 
-# oama — tokens encriptados (van en ~/.local/share/oama por defecto)
+# oama — encrypted tokens (default location is ~/.local/share/oama)
 config/oama/*.auth
+
+# hunk / termfilechooser — runtime state rewritten by the apps
+config/hunk/state.json
+config/xdg-desktop-portal-termfilechooser/.last_selected
+
+# mpv — upstream assets installed by `just uosc` and `just mpv-assets`
+/config/mpv/scripts/uosc/
+/config/mpv/fonts/uosc_*
+/config/mpv/scripts/thumbfast.lua
+/config/mpv/shaders/*
+!/config/mpv/shaders/noise_static_*.hook
 
 
 # ── eyes-theme: active-variant pointers ──────────────────────────────────

@@ -1,5 +1,5 @@
-# Colores del tema eyes (light) — solo tablas [theme*]. Editar aquí y en
-# tui.colors.eyes-dark.toml (par manual: el mapeo dark usa ANSI cruzados).
+# eyes theme colors (light) — [theme*] tables only. Edit here and in
+# tui.colors.eyes-dark.toml (manual pair: the dark mapping uses crossed ANSI).
 [theme]
 file_name = "eyes-active"
 name = "Eyes (light)"

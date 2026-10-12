@@ -1,15 +1,15 @@
 ;;; lang.el -*- lexical-binding: t; -*-
 ;;
-;; Ajustes per-lenguaje que NO son defaults de Doom.
-;; (Doom :lang python ya hace indent 4, virtualenv, LSP.
-;;  Doom :lang lua ya hace indent 2.
-;;  Doom :lang cc ya tiene estilo "doom" basado en kernel Linux.
-;;  Doom :lang markdown ya hace spell-check + LSP.
-;;  Doom :lang latex ya integra SyncTeX + viewer + RefTeX.)
+;; Per-language settings that are NOT Doom defaults.
+;; (Doom :lang python already does indent 4, virtualenv, LSP.
+;;  Doom :lang lua already does indent 2.
+;;  Doom :lang cc already has a "doom" style based on the Linux kernel.
+;;  Doom :lang markdown already does spell-check + LSP.
+;;  Doom :lang latex already integrates SyncTeX + viewer + RefTeX.)
 
 ;; ---------- Python ----------
-;; `python-base-mode' es el padre común de python-mode y python-ts-mode,
-;; así un solo hook cubre tanto el modo tradicional como el tree-sitter.
+;; `python-base-mode' is the common parent of python-mode and python-ts-mode,
+;; so a single hook covers both the traditional and the tree-sitter mode.
 (after! python
   (define-abbrev-table 'python-mode-abbrev-table
     '(("true"  "True")
@@ -22,39 +22,39 @@
 ;; Black formatter (88) + colorcolumn +1 = 89
 (setq-hook! 'python-base-mode-hook fill-column 89)
 
-;; ---------- Zsh: tratar .zsh como sh-mode ----------
+;; ---------- Zsh: treat .zsh as sh-mode ----------
 (add-to-list 'auto-mode-alist '("\\.zsh\\'" . sh-mode))
 
-;; ---------- HTML/JSX: auto-rename de tags (port de ts-autotag.nvim) ----------
+;; ---------- HTML/JSX: tag auto-rename (port of ts-autotag.nvim) ----------
 (use-package! auto-rename-tag
   :hook ((html-mode mhtml-mode web-mode nxml-mode
           js-jsx-mode tsx-ts-mode rjsx-mode)
          . auto-rename-tag-mode))
 
-;; ---------- CSV: border view (port de csvview.nvim) ----------
-;; csv-mode autoloadea `.csv' por sí solo; sólo enganchamos csv-align-mode
-;; (minor mode real) para el efecto de bordes/columnas.
-;; `csv-header-line' NO es minor mode: si lo querés, M-x csv-header-line.
+;; ---------- CSV: border view (port of csvview.nvim) ----------
+;; csv-mode autoloads `.csv' on its own; we only hook csv-align-mode
+;; (a real minor mode) for the border/column effect.
+;; `csv-header-line' is NOT a minor mode: if wanted, M-x csv-header-line.
 (use-package! csv-mode
   :hook (csv-mode . csv-align-mode))
 
-;; ---------- Modos de prosa: visual-line + truncate-lines off ----------
-;; LaTeX (88), markdown (sin fill custom), org (106) — todos con wrap visual.
+;; ---------- Prose modes: visual-line + truncate-lines off ----------
+;; LaTeX (88), markdown (no custom fill), org (106) — all with visual wrap.
 (setq-hook! 'LaTeX-mode-hook    fill-column 88  truncate-lines nil)
 (setq-hook! 'markdown-mode-hook                 truncate-lines nil)
 (setq-hook! 'org-mode-hook      fill-column 106 truncate-lines nil)
 
 (add-hook! '(LaTeX-mode-hook markdown-mode-hook org-mode-hook) #'visual-line-mode)
 
-;; ---------- Markdown pretty (port de render-markdown.nvim) ----------
+;; ---------- Markdown pretty (port of render-markdown.nvim) ----------
 (after! markdown-mode
-  (setq markdown-fontify-code-blocks-natively t   ; resalta bloques ```lang
-        markdown-hide-urls                    t   ; oculta URLs en links
-        markdown-header-scaling               t   ; H1>H2>… escalados
+  (setq markdown-fontify-code-blocks-natively t   ; highlight ```lang blocks
+        markdown-hide-urls                    t   ; hide URLs in links
+        markdown-header-scaling               t   ; scaled H1>H2>…
         markdown-italic-underscore            t
         markdown-list-indent-width            2
         markdown-asymmetric-header            t))
 
-;; Alinea tablas markdown/org en vivo (similar a render-markdown.nvim).
+;; Align markdown/org tables live (similar to render-markdown.nvim).
 (use-package! valign
   :hook ((markdown-mode org-mode) . valign-mode))

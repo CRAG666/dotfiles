@@ -4,7 +4,7 @@ Name=en*
 [Network]
 DHCP=yes
 
-# Menor que la del wifi de iwd (300) para que el cable tenga prioridad.
+# Lower than iwd's wifi metric (300) so the cable takes priority.
 [DHCPv4]
 RouteMetric=100
 

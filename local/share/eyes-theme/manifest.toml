@@ -1,7 +1,7 @@
-# Rutas "~/..." viven en $HOME; el resto es relativo a la raíz del repo.
-# Variantes de `switch` son relativas a la carpeta del puntero.
-# Comandos de `reload` aceptan {mode} {pid} {uid} {runtime_dir} {home}; con
-# {pid} se ejecutan una vez por proceso.
+# "~/..." paths live in $HOME; everything else is relative to the repo root.
+# `switch` variants are relative to the pointer's folder.
+# `reload` commands accept {mode} {pid} {uid} {runtime_dir} {home}; with
+# {pid} they run once per process.
 
 [palette]
 bg0          = ["add4a0", "1a211a"]
@@ -67,7 +67,7 @@ reload = [{ process = "btop", signal = "SIGUSR2" }]
 switch = [{ pointer = "config/atuin/themes/eyes-active.toml", light = "eyes.toml", dark = "eyes-dark.toml" }]
 wired = [{ file = "config/atuin/config.toml", pattern = "eyes-active" }]
 
-# Par tui.colors mantenido a mano: sus ANSI claros/oscuros están cruzados.
+# Hand-maintained tui.colors pair: its light/dark ANSI colors are swapped.
 [apps.termusic]
 switch = [{ pointer = "config/termusic/themes/eyes-active.yml", light = "eyes.yml", dark = "eyes-dark.yml" }]
 compose = [{ target = "config/termusic/tui.toml", base = "config/termusic/tui.base.toml", light = "config/termusic/tui.colors.eyes.toml", dark = "config/termusic/tui.colors.eyes-dark.toml" }]
@@ -103,11 +103,11 @@ reload = [{ binary = "xrdb", env_required = "DISPLAY", run = ["xrdb", "-merge", 
 switch = [{ pointer = "config/shell/colors.env", light = "colors.eyes.env", dark = "colors.eyes-dark.env", generate = "hash", generate_replace = [['BAT_THEME="eyes"', 'BAT_THEME="eyes-dark"']], generate_after = ["bat", "cache", "--build"] }]
 wired = [{ file = ".zshrc", pattern = 'colors\.env' }]
 
-# Par mantenido a mano: los acentos oscuros no siguen la paleta 1:1.
+# Hand-maintained pair: the dark accents don't follow the palette 1:1.
 [apps.scroll]
 switch = [{ pointer = "config/scroll/colors.conf", light = "colors.eyes.conf", dark = "colors.eyes-dark.conf" }]
 wired = [{ file = "config/scroll/config", pattern = 'colors\.conf' }]
-# jump_labels_* solo se aplica con reload; bajo systemd no hay SWAYSOCK.
+# jump_labels_* only applies on reload; under systemd there is no SWAYSOCK.
 reload = [{ process = "scroll", run = ["scrollmsg", "reload"], env = { SWAYSOCK = "{runtime_dir}/scroll-ipc.{uid}.{pid}.sock" } }]
 
 [apps.rofi]
@@ -141,7 +141,7 @@ wired = [{ file = "config/mpv/mpv.conf", pattern = 'colors\.conf' }]
 [apps.hunk]
 switch = [{ pointer = "config/hunk/config.toml", light = "config.eyes.toml", dark = "config.eyes-dark.toml" }]
 
-# Par mantenido a mano: acentos propios del modo oscuro.
+# Hand-maintained pair: accents specific to dark mode.
 [apps.herdr]
 compose = [{ target = "config/herdr/config.toml", base = "config/herdr/base.toml", light = "config/herdr/colors.eyes.toml", dark = "config/herdr/colors.eyes-dark.toml" }]
 reload = [{ process = "herdr", run = ["mise", "exec", "--", "herdr", "server", "reload-config"] }]
@@ -154,7 +154,7 @@ wired = [{ file = "config/swayidle/config", pattern = "swaylock" }]
 compose = [{ target = "config/tridactyl/themes/theme.css", base = "config/tridactyl/themes/base.css", light = "config/tridactyl/themes/colors.eyes.css", dark = "config/tridactyl/themes/colors.eyes-dark.css", generate = "hash" }]
 wired = [{ file = "config/tridactyl/tridactylrc", pattern = "colorscheme theme" }]
 
-# La clave top-level `palette` debe preceder a las tablas TOML.
+# The top-level `palette` key must precede the TOML tables.
 [apps.starship]
 compose = [{ target = "config/starship.toml", base = "config/starship.base.toml", light = "config/starship.palette.eyes.toml", dark = "config/starship.palette.eyes-dark.toml", variant_first = true }]
 
@@ -167,12 +167,12 @@ wired = [
   { file = "~/.config/gtk-3.0/settings.ini", pattern = "prefer-dark-theme" },
   { file = "~/.config/gtk-4.0/settings.ini", pattern = "prefer-dark-theme" },
 ]
-# kitty (*-theme.auto.conf), GTK4 y navegadores siguen este valor vía el portal;
-# kitty avisa del cambio de fondo (DEC 2031) a nvim, opencode y Claude.
+# kitty (*-theme.auto.conf), GTK4 and browsers follow this value via the portal;
+# kitty notifies nvim, opencode and Claude of the background change (DEC 2031).
 reload = [{ binary = "gsettings", run = ["gsettings", "set", "org.gnome.desktop.interface", "color-scheme", "prefer-{mode}"] }]
 
-# El panel lateral de Claude conserva el nombre de tema del arranque: el
-# nombre es fijo y el cambio reescribe el contenido.
+# Claude's side panel keeps the theme name from startup: the
+# name is fixed and switching rewrites the content.
 [apps.claude]
 copy = [{ target = "~/.claude/themes/eyes.json", light = "harness/claude/themes/eyes-light.json", dark = "harness/claude/themes/eyes-dark.json" }]
 link = [

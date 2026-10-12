@@ -1,6 +1,7 @@
 set -a
-. "$HOME/Git/dotfiles/config/shell/vars.env"
-. "$HOME/Git/dotfiles/config/shell/colors.env"
+DOT_DIR=$(dirname "$(readlink -f "$HOME/.profile")")
+. "$DOT_DIR/config/shell/vars.env"
+. "$DOT_DIR/config/shell/colors.env"
 set +a
 # export PATH="$HOME/.local/bin:$HOME/.poetry/bin:$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools"
 # export MESA_LOADER_DRIVER_OVERRIDE=iris
@@ -8,8 +9,8 @@ set +a
 # export QT_QPA_PLATFORMTHEME=qt6ct
 # export RIDER_JDK=/usr/share/rider/jbr
 
-# lsp-mode plists (JSON más rápido); tras cambiar, reinstalar: cd ~/.config/emacs && bin/doom sync.
+# lsp-mode plists (faster JSON); after changing, reinstall: cd ~/.config/emacs && bin/doom sync.
 
-# WebKitGTK+Wayland workaround — bug #280210 (Error 71); quitar cuando se arregle el DMA-BUF renderer.
+# WebKitGTK+Wayland workaround — bug #280210 (Error 71); remove once the DMA-BUF renderer is fixed.
 
-# Vars temáticas (LS_COLORS, BAT_THEME, FZF, Gum) → fuente única: config/shell/colors.env (sourced arriba).
+# Themed vars (LS_COLORS, BAT_THEME, FZF, Gum) → single source: config/shell/colors.env (sourced above).

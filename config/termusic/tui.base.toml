@@ -1,5 +1,5 @@
-# Base del TUI de termusic SIN colores (behavior, coverart, style, keys, ytdlp).
-# tui.toml lo ensambla eyes-theme: tui.base.toml + tui.colors.eyes[-dark].toml.
+# termusic TUI base WITHOUT colors (behavior, coverart, style, keys, ytdlp).
+# eyes-theme assembles tui.toml: tui.base.toml + tui.colors.eyes[-dark].toml.
 version = "2"
 com = "same"
 

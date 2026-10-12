@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SKILLS_SRC="$HOME/Git/dotfiles/skills"
+SKILLS_SRC=$(readlink -f "$(dirname "$(readlink -f "$0")")/../../skills")
 GLOBAL_DEST="$HOME/.agents/skills"
 GLOBAL_LINK="$HOME/.claude/skills"
 LOCAL_DEST="$PWD/.agents/skills"

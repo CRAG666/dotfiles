@@ -104,7 +104,7 @@ video() {
 
 pdf() {
     if command -v pdftoppm &>/dev/null; then
-        local pdf_cache="${LCACHEFILE%.png}"  # Elimina la extensión .png
+        local pdf_cache="${LCACHEFILE%.png}"  # Strip the .png extension
         [ ! -f "$pdf_cache.png" ] && pdftoppm -png -singlefile -scale-to 1024 "$1" "$pdf_cache"
         draw "$pdf_cache.png"
     else

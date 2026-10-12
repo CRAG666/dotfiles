@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Shim transparente para TeX Live vía podman.
+# Transparent shim for TeX Live via podman.
 #
-#   lualatex -> texlive-shim     ->  lualatex documento.tex
-#   pdflatex -> texlive-shim     ->  pdflatex documento.tex
-#   latexmk  -> texlive-shim     ->  latexmk -pdf -pvc documento.tex
+#   lualatex -> texlive-shim     ->  lualatex document.tex
+#   pdflatex -> texlive-shim     ->  pdflatex document.tex
+#   latexmk  -> texlive-shim     ->  latexmk -pdf -pvc document.tex
 #
-# Crear un shim nuevo para cualquier otro binario de TeX Live:
-#   ln -s texlive-shim NOMBRE_DEL_BINARIO
+# Create a new shim for any other TeX Live binary:
+#   ln -s texlive-shim BINARY_NAME
 
 set -euo pipefail
 

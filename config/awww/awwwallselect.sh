@@ -2,13 +2,13 @@
 
 # set -euo pipefail
 
-#// Función para verificar dependencias
+#// Function to check dependencies
 check_dependencies() {
     local missing_deps=0
     # ponytail: only the non-coreutils — mkdir/awk/readlink/etc are always present
     local deps=("jq" "fd" "magick" "rofi" "notify-send")
 
-    # Verificar compositor disponible y agregar su herramienta
+    # Detect the available compositor and add its tool
     if [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]] && command -v hyprctl &>/dev/null; then
         deps+=("hyprctl")
         readonly DETECTED_COMPOSITOR="hyprland"
@@ -32,24 +32,24 @@ check_dependencies() {
 }
 
 
-#// Definir variables y constantes
+#// Define variables and constants
 readonly SCR_DIR="$(dirname "$(realpath "$0")")"
 readonly CONF_DIR="${HOME}/.config/rofi"
-readonly ROFI_CONF_USER="${CONF_DIR}/selector.rasi" # Asumiendo que este es un archivo de tema base
+readonly ROFI_CONF_USER="${CONF_DIR}/selector.rasi" # Assuming this is a base theme file
 readonly THUMB_DIR="${HOME}/.cache/wallpapers/thumbnails"
-readonly HYPR_BORDER_DEFAULT=2 # Valor predeterminado para el borde de Hyprland
+readonly HYPR_BORDER_DEFAULT=2 # Default value for the Hyprland border
 
-# Directorios de búsqueda de fondos de pantalla (puede ser una lista separada por espacios o una ruta única)
-# Ejemplo: WALLPAPER_PATHS=("${HOME}/Pictures/Fondos" "${HOME}/OtrosFondos")
+# Wallpaper search directories (can be a space-separated list or a single path)
+# Example: WALLPAPER_PATHS=("${HOME}/Pictures/Fondos" "${HOME}/OtrosFondos")
 WALLPAPER_PATHS=("~/Pictures/wallpaperCicle") # Original
 
-#// Crear directorio de miniaturas si no existe
+#// Create the thumbnail directory if it does not exist
 mkdir -p "${THUMB_DIR}"
 
-#// Funciones auxiliares
+#// Helper functions
 
-# Manifiesto de hashes: el MD5 de una RUTA nunca cambia, así que se cachea en
-# un archivo "hash<TAB>ruta" y solo se calcula (un md5sum) para rutas nuevas.
+# Hash manifest: the MD5 of a PATH never changes, so it is cached in
+# a "hash<TAB>path" file and only computed (one md5sum) for new paths.
 readonly HASH_MANIFEST="${THUMB_DIR}/.pathhash.map"
 declare -A PATH_HASH_CACHE=()
 
@@ -61,22 +61,22 @@ load_hash_manifest() {
     done <"$HASH_MANIFEST"
 }
 
-# Calcula el hash MD5 de una cadena (ruta de archivo).
-# Argumento 1: Cadena a hashear (ruta del archivo).
+# Compute the MD5 hash of a string (file path).
+# Argument 1: string to hash (file path).
 set_file_hash() {
     local sum _rest
     read -r sum _rest < <(printf '%s' "$1" | md5sum)
     printf '%s' "$sum"
 }
 
-# Recopila fondos, resuelve hashes (cacheados) y genera en paralelo solo las miniaturas faltantes.
-# Args (namerefs): 1=lista rutas (out), 2=lista hashes (out), 3=rutas de búsqueda (in).
+# Collect wallpapers, resolve (cached) hashes and generate only the missing thumbnails in parallel.
+# Args (namerefs): 1=path list (out), 2=hash list (out), 3=search paths (in).
 get_wallpapers_and_hashes() {
-    local -n out_wall_list=$1 # Usar nameref para modificar el array original
-    local -n out_wall_hash=$2 # Usar nameref
+    local -n out_wall_list=$1 # Use a nameref to modify the original array
+    local -n out_wall_hash=$2 # Use a nameref
     local -n search_paths=$3
 
-    out_wall_list=() # Limpiar arrays de salida
+    out_wall_list=() # Clear the output arrays
     out_wall_hash=()
 
     local -a all_found_files=()
@@ -87,8 +87,8 @@ get_wallpapers_and_hashes() {
             echo "Advertencia: El directorio de búsqueda '$search_path_expanded' no existe." >&2
             continue
         fi
-        # Usar mapfile para leer de forma segura los resultados de fd (maneja espacios en nombres de archivo)
-        # fd busca archivos con las extensiones especificadas en el directorio de búsqueda
+        # Use mapfile to safely read fd's results (handles spaces in file names)
+        # fd finds files with the given extensions in the search directory
         mapfile -t found_files_in_path < <(fd --type f --extension jpg --extension jpeg --extension png --extension gif --extension bmp --extension tiff --extension svg --extension webp . "$search_path_expanded")
         all_found_files+=("${found_files_in_path[@]}")
     done
@@ -116,8 +116,8 @@ get_wallpapers_and_hashes() {
         [[ -f "$thumb_path" ]] || missing_thumb_args+=("$file_path" "$thumb_path")
     done
 
-    # Generar las miniaturas faltantes en paralelo (xargs -P). "[0]" toma el
-    # primer fotograma, lo que cubre GIFs animados y es inocuo para el resto.
+    # Generate the missing thumbnails in parallel (xargs -P). "[0]" takes the
+    # first frame, which covers animated GIFs and is harmless for the rest.
     if ((${#missing_thumb_args[@]})); then
         echo "Generando $((${#missing_thumb_args[@]} / 2)) miniatura(s) nueva(s)..." >&2
         printf '%s\0' "${missing_thumb_args[@]}" |
@@ -126,21 +126,21 @@ get_wallpapers_and_hashes() {
     fi
 }
 
-#// --- Inicio del Script Principal ---
+#// --- Main Script Start ---
 
 check_dependencies
 
-#// Configuración de escala de Rofi
-rofi_scale_input="${ROFI_SCALE:-10}"             # Leer variable de entorno o usar 10 por defecto
-if ! [[ "$rofi_scale_input" =~ ^[0-9]+$ ]]; then # Validar que sea un número
+#// Rofi scale configuration
+rofi_scale_input="${ROFI_SCALE:-10}"             # Read env variable or default to 10
+if ! [[ "$rofi_scale_input" =~ ^[0-9]+$ ]]; then # Validate that it is a number
     echo "Advertencia: ROFI_SCALE ('$rofi_scale_input') no es un número válido. Usando 10." >&2
     rofi_scale_input=10
 fi
 readonly ROFI_SCALE="$rofi_scale_input"
 readonly ROFI_THEME_SCALE_OVERRIDE="configuration {font: \"SFPro Nerd Font Propo Display ${ROFI_SCALE}\";}"
 
-#// Borde de elementos de Rofi basado en hypr_border
-hypr_border_val="${hypr_border:-$HYPR_BORDER_DEFAULT}" # Usar variable de entorno si existe, sino el default del script
+#// Rofi element border based on hypr_border
+hypr_border_val="${hypr_border:-$HYPR_BORDER_DEFAULT}" # Use the env variable if set, else the script default
 if ! [[ "$hypr_border_val" =~ ^[0-9]+$ ]]; then
     echo "Advertencia: hypr_border ('$hypr_border_val') no es un número válido. Usando $HYPR_BORDER_DEFAULT." >&2
     hypr_border_val=$HYPR_BORDER_DEFAULT
@@ -148,8 +148,8 @@ fi
 readonly HYPR_BORDER="$hypr_border_val"
 readonly ROFI_ELEMENT_BORDER=$((HYPR_BORDER * 3))
 
-#// Adaptar Rofi al tamaño del monitor
-# Obtener resolución X del monitor enfocado, o usar 1920 por defecto
+#// Fit Rofi to the monitor size
+# Get the focused monitor's X resolution, or default to 1920
 get_focused_monitor_width() {
     case "${DETECTED_COMPOSITOR}" in
         hyprland)
@@ -168,19 +168,19 @@ if [[ "$mon_x_res_raw" == "null" ]] || [[ -z "$mon_x_res_raw" ]] || ! [[ "$mon_x
     echo "Advertencia: No se pudo obtener la resolución del monitor X o no es válida. Usando 1920." >&2
     mon_x_res=1920
 else
-    # Convertir a entero (jq puede devolver flotante)
+    # Convert to integer (jq may return a float)
     mon_x_res=$(printf "%.0f" "$mon_x_res_raw")
 fi
 
-#// Generar configuración dinámica de Rofi para el layout
-# Estas son aproximaciones, ajustar según el tema de Rofi
-readonly ELEMENT_ICON_SIZE_EM=28     # Coincide con element-icon{size:NNem;}
-readonly ELEMENT_APPROX_PADDING_EM=8 # Suma de paddings y márgenes horizontales aproximados
-readonly ELEMENT_APPROX_EXTRA_EM=5   # Espacio adicional o bordes
+#// Generate dynamic Rofi configuration for the layout
+# These are approximations; adjust to the Rofi theme
+readonly ELEMENT_ICON_SIZE_EM=28     # Matches element-icon{size:NNem;}
+readonly ELEMENT_APPROX_PADDING_EM=8 # Sum of approximate horizontal paddings and margins
+readonly ELEMENT_APPROX_EXTRA_EM=5   # Extra space or borders
 readonly ROFI_ELEMENT_WIDTH_CALCULATED=$(((ELEMENT_ICON_SIZE_EM + ELEMENT_APPROX_PADDING_EM + ELEMENT_APPROX_EXTRA_EM) * ROFI_SCALE))
-readonly ROFI_MAX_AVAILABLE_WIDTH=$((mon_x_res - (4 * ROFI_SCALE))) # 4*ROFI_SCALE como margen total
+readonly ROFI_MAX_AVAILABLE_WIDTH=$((mon_x_res - (4 * ROFI_SCALE))) # 4*ROFI_SCALE as total margin
 rofi_col_count=$((ROFI_MAX_AVAILABLE_WIDTH / ROFI_ELEMENT_WIDTH_CALCULATED))
-if ((rofi_col_count < 1)); then # Asegurar al menos una columna
+if ((rofi_col_count < 1)); then # Ensure at least one column
     rofi_col_count=1
 fi
 
@@ -189,7 +189,7 @@ readonly ROFI_LAYOUT_OVERRIDE=$(printf "window{width:100%%;} listview{columns:%s
     "$ROFI_ELEMENT_BORDER" \
     "$ELEMENT_ICON_SIZE_EM")
 
-#// Determinar el fondo de pantalla actual para preselección en Rofi
+#// Determine the current wallpaper for preselection in Rofi
 current_wall_basename=""
 current_wall_symlink="${HOME}/.config/awww/wall.set"
 if [[ -L "$current_wall_symlink" ]]; then
@@ -202,10 +202,10 @@ if [[ -L "$current_wall_symlink" ]]; then
 elif [[ -e "$current_wall_symlink" ]]; then
     echo "Advertencia: '$current_wall_symlink' existe pero no es un enlace simbólico. No se puede determinar el fondo actual." >&2
 else
-    echo "Info: No se encontró el enlace del fondo de pantalla actual en '$current_wall_symlink'." >&2 # No es un error necesariamente
+    echo "Info: No se encontró el enlace del fondo de pantalla actual en '$current_wall_symlink'." >&2 # Not necessarily an error
 fi
 
-#// Obtener la lista de fondos de pantalla y sus hashes
+#// Get the wallpaper list and its hashes
 declare -a wall_full_paths_list=()
 declare -a wall_hashes_list=()
 get_wallpapers_and_hashes wall_full_paths_list wall_hashes_list WALLPAPER_PATHS
@@ -215,20 +215,20 @@ if ((${#wall_full_paths_list[@]} == 0)); then
     exit 1
 fi
 
-#// Preparar la entrada para Rofi (basenames + cadena nombre\x00icon\x1fminiatura)
+#// Prepare the Rofi input (basenames + name\x00icon\x1fthumbnail string)
 declare -a wall_basenames_list=()
 rofi_input_string=""
 for i in "${!wall_full_paths_list[@]}"; do
     full_path="${wall_full_paths_list[i]}"
-    base_name="${full_path##*/}" # basename sin proceso externo
-    hash_val="${wall_hashes_list[i]}" # Asume que los índices están sincronizados
+    base_name="${full_path##*/}" # basename without an external process
+    hash_val="${wall_hashes_list[i]}" # Assumes the indices are in sync
 
     wall_basenames_list+=("$base_name")
-    # Formato Rofi: "NombreArchivo\x00icon\x1f/ruta/a/miniatura.sqre"
+    # Rofi format: "FileName\x00icon\x1f/path/to/thumbnail.sqre"
     rofi_input_string+="${base_name}\x00icon\x1f${THUMB_DIR}/${hash_val}.sqre\n"
 done
 
-#// Lanzar Rofi (-select preselecciona el actual; xargs recorta la selección)
+#// Launch Rofi (-select preselects the current one; xargs trims the selection)
 $CONF_DIR/colors/ramdom_color.sh
 selected_basename=$(echo -ne "${rofi_input_string}" | rofi -dmenu \
     -theme-str "${ROFI_THEME_SCALE_OVERRIDE}" \
@@ -237,10 +237,10 @@ selected_basename=$(echo -ne "${rofi_input_string}" | rofi -dmenu \
     -select "${current_wall_basename}" \
     -p "Seleccionar Fondo:" | xargs)
 
-#// Aplicar el fondo de pantalla seleccionado
+#// Apply the selected wallpaper
 if [[ -n "$selected_basename" ]]; then
     selected_full_path=""
-    # Encontrar la ruta completa del basename seleccionado a partir de nuestra lista
+    # Find the full path of the selected basename in our list
     for path_candidate in "${wall_full_paths_list[@]}"; do
         if [[ "${path_candidate##*/}" == "$selected_basename" ]]; then
             selected_full_path="$path_candidate"
@@ -249,9 +249,9 @@ if [[ -n "$selected_basename" ]]; then
     done
 
     if [[ -n "$selected_full_path" && -f "$selected_full_path" ]]; then
-        # Llamar al script para cambiar el fondo
+        # Call the script that changes the wallpaper
         if "${SCR_DIR}/awwwallpaper.sh" -s "${selected_full_path}"; then
-            # Enviar notificación (hash ya resuelto en el manifiesto)
+            # Send notification (hash already resolved in the manifest)
             selected_hash="${PATH_HASH_CACHE[$selected_full_path]}"
             notify-send -a "HyDE Alert" -i "${THUMB_DIR}/${selected_hash}.sqre" "Fondo cambiado a: ${selected_basename}"
         else
@@ -261,7 +261,7 @@ if [[ -n "$selected_basename" ]]; then
         notify-send -u critical -a "HyDE Alert" "Error: El fondo seleccionado '${selected_basename}' no se encontró o no es un archivo."
     fi
 else
-    echo "No se seleccionó ningún fondo de pantalla." # No es un error, el usuario canceló.
+    echo "No se seleccionó ningún fondo de pantalla." # Not an error, the user cancelled.
 fi
 
 exit 0

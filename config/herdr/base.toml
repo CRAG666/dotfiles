@@ -1,55 +1,55 @@
-# Base de herdr (todo menos la paleta). config.toml lo ensambla eyes-theme
-# concatenando este archivo + colors.eyes[-dark].toml, porque herdr no
-# soporta include: un solo archivo con colores inline.
-# La paleta dark NO se genera: par manual con acentos propios (ver
-# local/share/eyes-theme/manifest.toml). Editar colors.eyes.toml Y colors.eyes-dark.toml.
+# herdr base (everything but the palette). eyes-theme assembles config.toml
+# by concatenating this file + colors.eyes[-dark].toml, because herdr does not
+# support include: a single file with inline colors.
+# The dark palette is NOT generated: manual pair with its own accents (see
+# local/share/eyes-theme/manifest.toml). Edit colors.eyes.toml AND colors.eyes-dark.toml.
 
 onboarding = false
 
 [theme]
-# Base "terminal": los colores derivados siguen la paleta ANSI de kitty,
-# que eyes-theme ya intercambia en sincronía. La paleta eyes exacta
-# (bg1/bg3/bg4 no-ANSI) vive en colors.eyes[-dark].toml.
+# "terminal" base: derived colors follow kitty's ANSI palette,
+# which eyes-theme already swaps in sync. The exact eyes palette
+# (non-ANSI bg1/bg3/bg4) lives in colors.eyes[-dark].toml.
 name = "terminal"
 
 [terminal]
-# Igual que kitty.conf: paneles nuevos en nu ($SHELL es zsh)
+# Same as kitty.conf: new panes in nu ($SHELL is zsh)
 default_shell = "nu"
 
 [keys]
-# El prefix no puede ser un modificador solo ("alt"): herdr necesita una
-# tecla concreta que el terminal transmita.
-# ctrl+space = verificado libre en todo el stack (2025): scroll usa
-# $mod=Mod4 y ninguno de sus bindsym toca space; kitty no lo mapea;
-# nvim/nu/zsh sin bindings (y herdr se come el NUL antes de nvim, asi que
-# ni siquiera dispara el default i_CTRL-@); sin fcitx/ibus que lo robe como
-# conmutador de IME. Unico riesgo prospectivo: <C-Space> es el mapping
-# tipico de completion (nvim-cmp) si algun dia lo agregas.
-# Bonus: al liberar alt+space, queda libre para el hyprlock del config
-# legacy de hypr (bindd = ALT, Space) por si ese WM vuelve.
-# Ojo: en tus teclados space es LT(2) (hold = capa de navegacion):
-# dale el toque corto; si lo mantienes se activa la capa y el prefix
-# no dispara (inofensivo, reintenta).
-# Descartados: alt+a/i/d/h/l (nvim), alt+backspace/alt+enter (shells/nu)
+# The prefix cannot be a bare modifier ("alt"): herdr needs a
+# concrete key that the terminal transmits.
+# ctrl+space = verified free across the whole stack (2025): scroll uses
+# $mod=Mod4 and none of its bindsym touch space; kitty doesn't map it;
+# nvim/nu/zsh have no bindings (and herdr eats the NUL before nvim, so it
+# doesn't even fire the default i_CTRL-@); no fcitx/ibus to steal it as an
+# IME toggle. Only prospective risk: <C-Space> is the typical completion
+# mapping (nvim-cmp) if you ever add it.
+# Bonus: freeing alt+space leaves it available for hyprlock in the
+# legacy hypr config (bindd = ALT, Space) in case that WM comes back.
+# Careful: on your keyboards space is LT(2) (hold = navigation layer):
+# tap it briefly; if you hold it the layer activates and the prefix
+# doesn't fire (harmless, retry).
+# Discarded: alt+a/i/d/h/l (nvim), alt+backspace/alt+enter (shells/nu)
 prefix = "ctrl+space"
-# Alternativas sin choque:
-#   prefix = "alt+space" # ambos pulgares, verificado (choca con hyprlock legacy de hypr)
-#   prefix = "alt+j"     # pulgar derecho + indice home, una mano
-#   prefix = "f17"       # MO(4)+N en tu keychron: tecla virtual, cero choques
+# Clash-free alternatives:
+#   prefix = "alt+space" # both thumbs, verified (clashes with legacy hypr hyprlock)
+#   prefix = "alt+j"     # right thumb + home index finger, one hand
+#   prefix = "f17"       # MO(4)+N on your keychron: virtual key, zero clashes
 
-# Vim-style. Un binding custom sustituye al default completo (no se añade).
-goto         = "prefix+space"  # picker: <leader><space> de telescope/fzf (antes prefix+g)
+# Vim-style. A custom binding replaces the whole default (it is not appended).
+goto         = "prefix+space"  # picker: <leader><space> from telescope/fzf (was prefix+g)
 next_tab     = "prefix+t"      # vim gt
-previous_tab = "prefix+shift+t" # vim gT (libera shift+t de rename)
+previous_tab = "prefix+shift+t" # vim gT (frees shift+t from rename)
 rename_tab   = "prefix+comma"  # tmux rename-window
-last_pane    = "prefix+enter"  # jumplist ctrl+o: volver al último pane
-new_worktree = "prefix+g"      # liberado al mover goto a prefix+space (antes prefix+shift+g)
-new_tab      = ["prefix+n", "prefix+c"] # n = new (c de tmux como secundario)
-# Ya ergonómicos de serie (defaults): focus hjkl, swap shift+hjkl, zoom z,
+last_pane    = "prefix+enter"  # jumplist ctrl+o: back to the last pane
+new_worktree = "prefix+g"      # freed by moving goto to prefix+space (was prefix+shift+g)
+new_tab      = ["prefix+n", "prefix+c"] # n = new (tmux's c as secondary)
+# Already ergonomic out of the box (defaults): focus hjkl, swap shift+hjkl, zoom z,
 # copy [, resize r, switch_tab prefix+1..9 (={N}gt).
 
-# Migración desde kitty: descomenta al borrar los map alt+* de kitty.conf
-# (mientras existan ahí, kitty intercepta los acordes antes que herdr).
+# Migration from kitty: uncomment when removing the alt+* maps from kitty.conf
+# (while they exist there, kitty intercepts the chords before herdr).
 # new_tab         = ["prefix+c", "alt+;"]
 # next_tab        = ["prefix+n", "alt+."]
 # previous_tab    = ["prefix+p", "alt+,"]
@@ -65,8 +65,8 @@ new_tab      = ["prefix+n", "prefix+c"] # n = new (c de tmux como secundario)
 # swap_pane_right  = ["prefix+shift+l", "ctrl+alt+l"]
 
 [ui]
-# Ocultar sidebar y tab bar: sidebar a ancho cero desde el arranque,
-# fila de tabs oculta mientras solo haya un tab.
+# Hide sidebar and tab bar: zero-width sidebar from startup,
+# tab row hidden while there is only one tab.
 sidebar_start_collapsed = true
 sidebar_collapsed_mode = "hidden"
 hide_tab_bar_when_single_tab = true

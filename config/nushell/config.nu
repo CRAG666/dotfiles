@@ -179,14 +179,14 @@ def polars-open [file: path] {
 }
 
 def norg [
-    workspace: string  # Nombre del workspace (ej: academic, personal, work)
+    workspace: string  # Workspace name (e.g. academic, personal, work)
 ] {
     nvim -c $"Neorg workspace ($workspace)"
 }
 
 def ddl [
-    db_file: path,           # El archivo de la base de datos (.db)
-    table_name?: string      # Nombre de la tabla (opcional)
+    db_file: path,           # The database file (.db)
+    table_name?: string      # Table name (optional)
 ] {
     if ($table_name == null) {
         open $db_file | query db "SELECT name, sql FROM sqlite_schema WHERE type = 'table'"
@@ -195,7 +195,7 @@ def ddl [
     }
 }
 
-# Túnel SSH al ollama del cluster (gpuserver02:11652 vía login node).
+# SSH tunnel to the cluster's ollama (gpuserver02:11652 via login node).
 def otun-up [] { ^setsid ssh -fN ollama-tunnel; print "túnel arriba → localhost:11652 (sobrevive al cerrar la terminal)" }
 def otun-down [] { do -i { ^pkill -f 'ssh -fN ollama-tunnel' }; print "túnel cerrado" }
 
@@ -205,9 +205,9 @@ let carapace_completer = {|spans|
 }
 source ~/.zoxide.nu
 
-# atuin#3929: su init.nu registra dos keybindings llamados "atuin" y nu >=0.115
-# los fusiona por nombre (ctrl-r deja de funcionar). Regeneramos el script sin su
-# sección de keybindings y añadimos las nuestras con nombres únicos.
+# atuin#3929: its init.nu registers two keybindings named "atuin" and nu >=0.115
+# merges them by name (ctrl-r stops working). We regenerate the script without its
+# keybindings section and add our own with unique names.
 let atuin_bin = (which atuin | get 0?.path?)
 let atuin_init = $"($env.HOME)/.local/share/atuin/init.nu"
 if $atuin_bin != null and (
@@ -254,7 +254,7 @@ $env.config = (
             mode: [vi_normal]
             event: { send: executehostcommand cmd: (_atuin_search_cmd) }
         }
-        # Ctrl+T: fzf con ~/.scripts/preview e inserta la ruta (equivalente al preview de fzf-tab en zsh).
+        # Ctrl+T: fzf with ~/.scripts/preview and insert the path (equivalent to fzf-tab's preview in zsh).
         | append {
             name: fzf_file_preview
             modifier: control
@@ -282,7 +282,7 @@ $env.config.hooks.pre_prompt = (
         }
         code: '
             $env._EYES_MODE_MTIME = (try { ls $"($env.HOME)/.config/eyes/mode" | get 0.modified | into int } catch { -1 })
-            try { load-shared-env $"($env.HOME)/Git/dotfiles/config/shell/colors.env" }
+            try { load-shared-env $"($env.DOT_DIR)/config/shell/colors.env" }
             source ~/.config/nushell/theme.nu
             source ~/.config/nushell/theme-base.nu
             source ~/.config/nushell/lsi.nu

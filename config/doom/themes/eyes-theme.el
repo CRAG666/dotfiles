@@ -1,11 +1,11 @@
-;;; eyes-theme.el --- Eyes (light) — port del colorscheme nvim -*- lexical-binding: t; -*-
+;;; eyes-theme.el --- Eyes (light) — port of the nvim colorscheme -*- lexical-binding: t; -*-
 ;;
-;; Port directo de nvim/colors/eyes.lua (variante light).
-;; Paleta calibrada para protección visual sobre fondo verde salvia.
+;; Direct port of nvim/colors/eyes.lua (light variant).
+;; Palette tuned for eye protection on a sage green background.
 
 (deftheme eyes
-  "Light variant of the eyes colorscheme (fondo verde salvia #add4a0).
-Diseñado para bajo contraste sin perder legibilidad.")
+  "Light variant of the eyes colorscheme (sage green background #add4a0).
+Designed for low contrast without losing legibility.")
 
 (let* ((c-bg0          "#add4a0")
        (c-bg1          "#a4cc98")
@@ -128,8 +128,8 @@ Diseñado para bajo contraste sin perder legibilidad.")
    `(font-lock-escape-face             ((t (:foreground ,c-orange0))))
 
    ;; ---------- Treesit faces (Emacs 29+) ----------
-   ;; Faces estándar que el motor `treesit-font-lock-feature-list` activa
-   ;; en nivel 4. Replican capturas @* equivalentes de nvim/colors/eyes.lua.
+   ;; Standard faces that the `treesit-font-lock-feature-list` engine enables
+   ;; at level 4. They mirror the equivalent @* captures in nvim/colors/eyes.lua.
    `(treesit-fontification-error-face  ((t (:foreground ,c-red :underline t))))
    `(font-lock-regexp-face             ((t (:foreground ,c-orange0))))
 

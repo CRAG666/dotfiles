@@ -22,8 +22,8 @@ mute)
 	;;
 esac
 
-# El sonido va en segundo plano: aplay bloquea lo que dura el wav (~380 ms)
-# y retrasaba el OSD; la notificación debe aparecer con la pulsación.
+# The sound runs in the background: aplay blocks for the wav's length (~380 ms)
+# and delayed the OSD; the notification must appear with the keypress.
 aplay ~/.config/dunst/vol.wav >/dev/null 2>&1 &
 
 volume_integer=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2 * 100 + 0.5)}')
