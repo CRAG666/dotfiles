@@ -72,10 +72,10 @@ install-pkgs *pkgs:
         echo "==> All packages installed successfully."
     fi
 
-# Install makepkg.conf in /etc (optimized compilation)
+# Install the makepkg drop-in that builds packages for the native CPU
 [private]
 makepkg-conf:
-    sudo install -m 644 "{{ src }}/etc/makepkg.conf" /etc/makepkg.conf
+    sudo install -Dm 644 "{{ src }}/etc/makepkg.conf.d/zz-native.conf" /etc/makepkg.conf.d/zz-native.conf
 
 # Ensure paru is installed and sync databases are fresh
 [private]
@@ -473,6 +473,7 @@ network:
     if [ -z "${SSH_CONNECTION:-}" ]; then
         sudo systemctl disable --now NetworkManager 2>/dev/null || true
         sudo pacman -Rnsc --noconfirm networkmanager
+        sudo systemctl unmask NetworkManager-wait-online.service
         sudo systemctl enable systemd-networkd iwd
         sudo systemctl restart systemd-networkd iwd
     else
@@ -563,7 +564,9 @@ clean:
     @podman rm maketest 2>/dev/null || true
 
 # Install for ThinkPad P53 with NVIDIA (server SSH + wayvnc)
-p53: install init thinkpad nvidia ssh wayvnc
+p53: install init thinkpad laptop-intel nvidia dns tailscale ssh wayvnc
+    sudo install -Dm 644 "{{ src }}/etc/greetd/P53.png" /etc/greetd/laptop.png
 
 # Install for ThinkPad L14 Gen 4 (Ryzen 5, + client VNC)
-l14: install init thinkpad-amd vncviewer
+l14: install init thinkpad-amd dns tailscale vncviewer
+    sudo install -Dm 644 "{{ src }}/etc/greetd/L14_Gen4.png" /etc/greetd/laptop.png
