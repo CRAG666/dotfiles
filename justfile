@@ -17,14 +17,12 @@ nvidia_pkgs := "nvidia nvidia-prime nvidia-settings nvidia-utils cuda nvtop libv
 laptop_intel_pkgs := "intel-gpu-tools intel-media-driver intel-ucode vulkan-intel"
 
 # auto-cpufreq
-laptop_amd_pkgs := "amd-ucode vulkan-radeon libva-mesa-driver radeontop"
+laptop_amd_pkgs := "amd-ucode vulkan-radeon libva-mesa-driver"
 
 laptop_pkgs := "thermald"
 
 # zcfan
-thinkpad_pkgs := "acpi_call throttled"
-
-thinkpad_amd_pkgs := "acpi_call"
+thinkpad_pkgs := "throttled"
 
 systemd_enable := "sudo systemctl --now enable"
 systemd_enable_user := "systemctl --user --now enable"
@@ -350,6 +348,7 @@ suspend:
     sudo install -Dm 644 "{{ src }}/etc/udev/rules.d/99-power-profile.rules" \
         /etc/udev/rules.d/99-power-profile.rules
     sudo udevadm control --reload || true
+    sudo udevadm trigger --subsystem-match=power_supply --action=change
     echo "==> Configuring logind (suspend on lid, skipped when docked)..."
     sudo rm -f /etc/systemd/logind.conf.d/10-lid-battery.conf
     sudo install -Dm 644 "{{ src }}/etc/systemd/logind.conf.d/10-lid.conf" \
@@ -398,8 +397,6 @@ thinkpad: laptop
 thinkpad-amd: laptop-amd
     #!/usr/bin/env bash
     set -eu
-    echo "==> Installing ThinkPad-specific tools (AMD)..."
-    just install-pkgs {{ thinkpad_amd_pkgs }}
     echo "==> Installing L14-specific sysctl..."
     sudo install -m 644 "{{ src }}/etc/sysctl.d/99-l14.conf" /etc/sysctl.d/
     sudo sysctl --system

@@ -13,6 +13,7 @@ playerctl
 impala
 bluetui
 udisks2
+power-profiles-daemon
 
 # ZSH
 zsh
@@ -24,7 +25,6 @@ perl-image-exiftool
 atuin
 yt-dlp
 starship
-reflector
 gum
 graphviz
 gocryptfs
@@ -56,7 +56,6 @@ gitleaks
 mise
 luarocks
 corkscrew
-ccache
 jujutsu
 
 # Monitoring
@@ -116,10 +115,6 @@ ungoogled-chromium-bin
 # retroarch-assets-xmb
 
 # GPU
-libva-utils
-vdpauinfo
-vulkan-tools
-clinfo
 
 # Utilities
 podman
@@ -133,7 +128,6 @@ keyd
 swappy
 grim
 slurp
-mold
 hunspell-en_us
 hunspell-es_mx
 gnome-disk-utility

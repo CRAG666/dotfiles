@@ -118,33 +118,25 @@ Note:
 
 If you are still not satisfied with the battery life, you can do some additional configurations:
 
-Install [tpacpi-bat](https://github.com/teleshoes/tpacpi-bat), acpi_call and [acpid](https://wiki.archlinux.org/title/acpid). Excecute this:
+Install [acpid](https://wiki.archlinux.org/title/acpid) (used by the next section) and enable it:
 
 ```bash
-sudo systemctl --now enable tpacpi-bat acpid
+sudo systemctl --now enable acpid
 ```
-
-Note: tpacpi-bat is for more modern thinkpads, if you have a thinkpad before Ivy Bridge processors use tp_smapi
 
 #### Config battery charging thresholds
 
-Edit or Create this `/etc/conf.d/tpacpi`. Use the thresholds according to your needs. These are my settings:
+The kernel's `thinkpad_acpi` driver exposes the thresholds in sysfs, so `tpacpi-bat` and `acpi_call` are no longer needed. `just thinkpad` and `just thinkpad-amd` install [99-battery-threshold.rules](../etc/udev/rules.d/99-battery-threshold.rules), which applies them on every boot:
 
 ```
-# battery is 1 for main, 2 for secondary, or 0 for either/both
-BATTERY="0"
-
-# Start charging threshold (0 for default, 1-99 for percent)
-START_THRESHOLD="75"
-
-# Stop charging threshold (0 for default, 1-99 for percent)
-STOP_THRESHOLD="80"
+ACTION=="add", SUBSYSTEM=="power_supply", KERNEL=="BAT0", ATTR{charge_control_end_threshold}="80", ATTR{charge_control_start_threshold}="75"
 ```
 
-Run this to apply the changes
+To apply other values without rebooting:
 
 ```bash
-sudo systemctl restart tpacpi-bat
+echo 75 | sudo tee /sys/class/power_supply/BAT0/charge_control_start_threshold
+echo 80 | sudo tee /sys/class/power_supply/BAT0/charge_control_end_threshold
 ```
 
 #### Further optimize energy management
