@@ -74,8 +74,8 @@ font pango:SFPro Nerd Font Propo Display 14
 
 ### Outputs
 
-# Laptop (built-in)
-output eDP-1 {
+# Laptop Thinkpad L14
+output 'Lenovo Group Limited 0x40A9 Unknown' {
     scale 1
     resolution 1920x1080@60Hz
     position 0 0
@@ -85,6 +85,9 @@ output eDP-1 {
     # layout_widths [0.33333333 0.5 0.666666667 1.0]
     # layout_heights [0.33333333 0.5 0.666666667 1.0]
 }
+
+# Laptop Thinkpad P53
+output 'BOE 0x086E Unknown' disable
 
 # Work - ViewSonic (right)
 output "ViewSonic Corporation VA1912wSERIES PW6061112038" {
