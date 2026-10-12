@@ -185,8 +185,8 @@ animations {
 
 ### Key bindings
 
-# Lock as soon as the lid closes; before-sleep alone can race the suspend
-    bindswitch --locked lid:on exec pidof swaylock || swaylock -f
+# Lock as soon as the lid closes (L14 only); before-sleep alone can race the suspend
+    bindswitch --locked lid:on exec '[ "$(uname -n)" = ThinkpadL14 ] && { pidof swaylock || swaylock -f; }'
 
 # Basics
     bindsym $mod+q kill
