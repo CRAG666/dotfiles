@@ -10,7 +10,6 @@ pass
 brightnessctl
 ddcutil
 playerctl
-bluez-utils
 impala
 bluetui
 udisks2
@@ -57,7 +56,6 @@ gitleaks
 mise
 luarocks
 corkscrew
-chawan
 ccache
 jujutsu
 
@@ -82,7 +80,6 @@ ttf-nerd-fonts-symbols-common
 noto-fonts-emoji
 
 # Basic
-ntfs-3g
 python
 
 # Text edition

@@ -1,8 +1,0 @@
-[buffer]
-images = true
-
-[display]
-image-mode = "kitty"
-
-[page]
-gm = 'pager.extern(`mpv "$u"`, {env: {u: pager.hoverLink}})'

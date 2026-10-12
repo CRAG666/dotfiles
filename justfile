@@ -54,14 +54,18 @@ install-pkgs *pkgs:
     failed=""
     if [ -n "$repo_pkgs" ]; then
         echo "==> pacman:$repo_pkgs"
-        if ! sudo pacman -S --needed --noconfirm $repo_pkgs; then
+        if sudo pacman -S --needed --noconfirm $repo_pkgs; then
+            sudo pacman -D --asexplicit $repo_pkgs >/dev/null
+        else
             echo "  ✗ Failed repo install"
             failed="$failed$repo_pkgs"
         fi
     fi
     for pkg in $aur_pkgs; do
         echo "==> paru (AUR): $pkg"
-        if ! paru -S --needed --noconfirm "$pkg"; then
+        if paru -S --needed --noconfirm "$pkg"; then
+            sudo pacman -D --asexplicit "$pkg" >/dev/null
+        else
             echo "  ✗ Failed: $pkg"
             failed="$failed $pkg"
         fi
