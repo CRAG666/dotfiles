@@ -606,7 +606,6 @@ config/xdg-desktop-portal-termfilechooser/.last_selected
 /config/herdr/config.toml
 /config/eza/theme.yml
 /config/zsh-patina/theme.toml
-/config/swaylock/config
 /config/hypr/colors/theme.conf
 /config/btop/themes/eyes-active.theme
 /config/atuin/themes/eyes-active.toml

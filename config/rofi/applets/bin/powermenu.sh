@@ -91,7 +91,7 @@ confirm_run() {
 run_cmd() {
 	if [[ "$1" == '--opt1' ]]; then
 		# hyprlock
-		swaylock
+		~/.config/quickshell/lock.sh
 	elif [[ "$1" == '--opt2' ]]; then
 		if [[ "$XDG_CURRENT_DESKTOP" == 'Hyprland' ]]; then
 			confirm_run 'hyprctl dispatch exit'

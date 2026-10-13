@@ -146,10 +146,6 @@ switch = [{ pointer = "config/hunk/config.toml", light = "config.eyes.toml", dar
 compose = [{ target = "config/herdr/config.toml", base = "config/herdr/base.toml", light = "config/herdr/colors.eyes.toml", dark = "config/herdr/colors.eyes-dark.toml" }]
 reload = [{ process = "herdr", run = ["mise", "exec", "--", "herdr", "server", "reload-config"] }]
 
-[apps.swaylock]
-compose = [{ target = "config/swaylock/config", base = "config/swaylock/base.conf", light = "config/swaylock/colors.eyes.conf", dark = "config/swaylock/colors.eyes-dark.conf", generate = "hexa" }]
-wired = [{ file = "config/swayidle/config", pattern = "swaylock" }]
-
 [apps.tridactyl]
 compose = [{ target = "config/tridactyl/themes/theme.css", base = "config/tridactyl/themes/base.css", light = "config/tridactyl/themes/colors.eyes.css", dark = "config/tridactyl/themes/colors.eyes-dark.css", generate = "hash" }]
 wired = [{ file = "config/tridactyl/tridactylrc", pattern = "colorscheme theme" }]

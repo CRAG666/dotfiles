@@ -186,7 +186,7 @@ animations {
 ### Key bindings
 
 # Lock as soon as the lid closes (L14 only); before-sleep alone can race the suspend
-    bindswitch --locked lid:on exec '[ "$(uname -n)" = ThinkpadL14 ] && { pidof swaylock || swaylock -f; }'
+    bindswitch --locked lid:on exec '[ "$(uname -n)" = ThinkpadL14 ] && ~/.config/quickshell/lock.sh'
 
 # Basics
     bindsym $mod+q kill
@@ -639,7 +639,7 @@ bindsym $mod+Shift+s mode "spaces"
 # APPLICATIONS
 # =============================================================================
 
-bindsym Alt+space exec swaylock
+bindsym Alt+space exec ~/.config/quickshell/lock.sh
 
 bindsym $mod+Return exec $term
 

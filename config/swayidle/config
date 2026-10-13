@@ -1,5 +1,5 @@
-# Lock after 5 min (pidof avoids launching a second swaylock if one is already active)
-timeout 600 'pidof swaylock || swaylock -f'
+# Lock after 10 min (lock.sh is a no-op if the session is already locked)
+timeout 600 '~/.config/quickshell/lock.sh'
 
 # Turn off screens after 10 min; turn back on when returning from idle
 timeout 900 'scrollmsg "output * dpms off"' resume 'scrollmsg "output * dpms on"'
@@ -8,4 +8,4 @@ timeout 900 'scrollmsg "output * dpms off"' resume 'scrollmsg "output * dpms on"
 timeout 1800 'grep -q 0 /sys/class/power_supply/AC/online && systemctl suspend'
 
 # ALWAYS lock before any suspend (lid close, manual suspend, etc.)
-before-sleep 'pidof swaylock || swaylock -f'
+before-sleep '~/.config/quickshell/lock.sh'
