@@ -1,0 +1,73 @@
+{
+  "snippets": [
+    { "name": "Shrug", "keyword": "shrug", "text": "¯\\_(ツ)_/¯" },
+    { "name": "Today", "keyword": "today", "text": "{date}" },
+    { "name": "Timestamp", "keyword": "ts", "text": "{date} {time}" },
+    { "name": "Markdown link", "keyword": "mdl", "text": "[{cursor}]({clipboard})" }
+  ],
+  "quicklinks": [
+    { "name": "YouTube", "keyword": "yt", "home": "https://www.youtube.com/", "url": "https://www.youtube.com/results?search_query={query}" },
+    { "name": "GitHub", "keyword": "gh", "home": "https://github.com/", "url": "https://github.com/search?q={query}" },
+    { "name": "Arch Wiki", "keyword": "aw", "home": "https://wiki.archlinux.org/", "url": "https://wiki.archlinux.org/index.php?search={query}" },
+    { "name": "Claude", "keyword": "cl", "home": "https://claude.ai/new", "url": "https://claude.ai/new?q={query}" },
+    { "name": "WhatsApp", "keyword": "wa", "url": "https://web.whatsapp.com/" },
+    { "name": "Semantic Scholar", "keyword": "ss", "home": "https://www.semanticscholar.org/", "url": "https://www.semanticscholar.org/search?q={query}", "open": ["zen-browser", "-P", "Inaoe"] },
+    { "name": "DBLP", "keyword": "dblp", "home": "https://dblp.org/", "url": "https://dblp.org/search?q={query}", "open": ["zen-browser", "-P", "Inaoe"] },
+    { "name": "IEEE Xplore", "keyword": "ieee", "home": "https://ieeexplore.ieee.org/Xplore/home.jsp", "url": "https://ieeexplore.ieee.org/search/searchresult.jsp?queryText={query}", "open": ["zen-browser", "-P", "Inaoe"] },
+    {
+      "name": "Science",
+      "keyword": "sci",
+      "open": ["zen-browser", "-P", "Inaoe"],
+      "urls": [
+        "https://ieeexplore.ieee.org/Xplore/home.jsp",
+        "https://www.sciencedirect.com",
+        "https://link.springer.com",
+        "https://dl.acm.org",
+        "https://dblp.org/search",
+        "https://core.ac.uk",
+        "https://openalex.org",
+        "https://incitefulmed.com/academic/",
+        "https://research.ebsco.com",
+        "https://onlinelibrary.wiley.com",
+        "https://www.semanticscholar.org",
+        "https://www.scopus.com/search/form.uri?display=basic#basic",
+        "https://www.webofscience.com/wos/woscc/basic-search",
+        "https://storm.genie.stanford.edu",
+        "https://jcr.clarivate.com/jcr/home",
+        "https://www.base-search.net",
+        "https://zenodo.org",
+        "https://europepmc.org",
+        "https://fabian-beck.github.io/pure-suggest",
+        "https://www.tandfonline.com"
+      ]
+    },
+    {
+      "name": "AI Chats",
+      "keyword": "ia",
+      "urls": [
+        "https://grok.com/",
+        "https://gemini.google.com/app?hl=es",
+        "https://chat.qwen.ai/",
+        "https://chat.openai.com/",
+        "https://claude.ai/new",
+        "https://chat.minimax.io/",
+        "https://chat.mistral.ai/chat",
+        "https://duck.ai/",
+        "https://chat.deepseek.com",
+        "https://www.kimi.com/",
+        "https://copilot.cloud.microsoft/",
+        "https://www.dola.com/chat"
+      ]
+    },
+    { "name": "Streaming", "keyword": "stream", "url": "https://entrepeliculasyseries.nz/" }
+  ],
+  "aiCommands": [
+    { "name": "Fix Spelling and Grammar", "output": "paste", "prompt": "Fix the spelling and grammar of the text. Keep its language, meaning and formatting. Return only the corrected text." },
+    { "name": "Improve Writing", "output": "paste", "prompt": "Improve the clarity and flow of the text without changing its meaning or language. Return only the improved text." },
+    { "name": "Make Shorter", "output": "paste", "prompt": "Make the text shorter while keeping its meaning and language. Return only the shortened text." },
+    { "name": "Translate to English", "output": "paste", "prompt": "Translate the text to English. Return only the translation." },
+    { "name": "Traducir al español", "output": "paste", "prompt": "Traduce el texto al español. Devuelve solo la traducción." },
+    { "name": "Summarize", "output": "show", "prompt": "Summarize the text in a few bullet points, in the text's own language." },
+    { "name": "Explain Code", "output": "show", "prompt": "Explain what this code does, step by step and concisely." }
+  ]
+}

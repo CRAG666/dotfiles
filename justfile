@@ -7,7 +7,7 @@ export GOPATH := home
 hypr_pkgs := "hyprland xdg-desktop-portal-hyprland hyprland-guiutils hyprland-qt-support hyprsunset hyprtoolkit hyprutils"
 
 # AUR: xdg-desktop-portal-termfilechooser-hunkyburrito-git
-wayland_pkgs := "wtype wl-clipboard swayidle rofi qt6-wayland kitty egl-wayland cliphist greetd-regreet xdg-desktop-portal-termfilechooser-hunkyburrito-git xdg-desktop-portal-gtk dunst awww quickshell mate-polkit nwg-look"
+wayland_pkgs := "wtype wl-clipboard swayidle rofi qt6-wayland kitty egl-wayland cliphist greetd-regreet xdg-desktop-portal-termfilechooser-hunkyburrito-git xdg-desktop-portal-gtk dunst awww quickshell python-lz4 mate-polkit nwg-look"
 
 # AUR: sway-scroll
 scroll_pkgs := "sway-scroll xdg-desktop-portal-wlr"
