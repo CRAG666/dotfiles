@@ -12,6 +12,7 @@ set $right L
 # Rofi / Dunst / TUI helpers
 set $term kitty -1
 set $ROFI_SCRIPTS ~/.config/rofi/run.sh
+set $spotlight ~/.config/quickshell/spotlight.sh
 set $DUNST_SCRIPTS ~/.config/dunst
 set $RUN_TUI_DIALOG $term --class dialog
 
@@ -46,7 +47,7 @@ lua $lua_scripts/grid_NxM.lua
 # lua $lua_scripts/grid.lua enable 3
 
 # Auto-marks by app_id (firefox->b, nvim->e, yazi->f, btop->s, ...).
-# Jump to them with $mod+apostrophe (rofi mark switcher).
+# Jump to them with $mod+apostrophe (Spotlight's marks view).
 lua $lua_scripts/auto_marks.lua
 
 # Hide kitty when open mpv
@@ -410,8 +411,8 @@ animations {
     bindsym --no-repeat $mod+Shift+p pin end
 
     # Marks
-    bindsym $mod+m exec ~/.config/scroll/scroll-mark-toggle.sh
-    bindsym $mod+apostrophe exec ~/.config/scroll/scroll-mark-switch.sh
+    bindsym $mod+m exec $spotlight toggle-mark
+    bindsym $mod+apostrophe exec $spotlight marks
 
     # bindsym $mod+Mod1+h exec scrollmsg output DP-1 hdr toggle && rm -f "${XDG_RUNTIME_DIR:-/tmp}/ddc-brightness.bus"
 
@@ -643,25 +644,25 @@ bindsym Alt+space exec ~/.config/quickshell/lock.sh
 
 bindsym $mod+Return exec $term
 
-bindsym $mod+BackSpace exec pkill rofi || $ROFI_SCRIPTS powermenu
+bindsym $mod+BackSpace exec $spotlight commands
 
 # Clipboard
-bindsym $mod+v exec pkill rofi || $ROFI_SCRIPTS clipboard
-bindsym XF86Launch6 exec pkill rofi || $ROFI_SCRIPTS clipboard
+bindsym $mod+v exec $spotlight clipboard
+bindsym XF86Launch6 exec $spotlight clipboard
 
 bindsym XF86Mail exec $term -T aerc aerc # x + o
 bindsym XF86Search exec $BROWSER # x + i
 
 # Launchers
-bindsym XF86Launch7 exec pkill rofi || $ROFI_SCRIPTS menu run # F16
-bindsym $mod+space exec pkill rofi || $ROFI_SCRIPTS menu drun
-bindsym XF86Open exec pkill rofi || $ROFI_SCRIPTS launcher
-bindsym Find exec pkill rofi || $ROFI_SCRIPTS menu window # x + ;
+bindsym XF86Launch7 exec $spotlight run # F16
+bindsym $mod+space exec $spotlight
+bindsym XF86Open exec qs kill -p ~/.config/quickshell/launcher.qml || qs -n -p ~/.config/quickshell/launcher.qml #; + G
+bindsym Find exec $spotlight windows # x + ;
 
 # Tools / Bookmarks
 bindsym XF86Tools exec pkill rofi || $ROFI_SCRIPTS apps # F13 / + A
-bindsym XF86Favorites exec pkill rofi || $ROFI_SCRIPTS bookmarks # ; + B
-bindsym $mod+b exec pkill rofi || $ROFI_SCRIPTS quicklinks
+bindsym XF86Favorites exec $spotlight bookmarks # ; + B
+bindsym $mod+b exec $spotlight quicklinks
 
 # WiFi / Bluetooth / File manager / Volume control
 bindsym XF86Launch5 exec $RUN_TUI_DIALOG -T wiremix wiremix # F14 / + V
@@ -670,8 +671,8 @@ bindsym XF86Launch9 exec $RUN_TUI_DIALOG -T bluetui bluetui # F18 / + B
 bindsym XF86Explorer exec $RUN_TUI_DIALOG -T yazi yazi # / + G
 
 # Credentials / Notes
-bindsym $mod+c exec pkill rofi || $ROFI_SCRIPTS passman
-bindsym $mod+n exec pkill rofi || $ROFI_SCRIPTS notes
+bindsym $mod+c exec $spotlight passwords
+bindsym $mod+n exec $spotlight notes
 
 bindsym $mod+Mod1+w exec pkill rofi || ~/.config/awww/awwwallselect.sh
 
