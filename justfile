@@ -127,7 +127,7 @@ system-config:
 # Install Arch Linux packages and apply base system configuration
 install: makepkg-conf bootstrap-paru install-repo install-aur system-config nftables
 
-# Print "<source>\t<link>" for every symlink of a group: home, config, bin, systemd, harness
+# Print "<source>\t<link>" for every symlink of a group: home, config, bin, data, systemd, harness
 [private]
 links group:
     #!/usr/bin/env bash
@@ -144,6 +144,10 @@ links group:
         bin)
             find "{{ src }}/local/bin" -mindepth 1 -maxdepth 1 ! -name ".*" \
                 -printf "%p\t$HOME/.local/bin/%f\n" ;;
+        data)
+            # eyes-theme reads its manifest from the repo, so it is not linked
+            find "{{ src }}/local/share" -mindepth 1 -maxdepth 1 -type d ! -name eyes-theme \
+                -printf "%p\t$HOME/.local/share/%f\n" ;;
         systemd)
             find "{{ src }}/config/systemd/user" -maxdepth 1 -type f \
                 \( -name '*.service' -o -name '*.timer' -o -name '*.target' \) \
@@ -186,10 +190,10 @@ unlink group:
     done
 
 # Deploy the initial dotfiles
-init: theme systemd-user bin user-tools uosc mpv-assets harness (link "home") (link "config")
+init: theme systemd-user bin user-tools uosc mpv-assets harness (link "home") (link "config") (link "data")
 
-# Remove symlinks created by init/bin/systemd-user/harness (only if they point into this repo)
-rollback: (unlink "home") (unlink "config") (unlink "bin") (unlink "systemd") (unlink "harness")
+# Remove symlinks created by init/bin/systemd-user/harness/data (only if they point into this repo)
+rollback: (unlink "home") (unlink "config") (unlink "bin") (unlink "data") (unlink "systemd") (unlink "harness")
     #!/usr/bin/env bash
     set -eu
     systemctl --user daemon-reload || true

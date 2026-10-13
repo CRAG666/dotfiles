@@ -1,6 +1,6 @@
 .gitconfig filter=git-crypt diff=git-crypt
-config/rofi/text/bookmarks.db filter=git-crypt diff=git-crypt
-config/rofi/text/notes.db filter=git-crypt diff=git-crypt
+local/share/spotlight/bookmarks.db filter=git-crypt diff=git-crypt
+local/share/spotlight/notes.db filter=git-crypt diff=git-crypt
 
 .scripts/vpn filter=git-crypt diff=git-crypt
 .scripts/vpn-cookie filter=git-crypt diff=git-crypt

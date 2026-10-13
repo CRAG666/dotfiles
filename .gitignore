@@ -564,6 +564,11 @@ config/awww/wall.ctl
 config/awww/wall.set
 config/quickshell/theme.state
 
+# spotlight — sqlite scratch files next to the git-crypt'd databases
+local/share/spotlight/*-journal
+local/share/spotlight/*-wal
+local/share/spotlight/*-shm
+
 # termusic — regenerable db/cache
 config/termusic/*.db
 config/termusic/*.db-wal
