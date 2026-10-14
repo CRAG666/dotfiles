@@ -7,12 +7,12 @@ export GOPATH := home
 hypr_pkgs := "hyprland xdg-desktop-portal-hyprland hyprland-guiutils hyprland-qt-support hyprsunset hyprtoolkit hyprutils"
 
 # AUR: xdg-desktop-portal-termfilechooser-hunkyburrito-git
-wayland_pkgs := "wtype wl-clipboard swayidle qt6-wayland kitty egl-wayland cliphist xdg-desktop-portal-termfilechooser-hunkyburrito-git xdg-desktop-portal-gtk dunst awww quickshell python-lz4 mate-polkit nwg-look"
+wayland_pkgs := "wtype wl-clipboard swayidle qt6-wayland kitty cliphist xdg-desktop-portal-termfilechooser-hunkyburrito-git xdg-desktop-portal-gtk dunst awww quickshell mate-polkit nwg-look"
 
 # AUR: sway-scroll
 scroll_pkgs := "sway-scroll xdg-desktop-portal-wlr"
 
-nvidia_pkgs := "nvidia nvidia-prime nvidia-settings nvidia-utils cuda nvtop libva-nvidia-driver opencl-nvidia nvidia-container-toolkit"
+nvidia_pkgs := "nvidia egl-wayland nvidia-prime nvidia-settings nvidia-utils cuda nvtop libva-nvidia-driver opencl-nvidia nvidia-container-toolkit"
 
 laptop_intel_pkgs := "intel-gpu-tools intel-media-driver intel-ucode vulkan-intel"
 
@@ -23,6 +23,10 @@ laptop_pkgs := "thermald"
 
 # zcfan
 thinkpad_pkgs := "throttled"
+
+p53_firmware := "linux-firmware-intel linux-firmware-nvidia linux-firmware-realtek linux-firmware-other linux-firmware-whence"
+
+l14_firmware := "linux-firmware-amd linux-firmware-amdgpu linux-firmware-mediatek linux-firmware-realtek linux-firmware-other linux-firmware-whence"
 
 systemd_enable := "sudo systemctl --now enable"
 systemd_enable_user := "systemctl --user --now enable"
@@ -586,10 +590,21 @@ clean:
     @podman stop maketest 2>/dev/null || true
     @podman rm maketest 2>/dev/null || true
 
+# Keep only the given firmware (marked explicit) and drop the linux-firmware meta with the rest
+[private]
+firmware *pkgs:
+    #!/usr/bin/env bash
+    set -eu
+    just install-pkgs {{ pkgs }}
+    if pacman -Q linux-firmware >/dev/null 2>&1; then
+        echo "==> Removing the linux-firmware meta and the firmware this machine does not use..."
+        sudo pacman -Rns --noconfirm linux-firmware
+    fi
+
 # Install for ThinkPad P53 with NVIDIA (server SSH + wayvnc)
-p53: install init thinkpad laptop-intel nvidia dns tailscale ssh wayvnc
+p53: install init thinkpad laptop-intel nvidia dns tailscale ssh wayvnc (firmware p53_firmware)
     sudo install -Dm 644 "{{ src }}/etc/greetd/P53.png" /etc/greetd/laptop.png
 
 # Install for ThinkPad L14 Gen 4 (Ryzen 5, + client VNC)
-l14: install init thinkpad-amd dns tailscale vncviewer
+l14: install init thinkpad-amd dns tailscale vncviewer (firmware l14_firmware)
     sudo install -Dm 644 "{{ src }}/etc/greetd/L14_Gen4.png" /etc/greetd/laptop.png

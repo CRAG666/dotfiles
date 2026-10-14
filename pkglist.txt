@@ -12,7 +12,6 @@ ddcutil
 playerctl
 impala
 bluetui
-udisks2
 power-profiles-daemon
 
 # ZSH
@@ -32,7 +31,6 @@ eza
 git
 git-crypt
 git-filter-repo
-ttyper
 rsync
 prettyping
 bob
@@ -60,7 +58,6 @@ jujutsu
 
 # Monitoring
 btop
-htop
 fastfetch
 duf
 progress
@@ -80,6 +77,9 @@ noto-fonts-emoji
 
 # Basic
 python
+python-lz4
+libnotify
+rust
 
 # Text edition
 tree-sitter
@@ -91,6 +91,7 @@ zathura-pdf-mupdf
 
 # Communication
 aerc
+w3m
 
 # Download
 nicotine+
@@ -130,7 +131,6 @@ grim
 slurp
 hunspell-en_us
 hunspell-es_mx
-gnome-disk-utility
 acpi
 syncthing
 sshpass
