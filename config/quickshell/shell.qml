@@ -4,6 +4,7 @@ import Quickshell.Wayland
 import QtQuick
 import qs.notifications
 import qs.osd
+import qs.auth
 
 // One fullscreen, transparent, click-through surface per monitor, pinned to
 // the bottom layer (above the wallpaper, behind every window — conky-like).
@@ -13,6 +14,7 @@ import qs.osd
 ShellRoot {
     Notifications {}
     Osd {}
+    Auth {}
 
     Variants {
         model: Quickshell.screens

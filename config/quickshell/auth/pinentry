@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# gpg-agent's pinentry (pinentry-program in ~/.gnupg/gpg-agent.conf): speaks
+# Assuan on stdin/stdout and asks Quickshell's auth sheet (Auth.qml) for the
+# passphrase, which comes back through a private fifo, never argv. Without a
+# running shell (a tty, ssh) it hands over to the stock pinentry.
+qs ipc show 2>/dev/null | grep -q '^target pinentry' || exec /usr/bin/pinentry "$@"
+
+dir=$(mktemp -d "${XDG_RUNTIME_DIR:-/tmp}/pinentry.XXXXXX") || exit 1
+fifo=$dir/reply
+mkfifo -m 600 "$fifo" || exit 1
+trap 'qs ipc call pinentry close "$fifo" >/dev/null 2>&1; rm -rf "$dir"' EXIT
+trap 'exit 1' INT TERM
+
+cancelled="ERR 83886179 Operation cancelled <Pinentry>"
+
+decode() {
+    local value=${1//\\/\\\\}
+    printf '%b' "${value//%/\\x}"
+}
+
+encode() {
+    local value=${1//%/%25}
+    value=${value//$'\r'/%0D}
+    printf '%s' "${value//$'\n'/%0A}"
+}
+
+title='' desc='' prompt='' error=''
+echo "OK Pleased to meet you"
+while IFS= read -r line; do
+    arg=
+    [[ $line == *" "* ]] && arg=$(decode "${line#* }")
+    case ${line%% *} in
+        SETTITLE) title=$arg ;;
+        SETDESC) desc=$arg ;;
+        SETPROMPT) prompt=$arg ;;
+        SETERROR) error=$arg ;;
+        GETINFO) [[ $arg == pid ]] && echo "D $$" ;;
+        GETPIN)
+            if ! qs ipc call pinentry ask "$fifo" "$title" "$desc" "$prompt" "$error" >/dev/null 2>&1; then
+                echo "$cancelled"
+                continue
+            fi
+            error=
+            IFS= read -r reply <"$fifo"
+            if [[ $reply != +* ]]; then
+                echo "$cancelled"
+                continue
+            fi
+            echo "D $(encode "${reply#+}")"
+            ;;
+        CONFIRM)
+            echo "$cancelled"
+            continue
+            ;;
+        BYE)
+            echo "OK closing connection"
+            exit
+            ;;
+    esac
+    echo OK
+done
