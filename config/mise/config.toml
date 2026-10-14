@@ -28,7 +28,6 @@ uv = "latest"
 yq = "latest"
 "npm:@firecrawl/anydoc" = "latest"
 "github:canta2899/logo-ls" = "latest"
-jq = "latest"
 typst = "latest"
 "pipx:notebooklm-py" = { version = "latest", extras = "browser" }
 
