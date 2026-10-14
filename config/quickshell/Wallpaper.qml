@@ -41,8 +41,16 @@ Singleton {
         return best;
     }
     readonly property color tint: Qt.hsla(Math.max(0, vivid.hslHue), Math.min(vivid.hslSaturation, 0.6), 0.8, 1)
-    // same hue at mid lightness: a selection fill that carries white text
-    readonly property color accent: Qt.hsla(Math.max(0, vivid.hslHue), Math.min(Math.max(vivid.hslSaturation, 0.45), 0.75), 0.5, 1)
+    // same hue at mid lightness: a selection fill that carries white text; at
+    // full strength it shouts on the dark glass, so it is calmed there
+    readonly property color accent: Theme.eyesDark
+        ? Qt.hsla(Math.max(0, vivid.hslHue), Math.min(Math.max(vivid.hslSaturation, 0.45), 0.55), 0.42, 1)
+        : Qt.hsla(Math.max(0, vivid.hslHue), Math.min(Math.max(vivid.hslSaturation, 0.45), 0.75), 0.5, 1)
+    // the macOS-like popups' glass, seen over the blurred wallpaper (Theme
+    // holds the rest of their palette)
+    readonly property color glass: Theme.eyesDark
+        ? Qt.alpha(Qt.tint(Qt.rgba(0.11, 0.11, 0.12, 1), Qt.alpha(tint, 0.08)), 0.9)
+        : Qt.alpha(Qt.tint(Qt.rgba(0.96, 0.96, 0.97, 1), Qt.alpha(tint, 0.18)), 0.68)
 
     ColorQuantizer {
         id: palette

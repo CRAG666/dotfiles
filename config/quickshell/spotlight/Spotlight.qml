@@ -29,9 +29,9 @@ Scope {
         readonly property bool dark: Theme.eyesDark
         readonly property color ink: Theme.ink
         readonly property color inkSoft: Theme.inkSoft
-        readonly property color glass: Theme.glass
+        readonly property color glass: Wallpaper.glass
         readonly property color hairline: Theme.hairline
-        readonly property color accent: Theme.accent
+        readonly property color accent: Wallpaper.accent
 
         // `chip`: listed in the bar, reachable with Ctrl+1..7 and Tab; `alias`
         // plus a space opens the view ("hr " → Herdr); `open` loads what it shows;

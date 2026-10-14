@@ -127,7 +127,7 @@ Item {
                 textFormat: Text.StyledText
                 text: (card.notification?.body ?? "").replace(/\n/g, "<br>")
                 color: Theme.ink
-                linkColor: Theme.accent
+                linkColor: Wallpaper.accent
                 font.family: Theme.menuText
                 font.pixelSize: Math.round(13 * card.u)
                 renderType: Text.NativeRendering
@@ -149,7 +149,7 @@ Item {
                         width: parent.width * Math.max(0, Math.min(100, card.progress ?? 0)) / 100
                         height: parent.height
                         radius: parent.radius
-                        color: Theme.accent
+                        color: Wallpaper.accent
                     }
                 }
             }
@@ -212,7 +212,7 @@ Item {
             width: Math.round(20 * card.u)
             height: width
             radius: width / 2
-            color: Theme.glass
+            color: Wallpaper.glass
             border.width: 1
             border.color: Theme.hairline
             opacity: hover.hovered && !card.alert ? 1 : 0
