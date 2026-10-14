@@ -7,7 +7,7 @@ export GOPATH := home
 hypr_pkgs := "hyprland xdg-desktop-portal-hyprland hyprland-guiutils hyprland-qt-support hyprsunset hyprtoolkit hyprutils"
 
 # AUR: xdg-desktop-portal-termfilechooser-hunkyburrito-git
-wayland_pkgs := "wtype wl-clipboard swayidle qt6-wayland kitty cliphist xdg-desktop-portal-termfilechooser-hunkyburrito-git xdg-desktop-portal-gtk dunst awww quickshell mate-polkit nwg-look"
+wayland_pkgs := "wtype wl-clipboard swayidle qt6-wayland kitty cliphist xdg-desktop-portal-termfilechooser-hunkyburrito-git xdg-desktop-portal-gtk libnotify awww quickshell mate-polkit nwg-look"
 
 # AUR: sway-scroll
 scroll_pkgs := "sway-scroll xdg-desktop-portal-wlr"
@@ -83,6 +83,11 @@ install-pkgs *pkgs:
 makepkg-conf:
     sudo install -Dm 644 "{{ src }}/etc/makepkg.conf.d/zz-native.conf" /etc/makepkg.conf.d/zz-native.conf
 
+# Install the fontconfig rule that repairs the Apple fonts' family names
+fonts:
+    sudo install -Dm 644 "{{ src }}/etc/fonts/conf.d/50-apple-family-names.conf" /etc/fonts/conf.d/50-apple-family-names.conf
+    sudo fc-cache -fs
+
 # Ensure paru is installed and sync databases are fresh
 [private]
 bootstrap-paru:
@@ -129,7 +134,7 @@ system-config:
     command -v bob >/dev/null 2>&1 && bob use nightly || echo "bob not installed, skipping..."
 
 # Install Arch Linux packages and apply base system configuration
-install: makepkg-conf bootstrap-paru install-repo install-aur system-config nftables
+install: makepkg-conf bootstrap-paru install-repo install-aur fonts system-config nftables
 
 # Print "<source>\t<link>" for every symlink of a group: home, config, bin, data, systemd, harness
 [private]

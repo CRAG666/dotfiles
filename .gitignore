@@ -617,7 +617,6 @@ config/xdg-desktop-portal-termfilechooser/.last_selected
 /config/termusic/themes/eyes-active.yml
 /config/zathura/eyes-activerc
 /config/foot/colors.ini
-/config/dunst/dunstrc.d/50-colors.conf
 /config/shell/colors.env
 /config/scroll/colors.conf
 /config/nushell/theme.nu

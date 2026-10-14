@@ -1,5 +1,5 @@
 :root {
-  --font: "DankMono Nerd Font Mono";
+  --font: "SFMono Nerd Font Mono";
   /* vimium theme uses colors: flamingo, peach, rosewater, green, blue, lavender */
   --tridactyl-fg: var(--fg);
   --tridactyl-bg: var(--bg);

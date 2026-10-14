@@ -1,6 +1,9 @@
+//@ pragma IconTheme Macjaro
 import Quickshell
 import Quickshell.Wayland
 import QtQuick
+import qs.notifications
+import qs.osd
 
 // One fullscreen, transparent, click-through surface per monitor, pinned to
 // the bottom layer (above the wallpaper, behind every window — conky-like).
@@ -8,6 +11,9 @@ import QtQuick
 // anchored inside and scale with `u = screen height / 1440`, so the layout
 // adapts to any resolution.
 ShellRoot {
+    Notifications {}
+    Osd {}
+
     Variants {
         model: Quickshell.screens
 

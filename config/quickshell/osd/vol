@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# vol up | down | mute | mic | mic-led
+# Changes the volume or the microphone; the HUD (Osd.qml) follows PipeWire and
+# shows every change on its own.
+
+# mic-mute LED, writable once etc/udev/rules.d/99-micmute-led.rules is installed
+mic_led() {
+	led=/sys/class/leds/platform::micmute/brightness
+	[ -w "$led" ] && echo "$1" >"$led"
+	return 0
+}
+
+case $1 in
+up)
+	wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+ >/dev/null
+	;;
+down)
+	wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%- >/dev/null
+	;;
+mute)
+	# Toggle mute
+	wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+	exit 0
+	;;
+mic)
+	wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+	if wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | grep -q MUTED; then mic_led 1; else mic_led 0; fi
+	exit 0
+	;;
+mic-led)
+	# at login: WirePlumber restores the mute, the LED starts off
+	if wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | grep -q MUTED; then mic_led 1; else mic_led 0; fi
+	exit 0
+	;;
+*)
+	exit 0
+	;;
+esac
+
+# in the background: pw-play blocks for the wav's length (~380 ms)
+pw-play ~/.config/quickshell/osd/vol.wav >/dev/null 2>&1 &

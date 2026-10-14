@@ -5,7 +5,7 @@
 # Suppress built-in key bindings, and specify them explicitly in this
 # config file.
 suppress_default_binds = true
-overlay_font = GoMono Nerd Font:10
+overlay_font = SFMono Nerd Font Mono:10
 
 [aliases]
 # Define aliases here. Any arguments passed to an alias are appended to the

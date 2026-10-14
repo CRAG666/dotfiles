@@ -81,8 +81,7 @@ Column {
         text: root.ordinal(root.now.getDate())
         color: Theme.orange(root.dark)
         font.family: Theme.cursive
-        font.italic: true
-        font.pixelSize: 62 * u
+        font.pixelSize: 88 * u
     }
 
     WText {

@@ -11,8 +11,8 @@ set $up    K
 set $right L
 # Dunst / TUI helpers
 set $term kitty -1
-set $spotlight ~/.config/quickshell/spotlight.sh
-set $DUNST_SCRIPTS ~/.config/dunst
+set $spotlight ~/.config/quickshell/spotlight/spotlight.sh
+set $vol ~/.config/quickshell/osd/vol
 set $RUN_TUI_DIALOG $term --class dialog
 
 ### Startup execs
@@ -31,7 +31,7 @@ exec systemctl --user start podman.socket
 exec ~/Git/selfhost/instances.sh
 exec ~/.scripts/check_battery.sh
 exec swayidle -w
-exec $DUNST_SCRIPTS/vol mic-led
+exec $vol mic-led
 exec ~/.config/scroll/brightness.sh init
 exec ~/.config/scroll/brightness-hotplug.sh
 exec rfkill block bluetooth
@@ -61,10 +61,10 @@ exec gsettings set org.gnome.desktop.interface cursor-size $CURSORSIZE
 exec gsettings set org.gnome.desktop.interface icon-theme 'Macjaro'
 exec gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita'
 
-exec gsettings set org.gnome.desktop.interface font-name 'SFPro Nerd Font Propo Text 14'
-exec gsettings set org.gnome.desktop.interface document-font-name 'SFPro Nerd Font Propo Text 14'
+exec gsettings set org.gnome.desktop.interface font-name 'SFProText Nerd Font Propo 14'
+exec gsettings set org.gnome.desktop.interface document-font-name 'SFProText Nerd Font Propo 14'
 exec gsettings set org.gnome.desktop.interface monospace-font-name 'SFMono Nerd Font Mono 13'
-exec gsettings set org.gnome.desktop.wm.preferences titlebar-font 'SFPro Nerd Font Propo Display 15'
+exec gsettings set org.gnome.desktop.wm.preferences titlebar-font 'SFProText Nerd Font Propo Bold 15'
 
 exec gsettings set org.gnome.desktop.interface font-antialiasing 'rgba'
 exec gsettings set org.gnome.desktop.interface font-hinting 'full'
@@ -72,7 +72,7 @@ exec gsettings set org.gnome.desktop.wm.preferences button-layout :
 
 seat seat0 xcursor_theme Adwaita $CURSORSIZE
 
-font pango:SFPro Nerd Font Propo Display 14
+font pango:SFProText Nerd Font Propo 14
 
 ### Outputs
 
@@ -682,16 +682,16 @@ bindsym $mod+Mod1+w exec $spotlight wallpapers
 # =============================================================================
 
 # Volume
-bindsym --locked XF86AudioRaiseVolume exec $DUNST_SCRIPTS/vol up
-bindsym --locked XF86AudioLowerVolume exec $DUNST_SCRIPTS/vol down
-bindsym --locked XF86AudioMute        exec $DUNST_SCRIPTS/vol mute
+bindsym --locked XF86AudioRaiseVolume exec $vol up
+bindsym --locked XF86AudioLowerVolume exec $vol down
+bindsym --locked XF86AudioMute        exec $vol mute
 bindsym XF86AudioPreset               exec pwvucontrol
 
 # Playback
 bindsym --locked XF86AudioPrev  exec playerctl previous
 bindsym --locked XF86AudioNext  exec playerctl next
 bindsym --locked XF86AudioPlay  exec playerctl --all-players play-pause
-bindsym --locked XF86AudioMicMute exec $DUNST_SCRIPTS/vol mic
+bindsym --locked XF86AudioMicMute exec $vol mic
 
 # Caffeine: stop swayidle = no auto-lock/DPMS; lid lock (bindswitch) still applies
 bindsym $mod+Shift+c exec 'if pkill swayidle; then notify-send -t 2000 "Caffeine on"; else swayidle -w & notify-send -t 2000 "Caffeine off"; fi'
@@ -727,8 +727,8 @@ bindgesture swipe:4:down scale_workspaces toggle
 bindgesture pinch:3:outward scale_workspace incr 0.05
 bindgesture pinch:3:inward scale_workspace incr -0.05
 # Volume via rotation
-bindgesture pinch:clockwise exec $DUNST_SCRIPTS/vol up
-bindgesture pinch:counterclockwise exec $DUNST_SCRIPTS/vol down
+bindgesture pinch:clockwise exec $vol up
+bindgesture pinch:counterclockwise exec $vol down
 
 # Window rules
 for_window [app_id="dialog"] floating enable, resize set 80ppt 80ppt

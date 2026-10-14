@@ -86,10 +86,6 @@ switch = [{ pointer = "config/foot/colors.ini", light = "colors.eyes.ini", dark 
 wired = [{ file = "config/foot/foot.ini", pattern = 'colors\.ini' }]
 reload = [{ process = "foot", signal = "SIGUSR1" }]
 
-[apps.dunst]
-switch = [{ pointer = "config/dunst/dunstrc.d/50-colors.conf", light = "../colors.eyes.conf", dark = "../colors.eyes-dark.conf", generate = "hash" }]
-reload = [{ process = "dunst", run = ["dunstctl", "reload"] }]
-
 [apps.tmux]
 switch = [{ pointer = ".tmux.colors.conf", light = ".tmux.colors.eyes.conf", dark = ".tmux.colors.eyes-dark.conf", generate = "hash" }]
 wired = [{ file = ".tmux.conf", pattern = 'tmux\.colors\.conf' }]

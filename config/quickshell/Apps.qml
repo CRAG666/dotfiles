@@ -2,6 +2,7 @@ pragma Singleton
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import qs.spotlight
 
 // App search for spotlight.qml and launcher.qml, matching like rofi's drun: every
 // whitespace token must appear (case-insensitive) in the name, generic name,
@@ -11,6 +12,7 @@ import QtQuick
 Singleton {
     id: root
     property var launches: ({})
+    readonly property var indexed: DesktopEntries.applications.values.map(app => ({ app, name: app.name.toLowerCase(), haystack: [app.name, app.genericName, app.execString, ...app.categories, ...app.keywords].join(" ").toLowerCase() }))
 
     FileView {
         id: history
@@ -35,10 +37,8 @@ Singleton {
         const tokens = query.toLowerCase().split(/\s+/).filter(token => token);
         const first = tokens[0] ?? "";
         const ranked = [];
-        for (const app of DesktopEntries.applications.values) {
-            const name = app.name.toLowerCase();
-            const haystack = [name, app.genericName, app.execString, ...app.categories, ...app.keywords].join(" ").toLowerCase();
-            if (!tokens.every(token => haystack.includes(token)))
+        for (const { app, name, haystack } of indexed) {
+            if (!Spot.matchesLowered(haystack, tokens))
                 continue;
             const uses = launches[app.id + ".desktop"] ?? 0;
             const rank = name.startsWith(first) ? 0 : name.includes(first) ? 1 : 2;

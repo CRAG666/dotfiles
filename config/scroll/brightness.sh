@@ -7,7 +7,32 @@ lock="$rt/ddc-brightness.lock"
 # (and ktc-brightness.sh sets the laptop backlight to 0, so it can't act as a proxy).
 levelfile="$rt/ddc-brightness.level"
 
-clamp() { local v=$1; ((v<0)) && v=0; ((v>100)) && v=100; echo "$v"; }
+clamp() { local v=$1 hi=${2:-100}; ((v<0)) && v=0; ((v>hi)) && v=$hi; echo "$v"; }
+
+# The sixteenth step `delta` presses land on from `cur` of `max`. Between two
+# steps the first press only reaches the next one, as on macOS; `tol` absorbs
+# the rounding of values already on a step.
+step_after() {
+    local cur=$1 max=$2 delta=$3 tol=$4
+    if ((delta > 0)); then
+        clamp $(((cur * 16 + tol) / max + delta)) 16
+    else
+        clamp $(((cur * 16 - tol + max - 1) / max + delta)) 16
+    fi
+}
+
+# Shows the level on the Quickshell HUD (quickshell/osd/Osd.qml): the laptop
+# panel's, or the external monitor's $1 while ktc-brightness.sh keeps the panel
+# off. Only builtins guard the write: the pid the HUD left must still be a
+# quickshell holding the fifo open, so it cannot block.
+osd() {
+    local pct pid name fifo="$rt/osd.fifo"
+    pct=$(brightnessctl -m 2>/dev/null | cut -d, -f4)
+    pct=${pct%\%}
+    [[ -n $pct && $pct -gt 0 ]] || pct=$1
+    read -r pid 2>/dev/null < "$fifo.pid" && read -r name 2>/dev/null < "/proc/$pid/comm" &&
+        [[ $name == quickshell && -p $fifo ]] && printf 'brightness %s\n' "$pct" > "$fifo"
+}
 
 # Detects the DDC buses of external monitors by probing a real VCP 10 read
 # and caches the responsive ones in busfile. We don't use `ddcutil detect`: its
@@ -49,7 +74,10 @@ init)
     exit 0
     ;;
 test)
-    [[ $(clamp -5) == 0 && $(clamp 150) == 100 && $(clamp 40) == 40 ]] \
+    [[ $(clamp -5) == 0 && $(clamp 150) == 100 && $(clamp 40) == 40 &&
+        $(step_after 35383 65535 1 16) == 9 && $(step_after 35383 65535 -1 16) == 8 &&
+        $(step_after 40959 65535 1 16) == 11 && $(step_after 40959 65535 -1 16) == 9 &&
+        $(step_after 56 100 1 8) == 10 && $(step_after 56 100 -1 8) == 8 ]] \
         && echo OK || { echo FAIL; exit 1; }
     exit 0
     ;;
@@ -74,7 +102,7 @@ worker() {
     [[ "${buses[0]}" == none ]] && buses=()
     local level=50
     [[ -s $levelfile ]] && read -r level < "$levelfile"
-    local empty=0 n op
+    local empty=0 n
     while :; do
         {
             flock 8
@@ -89,29 +117,35 @@ worker() {
             continue
         fi
         empty=0
-        op=+
-        if [[ $n -lt 0 ]]; then op=-; n=$((-n)); fi
 
-        # brightnessctl scales with the real accumulated delta
-        if [[ $op == + ]]; then
-            brightnessctl s +"${n}%" >/dev/null 2>&1 &
-        else
-            brightnessctl s "${n}%-" >/dev/null 2>&1 &
+        # macOS steps: each press moves 1/16 of the range, snapped to that grid,
+        # so it fills or empties one of the HUD's sixteen segments. The panel is
+        # left alone at 0 while an external monitor is on: ktc-brightness.sh
+        # turned it off; brightnessctl never sets it below 1 itself.
+        local cur max step
+        cur=$(brightnessctl g 2>/dev/null)
+        max=$(brightnessctl m 2>/dev/null)
+        if [[ -n $max ]] && (( cur > 0 || ${#buses[@]} == 0 )); then
+            step=$(step_after "$cur" "$max" "$n" 16)
+            brightnessctl -q s $(( step * max / 16 )) &
         fi
 
         if [[ ${#buses[@]} -gt 0 ]]; then
             local ok=0
+            step=$(step_after "$level" 100 "$n" 8)
             for bus in "${buses[@]}"; do
                 ddcutil --bus "$bus" --skip-ddc-checks --noverify --sleep-multiplier .1 \
-                    setvcp 10 $op $n >/dev/null 2>&1 && ok=1
+                    setvcp 10 $(( (step * 100 + 8) / 16 )) >/dev/null 2>&1 && ok=1
             done
             # Re-detect only if NO bus responded (full disconnect). A
             # monitor without DDC or a one-off timeout is ignored; the rest continue
             # and the failed one is retried on the next keypress.
             [[ $ok -eq 0 ]] && { rm -f "$busfile"; break; }
-            level=$(clamp $((level $op n)))
+            level=$(( (step * 100 + 8) / 16 ))
             echo "$level" > "$levelfile"
         fi
+        wait
+        osd "$level"
     done
 }
 worker &
