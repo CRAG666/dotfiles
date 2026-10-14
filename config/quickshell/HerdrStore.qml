@@ -12,6 +12,8 @@ import QtQuick
 Scope {
     id: root
     property var host
+    property var windows
+    property var files
     readonly property var snapshot: snapshotSource.items[0] ?? null
     readonly property var statusOrder: ["blocked", "done", "working", "idle", "unknown"]
     readonly property var statusLabels: ({ blocked: "Needs input", done: "Done", working: "Working", idle: "Idle", unknown: "Unknown" })
@@ -20,7 +22,7 @@ Scope {
     property string peekText: ""
 
     function load() {
-        snapshotSource.reload();
+        snapshotSource.load();
         sessions.load();
     }
 
@@ -87,7 +89,7 @@ Scope {
     // the Herdr client titles its terminal exactly "<host>: <workspace label>"
     function raiseTerminal() {
         const labels = (snapshot?.workspaces ?? []).map(space => space.label);
-        const terminal = host.openWindows.find(window => Spot.terminals.includes(window.appId) && window.title.indexOf(": ") > 0 && labels.includes(window.title.slice(window.title.indexOf(": ") + 2)));
+        const terminal = windows.list.find(window => Spot.terminals.includes(window.appId) && window.title.indexOf(": ") > 0 && labels.includes(window.title.slice(window.title.indexOf(": ") + 2)));
         if (terminal)
             Quickshell.execDetached(["scrollmsg", `[con_id=${terminal.id}] focus`]);
         else
@@ -119,7 +121,7 @@ Scope {
         }
         host.openForm({
             title: "New Herdr Workspace",
-            fields: [{ key: "cwd", label: "Folder", value: "", options: host.frequentPaths().map(path => path.replace(Spot.home, "~")) }],
+            fields: [{ key: "cwd", label: "Folder", value: "", options: files.frequentPaths.map(path => path.replace(Spot.home, "~")) }],
             submit: values => {
                 const cwd = values.cwd.replace(/^~/, Spot.home);
                 Spot.helperDetached(["herdr", "workspace.create", JSON.stringify({ cwd, label: cwd.split("/").pop(), focus: true })]);
@@ -161,12 +163,14 @@ Scope {
 
     Source {
         id: snapshotSource
+        maxAge: 2000
         command: ["python3", Spot.helper, "herdr", "session.snapshot"]
         parse: output => output.trim() ? [JSON.parse(output).snapshot] : []
     }
 
     Source {
         id: sessions
+        maxAge: 60000
         command: ["herdr", "session", "list", "--json"]
         parse: output => output.trim() ? JSON.parse(output).sessions : []
     }

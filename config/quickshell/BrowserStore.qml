@@ -52,12 +52,14 @@ Scope {
 
     Source {
         id: history
+        maxAge: 60000
         command: ["python3", Spot.helper, "zen-history"]
         parse: output => JSON.parse(output)
     }
 
     Source {
         id: tabs
+        maxAge: 60000
         command: ["python3", Spot.helper, "zen-tabs"]
         parse: output => JSON.parse(output)
     }

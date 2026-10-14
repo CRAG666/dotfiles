@@ -1,152 +1,66 @@
 //@ pragma IconTheme Macjaro
 import Quickshell
 import Quickshell.Io
-import Quickshell.Services.Mpris
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Effects
-import "help.js" as Help
 
-// Spotlight/Raycast-style launcher, opened by spotlight.sh (optionally straight
-// into a mode). One query searches apps (most launched first), open windows,
-// commands, AI commands on the selected text, SSH hosts, snippets, quicklinks,
-// bookmarks, notes, pass entries, GitHub repos, files under ~, inline math and
-// URLs, then offers a quick question to pi or a web search; the selection is
-// previewed on the right. Ctrl+1..8 narrow to apps / files / commands /
-// clipboard / windows / snippets / emoji / passwords; commands open the other
-// views (bookmarks, notes, quicklinks, processes, browser history and tabs,
-// timers, colors, AI commands, run). ":" searches emoji, ">" runs a command,
-// "timer 10m tea" starts a timer. Windows are previewed with grim -T (native
-// ext-image-copy-capture of each toplevel, also off-screen ones).
-// Keys: Tab / Shift+Tab switch views, Up/Down/PageUp/PageDown/Ctrl+Home/Ctrl+End
-// move, Enter runs (Shift+Enter: plain-text paste, Ctrl+Enter: alternate
-// action), Ctrl+K lists every action of the selection, Ctrl+C copies, Ctrl+P
-// pins, Ctrl+X deletes (press twice), Ctrl+E edits, Ctrl+R renames, Ctrl+T
-// cycles the clipboard filter, Ctrl+Up/Down scroll the preview, Right accepts
-// the top hit's completion, Esc steps back, Ctrl+? lists all of this (help.js). Stores (ClipboardStore, ...) own
-// their results: items carry `store`, which describes and activates them.
+// Spotlight/Raycast-style launcher. It stays resident and hidden: spotlight.sh
+// toggles it over IPC, optionally straight into a view, so opening it only
+// maps a ready window. Every store loads its sources the first time a view or
+// a search needs them and keeps them cached between openings (see Source).
+// One query searches apps, windows, Herdr, commands, AI commands, SSH hosts,
+// snippets, bookmarks, notes, passwords, GitHub repos and files, plus inline
+// math, URLs and quicklinks, then offers a question to pi or a web search; the
+// selection is previewed on the right. Each view is an entry of `views`; each
+// kind of result belongs to a store (AppStore, FileStore, ...), which lists,
+// describes and activates its own items. Keys are listed in help.js (Ctrl+?).
 ShellRoot {
     PanelWindow {
         id: win
-
-        readonly property string configDir: Spot.home + "/.config/quickshell"
-        readonly property string webSearch: "https://www.google.com/search?q="
-        readonly property string quickPrompt: "Quick-answer assistant inside a desktop launcher: be brief, use plain Markdown and answer in the user's language."
-        readonly property string transformPrompt: "You transform text inside a desktop launcher. Follow the instruction exactly and return only the result, with no preamble."
+        visible: false
 
         readonly property bool dark: Theme.eyesDark
         readonly property color ink: dark ? "#f5f5f7" : "#1d1d1f"
         readonly property color inkSoft: dark ? Qt.rgba(1, 1, 1, 0.55) : Qt.rgba(0, 0, 0, 0.5)
-        readonly property color glass: dark ? Qt.rgba(0.11, 0.11, 0.12, 0.68) : Qt.rgba(0.96, 0.96, 0.97, 0.68)
+        readonly property color glass: dark ? Qt.rgba(0.11, 0.11, 0.12, 0.68) : Qt.alpha(Qt.tint(Qt.rgba(0.96, 0.96, 0.97, 1), Qt.alpha(Wallpaper.tint, 0.18)), 0.68)
         readonly property color hairline: dark ? Qt.rgba(1, 1, 1, 0.12) : Qt.rgba(0, 0, 0, 0.1)
 
-        readonly property var chips: [
-            { mode: "apps", glyph: "\uf009" },
-            { mode: "files", glyph: "\uf07b" },
-            { mode: "commands", glyph: "\uf0e7" },
-            { mode: "clipboard", glyph: "\uf0ea" },
-            { mode: "windows", glyph: "\uf2d0" },
-            { mode: "snippets", glyph: "\uf121" },
-            { mode: "emoji", glyph: "\uf118" },
-            { mode: "passwords", glyph: "\uf084" }
+        // `chip`: listed in the bar, reachable with Ctrl+1..8 and Tab; `alias`
+        // plus a space opens the view ("hr " → Herdr); `open` loads what it shows
+        readonly property var views: [
+            { mode: "apps", chip: "\uf009", title: "Search Apps", icon: "applications-other", sections: (tokens, raw) => [["Applications", apps.items(raw)]] },
+            { mode: "files", chip: "\uf07b", alias: "fi", title: "Search Files", icon: "folder", open: () => files.load(), sections: tokens => files.sections(tokens, false) },
+            { mode: "commands", chip: "\uf0e7", alias: "cmd", title: "Commands", placeholder: "Search Commands", icon: "system-run", open: () => herdr.load(), sections: tokens => [["Commands", commandItems(tokens)]] },
+            { mode: "clipboard", chip: "\uf0ea", alias: "cb", title: "Clipboard History", placeholder: "Search Clipboard", icon: "edit-paste", open: () => clipboard.load(), sections: tokens => [["Clipboard", clipboard.items(tokens)]] },
+            { mode: "windows", chip: "\uf2d0", alias: "win", title: "Switch Windows", placeholder: "Search Windows", icon: "preferences-system-windows", open: () => windows.load(), sections: tokens => [["Windows", windows.items(tokens, 80)]] },
+            { mode: "snippets", chip: "\uf121", alias: "sn", title: "Search Snippets", icon: "insert-text", sections: tokens => [["Snippets", snippets.snippetItems(tokens)]] },
+            { mode: "emoji", chip: "\uf118", title: "Search Emoji", icon: "face-smile", open: () => snippets.load(), sections: tokens => [["Emoji", snippets.emojiItems(tokens)]] },
+            { mode: "passwords", chip: "\uf084", alias: "pw", title: "Search Passwords", icon: "dialog-password", open: () => passwords.load(), sections: tokens => [["Passwords", passwords.items(tokens)]] },
+            { mode: "bookmarks", alias: "bm", title: "Search Bookmarks", icon: "user-bookmarks", open: () => library.load(), sections: tokens => [["Bookmarks", library.bookmarkItems(tokens)], ["Commands", library.commandItems(["bookmark"])]] },
+            { mode: "notes", alias: "nt", title: "Search Notes", icon: "accessories-text-editor", open: () => library.load(), sections: tokens => [["Notes", library.noteItems(tokens)], ["Commands", library.commandItems(["note"])]] },
+            { mode: "quicklinks", alias: "ql", title: "Quicklinks", placeholder: "Search Quicklinks", icon: "web-browser", sections: (tokens, raw) => [["Quicklinks", web.quicklinkItems(tokens, raw)]] },
+            { mode: "processes", alias: "ps", title: "Kill Process", placeholder: "Search Processes", icon: "utilities-system-monitor", open: () => processes.refresh(), sections: tokens => [["Processes", processes.items(tokens)]] },
+            { mode: "history", alias: "bh", title: "Search Browser History", icon: "web-browser", open: () => browser.loadHistory(), sections: tokens => [["History", browser.historyItems(tokens)]] },
+            { mode: "tabs", alias: "bt", title: "Search Browser Tabs", icon: "web-browser", open: () => browser.loadTabs(), sections: tokens => [["Tabs", browser.tabItems(tokens)]] },
+            { mode: "timers", alias: "tm", title: "Timers", placeholder: "Type a duration: 10m tea", icon: "alarm-clock", sections: (tokens, raw) => [["Timers", timers.items(tokens, raw, true)]] },
+            { mode: "colors", alias: "co", title: "Color History", placeholder: "Search Colors", icon: "color-picker", sections: tokens => [["Colors", colors.items(tokens)]] },
+            { mode: "ai", alias: "ac", title: "AI Commands", placeholder: "Search AI Commands", icon: "", glyph: "✦", sections: tokens => [["AI Commands", ai.commandItems(tokens)]] },
+            { mode: "run", title: "Run Command", placeholder: "Type a command", icon: "system-run", open: () => run.load(), sections: (tokens, raw) => [["Run", run.items(raw, true)]] },
+            { mode: "marks", alias: "mk", title: "Scroll Marks", placeholder: "Search marks or type a new one", icon: "bookmark-new", open: () => windows.reload(), sections: (tokens, raw) => [["Marks", marks.items(tokens, raw)]] },
+            { mode: "herdr", alias: "hr", title: "Herdr", placeholder: "Search Herdr agents and workspaces", icon: "utilities-terminal", open: () => { herdr.load(); windows.load(); files.load(); }, sections: tokens => [["Agents", herdr.agentItems(tokens)], ["Workspaces", herdr.workspaceItems(tokens)], ["Herdr", herdr.commandItems(tokens)]] },
+            { mode: "wallpapers", alias: "wp", title: "Wallpapers", placeholder: "Search Wallpapers", icon: "preferences-desktop-wallpaper", open: () => wallpapers.load(), sections: tokens => [["Wallpapers", wallpapers.items(tokens)]] },
+            { mode: "tools", alias: "tl", title: "Tools", placeholder: "Search Tools", icon: "applications-utilities", sections: tokens => [["Tools", commands.toolItems(tokens)]] },
+            { mode: "help", alias: "?", title: "Spotlight Help", placeholder: "Search shortcuts and features", icon: "help-about", sections: tokens => [["Help", help.items(tokens)]] }
         ]
-        readonly property var placeholders: ({
-            "": "Spotlight Search  ·  Ctrl+? for help",
-            marks: "Search marks or type a new one",
-            herdr: "Search Herdr agents and workspaces",
-            help: "Search shortcuts and features",
-            apps: "Search Apps",
-            files: "Search Files",
-            commands: "Search Commands",
-            clipboard: "Search Clipboard",
-            windows: "Search Windows",
-            snippets: "Search Snippets",
-            emoji: "Search Emoji",
-            passwords: "Search Passwords",
-            bookmarks: "Search Bookmarks",
-            notes: "Search Notes",
-            quicklinks: "Search Quicklinks",
-            processes: "Search Processes",
-            history: "Search Browser History",
-            tabs: "Search Browser Tabs",
-            timers: "Type a duration: 10m tea",
-            colors: "Search Colors",
-            ai: "Search AI Commands",
-            run: "Type a command"
-        })
-        // `alias` plus a space jumps straight to the view ("hr " → Herdr)
-        readonly property var modeCommands: [
-            { mode: "files", alias: "fi", title: "Search Files", icon: "folder" },
-            { mode: "commands", alias: "cmd", title: "Commands", icon: "system-run" },
-            { mode: "clipboard", alias: "cb", title: "Clipboard History", icon: "edit-paste" },
-            { mode: "windows", alias: "win", title: "Switch Windows", icon: "preferences-system-windows" },
-            { mode: "snippets", alias: "sn", title: "Search Snippets", icon: "insert-text" },
-            { mode: "emoji", title: "Search Emoji", icon: "face-smile" },
-            { mode: "passwords", alias: "pw", title: "Search Passwords", icon: "dialog-password" },
-            { mode: "bookmarks", alias: "bm", title: "Search Bookmarks", icon: "user-bookmarks" },
-            { mode: "notes", alias: "nt", title: "Search Notes", icon: "accessories-text-editor" },
-            { mode: "quicklinks", alias: "ql", title: "Quicklinks", icon: "web-browser" },
-            { mode: "processes", alias: "ps", title: "Kill Process", icon: "utilities-system-monitor" },
-            { mode: "history", alias: "bh", title: "Search Browser History", icon: "web-browser" },
-            { mode: "tabs", alias: "bt", title: "Search Browser Tabs", icon: "web-browser" },
-            { mode: "timers", alias: "tm", title: "Timers", icon: "alarm-clock" },
-            { mode: "colors", alias: "co", title: "Color History", icon: "color-picker" },
-            { mode: "ai", alias: "ac", title: "AI Commands", icon: "", glyph: "✦" },
-            { mode: "run", title: "Run Command", icon: "system-run" },
-            { mode: "marks", alias: "mk", title: "Scroll Marks", icon: "bookmark-new" },
-            { mode: "herdr", alias: "hr", title: "Herdr", icon: "utilities-terminal" },
-            { mode: "help", alias: "?", title: "Spotlight Help", icon: "help-about" }
-        ]
-
-        readonly property var commands: [
-            { title: "Lock Screen", icon: "system-lock-screen", command: [configDir + "/lock.sh"] },
-            { title: "Sleep", icon: "system-suspend", command: ["systemctl", "suspend"] },
-            { title: "Hibernate", icon: "system-hibernate", command: ["systemctl", "hibernate"], confirm: true },
-            { title: "Restart", icon: "system-reboot", command: ["systemctl", "reboot"], confirm: true },
-            { title: "Shut Down", icon: "system-shutdown", command: ["systemctl", "poweroff"], confirm: true },
-            { title: "Log Out", icon: "system-log-out", command: ["scrollmsg", "exit"], confirm: true },
-            { title: "Toggle Dark Mode", icon: "weather-clear-night", command: ["eyes-theme", "toggle"] },
-            { title: "Next Wallpaper", icon: "preferences-desktop-wallpaper", command: [Spot.home + "/.config/awww/awwwallpaper.sh", "-n"] },
-            { title: "Toggle Caffeine", icon: "caffeine", command: ["sh", "-c", 'if pkill swayidle; then notify-send -t 2000 "Caffeine on"; else swayidle -w & notify-send -t 2000 "Caffeine off"; fi'] },
-            { title: "Screenshot Area", icon: "applets-screenshooter", command: ["sh", "-c", 'sleep 0.3; grim -g "$(slurp -d)" - | swappy -f -'] },
-            { title: "Screenshot Screen", icon: "applets-screenshooter", command: ["sh", "-c", 'sleep 0.3; grim -o "$(scrollmsg -t get_outputs | jq -r ".[] | select(.focused) | .name")" - | swappy -f -'] },
-            { title: "Empty Trash", icon: "user-trash-full", command: ["gio", "trash", "--empty"], confirm: true },
-            { title: "Edit Snippets, Quicklinks and AI Commands", icon: "accessories-text-editor", command: ["kitty", "-1", "-e", "sh", "-c", '"${EDITOR:-nvim}" "$1"', "sh", configDir + "/spotlight.json"] },
-            { title: "Close Window", icon: "window-close", command: ["scrollmsg", "kill"] },
-            { title: "Toggle Fullscreen", icon: "view-fullscreen", command: ["scrollmsg", "fullscreen", "toggle"] },
-            { title: "Toggle Floating", icon: "window-new", command: ["scrollmsg", "floating", "toggle"] },
-            ...Array.from({ length: 9 }, (_, index) => ({ title: `Move Window to Workspace ${index + 1}`, icon: "go-next", command: ["scrollmsg", "move", "container", "to", "workspace", String(index + 1)] }))
-        ]
-
-        // the password only ever lives in shell variables and pipes, never in argv
-        readonly property string passCopy: `
-pw=$(pass show -- "$1") || { notify-send -u critical "pass" "Could not decrypt $1"; exit 1; }
-pw=$(printf '%s\\n' "$pw" | head -n1)
-printf %s "$pw" | wl-copy --sensitive
-notify-send -i passwordsafe "Password copied for 30 seconds"
-sleep 30
-[ "$(wl-paste -n 2>/dev/null)" = "$pw" ] && wl-copy --clear && notify-send -i passwordsafe "Password cleared from the clipboard"`
-        readonly property string passType: `
-pw=$(pass show -- "$1") || { notify-send -u critical "pass" "Could not decrypt $1"; exit 1; }
-sleep 0.3
-printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
-
-        readonly property var imageTypes: ["png", "jpg", "jpeg", "gif", "webp", "bmp", "svg", "avif"]
-        readonly property var textTypes: ["txt", "md", "qml", "js", "ts", "py", "sh", "rs", "go", "c", "h", "cpp", "json", "toml", "yaml", "yml", "ini", "conf", "lua", "nix", "tex", "csv", "log", "rasi", "css", "html", "xml"]
-
-        readonly property MprisPlayer player: {
-            const players = Mpris.players.values;
-            return players.find(candidate => candidate.isPlaying) ?? players[0] ?? null;
-        }
+        readonly property var chips: views.filter(view => view.chip)
+        readonly property var currentView: views.find(view => view.mode === mode) ?? null
 
         readonly property string clipboardText: clipboardOut.text
-        readonly property var openWindows: windowList.items
         readonly property string selectedText: selectionOut.text
         property var userConfig: ({ snippets: [], quicklinks: [], aiCommands: [] })
-        property var sshHosts: []
-        property string mode: ""   // "" searches everything, else a key of `placeholders`
+        property string mode: ""   // "" searches everything, else the mode of one of `views`
         readonly property string query: search.text.trim()
-        property var files: []
         readonly property var results: collect()
         property int current: -1
         property string selectedKey: ""
@@ -156,7 +70,6 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
         property string notice: ""
         property var actionTarget: null   // the item whose Ctrl+K panel is open
         property string savedQuery: ""
-        property var windowShots: ({})   // foreign toplevel identifier → captured image url
 
         // a form runs its fields one by one through the search field
         property var form: null   // { title, fields: [{ key, label, value, options }], submit: values => closes, closeOnCancel }
@@ -164,10 +77,7 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
         property var formValues: ({})
         readonly property var formField: form ? form.fields[formStep] : null
 
-        property string peekText: ""
-        property string peekMeta: ""
-
-        readonly property string tag: actionTarget ? "Actions" : form ? form.title : mode && !chips.some(chip => chip.mode === mode) ? modeCommands.find(command => command.mode === mode).title.replace(/^Search /, "") : ""
+        readonly property string tag: actionTarget ? "Actions" : form ? form.title : currentView && !currentView.chip ? currentView.title.replace(/^Search /, "") : ""
         readonly property string completion: {
             const top = results[0];
             const typed = search.text;
@@ -176,62 +86,26 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
             return top.title.slice(typed.length) + " — Application";
         }
 
-        Component.onCompleted: {
-            windowList.load();
-            library.load();
-            passwords.load();
-            tailnet.load();
-            frequent.load();
-            homeDirs.load();
-            herdr.load();
-            clipboardNow.running = true;
-            selectionNow.running = true;
-            const requested = Quickshell.env("SPOTLIGHT_MODE") ?? "";
-            if (requested === "mark-add")
-                marks.promptAdd();
-            else if (requested in placeholders)
-                mode = requested;
-        }
+        // the search of everything only needs its sources once something is typed
         onQueryChanged: {
             keepSelection = false;
-            fileSearch.restart();
+            if (mode || !query)
+                return;
+            windows.load();
+            herdr.load();
+            library.load();
+            passwords.load();
+            ssh.load();
+            files.load();
             if (query.length >= 2)
-                repos.load();
+                web.load();
             if (query.startsWith(":"))
-                emoji.load();
+                snippets.load();
         }
+        // currentView may not have caught up with mode yet in here
         onModeChanged: {
             keepSelection = false;
-            fileSearch.restart();
-            switch (mode) {
-            case "clipboard":
-                clipboard.load();
-                break;
-            case "emoji":
-                emoji.load();
-                break;
-            case "processes":
-                processes.refresh();
-                break;
-            case "history":
-                browser.loadHistory();
-                break;
-            case "tabs":
-                browser.loadTabs();
-                break;
-            case "run":
-                executables.load();
-                break;
-            case "windows":
-                captureWindows(windowList.items);
-                break;
-            case "marks":
-                captureWindows(windowList.items.filter(window => window.marks.length));
-                break;
-            case "herdr":
-                herdr.load();
-                break;
-            }
+            views.find(view => view.mode === mode)?.open?.();
         }
         onResultsChanged: {
             const kept = keepSelection ? results.findIndex(item => item.key === selectedKey) : -1;
@@ -239,9 +113,56 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
         }
         onSelectedKeyChanged: refreshPeek()
 
+        IpcHandler {
+            target: "spotlight"
+
+            // `mode`: a view, "mark-add" (ask for a mark for the focused window) or ""
+            function toggle(mode: string): void {
+                if (win.visible)
+                    win.close();
+                else
+                    win.open(mode);
+            }
+        }
+
+        function open(requested) {
+            windows.forget();
+            if (requested === "mark-add")
+                marks.promptAdd();
+            else
+                mode = views.some(view => view.mode === requested) ? requested : "";
+            visible = true;
+            search.forceActiveFocus();
+            fadeIn.restart();
+            clipboardNow.running = true;
+            selectionNow.running = true;
+            Wallpaper.refresh();
+        }
+
+        // everything goes back to an empty search, so the next opening starts clean
+        function close() {
+            visible = false;
+            form = null;
+            actionTarget = null;
+            mode = "";
+            search.text = "";
+            armed = "";
+            notice = "";
+            ai.reset();
+        }
+
         function notify(message) {
             notice = message;
             noticeTimer.restart();
+        }
+
+        function openView(name) {
+            search.text = "";
+            mode = name;
+        }
+
+        function setQuery(text) {
+            search.text = text;
         }
 
         function openForm(spec) {
@@ -268,7 +189,7 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
             form = null;
             search.text = "";
             if (spec.submit(values))
-                Qt.quit();
+                close();
         }
 
         function formItems() {
@@ -287,21 +208,22 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
             return items;
         }
 
+        function actionItems() {
+            const tokens = query.toLowerCase().split(/\s+/).filter(token => token);
+            return (describe(actionTarget).actions ?? [])
+                .filter(([keys, label]) => Spot.matches(label + " " + keys, tokens))
+                .map(([keys, label]) => ({ key: "action:" + keys, kind: "action", section: "Actions · " + actionTarget.title, title: label, hint: keys, shortcut: keys, icon: actionTarget.icon, glyph: actionTarget.glyph, swatch: actionTarget.swatch }));
+        }
+
         // "hr " (an alias and a space) opens that view at once; "?" opens the help
         function jumpToAlias(text) {
             if (mode || form || actionTarget)
                 return;
             const typed = text === "?" ? "? " : text;
             const match = typed.match(/^(\S+) $/);
-            const target = match && modeCommands.find(command => command.alias === match[1].toLowerCase());
-            if (!target)
-                return;
-            search.text = "";
-            mode = target.mode;
-        }
-
-        function modeItem(entry) {
-            return { key: "mode:" + entry.mode, kind: "mode", mode: entry.mode, title: entry.title, hint: entry.alias ?? "", icon: entry.icon, glyph: entry.glyph };
+            const target = match && views.find(view => view.alias === match[1].toLowerCase());
+            if (target)
+                openView(target.mode);
         }
 
         function cycleMode(step) {
@@ -355,30 +277,11 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
             preview.contentY = Math.max(0, Math.min(preview.contentHeight - preview.height, preview.contentY + delta));
         }
 
-        // grim -T captures toplevels in parallel; requests made meanwhile wait their turn
-        function captureWindows(windows) {
-            const wanted = windows.map(window => window.ident).filter(ident => ident && !(ident in windowShots) && !windowCapture.queue.includes(ident) && !windowCapture.pending.includes(ident));
-            windowCapture.queue = [...windowCapture.queue, ...wanted];
-            windowCapture.next();
-        }
-
-        function frequentPaths() {
-            return frequent.items;
-        }
-
-        function reloadWindows() {
-            windowList.reload();
-        }
-
-        function windowShot(window) {
-            return windowShots[window.ident] ?? "";
-        }
-
         function back() {
             if (actionTarget) {
                 closeActions();
             } else if (form?.closeOnCancel) {
-                Qt.quit();
+                close();
             } else if (form) {
                 form = null;
                 search.text = "";
@@ -387,439 +290,74 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
             } else if (search.text) {
                 search.text = "";
             } else {
-                Qt.quit();
+                close();
             }
-        }
-
-        function rows(output) {
-            return output.trim() ? JSON.parse(output) : [];
-        }
-
-        function collect() {
-            if (actionTarget) {
-                const tokens = query.toLowerCase().split(/\s+/).filter(token => token);
-                return (describe(actionTarget).actions ?? [])
-                    .filter(([keys, label]) => Spot.matches(label + " " + keys, tokens))
-                    .map(([keys, label]) => ({ key: "action:" + keys, kind: "action", section: "Actions · " + actionTarget.title, title: label, hint: keys, shortcut: keys, icon: actionTarget.icon, glyph: actionTarget.glyph, swatch: actionTarget.swatch }));
-            }
-            if (form)
-                return formItems();
-            const raw = query;
-            const commandLine = mode === "run" ? raw : raw.startsWith(">") ? raw.slice(1).trim() : "";
-            const tokens = raw.replace(/^[:>]/, "").toLowerCase().split(/\s+/).filter(token => token);
-            const everything = mode === "";
-            const items = [];
-            const add = (section, list) => {
-                for (const item of list)
-                    items.push(Object.assign({ section }, item));
-            };
-
-            if (mode === "emoji" || raw.startsWith(":")) {
-                add("Emoji", emoji.items.filter(entry => Spot.matches(entry.name, tokens)).sort((a, b) => a.name.length - b.name.length).slice(0, 120).map(entry => ({ key: "emoji:" + entry.char, kind: "emoji", title: entry.name, glyph: entry.char, value: entry.char })));
-                return items;
-            }
-            switch (mode) {
-            case "clipboard":
-                add("Clipboard", clipboard.items(tokens));
-                return items;
-            case "passwords":
-                add("Passwords", passwordItems(tokens));
-                return items;
-            case "bookmarks":
-                add("Bookmarks", library.bookmarkItems(tokens));
-                add("Commands", library.commandItems(["bookmark"]));
-                return items;
-            case "notes":
-                add("Notes", library.noteItems(tokens));
-                add("Commands", library.commandItems(["note"]));
-                return items;
-            case "quicklinks":
-                add("Quicklinks", quicklinks(tokens, raw));
-                return items;
-            case "processes":
-                add("Processes", processes.items(tokens));
-                return items;
-            case "history":
-                add("History", browser.historyItems(tokens));
-                return items;
-            case "tabs":
-                add("Tabs", browser.tabItems(tokens));
-                return items;
-            case "timers":
-                add("Timers", timers.items(tokens, raw, true));
-                return items;
-            case "colors":
-                add("Colors", colors.items(tokens));
-                return items;
-            case "ai":
-                add("AI Commands", aiCommandItems(tokens));
-                return items;
-            case "run":
-                add("Run", runItems(commandLine, true));
-                return items;
-            case "help":
-                add("Help", helpItems(tokens));
-                return items;
-            case "marks":
-                add("Marks", marks.items(tokens, raw, windowList.items));
-                return items;
-            case "herdr":
-                add("Agents", herdr.agentItems(tokens));
-                add("Workspaces", herdr.workspaceItems(tokens));
-                add("Herdr", herdr.commandItems(tokens));
-                return items;
-            }
-            if (everything && commandLine) {
-                add("Run", runItems(commandLine, false));
-                return items;
-            }
-            if (mode === "files" && !tokens.length) {
-                add("Frequent", frequentDirs([]).slice(0, 12));
-                add("Home", homeDirs.items.map(path => folderItem(path, "")));
-                return items;
-            }
-            if (everything && !tokens.length)
-                return items;
-
-            const view = everything ? modeCommands.find(command => command.alias === raw.toLowerCase()) : null;
-            if (everything) {
-                if (view)
-                    add("Views", [Object.assign(modeItem(view), { key: "alias:" + view.mode })]);
-                const value = calculate(raw);
-                if (value !== null)
-                    add("Calculator", [{ key: "calc", kind: "calc", title: value, icon: "accessories-calculator", value, expression: raw }]);
-                const url = asUrl(raw);
-                if (url)
-                    add("Website", [{ key: "url", kind: "url", title: url, icon: "web-browser", value: url }]);
-                add("Quicklinks", quicklinks(tokens, raw).slice(0, 3));
-                if (tokens[0] === "ssh")
-                    add("SSH", sshItems(tokens));
-                if (["timer", "pomodoro"].includes(tokens[0]))
-                    add("Timers", timers.items(tokens, raw.replace(/^timer\s*/i, ""), false));
-            }
-            if (everything || mode === "apps") {
-                const apps = Apps.search(raw).map(app => ({ key: "app:" + app.id, kind: "app", app, title: app.name, icon: app.icon }));
-                if (everything) {
-                    add("Top Hit", apps.slice(0, 1));
-                    add("Applications", apps.slice(1, 6));
-                } else {
-                    add("Applications", apps);
-                }
-            }
-            if (everything || mode === "windows")
-                add("Windows", windowList.items.filter(window => Spot.matches(window.title + " " + window.appId, tokens)).slice(0, everything ? 4 : 80).map(window => ({ key: "window:" + window.id, kind: "window", window, title: window.title, hint: window.appId, icon: Spot.iconFor(window.appId), thumb: mode === "windows" ? windowShot(window) : "" })));
-            if (everything)
-                add("Herdr", [...herdr.agentItems(tokens).slice(0, 3), ...herdr.workspaceItems(tokens).slice(0, 2)]);
-            if (everything || mode === "commands")
-                add("Commands", commandItems(tokens).filter(item => item.key !== "mode:" + view?.mode).slice(0, everything ? 5 : 200));
-            if (everything) {
-                add("AI Commands", aiCommandItems(tokens).slice(0, 3));
-                if (tokens[0] !== "ssh")
-                    add("SSH", sshItems(tokens).slice(0, 4));
-            }
-            if (everything || mode === "snippets")
-                add("Snippets", userConfig.snippets.filter(snippet => Spot.matches(snippet.name + " " + snippet.keyword + " " + snippet.text, tokens)).slice(0, everything ? 3 : 100).map(snippet => ({ key: "snippet:" + snippet.name, kind: "snippet", snippet, title: snippet.name, hint: snippet.keyword, icon: "edit-paste", value: expand(snippet.text) })));
-            if (everything) {
-                add("Bookmarks", library.bookmarkItems(tokens).slice(0, 4));
-                add("Notes", library.noteItems(tokens).slice(0, 3));
-                add("Passwords", passwordItems(tokens).slice(0, 3));
-                add("GitHub", repos.items.filter(repo => Spot.matches(repo.nameWithOwner + " " + (repo.description ?? ""), tokens)).slice(0, 4).map(repo => ({ key: "repo:" + repo.nameWithOwner, kind: "repo", repo, title: repo.nameWithOwner, hint: repo.isPrivate ? "Private" : "", icon: "github", value: repo.url })));
-            }
-            if (everything || mode === "files") {
-                const frequentHits = frequentDirs(tokens).slice(0, everything ? 3 : 6);
-                const shown = new Set(frequentHits.map(item => item.path));
-                add("Frequent", frequentHits);
-                add("Files", files.filter(file => !shown.has(file.path) && Spot.matches(file.path, tokens)).slice(0, everything ? 6 : 60));
-            }
-            if (everything) {
-                add("AI", [{ key: "ask:" + raw, kind: "ai", title: `Ask pi “${raw}”`, glyph: "✦", value: raw }]);
-                add("Web", [{ key: "web", kind: "web", title: `Search the web for “${raw}”`, icon: "web-browser", value: raw }]);
-            }
-            return items;
-        }
-
-        // title/keys matches beat description-only ones, and sections holding one come first
-        function helpItems(tokens) {
-            const hits = Help.topics
-                .map((topic, index) => ({ topic, index, rank: Spot.matches(`${topic.keys} ${topic.title}`, tokens) ? 0 : 1 }))
-                .filter(hit => Spot.matches(`${hit.topic.section} ${hit.topic.keys} ${hit.topic.title} ${hit.topic.text ?? ""}`, tokens));
-            const sectionRank = {};
-            for (const hit of hits)
-                sectionRank[hit.topic.section] = Math.min(sectionRank[hit.topic.section] ?? 1, hit.rank);
-            const sectionOrder = [...new Set(Help.topics.map(topic => topic.section))];
-            const sectionKey = section => sectionRank[section] * sectionOrder.length + sectionOrder.indexOf(section);
-            return hits
-                .sort((a, b) => sectionKey(a.topic.section) - sectionKey(b.topic.section) || a.rank - b.rank || a.index - b.index)
-                .map(({ topic }) => ({ key: `help:${topic.section}:${topic.keys}`, kind: "help", section: topic.section, topic, title: topic.title, hint: topic.keys, icon: "help-about" }));
         }
 
         function commandItems(tokens) {
-            const list = commands
-                .filter(command => Spot.matches(command.title, tokens))
-                .map(command => ({ key: "cmd:" + command.title, kind: "command", title: command.title, icon: command.icon, command: command.command, confirm: command.confirm ?? false }));
-            for (const entry of modeCommands.filter(entry => Spot.matches(`${entry.title} ${entry.alias ?? ""}`, tokens)))
-                list.push(modeItem(entry));
-            list.push(...library.commandItems(tokens), ...herdr.commandItems(tokens), ...colors.pickItem(tokens));
-            if (player)
-                for (const [title, action] of [[player.isPlaying ? "Pause" : "Play", "toggle"], ["Next Track", "next"], ["Previous Track", "previous"]])
-                    if (Spot.matches(title + " media music " + player.identity, tokens))
-                        list.push({ key: "media:" + action, kind: "media", title, hint: player.identity, icon: "multimedia-player", action });
-            for (const app of DesktopEntries.applications.values)
-                for (const action of app.actions)
-                    if (Spot.matches(action.name + " " + app.name, tokens))
-                        list.push({ key: "act:" + app.id + ":" + action.id, kind: "appAction", action, app, title: action.name, hint: app.name, icon: action.icon || app.icon });
-            return list;
+            return [...commands.items(tokens), ...commands.viewItems(tokens), ...commands.toolItems(tokens), ...library.commandItems(tokens), ...herdr.commandItems(tokens), ...colors.pickItem(tokens), ...commands.mediaItems(tokens), ...apps.actionItems(tokens)];
         }
 
-        function aiCommandItems(tokens) {
-            return (userConfig.aiCommands ?? [])
-                .filter(command => Spot.matches(command.name, tokens))
-                .map(command => ({ key: "aicmd:" + command.name, kind: "aiCommand", command, title: command.name, hint: selectedText ? "on selection" : "nothing selected", glyph: "✦" }));
-        }
-
-        function runItems(commandLine, withExecutables) {
-            if (!commandLine)
+        // the search of everything: [section, items] pairs, best kinds first
+        function everything(tokens, raw) {
+            if (!tokens.length)
                 return [];
-            const [program, ...rest] = commandLine.split(/\s+/);
-            const list = [{ key: "run:" + commandLine, kind: "run", title: `Run “${commandLine}”`, icon: "system-run", value: commandLine }];
-            if (withExecutables)
-                for (const name of executables.items.filter(name => name.startsWith(program) && name !== program).slice(0, 40))
-                    list.push({ key: "run:" + name, kind: "run", title: name, hint: rest.join(" "), icon: Spot.iconFor(name), value: [name, ...rest].join(" ") });
-            return list;
+            const view = views.find(entry => entry.alias === raw.toLowerCase());
+            const found = apps.items(raw);
+            return [
+                ["Views", view ? [Object.assign(commands.viewItem(view), { key: "alias:" + view.mode })] : []],
+                ["Calculator", calculator.items(raw)],
+                ["Website", web.urlItems(raw)],
+                ["Quicklinks", web.quicklinkItems(tokens, raw).slice(0, 3)],
+                ["SSH", tokens[0] === "ssh" ? ssh.items(tokens) : []],
+                ["Timers", ["timer", "pomodoro"].includes(tokens[0]) ? timers.items(tokens, raw.replace(/^timer\s*/i, ""), false) : []],
+                ["Top Hit", found.slice(0, 1)],
+                ["Applications", found.slice(1, 6)],
+                ["Windows", windows.items(tokens, 4)],
+                ["Herdr", [...herdr.agentItems(tokens).slice(0, 3), ...herdr.workspaceItems(tokens).slice(0, 2)]],
+                ["Commands", commandItems(tokens).filter(item => item.key !== "mode:" + view?.mode).slice(0, 5)],
+                ["AI Commands", ai.commandItems(tokens).slice(0, 3)],
+                ["SSH", tokens[0] === "ssh" ? [] : ssh.items(tokens).slice(0, 4)],
+                ["Snippets", snippets.snippetItems(tokens).slice(0, 3)],
+                ["Bookmarks", library.bookmarkItems(tokens).slice(0, 4)],
+                ["Notes", library.noteItems(tokens).slice(0, 3)],
+                ["Passwords", passwords.items(tokens).slice(0, 3)],
+                ["GitHub", web.repoItems(tokens).slice(0, 4)],
+                ...files.sections(tokens, true),
+                ["AI", ai.askItems(raw)],
+                ["Web", web.searchItems(raw)]
+            ];
         }
 
-        // ~/.ssh/config hosts (git-only ones skipped) merged with Tailscale peers
-        function sshItems(tokens) {
-            const peers = tailnet.items;
-            const hosts = sshHosts.filter(host => host.user !== "git").map(host => ({
-                name: host.name,
-                target: host.name,
-                address: (host.user ? host.user + "@" : "") + (host.hostName || host.name),
-                peer: peers.find(peer => peer.ip === host.hostName || peer.dns === host.hostName || peer.name.toLowerCase() === host.name.toLowerCase())
-            }));
-            for (const peer of peers)
-                if (!hosts.some(host => host.peer === peer))
-                    hosts.push({ name: peer.name, target: peer.dns, address: peer.dns, peer });
-            return hosts
-                .filter(host => Spot.matches("ssh " + host.name + " " + host.address, tokens))
-                .map(host => ({ key: "ssh:" + host.name, kind: "ssh", host, title: host.name, hint: host.peer ? (host.peer.online ? "online" : "offline") : host.address, icon: "utilities-terminal", value: host.target }));
-        }
-
-        function parseSshConfig(text) {
-            const hosts = [];
-            let block = [];
-            for (const line of text.split("\n")) {
-                const [keyword, ...rest] = line.trim().split(/\s+/);
-                const value = rest.join(" ");
-                switch (keyword.toLowerCase()) {
-                case "host":
-                    block = rest.filter(name => !/[*?!]/.test(name)).map(name => ({ name, hostName: "", user: "" }));
-                    hosts.push(...block);
-                    break;
-                case "match":
-                    block = [];
-                    break;
-                case "hostname":
-                    block.forEach(host => host.hostName = value);
-                    break;
-                case "user":
-                    block.forEach(host => host.user = value);
-                    break;
-                }
-            }
-            return hosts;
-        }
-
-        function passwordItems(tokens) {
-            return passwords.items
-                .filter(entry => Spot.matches(entry, tokens))
-                .map(entry => ({ key: "pass:" + entry, kind: "password", title: entry.slice(entry.lastIndexOf("/") + 1), hint: entry.includes("/") ? entry.slice(0, entry.lastIndexOf("/")) : "", icon: "dialog-password", value: entry }));
-        }
-
-        // "yt lofi" fills YouTube's {query}; a name match opens the link, its
-        // home page, or every page of a group
-        function quicklinks(tokens, raw) {
-            const [keyword, ...words] = raw.split(/\s+/);
-            const rest = words.join(" ");
-            const hits = [];
-            for (const link of userConfig.quicklinks) {
-                const opener = link.open ?? ["xdg-open"];
-                const searchable = (link.url ?? "").includes("{query}");
-                if (rest && searchable && link.keyword === keyword.toLowerCase())
-                    hits.unshift({ key: "link:" + link.name, kind: "quicklink", title: `${link.name}: “${rest}”`, hint: link.keyword, icon: "web-browser", urls: [link.url.replace("{query}", encodeURIComponent(rest))], opener });
-                else if (Spot.matches(link.name + " " + link.keyword, tokens))
-                    hits.push({ key: "link:" + link.name, kind: "quicklink", title: link.name, hint: link.urls ? `${link.urls.length} links` : link.keyword, icon: "web-browser", urls: link.urls ?? [searchable ? link.home ?? link.url.replace("{query}", "") : link.url], opener });
-            }
-            return hits;
-        }
-
-        function expand(text) {
-            const now = new Date();
-            return text
-                .replace(/\{date\}/g, Qt.formatDate(now, "yyyy-MM-dd"))
-                .replace(/\{time\}/g, Qt.formatTime(now, "HH:mm"))
-                .replace(/\{weekday\}/g, now.toLocaleDateString(Qt.locale(), "dddd"))
-                .replace(/\{clipboard\}/g, () => clipboardText);
-        }
-
-        function windowsIn(node, workspace) {
-            const here = node.type === "workspace" ? node.name : workspace;
-            const children = [...(node.nodes ?? []), ...(node.floating_nodes ?? [])];
-            if (!children.length && node.pid > 0)
-                return [{ id: node.id, ident: node.foreign_toplevel_identifier ?? "", title: node.name ?? "", appId: node.app_id ?? node.window_properties?.class ?? "", workspace: here, marks: node.marks ?? [], focused: node.focused }];
-            return [].concat(...children.map(child => windowsIn(child, here)));
-        }
-
-        // arithmetic only: the input is whitelisted to numbers, operators and
-        // the Math names below before it is evaluated
-        function calculate(text) {
-            const names = { sqrt: "Math.sqrt", sin: "Math.sin", cos: "Math.cos", tan: "Math.tan", log: "Math.log10", ln: "Math.log", abs: "Math.abs", round: "Math.round", floor: "Math.floor", ceil: "Math.ceil", pi: "Math.PI", e: "Math.E" };
-            const expression = text.replace(/^=/, "").trim();
-            const words = expression.match(/[a-z]+/gi) ?? [];
-            if (!/\d/.test(expression) || !/^[\d\sa-z.+\-*/%^()]+$/i.test(expression) || !/[+\-*/%^(]/.test(expression))
-                return null;
-            if (words.some(word => !(word.toLowerCase() in names)))
-                return null;
-            const source = expression.replace(/[a-z]+/gi, word => names[word.toLowerCase()]).replace(/\^/g, "**");
-            let value;
-            try {
-                value = Function(`"use strict"; return (${source});`)();
-            } catch (error) {
-                if (error instanceof SyntaxError)
-                    return null;
-                throw error;
-            }
-            return typeof value === "number" && isFinite(value) ? String(Number(value.toPrecision(12))) : null;
-        }
-
-        function asUrl(text) {
-            if (/\s/.test(text))
-                return "";
-            if (/^https?:\/\/\S+$/.test(text))
-                return text;
-            if (/^(www\.)?[\w-]+(\.[\w-]+)*\.(com|org|net|io|dev|app|ai|co|mx|edu|gov|me|xyz)(\/\S*)?$/i.test(text))
-                return "https://" + text;
-            return "";
-        }
-
-        function fileIcon(name, isDir) {
-            if (isDir)
-                return "folder";
-            const type = extension(name);
-            if (imageTypes.includes(type))
-                return "image-x-generic";
-            if (type === "pdf")
-                return "application-pdf";
-            if (["mp4", "mkv", "webm", "mov", "avi"].includes(type))
-                return "video-x-generic";
-            if (["mp3", "flac", "ogg", "wav", "m4a", "opus"].includes(type))
-                return "audio-x-generic";
-            if (["zip", "tar", "gz", "xz", "zst", "7z", "rar"].includes(type))
-                return "package-x-generic";
-            return "text-x-generic";
-        }
-
-        function extension(name) {
-            const dot = name.lastIndexOf(".");
-            return dot > 0 ? name.slice(dot + 1).toLowerCase() : "";
-        }
-
-        function folderItem(path, hint) {
-            return { key: "file:" + path, kind: "file", path, isDir: true, title: path.slice(path.lastIndexOf("/") + 1), hint, icon: "folder" };
-        }
-
-        // zoxide's most visited directories, best first
-        function frequentDirs(tokens) {
-            return frequent.items
-                .filter(path => Spot.matches(path, tokens))
-                .map(path => folderItem(path, path.slice(0, path.lastIndexOf("/")).replace(Spot.home, "~")));
-        }
-
-        function rankFiles(output, query) {
-            const tokens = query.toLowerCase().split(/\s+/).filter(token => token);
-            const first = tokens[0] ?? "";
-            return output.split("\n")
-                .filter(line => line && Spot.matches(line, tokens))
-                .map(line => {
-                    const isDir = line.endsWith("/");
-                    const path = isDir ? line.slice(0, -1) : line;
-                    const name = path.slice(path.lastIndexOf("/") + 1);
-                    const lower = name.toLowerCase();
-                    const rank = lower.startsWith(first) ? 0 : lower.includes(first) ? 1 : 2;
-                    return { key: "file:" + path, kind: "file", path, isDir, title: name, icon: fileIcon(name, isDir), rank };
-                })
-                .sort((a, b) => a.rank - b.rank || a.path.length - b.path.length);
+        // ":" searches emoji and ">" runs a command from any view
+        function collect() {
+            if (actionTarget)
+                return actionItems();
+            if (form)
+                return formItems();
+            const raw = query;
+            const tokens = raw.replace(/^[:>]/, "").toLowerCase().split(/\s+/).filter(token => token);
+            let sections;
+            if (raw.startsWith(":"))
+                sections = [["Emoji", snippets.emojiItems(tokens)]];
+            else if (!mode && raw.startsWith(">"))
+                sections = [["Run", run.items(raw.slice(1).trim(), false)]];
+            else
+                sections = currentView ? currentView.sections(tokens, raw) : everything(tokens, raw);
+            const items = [];
+            for (const [section, list] of sections)
+                for (const item of list)
+                    items.push(Object.assign({ section }, item));
+            return items;
         }
 
         // `actions` are [keys, label] pairs: they feed the footer and the Ctrl+K panel
         function describe(item) {
             if (item.kind === "action")
                 return describe(actionTarget);
-            if (item.store)
-                return item.store.describe(item);
-            switch (item.kind) {
-            case "app": {
-                const uses = Apps.launches[item.app.id + ".desktop"] ?? 0;
-                return { icon: item.icon, title: item.title, subtitle: item.app.genericName, details: [item.app.comment, uses ? `Opened ${uses} ${uses === 1 ? "time" : "times"}` : "Never opened from the launcher"], actions: [["Enter", "Open"]] };
-            }
-            case "appAction":
-                return { icon: item.icon, title: item.title, subtitle: "Action of " + item.app.name, actions: [["Enter", "Run action"]] };
-            case "command":
-                return { icon: item.icon, title: item.title, subtitle: "Command", actions: [["Enter", "Run"]] };
-            case "mode":
-                return { icon: item.icon, glyph: item.glyph, title: item.title, subtitle: placeholders[item.mode], details: [item.hint ? `Alias: type “${item.hint}” and a space` : ""], actions: [["Enter", "Open view"]] };
-            case "media":
-                return { image: player?.trackArtUrl ?? "", icon: item.icon, title: player?.trackTitle || item.title, subtitle: player?.trackArtist ?? "", details: [player?.identity ?? ""], actions: [["Enter", item.title]] };
-            case "window":
-                return { image: windowShot(item.window), icon: item.icon, title: item.title, subtitle: item.window.appId, details: ["Workspace " + item.window.workspace], actions: [["Enter", "Focus window"]] };
-            case "file": {
-                const isImage = imageTypes.includes(extension(item.title));
-                return { image: isImage ? "file://" + item.path : "", icon: item.icon, title: item.title, subtitle: item.path.replace(Spot.home, "~"), details: [peekMeta], body: peekText, mono: true, actions: [["Enter", "Open"], ["Ctrl+Enter", "Show in folder"], ["Ctrl+C", "Copy path"]] };
-            }
-            case "calc":
-                return { glyph: item.value, title: item.expression + " =", actions: [["Enter", "Copy result"]] };
-            case "snippet":
-                return { icon: item.icon, title: item.title, subtitle: "Snippet · " + item.snippet.keyword, body: item.value, actions: [["Enter", "Paste"], ["Ctrl+C", "Copy"]] };
-            case "ssh":
-                return { icon: item.icon, title: item.title, subtitle: item.host.address, details: [item.host.peer ? `Tailscale · ${item.host.peer.online ? "online" : "offline"} · ${item.host.peer.os}` : ""], actions: [["Enter", "Connect with kitten ssh"], ["Ctrl+C", "Copy host"]] };
-            case "emoji":
-                return { glyph: item.glyph, title: item.title, actions: [["Enter", "Paste"], ["Ctrl+C", "Copy"]] };
-            case "quicklink":
-                return { icon: item.icon, title: item.title, subtitle: item.urls.length > 1 ? `${item.urls.length} links` : item.urls[0], body: item.urls.length > 1 ? item.urls.join("\n") : "", actions: [["Enter", item.urls.length > 1 ? "Open all" : "Open"], ["Ctrl+C", "Copy URLs"]] };
-            case "repo":
-                return { icon: item.icon, title: item.title, subtitle: item.repo.description ?? "", details: [`★ ${item.repo.stargazerCount}  ·  ${item.repo.isPrivate ? "Private" : "Public"}`, "Updated " + new Date(item.repo.updatedAt).toLocaleDateString(Qt.locale(), Locale.ShortFormat)], actions: [["Enter", "Open on GitHub"], ["Ctrl+C", "Copy URL"]] };
-            case "password":
-                return { icon: item.icon, title: item.title, subtitle: item.value, details: ["Stored in pass, decrypted only when used"], actions: [["Enter", "Copy password for 30 s"], ["Ctrl+Enter", "Type password"]] };
-            case "run":
-                return { icon: item.icon, title: item.value, subtitle: "Command", actions: [["Enter", "Run"], ["Ctrl+Enter", "Run in terminal"], ["Ctrl+C", "Copy command"]] };
-            case "ai": {
-                const answered = ai.key === item.key;
-                if (answered && !ai.answer)
-                    return { glyph: "✦", title: "Ask pi", subtitle: item.value, body: "Thinking…", footer: "pi is answering with your default model" };
-                return { glyph: "✦", title: "Ask pi", subtitle: item.value, body: answered ? ai.answer : "", markdown: true, actions: answered ? [["Enter", "Copy answer"]] : [["Enter", "Ask pi"]] };
-            }
-            case "aiCommand": {
-                const answered = ai.key === item.key;
-                if (!selectedText)
-                    return { glyph: "✦", title: item.title, subtitle: "Select some text in any window, then open Spotlight", footer: "Nothing selected" };
-                if (answered && !ai.answer)
-                    return { glyph: "✦", title: item.title, body: "Thinking…", footer: "pi is working on the selected text" };
-                if (answered)
-                    return { glyph: "✦", title: item.title, body: ai.answer, markdown: true, actions: item.command.output === "paste" ? [["Enter", "Replace selection"], ["Ctrl+C", "Copy result"]] : [["Enter", "Copy result"]] };
-                return { glyph: "✦", title: item.title, subtitle: "Selected text", body: selectedText.slice(0, 2000), actions: [["Enter", "Run with pi"]] };
-            }
-            case "help": {
-                const topic = item.topic;
-                const actions = topic.mode ? [["Enter", "Open view"]] : topic.insert ? [["Enter", "Try it"]] : [];
-                return { icon: item.icon, title: topic.title, subtitle: topic.keys, body: topic.text ?? "", actions, footer: actions.length ? "" : topic.section };
-            }
-            case "form":
+            if (item.kind === "form")
                 return { icon: item.icon, title: form.title, subtitle: `Step ${formStep + 1} of ${form.fields.length}: ${form.fields[formStep].label}`, details: Object.entries(formValues).map(([key, value]) => `${key}: ${value}`), footer: "Enter continues · Esc cancels" };
-            case "url":
-                return { icon: item.icon, title: item.title, subtitle: "Open in your browser", actions: [["Enter", "Open"], ["Ctrl+C", "Copy URL"]] };
-            default:
-                return { icon: item.icon, title: item.title, subtitle: "Search with Google", actions: [["Enter", "Search"]] };
-            }
+            return item.store.describe(item);
         }
 
         // two actions and a pointer to the Ctrl+K panel, unless a status overrides it
@@ -850,17 +388,9 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
         }
 
         function refreshPeek() {
-            peekText = "";
-            peekMeta = "";
             const item = results[current];
             if (item?.store?.peek)
                 item.store.peek(item);
-            if (item?.kind === "window")
-                captureWindows([item.window]);
-            if (item?.kind !== "file")
-                return;
-            peek.forKey = item.key;
-            peek.exec(["sh", "-c", 'stat -c "%s|%Y" -- "$1"; if [ -d "$1" ]; then ls -1Ap -- "$1" | head -n 40; elif [ "$2" = text ]; then head -c 3000 -- "$1"; fi', "sh", item.path, textTypes.includes(extension(item.title)) ? "text" : ""]);
         }
 
         function activate(item, keys) {
@@ -870,123 +400,27 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
                 runShortcut(actionTarget, item.shortcut);
                 return;
             }
+            if (item.kind === "form") {
+                formNext(item.value);
+                return;
+            }
             if (item.confirm && armed !== item.key) {
                 armed = item.key;
                 return;
             }
             armed = "";
-            if (item.store) {
-                if (item.store.activate(item, keys))
-                    Qt.quit();
-                return;
-            }
-            switch (item.kind) {
-            case "form":
-                formNext(item.value);
-                return;
-            case "help":
-                if (item.topic.mode) {
-                    search.text = "";
-                    mode = item.topic.mode;
-                } else if (item.topic.insert) {
-                    mode = "";
-                    search.text = item.topic.insert;
-                }
-                return;
-            case "mode":
-                search.text = "";
-                mode = item.mode;
-                return;
-            case "ai":
-                if (ai.key !== item.key || !ai.answer) {
-                    ai.ask(item.key, item.value, quickPrompt);
-                    return;
-                }
-                Spot.copy(ai.answer);
-                break;
-            case "aiCommand":
-                if (!selectedText) {
-                    notify("Select some text in any window first, then open Spotlight");
-                    return;
-                }
-                if (ai.key !== item.key || !ai.answer) {
-                    ai.ask(item.key, `${item.command.prompt}\n\n---\n${selectedText}`, transformPrompt);
-                    return;
-                }
-                if (item.command.output === "paste")
-                    Spot.type(ai.answer);
-                else
-                    Spot.copy(ai.answer);
-                break;
-            case "app":
-                Apps.launch(item.app);
-                break;
-            case "appAction":
-                item.action.execute();
-                break;
-            case "command":
-                Quickshell.execDetached(item.command);
-                break;
-            case "media":
-                if (item.action === "toggle")
-                    player.togglePlaying();
-                else if (item.action === "next")
-                    player.next();
-                else
-                    player.previous();
-                break;
-            case "window":
-                Quickshell.execDetached(["scrollmsg", `[con_id=${item.window.id}] focus`]);
-                break;
-            case "file":
-                Quickshell.execDetached(["xdg-open", keys.ctrl ? item.path.slice(0, item.path.lastIndexOf("/")) : item.path]);
-                break;
-            case "snippet":
-            case "emoji":
-                Spot.type(item.value);
-                break;
-            case "quicklink":
-                for (const url of item.urls)
-                    Quickshell.execDetached([...item.opener, url]);
-                break;
-            case "ssh":
-                Quickshell.execDetached(["kitty", "-1", "kitten", "ssh", item.value]);
-                break;
-            case "password":
-                Quickshell.execDetached(["sh", "-c", keys.ctrl ? passType : passCopy, "sh", item.value]);
-                break;
-            case "run":
-                Quickshell.execDetached(keys.ctrl ? ["kitty", "-1", "--hold", "sh", "-c", item.value] : ["sh", "-c", item.value]);
-                break;
-            case "url":
-            case "repo":
-                Quickshell.execDetached(["xdg-open", item.value]);
-                break;
-            case "web":
-                Quickshell.execDetached(["xdg-open", webSearch + encodeURIComponent(item.value)]);
-                break;
-            default:
-                Spot.copy(item.value);
-            }
-            Qt.quit();
+            if (item.store.activate(item, keys))
+                close();
         }
 
         function copyItem(item) {
             if (!item || item.kind === "form" || item.kind === "action")
                 return;
-            if (item.store?.copy)
+            if (item.store.copy)
                 item.store.copy(item);
-            else if (item.kind === "password")
-                Quickshell.execDetached(["sh", "-c", passCopy, "sh", item.value]);
-            else if (item.kind === "ai" || item.kind === "aiCommand")
-                Spot.copy(ai.key === item.key && ai.answer ? ai.answer : item.value ?? item.title);
-            else if (item.kind === "snippet")
-                Spot.copy(item.value.split("{cursor}").join(""));
-            else if (item.kind === "quicklink")
-                Spot.copy(item.urls.join("\n"));
             else
-                Spot.copy(item.kind === "file" ? item.path : item.value ?? item.title);
-            Qt.quit();
+                Spot.copy(item.value ?? item.title);
+            close();
         }
 
         // Ctrl+P / Ctrl+X / Ctrl+E / Ctrl+R on a store item; deleting asks twice
@@ -1000,9 +434,52 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
             }
             armed = "";
             if (item.store.act(item, action))
-                Qt.quit();
+                close();
         }
 
+        AppStore {
+            id: apps
+        }
+        FileStore {
+            id: files
+            query: (win.mode === "" || win.mode === "files") && !win.form && !win.actionTarget && !/^[:>]/.test(win.query) ? win.query : ""
+        }
+        WindowStore {
+            id: windows
+            capturing: win.mode === "windows" ? "all" : win.mode === "marks" ? "marked" : ""
+        }
+        CommandStore {
+            id: commands
+            host: win
+        }
+        HelpStore {
+            id: help
+            host: win
+        }
+        SnippetStore {
+            id: snippets
+            host: win
+        }
+        WebStore {
+            id: web
+            host: win
+        }
+        CalculatorStore {
+            id: calculator
+        }
+        AiStore {
+            id: ai
+            host: win
+        }
+        SshStore {
+            id: ssh
+        }
+        PasswordStore {
+            id: passwords
+        }
+        RunStore {
+            id: run
+        }
         ClipboardStore {
             id: clipboard
             host: win
@@ -1030,80 +507,25 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
         MarkStore {
             id: marks
             host: win
+            windows: windows
         }
         HerdrStore {
             id: herdr
             host: win
+            windows: windows
+            files: files
+        }
+        WallpaperStore {
+            id: wallpapers
+            host: win
         }
 
         FileView {
-            path: win.configDir + "/spotlight.json"
+            path: Spot.home + "/.config/quickshell/spotlight.json"
             blockLoading: true
             watchChanges: true
             onFileChanged: reload()
             onLoaded: win.userConfig = JSON.parse(text())
-        }
-        FileView {
-            path: Spot.home + "/.ssh/config"
-            blockLoading: true
-            printErrors: false
-            onLoaded: win.sshHosts = win.parseSshConfig(text())
-        }
-
-        Source {
-            id: windowList
-            command: ["scrollmsg", "-t", "get_tree"]
-            onItemsChanged: {
-                if (win.mode === "windows")
-                    win.captureWindows(items);
-                else if (win.mode === "marks")
-                    win.captureWindows(items.filter(window => window.marks.length));
-            }
-            parse: output => output.trim() ? win.windowsIn(JSON.parse(output), "") : []
-        }
-        Source {
-            id: tailnet
-            command: ["tailscale", "status", "--json"]
-            parse: output => output.trim() ? Object.values(JSON.parse(output).Peer ?? {}).map(peer => ({ name: peer.HostName, dns: peer.DNSName.replace(/\.$/, ""), ip: peer.TailscaleIPs[0], os: peer.OS, online: peer.Online })) : []
-        }
-        Source {
-            id: passwords
-            command: ["sh", "-c", 'cd "${PASSWORD_STORE_DIR:-$HOME/.password-store}" && find . -name "*.gpg" -printf "%P\\n"']
-            parse: output => output.split("\n").filter(line => line).map(line => line.slice(0, -4)).sort()
-        }
-        Source {
-            id: repos
-            command: ["gh", "repo", "list", "--limit", "300", "--json", "nameWithOwner,description,url,isPrivate,stargazerCount,updatedAt"]
-            parse: win.rows
-        }
-        Source {
-            id: frequent
-            command: ["zoxide", "query", "--list"]
-            parse: output => output.split("\n").filter(path => path && path !== Spot.home)
-        }
-        Source {
-            id: homeDirs
-            command: ["find", Spot.home, "-mindepth", "1", "-maxdepth", "1", "-type", "d", "-not", "-name", ".*"]
-            parse: output => output.split("\n").filter(path => path).sort((a, b) => a.localeCompare(b))
-        }
-        Source {
-            id: executables
-            command: ["bash", "-c", "compgen -c | sort -u"]
-            parse: output => output.split("\n").filter(line => line)
-        }
-        Source {
-            id: emoji
-            // every named codepoint the colour emoji font can draw, skipping ASCII
-            command: ["python3", "-I", "-c", `
-import json, subprocess, unicodedata
-charset = subprocess.run(["fc-list", ":family=Noto Color Emoji", "charset"], capture_output=True, text=True, check=True).stdout
-codes = set()
-for span in charset.partition("=")[2].split():
-    start, _, end = span.partition("-")
-    codes.update(range(int(start, 16), int(end or start, 16) + 1))
-print(json.dumps([{"char": chr(code), "name": unicodedata.name(chr(code)).lower()} for code in sorted(codes) if code > 0x7F and unicodedata.name(chr(code), "")]))
-`]
-            parse: win.rows
         }
 
         Process {
@@ -1122,95 +544,9 @@ print(json.dumps([{"char": chr(code), "name": unicodedata.name(chr(code)).lower(
         }
 
         Timer {
-            id: fileSearch
-            interval: 150
-            onTriggered: {
-                if ((win.mode === "" || win.mode === "files") && !win.form && !/^[:>]/.test(win.query) && win.query.length >= 2) {
-                    fd.forQuery = win.query;
-                    fd.exec(["fd", "--one-file-system", "--fixed-strings", "--ignore-case", "--absolute-path", "--max-results", "200", "--", win.query.split(/\s+/)[0], Spot.home]);
-                } else {
-                    win.files = [];
-                }
-            }
-        }
-        Timer {
             id: noticeTimer
             interval: 5000
             onTriggered: win.notice = ""
-        }
-
-        Process {
-            id: fd
-            property string forQuery: ""
-            stdout: StdioCollector {
-                onStreamFinished: {
-                    if (fd.forQuery === win.query)
-                        win.files = win.rankFiles(text, win.query);
-                }
-            }
-        }
-
-        Process {
-            id: windowCapture
-            property var queue: []
-            property var pending: []
-            readonly property string dir: Spot.cacheDir + "/windows"
-
-            function next() {
-                if (running || !queue.length)
-                    return;
-                pending = queue;
-                queue = [];
-                exec(["sh", "-c", 'dir=$1; shift; mkdir -p "$dir"; for id in "$@"; do grim -T "$id" -s 0.35 "$dir/$id.png" & done; wait', "sh", dir, ...pending]);
-            }
-
-            onExited: {
-                const shots = Object.assign({}, win.windowShots);
-                for (const ident of pending)
-                    shots[ident] = `file://${dir}/${ident}.png`;
-                pending = [];
-                win.windowShots = shots;
-                next();
-            }
-        }
-
-        Process {
-            id: peek
-            property string forKey: ""
-            stdout: StdioCollector {
-                onStreamFinished: {
-                    if (peek.forKey !== win.selectedKey)
-                        return;
-                    const newline = text.indexOf("\n");
-                    const [bytes, modified] = (newline < 0 ? text : text.slice(0, newline)).split("|");
-                    const content = newline < 0 ? "" : text.slice(newline + 1);
-                    const entries = content.split("\n").filter(line => line).length;
-                    const size = win.selection?.isDir ? `${entries}${entries === 40 ? "+" : ""} ${entries === 1 ? "item" : "items"}` : Spot.formatSize(Number(bytes));
-                    win.peekMeta = size + "  ·  Modified " + new Date(Number(modified) * 1000).toLocaleString(Qt.locale(), Locale.ShortFormat);
-                    win.peekText = content;
-                }
-            }
-        }
-
-        Process {
-            id: ai
-            property string key: ""
-            property string answer: ""
-
-            // pi -p waits on an open stdin, so it gets /dev/null
-            function ask(forKey, prompt, system) {
-                key = forKey;
-                answer = "";
-                exec(["sh", "-c", 'exec pi "$@" < /dev/null', "sh", "-p", "--no-session", "--no-tools", "--no-context-files", "--no-skills", "--no-prompt-templates", "--offline", "--system-prompt", system, "--", prompt]);
-            }
-
-            stdout: StdioCollector {
-                onStreamFinished: ai.answer = text.trim()
-            }
-            onExited: exitCode => {
-                if (exitCode !== 0 && !answer)
-                    answer = `pi exited with code ${exitCode}.`;
-            }
         }
 
         color: "transparent"
@@ -1227,7 +563,7 @@ print(json.dumps([{"char": chr(code), "name": unicodedata.name(chr(code)).lower(
 
         MouseArea {
             anchors.fill: parent
-            onClicked: Qt.quit()
+            onClicked: win.close()
         }
 
         component Label: Text {
@@ -1251,15 +587,15 @@ print(json.dumps([{"char": chr(code), "name": unicodedata.name(chr(code)).lower(
             id: panel
             readonly property bool expanded: win.results.length > 0 || win.notice !== ""
             property real radius: expanded ? 22 : bar.height / 2
-            Behavior on radius { NumberAnimation { duration: 160 } }
+            Behavior on radius { enabled: win.visible; NumberAnimation { duration: 160 } }
 
             width: 820
             height: bar.height + (expanded ? 460 : 0)
-            Behavior on height { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+            Behavior on height { enabled: win.visible; NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
             x: Math.round((parent.width - width) / 2)
             y: Math.round(parent.height * 0.2)
 
-            NumberAnimation on opacity { from: 0; to: 1; duration: 140 }
+            NumberAnimation on opacity { id: fadeIn; from: 0; to: 1; duration: 140 }
 
             MouseArea {
                 anchors.fill: parent
@@ -1423,7 +759,7 @@ print(json.dumps([{"char": chr(code), "name": unicodedata.name(chr(code)).lower(
                     Label {
                         anchors.verticalCenter: parent.verticalCenter
                         visible: search.text === ""
-                        text: win.actionTarget ? `Search actions for ${win.actionTarget.title}` : win.formField ? win.formField.label : win.placeholders[win.mode]
+                        text: win.actionTarget ? `Search actions for ${win.actionTarget.title}` : win.formField ? win.formField.label : win.currentView ? win.currentView.placeholder ?? win.currentView.title : "Spotlight Search  ·  Ctrl+? for help"
                         color: win.inkSoft
                         font: search.font
                     }
@@ -1457,7 +793,7 @@ print(json.dumps([{"char": chr(code), "name": unicodedata.name(chr(code)).lower(
 
                             Label {
                                 anchors.centerIn: parent
-                                text: chip.modelData.glyph
+                                text: chip.modelData.chip
                                 color: chip.active ? "white" : win.inkSoft
                                 font.family: Theme.menu
                                 font.pixelSize: 14

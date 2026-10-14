@@ -110,16 +110,6 @@ wired = [{ file = "config/scroll/config", pattern = 'colors\.conf' }]
 # jump_labels_* only applies on reload; under systemd there is no SWAYSOCK.
 reload = [{ process = "scroll", run = ["scrollmsg", "reload"], env = { SWAYSOCK = "{runtime_dir}/scroll-ipc.{uid}.{pid}.sock" } }]
 
-[apps.rofi]
-switch = [
-  { pointer = "config/rofi/colors/theme.rasi", light = "eyes.rasi", dark = "eyes-dark.rasi", generate = "hash" },
-  { pointer = "config/rofi/colors/colors.txt", light = "eyes.txt", dark = "eyes-dark.txt", generate = "hash" },
-]
-wired = [
-  { file = "config/rofi", pattern = 'colors/theme\.rasi' },
-  { file = "config/rofi", pattern = 'colors/colors\.txt' },
-]
-
 [apps.nushell]
 switch = [{ pointer = "config/nushell/theme.nu", light = "eyes.nu", dark = "eyes-dark.nu", generate = "hash" }]
 wired = [{ file = "config/nushell/config.nu", pattern = 'theme\.nu' }]

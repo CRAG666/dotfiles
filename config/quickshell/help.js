@@ -24,7 +24,7 @@ const topics = [
     { section: "Actions", keys: "Ctrl+R", title: "Rename", text: "Notes: title and category." },
     { section: "Actions", keys: "Ctrl+T", title: "Clipboard filter", text: "Cycles All → Text → Image → Link in the clipboard view.", mode: "clipboard" },
 
-    { section: "Typing", keys: "hr␣", title: "View aliases", text: "An alias and a space open that view at once; the alias alone puts the view first. hr Herdr · mk marks · cb clipboard · win windows · sn snippets · pw passwords · bm bookmarks · nt notes · ql quicklinks · ps processes · bh browser history · bt browser tabs · tm timers · co colors · ac AI commands · fi files · cmd commands · ? help. Commands shows each alias on the right.", insert: "hr" },
+    { section: "Typing", keys: "hr␣", title: "View aliases", text: "An alias and a space open that view at once; the alias alone puts the view first. hr Herdr · mk marks · cb clipboard · win windows · sn snippets · pw passwords · bm bookmarks · nt notes · ql quicklinks · wp wallpapers · tl tools · ps processes · bh browser history · bt browser tabs · tm timers · co colors · ac AI commands · fi files · cmd commands · ? help. Commands shows each alias on the right.", insert: "hr" },
     { section: "Typing", keys: ":heart", title: "Search emoji", text: "A leading colon searches emoji and symbols; Enter pastes it.", insert: ":heart" },
     { section: "Typing", keys: "> htop", title: "Run a command", text: "A leading > runs a shell command; Ctrl+Enter runs it in kitty.", insert: "> " },
     { section: "Typing", keys: "timer 10m tea", title: "Start a timer", text: "Durations like 90s, 10m, 1h30m or a bare number of minutes. “pomodoro” starts 4 × 25 min focus + 5 min break. They run as systemd user units.", insert: "timer 10m " },
@@ -53,6 +53,8 @@ const topics = [
     { section: "Views", keys: "AI", title: "AI commands", text: "Run on the text selected in any window: fix spelling, improve, shorten, translate, summarize, explain code. Results that rewrite the text replace the selection.", mode: "ai" },
     { section: "Views", keys: "Run", title: "Run command", text: "Type a command; matching executables are listed.", mode: "run" },
     { section: "Views", keys: "Herdr", title: "Herdr agents and workspaces", text: "Agents sorted by urgency (needs input, done, working, idle) with their recent output; Enter focuses one in Herdr and raises its terminal, Ctrl+E sends it a prompt. Workspaces: Enter focuses, Ctrl+R renames (closing them is left to Herdr). “New Herdr Workspace” starts one in a frequent folder. Refreshes every 2 s.", mode: "herdr" },
+    { section: "Views", keys: "Wallpapers", title: "Wallpapers", text: "Every image in ~/Pictures/wallpaperCicle with its thumbnail, the current one first; Enter applies it with awwwallpaper.sh, Ctrl+Enter opens the image.", mode: "wallpapers" },
+    { section: "Views", keys: "Tools", title: "Tools", text: "Email (aerc), Bluetooth (bluetui), Wi-Fi (impala), Files (yazi), Calendar (cal -3), Music (termusic) and Volume Mixer (wiremix) in kitty.", mode: "tools" },
     { section: "Views", keys: "Marks", title: "Scroll marks", text: "Jump to a marked window (with its snapshot), type a new name to mark the focused window, Ctrl+X removes a mark. auto_marks.lua still marks zen/firefox b, nvim e, yazi f, btop s.", mode: "marks" },
 
     { section: "Global shortcuts", keys: "$mod+space", title: "Open Spotlight" },
@@ -65,6 +67,8 @@ const topics = [
     { section: "Global shortcuts", keys: "Find", title: "Windows" },
     { section: "Global shortcuts", keys: "XF86Launch7", title: "Run command" },
     { section: "Global shortcuts", keys: "XF86Open", title: "Fullscreen launcher" },
+    { section: "Global shortcuts", keys: "XF86Tools", title: "Tools" },
+    { section: "Global shortcuts", keys: "$mod+Alt+w", title: "Wallpapers" },
     { section: "Global shortcuts", keys: "$mod+m", title: "Mark / unmark the focused window", text: "Removes the focused window's mark if it has one; otherwise Spotlight opens asking for the mark name." },
     { section: "Global shortcuts", keys: "$mod+'", title: "Scroll marks" },
 

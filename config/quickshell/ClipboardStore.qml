@@ -88,6 +88,7 @@ Scope {
 
     Source {
         id: history
+        maxAge: 0
         command: ["cliphist", "list"]
         parse: output => output.split("\n").filter(line => line.includes("\t")).map(line => {
             const tab = line.indexOf("\t");

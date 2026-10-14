@@ -620,8 +620,6 @@ config/xdg-desktop-portal-termfilechooser/.last_selected
 /config/dunst/dunstrc.d/50-colors.conf
 /config/shell/colors.env
 /config/scroll/colors.conf
-/config/rofi/colors/theme.rasi
-/config/rofi/colors/colors.txt
 /config/nushell/theme.nu
 /config/tridactyl/themes/theme.css
 /config/starship.toml

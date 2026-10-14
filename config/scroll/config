@@ -9,9 +9,8 @@ set $left  H
 set $down  J
 set $up    K
 set $right L
-# Rofi / Dunst / TUI helpers
+# Dunst / TUI helpers
 set $term kitty -1
-set $ROFI_SCRIPTS ~/.config/rofi/run.sh
 set $spotlight ~/.config/quickshell/spotlight.sh
 set $DUNST_SCRIPTS ~/.config/dunst
 set $RUN_TUI_DIALOG $term --class dialog
@@ -26,11 +25,13 @@ exec wl-paste --type text --watch cliphist store
 exec wl-paste --type image --watch cliphist store
 exec ~/.config/awww/awwwallpaper.sh
 exec quickshell -d
+exec $spotlight start
 exec ~/.scripts/cloud_mount
 exec systemctl --user start podman.socket
 exec ~/Git/selfhost/instances.sh
 exec ~/.scripts/check_battery.sh
 exec swayidle -w
+exec $DUNST_SCRIPTS/vol mic-led
 exec ~/.config/scroll/brightness.sh init
 exec ~/.config/scroll/brightness-hotplug.sh
 exec rfkill block bluetooth
@@ -660,7 +661,7 @@ bindsym XF86Open exec qs kill -p ~/.config/quickshell/launcher.qml || qs -n -p ~
 bindsym Find exec $spotlight windows # x + ;
 
 # Tools / Bookmarks
-bindsym XF86Tools exec pkill rofi || $ROFI_SCRIPTS apps # F13 / + A
+bindsym XF86Tools exec $spotlight tools # F13 / + A
 bindsym XF86Favorites exec $spotlight bookmarks # ; + B
 bindsym $mod+b exec $spotlight quicklinks
 
@@ -674,7 +675,7 @@ bindsym XF86Explorer exec $RUN_TUI_DIALOG -T yazi yazi # / + G
 bindsym $mod+c exec $spotlight passwords
 bindsym $mod+n exec $spotlight notes
 
-bindsym $mod+Mod1+w exec pkill rofi || ~/.config/awww/awwwallselect.sh
+bindsym $mod+Mod1+w exec $spotlight wallpapers
 
 # =============================================================================
 # MULTIMEDIA
@@ -690,7 +691,7 @@ bindsym XF86AudioPreset               exec pwvucontrol
 bindsym --locked XF86AudioPrev  exec playerctl previous
 bindsym --locked XF86AudioNext  exec playerctl next
 bindsym --locked XF86AudioPlay  exec playerctl --all-players play-pause
-bindsym --locked XF86AudioMicMute exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+bindsym --locked XF86AudioMicMute exec $DUNST_SCRIPTS/vol mic
 
 # Caffeine: stop swayidle = no auto-lock/DPMS; lid lock (bindswitch) still applies
 bindsym $mod+Shift+c exec 'if pkill swayidle; then notify-send -t 2000 "Caffeine on"; else swayidle -w & notify-send -t 2000 "Caffeine off"; fi'

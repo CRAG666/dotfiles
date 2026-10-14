@@ -6,12 +6,12 @@
 #
 
 output * bg #1e1e2e solid_color
-output * pos 0 0
 
 default_border none
 
-# Launch gtkgreet and exit when it finishes
-exec "regreet; scrollmsg exit"
+# Launch the Quickshell greeter and exit when it finishes; the greeter user's
+# home is /, so Quickshell keeps its cache and state in /var/lib/qs-greeter
+exec "HOME=/var/lib/qs-greeter qs -p /etc/greetd/quickshell/greeter.qml; scrollmsg exit"
 
 input type:touchpad {
     tap enabled

@@ -73,9 +73,9 @@ Singleton {
             : ["#7a1e18", "#6a3c10", "#7a4a18", "#5a4808", "#2a5c22", "#1e4a18", "#145850", "#1a5858", "#1e4868", "#143c52", "#3a2860", "#5a2858", "#486040", "#6a9060"];
     }
 
-    readonly property string sans: "Montserrat"
-    readonly property string mono: "CaskaydiaCove Nerd Font"
-    readonly property string cursive: "Sacramento"
+    readonly property string sans: "SFProDisplay Nerd Font Propo"
+    readonly property string mono: "SFMono Nerd Font Mono"
+    readonly property string cursive: "NewYork Nerd Font Propo"
     readonly property string menu: "SFProDisplay Nerd Font Propo"
     readonly property string menuText: "SFProText Nerd Font Propo"
 }

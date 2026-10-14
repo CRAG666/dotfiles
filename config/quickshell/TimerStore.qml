@@ -119,8 +119,9 @@ notify-send -u critical -i alarm-clock Pomodoro "All ${rounds} rounds done"`, "s
 
     Timer {
         interval: 1000
-        running: root.running.length > 0
+        running: root.running.length > 0 && root.host.visible
         repeat: true
+        triggeredOnStart: true
         onTriggered: root.now = Date.now()
     }
 }

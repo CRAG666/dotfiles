@@ -17,7 +17,9 @@ Singleton {
         path: Spot.stateDir + "/launches"
         blockLoading: true
         blockWrites: true
+        watchChanges: true
         printErrors: false
+        onFileChanged: reload()
         onLoaded: {
             const counts = {};
             for (const line of text().split("\n")) {

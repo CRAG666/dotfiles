@@ -149,12 +149,14 @@ Scope {
 
     Source {
         id: bookmarks
+        maxAge: 30000
         command: ["python3", Spot.helper, "list", "bookmarks"]
         parse: output => JSON.parse(output)
     }
 
     Source {
         id: notes
+        maxAge: 30000
         command: ["python3", Spot.helper, "list", "notes"]
         parse: output => JSON.parse(output)
     }

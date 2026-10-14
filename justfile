@@ -7,7 +7,7 @@ export GOPATH := home
 hypr_pkgs := "hyprland xdg-desktop-portal-hyprland hyprland-guiutils hyprland-qt-support hyprsunset hyprtoolkit hyprutils"
 
 # AUR: xdg-desktop-portal-termfilechooser-hunkyburrito-git
-wayland_pkgs := "wtype wl-clipboard swayidle rofi qt6-wayland kitty egl-wayland cliphist greetd-regreet xdg-desktop-portal-termfilechooser-hunkyburrito-git xdg-desktop-portal-gtk dunst awww quickshell python-lz4 mate-polkit nwg-look"
+wayland_pkgs := "wtype wl-clipboard swayidle qt6-wayland kitty egl-wayland cliphist xdg-desktop-portal-termfilechooser-hunkyburrito-git xdg-desktop-portal-gtk dunst awww quickshell python-lz4 mate-polkit nwg-look"
 
 # AUR: sway-scroll
 scroll_pkgs := "sway-scroll xdg-desktop-portal-wlr"
@@ -308,17 +308,25 @@ systemd-user: (link "systemd")
     systemctl --user daemon-reload
     {{ systemd_enable_user }} eyes-theme.service eyes-theme.timer
 
-# Install packages required for Wayland
-wayland:
+# Install greetd and the Quickshell greeter from etc/greetd (applies on the next boot)
+greetd:
     #!/usr/bin/env bash
     set -eu
+    just install-pkgs greetd quickshell
     echo "==> Configuring greetd..."
     sudo cp -r "{{ src }}/etc/greetd" /etc/
+    sudo install -m 644 "{{ src }}"/config/quickshell/{Theme,WText,DateBlock}.qml /etc/greetd/quickshell/
+    sudo install -d -o greeter -g greeter /var/lib/qs-greeter
+    {{ systemd_enable }} greetd
+
+# Install packages required for Wayland
+wayland: greetd
+    #!/usr/bin/env bash
+    set -eu
     echo "==> Enabling Electron/Chromium flags for Wayland..."
     "{{ src }}/wayland/enable-electron-flags.sh"
     echo "==> Installing Wayland packages..."
     just install-pkgs {{ wayland_pkgs }}
-    {{ systemd_enable }} greetd
 
 # Configure Hyprland (Wayland)
 hypr: wayland
@@ -395,6 +403,11 @@ thinkpad: laptop
     sudo install -Dm 644 "{{ src }}/etc/udev/rules.d/99-battery-threshold.rules" \
         /etc/udev/rules.d/99-battery-threshold.rules
     sudo udevadm control --reload || true
+    echo "==> Installing mic-mute LED udev rule..."
+    sudo install -Dm 644 "{{ src }}/etc/udev/rules.d/99-micmute-led.rules" \
+        /etc/udev/rules.d/99-micmute-led.rules
+    sudo udevadm control --reload || true
+    sudo udevadm trigger --subsystem-match=leds --sysname-match=platform::micmute --action=add
     {{ systemd_enable }} throttled
 
 # AMD ThinkPad configuration (e.g. L14 Gen 4)
@@ -408,6 +421,11 @@ thinkpad-amd: laptop-amd
     sudo install -Dm 644 "{{ src }}/etc/udev/rules.d/99-battery-threshold.rules" \
         /etc/udev/rules.d/99-battery-threshold.rules
     sudo udevadm control --reload || true
+    echo "==> Installing mic-mute LED udev rule..."
+    sudo install -Dm 644 "{{ src }}/etc/udev/rules.d/99-micmute-led.rules" \
+        /etc/udev/rules.d/99-micmute-led.rules
+    sudo udevadm control --reload || true
+    sudo udevadm trigger --subsystem-match=leds --sysname-match=platform::micmute --action=add
 
 # Configure NVIDIA drivers (+ NVIDIA-only Scroll session)
 nvidia:

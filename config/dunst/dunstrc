@@ -1,7 +1,6 @@
 [global]
 corner_radius = 10
 icon_corner_radius = 10
-dmenu = /usr/bin/rofi -config "~/.config/rofi/notification.rasi" -dmenu -p dunst:
 icon_theme = Macjaro
 
 [Type-1]
@@ -61,7 +60,6 @@ min_icon_size = 64
 max_icon_size = 128
 sticky_history = yes
 history_length = 20
-dmenu = /usr/bin/rofi -config "~/.config/rofi/notification.rasi" -dmenu -p dunst:
 browser = /usr/bin/xdg-open
 always_run_script = true
 title = Dunst
@@ -69,7 +67,7 @@ class = Dunst
 ignore_dbusclose = false
 force_xwayland = false
 force_xinerama = false
-mouse_left_click = context, close_current
+mouse_left_click = do_action, open_url, close_current
 mouse_middle_click = do_action, close_current
 mouse_right_click = close_all
 [experimental]

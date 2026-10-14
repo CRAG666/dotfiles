@@ -4,6 +4,15 @@
 # $./volume.sh up
 # $./volume.sh down
 # $./volume.sh mute
+# $./volume.sh mic
+# $./volume.sh mic-led
+
+# mic-mute LED, writable once etc/udev/rules.d/99-micmute-led.rules is installed
+mic_led() {
+	led=/sys/class/leds/platform::micmute/brightness
+	[ -w "$led" ] && echo "$1" >"$led"
+	return 0
+}
 
 case $1 in
 up)
@@ -17,14 +26,30 @@ mute)
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
 	exit 0
 	;;
+mic)
+	wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+	if wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | grep -q MUTED; then
+		mic_led 1
+		notify-send -i microphone-sensitivity-muted -h string:x-dunst-stack-tag:mic "Microphone off"
+	else
+		mic_led 0
+		notify-send -i microphone-sensitivity-high -h string:x-dunst-stack-tag:mic "Microphone on"
+	fi
+	exit 0
+	;;
+mic-led)
+	# at login: WirePlumber restores the mute, the LED starts off
+	if wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | grep -q MUTED; then mic_led 1; else mic_led 0; fi
+	exit 0
+	;;
 *)
 	exit 0
 	;;
 esac
 
-# The sound runs in the background: aplay blocks for the wav's length (~380 ms)
+# The sound runs in the background: pw-play blocks for the wav's length (~380 ms)
 # and delayed the OSD; the notification must appear with the keypress.
-aplay ~/.config/dunst/vol.wav >/dev/null 2>&1 &
+pw-play ~/.config/dunst/vol.wav >/dev/null 2>&1 &
 
 volume_integer=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2 * 100 + 0.5)}')
 

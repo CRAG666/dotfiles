@@ -36,7 +36,7 @@ Wall_Set() {
         --transition-pos "$xpos"
 }
 
-# Derived artifacts (blur + rofi thumbnail + Quickshell light/dark) from ONE magick decode.
+# Derived artifacts (blur + Quickshell light/dark) from ONE magick decode.
 Post_Process() {
     if ! command -v magick > /dev/null 2>&1; then
         echo "WARNING: ImageMagick not found. Skipping blur creation."
@@ -44,13 +44,11 @@ Post_Process() {
     fi
 
     local src="$BaseDir/wall.set"
-    mkdir -p "${HOME}/.cache/wallpapers/thumbnails"
 
     # Per-widget light/dark from mean Rec.709 luminance behind each widget. Crops, in stdout order:
     #   dl date block  -> North 40%x29%   pl player -> South 22% then top 55%   sl system -> West 9%x50%
     local lums dl pl sl
     lums=$(magick -define jpeg:size=2048x2048 "${src}[0]" -strip -resize 25% \
-        \( +clone -quality 90 -write "${HOME}/.cache/wallpapers/thumbnails/wall.sqre" +delete \) \
         \( +clone -scale 40% -blur 0x3 -write "$BaseDir/wall.blur" +delete \) \
         \( +clone -gravity North -crop 40%x29%+0+0 +repage -resize 1x1 -format '%[fx:0.2126*r+0.7152*g+0.0722*b]\n' -write info: +delete \) \
         \( +clone -gravity South -crop 50%x22%+0+0 +repage -gravity North -crop 100%x55%+0+0 +repage -resize 1x1 -format '%[fx:0.2126*r+0.7152*g+0.0722*b]\n' -write info: +delete \) \

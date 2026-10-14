@@ -1,0 +1,4 @@
+# ThinkPad mic-mute LED (F4) driven by PipeWire: the kernel's audio-micmute trigger follows an
+# ALSA switch PipeWire doesn't drive, so it's turned off and ~/.config/dunst/vol (audio group)
+# sets the LED from the default source's mute instead.
+ACTION=="add", SUBSYSTEM=="leds", KERNEL=="platform::micmute", ATTR{trigger}="none", RUN+="/bin/chgrp audio /sys%p/brightness", RUN+="/bin/chmod g+w /sys%p/brightness"

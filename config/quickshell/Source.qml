@@ -1,17 +1,20 @@
 import Quickshell.Io
 import QtQuick
 
-// Runs `command` and keeps its stdout run through `parse` in `items`: once on
-// the first load(), and again on every reload(). spotlight.qml and its stores
-// feed most of their results this way.
+// Runs `command` and keeps its stdout run through `parse` in `items`. Spotlight
+// stays resident, so load() only fetches when nothing was loaded yet or the
+// result is older than `maxAge` ms (-1: it never expires); meanwhile the old
+// items keep showing. reload() always fetches.
 Process {
     id: root
     property var parse: output => []
     property var items: []
+    property int maxAge: -1
+    property double loadedAt: 0
 
     function load() {
-        if (!running && !items.length)
-            running = true;
+        if (!loadedAt || maxAge >= 0 && Date.now() - loadedAt > maxAge)
+            reload();
     }
 
     function reload() {
@@ -20,6 +23,9 @@ Process {
     }
 
     stdout: StdioCollector {
-        onStreamFinished: root.items = root.parse(text)
+        onStreamFinished: {
+            root.items = root.parse(text);
+            root.loadedAt = Date.now();
+        }
     }
 }
