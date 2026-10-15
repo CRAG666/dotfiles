@@ -8,7 +8,7 @@ Scope {
     id: root
 
     function items(query) {
-        return Apps.search(query).map(app => ({ key: "app:" + app.id, kind: "app", store: root, app, title: app.name, icon: app.icon }));
+        return Apps.search(query).map(app => ({ key: "app:" + app.id, kind: "app", store: root, app, title: app.name, icon: app.icon, uses: Apps.launches[app.id + ".desktop"] ?? 0 }));
     }
 
     function actionItems(tokens) {

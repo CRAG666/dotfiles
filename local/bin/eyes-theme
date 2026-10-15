@@ -30,8 +30,9 @@ type Table = Mapping[str, Toml]
 ROOT = Path(__file__).resolve().parents[2]
 HOME = Path.home()
 MANIFEST = ROOT / "local/share/eyes-theme/manifest.toml"
+VARIANTS = ROOT / "local/share/eyes-theme/variants.toml"
 STATE_DIR = Path(os.environ.get("XDG_CONFIG_HOME", HOME / ".config")) / "eyes"
-COMMANDS = ("light", "dark", "toggle", "auto", "reapply", "status", "generate", "doctor")
+COMMANDS = ("light", "dark", "toggle", "auto", "reapply", "status", "generate", "doctor", "variant")
 
 log = logging.getLogger("eyes-theme")
 
@@ -132,10 +133,10 @@ def systemctl(verb: str, unit: str) -> str:
 def unit_findings(unit: str) -> Iterator[Finding]:
     enabled = systemctl("is-enabled", unit)
     yield Finding.verdict(
-        enabled == "enabled", f"{unit} enabled", f"{unit} — '{enabled}' (restaurar: just systemd-user)"
+        enabled == "enabled", f"{unit} enabled", f"{unit} — '{enabled}' (restore: just systemd-user)"
     )
     if unit.endswith(".timer") and (active := systemctl("is-active", unit)) != "active":
-        yield Finding(Level.WARN, f"{unit} inactivo ('{active}')")
+        yield Finding(Level.WARN, f"{unit} inactive ('{active}')")
 
 
 class HexStyle(StrEnum):
@@ -181,6 +182,78 @@ class Palette:
                 )
 
 
+def recolor(text: str, changes: Mapping[str, str]) -> str:
+    def swapped(found: re.Match[str]) -> str:
+        new = changes[found[1].lower()]
+        return new.upper() if found[1].isupper() else new
+
+    # a trailing alpha byte stays (#rrggbbaa); a longer hex run in front does not match
+    text = re.sub(rf"(?<![0-9a-f])({'|'.join(changes)})", swapped, text, flags=re.IGNORECASE)
+    for old, new in changes.items():
+        red, green, blue = bytes.fromhex(old)
+        channels = bytes.fromhex(new)
+        text = re.sub(
+            rf"(?<!\d){red}(\s*[;,]\s*){green}(\s*[;,]\s*){blue}(?!\d)",
+            lambda found, channels=channels: f"{channels[0]}{found[1]}{channels[1]}{found[2]}{channels[2]}",
+            text,
+        )
+    return text
+
+
+def tracked_files() -> Iterator[Path]:
+    listing = subprocess.run(
+        ["git", "-C", str(ROOT), "ls-files", "-z"], capture_output=True, text=True, check=True
+    ).stdout
+    for name in filter(None, listing.split("\0")):
+        path = ROOT / name
+        if path.is_file() and not path.is_symlink() and path != VARIANTS:
+            yield path
+
+
+@dataclass(frozen=True, slots=True)
+class Variants:
+    palettes: Mapping[str, Mapping[str, str]]
+    light: str
+
+    @classmethod
+    def load(cls, path: Path) -> Variants:
+        with path.open("rb") as stream:
+            table = tomllib.load(stream)
+        palettes = {
+            name: {key: value.lower() for key, value in colors.items()}
+            for name, colors in table.items()
+            if isinstance(colors, dict)
+        }
+        if (light := table.get("light")) not in palettes:
+            raise ValueError(f"{shown(path)}: light = {light!r} is not a variant; available: {', '.join(palettes)}")
+        return cls(palettes, light)
+
+    def choose(self, name: str) -> None:
+        text = VARIANTS.read_text(encoding="utf-8")
+        write_atomic(VARIANTS, re.sub(r'^light\s*=\s*"[^"]*"', f'light = "{name}"', text, count=1, flags=re.MULTILINE))
+
+    def active(self, palette: Table) -> str | None:
+        lights = {key: pair[0].lower() for key, pair in palette.items()}
+        return next((name for name, colors in self.palettes.items() if colors == lights), None)
+
+    def changes(self, palette: Table, name: str) -> dict[str, str]:
+        if name not in self.palettes:
+            raise ValueError(f"unknown variant {name!r}; available: {', '.join(self.palettes)}")
+        target = self.palettes[name]
+        if target.keys() != palette.keys():
+            raise ValueError(f"{shown(VARIANTS)}: [{name}] does not have the same colours as [palette]")
+        lights = {pair[0].lower(): key for key, pair in palette.items()}
+        darks = {pair[1].lower() for pair in palette.values()}
+        if len(set(target.values())) != len(target):
+            raise ValueError(f"{shown(VARIANTS)}: [{name}] repeats colours")
+        if clash := set(target.values()) & darks:
+            raise ValueError(f"{shown(VARIANTS)}: [{name}] matches the dark column: {sorted(clash)}")
+        # a new colour equal to another one's current colour would merge the two
+        if merged := [key for key, value in target.items() if lights.get(value, key) != key]:
+            raise ValueError(f"{shown(VARIANTS)}: [{name}] takes another colour's current value in {merged}")
+        return {palette[key][0].lower(): value for key, value in target.items() if palette[key][0].lower() != value}
+
+
 @dataclass(frozen=True, slots=True)
 class Generation:
     variants: Pair[Path]
@@ -203,7 +276,7 @@ class Generation:
                     tuple(spec.get("generate_after", ())),
                 )
             case invalid:
-                raise ValueError(f"generate inválido: {invalid!r}")
+                raise ValueError(f"invalid generate: {invalid!r}")
 
     def outputs(self, palette: Palette) -> Iterator[tuple[Path, str]]:
         light, dark = self.variants.light, self.variants.dark
@@ -226,13 +299,13 @@ class Generation:
 
     def check(self, palette: Palette) -> Iterator[Finding]:
         if not self.variants.light.exists():
-            yield Finding(Level.FAIL, f"{shown(self.variants.light)} — falta la variante clara")
+            yield Finding(Level.FAIL, f"{shown(self.variants.light)} — missing light variant")
             return
         for output, text in self.outputs(palette):
             yield Finding.verdict(
                 has_text(output, text),
                 shown(output),
-                f"{shown(output)} — difiere de lo generado (corre: eyes-theme generate)",
+                f"{shown(output)} — differs from the generated output (run: eyes-theme generate)",
             )
 
 
@@ -259,7 +332,7 @@ class Target(ABC):
 
 @dataclass(frozen=True, slots=True)
 class Switch(Target):
-    section: ClassVar[str] = "enlaces"
+    section: ClassVar[str] = "links"
     pointer: Path
     variants: Pair[str]
     generation: Generation | None = None
@@ -272,7 +345,7 @@ class Switch(Target):
                 files = Pair((path.parent / light).resolve(), (path.parent / dark).resolve())
                 return cls(path, Pair(light, dark), Generation.from_table(spec, files))
             case _:
-                raise ValueError(f"switch inválido: {spec}")
+                raise ValueError(f"invalid switch: {spec}")
 
     def is_present(self) -> bool:
         return not self.pointer.parent.is_dir() or self.pointer.is_symlink()
@@ -291,16 +364,16 @@ class Switch(Target):
         want = self.variants[mode]
         problems = []
         if not self.pointer.is_symlink():
-            problems.append("no es symlink")
+            problems.append("not a symlink")
         elif (current := str(self.pointer.readlink())) != want:
             problems.append(f"apunta a '{current}', esperaba '{want}'")
         if not (self.pointer.parent / want).exists():
-            problems.append(f"falta {want}")
+            problems.append(f"missing {want}")
         path = live(self.pointer)
         if not path.exists(follow_symlinks=False):
-            problems.append(f"no existe {shown(path)}")
+            problems.append(f"{shown(path)} does not exist")
         elif path.resolve() != self.pointer.resolve():
-            problems.append(f"{shown(path)} no resuelve igual que el repo")
+            problems.append(f"{shown(path)} does not resolve like the repo")
         yield Finding.verdict(
             not problems, f"{shown(self.pointer)} -> {want}", f"{shown(self.pointer)} — {'; '.join(problems)}"
         )
@@ -308,7 +381,7 @@ class Switch(Target):
 
 @dataclass(frozen=True, slots=True)
 class Compose(Target):
-    section: ClassVar[str] = "compuestos"
+    section: ClassVar[str] = "composed"
     target: Path
     base: Path
     variants: Pair[Path]
@@ -328,7 +401,7 @@ class Compose(Target):
                     Generation.from_table(spec, variants),
                 )
             case _:
-                raise ValueError(f"compose inválido: {spec}")
+                raise ValueError(f"invalid compose: {spec}")
 
     def parts(self, mode: Mode) -> tuple[Path, Path]:
         return (self.variants[mode], self.base) if self.variant_first else (self.base, self.variants[mode])
@@ -347,13 +420,13 @@ class Compose(Target):
         yield Finding.verdict(
             has_text(self.target, self.expected(mode)),
             f"{shown(self.target)} ({label})",
-            f"{shown(self.target)} — difiere de {label} (corre: eyes-theme reapply)",
+            f"{shown(self.target)} — differs from {label} (run: eyes-theme reapply)",
         )
 
 
 @dataclass(frozen=True, slots=True)
 class Copy(Target):
-    section: ClassVar[str] = "copias"
+    section: ClassVar[str] = "copies"
     target: Path
     variants: Pair[Path]
     rename: tuple[str, str] | None = None
@@ -365,7 +438,7 @@ class Copy(Target):
                 rename = tuple(spec["replace"]) if "replace" in spec else None
                 return cls(located(target), Pair(located(light), located(dark)), rename)
             case _:
-                raise ValueError(f"copy inválido: {spec}")
+                raise ValueError(f"invalid copy: {spec}")
 
     def expected(self, mode: Mode) -> str:
         text = self.variants[mode].read_text(encoding="utf-8")
@@ -382,13 +455,13 @@ class Copy(Target):
         yield Finding.verdict(
             has_text(self.target, self.expected(mode)),
             f"{shown(self.target)} == {variant} (hot-reload vivo)",
-            f"{shown(self.target)} no coincide con {variant} (corre: eyes-theme reapply)",
+            f"{shown(self.target)} does not match {variant} (run: eyes-theme reapply)",
         )
 
 
 @dataclass(frozen=True, slots=True)
 class Link(Target):
-    section: ClassVar[str] = "instalaciones"
+    section: ClassVar[str] = "installs"
     path: Path
     target: Path
 
@@ -398,7 +471,7 @@ class Link(Target):
             case {"path": str(path), "target": str(target)}:
                 return cls(located(path), located(target))
             case _:
-                raise ValueError(f"link inválido: {spec}")
+                raise ValueError(f"invalid link: {spec}")
 
     def plan(self, mode: Mode) -> str:
         return f"link {shown(self.path)} -> {shown(self.target)}"
@@ -410,13 +483,13 @@ class Link(Target):
 
     def check(self, mode: Mode) -> Iterator[Finding]:
         yield Finding.verdict(
-            self.path.exists(), shown(self.path), f"falta {shown(self.path)} (corre: eyes-theme reapply)"
+            self.path.exists(), shown(self.path), f"missing {shown(self.path)} (run: eyes-theme reapply)"
         )
 
 
 @dataclass(frozen=True, slots=True)
 class JsonSetting(Target):
-    section: ClassVar[str] = "ajustes"
+    section: ClassVar[str] = "settings"
     file: Path
     key: str
     value: str
@@ -428,7 +501,7 @@ class JsonSetting(Target):
             case {"file": str(file), "key": str(key), "value": str(value)}:
                 return cls(located(file), key, value, dict(spec.get("defaults", {})))
             case _:
-                raise ValueError(f"json inválido: {spec}")
+                raise ValueError(f"invalid json: {spec}")
 
     def load(self) -> dict[str, Toml]:
         return json.loads(self.file.read_text(encoding="utf-8"))
@@ -442,7 +515,7 @@ class JsonSetting(Target):
         except FileNotFoundError:
             settings = dict(self.defaults)
         except json.JSONDecodeError as error:
-            log.error("%s no es JSON válido; no se cambia %s: %s", shown(self.file), self.key, error)
+            log.error("%s is not valid JSON; not changing %s: %s", shown(self.file), self.key, error)
             return
         if settings.get(self.key) != self.value:
             text = json.dumps(settings | {self.key: self.value}, indent=2, ensure_ascii=False)
@@ -452,21 +525,21 @@ class JsonSetting(Target):
         try:
             current = self.load().get(self.key)
         except FileNotFoundError:
-            yield Finding(Level.WARN, f"no existe {shown(self.file)}")
+            yield Finding(Level.WARN, f"{shown(self.file)} does not exist")
             return
         except json.JSONDecodeError as error:
-            yield Finding(Level.FAIL, f"{shown(self.file)} no es JSON válido: {error}")
+            yield Finding(Level.FAIL, f"{shown(self.file)} is not valid JSON: {error}")
             return
         yield Finding.verdict(
             current == self.value,
             f"{shown(self.file)}: {self.key}={self.value}",
-            f"{shown(self.file)} — {self.key}={current!r}, debería ser '{self.value}' (corre: eyes-theme reapply)",
+            f"{shown(self.file)} — {self.key}={current!r}, should be '{self.value}' (run: eyes-theme reapply)",
         )
 
 
 @dataclass(frozen=True, slots=True)
 class IniSetting(Target):
-    section: ClassVar[str] = "ajustes"
+    section: ClassVar[str] = "settings"
     file: Path
     key: str
     values: Pair[str]
@@ -477,7 +550,7 @@ class IniSetting(Target):
             case {"file": str(file), "key": str(key), "light": str(light), "dark": str(dark)}:
                 return cls(located(file), key, Pair(light, dark))
             case _:
-                raise ValueError(f"ini inválido: {spec}")
+                raise ValueError(f"invalid ini: {spec}")
 
     def line(self, mode: Mode) -> str:
         return f"{self.key}={self.values[mode]}"
@@ -501,7 +574,7 @@ class IniSetting(Target):
         yield Finding.verdict(
             re.search(rf"^{re.escape(self.line(mode))}$", text, flags=re.MULTILINE) is not None,
             f"{shown(self.file)}: {self.line(mode)}",
-            f"{shown(self.file)} — falta {self.line(mode)} (corre: eyes-theme reapply)",
+            f"{shown(self.file)} — missing {self.line(mode)} (run: eyes-theme reapply)",
         )
 
 
@@ -517,11 +590,11 @@ class Wiring:
             case {"file": str(file), "pattern": str(pattern)}:
                 return cls(label, located(file), pattern)
             case _:
-                raise ValueError(f"wired inválido en {label}: {spec}")
+                raise ValueError(f"invalid wired in {label}: {spec}")
 
     def check(self) -> Finding:
         if not self.path.exists():
-            return Finding(Level.WARN, f"{self.label} — no existe {shown(self.path)} (¿herramienta no instalada?)")
+            return Finding(Level.WARN, f"{self.label} — {shown(self.path)} does not exist (tool not installed?)")
         candidates = (
             (candidate for candidate in self.path.rglob("*") if candidate.is_file())
             if self.path.is_dir()
@@ -534,7 +607,7 @@ class Wiring:
         return Finding.verdict(
             found,
             f"{self.label}: {shown(self.path)}",
-            f"{self.label} — '{self.pattern}' no aparece en {shown(self.path)}",
+            f"{self.label} — '{self.pattern}' not found in {shown(self.path)}",
         )
 
 
@@ -577,7 +650,7 @@ class Reload(ABC):
                     env=dict(spec.get("env", {})),
                 )
             case _:
-                raise ValueError(f"reload inválido: {spec}")
+                raise ValueError(f"invalid reload: {spec}")
 
     @abstractmethod
     def jobs(self, context: ReloadContext) -> Iterator[Job]: ...
@@ -639,7 +712,7 @@ class CommandReload(Reload):
     def check(self, context: ReloadContext) -> Iterator[Finding]:
         if self.applies(context) and shutil.which(self.program) is None:
             yield Finding(
-                Level.WARN, f"{self.program} no está instalado: la recarga de {self.process or self.program} no hace nada"
+                Level.WARN, f"{self.program} is not installed: reloading {self.process or self.program} does nothing"
             )
 
 
@@ -671,7 +744,7 @@ class Manifest:
         reloads: list[Reload] = []
         for name, app in table["apps"].items():
             if unknown := app.keys() - APP_KEYS:
-                raise ValueError(f"{shown(path)}: claves desconocidas en apps.{name}: {sorted(unknown)}")
+                raise ValueError(f"{shown(path)}: unknown keys in apps.{name}: {sorted(unknown)}")
             targets += chain.from_iterable(map(build, app.get(kind, ())) for kind, build in TARGET_KINDS.items())
             wirings += (Wiring.from_table(name, spec) for spec in app.get("wired", ()))
             reloads += map(Reload.from_table, app.get("reload", ()))
@@ -725,7 +798,7 @@ class Switcher:
         if self.dry_run:
             for target in self.manifest.targets:
                 print(f"  would {target.plan(mode)}")
-            print("  would reload running daemons\n(dry-run: no se aplicó nada)")
+            print("  would reload running daemons\n(dry-run: nothing applied)")
             return
         with self.store.locked():
             if self.is_current(mode):
@@ -760,7 +833,7 @@ class Switcher:
                 try:
                     future.result()
                 except (OSError, subprocess.SubprocessError) as error:
-                    log.warning("falló la recarga «%s»: %s", futures[future].name, error)
+                    log.warning("reload %r failed: %s", futures[future].name, error)
 
     def generate(self) -> None:
         print("Generating dark variants from light canonicals...")
@@ -775,6 +848,44 @@ class Switcher:
             self.apply(self.store.read())
         print("Done. Review with: git diff --stat")
 
+    def ensure_variant(self, variants: Variants) -> None:
+        with MANIFEST.open("rb") as stream:
+            active = variants.active(tomllib.load(stream)["palette"])
+        if active != variants.light:
+            print(f"The light palette is {active or 'unknown'}, configured {variants.light}: switching.")
+            self.use_variant(variants, variants.light)
+
+    def use_variant(self, variants: Variants, name: str) -> None:
+        with MANIFEST.open("rb") as stream:
+            palette = tomllib.load(stream)["palette"]
+        changes = variants.changes(palette, name)
+        if not changes:
+            print(f"Already using {name}.")
+            return
+        changed: list[Path] = []
+        for path in tracked_files():
+            try:
+                text = path.read_text(encoding="utf-8")
+            except UnicodeDecodeError:
+                continue
+            if (recolored := recolor(text, changes)) == text:
+                continue
+            changed.append(path)
+            if not self.dry_run:
+                mode = path.stat().st_mode
+                write_atomic(path, recolored)
+                path.chmod(mode)
+        verb = "would recolor" if self.dry_run else "recolored"
+        for path in changed:
+            print(f"  {verb} {shown(path)}")
+        if self.dry_run:
+            print(f"(dry-run: {len(changed)} files, nothing applied)")
+            return
+        print(f"Switched the light palette to {name} in {len(changed)} files.")
+        updated = replace(self, manifest=Manifest.load(MANIFEST))
+        updated.generate()
+        updated.reload(self.store.read())
+
 
 @dataclass(frozen=True, slots=True)
 class Doctor:
@@ -784,16 +895,28 @@ class Doctor:
     def findings(self, mode: Mode) -> dict[str, list[Finding]]:
         sections: defaultdict[str, list[Finding]] = defaultdict(list)
         if not self.store.file.exists():
-            sections["estado"].append(Finding(Level.WARN, f"sin {shown(self.store.file)}; se asume light"))
+            sections["state"].append(Finding(Level.WARN, f"no {shown(self.store.file)}; assuming light"))
         for target in self.manifest.targets:
             sections[target.section].extend(target.check(mode))
         for generation in self.manifest.generations:
-            sections["generadas"].extend(generation.check(self.manifest.palette))
-        sections["consumidores"].extend(wiring.check() for wiring in self.manifest.wirings)
+            sections["generated"].extend(generation.check(self.manifest.palette))
+        sections["consumers"].extend(wiring.check() for wiring in self.manifest.wirings)
+        variants = Variants.load(VARIANTS)
+        with MANIFEST.open("rb") as stream:
+            active = variants.active(tomllib.load(stream)["palette"])
+        if active is None:
+            finding = Finding(Level.WARN, f"the light palette matches no variant in {shown(VARIANTS)}")
+        elif active != variants.light:
+            finding = Finding(
+                Level.WARN, f"light palette {active}, configured {variants.light} (run: eyes-theme reapply)"
+            )
+        else:
+            finding = Finding(Level.OK, f"light palette: {active}")
+        sections["variants"].append(finding)
         context = ReloadContext(mode, running_processes())
-        sections["recarga en vivo"].extend(chain.from_iterable(reload.check(context) for reload in self.manifest.reloads))
+        sections["live reload"].extend(chain.from_iterable(reload.check(context) for reload in self.manifest.reloads))
         if shutil.which("systemctl") is None:
-            sections["systemd"].append(Finding(Level.WARN, "systemctl no disponible"))
+            sections["systemd"].append(Finding(Level.WARN, "systemctl not available"))
         else:
             sections["systemd"].extend(chain.from_iterable(map(unit_findings, self.manifest.units)))
         return sections
@@ -808,22 +931,45 @@ class Doctor:
                 for finding in findings:
                     print(f"  {finding.level:<5} {finding.message}")
         counts = Counter(finding.level for finding in chain.from_iterable(sections.values()))
-        print(f"\nresultado: {counts[Level.OK]} ok, {counts[Level.FAIL]} fail, {counts[Level.WARN]} warn")
+        print(f"\nresult: {counts[Level.OK]} ok, {counts[Level.FAIL]} fail, {counts[Level.WARN]} warn")
         return not counts[Level.FAIL]
+
+
+EPILOG = """\
+commands:
+  light, dark     apply that mode
+  toggle          switch to the other mode
+  auto            light from 06:00 to 19:00, dark otherwise
+  reapply         re-apply the current mode and reload apps
+  status          print the current mode (default)
+  generate        regenerate the dark files from the light ones
+  doctor          check the installed theme
+  variant [NAME]  list the light palettes, or switch to NAME and keep it
+
+Light palettes live in local/share/eyes-theme/variants.toml; its `light` key
+picks the one light mode uses. Restart Quickshell after switching.
+"""
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        prog="eyes-theme", description="Cambia el tema eyes entre claro y oscuro según el manifiesto."
+        prog="eyes-theme",
+        description="Switch the eyes theme between light and dark, and pick its light palette.",
+        epilog=EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("command", nargs="?", default="status", choices=COMMANDS)
-    parser.add_argument("--dry-run", action="store_true", help="muestra lo que haría sin cambiar nada")
-    parser.add_argument("--force", action="store_true", help="reaplica aunque el modo guardado coincida")
+    parser.add_argument("command", nargs="?", default="status", choices=COMMANDS, metavar="COMMAND")
+    parser.add_argument("name", nargs="?", metavar="NAME", help="light palette for variant")
+    parser.add_argument("--dry-run", action="store_true", help="show what would change without changing it")
+    parser.add_argument("--force", action="store_true", help="re-apply even if the mode is already set")
     args = parser.parse_args()
     sys.stdout.reconfigure(line_buffering=True)
     logging.basicConfig(format="eyes-theme: %(levelname)s: %(message)s")
     store = ModeStore(STATE_DIR)
     switcher = Switcher(Manifest.load(MANIFEST), store, dry_run=args.dry_run, force=args.force)
+    variants = Variants.load(VARIANTS)
+    if args.command in {"light", "dark", "toggle", "auto", "reapply"}:
+        switcher.ensure_variant(variants)
     match args.command:
         case "light" | "dark":
             switcher.switch(Mode(args.command))
@@ -839,6 +985,16 @@ def main() -> int:
             switcher.generate()
         case "doctor":
             return 0 if Doctor(switcher.manifest, store).run() else 1
+        case "variant":
+            if args.name:
+                switcher.use_variant(variants, args.name)
+                if not args.dry_run:
+                    variants.choose(args.name)
+                return 0
+            with MANIFEST.open("rb") as stream:
+                active = variants.active(tomllib.load(stream)["palette"])
+            for name in variants.palettes:
+                print(f"{'*' if name == active else ' '} {name}{'  (light)' if name == variants.light else ''}")
     return 0
 
 

@@ -42,8 +42,7 @@ osd() {
 # buses hanging off the GPU (drm): covers amd/intel/nouveau and excludes the
 # dangerous ones (SMBus, DesignWare touchpad). Dead-bus probe: ~80ms.
 detect_buses() {
-    local dev devdir bus
-    : > "$busfile"
+    local dev devdir bus found=()
     for dev in /sys/class/i2c-dev/i2c-*; do
         devdir="$(readlink -f "$dev/device")"
         # DDC buses: hang off a device with drm (parent) or off a cardN
@@ -51,9 +50,10 @@ detect_buses() {
         bus="${dev##*/i2c-}"
         timeout 3 ddcutil --bus "$bus" --skip-ddc-checks --noverify \
             --sleep-multiplier .05 getvcp 10 >/dev/null 2>&1 || continue
-        echo "$bus" >> "$busfile"
+        found+=("$bus")
     done
-    [[ -s $busfile ]] || echo none > "$busfile"
+    # written in one go: a keypress reading it mid-probe would start its own
+    printf '%s\n' "${found[@]:-none}" > "$busfile.$$" && mv "$busfile.$$" "$busfile"
 }
 
 case $1 in
@@ -64,7 +64,15 @@ init)
     level="$2"
     [[ -z $level && -s $levelfile ]] && read -r level < "$levelfile"
     : "${level:=50}"
-    detect_buses
+    # a monitor can take a while to answer DDC after login or a plug-in:
+    # keep probing for half a minute while an external output is active
+    for _ in {1..6}; do
+        detect_buses
+        [[ $(<"$busfile") != none ]] && break
+        scrollmsg -t get_outputs -r |
+            jq -e 'any(.[]; .active and (.name | startswith("eDP") | not))' >/dev/null || exit 0
+        sleep 5
+    done
     [[ $(<"$busfile") == none ]] && exit 0
     while IFS= read -r bus; do
         ddcutil --bus "$bus" --skip-ddc-checks --noverify --sleep-multiplier .1 \

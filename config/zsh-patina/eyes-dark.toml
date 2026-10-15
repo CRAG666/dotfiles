@@ -1,76 +1,76 @@
 # eyes (dark) — forest-green palette for zsh-patina.
 
 # comments (c_ash from nvim eyes)
-"comment" = "#7a8c72"
+"comment" = "#9fb9a1"
 
 # strings (c_green1 from nvim eyes)
-"string" = "#88b878"
+"string" = "#96d4a6"
 
 # regular expressions
-"keyword.operator.regexp" = "#b890b0"
+"keyword.operator.regexp" = "#efb7db"
 
 # escape characters (c_pink)
-"constant.character" = "#b890b0"
+"constant.character" = "#efb7db"
 
 # constants in general (c_orange0)
-"constant" = "#b89a6a"
+"constant" = "#f7bc95"
 
 # numeric literals (c_pink to match nvim Number)
-"constant.numeric" = "#b890b0"
+"constant.numeric" = "#efb7db"
 
 # parameters
-"variable.parameter" = "#c8a870"
+"variable.parameter" = "#f4cb94"
 
 # environment variables
-"variable.other" = "#c87868"
-"punctuation.definition.variable" = "#c87868"
+"variable.other" = "#ffbab1"
+"punctuation.definition.variable" = "#ffbab1"
 
 # commands
-"variable.function" = "#6a94a8"
+"variable.function" = "#a2cdf7"
 
 # home directory ~
-"variable.language.tilde" = "#c87868"
+"variable.language.tilde" = "#ffbab1"
 
 # keywords
-"keyword" = "#9090b8"
+"keyword" = "#d5c9fc"
 
 # general foreground color
-source = "#d0dcc8"
+source = "#e4e0cc"
 
 # variable assignments
-"storage" = "#d4b85a"
-"storage.modifier" = "#9090b8"
+"storage" = "#f1de95"
+"storage.modifier" = "#d5c9fc"
 
 # support terms (e.g. double braces, let)
-"support" = "#6a94a8"
-"keyword.operator" = "#5ab8a8"
+"support" = "#a2cdf7"
+"keyword.operator" = "#95ded1"
 
 # function names (c_blue1 from nvim eyes)
-"entity.name.function" = "#82aab8"
+"entity.name.function" = "#a8d7f0"
 
 # braces (c_gray1 from nvim eyes)
-"punctuation.section" = "#7a8a78"
+"punctuation.section" = "#b6b4ac"
 
 # terminators (e.g. ";;" after a case item)
-"punctuation.terminator" = "#7a8a78"
+"punctuation.terminator" = "#b6b4ac"
 
 # history expansions
-"meta.group.expansion.history" = "#c87868"
+"meta.group.expansion.history" = "#ffbab1"
 
 # reset command substitutions to the theme's default foreground color
-"meta.group.expansion.command.parens" = { foreground = "#d0dcc8" }
+"meta.group.expansion.command.parens" = { foreground = "#e4e0cc" }
 
 # command call wrappers and option-argument values default to ANSI 7 (too dim)
-"meta.function-call" = { foreground = "#d0dcc8" }
-"meta.function-call.arguments" = { foreground = "#d0dcc8" }
-"punctuation.definition.parameter" = { foreground = "#d0dcc8" }
+"meta.function-call" = { foreground = "#e4e0cc" }
+"meta.function-call.arguments" = { foreground = "#e4e0cc" }
+"punctuation.definition.parameter" = { foreground = "#e4e0cc" }
 
 # line-continuation backslash also defaults to ANSI 7 (dim grey on dark green)
-"punctuation.separator.continuation.line" = "#7a8a78"
+"punctuation.separator.continuation.line" = "#b6b4ac"
 
 # dynamic items
-"dynamic.callable" = "#6a94a8"
-"dynamic.callable.missing" = "#c87868"
+"dynamic.callable" = "#a2cdf7"
+"dynamic.callable.missing" = "#ffbab1"
 "dynamic.path" = { underline = true }
 
 [metadata]

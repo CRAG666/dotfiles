@@ -35,9 +35,6 @@ exec ~/.config/scroll/brightness.sh init
 exec ~/.config/scroll/brightness-hotplug.sh
 exec rfkill block bluetooth
 
-# Turn the laptop backlight off whenever the "Shenzhen KTC" monitor is detected.
-exec ~/.config/scroll/ktc-brightness.sh
-
 ### Lua scripts
 set $lua_scripts ~/.config/scroll/lua
 

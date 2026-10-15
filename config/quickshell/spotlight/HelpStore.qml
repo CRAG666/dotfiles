@@ -28,7 +28,7 @@ Scope {
     function items(tokens) {
         const hits = topics
             .map((topic, index) => ({ topic, index, rank: Spot.matches(`${topic.keys} ${topic.title}`, tokens) ? 0 : 1 }))
-            .filter(hit => Spot.matches(`${hit.topic.section} ${hit.topic.keys} ${hit.topic.title} ${hit.topic.text ?? ""}`, tokens));
+            .filter(hit => hit.rank === 0 || Spot.matches(`${hit.topic.section} ${hit.topic.keys} ${hit.topic.title} ${hit.topic.text ?? ""}`, tokens, false));
         const sectionRank = {};
         for (const hit of hits)
             sectionRank[hit.topic.section] = Math.min(sectionRank[hit.topic.section] ?? 1, hit.rank);

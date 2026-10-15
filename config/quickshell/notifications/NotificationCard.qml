@@ -1,11 +1,13 @@
 import Quickshell
 import Quickshell.Services.Notifications
+import Quickshell.Widgets
 import QtQuick
 import qs
 
-// One notification in macOS Mojave's shape, on Spotlight's glass: the app icon,
-// a bold title and the body. One with actions, or a critical one, is an alert:
-// its buttons, Close last, stack in a column on the right edge. Left or middle
+// One notification in macOS Sequoia's shape, on the popups' glass: the app
+// icon, a bold title with its age at the right, the body, and the image it
+// carries as a thumbnail. One with actions, or a critical one, is an alert: its
+// buttons, Close last, stack on the right of the card. Left or middle
 // click elsewhere runs the default action, else opens the first link of the
 // body, and closes it; right click closes every banner; the ✕ that appears on
 // hover closes this one. The timeout pauses while the pointer is over it.
@@ -24,15 +26,26 @@ Item {
     readonly property var progress: notification?.hints.value
     readonly property var buttons: (notification?.actions ?? []).filter(action => action.identifier !== "default")
     readonly property bool alert: critical || buttons.length > 0
+    readonly property string appIcon: notification?.appIcon || notification?.desktopEntry || ""
+    readonly property string image: notification?.image ?? ""
     readonly property int pad: Math.round(11 * u)
+    readonly property double arrived: Date.now()
+    property double now: arrived
 
     width: Math.round(345 * u)
-    height: Math.max(text.implicitHeight + 2 * pad, icon.height + 2 * pad, alert ? (buttons.length + 1) * Math.round(30 * u) : 0)
+    height: Math.max(text.implicitHeight, icon.height, alert ? actions.implicitHeight : 0) + 2 * pad
 
     function iconSource(name) {
         if (name.startsWith("/"))
             return "file://" + name;
         return name.includes("://") ? name : Quickshell.iconPath(name, "dialog-information");
+    }
+
+    function age() {
+        const minutes = Math.round((now - arrived) / 60000);
+        if (minutes < 1)
+            return "now";
+        return minutes < 60 ? minutes + " min" : Math.round(minutes / 60) + " h";
     }
 
     function activate() {
@@ -45,6 +58,13 @@ Item {
         if (link)
             Quickshell.execDetached(["xdg-open", link]);
         notification.dismiss();
+    }
+
+    Timer {
+        interval: 60000
+        repeat: true
+        running: true
+        onTriggered: card.now = Date.now()
     }
 
     Timer {
@@ -70,7 +90,7 @@ Item {
 
         Glass {
             anchors.fill: parent
-            radius: Math.round(12 * card.u)
+            radius: Math.round(16 * card.u)
             u: card.u
             backdrop: card.backdrop
             // follows the slide-in, the stack moving and the cards shifting
@@ -92,7 +112,7 @@ Item {
             height: width
             sourceSize: Qt.size(width * 2, height * 2)
             fillMode: Image.PreserveAspectFit
-            source: card.iconSource(card.notification?.image || card.notification?.appIcon || card.notification?.desktopEntry || "")
+            source: card.iconSource(card.appIcon || card.image)
             asynchronous: true
         }
 
@@ -100,23 +120,39 @@ Item {
             id: text
             anchors.left: icon.right
             anchors.leftMargin: Math.round(10 * card.u)
-            anchors.right: card.alert ? actions.left : parent.right
+            anchors.right: card.alert ? actions.left : thumb.visible ? thumb.left : parent.right
             anchors.rightMargin: card.pad
             anchors.verticalCenter: parent.verticalCenter
             spacing: Math.round(2 * card.u)
 
-            Text {
+            Item {
                 width: parent.width
-                wrapMode: Text.Wrap
-                maximumLineCount: 2
-                elide: Text.ElideRight
-                textFormat: Text.PlainText
-                text: card.notification?.summary || card.notification?.appName || ""
-                color: Theme.ink
-                font.family: Theme.menuText
-                font.pixelSize: Math.round(13 * card.u)
-                font.weight: Font.Bold
-                renderType: Text.NativeRendering
+                height: title.implicitHeight
+
+                Text {
+                    id: title
+                    width: parent.width - age.implicitWidth - Math.round(8 * card.u)
+                    wrapMode: Text.Wrap
+                    maximumLineCount: 2
+                    elide: Text.ElideRight
+                    textFormat: Text.PlainText
+                    text: card.notification?.summary || card.notification?.appName || ""
+                    color: Theme.ink
+                    font.family: Theme.menuText
+                    font.pixelSize: Math.round(13 * card.u)
+                    font.weight: Font.Bold
+                    renderType: Text.NativeRendering
+                }
+                Text {
+                    id: age
+                    anchors.right: parent.right
+                    anchors.baseline: title.baseline
+                    text: card.age()
+                    color: Theme.inkSoft
+                    font.family: Theme.menuText
+                    font.pixelSize: Math.round(11 * card.u)
+                    renderType: Text.NativeRendering
+                }
             }
             Text {
                 width: parent.width
@@ -127,7 +163,7 @@ Item {
                 textFormat: Text.StyledText
                 text: (card.notification?.body ?? "").replace(/\n/g, "<br>")
                 color: Theme.ink
-                linkColor: Wallpaper.accent
+                linkColor: Theme.accent
                 font.family: Theme.menuText
                 font.pixelSize: Math.round(13 * card.u)
                 renderType: Text.NativeRendering
@@ -143,49 +179,59 @@ Item {
                     width: parent.width
                     height: Math.round(5 * card.u)
                     radius: height / 2
-                    color: Theme.hairline
+                    color: Theme.eyes.bg4
 
                     Rectangle {
                         width: parent.width * Math.max(0, Math.min(100, card.progress ?? 0)) / 100
                         height: parent.height
                         radius: parent.radius
-                        color: Wallpaper.accent
+                        color: Theme.eyes.green0
                     }
                 }
             }
         }
 
-        // the alert's buttons, Close last, split by hairlines
-        Rectangle {
-            anchors.right: actions.left
-            width: 1
-            height: parent.height
-            visible: card.alert
-            color: Theme.hairline
+        ClippingRectangle {
+            id: thumb
+            anchors.right: parent.right
+            anchors.rightMargin: card.pad
+            anchors.verticalCenter: parent.verticalCenter
+            width: Math.round(40 * card.u)
+            height: width
+            radius: Math.round(6 * card.u)
+            visible: !card.alert && card.appIcon !== "" && card.image !== ""
+            color: "transparent"
+
+            Image {
+                anchors.fill: parent
+                fillMode: Image.PreserveAspectCrop
+                sourceSize: Qt.size(width * 2, height * 2)
+                source: thumb.visible ? card.iconSource(card.image) : ""
+                asynchronous: true
+            }
         }
+
+        // the alert's buttons, Close last
         Column {
             id: actions
             anchors.right: parent.right
+            anchors.rightMargin: card.pad
+            anchors.verticalCenter: parent.verticalCenter
             width: Math.round(84 * card.u)
-            height: parent.height
+            spacing: Math.round(6 * card.u)
             visible: card.alert
 
             Repeater {
                 model: [...card.buttons.map(action => ({ text: action.text, action })), { text: "Close", action: null }]
 
-                Item {
+                Rectangle {
                     id: button
                     required property var modelData
-                    required property int index
                     width: actions.width
-                    height: actions.height / (card.buttons.length + 1)
+                    height: Math.round(26 * card.u)
+                    radius: Math.round(7 * card.u)
+                    color: Theme.fill
 
-                    Rectangle {
-                        width: parent.width
-                        height: 1
-                        visible: button.index > 0
-                        color: Theme.hairline
-                    }
                     Text {
                         anchors.centerIn: parent
                         width: parent.width - Math.round(8 * card.u)
@@ -194,7 +240,7 @@ Item {
                         text: button.modelData.text
                         color: Theme.ink
                         font.family: Theme.menuText
-                        font.pixelSize: Math.round(13 * card.u)
+                        font.pixelSize: Math.round(12 * card.u)
                         renderType: Text.NativeRendering
                     }
                     MouseArea {
@@ -205,23 +251,23 @@ Item {
             }
         }
 
-        // Mojave's close button, a small disc on the top-left corner
+        // the close button, a small disc on the top-left corner
         Rectangle {
             x: -Math.round(7 * card.u)
             y: -Math.round(7 * card.u)
             width: Math.round(20 * card.u)
             height: width
             radius: width / 2
-            color: Wallpaper.glass
+            color: Theme.fill
             border.width: 1
-            border.color: Theme.hairline
+            border.color: Theme.border
             opacity: hover.hovered && !card.alert ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: 120 } }
 
             Text {
                 anchors.centerIn: parent
                 text: "✕"
-                color: Theme.inkSoft
+                color: Theme.ink
                 font.family: Theme.menuText
                 font.pixelSize: Math.round(9 * card.u)
                 font.weight: Font.Bold

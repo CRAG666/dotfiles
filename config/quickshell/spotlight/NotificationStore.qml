@@ -30,7 +30,7 @@ Scope {
 
     function items(tokens) {
         return saved.items
-            .filter(entry => Spot.matches(`${entry.app} ${entry.summary} ${entry.body}`, tokens))
+            .filter(entry => Spot.matches(`${entry.app} ${entry.summary} ${entry.body}`, tokens, false))
             .map(entry => ({ key: "notification:" + entry.id, kind: "notification", store: root, entry, title: entry.summary || entry.app, hint: ago(entry.time), icon: entry.icon || "dialog-information" }));
     }
 

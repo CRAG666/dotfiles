@@ -32,7 +32,7 @@ Scope {
         for (const entry of emoji.items) {
             if (hits.length === 120)
                 break;
-            if (Spot.matchesLowered(entry.name, tokens))
+            if (Spot.matchesFolded(entry.name, tokens))
                 hits.push(entry);
         }
         return hits.map(entry => ({ key: "emoji:" + entry.char, kind: "emoji", store: root, title: entry.name, glyph: entry.char, value: entry.char }));

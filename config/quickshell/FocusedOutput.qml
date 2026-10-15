@@ -7,14 +7,21 @@ import QtQuick
 // through workspace events, so popups open where you are working.
 Singleton {
     id: root
-    property string name: ""
-    readonly property var screen: Quickshell.screens.find(screen => screen.name === name) ?? Quickshell.screens[0]
+    readonly property var screen: Quickshell.screens.find(screen => screen.name === focused.name) ?? Quickshell.screens[0]
+
+    // kept across hot reloads: starting again from "" sends every popup window
+    // to the first screen and back mid-reload, and Quickshell crashes in setScreen
+    PersistentProperties {
+        id: focused
+        reloadableId: "focusedOutput"
+        property string name: ""
+    }
 
     Process {
         running: true
         command: ["scrollmsg", "-t", "get_workspaces", "-r"]
         stdout: StdioCollector {
-            onStreamFinished: root.name = JSON.parse(text).find(workspace => workspace.focused)?.output ?? ""
+            onStreamFinished: focused.name = JSON.parse(text).find(workspace => workspace.focused)?.output ?? ""
         }
     }
 
@@ -25,7 +32,7 @@ Singleton {
             onRead: line => {
                 const event = JSON.parse(line);
                 if (event.change === "focus" && event.current?.output)
-                    root.name = event.current.output;
+                    focused.name = event.current.output;
             }
         }
     }

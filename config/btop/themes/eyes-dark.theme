@@ -3,56 +3,56 @@
 # Matches config/nvim/colors/eyes.lua (dark mode)
 #
 
-theme[main_bg]="#1a211a"
-theme[main_fg]="#d0dcc8"
-theme[title]="#d0dcc8"
-theme[hi_fg]="#c87868"
+theme[main_bg]="#192019"
+theme[main_fg]="#e4e0cc"
+theme[title]="#e4e0cc"
+theme[hi_fg]="#ffbab1"
 theme[selected_bg]="#3a463a"
-theme[selected_fg]="#d0dcc8"
-theme[inactive_fg]="#7a8a78"
-theme[graph_text]="#d0dcc8"
-theme[meter_bg]="#2d382d"
-theme[proc_misc]="#9090b8"
+theme[selected_fg]="#e4e0cc"
+theme[inactive_fg]="#b6b4ac"
+theme[graph_text]="#e4e0cc"
+theme[meter_bg]="#2c372c"
+theme[proc_misc]="#d5c9fc"
 
-theme[cpu_box]="#9090b8"      # violet
-theme[mem_box]="#7aab72"      # green
-theme[net_box]="#c87868"      # red
-theme[proc_box]="#6a94a8"     # blue
+theme[cpu_box]="#d5c9fc"      # violet
+theme[mem_box]="#bfe6a1"      # green
+theme[net_box]="#ffbab1"      # red
+theme[proc_box]="#a2cdf7"     # blue
 
-theme[div_line]="#536053"
+theme[div_line]="#667366"
 
-theme[temp_start]="#7aab72"
-theme[temp_mid]="#d4b85a"
-theme[temp_end]="#c87868"
+theme[temp_start]="#bfe6a1"
+theme[temp_mid]="#f1de95"
+theme[temp_end]="#ffbab1"
 
-theme[cpu_start]="#5ab8a8"
-theme[cpu_mid]="#6a94a8"
-theme[cpu_end]="#9090b8"
+theme[cpu_start]="#95ded1"
+theme[cpu_mid]="#a2cdf7"
+theme[cpu_end]="#d5c9fc"
 
-theme[free_start]="#9090b8"
-theme[free_mid]="#6a94a8"
-theme[free_end]="#82aab8"
+theme[free_start]="#d5c9fc"
+theme[free_mid]="#a2cdf7"
+theme[free_end]="#a8d7f0"
 
-theme[cached_start]="#6ab8b0"
-theme[cached_mid]="#5ab8a8"
-theme[cached_end]="#6a94a8"
+theme[cached_start]="#96d4e2"
+theme[cached_mid]="#95ded1"
+theme[cached_end]="#a2cdf7"
 
-theme[available_start]="#c8a870"
-theme[available_mid]="#c87868"
-theme[available_end]="#c87868"
+theme[available_start]="#f4cb94"
+theme[available_mid]="#ffbab1"
+theme[available_end]="#ffbab1"
 
-theme[used_start]="#7aab72"
-theme[used_mid]="#6a9460"
-theme[used_end]="#5ab8a8"
+theme[used_start]="#bfe6a1"
+theme[used_mid]="#c3c799"
+theme[used_end]="#95ded1"
 
-theme[download_start]="#c8a870"
-theme[download_mid]="#c87868"
-theme[download_end]="#c87868"
+theme[download_start]="#f4cb94"
+theme[download_mid]="#ffbab1"
+theme[download_end]="#ffbab1"
 
-theme[upload_start]="#7aab72"
-theme[upload_mid]="#6a9460"
-theme[upload_end]="#5ab8a8"
+theme[upload_start]="#bfe6a1"
+theme[upload_mid]="#c3c799"
+theme[upload_end]="#95ded1"
 
-theme[process_start]="#6a94a8"
-theme[process_mid]="#82aab8"
-theme[process_end]="#9090b8"
+theme[process_start]="#a2cdf7"
+theme[process_mid]="#a8d7f0"
+theme[process_end]="#d5c9fc"

@@ -1,9 +1,17 @@
 import Quickshell
+import Quickshell.Io
 import QtQuick
 
-// Inline math ("sqrt(16)*2"); Enter copies the result.
+// Inline math ("sqrt(16)*2") answered at once; anything else with a digit or a
+// clock ("5 km to mi", "100 usd to mxn", "20% of 350", "0xff", "5pm cdmx in
+// tokyo", "days until dec 25", "in 3 weeks") goes, debounced, to spotlight.py
+// calc (qalc, date and zoneinfo). Enter copies the result.
 Scope {
     id: root
+    property string query: ""   // sent to spotlight.py, debounced; "" clears the answer
+    property var answer: null   // { query, value, detail }
+
+    onQueryChanged: debounce.restart()
 
     // arithmetic only: the input is whitelisted to numbers, operators and the
     // Math names below before it is evaluated
@@ -29,15 +37,44 @@ Scope {
 
     function items(text) {
         const value = calculate(text);
-        return value === null ? [] : [{ key: "calc", kind: "calc", store: root, title: value, icon: "accessories-calculator", value, expression: text }];
+        if (value !== null)
+            return [{ key: "calc", kind: "calc", store: root, title: value, icon: "accessories-calculator", value, detail: text + " =" }];
+        if (answer?.query === text)
+            return [{ key: "calc", kind: "calc", store: root, title: answer.value, icon: "accessories-calculator", value: answer.value, detail: answer.detail }];
+        return [];
     }
 
     function describe(item) {
-        return { glyph: item.value, title: item.expression + " =", actions: [["Enter", "Copy result"]] };
+        return { glyph: item.value, title: item.detail, actions: [["Enter", "Copy result"]] };
     }
 
     function activate(item, keys) {
         Spot.copy(item.value);
         return true;
+    }
+
+    Timer {
+        id: debounce
+        interval: 120
+        onTriggered: {
+            if (!/\d|^(now|time)\b/i.test(root.query) || root.calculate(root.query) !== null) {
+                root.answer = null;
+                return;
+            }
+            helper.forQuery = root.query;
+            helper.exec(["python3", Spot.helper, "calc", root.query]);
+        }
+    }
+
+    Process {
+        id: helper
+        property string forQuery: ""
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const answer = text.trim() ? JSON.parse(text) : null;
+                if (helper.forQuery === root.query)
+                    root.answer = answer ? Object.assign({ query: helper.forQuery }, answer) : null;
+            }
+        }
     }
 }

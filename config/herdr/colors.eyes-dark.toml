@@ -4,26 +4,26 @@
 
 [theme.custom]
 # Surfaces (eyes: bg1/bg3/bg4)
-panel_bg      = "#202820"  # bg1 NormalFloat
-sidebar_bg    = "#202820"  # bg1 (sets the sidebar apart from kitty's #1a211a background)
-active_row_bg = "#2d382d"  # bg3 = active_tab_background in your kitty eyes
+panel_bg      = "#1f271f"  # bg1 NormalFloat
+sidebar_bg    = "#1f271f"  # bg1 (sets the sidebar apart from kitty's #192019 background)
+active_row_bg = "#2c372c"  # bg3 = active_tab_background in your kitty eyes
 selection_bg  = "#3a463a"  # bg4 = Visual
 # Surface levels (eyes: bg2/bg3/bg1)
-surface0      = "#263026"  # bg2 CursorLine
-surface1      = "#2d382d"  # bg3 StatusLine
-surface_dim   = "#202820"  # bg1
+surface0      = "#252f25"  # bg2 CursorLine
+surface1      = "#2c372c"  # bg3 StatusLine
+surface_dim   = "#1f271f"  # bg1
 # Text (eyes: fg0/fg1)
-text          = "#d0dcc8"  # fg0
-subtext0      = "#b8c8b0"  # fg1
+text          = "#e4e0cc"  # fg0
+subtext0      = "#d0d4be"  # fg1
 # Muted (eyes: bg5/gray2)
-overlay0      = "#536053"  # bg5 WinSeparator
-overlay1      = "#6a7868"  # gray2 SignColumn
+overlay0      = "#667366"  # bg5 WinSeparator
+overlay1      = "#a2afa0"  # gray2 SignColumn
 # Accents: same ANSI as your kitty eyes (eyes.lua terminal_color_*)
-accent = "#6a94a8"  # blue0 (active_border_color / url_color in kitty)
-blue   = "#82aab8"  # blue1 = color4
-green  = "#88b878"  # green1 = color2
-red    = "#c87868"  # = color1
-yellow = "#d4b85a"  # = color3
-mauve  = "#b890b0"  # pink = color5
-teal   = "#5ab8a8"  # = color14
-peach  = "#b89a6a"  # orange0 = color11
+accent = "#a2cdf7"  # blue0 (active_border_color / url_color in kitty)
+blue   = "#a8d7f0"  # blue1 = color4
+green  = "#96d4a6"  # green1 = color2
+red    = "#ffbab1"  # = color1
+yellow = "#f1de95"  # = color3
+mauve  = "#efb7db"  # pink = color5
+teal   = "#95ded1"  # = color14
+peach  = "#f7bc95"  # orange0 = color11

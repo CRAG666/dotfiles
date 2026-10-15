@@ -29,6 +29,22 @@ Scope {
         { title: "Close Window", icon: "window-close", command: ["scrollmsg", "kill"] },
         { title: "Toggle Fullscreen", icon: "view-fullscreen", command: ["scrollmsg", "fullscreen", "toggle"] },
         { title: "Toggle Floating", icon: "window-new", command: ["scrollmsg", "floating", "toggle"] },
+        ...[["1/3", "0.33333333"], ["1/2", "0.5"], ["2/3", "0.66666667"], ["Full", "1.0"]].map(([name, fraction]) => ({ title: `Window Width ${name}`, icon: "view-dual", command: ["scrollmsg", "set_size", "h", fraction] })),
+        { title: "Center Column", icon: "format-justify-center", command: ["scrollmsg", "align", "center"] },
+        { title: "Center Window", icon: "format-justify-center", command: ["scrollmsg", "align", "middle"] },
+        { title: "Reset Column Alignment", icon: "format-justify-fill", command: ["scrollmsg", "align", "reset"] },
+        { title: "Fit Visible Columns", icon: "zoom-fit-best", command: ["scrollmsg", "fit_size", "h", "visible", "proportional"] },
+        { title: "Fit All Columns Equally", icon: "zoom-fit-best", command: ["scrollmsg", "fit_size", "h", "all", "equal"] },
+        { title: "Pin Column Left", icon: "window-pin", command: ["scrollmsg", "pin", "beginning"] },
+        { title: "Pin Column Right", icon: "window-pin", command: ["scrollmsg", "pin", "end"] },
+        { title: "Workspace Overview", icon: "view-grid", command: ["scrollmsg", "scale_workspace", "overview"] },
+        { title: "All Workspaces Overview", icon: "view-grid", command: ["scrollmsg", "scale_workspaces", "toggle"] },
+        { title: "Jump to Window", icon: "go-jump", command: ["scrollmsg", "jump"] },
+        { title: "Transpose Layout", icon: "object-rotate-right", command: ["scrollmsg", "layout_transpose"] },
+        { title: "Move Window to Scratchpad", icon: "go-down", command: ["scrollmsg", "move", "scratchpad"] },
+        { title: "Show Scratchpad", icon: "go-up", command: ["scrollmsg", "scratchpad", "show"] },
+        ...["Left", "Right"].map(side => ({ title: `Move Window to ${side} Monitor`, icon: "video-display", command: ["scrollmsg", "move", "container", "to", "output", side.toLowerCase()] })),
+        ...["Left", "Right"].map(side => ({ title: `Move Workspace to ${side} Monitor`, icon: "video-display", command: ["scrollmsg", "move", "workspace", "to", "output", side.toLowerCase()] })),
         ...Array.from({ length: 9 }, (_, index) => ({ title: `Move Window to Workspace ${index + 1}`, icon: "go-next", command: ["scrollmsg", "move", "container", "to", "workspace", String(index + 1)] }))
     ]
 

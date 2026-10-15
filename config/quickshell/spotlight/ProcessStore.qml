@@ -14,7 +14,7 @@ Scope {
 
     function items(tokens) {
         return list.items
-            .filter(process => Spot.matches(process.args, tokens))
+            .filter(process => Spot.matches(process.args, tokens, false))
             .slice(0, 150)
             .map(process => ({ key: "process:" + process.pid, kind: "process", store: root, process, title: process.name, hint: `${process.cpu}% · ${Spot.formatSize(process.memory)}`, icon: Spot.iconFor(process.name), confirm: true }));
     }

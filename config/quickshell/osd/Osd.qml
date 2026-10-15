@@ -43,6 +43,9 @@ Scope {
         hideTimer.restart();
     }
 
+    // volume blue1, the microphone teal, brightness yellow, and red when muted
+    readonly property color tone: muted ? Theme.eyes.red : Theme.eyes[{ volume: "blue1", mic: "teal", brightness: "yellow" }[kind]]
+
     function glyph() {
         if (kind === "brightness")
             return String.fromCodePoint(0xF00E0);
@@ -132,7 +135,7 @@ Scope {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.verticalCenterOffset: root.kind === "mic" ? 0 : -Math.round(12 * win.u)
                 text: root.glyph()
-                color: Theme.ink
+                color: root.tone
                 font.family: Theme.menu
                 font.pixelSize: Math.round(92 * win.u)
                 renderType: Text.NativeRendering
@@ -152,7 +155,7 @@ Scope {
                         required property int index
                         width: Math.round(8 * win.u)
                         height: Math.round(8 * win.u)
-                        color: !root.muted && index < Math.round(root.level * 16) ? Theme.ink : Theme.hairline
+                        color: !root.muted && index < Math.round(root.level * 16) ? root.tone : Theme.hairline
                     }
                 }
             }

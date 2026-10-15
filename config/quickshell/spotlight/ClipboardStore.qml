@@ -1,6 +1,7 @@
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import "search.js" as Search
 
 // Clipboard history (cliphist) plus pinned entries kept by spotlight.py, with
 // image thumbnails decoded once into the cache and a text / image / link
@@ -33,13 +34,13 @@ Scope {
 
     // only the 200 shown history entries become items; the rest are matched as loaded
     function items(tokens) {
-        const shown = entry => (filter === "all" || entry.type === filter) && Spot.matches(entry.title + " " + (entry.hint ?? ""), tokens);
+        const shown = entry => (filter === "all" || entry.type === filter) && Spot.matches(entry.title + " " + (entry.hint ?? ""), tokens, false);
         const pinned = pins.items.map(pin => {
             const type = pin.image ? "image" : typeOf(pin.text);
             return { key: "pin:" + pin.name, kind: "pin", store: root, section: "Pinned", pin, type, title: pin.image ? "Pinned image" : pin.text.split("\n")[0], hint: "Pinned", icon: pin.image ? "image-x-generic" : "edit-paste", thumb: pin.image ? "file://" + pin.path : "" };
         });
         const recent = history.items
-            .filter(entry => (filter === "all" || entry.type === filter) && Spot.matchesLowered(entry.haystack, tokens))
+            .filter(entry => (filter === "all" || entry.type === filter) && Spot.matchesFolded(entry.haystack, tokens, false))
             .slice(0, 200)
             .map(entry => ({ key: "clip:" + entry.id, kind: "clip", store: root, section: "History", entry, type: entry.type, title: entry.title, hint: entry.hint, icon: entry.type === "image" ? "image-x-generic" : entry.type === "link" ? "web-browser" : "edit-paste", thumb: entry.image && thumbsReady ? `file://${thumbDir}/${entry.id}` : "" }));
         return [...pinned.filter(shown), ...recent];
@@ -98,7 +99,7 @@ Scope {
             const image = type === "image" ? preview.match(/binary data (.+?) (\w+) (\d+x\d+)/) : null;
             const title = image ? `Image ${image[3]}` : preview;
             const hint = image ? `${image[2]} · ${image[1]}` : type === "link" ? "Link" : "";
-            return { id: line.slice(0, tab), line, preview, type, image: !!image, title, hint, haystack: (title + " " + hint).toLowerCase() };
+            return { id: line.slice(0, tab), line, preview, type, image: !!image, title, hint, haystack: Search.fold(title + " " + hint) };
         })
         onItemsChanged: thumbs.refresh()
     }

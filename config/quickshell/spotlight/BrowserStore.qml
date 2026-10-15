@@ -22,7 +22,7 @@ Scope {
 
     function historyItems(tokens) {
         return history.items
-            .filter(visit => Spot.matches(visit.title + " " + visit.url, tokens))
+            .filter(visit => Spot.matches(visit.title + " " + visit.url, tokens, false))
             .slice(0, 200)
             .map(visit => ({ key: `visit:${visit.profile}:${visit.url}`, kind: "visit", store: root, page: visit, title: visit.title, hint: domain(visit.url), icon: "web-browser" }));
     }

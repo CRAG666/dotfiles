@@ -3,7 +3,7 @@ vim.g.colors_name = 'eyes'
 
 -- Palette {{{
 -- stylua: ignore start
--- Base: background #add4a0 (soft sage green, ideal for eye protection)
+-- Base: background #f7dbb9 (soft sage green, ideal for eye protection)
 -- All colors are tuned for low contrast without losing legibility
 
 local c_bg0          -- main background
@@ -48,68 +48,68 @@ local c_winterYellow
 
 if vim.go.bg == 'dark' then
 -- Corrected dark variant
-c_bg0        = { '#1a211a', 234 }
-c_bg1        = { '#202820', 235 }
-c_bg2        = { '#263026', 236 }
-c_bg3        = { '#2d382d', 237 }
+c_bg0        = { '#192019', 234 }
+c_bg1        = { '#1f271f', 235 }
+c_bg2        = { '#252f25', 236 }
+c_bg3        = { '#2c372c', 237 }
 c_bg4        = { '#3a463a', 238 }
-c_bg5        = { '#536053', 240 }
-c_fg0        = { '#d0dcc8', 251 }
-c_fg1        = { '#b8c8b0', 249 }
-c_fg2        = { '#9aab94', 247 }
-c_green0     = { '#7aab72', 107 }
-c_green1     = { '#88b878', 107 }   -- slightly lighter than green0
-c_green2     = { '#6a9460', 101 }
-c_teal       = { '#5ab8a8', 72  }   -- more saturated, distinct
-c_blue0      = { '#6a94a8', 67  }
-c_blue1      = { '#82aab8', 109 }
-c_violet     = { '#9090b8', 103 }   -- lighter to stand out
-c_aqua       = { '#6ab8b0', 72  }   -- distinct from teal
-c_orange0    = { '#b89a6a', 137 }
-c_orange1    = { '#c8a870', 137 }
-c_red        = { '#c87868', 131 }   -- brighter, errors more visible
-c_yellow     = { '#d4b85a', 179 }   -- more saturated, clear warnings
-c_pink       = { '#b890b0', 139 }
-c_ash        = { '#7a8c72', 242 }
-c_gray0      = { '#8a9a88', 244 }
-c_gray1      = { '#7a8a78', 243 }
-c_gray2      = { '#6a7868', 242 }
-c_winterGreen  = { '#243224', 236 }
-c_winterBlue   = { '#223040', 237 }
-c_winterRed    = { '#402828', 52  }
-c_winterYellow = { '#3a3420', 236 }
+c_bg5        = { '#667366', 240 }
+c_fg0        = { '#e4e0cc', 251 }
+c_fg1        = { '#d0d4be', 249 }
+c_fg2        = { '#bbc7b0', 247 }
+c_green0     = { '#bfe6a1', 107 }
+c_green1     = { '#96d4a6', 107 }   -- slightly lighter than green0
+c_green2     = { '#c3c799', 101 }
+c_teal       = { '#95ded1', 72  }   -- more saturated, distinct
+c_blue0      = { '#a2cdf7', 67  }
+c_blue1      = { '#a8d7f0', 109 }
+c_violet     = { '#d5c9fc', 103 }   -- lighter to stand out
+c_aqua       = { '#96d4e2', 72  }   -- distinct from teal
+c_orange0    = { '#f7bc95', 137 }
+c_orange1    = { '#f4cb94', 137 }
+c_red        = { '#ffbab1', 131 }   -- brighter, errors more visible
+c_yellow     = { '#f1de95', 179 }   -- more saturated, clear warnings
+c_pink       = { '#efb7db', 139 }
+c_ash        = { '#9fb9a1', 242 }
+c_gray0      = { '#adbaa9', 244 }
+c_gray1      = { '#b6b4ac', 243 }
+c_gray2      = { '#a2afa0', 242 }
+c_winterGreen  = { '#253525', 236 }
+c_winterBlue   = { '#223243', 237 }
+c_winterRed    = { '#442928', 52  }
+c_winterYellow = { '#3b3520', 236 }
 else
   -- Corrected light variant (light mode)
-  c_bg0        = { '#add4a0', 151 }
-  c_bg1        = { '#a4cc98', 150 }
-  c_bg2        = { '#9fc895', 150 }
-  c_bg3        = { '#96be8c', 149 }
-  c_bg4        = { '#88b07e', 107 }
-  c_bg5        = { '#6a9060', 65  }
-  c_fg0        = { '#1a1a1a', 234 }   -- pure black, 9:1+
-  c_fg1        = { '#1e2e1c', 235 }
-  c_fg2        = { '#3d5c38', 239 }   -- raised to pass AA
-  c_green0     = { '#2a5c22', 28  }   -- comments (darker)
-  c_green1     = { '#1e4a18', 22  }   -- strings (darker still, distinct)
-  c_green2     = { '#3a5030', 65  }
-  c_teal       = { '#145850', 23  }   -- types (darker, bluer)
-  c_blue0      = { '#1e4868', 24  }   -- keywords
-  c_blue1      = { '#143c52', 23  }   -- functions
-  c_violet     = { '#3a2860', 54  }   -- statements
-  c_aqua       = { '#1a5858', 23  }   -- constructors (distinct from teal)
-  c_orange0    = { '#6a3c10', 130 }   -- constants
-  c_orange1    = { '#7a4a18', 130 }   -- numbers
-  c_red        = { '#7a1e18', 88  }   -- errors
-  c_yellow     = { '#5a4808', 58  }   -- warnings (corrected, passes AA ~4.6:1)
-  c_pink       = { '#5a2858', 90  }   -- macros
-  c_ash        = { '#365c25', 65  }   -- subtle comments (lightened, distinct from green1)
-  c_gray0      = { '#486040', 66  }
-  c_gray1      = { '#385030', 65  }
-  c_gray2      = { '#2c4028', 64  }
-  c_winterGreen  = { '#94cc88', 150 }
-  c_winterBlue   = { '#90bcd0', 110 }
-  c_winterRed    = { '#d8a8a0', 174 }
-  c_winterYellow = { '#d0c890', 186 }
+  c_bg0        = { '#f7dbb9', 151 }
+  c_bg1        = { '#f2d5b2', 150 }
+  c_bg2        = { '#edcfac', 150 }
+  c_bg3        = { '#e6c7a3', 149 }
+  c_bg4        = { '#dab992', 107 }
+  c_bg5        = { '#b1936e', 65  }
+  c_fg0        = { '#231d18', 234 }   -- pure black, 9:1+
+  c_fg1        = { '#31251a', 235 }
+  c_fg2        = { '#483523', 239 }   -- raised to pass AA
+  c_green0     = { '#294f01', 28  }   -- comments (darker)
+  c_green1     = { '#003d1b', 22  }   -- strings (darker still, distinct)
+  c_green2     = { '#383f17', 65  }
+  c_teal       = { '#004d44', 23  }   -- types (darker, bluer)
+  c_blue0      = { '#073c6e', 24  }   -- keywords
+  c_blue1      = { '#00314e', 23  }   -- functions
+  c_violet     = { '#3f206c', 54  }   -- statements
+  c_aqua       = { '#003e4c', 23  }   -- constructors (distinct from teal)
+  c_orange0    = { '#5e2600', 130 }   -- constants
+  c_orange1    = { '#5f3700', 130 }   -- numbers
+  c_red        = { '#630005', 88  }   -- errors
+  c_yellow     = { '#574a00', 58  }   -- warnings (corrected, passes AA ~4.6:1)
+  c_pink       = { '#661b53', 90  }   -- macros
+  c_ash        = { '#504531', 65  }   -- subtle comments (lightened, distinct from green1)
+  c_gray0      = { '#473b2d', 66  }
+  c_gray1      = { '#3b3931', 65  }
+  c_gray2      = { '#392e23', 64  }
+  c_winterGreen  = { '#b2e2af', 150 }
+  c_winterBlue   = { '#b3d7e9', 110 }
+  c_winterRed    = { '#f2c7c2', 174 }
+  c_winterYellow = { '#e4dcab', 186 }
 end
 -- stylua: ignore end
 -- }}}
@@ -167,11 +167,11 @@ end
 local f_blossom, f_hibiscus, f_daisy, f_white, f_diamond, f_lotus
 if vim.go.bg == 'dark' then
   f_blossom = { '#e6a0b8', 175 } -- 🌸 cherry pink
-  f_hibiscus = { '#e0607f', 168 } -- 🌺 fuchsia pink
+  f_hibiscus = { '#fda293', 210 } -- 🌺 coral pink
   f_daisy = { '#e0c060', 179 } -- 🌼 golden yellow
   f_white = { '#f2ccd8', 218 } -- 💮 very pale pink
   f_diamond = { '#6fd0e0', 81 } -- 💠 cyan diamond
-  f_lotus = { '#c49ad6', 182 } -- 🪷 violet lavender
+  f_lotus = { '#dbb5f8', 183 } -- 🪷 violet lavender
 else
   f_blossom = { '#a83a5e', 89 } -- 🌸 cherry pink (dark)
   f_hibiscus = { '#b22a52', 125 } -- 🌺 fuchsia pink (dark)
@@ -197,12 +197,15 @@ local hlgroups = {
   DiffAdd = { bg = c_winterGreen },
   DiffAdded = { fg = c_green0 },
   DiffChange = { bg = c_winterBlue },
-  DiffChanged = { fg = c_yellow },
+  DiffChanged = { fg = c_blue1 },
   DiffDelete = { fg = c_bg4 },
   DiffDeleted = { fg = c_red },
   DiffNewFile = { fg = c_green0 },
   DiffOldFile = { fg = c_red },
   DiffRemoved = { fg = c_red },
+  Added = { link = 'DiffAdded' },
+  Changed = { link = 'DiffChanged' },
+  Removed = { link = 'DiffRemoved' },
   DiffText = { bg = c_bg5 },
   Directory = { fg = c_blue1 },
   EndOfBuffer = { fg = c_bg1 },
@@ -238,7 +241,7 @@ local hlgroups = {
   SpellLocal = { underdashed = true },
   SpellRare = { underdashed = true },
   StatusLine = { bg = c_bg3, fg = c_fg1 },
-  StatusLineNC = { bg = c_bg2, fg = c_bg5 },
+  StatusLineNC = { bg = c_bg2, fg = c_ash },
   Substitute = { bg = c_violet, fg = c_bg0 },
   TabLine = { link = 'StatusLineNC' },
   TabLineFill = { link = 'Normal', bg = c_bg5 },
@@ -253,7 +256,7 @@ local hlgroups = {
   Whitespace = { fg = c_bg4 },
   WildMenu = { link = 'Pmenu' },
   WinBar = { bg = c_bg1, fg = c_fg1 },
-  WinBarNC = { bg = c_bg1, fg = c_bg5 },
+  WinBarNC = { bg = c_bg1, fg = c_ash },
   WinSeparator = { fg = c_bg4 },
   lCursor = { link = 'Cursor' },
   -- }}}2
@@ -360,6 +363,7 @@ local hlgroups = {
   -- }}}
   -- LSP {{{2
   LspCodeLens = { fg = c_ash },
+  LspInlayHint = { fg = c_ash, bg = c_bg1, italic = true },
   LspInfoBorder = { link = 'FloatBorder' },
   LspReferenceRead = { link = 'LspReferenceText' },
   LspReferenceText = { bg = c_winterYellow },
@@ -442,7 +446,7 @@ local hlgroups = {
   -- Plugins {{{2
   -- gitsigns
   GitSignsAdd = { fg = c_green1 },
-  GitSignsChange = { fg = c_yellow },
+  GitSignsChange = { fg = c_blue1 },
   GitSignsDelete = { fg = c_red },
   GitSignsDeletePreview = { bg = c_winterRed },
   -- fugitive
@@ -497,7 +501,7 @@ local hlgroups = {
   LazyProgressTodo = { fg = c_bg5 },
   -- statusline
   StatusLineGitAdded = { bg = c_bg3, fg = c_green1 },
-  StatusLineGitChanged = { bg = c_bg3, fg = c_yellow },
+  StatusLineGitChanged = { bg = c_bg3, fg = c_blue1 },
   StatusLineGitRemoved = { bg = c_bg3, fg = c_red },
   StatusLineGitBranch = { bg = c_bg3, fg = c_red },
   StatusLineHeader = { bg = c_bg5, fg = c_fg1 },
@@ -514,7 +518,7 @@ local hlgroups = {
   BlinkCmpLabel = { fg = c_fg2, bg = c_bg3 },
   BlinkCmpLabelMatch = { fg = c_red, bg = c_bg3 },
   BlinkCmpSource = { fg = c_gray1, bg = c_bg3 },
-  BlinkCmpMenuSelection = { fg = c_bg0, bg = c_bg5 },
+  BlinkCmpMenuSelection = { fg = c_fg0, bg = c_bg5 },
   BlinkCmpCustomType = { fg = c_violet, bg = c_bg3 },
   BlinkCmpKindCodeium = { fg = c_green1, bg = tint(c_green1, 0.15) },
   BlinkCmpKindSupermaven = { fg = c_pink, bg = tint(c_pink, 0.15) },
@@ -606,14 +610,15 @@ if vim.go.bg == 'light' then
   hlgroups.Search = { bg = c_bg3 }
   hlgroups.StatusLine = { bg = c_bg1 }
   hlgroups.StatusLineGitAdded = { bg = c_bg1, fg = c_green1 }
-  hlgroups.StatusLineGitChanged = { bg = c_bg1, fg = c_yellow }
+  hlgroups.StatusLineGitChanged = { bg = c_bg1, fg = c_blue1 }
   hlgroups.StatusLineGitRemoved = { bg = c_bg1, fg = c_red }
   hlgroups.StatusLineGitBranch = { bg = c_bg1, fg = c_ash }
   hlgroups.StatusLineHeader = { bg = c_fg0, fg = c_bg0 }
   hlgroups.StatusLineHeaderModified = { bg = c_red, fg = c_bg0 }
   hlgroups.Visual = { bg = c_bg4 }
   hlgroups.WinBar = { bg = c_bg1, fg = c_fg1 }
-  hlgroups.WinBarNC = { bg = c_bg2, fg = c_bg5 }
+  hlgroups.WinBarNC = { bg = c_bg2, fg = c_ash }
+  hlgroups.BlinkCmpMenuSelection = { fg = c_bg0, bg = c_fg0 }
   hlgroups['@variable.parameter'] = { link = 'Identifier' }
 end
 -- }}}1

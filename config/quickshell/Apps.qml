@@ -3,16 +3,17 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 import qs.spotlight
+import "spotlight/search.js" as Search
 
-// App search for spotlight.qml and launcher.qml, matching like rofi's drun: every
-// whitespace token must appear (case-insensitive) in the name, generic name,
-// exec, categories or keywords. Most-launched apps come first, then name-prefix
-// matches, then name matches; ties are alphabetical. Launch counts are kept in
-// rofi's drun history format under the spotlight state dir.
+// App search for spotlight.qml and launcher.qml: the name matches loosely
+// (search.js: initials, typos, accents), the generic name, exec, categories and
+// keywords only exactly and below any name match. How well an app matches and
+// how often it was launched make one score; ties are alphabetical. Launch counts
+// are kept in rofi's drun history format under the spotlight state dir.
 Singleton {
     id: root
     property var launches: ({})
-    readonly property var indexed: DesktopEntries.applications.values.map(app => ({ app, name: app.name.toLowerCase(), haystack: [app.name, app.genericName, app.execString, ...app.categories, ...app.keywords].join(" ").toLowerCase() }))
+    readonly property var indexed: DesktopEntries.applications.values.map(app => ({ app, name: Search.fold(app.name), haystack: Search.fold([app.name, app.genericName, app.execString, ...app.categories, ...app.keywords].join(" ")) }))
 
     FileView {
         id: history
@@ -34,17 +35,14 @@ Singleton {
     }
 
     function search(query) {
-        const tokens = query.toLowerCase().split(/\s+/).filter(token => token);
-        const first = tokens[0] ?? "";
+        const tokens = Search.tokens(query);
         const ranked = [];
         for (const { app, name, haystack } of indexed) {
-            if (!Spot.matchesLowered(haystack, tokens))
-                continue;
-            const uses = launches[app.id + ".desktop"] ?? 0;
-            const rank = name.startsWith(first) ? 0 : name.includes(first) ? 1 : 2;
-            ranked.push({ app, uses, rank, name });
+            const quality = Search.score(name, tokens) || Search.score(haystack, tokens, false) * 0.4;
+            if (quality)
+                ranked.push({ app, name, score: quality + Search.boost(launches[app.id + ".desktop"] ?? 0) });
         }
-        ranked.sort((a, b) => b.uses - a.uses || a.rank - b.rank || a.name.localeCompare(b.name));
+        ranked.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
         return ranked.map(entry => entry.app);
     }
 

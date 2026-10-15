@@ -2,51 +2,51 @@
 # Theme — forest dark (eyes-dark)
 #
 
-set default-fg                rgba(208,220,200,1)     # c_fg0
+set default-fg                rgba(228,224,204,1)     # c_fg0
 set default-bg                rgba(17,22,17,1)        # c_bg0 darkened — frame around the pages
 
-set completion-bg             rgba(45,56,45,1)        # c_bg3
-set completion-fg             rgba(208,220,200,1)     # c_fg0
-set completion-highlight-bg   rgba(144,144,184,1)     # c_violet
-set completion-highlight-fg   rgba(26,33,26,1)        # c_bg0
+set completion-bg             rgba(44,55,44,1)        # c_bg3
+set completion-fg             rgba(228,224,204,1)     # c_fg0
+set completion-highlight-bg   rgba(213,201,252,1)     # c_violet
+set completion-highlight-fg   rgba(25,32,25,1)        # c_bg0
 
 set completion-group-bg       rgba(58,70,58,1)        # c_bg4
-set completion-group-fg       rgba(184,200,176,1)     # c_fg1
+set completion-group-fg       rgba(208,212,190,1)     # c_fg1
 
-set statusbar-fg              rgba(184,200,176,1)     # c_fg1
-set statusbar-bg              rgba(38,48,38,1)        # c_bg2
+set statusbar-fg              rgba(208,212,190,1)     # c_fg1
+set statusbar-bg              rgba(37,47,37,1)        # c_bg2
 
-set inputbar-fg               rgba(208,220,200,1)     # c_fg0
-set inputbar-bg               rgba(32,40,32,1)        # c_bg1
+set inputbar-fg               rgba(228,224,204,1)     # c_fg0
+set inputbar-bg               rgba(31,39,31,1)        # c_bg1
 
-set notification-bg           rgba(32,40,32,1)        # c_bg1
-set notification-fg           rgba(208,220,200,1)     # c_fg0
+set notification-bg           rgba(31,39,31,1)        # c_bg1
+set notification-fg           rgba(228,224,204,1)     # c_fg0
 
-set notification-error-bg     rgba(32,40,32,1)        # c_bg1
-set notification-error-fg     rgba(200,120,104,1)     # c_red
+set notification-error-bg     rgba(31,39,31,1)        # c_bg1
+set notification-error-fg     rgba(255,186,177,1)     # c_red
 
-set notification-warning-bg   rgba(32,40,32,1)        # c_bg1
-set notification-warning-fg   rgba(212,184,90,1)      # c_yellow
+set notification-warning-bg   rgba(31,39,31,1)        # c_bg1
+set notification-warning-fg   rgba(241,222,149,1)      # c_yellow
 
-set signature-success-color   rgba(136,184,120,1)     # c_green1
-set signature-warning-color   rgba(212,184,90,1)      # c_yellow
-set signature-error-color     rgba(200,120,104,1)     # c_red
+set signature-success-color   rgba(150,212,166,1)     # c_green1
+set signature-warning-color   rgba(241,222,149,1)      # c_yellow
+set signature-error-color     rgba(255,186,177,1)     # c_red
 
 set recolor                   "true"
-set recolor-lightcolor        rgba(26,33,26,1)        # c_bg0  — PDF background
-set recolor-darkcolor         rgba(208,220,200,1)     # c_fg0  — PDF text
+set recolor-lightcolor        rgba(25,32,25,1)        # c_bg0  — PDF background
+set recolor-darkcolor         rgba(228,224,204,1)     # c_fg0  — PDF text
 
-set index-fg                  rgba(208,220,200,1)     # c_fg0
-set index-bg                  rgba(26,33,26,1)        # c_bg0
-set index-active-fg           rgba(26,33,26,1)        # c_bg0
-set index-active-bg           rgba(106,148,168,1)     # c_blue0
+set index-fg                  rgba(228,224,204,1)     # c_fg0
+set index-bg                  rgba(25,32,25,1)        # c_bg0
+set index-active-fg           rgba(25,32,25,1)        # c_bg0
+set index-active-bg           rgba(162,205,247,1)     # c_blue0
 
-set render-loading-bg         rgba(26,33,26,1)        # c_bg0
-set render-loading-fg         rgba(122,140,114,1)     # c_ash
+set render-loading-bg         rgba(25,32,25,1)        # c_bg0
+set render-loading-fg         rgba(159,185,161,1)     # c_ash
 
-set highlight-color           rgba(106,148,168,0.35)  # c_blue0 semi-transparent
-set highlight-fg              rgba(208,220,200,1)     # c_fg0
-set highlight-active-color    rgba(212,184,90,0.45)   # c_yellow — IncSearch
+set highlight-color           rgba(162,205,247,0.35)  # c_blue0 semi-transparent
+set highlight-fg              rgba(228,224,204,1)     # c_fg0
+set highlight-active-color    rgba(241,222,149,0.45)   # c_yellow — IncSearch
 
 #
 # End Theme

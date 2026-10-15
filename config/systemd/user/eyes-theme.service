@@ -6,7 +6,7 @@ PartOf=graphical-session.target
 [Service]
 Type=oneshot
 ExecStart=%h/.local/bin/eyes-theme auto
-# El switch reinicia demonios (zsh-patina) que deben sobrevivir al oneshot
+# The switch restarts daemons (zsh-patina) that must outlive the oneshot
 KillMode=process
 
 [Install]

@@ -1,6 +1,7 @@
 pragma Singleton
 import Quickshell
 import QtQuick
+import "search.js" as Search
 
 // Paths and small actions shared by spotlight.qml and its stores.
 Singleton {
@@ -20,13 +21,15 @@ kitty | foot | Alacritty | org.wezfurlong.wezterm | com.mitchellh.ghostty) wtype
 *) wtype -M ctrl v -m ctrl ;;
 esac`
 
-    function matches(text, tokens) {
-        return matchesLowered(text.toLowerCase(), tokens);
+    // `tokens` come from Search.tokens; `loose` false keeps to exact matches
+    function matches(text, tokens, loose = true) {
+        return Search.score(Search.fold(text), tokens, loose) > 0;
     }
 
-    // for text a store lowercased once when it loaded, instead of on every keystroke
-    function matchesLowered(haystack, tokens) {
-        return tokens.every(token => haystack.includes(token));
+    // for text a store folded once with Search.fold when it loaded, instead of on
+    // every keystroke
+    function matchesFolded(haystack, tokens, loose = true) {
+        return Search.score(haystack, tokens, loose) > 0;
     }
 
     function copy(text) {

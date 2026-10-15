@@ -33,7 +33,7 @@ Scope {
             const opener = link.open ?? ["xdg-open"];
             const searchable = (link.url ?? "").includes("{query}");
             if (rest && searchable && link.keyword === keyword.toLowerCase())
-                hits.unshift({ key: "link:" + link.name, kind: "quicklink", store: root, title: `${link.name}: “${rest}”`, hint: link.keyword, icon: "web-browser", urls: [link.url.replace("{query}", encodeURIComponent(rest))], opener });
+                hits.unshift({ key: "link:" + link.name, kind: "quicklink", store: root, lead: true, title: `${link.name}: “${rest}”`, hint: link.keyword, icon: "web-browser", urls: [link.url.replace("{query}", encodeURIComponent(rest))], opener });
             else if (Spot.matches(link.name + " " + link.keyword, tokens))
                 hits.push({ key: "link:" + link.name, kind: "quicklink", store: root, title: link.name, hint: link.urls ? `${link.urls.length} links` : link.keyword, icon: "web-browser", urls: link.urls ?? [searchable ? link.home ?? link.url.replace("{query}", "") : link.url], opener });
         }

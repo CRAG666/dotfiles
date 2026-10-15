@@ -2,76 +2,76 @@
 # Token names mirror Catppuccin's example; only hex values are eyes.
 
 # comments (c_ash from nvim eyes)
-"comment" = "#365c25"
+"comment" = "#504531"
 
 # strings (c_green1 from nvim eyes — distinct from comments)
-"string" = "#1e4a18"
+"string" = "#003d1b"
 
 # regular expressions
-"keyword.operator.regexp" = "#5a2858"
+"keyword.operator.regexp" = "#661b53"
 
 # escape characters (c_pink)
-"constant.character" = "#5a2858"
+"constant.character" = "#661b53"
 
 # constants in general (c_orange0)
-"constant" = "#6a3c10"
+"constant" = "#5e2600"
 
 # numeric literals (c_pink to match nvim Number)
-"constant.numeric" = "#5a2858"
+"constant.numeric" = "#661b53"
 
 # parameters
-"variable.parameter" = "#7a4a18"
+"variable.parameter" = "#5f3700"
 
 # environment variables
-"variable.other" = "#7a1e18"
-"punctuation.definition.variable" = "#7a1e18"
+"variable.other" = "#630005"
+"punctuation.definition.variable" = "#630005"
 
 # commands
-"variable.function" = "#1e4868"
+"variable.function" = "#073c6e"
 
 # home directory ~
-"variable.language.tilde" = "#7a1e18"
+"variable.language.tilde" = "#630005"
 
 # keywords
-"keyword" = "#3a2860"
+"keyword" = "#3f206c"
 
 # general foreground color
-source = "#1a1a1a"
+source = "#231d18"
 
 # variable assignments
-"storage" = "#5a4808"
-"storage.modifier" = "#3a2860"
+"storage" = "#574a00"
+"storage.modifier" = "#3f206c"
 
 # support terms (e.g. double braces, let)
-"support" = "#1e4868"
-"keyword.operator" = "#145850"
+"support" = "#073c6e"
+"keyword.operator" = "#004d44"
 
 # function names (c_blue1 from nvim eyes)
-"entity.name.function" = "#143c52"
+"entity.name.function" = "#00314e"
 
 # braces (c_gray1 from nvim eyes)
-"punctuation.section" = "#385030"
+"punctuation.section" = "#3b3931"
 
 # terminators (e.g. ";;" after a case item)
-"punctuation.terminator" = "#385030"
+"punctuation.terminator" = "#3b3931"
 
 # history expansions
-"meta.group.expansion.history" = "#7a1e18"
+"meta.group.expansion.history" = "#630005"
 
 # reset command substitutions to the theme's default foreground color
-"meta.group.expansion.command.parens" = { foreground = "#1a1a1a" }
+"meta.group.expansion.command.parens" = { foreground = "#231d18" }
 
 # command call wrappers and option-argument values default to ANSI 7 (too dim)
-"meta.function-call" = { foreground = "#1a1a1a" }
-"meta.function-call.arguments" = { foreground = "#1a1a1a" }
-"punctuation.definition.parameter" = { foreground = "#1a1a1a" }
+"meta.function-call" = { foreground = "#231d18" }
+"meta.function-call.arguments" = { foreground = "#231d18" }
+"punctuation.definition.parameter" = { foreground = "#231d18" }
 
 # line-continuation backslash also defaults to ANSI 7 (dim grey)
-"punctuation.separator.continuation.line" = "#385030"
+"punctuation.separator.continuation.line" = "#3b3931"
 
 # dynamic items
-"dynamic.callable" = "#1e4868"
-"dynamic.callable.missing" = "#7a1e18"
+"dynamic.callable" = "#073c6e"
+"dynamic.callable.missing" = "#630005"
 "dynamic.path" = { underline = true }
 
 [metadata]

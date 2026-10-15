@@ -1,6 +1,7 @@
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import "search.js" as Search
 
 // Bookmarks and notes, the git-crypt'd sqlite databases in
 // ~/.local/share/spotlight, read and written through spotlight.py. Bookmarks
@@ -21,14 +22,19 @@ Scope {
 
     function bookmarkItems(tokens) {
         return bookmarks.items
-            .filter(entry => Spot.matchesLowered(entry.haystack, tokens))
+            .filter(entry => matching(entry, tokens))
             .map(entry => ({ key: "bookmark:" + entry.id, kind: "bookmark", store: root, entry, title: entry.title, hint: entry.category, icon: "web-browser" }));
     }
 
     function noteItems(tokens) {
         return notes.items
-            .filter(entry => Spot.matchesLowered(entry.haystack, tokens))
+            .filter(entry => matching(entry, tokens))
             .map(entry => ({ key: "note:" + entry.id, kind: "note", store: root, entry, title: entry.title, hint: entry.category, icon: "accessories-text-editor" }));
+    }
+
+    // the title and category match loosely, the URL or note text only exactly
+    function matching(entry, tokens) {
+        return Spot.matchesFolded(entry.name, tokens) || Spot.matchesFolded(entry.haystack, tokens, false);
     }
 
     function commandItems(tokens) {
@@ -50,6 +56,7 @@ Scope {
         return { icon: item.icon, title: item.title, subtitle: item.action.includes("note") ? "Notes" : "Bookmarks", actions: [["Enter", "Run"]] };
     }
 
+    // `entry` without an id only prefills a new bookmark
     function bookmarkForm(title, entry) {
         host.openForm({
             title,
@@ -59,7 +66,7 @@ Scope {
                 { key: "category", label: "Category", value: entry?.category ?? "", options: categories(bookmarks) }
             ],
             submit: values => {
-                run(["bookmark-save", entry ? String(entry.id) : "", values.url, values.title, values.category]);
+                run(["bookmark-save", entry?.id ? String(entry.id) : "", values.url, values.title, values.category]);
                 return false;
             }
         });
@@ -144,7 +151,7 @@ Scope {
     }
 
     function indexed(output) {
-        return JSON.parse(output).map(entry => Object.assign(entry, { haystack: `${entry.title} ${entry.category} ${entry.body}`.toLowerCase() }));
+        return JSON.parse(output).map(entry => Object.assign(entry, { name: Search.fold(`${entry.title} ${entry.category}`), haystack: Search.fold(`${entry.title} ${entry.category} ${entry.body}`) }));
     }
 
     function run(args) {

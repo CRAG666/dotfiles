@@ -1,11 +1,11 @@
 import QtQuick
 import QtQuick.Effects
 
-// Spotlight's material for the other popups: the blurred wallpaper seen
-// through Wallpaper.glass, with a hairline edge and a soft shadow. The blur is
-// computed once per window: `backdrop` is that window's hidden WallBlur, laid
-// over the whole screen, and each sheet only copies the part behind it, found
-// from `origin`, its position in the window.
+// Sequoia's material for the popups (not Tahoe's Liquid Glass): the blurred
+// wallpaper frosted with Theme.glass, a hairline edge and a soft shadow. The
+// blur is computed once per window: `backdrop` is that window's hidden
+// WallBlur, laid over the whole screen, and each sheet only copies the part
+// behind it, found from `origin`, its position in the window.
 Item {
     id: glass
     required property Item backdrop
@@ -38,7 +38,7 @@ Item {
         }
         Rectangle {
             anchors.fill: parent
-            color: Wallpaper.glass
+            color: Theme.glass
         }
     }
     Item {
@@ -57,6 +57,6 @@ Item {
         radius: glass.radius
         color: "transparent"
         border.width: 1
-        border.color: Theme.hairline
+        border.color: Theme.border
     }
 }

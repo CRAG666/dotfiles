@@ -1,9 +1,9 @@
 return {
-	unmatch_fg = "#8a9a88",
-	match_str_fg = "#d0dcc8",
-	match_str_bg = "#243224",
-	first_match_str_fg = "#d0dcc8",
-	first_match_str_bg = "#3a3420",
-	label_fg = "#d0dcc8",
-	label_bg = "#223040",
+	unmatch_fg = "#adbaa9",
+	match_str_fg = "#e4e0cc",
+	match_str_bg = "#253525",
+	first_match_str_fg = "#e4e0cc",
+	first_match_str_bg = "#3b3520",
+	label_fg = "#e4e0cc",
+	label_bg = "#223243",
 }

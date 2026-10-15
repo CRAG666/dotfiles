@@ -4,26 +4,26 @@
 
 [theme.custom]
 # Surfaces (eyes: bg1/bg3/bg4)
-panel_bg      = "#a4cc98"  # bg1 NormalFloat
-sidebar_bg    = "#a4cc98"  # bg1 (sets the sidebar apart from kitty's #add4a0 background)
-active_row_bg = "#96be8c"  # bg3 = active_tab_background in your kitty eyes
-selection_bg  = "#88b07e"  # bg4 = Visual
+panel_bg      = "#f2d5b2"  # bg1 NormalFloat
+sidebar_bg    = "#f2d5b2"  # bg1 (sets the sidebar apart from kitty's #f7dbb9 background)
+active_row_bg = "#e6c7a3"  # bg3 = active_tab_background in your kitty eyes
+selection_bg  = "#dab992"  # bg4 = Visual
 # Surface levels (eyes: bg2/bg3/bg1)
-surface0      = "#9fc895"  # bg2 CursorLine
-surface1      = "#96be8c"  # bg3 StatusLine
-surface_dim   = "#a4cc98"  # bg1
+surface0      = "#edcfac"  # bg2 CursorLine
+surface1      = "#e6c7a3"  # bg3 StatusLine
+surface_dim   = "#f2d5b2"  # bg1
 # Text (eyes: fg0/fg1)
-text          = "#1a1a1a"  # fg0
-subtext0      = "#1e2e1c"  # fg1
+text          = "#231d18"  # fg0
+subtext0      = "#31251a"  # fg1
 # Muted (eyes: bg5/gray2)
-overlay0      = "#6a9060"  # bg5 WinSeparator
-overlay1      = "#2c4028"  # gray2 SignColumn
+overlay0      = "#b1936e"  # bg5 WinSeparator
+overlay1      = "#392e23"  # gray2 SignColumn
 # Accents: same ANSI as your kitty eyes (eyes.lua terminal_color_*)
-accent = "#1e4868"  # blue0 (active_border_color / url_color in kitty)
-blue   = "#90bcd0"  # blue1 = color4
-green  = "#2a5c22"  # green1 = color2
-red    = "#d8a8a0"  # = color1
-yellow = "#d0c890"  # = color3
-mauve  = "#5a2858"  # pink = color5
-teal   = "#145850"  # = color14
-peach  = "#6a3c10"  # orange0 = color11
+accent = "#073c6e"  # blue0 (active_border_color / url_color in kitty)
+blue   = "#b3d7e9"  # blue1 = color4
+green  = "#294f01"  # green1 = color2
+red    = "#f2c7c2"  # = color1
+yellow = "#e4dcab"  # = color3
+mauve  = "#661b53"  # pink = color5
+teal   = "#004d44"  # = color14
+peach  = "#5e2600"  # orange0 = color11
