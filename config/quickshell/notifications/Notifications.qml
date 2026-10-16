@@ -41,6 +41,8 @@ Scope {
         if (dnd && !critical)
             return;
         notification.tracked = true;
+        // remapped if its output went away (see Spotlight.open)
+        win.visible = true;
         Wallpaper.refresh();
         if (!notification.lastGeneration)
             Quickshell.execDetached(["pw-play", `${sounds}/${critical ? "critical" : "normal"}.wav`]);

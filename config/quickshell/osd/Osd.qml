@@ -39,6 +39,8 @@ Scope {
         kind = newKind;
         level = Math.max(0, Math.min(1, newLevel));
         muted = newMuted;
+        // remapped if its output went away (see Spotlight.open)
+        win.visible = true;
         shown = true;
         hideTimer.restart();
     }

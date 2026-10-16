@@ -215,6 +215,9 @@ Scope {
                 marks.promptAdd();
             else
                 mode = views.some(view => view.mode === requested) ? requested : "";
+            // the compositor closes the surface when its output goes away (a monitor
+            // unplugged during suspend) and Quickshell never maps it again by itself
+            visible = true;
             shown = true;
             agenda.load();
             search.forceActiveFocus();
