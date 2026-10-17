@@ -138,7 +138,7 @@ Scope {
         case "reload-config":
             return { icon: item.icon, title: item.title, subtitle: "Re-read config.toml in the running server", actions: [["Enter", "Reload"]] };
         }
-        return { icon: item.icon, title: item.title, subtitle: "Opens in a new kitty window", actions: [["Enter", "Attach"]] };
+        return { icon: item.icon, title: item.title, subtitle: "Opens in a new ghostty window", actions: [["Enter", "Attach"]] };
     }
 
     function peek(item) {
@@ -156,7 +156,7 @@ Scope {
         if (terminal)
             Quickshell.execDetached(["scrollmsg", `[con_id=${terminal.id}] focus`]);
         else
-            Quickshell.execDetached(["kitty", "-1", "herdr"]);
+            Quickshell.execDetached(["ghostty", "+new-window", "-e", "herdr"]);
     }
 
     function call(method, params) {
@@ -206,7 +206,7 @@ Scope {
             raiseTerminal();
             return true;
         case "attach":
-            Quickshell.execDetached(["kitty", "-1", "herdr", "session", "attach", item.session]);
+            Quickshell.execDetached(["ghostty", "+new-window", "-e", "herdr", "session", "attach", item.session]);
             return true;
         case "reload-config":
             call("server.reload_config", {});

@@ -1,10 +1,19 @@
 local utils = require('utils')
-vim.bo.shiftwidth = 4
-vim.bo.tabstop = 4
-vim.bo.softtabstop = 4
-vim.bo.expandtab = true
-vim.bo.autoindent = true
-vim.bo.smartindent = true
+require('utils.ftplugin')(
+  {
+    shiftwidth = 4,
+    tabstop = 4,
+    softtabstop = -1,
+    expandtab = true,
+    autoindent = true,
+    smartindent = false,
+    textwidth = 0,
+    wrap = false,
+    spell = false,
+    formatoptions = vim.bo.formatoptions:gsub('t', ''),
+  },
+  'setlocal errorformat< colorcolumn< | silent! iunabbrev <buffer> true | silent! iunabbrev <buffer> ture | silent! iunabbrev <buffer> false | silent! iunabbrev <buffer> flase'
+)
 
 ---Autocorrect `orig` to `correction` in normal zone
 ---@param orig string
@@ -27,9 +36,6 @@ autocorrect_normalzone('true', 'True')
 autocorrect_normalzone('ture', 'True')
 autocorrect_normalzone('false', 'False')
 autocorrect_normalzone('flase', 'False')
-
--- Don't auto-wrap in source code
-vim.opt_local.formatoptions:remove('t')
 
 -- Black formatter use a line width of 88 by default
 if vim.wo.cc:match('^[0-9]+$') and tonumber(vim.wo.cc) < 89 then

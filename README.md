@@ -51,7 +51,7 @@ If you want to know what I have installed, [click here](./pkglist.txt) to see th
 
 ![show case](https://github.com/user-attachments/assets/3c52ea4b-91d3-4270-b731-2d59b8e4151d)
 
-### Terminal(kitty, starship, zimfw, rust tools)
+### Terminal(ghostty, starship, zimfw, rust tools)
 
 ![Btop](https://github.com/user-attachments/assets/37d10aaa-4dd4-4439-bd33-a442b6647d9b)
 

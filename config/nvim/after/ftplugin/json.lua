@@ -1,7 +1,13 @@
-vim.bo.shiftwidth = 2
-vim.bo.tabstop = 2
-vim.bo.expandtab = true
-vim.bo.autoindent = true
-vim.bo.softtabstop = 2
-vim.bo.textwidth = 106
+require('utils.ftplugin')({
+  shiftwidth = 2,
+  tabstop = 2,
+  softtabstop = -1,
+  expandtab = true,
+  autoindent = true,
+  textwidth = 0,
+  wrap = false,
+  spell = false,
+  conceallevel = 0,
+  commentstring = '',
+})
 vim.g.ts = { 'json', 'json5' }

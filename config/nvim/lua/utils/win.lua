@@ -20,7 +20,7 @@ function M.win_safe_set_height(win, height)
   end
 
   local ch = vim.go.cmdheight
-  vim.api.nvim_win_set_height(win, height)
+  vim.api.nvim_win_resize(win, -1, height)
   vim.go.cmdheight = ch
 end
 
@@ -93,7 +93,9 @@ M.save_heights = M.save(vim.api.nvim_win_get_height)
 M.restore_heights = M.restore(M.win_safe_set_height)
 
 M.save_widths = M.save(vim.api.nvim_win_get_width)
-M.restore_widths = M.restore(vim.api.nvim_win_set_width)
+M.restore_widths = M.restore(function(win, width)
+  vim.api.nvim_win_resize(win, width, -1)
+end)
 
 local split_directions = {
   vertical = {
@@ -162,7 +164,7 @@ M.restore_ratio = M.restore(function(win, ratio)
 
   if vim.fn.win_gettype(win) == '' then
     M.win_safe_set_height(win, vim.fn.round(vim.go.lines * h / vim_h))
-    vim.api.nvim_win_set_width(win, vim.fn.round(vim.go.columns * w / vim_w))
+    vim.api.nvim_win_resize(win, vim.fn.round(vim.go.columns * w / vim_w), -1)
     return
   end
 
@@ -172,7 +174,7 @@ M.restore_ratio = M.restore(function(win, ratio)
       return
     end
     M.win_safe_set_height(win, h)
-    vim.api.nvim_win_set_width(win, w)
+    vim.api.nvim_win_resize(win, w, -1)
   end)
 end)
 

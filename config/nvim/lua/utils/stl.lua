@@ -228,7 +228,7 @@ function M.spinner:attach(buf)
   if not self.attached_autocmd then
     self.attached_autocmd = vim.api.nvim_create_autocmd('BufWipeout', {
       once = true,
-      buffer = buf,
+      buf = buf,
       callback = function(args)
         if vim.b[args.buf].spinner ~= self then
           return

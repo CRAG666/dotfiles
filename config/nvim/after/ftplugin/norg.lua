@@ -1,6 +1,14 @@
-vim.opt_local.conceallevel = 2
-vim.opt_local.concealcursor = ''
-vim.opt_local.wrap = true
-vim.opt_local.linebreak = true
-vim.opt_local.breakindent = true
+require('utils.ftplugin')({
+  shiftwidth = 2,
+  tabstop = 2,
+  softtabstop = -1,
+  expandtab = true,
+  conceallevel = 2,
+  concealcursor = '',
+  textwidth = 0,
+  wrap = true,
+  linebreak = true,
+  breakindent = true,
+  spell = true,
+})
 vim.g.ts = { 'norg', 'norg_meta' }

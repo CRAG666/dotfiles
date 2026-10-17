@@ -1,0 +1,26 @@
+background = #192019
+foreground = #e4e0cc
+selection-background = #667366
+selection-foreground = #e4e0cc
+cursor-color = #e4e0cc
+cursor-text = #192019
+split-divider-color = #667366
+
+palette = 0=#192019
+palette = 1=#ffbab1
+palette = 2=#96d4a6
+palette = 3=#f1de95
+palette = 4=#a8d7f0
+palette = 5=#efb7db
+palette = 6=#96d4e2
+palette = 7=#d0d4be
+palette = 8=#3a463a
+palette = 9=#ffbab1
+palette = 10=#bfe6a1
+palette = 11=#f7bc95
+palette = 12=#a2cdf7
+palette = 13=#d5c9fc
+palette = 14=#95ded1
+palette = 15=#e4e0cc
+palette = 16=#f7bc95
+palette = 17=#f4cb94

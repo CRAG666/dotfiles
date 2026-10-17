@@ -190,7 +190,7 @@ bind zN !s wtype -s 30 -M ctrl -M shift -k n
 " ============================================================================
 " HARDCORE VIM - EXTERNAL EDITOR (Neovim)
 " ============================================================================
-set editorcmd kitty -e nvim
+set editorcmd ghostty -e nvim
 
 " ============================================================================
 " HARDCORE VIM - ADVANCED HINTS

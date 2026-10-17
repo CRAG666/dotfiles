@@ -4,7 +4,15 @@ vim.g.mason = {
   'prettierd',
   'js-debug-adapter',
 }
-vim.bo.commentstring = '// %s'
+require('utils.ftplugin')({
+  shiftwidth = 2,
+  tabstop = 2,
+  softtabstop = -1,
+  expandtab = true,
+  textwidth = 0,
+  wrap = false,
+  spell = false,
+}, 'setlocal errorformat<')
 vim.g.ts = { 'typescript', 'javascript', 'tsx' }
 
 -- Parse tsc + node diagnostics (code_runner quickfix mode)

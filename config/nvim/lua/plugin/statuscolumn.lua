@@ -36,7 +36,7 @@ local lnumw_cache = {}
 ---@field foldopen? string fold open sign
 ---@field foldclose? string fold close sign
 ---@field foldsep? string fold separator sign
----@field extsigns? extmark.sign[] extmark signs, see `:h extmarks`
+---@field extsigns? table<integer, extmark.sign[]> extmark signs indexed by line
 ---@field lnum? integer v:lnum
 ---@field relnum? integer v:relnum
 ---@field virtnum? integer v:virtnum
@@ -89,15 +89,10 @@ function builders.signcol(data, filter, virtual)
   do
     ---@type extmark.spec?
     local sign_details
-    for _, sign in ipairs(data.extsigns) do
-      local lnum = sign[2] + 1 -- 0-indexed to 1-indexed
+    for _, sign in ipairs(data.extsigns[data.lnum] or {}) do
       local current_sign_details = sign[4]
-      if lnum > data.lnum then
-        break
-      end
       if
-        lnum == data.lnum
-        and filter(sign, data)
+        filter(sign, data)
         and current_sign_details.sign_text
         and (
           not sign_details
@@ -240,16 +235,27 @@ function _G._statuscolumn()
     data.foldopen = fcs.foldopen or '-'
     data.foldclose = fcs.foldclose or '+'
     data.foldsep = fcs.foldsep or '|'
-    data.extsigns = vim.api.nvim_buf_get_extmarks(
-      buf,
-      -1,
-      { wininfo.topline - 1, 0 },
-      { wininfo.botline - 1, -1 },
-      {
-        type = 'sign',
-        details = true,
-      }
-    )
+    data.extsigns = {}
+    if data.show_scl then
+      for _, sign in
+        ipairs(
+          vim.api.nvim_buf_get_extmarks(
+            buf,
+            -1,
+            { wininfo.topline - 1, 0 },
+            { wininfo.botline - 1, -1 },
+            {
+              type = 'sign',
+              details = true,
+            }
+          )
+        )
+      do
+        local lnum = sign[2] + 1
+        data.extsigns[lnum] = data.extsigns[lnum] or {}
+        table.insert(data.extsigns[lnum], sign)
+      end
+    end
 
     -- lnum width is only needed when both &nu and &rnu are enabled
     if data.nu and data.rnu then

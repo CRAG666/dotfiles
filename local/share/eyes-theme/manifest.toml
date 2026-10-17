@@ -45,6 +45,9 @@ wired = [
   { file = "config/kitty/diff.conf", pattern = "diff-eyes-dark" },
 ]
 
+[apps.ghostty]
+wired = [{ file = "config/ghostty/config.ghostty", pattern = "light:eyes-light,dark:eyes-dark" }]
+
 [apps.eza]
 switch = [{ pointer = "config/eza/theme.yml", light = "eyes.yml", dark = "eyes-dark.yml" }]
 
@@ -149,8 +152,8 @@ wired = [
   { file = "~/.config/gtk-3.0/settings.ini", pattern = "prefer-dark-theme" },
   { file = "~/.config/gtk-4.0/settings.ini", pattern = "prefer-dark-theme" },
 ]
-# kitty (*-theme.auto.conf), GTK4 and browsers follow this value via the portal;
-# kitty notifies nvim, opencode and Claude of the background change (DEC 2031).
+# kitty (*-theme.auto.conf), ghostty, GTK4 and browsers follow this value via the portal;
+# ghostty notifies nvim, opencode and Claude of the background change (DEC 2031).
 reload = [{ binary = "gsettings", run = ["gsettings", "set", "org.gnome.desktop.interface", "color-scheme", "prefer-{mode}"] }]
 
 # Claude's side panel keeps the theme name from startup: the

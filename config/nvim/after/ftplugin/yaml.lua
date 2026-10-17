@@ -1,3 +1,14 @@
+require('utils.ftplugin')({
+  shiftwidth = 2,
+  tabstop = 2,
+  softtabstop = -1,
+  expandtab = true,
+  textwidth = 0,
+  wrap = false,
+  spell = false,
+})
+vim.g.ts = { 'yaml' }
+
 if vim.bo.ft == 'yaml.gh' then
   return
 end
@@ -12,5 +23,3 @@ for _, dir in ipairs({ 'workflows', 'actions' }) do
     break
   end
 end
-
-vim.g.ts = { 'yaml' }

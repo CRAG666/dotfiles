@@ -26,7 +26,7 @@ local function enable_ts_hl(buf)
   -- to `vim.treesitter.start()` and improve startup time
   -- Don't re-enable in the same buffer, else buffers loaded from session can
   -- have blank highlighting
-  if vim.bo[buf].ft == '' or ts.is_active(buf) then
+  if vim.b[buf].bigfile or vim.bo[buf].ft == '' or ts.is_active(buf) then
     return
   end
   pcall(vim.treesitter.start, buf)
@@ -43,7 +43,7 @@ vim.api.nvim_create_autocmd({ 'BufEnter', 'FileType' }, {
 ---Enable treesitter folding for given buffer if fold expr and method are unset
 ---@param buf integer
 local function enable_ts_folding(buf)
-  if not ts.is_active(buf) then
+  if vim.b[buf].bigfile or not ts.is_active(buf) then
     return
   end
 

@@ -61,8 +61,8 @@ archive() {
 
 draw() {
     if [ -f "$1" ]; then
-        if command -v kitty >/dev/null 2>&1 && [ -n "$KITTY_WINDOW_ID" ]; then
-            kitty +kitten icat --transfer-mode=memory --stdin=no --place="${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}@0x0" "$1"
+        if command -v kitten >/dev/null 2>&1 && [ -n "$KITTY_WINDOW_ID$GHOSTTY_RESOURCES_DIR" ]; then
+            kitten icat --transfer-mode=memory --stdin=no --place="${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}@0x0" "$1"
         elif command -v img2sixel >/dev/null 2>&1; then
             case "$TERM" in
                 mlterm*|foot*|wezterm*|xterm*|st*|contour*|ghostty*)
@@ -73,7 +73,7 @@ draw() {
                     ;;
             esac
         else
-            echo "Preview not available: kitty or img2sixel not found"
+            echo "Preview not available: kitten or img2sixel not found"
         fi
     else
         echo "Preview not available"

@@ -1,9 +1,10 @@
 local M = {}
+local fs = require('utils.fs')
 
 ---@type lsp.config
 ---@diagnostic disable-next-line: missing-fields
 M.default_config = {
-  root_markers = require('utils.fs').root_markers,
+  root_markers = fs.root_markers,
 }
 
 ---@class (partial) lsp.config : vim.lsp.Config
@@ -37,7 +38,7 @@ function M.start(config, opts)
   end
 
   local name = cmd_exec
-  local bufname = vim.api.nvim_buf_get_name(0)
+  local bufname = vim.api.nvim_buf_get_name(opts and opts.bufnr or 0)
 
   if config.buf_support == false and not vim.uv.fs_stat(bufname) then
     return
@@ -55,21 +56,24 @@ function M.start(config, opts)
         and vim.fn.isdirectory(dir) == 1
         -- Some language servers e.g. lua-language-server, refuse
         -- to use home dir as its root dir and prints an error message
-        and not require('utils.fs').is_home_dir(dir)
-        and not require('utils.fs').is_root_dir(dir)
+        and not fs.is_home_dir(dir)
+        and not fs.is_root_dir(dir)
         and dir
       or nil
   end
 
-  local root_dir = validate(
-    require('utils.fs').root(
-      bufname,
-      vim.list_extend(
-        vim.list_extend({}, config.root_markers or {}),
-        M.default_config.root_markers or {}
+  local root_dir = config.root_dir
+  if not root_dir then
+    root_dir = validate(
+      fs.root(
+        bufname,
+        vim.list_extend(
+          vim.list_extend({}, config.root_markers or {}),
+          M.default_config.root_markers or {}
+        )
       )
-    )
-  ) or validate(vim.fs.dirname(bufname)) or vim.fn.getcwd(0)
+    ) or validate(vim.fs.dirname(bufname)) or vim.fn.getcwd(0)
+  end
 
   return lsp_start(
     vim.tbl_deep_extend('keep', config or {}, {

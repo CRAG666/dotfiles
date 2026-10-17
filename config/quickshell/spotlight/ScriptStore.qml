@@ -115,7 +115,7 @@ Scope {
     function act(item, action) {
         if (item.kind !== "script" || action !== "edit")
             return false;
-        Quickshell.execDetached(["kitty", "-1", "-e", "sh", "-c", '"${EDITOR:-nvim}" "$1"', "sh", item.script.path]);
+        Quickshell.execDetached(["ghostty", "+new-window", "-e", "sh", "-c", '"${EDITOR:-nvim}" "$1"', "sh", item.script.path]);
         source.reload();
         return true;
     }

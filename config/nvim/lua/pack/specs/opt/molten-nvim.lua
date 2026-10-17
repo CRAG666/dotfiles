@@ -449,7 +449,7 @@ return {
               'molten.close_output_win.buf.' .. buf,
               {}
             ),
-            buffer = buf,
+            buf = buf,
             callback = function(args)
               if src_win == tonumber(args.match) then
                 vim.schedule(function()

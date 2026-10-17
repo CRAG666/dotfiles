@@ -2,7 +2,7 @@ import Quickshell
 import QtQuick
 
 // Shell commands (the "run" view, or "> cmd" from anywhere) and the
-// executables on PATH that complete the program name. Ctrl+Enter runs in kitty.
+// executables on PATH that complete the program name. Ctrl+Enter runs in ghostty.
 Scope {
     id: root
 
@@ -26,7 +26,7 @@ Scope {
     }
 
     function activate(item, keys) {
-        Quickshell.execDetached(keys.ctrl ? ["kitty", "-1", "--hold", "sh", "-c", item.value] : ["sh", "-c", item.value]);
+        Quickshell.execDetached(keys.ctrl ? ["ghostty", "--wait-after-command=true", "-e", "sh", "-c", item.value] : ["sh", "-c", item.value]);
         return true;
     }
 

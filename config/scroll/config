@@ -10,15 +10,14 @@ set $down  J
 set $up    K
 set $right L
 # Dunst / TUI helpers
-set $term kitty -1
+set $term ghostty +new-window
 set $spotlight ~/.config/quickshell/spotlight/spotlight.sh
 set $vol ~/.config/quickshell/osd/vol
-set $RUN_TUI_DIALOG $term --class dialog
+set $RUN_TUI_DIALOG ghostty --class=ghostty.dialog
 
 ### Startup execs
 
-exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
-exec systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+exec dbus-update-activation-environment --systemd --all
 exec systemctl --user start sway-session.target
 exec wl-paste --type text --watch cliphist store
 exec wl-paste --type image --watch cliphist store
@@ -47,7 +46,7 @@ lua $lua_scripts/grid_NxM.lua
 # Jump to them with $mod+apostrophe (Spotlight's marks view).
 lua $lua_scripts/auto_marks.lua
 
-# Hide kitty when open mpv
+# Hide the terminal when it opens mpv
 lua $lua_scripts/swallow.lua
 
 set $CURSORSIZE 30
@@ -312,7 +311,7 @@ animations {
         bindsym  t jump trailmark; mode default
         bindsym  Shift+t jump trailmark all; mode default
         bindsym  j jump; mode default
-        bindsym  k jump criteria [app_id="kitty"]; mode default
+        bindsym  k jump criteria [app_id="com.mitchellh.ghostty"]; mode default
         bindsym  z jump criteria [app_id="zen"]; mode default
         bindsym Escape mode "default"
     }
@@ -637,7 +636,7 @@ bindsym $mod+Shift+s mode "spaces"
 # APPLICATIONS
 # =============================================================================
 
-bindsym Alt+space exec ~/.config/quickshell/lock.sh
+bindsym $mod+Escape exec ~/.config/quickshell/lock.sh
 
 bindsym $mod+Return exec $term
 
@@ -647,7 +646,7 @@ bindsym $mod+BackSpace exec $spotlight commands
 bindsym $mod+v exec $spotlight clipboard
 bindsym XF86Launch6 exec $spotlight clipboard
 
-bindsym XF86Mail exec $term -T aerc aerc # x + o
+bindsym XF86Mail exec $term --title=aerc -e aerc # x + o
 bindsym XF86Search exec $BROWSER # x + i
 
 # Launchers
@@ -662,10 +661,10 @@ bindsym XF86Favorites exec $spotlight bookmarks # ; + B
 bindsym $mod+b exec $spotlight quicklinks
 
 # WiFi / Bluetooth / File manager / Volume control
-bindsym XF86Launch5 exec $RUN_TUI_DIALOG -T wiremix wiremix # F14 / + V
-bindsym XF86Launch8 exec $RUN_TUI_DIALOG -T impala impala # F17 / + N
-bindsym XF86Launch9 exec $RUN_TUI_DIALOG -T bluetui bluetui # F18 / + B
-bindsym XF86Explorer exec $RUN_TUI_DIALOG -T yazi yazi # / + G
+bindsym XF86Launch5 exec $RUN_TUI_DIALOG --title=wiremix -e wiremix # F14 / + V
+bindsym XF86Launch8 exec $RUN_TUI_DIALOG --title=impala -e impala # F17 / + N
+bindsym XF86Launch9 exec $RUN_TUI_DIALOG --title=bluetui -e bluetui # F18 / + B
+bindsym XF86Explorer exec $RUN_TUI_DIALOG --title=yazi -e yazi # / + G
 
 # Credentials / Notes
 bindsym $mod+c exec $spotlight passwords
@@ -727,7 +726,7 @@ bindgesture pinch:clockwise exec $vol up
 bindgesture pinch:counterclockwise exec $vol down
 
 # Window rules
-for_window [app_id="dialog"] floating enable, resize set 80ppt 80ppt
+for_window [app_id="ghostty.dialog"] floating enable, resize set 80ppt 80ppt
 
 # Picture-in-Picture
 for_window [title="(?i)^([Pp]icture[-\s]?[Ii]n[-\s]?[Pp]icture)(.*)$"] floating enable, sticky enable, resize set 25ppt 25ppt, move position 73ppt 72ppt

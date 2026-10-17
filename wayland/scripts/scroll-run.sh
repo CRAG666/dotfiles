@@ -54,7 +54,7 @@ set_default_env() {
     export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
     export QT_SCALE_FACTOR_ROUNDING_POLICY=RoundPreferFloor
     export GDK_BACKEND=wayland
-    export TERMCMD="kitty -T yazi"
+    export TERMCMD="ghostty --title=yazi -e"
     export EDITOR=nvim
     export BROWSER=zen-browser
     export QT_QPA_PLATFORM=wayland

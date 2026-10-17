@@ -1,7 +1,12 @@
-vim.bo.expandtab = false
-vim.bo.shiftwidth = 4
-vim.bo.softtabstop = 0
-vim.bo.tabstop = 4
+require('utils.ftplugin')({
+  expandtab = false,
+  shiftwidth = 4,
+  softtabstop = 0,
+  tabstop = 4,
+  textwidth = 0,
+  wrap = false,
+  spell = false,
+}, 'setlocal errorformat<')
 vim.g.ts = { 'make' }
 
 -- Parse gcc/clang diagnostics (code_runner quickfix mode)

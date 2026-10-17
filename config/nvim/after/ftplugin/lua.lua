@@ -1,9 +1,13 @@
-vim.bo.shiftwidth = 2
-vim.bo.tabstop = 2
-vim.bo.softtabstop = 2
-vim.bo.textwidth = 106
-vim.bo.expandtab = true
-vim.bo.autoindent = true
+require('utils.ftplugin')({
+  shiftwidth = 2,
+  tabstop = 2,
+  softtabstop = -1,
+  textwidth = 0,
+  expandtab = true,
+  autoindent = true,
+  wrap = false,
+  spell = false,
+})
 vim.g.mason = {
   'stylua',
   'shfmt',
@@ -11,5 +15,4 @@ vim.g.mason = {
   'efm',
   'luacheck',
 }
-vim.g.ts =
-  { 'lua', 'luadoc', 'luap', 'luau', 'vimdoc', 'zathurarc', 'hyprlang', 'nu' }
+vim.g.ts = { 'lua', 'luadoc', 'luap' }

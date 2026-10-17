@@ -134,18 +134,15 @@ function M.on_events(event_specs, name, load)
   -- and buffers are triggered once together
   ---@cast event_specs load.event.structured_spec[]
   for _, spec in ipairs(event_specs) do
-    if spec.buffer then
-      local loaders = event_loaders[spec.event].bufs[spec.buffer]
+    local buf = spec.buf or spec.buffer
+    if buf then
+      local loaders = event_loaders[spec.event].bufs[buf]
       if vim.tbl_isempty(loaders) then
         vim.api.nvim_create_autocmd(spec.event, {
           once = true,
-          buffer = spec.buffer,
+          buf = buf,
           group = vim.api.nvim_create_augroup(
-            string.format(
-              'load.on_events.event.%s.buf.%d',
-              spec.event,
-              spec.buffer
-            ),
+            string.format('load.on_events.event.%s.buf.%d', spec.event, buf),
             {}
           ),
           callback = trig_loaders_fn(loaders, spec.retrig),
@@ -167,11 +164,7 @@ function M.on_events(event_specs, name, load)
             once = true,
             pattern = pat,
             group = vim.api.nvim_create_augroup(
-              string.format(
-                'load.on_events.event.%s.pat.%s',
-                spec.event,
-                pat
-              ),
+              string.format('load.on_events.event.%s.pat.%s', spec.event, pat),
               {}
             ),
             callback = trig_loaders_fn(loaders, spec.retrig),

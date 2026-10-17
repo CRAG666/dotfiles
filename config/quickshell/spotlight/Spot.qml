@@ -10,14 +10,14 @@ Singleton {
     readonly property string stateDir: (Quickshell.env("XDG_STATE_HOME") || home + "/.local/state") + "/spotlight"
     readonly property string cacheDir: (Quickshell.env("XDG_CACHE_HOME") || home + "/.cache") + "/spotlight"
     readonly property string helper: home + "/.config/quickshell/spotlight/spotlight.py"
-    readonly property var terminals: ["kitty", "foot", "Alacritty", "org.wezfurlong.wezterm", "com.mitchellh.ghostty"]
+    readonly property var terminals: ["kitty", "foot", "Alacritty", "org.wezfurlong.wezterm", "com.mitchellh.ghostty", "ghostty.dialog"]
 
     // run after Spotlight closes: send the paste shortcut to the focused window
     // (terminals take Ctrl+Shift+V)
     readonly property string pasteKeys: `sleep 0.3
 app=$(scrollmsg -t get_tree | jq -r '[.. | select(.focused? == true)][0] | .app_id // .window_properties.class // ""')
 case "$app" in
-kitty | foot | Alacritty | org.wezfurlong.wezterm | com.mitchellh.ghostty) wtype -M ctrl -M shift v -m shift -m ctrl ;;
+kitty | foot | Alacritty | org.wezfurlong.wezterm | com.mitchellh.ghostty | ghostty.dialog) wtype -M ctrl -M shift v -m shift -m ctrl ;;
 *) wtype -M ctrl v -m ctrl ;;
 esac`
 

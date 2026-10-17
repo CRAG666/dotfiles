@@ -1,6 +1,13 @@
-vim.bo.cindent = false
-vim.bo.smartindent = false
-vim.bo.commentstring = '# %s'
+require('utils.ftplugin')({
+  cindent = false,
+  smartindent = false,
+  commentstring = '# %s',
+  textwidth = 0,
+  wrap = true,
+  linebreak = true,
+  breakindent = true,
+  spell = true,
+}, 'unlet! b:should_join_line')
 
 ---Don't join first line of list item with previous lines when yanking with
 ---joined paragraphs

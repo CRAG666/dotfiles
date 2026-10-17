@@ -242,7 +242,7 @@ local function jupytext_convert(buf)
   vim.bo[buf].ft = 'markdown'
   vim.api.nvim_create_autocmd({ 'BufWriteCmd', 'FileWriteCmd' }, {
     group = vim.api.nvim_create_augroup('jupytext.buf.' .. buf, {}),
-    buffer = buf,
+    buf = buf,
     callback = write_cb,
   })
 end

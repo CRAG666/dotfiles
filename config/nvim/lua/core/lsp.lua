@@ -9,9 +9,12 @@ vim.lsp.start = lsp.start
 -- `FileType` autocmds for every buffer
 do
   local names = {}
-  for _, dir in ipairs(vim.api.nvim__get_runtime({ 'lsp' }, true, {})) do
-    for config_file in vim.fs.dir(dir) do
-      table.insert(names, (config_file:gsub('%.lua$', '')))
+  local seen = {}
+  for _, path in ipairs(vim.api.nvim_get_runtime_file('lsp/*.lua', true)) do
+    local name = vim.fs.basename(path):gsub('%.lua$', '')
+    if not seen[name] then
+      names[#names + 1] = name
+      seen[name] = true
     end
   end
   vim.lsp.enable(names)
@@ -72,7 +75,7 @@ do
     return open_floating_preview(
       contents,
       syntax,
-      vim.tbl_deep_extend('force', opts, {
+      vim.tbl_deep_extend('force', opts or {}, {
         border = 'solid',
         max_width = math.max(80, math.ceil(vim.go.columns * 0.75)),
         max_height = math.max(20, math.ceil(vim.go.lines * 0.4)),

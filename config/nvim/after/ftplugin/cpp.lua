@@ -1,10 +1,14 @@
-local set = vim.opt
-
-set.tabstop = 2
-set.shiftwidth = 2
-set.expandtab = true
-set.cinoptions = ':0g0(0s'
-vim.bo.commentstring = '// %s'
+require('utils.ftplugin')({
+  tabstop = 2,
+  shiftwidth = 2,
+  softtabstop = -1,
+  expandtab = true,
+  cinoptions = ':0g0(0s',
+  commentstring = '// %s',
+  textwidth = 0,
+  wrap = false,
+  spell = false,
+}, 'setlocal errorformat<')
 
 vim.g.mason = { 'codelldb', 'clangd' }
 vim.g.ts = { 'c', 'cpp' }

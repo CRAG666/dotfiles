@@ -148,7 +148,7 @@ augroup('last_pos_jmp', {
 
       vim.api.nvim_create_autocmd('FileType', {
         once = true,
-        buffer = args.buf,
+        buf = args.buf,
         callback = function(a)
           local ft = vim.bo[a.buf].ft
           if ft == 'gitcommit' or ft == 'gitrebase' then
@@ -543,7 +543,7 @@ augroup('HelpConfig', {
 augroup('EasyQuit', {
   'FileType',
   {
-    pattern = {'man', 'nvim-pack', 'help'},
+    pattern = { 'man', 'nvim-pack', 'help' },
     command = [[nnoremap <buffer><silent> q :quit<CR>]],
   },
 })

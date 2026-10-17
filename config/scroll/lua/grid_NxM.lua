@@ -48,7 +48,7 @@ end
 
 -- Short-lived dialogs/pickers must not drive grid placement.
 local IGNORE_APPS = {
-	["dialog"] = true,
+	["ghostty.dialog"] = true,
 	["pwvucontrol"] = true,
 	["nm-connection-editor"] = true,
 	["xdg-desktop-portal-gtk"] = true,

@@ -50,6 +50,7 @@ _G._title_lowercase_words = {
 local function format_title()
   if
     vim.bo.filetype ~= 'markdown'
+    or vim.b.bigfile
     or vim.b.md_fmt_title == false
     or (vim.g.md_fmt_title == false and vim.b.md_fmt_title == nil)
   then
@@ -141,7 +142,7 @@ vim.api.nvim_create_autocmd('TextChangedI', {
     string.format('ft.markdown.format_title.buf.%d', buf),
     {}
   ),
-  buffer = buf,
+  buf = buf,
   callback = format_title,
 })
 

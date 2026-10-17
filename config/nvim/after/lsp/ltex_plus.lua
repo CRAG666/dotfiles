@@ -15,9 +15,9 @@ return {
   -- ltex checks one language per document. Toggle en-US <-> es-ES at runtime.
   -- Per-document override also works via magic comment, e.g. in markdown:
   --   <!-- ltex: language=es-ES -->
-  on_attach = function(client)
+  on_attach = function(client, bufnr)
     local langs = { es = 'es-ES', us = 'en-US' }
-    vim.api.nvim_create_user_command('LtexLang', function(opts)
+    vim.api.nvim_buf_create_user_command(bufnr, 'LtexLang', function(opts)
       local lang = langs[opts.args]
         or (client.settings.ltex.language == 'en-US' and 'es-ES' or 'en-US')
       client.settings.ltex.language = lang

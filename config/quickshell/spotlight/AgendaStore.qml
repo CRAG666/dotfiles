@@ -98,7 +98,7 @@ Scope {
     }
 
     function openNote(event) {
-        Quickshell.execDetached(["kitty", "-1", "-e", "sh", "-c", '"${EDITOR:-nvim}" "+$2" "$1"', "sh", event.file, String(event.line)]);
+        Quickshell.execDetached(["ghostty", "+new-window", "-e", "sh", "-c", '"${EDITOR:-nvim}" "+$2" "$1"', "sh", event.file, String(event.line)]);
     }
 
     function activate(item, keys) {

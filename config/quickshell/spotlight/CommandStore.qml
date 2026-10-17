@@ -25,7 +25,7 @@ Scope {
         { title: "Screenshot Area", icon: "applets-screenshooter", command: ["sh", "-c", 'sleep 0.3; grim -g "$(slurp -d)" - | swappy -f -'] },
         { title: "Screenshot Screen", icon: "applets-screenshooter", command: ["sh", "-c", 'sleep 0.3; grim -o "$(scrollmsg -t get_outputs | jq -r ".[] | select(.focused) | .name")" - | swappy -f -'] },
         { title: "Empty Trash", icon: "user-trash-full", command: ["gio", "trash", "--empty"], confirm: true },
-        { title: "Edit Snippets, Quicklinks and AI Commands", icon: "accessories-text-editor", command: ["kitty", "-1", "-e", "sh", "-c", '"${EDITOR:-nvim}" "$1"', "sh", configDir + "/spotlight/spotlight.json"] },
+        { title: "Edit Snippets, Quicklinks and AI Commands", icon: "accessories-text-editor", command: ["ghostty", "+new-window", "-e", "sh", "-c", '"${EDITOR:-nvim}" "$1"', "sh", configDir + "/spotlight/spotlight.json"] },
         { title: "Close Window", icon: "window-close", command: ["scrollmsg", "kill"] },
         { title: "Toggle Fullscreen", icon: "view-fullscreen", command: ["scrollmsg", "fullscreen", "toggle"] },
         { title: "Toggle Floating", icon: "window-new", command: ["scrollmsg", "floating", "toggle"] },
@@ -49,13 +49,13 @@ Scope {
     ]
 
     readonly property var tools: [
-        { title: "Email", program: "aerc", command: ["kitty", "-T", "aerc", "aerc"] },
-        { title: "Bluetooth", program: "bluetui", icon: "bluetooth", command: ["kitty", "--class", "dialog", "-T", "bluetui", "bluetui"] },
-        { title: "Wi-Fi", program: "impala", icon: "network-wireless", command: ["kitty", "--class", "dialog", "-T", "impala", "impala"] },
-        { title: "Files", program: "yazi", icon: "system-file-manager", command: ["kitty", "--class", "dialog", "-T", "yazi", "yazi"] },
-        { title: "Calendar", program: "cal", icon: "office-calendar", command: ["kitty", "--class", "dialog", "-T", "calendar", "--hold", "cal", "-3", "-m"] },
-        { title: "Music", program: "termusic", command: ["kitty", "-T", "termusic", "termusic"] },
-        { title: "Volume Mixer", program: "wiremix", icon: "audio-volume-high", command: ["kitty", "--class", "dialog", "-T", "wiremix", "wiremix"] }
+        { title: "Email", program: "aerc", command: ["ghostty", "+new-window", "--title=aerc", "-e", "aerc"] },
+        { title: "Bluetooth", program: "bluetui", icon: "bluetooth", command: ["ghostty", "--class=ghostty.dialog", "--title=bluetui", "-e", "bluetui"] },
+        { title: "Wi-Fi", program: "impala", icon: "network-wireless", command: ["ghostty", "--class=ghostty.dialog", "--title=impala", "-e", "impala"] },
+        { title: "Files", program: "yazi", icon: "system-file-manager", command: ["ghostty", "--class=ghostty.dialog", "--title=yazi", "-e", "yazi"] },
+        { title: "Calendar", program: "cal", icon: "office-calendar", command: ["ghostty", "--class=ghostty.dialog", "--title=calendar", "--wait-after-command=true", "-e", "cal", "-3", "-m"] },
+        { title: "Music", program: "termusic", command: ["ghostty", "+new-window", "--title=termusic", "-e", "termusic"] },
+        { title: "Volume Mixer", program: "wiremix", icon: "audio-volume-high", command: ["ghostty", "--class=ghostty.dialog", "--title=wiremix", "-e", "wiremix"] }
     ]
 
     readonly property MprisPlayer player: {

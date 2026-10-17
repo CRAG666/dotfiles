@@ -1,7 +1,12 @@
-set = vim.bo
-set.shiftwidth = 4
-set.softtabstop = 4
-set.expandtab = true
+require('utils.ftplugin')({
+  shiftwidth = 4,
+  tabstop = 4,
+  softtabstop = -1,
+  expandtab = true,
+  textwidth = 0,
+  wrap = false,
+  spell = false,
+}, 'setlocal errorformat< | silent! nunmap <buffer> <leader>;')
 vim.g.mason = { 'roslyn', 'netcoredbg' }
 vim.g.ts = { 'c_sharp', 'jsonnet' }
 
@@ -10,7 +15,7 @@ vim.keymap.set(
   'n',
   '<leader>;',
   '<esc>mzA;<esc>`z',
-  { noremap = true, silent = true }
+  { buffer = true, silent = true }
 )
 
 -- Parse dotnet/msbuild diagnostics (code_runner quickfix mode)

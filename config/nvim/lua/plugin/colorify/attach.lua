@@ -62,7 +62,14 @@ local del_extmarks_on_textchange = function(buf)
 end
 
 return function(buf, event)
+  if vim.b[buf].bigfile then
+    return
+  end
+
   local winid = vim.fn.bufwinid(buf)
+  if winid == -1 then
+    return
+  end
 
   local min = fn.line('w0', winid) - 1
   local max = fn.line('w$', winid) + 1

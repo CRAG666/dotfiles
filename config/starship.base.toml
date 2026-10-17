@@ -6,11 +6,11 @@ format = """$all"""
 # right_format = """$all"""
 
 [character]
-# success_symbol = "[ﰉ](fg:red)[ ﰉ](fg:yellow)[ ﰉ](fg:cyan)"
-success_symbol = "[ﰉ](fg:red)[ ﰉ](fg:yellow)[ ﰉ](fg:green)"
-# vicmd_symbol = "[ﰊ](fg:cyan)[ ﰊ](fg:yellow)[ ﰊ](fg:red)"
-vicmd_symbol = "[ﰊ](fg:green)[ ﰊ](fg:yellow)[ ﰊ](fg:red)"
-error_symbol = "[ﰉ](fg:red)"
+# success_symbol = "[◆](fg:red)[ ◆](fg:yellow)[ ◆](fg:cyan)"
+success_symbol = "[◆](fg:red)[ ◆](fg:yellow)[ ◆](fg:green)"
+# vicmd_symbol = "[◇](fg:cyan)[ ◇](fg:yellow)[ ◇](fg:red)"
+vicmd_symbol = "[◇](fg:green)[ ◇](fg:yellow)[ ◇](fg:red)"
+error_symbol = "[◆](fg:red)"
 
 [git_metrics]
 disabled = false

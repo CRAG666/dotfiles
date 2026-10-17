@@ -142,7 +142,7 @@ return function()
     )
 
     api.nvim_create_autocmd('BufLeave', {
-      buffer = buf,
+      buf = buf,
       once = true,
       callback = function()
         vim.schedule(close)

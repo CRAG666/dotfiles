@@ -478,7 +478,7 @@ function winbar_menu:make_buf()
   vim.api.nvim_create_autocmd('WinClosed', {
     nested = true,
     group = groupid,
-    buffer = self.buf,
+    buf = self.buf,
     callback = function()
       -- Trigger self:close() when the popup window is closed
       -- to ensure the cursor is set to the correct previous window
@@ -487,7 +487,7 @@ function winbar_menu:make_buf()
   })
   vim.api.nvim_create_autocmd('CursorMoved', {
     group = groupid,
-    buffer = self.buf,
+    buf = self.buf,
     callback = function()
       local cursor = vim.api.nvim_win_get_cursor(self.win)
 
@@ -509,14 +509,14 @@ function winbar_menu:make_buf()
   })
   vim.api.nvim_create_autocmd('WinScrolled', {
     group = groupid,
-    buffer = self.buf,
+    buf = self.buf,
     callback = function()
       self:update_scrollbar()
     end,
   })
   vim.api.nvim_create_autocmd('BufLeave', {
     group = groupid,
-    buffer = self.buf,
+    buf = self.buf,
     callback = function()
       self:update_hover_hl()
 
@@ -689,7 +689,7 @@ function winbar_menu:open(opts)
       vim.api.nvim_win_set_cursor(self.win, self.prev_cursor)
     elseif self.cursor then
       vim.api.nvim_win_set_cursor(self.win, self.cursor)
-      vim.api.nvim_exec_autocmds('CursorMoved', { buffer = self.buf })
+      vim.api.nvim_exec_autocmds('CursorMoved', { buf = self.buf })
     end
   end
   self:update_scrollbar()

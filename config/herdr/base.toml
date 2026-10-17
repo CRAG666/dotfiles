@@ -25,44 +25,41 @@ default_shell = "nu"
 # doesn't even fire the default i_CTRL-@); no fcitx/ibus to steal it as an
 # IME toggle. Only prospective risk: <C-Space> is the typical completion
 # mapping (nvim-cmp) if you ever add it.
-# Bonus: freeing alt+space leaves it available for hyprlock in the
-# legacy hypr config (bindd = ALT, Space) in case that WM comes back.
 # Careful: on your keyboards space is LT(2) (hold = navigation layer):
 # tap it briefly; if you hold it the layer activates and the prefix
 # doesn't fire (harmless, retry).
 # Discarded: alt+a/i/d/h/l (nvim), alt+backspace/alt+enter (shells/nu)
 prefix = "ctrl+space"
 # Clash-free alternatives:
-#   prefix = "alt+space" # both thumbs, verified (clashes with legacy hypr hyprlock)
 #   prefix = "alt+j"     # right thumb + home index finger, one hand
 #   prefix = "f17"       # MO(4)+N on your keychron: virtual key, zero clashes
 
 # Vim-style. A custom binding replaces the whole default (it is not appended).
-goto         = "prefix+space"  # picker: <leader><space> from telescope/fzf (was prefix+g)
-next_tab     = "prefix+t"      # vim gt
-previous_tab = "prefix+shift+t" # vim gT (frees shift+t from rename)
-rename_tab   = "prefix+comma"  # tmux rename-window
-last_pane    = "prefix+enter"  # jumplist ctrl+o: back to the last pane
+goto         = ["prefix+space", "alt+space"] # picker: <leader><space> from telescope/fzf (was prefix+g)
+next_tab     = ["prefix+t", "alt+."]      # vim gt
+previous_tab = ["prefix+shift+t", "alt+,"] # vim gT (frees shift+t from rename)
+rename_tab   = ["prefix+comma", "alt+'"] # tmux rename-window
+last_pane    = ["prefix+enter", "alt+o"] # jumplist ctrl+o: back to the last pane
 new_worktree = "prefix+g"      # freed by moving goto to prefix+space (was prefix+shift+g)
-new_tab      = ["prefix+n", "prefix+c"] # n = new (tmux's c as secondary)
-# Already ergonomic out of the box (defaults): focus hjkl, swap shift+hjkl, zoom z,
-# copy [, resize r, switch_tab prefix+1..9 (={N}gt).
+new_tab      = ["prefix+n", "prefix+c", "alt+;"] # n = new (tmux's c as secondary)
+# Default kept as is: switch_tab prefix+1..9 (={N}gt).
 
-# Migration from kitty: uncomment when removing the alt+* maps from kitty.conf
-# (while they exist there, kitty intercepts the chords before herdr).
-# new_tab         = ["prefix+c", "alt+;"]
-# next_tab        = ["prefix+n", "alt+."]
-# previous_tab    = ["prefix+p", "alt+,"]
-# split_vertical  = ["prefix+v", "alt+/"]
-# close_pane      = ["prefix+x", "alt+backspace"]
-# focus_pane_left  = ["prefix+h", "alt+left"]
-# focus_pane_down  = ["prefix+j", "alt+down"]
-# focus_pane_up    = ["prefix+k", "alt+up"]
-# focus_pane_right = ["prefix+l", "alt+right"]
-# swap_pane_left   = ["prefix+shift+h", "ctrl+alt+h"]
-# swap_pane_down   = ["prefix+shift+j", "ctrl+alt+j"]
-# swap_pane_up     = ["prefix+shift+k", "ctrl+alt+k"]
-# swap_pane_right  = ["prefix+shift+l", "ctrl+alt+l"]
+split_vertical  = ["prefix+v", "alt+/"]
+close_pane      = ["prefix+x", "alt+x"] # not alt+backspace: delete-word in nvim/nu/zsh
+split_horizontal = ["prefix+minus", "alt+minus"]
+zoom            = ["prefix+z", "alt+z"]
+copy_mode       = ["prefix+[", "alt+v"]
+resize_mode     = ["prefix+r", "alt+r"]
+new_workspace   = ["prefix+shift+n", "alt+w"]
+toggle_sidebar  = ["prefix+b", "alt+m"]
+focus_pane_left  = ["prefix+h", "alt+left"]
+focus_pane_down  = ["prefix+j", "alt+down"]
+focus_pane_up    = ["prefix+k", "alt+up"]
+focus_pane_right = ["prefix+l", "alt+right"]
+swap_pane_left   = ["prefix+shift+h", "ctrl+alt+h"]
+swap_pane_down   = ["prefix+shift+j", "ctrl+alt+j"]
+swap_pane_up     = ["prefix+shift+k", "ctrl+alt+k"]
+swap_pane_right  = ["prefix+shift+l", "ctrl+alt+l"]
 
 [ui]
 # Hide sidebar and tab bar: zero-width sidebar from startup,

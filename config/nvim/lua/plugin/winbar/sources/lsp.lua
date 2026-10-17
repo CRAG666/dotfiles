@@ -326,7 +326,7 @@ local function attach(buf)
       :totable(),
     {
       group = groupid,
-      buffer = buf,
+      buf = buf,
       callback = function(args)
         update_symbols(args.buf)
       end,

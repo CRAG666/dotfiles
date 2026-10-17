@@ -3,7 +3,7 @@ import Quickshell.Io
 import QtQuick
 
 // SSH hosts: ~/.ssh/config (git-only hosts skipped) merged with your Tailscale
-// peers, with their online state. Enter connects with kitten ssh.
+// peers, with their online state. Enter connects with ssh in ghostty.
 Scope {
     id: root
     property var hosts: []
@@ -54,11 +54,11 @@ Scope {
     }
 
     function describe(item) {
-        return { icon: item.icon, title: item.title, subtitle: item.host.address, metadata: item.host.peer ? [["Tailscale", item.host.peer.online ? "Online" : "Offline"], ["OS", item.host.peer.os]] : [], actions: [["Enter", "Connect with kitten ssh"], ["Ctrl+C", "Copy host"]] };
+        return { icon: item.icon, title: item.title, subtitle: item.host.address, metadata: item.host.peer ? [["Tailscale", item.host.peer.online ? "Online" : "Offline"], ["OS", item.host.peer.os]] : [], actions: [["Enter", "Connect with ssh"], ["Ctrl+C", "Copy host"]] };
     }
 
     function activate(item, keys) {
-        Quickshell.execDetached(["kitty", "-1", "kitten", "ssh", item.value]);
+        Quickshell.execDetached(["ghostty", "+new-window", "-e", "env", "TERM=xterm-256color", "ssh", item.value]);
         return true;
     }
 

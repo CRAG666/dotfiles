@@ -1,6 +1,15 @@
-vim.bo.textwidth = 88
-vim.opt_local.wrap = true
-vim.bo.commentstring = '% %s'
+require('utils.ftplugin')({
+  shiftwidth = 2,
+  tabstop = 2,
+  softtabstop = -1,
+  expandtab = true,
+  textwidth = 88,
+  wrap = true,
+  linebreak = true,
+  breakindent = true,
+  spell = true,
+  commentstring = '% %s',
+}, 'setlocal errorformat< | unlet! b:root_markers')
 -- LaTeX errorformat (vim-latex lineage): parses -file-line-error lines,
 -- multiline "! ..." errors (Runaway argument, Emergency stop) and tracks the
 -- open-file stack from the log's parens. Errors only; warnings are ignored.

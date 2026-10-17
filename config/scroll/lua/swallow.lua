@@ -5,7 +5,7 @@ local function candidate(view)
 		local pview = scroll.view_get_parent_view(view)
 		if pview ~= nil and pview ~= view then
 			local papp_id = scroll.view_get_app_id(pview)
-			if papp_id == "kitty" then
+			if papp_id == "com.mitchellh.ghostty" then
 				return scroll.view_get_container(pview)
 			end
 		end

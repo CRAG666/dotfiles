@@ -1,5 +1,6 @@
 vim.g.has_ui = #vim.api.nvim_list_uis() > 0
 vim.g.has_nf = vim.env.TERM ~= 'linux' and vim.env.NVIM_NF ~= nil
+vim.g.snacks_animate = false
 -- vim.o.shell = "/bin/nu"
 vim.opt.encoding = 'utf-8'
 vim.opt.fileformat = 'unix'
@@ -14,6 +15,7 @@ vim.opt.helpheight = 10
 vim.opt.showmode = false
 vim.opt.mousemoveevent = true
 vim.opt.number = true
+vim.opt.relativenumber = true
 vim.opt.ruler = true
 vim.opt.pumheight = 16
 vim.opt.scrolloff = 2

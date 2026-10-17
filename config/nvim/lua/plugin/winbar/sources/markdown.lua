@@ -239,7 +239,7 @@ local function attach(buf)
       {
         desc = 'Update markdown heading symbols on buffer change.',
         group = groupid,
-        buffer = buf,
+        buf = buf,
         callback = function(args)
           parse_buf(args.buf)
         end,

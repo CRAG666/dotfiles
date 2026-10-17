@@ -160,7 +160,7 @@ def edit_in_terminal(initial: str) -> str:
     with tempfile.NamedTemporaryFile("w+", suffix=".md", delete=False) as draft:
         draft.write(initial)
     try:
-        subprocess.run(["kitty", "-e", editor(), draft.name], check=True)
+        subprocess.run(["ghostty", "-e", editor(), draft.name], check=True)
         return Path(draft.name).read_text().strip()
     finally:
         os.unlink(draft.name)
@@ -551,7 +551,7 @@ def script_new(title: str) -> None:
     SCRIPTS.mkdir(parents=True, exist_ok=True)
     path.write_text(SCRIPT_TEMPLATE.format(title=title))
     path.chmod(0o755)
-    subprocess.run(["kitty", "-e", editor(), str(path)], check=True)
+    subprocess.run(["ghostty", "-e", editor(), str(path)], check=True)
 
 
 def fold(text: str) -> str:

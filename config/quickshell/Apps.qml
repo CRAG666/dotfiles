@@ -55,7 +55,7 @@ Singleton {
             .join(""));
 
         if (app.runInTerminal)
-            Quickshell.execDetached({ command: ["kitty", "-1", "-e", ...app.command], workingDirectory: app.workingDirectory });
+            Quickshell.execDetached({ command: ["ghostty", "+new-window", "-e", ...app.command], workingDirectory: app.workingDirectory });
         else
             app.execute();
     }
