@@ -52,7 +52,7 @@ Scope {
         if (item.kind === "bookmark")
             return { icon: item.icon, title: item.title, subtitle: item.entry.body, metadata: [["Category", item.entry.category]], actions: [["Enter", "Open"], ["Ctrl+C", "Copy URL"], ["Ctrl+E", "Edit"], ["Ctrl+X", "Delete"]] };
         if (item.kind === "note")
-            return { icon: item.icon, title: item.title, subtitle: item.entry.category, body: item.entry.body, markdown: true, actions: [["Enter", "Copy"], ["Ctrl+E", "Edit text"], ["Ctrl+R", "Rename"], ["Ctrl+X", "Delete"]] };
+            return { document: true, title: item.title, body: item.entry.body, markdown: true, metadata: [["Category", item.entry.category], ["Words", item.entry.body.split(/\s+/).filter(word => word).length]], actions: [["Enter", "Copy"], ["Ctrl+E", "Edit text"], ["Ctrl+R", "Rename"], ["Ctrl+X", "Delete"]] };
         return { icon: item.icon, title: item.title, subtitle: item.action.includes("note") ? "Notes" : "Bookmarks", actions: [["Enter", "Run"]] };
     }
 

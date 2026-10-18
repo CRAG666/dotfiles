@@ -93,6 +93,10 @@ Item {
             required property int index
             readonly property bool isCurrent: index === host.current
             readonly property bool opensSection: index === 0 || host.results[index - 1]?.section !== modelData.section
+            // across the whole window the hint follows the title, as Raycast's subtitle,
+            // and what the result is takes the right
+            readonly property bool spread: !host.previewing
+            readonly property bool isCalc: modelData.kind === "calc"
             width: ListView.view.width
 
             Label {
@@ -109,6 +113,7 @@ Item {
             Rectangle {
                 width: parent.width
                 height: host.thumbs || row.modelData.thumb ? Spot.px(44) : Spot.px(40)
+                visible: !row.isCalc
                 radius: Spot.px(8)
                 color: row.isCurrent ? Theme.selection : rowMouse.containsMouse ? Theme.hairline : "transparent"
 
@@ -163,16 +168,17 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     width: Math.min(implicitWidth, parent.width * 0.4)
                     elide: Text.ElideRight
-                    text: host.armed === row.modelData.key ? "Press Enter again" : host.armed === row.modelData.key + ":delete" ? "Ctrl+X again to delete" : row.modelData.hint ?? ""
+                    text: host.armed === row.modelData.key ? "Press Enter again" : host.armed === row.modelData.key + ":delete" ? "Ctrl+X again to delete" : row.spread ? host.kindLabel(row.modelData) : row.modelData.hint ?? ""
                     color: row.isCurrent ? Qt.alpha(Theme.selectionText, 0.75) : Theme.eyes.ash
                     font.pixelSize: Spot.px(12)
                 }
                 Label {
+                    id: rowTitle
                     anchors.left: rowIcon.right
                     anchors.leftMargin: Spot.px(10)
-                    anchors.right: rowHint.left
-                    anchors.rightMargin: Spot.px(8)
                     anchors.verticalCenter: parent.verticalCenter
+                    // the subtitle's room is measured apart, so no width follows from another's
+                    width: rowHint.x - x - Spot.px(8) - (rowSubtitle.text ? Math.min(subtitleMetrics.advanceWidth, Spot.px(240)) + Spot.px(10) : 0)
                     elide: Text.ElideRight
                     maximumLineCount: 1
                     textFormat: host.query ? Text.StyledText : Text.PlainText
@@ -180,10 +186,86 @@ Item {
                     color: row.isCurrent ? Theme.selectionText : Theme.ink
                     font.pixelSize: Spot.px(15)
                 }
+                Label {
+                    id: rowSubtitle
+                    anchors.left: rowTitle.left
+                    anchors.leftMargin: rowTitle.contentWidth + Spot.px(10)
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: Math.min(subtitleMetrics.advanceWidth, rowHint.x - x - Spot.px(8))
+                    elide: Text.ElideRight
+                    text: row.spread ? row.modelData.hint ?? "" : ""
+                    color: row.isCurrent ? Qt.alpha(Theme.selectionText, 0.75) : Theme.inkSoft
+                    font.pixelSize: Spot.px(15)
+                }
+                TextMetrics {
+                    id: subtitleMetrics
+                    font: rowSubtitle.font
+                    text: rowSubtitle.text
+                }
                 MouseArea {
                     id: rowMouse
                     anchors.fill: parent
                     hoverEnabled: true
+                    onClicked: host.pick(row.index)
+                    onDoubleClicked: host.activate(row.modelData, { ctrl: false, shift: false })
+                }
+            }
+
+            // the calculator's answer as Raycast shows it: what was typed → the result
+            Rectangle {
+                width: parent.width
+                height: Spot.px(110)
+                visible: row.isCalc
+                radius: Spot.px(10)
+                color: row.isCurrent ? Theme.selection : Theme.fill
+
+                Label {
+                    x: Spot.px(16)
+                    width: parent.width / 2 - Spot.px(40)
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: -Spot.px(10)
+                    horizontalAlignment: Text.AlignHCenter
+                    elide: Text.ElideRight
+                    text: host.query
+                    color: row.isCurrent ? Theme.selectionText : Theme.ink
+                    font.family: Theme.menu
+                    font.pixelSize: Spot.px(24)
+                    font.weight: Font.Bold
+                }
+                Label {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: -Spot.px(10)
+                    text: "→"
+                    color: row.isCurrent ? Theme.selectionText : Theme.inkSoft
+                    font.pixelSize: Spot.px(22)
+                }
+                Label {
+                    x: parent.width / 2 + Spot.px(24)
+                    width: parent.width / 2 - Spot.px(40)
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: -Spot.px(10)
+                    horizontalAlignment: Text.AlignHCenter
+                    elide: Text.ElideRight
+                    text: row.modelData.title
+                    color: row.isCurrent ? Theme.selectionText : Theme.ink
+                    font.family: Theme.menu
+                    font.pixelSize: Spot.px(24)
+                    font.weight: Font.Bold
+                }
+                Label {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: Spot.px(14)
+                    width: parent.width - Spot.px(32)
+                    horizontalAlignment: Text.AlignHCenter
+                    elide: Text.ElideRight
+                    text: row.modelData.detail ?? ""
+                    color: row.isCurrent ? Qt.alpha(Theme.selectionText, 0.75) : Theme.inkSoft
+                    font.pixelSize: Spot.px(12)
+                }
+                MouseArea {
+                    anchors.fill: parent
                     onClicked: host.pick(row.index)
                     onDoubleClicked: host.activate(row.modelData, { ctrl: false, shift: false })
                 }

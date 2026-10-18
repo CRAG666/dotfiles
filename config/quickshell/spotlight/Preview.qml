@@ -2,9 +2,10 @@ import Quickshell
 import QtQuick
 import qs
 
-// The selection described by its store: image, swatch, icon or glyph, title,
-// subtitle, details and body, scrolling when long, with label → value facts at
-// the foot, like Raycast's metadata
+// The selection described by its store, from the top as Raycast's detail:
+// image, swatch, icon or glyph, title, subtitle, details and body, scrolling
+// when long, with the label → value facts at the foot under "Metadata". A
+// `document` (a note) reads as a page: its title on the left, its text unboxed
 Item {
     id: root
     property var host
@@ -17,12 +18,12 @@ Item {
     Flickable {
         id: preview
         readonly property var info: host.selection ? host.describe(host.selection) : null
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.bottom: facts.visible ? facts.top : parent.bottom
-        anchors.margins: Spot.px(18)
-        anchors.bottomMargin: facts.visible ? Spot.px(12) : Spot.px(18)
+        x: Spot.px(18)
+        y: Spot.px(18)
+        width: parent.width - Spot.px(36)
+        // as tall as what it shows, so the facts follow it; a long body scrolls
+        // above facts kept at the foot
+        height: Math.min(contentHeight, parent.height - y - Spot.px(18) - (facts.visible ? facts.implicitHeight + Spot.px(12) : 0))
         clip: true
         contentHeight: details.implicitHeight
         boundsBehavior: Flickable.StopAtBounds
@@ -30,7 +31,6 @@ Item {
 
         Column {
             id: details
-            y: host.mode === "clipboard" ? 0 : Math.max(0, (preview.height - implicitHeight) / 2)
             width: preview.width
             spacing: Spot.px(8)
 
@@ -57,7 +57,7 @@ Item {
                 // 96 macOS points, as the window's other sizes 1.2× them
                 width: Spot.px(115)
                 height: Spot.px(115)
-                readonly property bool showsIcon: !preview.info?.image && !preview.info?.glyph && !preview.info?.swatch && !!preview.info?.icon
+                readonly property bool showsIcon: !preview.info?.image && !preview.info?.glyph && !preview.info?.swatch && !preview.info?.document && !!preview.info?.icon
                 visible: showsIcon
                 sourceSize: Qt.size(Spot.px(230), Spot.px(230))
                 source: showsIcon ? Quickshell.iconPath(preview.info?.icon ?? "", "application-x-executable") : ""
@@ -79,17 +79,17 @@ Item {
             Label {
                 width: parent.width
                 visible: text !== ""
-                horizontalAlignment: Text.AlignHCenter
+                horizontalAlignment: preview.info?.document ? Text.AlignLeft : Text.AlignHCenter
                 wrapMode: Text.Wrap
                 text: preview.info?.title ?? ""
                 font.family: Theme.menu
-                font.pixelSize: Spot.px(20)
+                font.pixelSize: preview.info?.document ? Spot.px(24) : Spot.px(20)
                 font.weight: Font.Bold
             }
             Label {
                 width: parent.width
                 visible: text !== ""
-                horizontalAlignment: Text.AlignHCenter
+                horizontalAlignment: preview.info?.document ? Text.AlignLeft : Text.AlignHCenter
                 wrapMode: Text.Wrap
                 maximumLineCount: 3
                 elide: Text.ElideMiddle
@@ -110,24 +110,25 @@ Item {
                 }
             }
             Rectangle {
+                readonly property real inset: preview.info?.document ? 0 : Spot.px(12)
                 width: parent.width
-                height: body.implicitHeight + Spot.px(24)
+                height: body.implicitHeight + 2 * inset
                 visible: !!preview.info?.body
                 radius: Spot.px(10)
-                color: Theme.fill
+                color: preview.info?.document ? "transparent" : Theme.fill
 
                 Label {
                     id: body
-                    x: Spot.px(12)
-                    y: Spot.px(12)
-                    width: parent.width - Spot.px(24)
+                    x: parent.inset
+                    y: parent.inset
+                    width: parent.width - 2 * parent.inset
                     wrapMode: Text.Wrap
                     textFormat: preview.info?.markdown ? Text.MarkdownText : Text.PlainText
                     text: preview.info?.body ?? ""
                     color: preview.info?.mono ? Theme.eyes.green1 : Theme.ink
                     linkColor: Theme.eyes.blue0
                     font.family: preview.info?.mono ? "Iosevka Nerd Font" : Theme.menuText
-                    font.pixelSize: preview.info?.mono ? Spot.px(11) : Spot.px(13)
+                    font.pixelSize: preview.info?.mono ? Spot.px(11) : preview.info?.document ? Spot.px(14) : Spot.px(13)
                     onLinkActivated: link => Spot.open(link)
                 }
             }
@@ -138,14 +139,18 @@ Item {
     Column {
         id: facts
         readonly property var rows: (preview.info?.metadata ?? []).filter(([label, value]) => value !== undefined && value !== null && value !== "")
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.leftMargin: Spot.px(18)
-        anchors.rightMargin: Spot.px(18)
-        anchors.bottomMargin: Spot.px(10)
+        x: Spot.px(18)
+        y: preview.y + preview.height + Spot.px(12)
+        width: parent.width - Spot.px(36)
         visible: preview.visible && rows.length > 0
 
+        Label {
+            bottomPadding: Spot.px(6)
+            text: "Metadata"
+            color: Theme.inkSoft
+            font.pixelSize: Spot.px(12)
+            font.weight: Font.DemiBold
+        }
         Repeater {
             model: facts.rows
 

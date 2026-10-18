@@ -176,7 +176,7 @@ Scope {
         const kind = item.isDir ? "Folder" : type ? type.toUpperCase() + " file" : "File";
         const image = imageTypes.includes(type) ? "file://" + item.path : peeked && peekThumb ? "file://" + peekThumb : "";
         const body = item.snippet ? item.snippet : peeked ? peekText : "";
-        return { image, icon: item.icon, title: item.title, subtitle: Spot.tilde(item.path), metadata: [["Kind", kind], ["Page", item.page || ""], ...(peeked ? peekFacts : [])], body, mono: !item.snippet, actions: [["Enter", "Open"], ["Ctrl+Enter", "Show in folder"], ["Ctrl+C", "Copy path"], ["", "Move to…", "move"]] };
+        return { image, icon: item.icon, metadata: [["Name", item.title], ["Where", Spot.tilde(Spot.dirname(item.path))], ["Kind", kind], ["Page", item.page || ""], ...(peeked ? peekFacts : [])], body, mono: !item.snippet, actions: [["Enter", "Open"], ["Ctrl+Enter", "Show in folder"], ["Ctrl+C", "Copy path"], ["", "Move to…", "move"]] };
     }
 
     // the header lines hold the size and modification time, the thumbnail (made
