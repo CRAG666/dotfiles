@@ -99,11 +99,12 @@ esac`
         Quickshell.execDetached(helperCommand(args));
     }
 
-    // app id or window class (lowercase) → the first app with it, so a lookup
-    // scans no list
+    // app id or window class (lowercase) → the app with it, so a lookup scans no
+    // list; by id order where two share one, as DesktopEntries' order changes
+    // at every start
     readonly property var entriesByName: {
         const index = Object.create(null);
-        for (const app of DesktopEntries.applications.values)
+        for (const app of [...DesktopEntries.applications.values].sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
             for (const name of [app.id.toLowerCase(), app.startupClass.toLowerCase()])
                 if (!(name in index))
                     index[name] = app;

@@ -13,7 +13,7 @@ Scope {
 
     function actionItems(tokens) {
         const list = [];
-        for (const app of DesktopEntries.applications.values)
+        for (const { app } of Apps.indexed)
             for (const action of app.actions)
                 if (Spot.matches(action.name + " " + app.name, tokens))
                     list.push({ key: "act:" + app.id + ":" + action.id, kind: "appAction", store: root, action, app, title: action.name, hint: app.name, icon: action.icon || app.icon });

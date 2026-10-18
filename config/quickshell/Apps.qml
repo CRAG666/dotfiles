@@ -24,11 +24,13 @@ Singleton {
         }
         return counts;
     }
-    // `order`: the app's alphabetical rank, so a search breaks ties without
+    // alphabetical, the id breaking ties: DesktopEntries lists the apps in another
+    // order at every start. `order` is that rank, so a search breaks ties without
     // comparing names on every keystroke
     readonly property var indexed: {
         const entries = DesktopEntries.applications.values.map(app => ({ app, name: Search.fold(app.name), haystack: Search.fold([app.name, app.genericName, app.execString, ...app.categories, ...app.keywords].join(" ")) }));
-        [...entries].sort((a, b) => a.name.localeCompare(b.name)).forEach((entry, order) => entry.order = order);
+        entries.sort((a, b) => a.name.localeCompare(b.name) || (a.app.id < b.app.id ? -1 : a.app.id > b.app.id ? 1 : 0));
+        entries.forEach((entry, order) => entry.order = order);
         return entries;
     }
 
