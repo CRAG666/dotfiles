@@ -244,7 +244,9 @@ def ipc(config: Path, function: str, *args: str) -> None:
 
 
 @contextmanager
-def sandbox(rev: str | None, logging_rules: str = "") -> Iterator[Instance]:
+def sandbox(
+    rev: str | None, logging_rules: str = "", debug_port: int = 0
+) -> Iterator[Instance]:
     with tempfile.TemporaryDirectory(prefix="spotlight-bench-") as scratch:
         root = Path(scratch)
         config = tree(rev, root / "quickshell")
@@ -269,7 +271,13 @@ def sandbox(rev: str | None, logging_rules: str = "") -> Iterator[Instance]:
         log = root / "quickshell.log"
         with log.open("w") as output:
             process = subprocess.Popen(
-                ["quickshell", "-n", "-p", str(config / "spotlight.qml")],
+                [
+                    "quickshell",
+                    *(["--debug", str(debug_port)] if debug_port else []),
+                    "-n",
+                    "-p",
+                    str(config / "spotlight.qml"),
+                ],
                 env=env,
                 stdout=output,
                 stderr=subprocess.STDOUT,

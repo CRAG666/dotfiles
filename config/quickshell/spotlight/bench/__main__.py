@@ -8,9 +8,10 @@ hidden sandbox that shares nothing writable with the running Spotlight.
 import argparse
 import sys
 
-from equivalence import matcher, stores
+from equivalence import matcher, narrowing, stores
 from keystrokes import keystrokes
 from precision import precision
+from profiling import profile
 
 
 def main() -> None:
@@ -30,6 +31,13 @@ def main() -> None:
         run=lambda args: matcher(args.against, args.texts, args.queries)
     )
     command = commands.add_parser(
+        "narrowing",
+        help="the query cache against filtering afresh, keystroke by keystroke",
+    )
+    command.add_argument("--texts", type=int, default=6000)
+    command.add_argument("--queries", type=int, default=200)
+    command.set_defaults(run=lambda args: narrowing(args.texts, args.queries))
+    command = commands.add_parser(
         "stores", help="every store's answers to the same queries"
     )
     command.set_defaults(run=lambda args: stores(args.against))
@@ -40,8 +48,23 @@ def main() -> None:
     command.add_argument(
         "--warm", type=int, default=0, help="queries run first, as in a long session"
     )
+    command.add_argument("--mode", default="", help="a view to type in, e.g. history")
     command.set_defaults(
-        run=lambda args: keystrokes(args.against, args.queries, args.warm)
+        run=lambda args: keystrokes(args.against, args.queries, args.warm, args.mode)
+    )
+    command = commands.add_parser(
+        "profile", help="QML self time per function while typing"
+    )
+    command.add_argument("--queries", type=int, default=40)
+    command.add_argument("--mode", default="")
+    command.add_argument("--top", type=int, default=30)
+    command.set_defaults(
+        run=lambda args: profile(
+            None if args.against == "worktree" else args.against,
+            args.queries,
+            args.mode,
+            args.top,
+        )
     )
     command = commands.add_parser(
         "precision", help="ranking quality: Top-1, Top-3, MRR@10, noise"
