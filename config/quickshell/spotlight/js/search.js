@@ -68,13 +68,25 @@ function score(text, queryTokens, loose = true) {
 // it is the text, spaces and punctuation aside ("shutdown" is "Shut Down"), so
 // "Config" leads "Reload Herdr Config" for "config"
 function coverage(text, queryTokens) {
-    let typed = queryTokens.length - 1;
-    let compact = "";
-    for (let index = 0; index < queryTokens.length; index++) {
-        typed += queryTokens[index].length;
-        compact += tokenShape(queryTokens[index]).compact;
+    const query = queryShape(queryTokens);
+    return 0.03 * Math.min(1, query.typed / text.length) + (query.compact && query.compact === shape(text).compact ? 0.01 : 0);
+}
+
+// a query's length and compact form, kept on its token array: the same array
+// is scored against every text of a keystroke, and no caller changes it
+function queryShape(queryTokens) {
+    let known = queryTokens.spotlightQuery;
+    if (!known) {
+        let typed = queryTokens.length - 1;
+        let compact = "";
+        for (let index = 0; index < queryTokens.length; index++) {
+            typed += queryTokens[index].length;
+            compact += tokenShape(queryTokens[index]).compact;
+        }
+        known = { typed, compact };
+        Object.defineProperty(queryTokens, "spotlightQuery", { value: known });
     }
-    return 0.03 * Math.min(1, typed / text.length) + (compact && compact === shape(text).compact ? 0.01 : 0);
+    return known;
 }
 
 const shapes = generations(10000);
@@ -86,7 +98,7 @@ function shape(text) {
 
 function shapeOf(text) {
     const words = text.split(/[^a-z0-9]+/).filter(word => word).slice(0, 40);
-    return { compact: text.replace(/[^a-z0-9]+/g, ""), words, initials: words.length <= 12 ? words.map(word => word[0]).join("") : "", mask: charMask(text) };
+    return { compact: text.replace(/[^a-z0-9]+/g, ""), words, wordMasks: words.map(charMask), initials: words.length <= 12 ? words.map(word => word[0]).join("") : "", mask: charMask(text) };
 }
 
 const tokenShapes = generations(1000);
@@ -148,21 +160,23 @@ function tokenScore(text, token, loose) {
         return 0;
     if (!missing && wanted.compact && found.compact.includes(wanted.compact))
         return 0.7;
-    return loose ? looseScore(found, token, missing) : 0;
+    return loose ? looseScore(found, token, wanted.mask, missing) : 0;
 }
 
 // with letters `missing` from the text, only a typo can match
-function looseScore({ words, initials }, token, missing) {
+function looseScore({ words, wordMasks, initials }, token, tokenMask, missing) {
     if (!missing && token.length >= 2 && initials.includes(token))
         return 0.8;
+    // letters in order (0.5) are the best a word can give here, so they end
+    // the search, and once a word was a typo (0.45) only they could do better
     let quality = 0;
     const first = token.charCodeAt(0);
     for (let index = 0; index < words.length; index++) {
         const word = words[index];
         if (word.charCodeAt(0) === first && !missing && token.length >= 3 && word.length <= token.length * 2 && isSubsequence(token, word))
-            quality = Math.max(quality, 0.5);
-        else if (token.length >= 5 && isTypo(token, word))
-            quality = Math.max(quality, 0.45);
+            return 0.5;
+        if (!quality && token.length >= 5 && isTypo(token, word, tokenMask, wordMasks[index]))
+            quality = 0.45;
     }
     return quality;
 }
@@ -175,28 +189,33 @@ function isSubsequence(token, word) {
     return false;
 }
 
-// one edit away from the word or from its start, two for long tokens
-function isTypo(token, word) {
+// one edit away from the word or from its start, two for long tokens; a word
+// lacking more of the token's letters than that is no typo of it, nor is its
+// start (which holds fewer letters), so the masks drop it first
+function isTypo(token, word, tokenMask, wordMask) {
     const limit = token.length >= 8 ? 2 : 1;
-    return Math.abs(token.length - word.length) <= limit && within(token, word, limit)
-        || word.length > token.length && within(token, word.slice(0, token.length), 1);
+    if (word.length < token.length - limit || bitCount(tokenMask & ~wordMask) > limit)
+        return false;
+    return Math.abs(token.length - word.length) <= limit && within(token, word, limit, word.length)
+        || word.length > token.length && within(token, word, 1, token.length);
 }
 
 // whether the optimal string alignment distance (insertions, deletions,
-// substitutions and swaps of neighbours) of `token` and `word` is at most `limit`
-function within(token, word, limit) {
-    return token.length <= 32 ? distance(token, word) <= limit : withinTable(token, word, limit);
+// substitutions and swaps of neighbours) of `token` and the first `length`
+// letters of `word` is at most `limit`
+function within(token, word, limit, length = word.length) {
+    return token.length <= 32 ? distance(token, word, length) <= limit : withinTable(token, word.slice(0, length), limit);
 }
 
 // Hyyrö's bit-parallel optimal string alignment distance (2003, as RapidFuzz's
 // osa_hyrroe2003): every row of the table for one letter of `word` at once, in
 // 32-bit words, so the token can be up to 32 letters; JavaScript's bit
 // operators wrap sums to 32 bits as the algorithm needs
-function distance(token, word) {
+function distance(token, word, length = word.length) {
     const positions = tokenShape(token).positions;
     const last = 1 << token.length - 1;
     let vertical = ~0, verticalDown = 0, diagonal = 0, previousMatches = 0, score = token.length;
-    for (let index = 0; index < word.length; index++) {
+    for (let index = 0; index < length; index++) {
         const matches = positions[word[index]] | 0;
         const swapped = (~diagonal & matches) << 1 & previousMatches;
         diagonal = ((matches & vertical) + vertical ^ vertical) | matches | verticalDown | swapped;
