@@ -1,6 +1,7 @@
 import Quickshell
 import QtQuick
 import qs
+import "js/search.js" as Search
 
 // Desktop apps, most launched first (Apps.search), and the actions their
 // desktop entries declare ("New Private Window"), which Commands lists.
@@ -11,13 +12,18 @@ Scope {
         return Apps.search(query).map(app => ({ key: "app:" + app.id, kind: "app", store: root, app, title: app.name, icon: app.icon, uses: Apps.launches[app.id + ".desktop"] ?? 0 }));
     }
 
-    function actionItems(tokens) {
+    // every app's actions, their text folded once per list of apps, so a
+    // keystroke only matches them (and the same query again, nothing)
+    readonly property var actions: {
         const list = [];
         for (const { app } of Apps.indexed)
             for (const action of app.actions)
-                if (Spot.matches(action.name + " " + app.name, tokens))
-                    list.push({ key: "act:" + app.id + ":" + action.id, kind: "appAction", store: root, action, app, title: action.name, hint: app.name, icon: action.icon || app.icon });
+                list.push({ key: "act:" + app.id + ":" + action.id, kind: "appAction", store: root, action, app, title: action.name, hint: app.name, icon: action.icon || app.icon, text: Search.fold(action.name + " " + app.name) });
         return list;
+    }
+
+    function actionItems(tokens) {
+        return Search.matching(actions, "actions", item => item.text, tokens);
     }
 
     function describe(item) {

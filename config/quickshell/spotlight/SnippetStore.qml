@@ -1,5 +1,6 @@
 import Quickshell
 import QtQuick
+import "js/search.js" as Search
 
 // Text typed into the focused window: snippets from spotlight.json, with
 // {date}, {time}, {weekday}, {clipboard} and {cursor} placeholders, and emoji
@@ -43,12 +44,11 @@ Scope {
     // length, linear and stable, so equal lengths keep the faces-first order
     function emojiItems(tokens) {
         const byLength = [];
-        for (const entry of emoji.items)
-            if (Spot.matchesFolded(entry.name, tokens)) {
-                if (!byLength[entry.name.length])
-                    byLength[entry.name.length] = [];
-                byLength[entry.name.length].push(entry);
-            }
+        for (const entry of Search.matching(emoji.items, "emoji", entry => entry.name, tokens)) {
+            if (!byLength[entry.name.length])
+                byLength[entry.name.length] = [];
+            byLength[entry.name.length].push(entry);
+        }
         const best = [];
         for (const bucket of byLength)
             for (const entry of bucket ?? [])

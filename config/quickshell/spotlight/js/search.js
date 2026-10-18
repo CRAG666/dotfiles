@@ -211,10 +211,13 @@ function within(token, word, limit, length = word.length) {
 // osa_hyrroe2003): every row of the table for one letter of `word` at once, in
 // 32-bit words, so the token can be up to 32 letters; JavaScript's bit
 // operators wrap sums to 32 bits as the algorithm needs
-function distance(token, word, length = word.length) {
+// `closest`: the least distance to any start of `word` instead, the least
+// value the bottom row of the table takes
+function distance(token, word, length = word.length, closest = false) {
     const positions = tokenShape(token).positions;
     const last = 1 << token.length - 1;
     let vertical = ~0, verticalDown = 0, diagonal = 0, previousMatches = 0, score = token.length;
+    let least = score;
     for (let index = 0; index < length; index++) {
         const matches = positions[word[index]] | 0;
         const swapped = (~diagonal & matches) << 1 & previousMatches;
@@ -230,8 +233,9 @@ function distance(token, word, length = word.length) {
         vertical = horizontalDown | ~(diagonal | horizontal);
         verticalDown = horizontal & diagonal;
         previousMatches = matches;
+        least = Math.min(least, score);
     }
-    return score;
+    return closest ? least : score;
 }
 
 // the same, row by row, for tokens too long for 32 bits, with Ukkonen's
@@ -288,18 +292,52 @@ function matching(items, name, textOf, queryTokens, loose = true) {
         const answer = answers[index];
         if (answer.key === key)
             return answer.found;
-        if (!loose && answer.key.length > longest && extendsQuery(queryTokens, answer.tokens)) {
-            candidates = answer.found;
+        if (answer.key.length > longest && extendsQuery(queryTokens, answer.tokens)) {
+            candidates = answer.candidates;
             longest = answer.key.length;
         }
     }
+    // a loose match is no monotone, but `possible` is: what may match a query
+    // or any query extending it. Exact matching needs no such superset
+    const narrowing = loose && queryTokens.some(token => token.length >= 3);
+    const kept = [];
     const found = [];
-    for (let index = 0; index < candidates.length; index++)
-        if (score(textOf(candidates[index]), queryTokens, loose) > 0)
+    for (let index = 0; index < candidates.length; index++) {
+        const text = textOf(candidates[index]);
+        if (narrowing && !queryTokens.every(token => possible(text, token)))
+            continue;
+        kept.push(candidates[index]);
+        if (score(text, queryTokens, loose) > 0)
             found.push(candidates[index]);
-    if (answers.push({ key, tokens: queryTokens, found }) > remembered)
+    }
+    // frozen: callers share the cached answer, so changing it would be a bug
+    Object.freeze(found);
+    if (answers.push({ key, tokens: queryTokens, found, candidates: loose ? kept : found }) > remembered)
         answers.shift();
     return found;
+}
+
+// whether `text` may match `token` or a token extending it, loosely: each kind
+// of loose match of a longer token implies one of these for the shorter one
+// (a typo within 2 edits of a word leaves the shorter token within 2 edits of
+// one of the word's starts). Two letters or fewer are within 2 edits of the
+// empty start, so everything may match them
+function possible(text, token) {
+    if (token.length <= 2 || token.length > 32 || text.indexOf(token) >= 0)
+        return true;
+    const wanted = tokenShape(token);
+    const found = shape(text);
+    if (wanted.compact && found.compact.includes(wanted.compact) || found.initials.includes(token))
+        return true;
+    const first = token.charCodeAt(0);
+    for (let index = 0; index < found.words.length; index++) {
+        const word = found.words[index];
+        if (word.charCodeAt(0) === first && isSubsequence(token, word))
+            return true;
+        if (bitCount(wanted.mask & ~found.wordMasks[index]) <= 2 && distance(token, word, word.length, true) <= 2)
+            return true;
+    }
+    return false;
 }
 
 function answersOf(items, name) {

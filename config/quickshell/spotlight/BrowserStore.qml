@@ -23,7 +23,7 @@ Scope {
     }
 
     function historyItems(tokens) {
-        return Search.matching(history.items, "history", visit => Search.fold(visit.title + " " + visit.url), tokens, false).slice(0, 200)
+        return Search.matching(history.items, "history", visit => visit.folded, tokens, false).slice(0, 200)
             .map(visit => ({ key: `visit:${visit.profile}:${visit.url}`, kind: "visit", store: root, page: visit, title: visit.title, hint: domain(visit.url), icon: "web-browser" }));
     }
 
@@ -61,6 +61,8 @@ Scope {
         id: history
         maxAge: 60000
         command: ["python3", Spot.helper, "zen-history"]
+        // folded once as it loads, not on every keystroke
+        parse: output => output.trim() ? JSON.parse(output).map(visit => Object.assign(visit, { folded: Search.fold(visit.title + " " + visit.url) })) : []
     }
 
     Source {

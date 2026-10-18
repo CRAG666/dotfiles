@@ -1,5 +1,6 @@
 import Quickshell
 import QtQuick
+import "js/search.js" as Search
 
 // Pages for the browser: whatever looks like a URL, quicklinks from
 // spotlight.json ("yt lofi" fills YouTube's {query}; a group opens every page),
@@ -40,8 +41,7 @@ Scope {
     }
 
     function repoItems(tokens) {
-        return repos.items
-            .filter(repo => Spot.matches(repo.nameWithOwner + " " + (repo.description ?? ""), tokens))
+        return Search.matching(repos.items, "repos", repo => repo.text, tokens)
             .map(repo => ({ key: "repo:" + repo.nameWithOwner, kind: "repo", store: root, repo, title: repo.nameWithOwner, hint: repo.isPrivate ? "Private" : "", icon: "github", urls: [repo.url] }));
     }
 
@@ -86,5 +86,6 @@ Scope {
         id: repos
         maxAge: 600000
         command: ["gh", "repo", "list", "--limit", "300", "--json", "nameWithOwner,description,url,isPrivate,stargazerCount,updatedAt"]
+        parse: output => output.trim() ? JSON.parse(output).map(repo => Object.assign(repo, { text: Search.fold(repo.nameWithOwner + " " + (repo.description ?? "")) })) : []
     }
 }

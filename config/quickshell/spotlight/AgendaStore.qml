@@ -1,6 +1,7 @@
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import "js/search.js" as Search
 
 // The agenda of your neorg workspaces, read by the helper's agenda for the
 // next 14 days: the weekly schedule and dated events of `categories: Schedule`
@@ -43,12 +44,8 @@ Scope {
         return { key: `agenda:${event.file}:${event.line}:${event.date}`, kind: "agendaEvent", store: root, event, title: event.title, hint: when(event), swatch: colors[overdue(event) ? "overdue" : event.kind] };
     }
 
-    function matches(event, tokens) {
-        return Spot.matches(`${event.title} ${event.kind === "due" ? "due deadline" : "event"} agenda`, tokens);
-    }
-
     function matching(tokens) {
-        return source.items.filter(event => matches(event, tokens));
+        return Search.matching(source.items, "agenda", event => event.text, tokens);
     }
 
     function dayLabel(day) {
@@ -77,7 +74,7 @@ Scope {
     }
 
     function searchItems(tokens) {
-        return Spot.take(source.items, event => matches(event, tokens) && (event.date >= today || overdue(event)), 3).map(item);
+        return Spot.take(matching(tokens), event => event.date >= today || overdue(event), 3).map(item);
     }
 
     function soonItems() {
@@ -143,6 +140,8 @@ Scope {
         id: source
         maxAge: 60000
         command: ["python3", Spot.helper, "agenda", "14"]
+        // the text an event is found by, folded once as it loads
+        parse: output => output.trim() ? JSON.parse(output).map(event => Object.assign(event, { text: Search.fold(`${event.title} ${event.kind === "due" ? "due deadline" : "event"} agenda`) })) : []
     }
 
     Process {

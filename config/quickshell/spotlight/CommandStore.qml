@@ -1,6 +1,7 @@
 import Quickshell
 import Quickshell.Services.Mpris
 import QtQuick
+import "js/search.js" as Search
 import qs
 
 // Commands: power, dark mode, wallpaper, caffeine, screenshots and window
@@ -55,10 +56,14 @@ Scope {
         return players.find(candidate => candidate.isPlaying) ?? players[0] ?? null;
     }
 
+    // the commands, views and tools as items, each with the text it is found by
+    // folded once, so a keystroke only matches them (Search.matching)
+    readonly property var commandEntries: commands.map(command => ({ key: "cmd:" + command.title, kind: "command", store: root, title: command.title, icon: command.icon, command: command.command, confirm: command.confirm ?? false, text: Search.fold(`${command.title} ${command.words ?? ""}`) }))
+    readonly property var viewEntries: host.views.map(view => Object.assign(viewItem(view), { text: Search.fold(`${view.title} ${view.alias ?? ""}`) }))
+    readonly property var toolEntries: host.userConfig.tools.map(tool => ({ key: "tool:" + tool.title, kind: "command", store: root, title: tool.title, hint: tool.command.join(" "), icon: tool.icon ?? Spot.iconFor(tool.command[0]), command: [...(tool.floating ? host.userConfig.floatingTerminal : host.userConfig.terminal), ...(tool.hold ? Spot.hold(tool.command) : tool.command)], text: Search.fold(`${tool.title} ${tool.command[0]}`) }))
+
     function items(tokens) {
-        return commands
-            .filter(command => Spot.matches(`${command.title} ${command.words ?? ""}`, tokens))
-            .map(command => ({ key: "cmd:" + command.title, kind: "command", store: root, title: command.title, icon: command.icon, command: command.command, confirm: command.confirm ?? false }));
+        return Search.matching(commandEntries, "commands", item => item.text, tokens);
     }
 
     function viewItem(view) {
@@ -66,13 +71,11 @@ Scope {
     }
 
     function viewItems(tokens) {
-        return host.views.filter(view => Spot.matches(`${view.title} ${view.alias ?? ""}`, tokens)).map(viewItem);
+        return Search.matching(viewEntries, "views", item => item.text, tokens);
     }
 
     function toolItems(tokens) {
-        return host.userConfig.tools
-            .filter(tool => Spot.matches(`${tool.title} ${tool.command[0]}`, tokens))
-            .map(tool => ({ key: "tool:" + tool.title, kind: "command", store: root, title: tool.title, hint: tool.command.join(" "), icon: tool.icon ?? Spot.iconFor(tool.command[0]), command: [...(tool.floating ? host.userConfig.floatingTerminal : host.userConfig.terminal), ...(tool.hold ? Spot.hold(tool.command) : tool.command)] }));
+        return Search.matching(toolEntries, "tools", item => item.text, tokens);
     }
 
     function mediaItems(tokens) {

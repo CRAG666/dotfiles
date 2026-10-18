@@ -21,20 +21,26 @@ Scope {
     }
 
     function bookmarkItems(tokens) {
-        return bookmarks.items
-            .filter(entry => matching(entry, tokens))
+        return matching(bookmarks.items, tokens)
             .map(entry => ({ key: "bookmark:" + entry.id, kind: "bookmark", store: root, entry, title: entry.title, hint: entry.category, icon: "web-browser" }));
     }
 
     function noteItems(tokens) {
-        return notes.items
-            .filter(entry => matching(entry, tokens))
+        return matching(notes.items, tokens)
             .map(entry => ({ key: "note:" + entry.id, kind: "note", store: root, entry, title: entry.title, hint: entry.category, icon: "accessories-text-editor" }));
     }
 
-    // the title and category match loosely, the URL or note text only exactly
-    function matching(entry, tokens) {
-        return Spot.matchesFolded(entry.name, tokens) || Spot.matchesFolded(entry.haystack, tokens, false);
+    // the entries whose title and category match loosely or whose URL or note
+    // text match exactly, in their order; each half keeps its answers (Search.matching)
+    function matching(entries, tokens) {
+        const named = Search.matching(entries, "name", entry => entry.name, tokens);
+        const written = Search.matching(entries, "haystack", entry => entry.haystack, tokens, false);
+        if (!written.length || !named.length)
+            return named.length ? named : written;
+        const kept = Object.create(null);
+        for (const entry of [...named, ...written])
+            kept[entry.id] = true;
+        return entries.filter(entry => entry.id in kept);
     }
 
     function commandItems(tokens) {
