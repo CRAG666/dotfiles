@@ -1,6 +1,28 @@
 {
+  "aliases": {
+    "files": "fi", "contents": "fc", "clipboard": "cb", "windows": "win", "emoji": "ej", "passwords": "pw",
+    "snippets": "sn", "commands": "cmd", "bookmarks": "bm", "notes": "nt", "quicklinks": "ql", "processes": "ps",
+    "history": "bh", "tabs": "bt", "timers": "tm", "colors": "co", "notifications": "nf", "ai": "ac",
+    "marks": "mk", "herdr": "hr", "agenda": "ag", "wallpapers": "wp", "tools": "tl", "help": "?"
+  },
+  "chips": ["apps", "files", "clipboard", "windows", "passwords", "snippets", "commands"],
+  "webSearch": "https://www.google.com/search?q={query}",
+  "fallbacks": ["pi", "web"],
+  "ai": { "model": "openai/gpt-oss-20b", "thinking": "off" },
+  "pomodoro": { "focus": 25, "break": 5, "rounds": 4 },
+  "terminal": ["ghostty", "-e"],
+  "floatingTerminal": ["ghostty", "--class=ghostty.dialog", "-e"],
+  "browser": ["zen-browser"],
+  "tools": [
+    { "title": "Email", "command": ["aerc"] },
+    { "title": "Bluetooth", "icon": "bluetooth", "command": ["bluetui"], "floating": true },
+    { "title": "Wi-Fi", "icon": "network-wireless", "command": ["impala"], "floating": true },
+    { "title": "Files", "icon": "system-file-manager", "command": ["yazi"], "floating": true },
+    { "title": "Calendar", "icon": "office-calendar", "command": ["cal", "-3", "-m"], "floating": true, "hold": true },
+    { "title": "Music", "command": ["termusic"] },
+    { "title": "Volume Mixer", "icon": "audio-volume-high", "command": ["wiremix"], "floating": true }
+  ],
   "snippets": [
-    { "name": "Shrug", "keyword": "shrug", "text": "¯\\_(ツ)_/¯" },
     { "name": "Today", "keyword": "today", "text": "{date}" },
     { "name": "Timestamp", "keyword": "ts", "text": "{date} {time}" },
     { "name": "Markdown link", "keyword": "mdl", "text": "[{cursor}]({clipboard})" }

@@ -15,26 +15,29 @@ import sqlite3
 import subprocess
 import sys
 import tempfile
+import textwrap
 import time
 import unicodedata
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timedelta
+from html.parser import HTMLParser
 from itertools import islice
 from pathlib import Path
-from urllib.error import HTTPError
+from urllib.error import URLError
 from urllib.parse import quote, unquote, urlparse
 from xml.etree import ElementTree
 from zoneinfo import ZoneInfo, available_timezones
-
-import lz4.block
 
 HOME = Path.home()
 DATA = Path(os.environ.get("XDG_DATA_HOME", HOME / ".local/share")) / "spotlight"
 STATE = Path(os.environ.get("XDG_STATE_HOME", HOME / ".local/state")) / "spotlight"
 PINS = STATE / "pins"
 ZEN = HOME / ".config/zen"
+TABCTL_BUS = "dev.slastra.TabCtl."
 NEORG_CONFIG = HOME / ".config/nvim/lua/pack/specs/opt/neorg.lua"
+CONFIG_DIR = Path(os.environ.get("XDG_CONFIG_HOME", HOME / ".config")) / "spotlight"
+CONFIG = CONFIG_DIR / "spotlight.json"
 WEEKDAYS = {
     name: index
     for index, names in enumerate(
@@ -55,7 +58,7 @@ NORG_ITEM = re.compile(r"^\s*-+\s+(?:\(([^)]*)\)\s*)?(.*?)\s*$")
 NORG_SPAN = re.compile(r"^/(\d{1,2}:\d{2})(?:\s*-\s*(\d{1,2}:\d{2}))?/\s*(.*)$")
 NORG_WHEN = re.compile(r"^(\d{4}-\d{2}-\d{2})(?:[ T](\d{1,2}:\d{2}))?$")
 NORG_LINK = re.compile(r"(?:\[([^\]]*)\])?\{([^}]*)\}")
-SCRIPTS = Path(__file__).resolve().parent / "scripts"
+SCRIPTS = CONFIG_DIR / "scripts"
 SCRIPT_META = re.compile(r"^\s*(?:#|//|--)\s*@(?:raycast|spotlight)\.(\w+)\s+(.*?)\s*$")
 SCRIPT_TEMPLATE = """#!/usr/bin/env bash
 # @spotlight.title {title}
@@ -75,9 +78,13 @@ CONTENTS = (
     Path(os.environ.get("XDG_CACHE_HOME", HOME / ".cache")) / "spotlight/contents.db"
 )
 CONTENT_ROOTS = [HOME / "Documents", HOME / "Desktop", HOME / "Downloads"]
+RECENT_ROOTS = [*CONTENT_ROOTS, HOME / "Pictures", HOME / "Videos", HOME / "Music"]
+RECENT_DAYS = 30
 CONVERTED = {"pdf", "docx", "odt", "epub", "fb2", "html", "htm", "ipynb"}
 PLAIN = {"md", "txt", "tex", "norg", "org", "rst"}
 MAX_TEXT = 2_000_000
+PASSAGE = 3000  # characters per indexed stretch of unpaged text, about a PDF page
+NAME_WEIGHT = 5.0  # BM25 weight of a document's file name against its text
 
 ZONE_ALIASES = {
     "cdmx": "America/Mexico_City",
@@ -156,11 +163,15 @@ def editor() -> str:
     )
 
 
+def terminal() -> list[str]:
+    return json.loads(CONFIG.read_text())["terminal"]
+
+
 def edit_in_terminal(initial: str) -> str:
     with tempfile.NamedTemporaryFile("w+", suffix=".md", delete=False) as draft:
         draft.write(initial)
     try:
-        subprocess.run(["ghostty", "-e", editor(), draft.name], check=True)
+        subprocess.run([*terminal(), editor(), draft.name], check=True)
         return Path(draft.name).read_text().strip()
     finally:
         os.unlink(draft.name)
@@ -298,38 +309,57 @@ def zen_history() -> list[dict]:
     return sorted(visits, key=lambda visit: visit["last"], reverse=True)
 
 
-def read_mozlz4(path: Path) -> dict:
-    blob = path.read_bytes()
-    if not blob.startswith(b"mozLz40\0"):
-        raise ValueError(f"{path} is not a mozlz4 file")
-    return json.loads(lz4.block.decompress(blob[8:]))
+def parent_pid(pid: int) -> int:
+    status = Path(f"/proc/{pid}/status").read_text()
+    return int(re.search(r"^PPid:\s*(\d+)", status, re.MULTILINE)[1])
+
+
+def zen_profile(browser: int) -> str:
+    profiles = {folder: name for name, folder in zen_profiles()}
+    for descriptor in Path(f"/proc/{browser}/fd").iterdir():
+        try:
+            target = Path(os.readlink(descriptor))
+        except FileNotFoundError:
+            continue
+        if target.name == ".parentlock":
+            return profiles[target.parent]
+    raise RuntimeError(f"Zen process {browser} holds no profile lock")
 
 
 def zen_tabs() -> list[dict]:
+    buses = json.loads(
+        subprocess.check_output(["busctl", "--user", "list", "--json=short"], text=True)
+    )
+    # tabctl's mediator, spawned by the browser once per profile, owns dev.slastra.TabCtl.<Browser><n>; its lowercase name prefixes the tab ids
+    browsers = {
+        bus["name"].removeprefix(TABCTL_BUS).lower(): parent_pid(bus["pid"])
+        for bus in buses
+        if bus["name"].startswith(TABCTL_BUS) and bus.get("pid")
+    }
+    clients = {
+        client: (browser, zen_profile(browser))
+        for client, browser in browsers.items()
+        if Path(f"/proc/{browser}/exe").resolve().name == "zen-bin"
+    }
+    if not clients:
+        return []
+    listed = subprocess.check_output(["tabctl", "list", "--format", "json"], text=True)
     tabs = []
-    for profile, folder in zen_profiles():
-        candidates = [
-            folder / "sessionstore-backups/recovery.jsonlz4",
-            folder / "sessionstore.jsonlz4",
-        ]
-        session = next((path for path in candidates if path.exists()), None)
-        if session is None:
+    for tab in json.loads(listed):
+        client, window, _ = tab["id"].split(".")
+        if tab["pinned"] or client not in clients:
             continue
-        for window_index, window in enumerate(read_mozlz4(session).get("windows", [])):
-            for tab in window.get("tabs", []):
-                entries = tab.get("entries", [])
-                if not entries:
-                    continue
-                current = entries[min(tab.get("index", len(entries)), len(entries)) - 1]
-                tabs.append(
-                    {
-                        "profile": profile,
-                        "window": window_index + 1,
-                        "url": current.get("url", ""),
-                        "title": current.get("title") or current.get("url", ""),
-                        "pinned": tab.get("pinned", False),
-                    }
-                )
+        pid, profile = clients[client]
+        tabs.append(
+            {
+                "id": tab["id"],
+                "profile": profile,
+                "pid": pid,
+                "window": window,
+                "url": tab["url"],
+                "title": tab["title"] or tab["url"],
+            }
+        )
     return tabs
 
 
@@ -354,9 +384,7 @@ def pins() -> list[dict]:
 
 def pin_add(clip_id: str) -> None:
     PINS.mkdir(parents=True, exist_ok=True)
-    content = subprocess.run(
-        ["cliphist", "decode", clip_id], capture_output=True, check=True
-    ).stdout
+    content = subprocess.check_output(["cliphist", "decode", clip_id])
     (PINS / str(time.time_ns())).write_bytes(content)
 
 
@@ -456,38 +484,30 @@ def open_access_pdf(doi: str) -> str | None:
                 f"https://api.openalex.org/works/doi:{quote(doi)}?select=best_oa_location"
             )
         )
-    except HTTPError as error:
-        if error.code == 404:
-            return None
-        raise
+    except URLError:
+        # the PDF is optional: without OpenAlex the paper still has its BibTeX
+        return None
     return (work["best_oa_location"] or {}).get("pdf_url")
 
 
-# `identifier` is "doi:<doi>" or "arxiv:<id>"; BibTeX comes from doi.org (or
-# arXiv's own, with eprint fields), the open access PDF from OpenAlex
-def paper(identifier: str) -> dict:
-    scheme, value = identifier.split(":", 1)
-    if scheme == "arxiv":
-        page, pdf = f"https://arxiv.org/abs/{value}", f"https://arxiv.org/pdf/{value}"
-        text = fetch(f"https://arxiv.org/bibtex/{value}")
-    else:
-        page = f"https://doi.org/{value}"
-        with ThreadPoolExecutor() as pool:
-            pending_pdf = pool.submit(open_access_pdf, value)
-            try:
-                text = fetch(page, "application/x-bibtex")
-            except HTTPError as error:
-                sys.exit(f"doi.org: {value} {error.reason.lower()}")
-            pdf = pending_pdf.result()
+# BibTeX from doi.org, the open access PDF from OpenAlex
+def paper(doi: str) -> dict:
+    page = f"https://doi.org/{doi}"
+    with ThreadPoolExecutor() as pool:
+        pending_pdf = pool.submit(open_access_pdf, doi)
+        try:
+            text = fetch(page, "application/x-bibtex")
+        except URLError as error:
+            sys.exit(f"doi.org: {doi} {str(error.reason).lower()}")
+        pdf = pending_pdf.result()
     if not text.lstrip().startswith("@"):
-        sys.exit(f"no BibTeX for {value}")
+        sys.exit(f"no BibTeX for {doi}")
     kind, key, fields = bibtex_entry(text)
     values = {name.lower(): value.strip("{}") for name, value in fields}
     return {
-        "id": value,
-        "scheme": scheme,
+        "id": doi,
         "key": key,
-        "title": values.get("title", value),
+        "title": values.get("title", doi),
         "authors": values.get("author", "").split(" and "),
         "year": values.get("year", ""),
         "venue": values.get("journal")
@@ -496,7 +516,9 @@ def paper(identifier: str) -> dict:
         "page": page,
         "pdf": pdf,
         "bibtex": f"{kind}{{{key},\n"
-        + ",\n".join(f"  {name} = {value}" for name, value in fields)
+        + ",\n".join(
+            f"  {name} = {re.sub(r'(?<!\\)&', r'\\&', value)}" for name, value in fields
+        )
         + "\n}",
     }
 
@@ -551,7 +573,7 @@ def script_new(title: str) -> None:
     SCRIPTS.mkdir(parents=True, exist_ok=True)
     path.write_text(SCRIPT_TEMPLATE.format(title=title))
     path.chmod(0o755)
-    subprocess.run(["ghostty", "-e", editor(), str(path)], check=True)
+    subprocess.run([*terminal(), editor(), str(path)], check=True)
 
 
 def fold(text: str) -> str:
@@ -569,6 +591,14 @@ def clock(text: str) -> str:
 
 # "[label]{url}" keeps its label, a bare "{url}" goes; the first web URL is the
 # event's link (a meeting to join)
+def norg_date(when: re.Match) -> date | None:
+    try:
+        return date.fromisoformat(when[1])
+    except ValueError:
+        # an impossible date such as 2026-02-30 is left as plain text
+        return None
+
+
 def norg_text(text: str) -> tuple[str, str | None]:
     links = [target for _, target in NORG_LINK.findall(text)]
     link = next((target for target in links if target.startswith("http")), None)
@@ -649,8 +679,12 @@ def agenda(days: str = "14") -> list[dict]:
                 level, text = len(heading[1]), heading[2]
                 if schedule and fold(text) in WEEKDAYS:
                     context = (level, WEEKDAYS[fold(text)])
-                elif schedule and (when := NORG_WHEN.match(text)):
-                    context = (level, date.fromisoformat(when[1]))
+                elif (
+                    schedule
+                    and (when := NORG_WHEN.match(text))
+                    and (day := norg_date(when))
+                ):
+                    context = (level, day)
                 elif context and level <= context[0]:
                     context = None
                 continue
@@ -662,10 +696,10 @@ def agenda(days: str = "14") -> list[dict]:
             stamped = False
             for extension in extensions:
                 marker, value = extension.strip()[:1], extension.strip()[1:].strip()
-                if marker not in "@<" or not (when := NORG_WHEN.match(value)):
+                when = NORG_WHEN.match(value)
+                if marker not in "@<" or not when or not (day := norg_date(when)):
                     continue
                 stamped = True
-                day = date.fromisoformat(when[1])
                 due = marker == "<"
                 if day in window or (due and day < today):
                     text = f"/{when[2]}/ {item[2]}" if when[2] else item[2]
@@ -798,8 +832,11 @@ def date_math(text: str) -> dict | None:
             return None
         today = datetime.now().astimezone().date()
         since = match["direction"].lower() == "since"
-        if not since and when < today and not re.search(r"\d{4}", match["date"]):
-            when = gnu_date(match["date"] + " +1 year")
+        if not re.search(r"\d{4}", match["date"]):
+            if since and when > today:
+                when = gnu_date(match["date"] + " -1 year")
+            elif not since and when < today:
+                when = gnu_date(match["date"] + " +1 year")
         days = abs((when - today).days)
         unit = match["unit"].lower()
         amount = days if unit == "days" else round(days / 7, 1)
@@ -822,7 +859,7 @@ def qalculate(text: str) -> dict | None:
     expression = re.sub(r"(\d)\s*%\s*of\s+", r"\1% * ", text, flags=re.IGNORECASE)
     if conversion := CONVERSION.fullmatch(expression):
         amount = re.sub(
-            r"[a-z]+",
+            r"0x[0-9a-f]+|[a-z]+",
             lambda word: UNIT_CASE.get(word[0].lower(), word[0]),
             conversion[1],
             flags=re.IGNORECASE,
@@ -867,67 +904,166 @@ def calc(query: str) -> dict | None:
     return zone_time(text) or date_math(text) or qalculate(text)
 
 
+# what Spotlight opened, what GTK apps recorded and what was saved or downloaded
+# into RECENT_ROOTS in the last RECENT_DAYS, newest first; hidden paths and
+# partial downloads are left out
 def recent_files() -> list[dict]:
+    since = time.time() - RECENT_DAYS * 86400
+    used: dict[Path, float] = {}
+
+    def add(path: Path, when: float) -> None:
+        if when >= since and not any(part.startswith(".") for part in path.parts):
+            used[path] = max(used.get(path, 0), when)
+
+    picks = STATE / "picks.json"
+    if picks.exists():
+        for key, (_, last) in json.loads(picks.read_text()).items():
+            kind, _, picked = key.partition(":")
+            if kind in ("file", "content"):
+                add(Path(picked), last / 1000)
     xbel = (
         Path(os.environ.get("XDG_DATA_HOME", HOME / ".local/share"))
         / "recently-used.xbel"
     )
-    if not xbel.exists():
-        return []
-    found = []
-    for bookmark in ElementTree.parse(xbel).getroot().iter("bookmark"):
-        href = bookmark.get("href", "")
-        path = Path(unquote(urlparse(href).path))
-        if href.startswith("file://") and path.exists():
-            used = max(bookmark.get("visited", ""), bookmark.get("modified", ""))
-            found.append({"path": str(path), "isDir": path.is_dir(), "used": used})
-    return sorted(found, key=lambda entry: entry["used"], reverse=True)[:100]
+    if xbel.exists():
+        for bookmark in ElementTree.parse(xbel).getroot().iter("bookmark"):
+            href = bookmark.get("href", "")
+            if href.startswith("file://"):
+                stamp = max(bookmark.get("visited", ""), bookmark.get("modified", ""))
+                add(
+                    Path(unquote(urlparse(href).path)),
+                    datetime.fromisoformat(stamp).timestamp(),
+                )
+    roots = [str(root) for root in RECENT_ROOTS if root.is_dir()]
+    changed = subprocess.check_output(
+        ["fd", "--type", "f", "--changed-within", f"{RECENT_DAYS}d", "--absolute-path"]
+        + ["--exclude", "*.part", "--exclude", "*.crdownload", ".", *roots],
+        text=True,
+    )
+    for line in changed.splitlines():
+        try:
+            add(Path(line), Path(line).stat().st_mtime)
+        except FileNotFoundError:
+            continue  # removed since fd listed it
+    newest = sorted(used.items(), key=lambda entry: entry[1], reverse=True)
+    return [
+        {
+            "path": str(path),
+            "isDir": path.is_dir(),
+            "used": datetime.fromtimestamp(when).astimezone().isoformat(),
+        }
+        for path, when in newest
+        if path.exists()
+    ][:100]
 
 
 def contents_db() -> sqlite3.Connection:
     CONTENTS.parent.mkdir(parents=True, exist_ok=True)
     db = sqlite3.connect(CONTENTS)
+    fresh = not db.execute(
+        "SELECT 1 FROM sqlite_master WHERE name = 'passages'"
+    ).fetchone()
     db.executescript(
+        "DROP TABLE IF EXISTS pages;"
         "CREATE TABLE IF NOT EXISTS files(path TEXT PRIMARY KEY, stamp TEXT NOT NULL);"
-        "CREATE VIRTUAL TABLE IF NOT EXISTS pages USING fts5("
-        "path UNINDEXED, page UNINDEXED, body, tokenize = 'unicode61 remove_diacritics 2')"
+        "CREATE VIRTUAL TABLE IF NOT EXISTS passages USING fts5("
+        "path UNINDEXED, page UNINDEXED, name, body, "
+        "tokenize = 'unicode61 remove_diacritics 2')"
     )
+    if fresh:
+        # an index from before passages held no file names: extract everything again
+        db.execute("DELETE FROM files")
     return db
 
 
-# page number (0 for unpaged text) → text; rga-preproc converts PDFs and office
-# documents and prefixes every PDF line with "Page N: "
+# FTS5 rows of a document: its file name, weighted in contents(), with each PDF
+# page or each PASSAGE-long stretch of unpaged text, so BM25 weighs texts of a
+# similar length
+def passages(path: Path, pages: dict[int, str]) -> list[tuple[str, int, str, str]]:
+    name = re.sub(r"[_\-.]+", " ", path.stem)
+    return [
+        (str(path), page, name, part)
+        for page, text in pages.items()
+        for part in (
+            textwrap.wrap(text, PASSAGE, break_on_hyphens=False)
+            if page == 0
+            else [text]
+        )
+    ]
+
+
+class HtmlText(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.parts: list[str] = []
+        self.hidden = 0
+
+    def handle_starttag(self, tag: str, attrs: list) -> None:
+        self.hidden += tag in ("script", "style")
+
+    def handle_endtag(self, tag: str) -> None:
+        self.hidden -= tag in ("script", "style")
+
+    def handle_data(self, data: str) -> None:
+        if not self.hidden:
+            self.parts.append(data)
+
+
+def html_text(source: str) -> str:
+    parser = HtmlText()
+    parser.feed(source)
+    return " ".join(parser.parts)
+
+
+# page number (0 for unpaged text) → text; pdftotext ends every PDF page with a
+# form feed, anydoc converts office documents and ebooks
 def extract(path: Path) -> dict[int, str]:
-    if path.suffix[1:].lower() in PLAIN:
-        return {0: path.read_text(errors="replace")[:MAX_TEXT]}
-    run = subprocess.run(["rga-preproc", str(path)], capture_output=True, check=False)
-    if run.returncode:
-        return {}
-    pages: dict[int, list[str]] = {}
-    size = 0
-    for line in run.stdout.decode(errors="replace").splitlines():
-        if line.startswith(str(path)) and " adapter: " in line:
-            continue
-        paged = re.match(r"Page (\d+): ", line)
-        text = line[paged.end() :] if paged else line
-        pages.setdefault(int(paged[1]) if paged else 0, []).append(text)
-        size += len(text)
-        if size > MAX_TEXT:
-            break
-    return {page: "\n".join(lines) for page, lines in pages.items()}
+    kind = path.suffix[1:].lower()
+    try:
+        if kind in PLAIN:
+            text = path.read_text(errors="replace")
+        elif kind in ("html", "htm"):
+            text = html_text(path.read_text(errors="replace"))
+        elif kind == "ipynb":
+            cells = json.loads(path.read_text())["cells"]
+            text = "\n\n".join("".join(cell["source"]) for cell in cells)
+        elif kind == "fb2":
+            text = " ".join(ElementTree.parse(path).getroot().itertext())
+        else:
+            command = (
+                ["pdftotext", "-q", str(path), "-"]
+                if kind == "pdf"
+                else ["anydoc", str(path)]
+            )
+            text = subprocess.check_output(command, stderr=subprocess.DEVNULL).decode(
+                errors="replace"
+            )
+    except (
+        subprocess.CalledProcessError,
+        json.JSONDecodeError,
+        KeyError,
+        ElementTree.ParseError,
+    ):
+        return {}  # a broken or scanned document stays out of the index
+    text = text[:MAX_TEXT]
+    if kind == "pdf":
+        return {
+            number: page
+            for number, page in enumerate(text.split("\f"), 1)
+            if page.strip()
+        }
+    return {0: text}
 
 
 # brings the index up to date with the documents under CONTENT_ROOTS, by
 # modification time and size; run niced in the background
 def index_contents() -> None:
-    listed = subprocess.run(
+    listed = subprocess.check_output(
         ["fd", "--type", "f", "--one-file-system", "--absolute-path"]
         + [f"--extension={ext}" for ext in sorted(CONVERTED | PLAIN)]
         + [".", *(str(root) for root in CONTENT_ROOTS if root.is_dir())],
-        capture_output=True,
         text=True,
-        check=True,
-    ).stdout.splitlines()
+    ).splitlines()
     with contents_db() as db:
         known = dict(db.execute("SELECT path, stamp FROM files"))
         for name in listed:
@@ -937,28 +1073,29 @@ def index_contents() -> None:
             if known.get(name) == stamp:
                 continue
             if name in known:
-                db.execute("DELETE FROM pages WHERE path = ?", (name,))
+                db.execute("DELETE FROM passages WHERE path = ?", (name,))
             db.executemany(
-                "INSERT INTO pages(path, page, body) VALUES (?, ?, ?)",
-                [(name, page, text) for page, text in extract(path).items()],
+                "INSERT INTO passages VALUES (?, ?, ?, ?)",
+                passages(path, extract(path)),
             )
             db.execute("INSERT OR REPLACE INTO files VALUES (?, ?)", (name, stamp))
             db.commit()
         for gone in known.keys() - set(listed):
-            db.execute("DELETE FROM pages WHERE path = ?", (gone,))
+            db.execute("DELETE FROM passages WHERE path = ?", (gone,))
             db.execute("DELETE FROM files WHERE path = ?", (gone,))
 
 
-# documents whose text holds every word of three letters or more (as a
-# prefix), best page first
+# documents whose file name and text hold every word of three letters or more
+# (as a prefix), best page first by BM25, the name counting NAME_WEIGHT times
 def contents(query: str) -> list[dict]:
     words = [word for word in re.findall(r"\w+", query) if len(word) >= 3]
     if not words or not CONTENTS.exists():
         return []
     with contents_db() as db:
         rows = db.execute(
-            "SELECT path, page, snippet(pages, 2, '', '', '…', 14) FROM pages "
-            "WHERE pages MATCH ? ORDER BY rank LIMIT 300",
+            "SELECT path, page, snippet(passages, 3, '', '', '…', 14) FROM passages "
+            f"WHERE passages MATCH ? ORDER BY bm25(passages, 0, 0, {NAME_WEIGHT}, 1) "
+            "LIMIT 300",
             (" ".join(f'"{word}"*' for word in words),),
         ).fetchall()
     hits: dict[str, dict] = {}

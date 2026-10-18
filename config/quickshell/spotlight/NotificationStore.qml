@@ -19,19 +19,10 @@ Scope {
         return entry.body.match(/https?:\/\/\S+/)?.[0] ?? "";
     }
 
-    function ago(time) {
-        const minutes = Math.round((Date.now() - time) / 60000);
-        if (minutes < 1)
-            return "now";
-        if (minutes < 60)
-            return minutes + " min";
-        return minutes < 1440 ? Math.round(minutes / 60) + " h" : Math.round(minutes / 1440) + " d";
-    }
-
     function items(tokens) {
         return saved.items
             .filter(entry => Spot.matches(`${entry.app} ${entry.summary} ${entry.body}`, tokens, false))
-            .map(entry => ({ key: "notification:" + entry.id, kind: "notification", store: root, entry, title: entry.summary || entry.app, hint: ago(entry.time), icon: entry.icon || "dialog-information" }));
+            .map(entry => ({ key: "notification:" + entry.id, kind: "notification", store: root, entry, title: entry.summary || entry.app, hint: Spot.ago(entry.time), icon: entry.icon || "dialog-information" }));
     }
 
     function commandItems(tokens) {
@@ -47,7 +38,7 @@ Scope {
         if (item.kind === "notificationCommand")
             return { icon: item.icon, title: item.title, subtitle: "Notifications", actions: [["Enter", item.action === "dnd" ? item.title : "Clear"]] };
         const entry = item.entry;
-        return { icon: item.icon, title: entry.summary || entry.app, subtitle: entry.app, body: entry.body, metadata: [["App", entry.app], ["Received", new Date(entry.time).toLocaleString(Qt.locale(), Locale.ShortFormat)], ["Urgency", entry.critical ? "Critical" : "Normal"]], actions: [["Enter", link(entry) ? "Open link" : "Copy"], ["Ctrl+C", "Copy"], ["Ctrl+X", "Forget"]] };
+        return { icon: item.icon, title: entry.summary || entry.app, subtitle: entry.app, body: entry.body, metadata: [["App", entry.app], ["Received", Spot.dateTime(entry.time)], ["Urgency", entry.critical ? "Critical" : "Normal"]], actions: [["Enter", link(entry) ? "Open link" : "Copy"], ["Ctrl+C", "Copy"], ["Ctrl+X", "Forget"]] };
     }
 
     function activate(item, keys) {
@@ -57,7 +48,7 @@ Scope {
         }
         const url = link(item.entry);
         if (url)
-            Quickshell.execDetached(["xdg-open", url]);
+            Spot.open(url);
         else
             copy(item);
         return true;

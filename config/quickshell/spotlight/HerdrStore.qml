@@ -45,7 +45,7 @@ Scope {
     }
 
     function paneName(pane) {
-        return pane.label || pane.terminal_title_stripped || (pane.cwd ?? pane.pane_id).replace(Spot.home, "~");
+        return pane.label || pane.terminal_title_stripped || Spot.tilde(pane.cwd ?? pane.pane_id);
     }
 
     function plural(count, noun) {
@@ -110,11 +110,11 @@ Scope {
         case "herdrAgent": {
             const agent = item.agent;
             const blocked = agent.agent_status === "blocked";
-            return { icon: "utilities-terminal", title: agentName(agent), subtitle: `${statusLabels[agent.agent_status]} · ${item.space?.label ?? agent.workspace_id}`, metadata: [...(agent.name ? [["Kind", agent.display_agent ?? agent.agent ?? ""]] : []), ["Folder", (agent.cwd ?? "").replace(Spot.home, "~")]], body: peekKey === item.key ? peekText : "", mono: true, actions: [["Enter", blocked ? "Answer in Herdr" : "Focus in Herdr"], ...(blocked ? [] : [["Ctrl+E", "Send prompt"]]), ["Ctrl+R", "Rename agent"], ["Ctrl+X", "Close pane"], ["Ctrl+C", "Copy pane id"], ...paneActions] };
+            return { icon: "utilities-terminal", title: agentName(agent), subtitle: `${statusLabels[agent.agent_status]} · ${item.space?.label ?? agent.workspace_id}`, metadata: [...(agent.name ? [["Kind", agent.display_agent ?? agent.agent ?? ""]] : []), ["Folder", Spot.tilde(agent.cwd ?? "")]], body: peekKey === item.key ? peekText : "", mono: true, actions: [["Enter", blocked ? "Answer in Herdr" : "Focus in Herdr"], ...(blocked ? [] : [["Ctrl+E", "Send prompt"]]), ["Ctrl+R", "Rename agent"], ["Ctrl+X", "Close pane"], ["Ctrl+C", "Copy pane id"], ...paneActions] };
         }
         case "herdrPane": {
             const pane = item.pane;
-            return { icon: item.icon, title: item.title, subtitle: item.hint, metadata: [["Folder", (pane.foreground_cwd ?? pane.cwd ?? "").replace(Spot.home, "~")]], body: peekKey === item.key ? peekText : "", mono: true, actions: [["Enter", "Focus in Herdr"], ["Ctrl+E", "Run command"], ["Ctrl+R", "Rename pane"], ["Ctrl+X", "Close pane"], ["Ctrl+C", "Copy pane id"], ["", "Start agent here…", "start"], ...paneActions] };
+            return { icon: item.icon, title: item.title, subtitle: item.hint, metadata: [["Folder", Spot.tilde(pane.foreground_cwd ?? pane.cwd ?? "")]], body: peekKey === item.key ? peekText : "", mono: true, actions: [["Enter", "Focus in Herdr"], ["Ctrl+E", "Run command"], ["Ctrl+R", "Rename pane"], ["Ctrl+X", "Close pane"], ["Ctrl+C", "Copy pane id"], ["", "Start agent here…", "start"], ...paneActions] };
         }
         case "herdrTab": {
             const panes = snapshot.panes.filter(pane => pane.tab_id === item.tab.tab_id).map(pane => paneName(pane));
@@ -138,7 +138,7 @@ Scope {
         case "reload-config":
             return { icon: item.icon, title: item.title, subtitle: "Re-read config.toml in the running server", actions: [["Enter", "Reload"]] };
         }
-        return { icon: item.icon, title: item.title, subtitle: "Opens in a new ghostty window", actions: [["Enter", "Attach"]] };
+        return { icon: item.icon, title: item.title, subtitle: "Opens in a new terminal window", actions: [["Enter", "Attach"]] };
     }
 
     function peek(item) {
@@ -156,7 +156,7 @@ Scope {
         if (terminal)
             Quickshell.execDetached(["scrollmsg", `[con_id=${terminal.id}] focus`]);
         else
-            Quickshell.execDetached(["ghostty", "+new-window", "-e", "herdr"]);
+            Quickshell.execDetached([...host.userConfig.terminal, "herdr"]);
     }
 
     function call(method, params) {
@@ -170,7 +170,7 @@ Scope {
     }
 
     function folderOptions() {
-        return files.frequentPaths.map(path => path.replace(Spot.home, "~"));
+        return files.frequentPaths.map(path => Spot.tilde(path));
     }
 
     function expandHome(path) {
@@ -206,7 +206,7 @@ Scope {
             raiseTerminal();
             return true;
         case "attach":
-            Quickshell.execDetached(["ghostty", "+new-window", "-e", "herdr", "session", "attach", item.session]);
+            Quickshell.execDetached([...host.userConfig.terminal, "herdr", "session", "attach", item.session]);
             return true;
         case "reload-config":
             call("server.reload_config", {});
@@ -286,7 +286,7 @@ Scope {
             return false;
         // Herdr only accepts [a-z][a-z0-9_-]{0,31} as an agent name
         case "herdrAgent rename":
-            rename("Rename Agent", "Name", item.agent.name ?? "", name => call("agent.rename", { target: paneId, name }));
+            rename("Rename Agent", "Name", item.agent.name ?? "", name => call("agent.rename", { target: paneId, name: name || null }));
             return false;
         case "herdrPane rename":
             rename("Rename Pane", "Label", item.pane.label ?? "", label => call("pane.rename", { pane_id: paneId, label }));

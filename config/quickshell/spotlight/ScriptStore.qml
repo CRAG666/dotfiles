@@ -2,7 +2,7 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 
-// Script Commands, Raycast's format: executables in spotlight/scripts whose
+// Script Commands, Raycast's format: executables in ~/.config/spotlight/scripts whose
 // comment header names them (`# @raycast.title`, or `@spotlight.`), listed
 // among the commands. Arguments (argument1..3: text or dropdown) are asked
 // through a form; mode silent and compact notify the last line of output,
@@ -35,7 +35,7 @@ Scope {
 
     function describe(item) {
         if (item.kind === "scriptNew")
-            return { icon: item.icon, title: item.title, subtitle: "Creates spotlight/scripts/<name>.sh from a template and opens it", actions: [["Enter", "Create"]] };
+            return { icon: item.icon, title: item.title, subtitle: "Creates ~/.config/spotlight/scripts/<name>.sh from a template and opens it", actions: [["Enter", "Create"]] };
         const script = item.script;
         const shown = outputKey === item.key;
         return {
@@ -43,7 +43,7 @@ Scope {
             glyph: item.glyph,
             title: script.title,
             subtitle: script.error ?? script.description,
-            metadata: [["Mode", script.mode], ["Arguments", script.arguments.map(argument => argument.placeholder ?? argument.type).join(", ")], ["File", script.path.replace(Spot.home, "~")]],
+            metadata: [["Mode", script.mode], ["Arguments", script.arguments.map(argument => argument.placeholder ?? argument.type).join(", ")], ["File", Spot.tilde(script.path)]],
             body: shown ? (running ? "Running…" : output) : "",
             mono: true,
             actions: [["Enter", script.mode === "fullOutput" ? "Run and show output" : "Run"], ["Ctrl+E", "Edit script"], ["Ctrl+C", "Copy path"]]
@@ -74,8 +74,7 @@ Scope {
                 title: "New Script Command",
                 fields: [{ key: "title", label: "Title", value: "" }],
                 submit: values => {
-                    Spot.helperDetached(["script-new", values.title]);
-                    source.reload();
+                    creator.exec(Spot.helperCommand(["script-new", values.title]));
                     return true;
                 }
             });
@@ -115,7 +114,7 @@ Scope {
     function act(item, action) {
         if (item.kind !== "script" || action !== "edit")
             return false;
-        Quickshell.execDetached(["ghostty", "+new-window", "-e", "sh", "-c", '"${EDITOR:-nvim}" "$1"', "sh", item.script.path]);
+        Quickshell.execDetached([...host.userConfig.terminal, ...Spot.editor(item.script.path)]);
         source.reload();
         return true;
     }
@@ -124,7 +123,12 @@ Scope {
         id: source
         maxAge: 10000
         command: ["python3", Spot.helper, "scripts"]
-        parse: output => output.trim() ? JSON.parse(output) : []
+    }
+
+    // script-new returns when its editor closes, with the header filled in
+    Process {
+        id: creator
+        onExited: source.reload()
     }
 
     Process {

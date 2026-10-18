@@ -12,7 +12,7 @@ import "search.js" as Search
 // a search needs them and keeps them cached between openings (see Source).
 // One query searches apps, windows, Herdr, commands, AI commands, SSH hosts,
 // snippets, bookmarks, notes, passwords, GitHub repos, files and the text of
-// documents, agenda events, script commands, plus math and conversions, DOIs and arXiv ids (BibTeX), URLs and quicklinks, then offers a question to pi or a web search; the
+// documents, agenda events, script commands, plus math and conversions, DOIs (BibTeX), URLs and quicklinks, then offers a question to pi or a web search; the
 // selection is previewed on the right. Matching is loose (search.js) and results
 // are ranked by how well their title matches plus how often they were picked
 // (Frecency), which also picks the Top Hit across kinds. Each view is an entry of `views`; each
@@ -40,39 +40,40 @@ Scope {
         readonly property color accent: Theme.accent
         readonly property color accentText: Theme.accentText
 
-        // `chip`: listed in the bar, reachable with Ctrl+1..7 and Tab; `alias`
-        // plus a space opens the view ("hr " → Herdr); `open` loads what it shows;
+        // `chip`: its glyph in the bar, which lists the views of spotlight.json's
+        // `chips` (Ctrl+1…9 and Tab reach them); its alias in spotlight.json plus a
+        // space opens the view ("hr " → Herdr); `open` loads what it shows;
         // `wide` splits list and preview evenly where the preview adds little;
         // `tone`: its colour in Theme.eyes
         readonly property var views: [
             { mode: "apps", tone: "blue1", chip: "\uf009", title: "Search Apps", icon: "applications-other", sections: (tokens, raw) => [["Applications", apps.items(raw)]] },
-            { mode: "files", tone: "aqua", chip: "\uf07b", alias: "fi", title: "Search Files", icon: "folder", open: () => files.load(), sections: tokens => files.sections(tokens, false) },
-            { mode: "contents", tone: "aqua", alias: "fc", title: "Search File Contents", placeholder: "Search inside documents", icon: "x-office-document", open: () => files.load(), sections: () => [["Documents", files.contentItems()]] },
-            { mode: "clipboard", tone: "pink", chip: "\uf0ea", alias: "cb", title: "Clipboard History", placeholder: "Search Clipboard", icon: "edit-paste", open: () => clipboard.load(), sections: tokens => [["Clipboard", clipboard.items(tokens)]] },
-            { mode: "windows", tone: "teal", chip: "\uf2d0", alias: "win", title: "Switch Windows", placeholder: "Search Windows", icon: "preferences-system-windows", open: () => windows.load(), sections: tokens => [["Windows", windows.items(tokens, 80)]] },
-            { mode: "emoji", tone: "yellow", alias: "ej", title: "Search Emoji", icon: "face-smile", open: () => snippets.load(), sections: tokens => [["Emoji", snippets.emojiItems(tokens)]] },
-            { mode: "passwords", tone: "red", wide: true, chip: "\uf084", alias: "pw", title: "Search Passwords", icon: "dialog-password", open: () => passwords.load(), sections: tokens => [["Passwords", ranked(passwords.items(tokens), tokens)]] },
-            { mode: "snippets", tone: "violet", chip: "\uf121", alias: "sn", title: "Search Snippets", icon: "insert-text", sections: tokens => [["Snippets", ranked(snippets.snippetItems(tokens), tokens)]] },
-            { mode: "commands", tone: "orange0", chip: "\uf0e7", alias: "cmd", title: "Commands", placeholder: "Search Commands", icon: "system-run", open: () => { herdr.load(); system.load(); scripts.load(); }, sections: tokens => [["Commands", ranked(commandItems(tokens), tokens)]] },
-            { mode: "bookmarks", tone: "blue0", alias: "bm", title: "Search Bookmarks", icon: "user-bookmarks", open: () => library.load(), sections: tokens => [["Bookmarks", ranked(library.bookmarkItems(tokens), tokens)], ["Commands", library.commandItems(["bookmark"])]] },
-            { mode: "notes", tone: "green1", alias: "nt", title: "Search Notes", icon: "accessories-text-editor", open: () => library.load(), sections: tokens => [["Notes", ranked(library.noteItems(tokens), tokens)], ["Commands", library.commandItems(["note"])]] },
-            { mode: "quicklinks", tone: "blue0", alias: "ql", title: "Quicklinks", placeholder: "Search Quicklinks", icon: "web-browser", sections: (tokens, raw) => [["Quicklinks", ranked(web.quicklinkItems(tokens, raw), tokens)]] },
-            { mode: "processes", tone: "orange1", wide: true, alias: "ps", title: "Kill Process", placeholder: "Search Processes", icon: "utilities-system-monitor", open: () => processes.refresh(), sections: tokens => [["Processes", processes.items(tokens)]] },
-            { mode: "history", tone: "blue0", wide: true, alias: "bh", title: "Search Browser History", icon: "web-browser", open: () => browser.loadHistory(), sections: tokens => [["History", browser.historyItems(tokens)]] },
-            { mode: "tabs", tone: "blue0", wide: true, alias: "bt", title: "Search Browser Tabs", icon: "web-browser", open: () => browser.loadTabs(), sections: tokens => [["Tabs", browser.tabItems(tokens)]] },
-            { mode: "timers", tone: "yellow", alias: "tm", title: "Timers", placeholder: "Type a duration: 10m tea", icon: "alarm-clock", sections: (tokens, raw) => [["Timers", timers.items(tokens, raw, true)]] },
-            { mode: "colors", tone: "pink", alias: "co", title: "Color History", placeholder: "Search Colors", icon: "color-picker", sections: tokens => [["Colors", colors.items(tokens)]] },
-            { mode: "notifications", tone: "teal", alias: "nf", title: "Notifications", placeholder: "Search Notifications", icon: "preferences-system-notifications", sections: tokens => [["Notifications", notifications.items(tokens)], ["Commands", notifications.commandItems(tokens)]] },
-            { mode: "ai", tone: "green1", alias: "ac", title: "AI Commands", placeholder: "Search AI Commands", icon: "", glyph: "✦", sections: tokens => [["AI Commands", ranked(ai.commandItems(tokens), tokens)]] },
+            { mode: "files", tone: "aqua", chip: "\uf07b", title: "Search Files", icon: "folder", open: () => files.load(), sections: tokens => files.sections(tokens, false) },
+            { mode: "contents", tone: "aqua", title: "Search File Contents", placeholder: "Search inside documents", icon: "x-office-document", open: () => files.load(), sections: () => [["Documents", files.contentItems()]] },
+            { mode: "clipboard", tone: "pink", chip: "\uf0ea", title: "Clipboard History", placeholder: "Search Clipboard", icon: "edit-paste", open: () => clipboard.load(), sections: tokens => [["Clipboard", clipboard.items(tokens)]] },
+            { mode: "windows", tone: "teal", chip: "\uf2d0", title: "Switch Windows", placeholder: "Search Windows", icon: "preferences-system-windows", open: () => windows.load(), sections: tokens => [["Windows", windows.items(tokens, 80)]] },
+            { mode: "emoji", tone: "yellow", title: "Search Emoji", icon: "face-smile", open: () => snippets.load(), sections: tokens => [["Emoji", snippets.emojiItems(tokens)]] },
+            { mode: "passwords", tone: "red", wide: true, chip: "\uf084", title: "Search Passwords", icon: "dialog-password", open: () => passwords.load(), sections: tokens => [["Passwords", ranked(passwords.items(tokens), tokens)]] },
+            { mode: "snippets", tone: "violet", chip: "\uf121", title: "Search Snippets", icon: "insert-text", sections: tokens => [["Snippets", ranked(snippets.snippetItems(tokens), tokens)]] },
+            { mode: "commands", tone: "orange0", chip: "\uf0e7", title: "Commands", placeholder: "Search Commands", icon: "system-run", open: () => { herdr.load(); system.load(); scripts.load(); windows.load(); files.load(); }, sections: tokens => [["Commands", ranked(commandItems(tokens), tokens)]] },
+            { mode: "bookmarks", tone: "blue0", title: "Search Bookmarks", icon: "user-bookmarks", open: () => library.load(), sections: tokens => [["Bookmarks", ranked(library.bookmarkItems(tokens), tokens)], ["Commands", library.commandItems(["bookmark"])]] },
+            { mode: "notes", tone: "green1", title: "Search Notes", icon: "accessories-text-editor", open: () => library.load(), sections: tokens => [["Notes", ranked(library.noteItems(tokens), tokens)], ["Commands", library.commandItems(["note"])]] },
+            { mode: "quicklinks", tone: "blue0", title: "Quicklinks", placeholder: "Search Quicklinks", icon: "web-browser", sections: (tokens, raw) => [["Quicklinks", ranked(web.quicklinkItems(tokens, raw), tokens)]] },
+            { mode: "processes", tone: "orange1", wide: true, title: "Kill Process", placeholder: "Search Processes", icon: "utilities-system-monitor", open: () => processes.refresh(), sections: tokens => [["Processes", processes.items(tokens)]] },
+            { mode: "history", tone: "blue0", wide: true, title: "Search Browser History", icon: "web-browser", open: () => browser.loadHistory(), sections: tokens => [["History", browser.historyItems(tokens)]] },
+            { mode: "tabs", tone: "blue0", wide: true, title: "Search Browser Tabs", icon: "web-browser", open: () => browser.loadTabs(), sections: tokens => browser.tabSections(tokens) },
+            { mode: "timers", tone: "yellow", title: "Timers", placeholder: "Type a duration: 10m tea", icon: "alarm-clock", sections: (tokens, raw) => [["Timers", timers.items(tokens, raw, true)]] },
+            { mode: "colors", tone: "pink", title: "Color History", placeholder: "Search Colors", icon: "color-picker", sections: tokens => [["Colors", colors.items(tokens)]] },
+            { mode: "notifications", tone: "teal", title: "Notifications", placeholder: "Search Notifications", icon: "preferences-system-notifications", sections: tokens => [["Notifications", notifications.items(tokens)], ["Commands", notifications.commandItems(tokens)]] },
+            { mode: "ai", tone: "green1", title: "AI Commands", placeholder: "Search AI Commands", icon: "", glyph: "✦", sections: tokens => [["AI Commands", ranked(ai.commandItems(tokens), tokens)]] },
             { mode: "run", tone: "violet", title: "Run Command", placeholder: "Type a command", icon: "system-run", open: () => run.load(), sections: (tokens, raw) => [["Run", run.items(raw, true)]] },
-            { mode: "marks", tone: "orange1", alias: "mk", title: "Scroll Marks", placeholder: "Search marks or type a new one", icon: "bookmark-new", open: () => windows.reload(), sections: (tokens, raw) => [["Marks", marks.items(tokens, raw)]] },
-            { mode: "herdr", tone: "teal", alias: "hr", title: "Herdr", placeholder: "Search Herdr agents, workspaces, tabs and panes", icon: "utilities-terminal", open: () => { herdr.load(); windows.load(); files.load(); }, sections: tokens => [["Agents", herdr.agentItems(tokens)], ["Workspaces", herdr.workspaceItems(tokens)], ["Tabs", herdr.tabItems(tokens)], ["Panes", herdr.paneItems(tokens)], ["Herdr", herdr.commandItems(tokens)]] },
-            { mode: "agenda", tone: "pink", alias: "ag", title: "Agenda", placeholder: "Search events and deadlines", icon: "office-calendar", open: () => agenda.load(), sections: tokens => [...agenda.sections(tokens), ["Commands", agenda.commandItems(tokens)]] },
-            { mode: "wallpapers", tone: "aqua", alias: "wp", title: "Wallpapers", placeholder: "Search Wallpapers", icon: "preferences-desktop-wallpaper", open: () => wallpapers.load(), sections: tokens => [["Wallpapers", wallpapers.items(tokens)]] },
-            { mode: "tools", tone: "green2", alias: "tl", title: "Tools", placeholder: "Search Tools", icon: "applications-utilities", sections: tokens => [["Tools", ranked(commands.toolItems(tokens), tokens)]] },
-            { mode: "help", tone: "aqua", alias: "?", title: "Spotlight Help", placeholder: "Search shortcuts and features", icon: "help-about", sections: tokens => [["Help", help.items(tokens)]] }
-        ]
-        readonly property var chips: views.filter(view => view.chip)
+            { mode: "marks", tone: "orange1", title: "Scroll Marks", placeholder: "Search marks or type a new one", icon: "bookmark-new", open: () => windows.reload(), sections: (tokens, raw) => [["Marks", marks.items(tokens, raw)]] },
+            { mode: "herdr", tone: "teal", title: "Herdr", placeholder: "Search Herdr agents, workspaces, tabs and panes", icon: "utilities-terminal", open: () => { herdr.load(); windows.load(); files.load(); }, sections: tokens => [["Agents", herdr.agentItems(tokens)], ["Workspaces", herdr.workspaceItems(tokens)], ["Tabs", herdr.tabItems(tokens)], ["Panes", herdr.paneItems(tokens)], ["Herdr", herdr.commandItems(tokens)]] },
+            { mode: "agenda", tone: "pink", title: "Agenda", placeholder: "Search events and deadlines", icon: "office-calendar", open: () => agenda.load(), sections: tokens => [...agenda.sections(tokens), ["Commands", agenda.commandItems(tokens)]] },
+            { mode: "wallpapers", tone: "aqua", title: "Wallpapers", placeholder: "Search Wallpapers", icon: "preferences-desktop-wallpaper", open: () => wallpapers.load(), sections: tokens => [["Wallpapers", wallpapers.items(tokens)]] },
+            { mode: "tools", tone: "green2", title: "Tools", placeholder: "Search Tools", icon: "applications-utilities", sections: tokens => [["Tools", ranked(commands.toolItems(tokens), tokens)]] },
+            { mode: "help", tone: "aqua", title: "Spotlight Help", placeholder: "Search shortcuts and features", icon: "help-about", sections: tokens => [["Help", help.items(tokens)]] }
+        ].map(view => Object.assign({}, view, { alias: userConfig.aliases[view.mode] }))
+        readonly property var chips: userConfig.chips.map(mode => views.find(view => view.mode === mode)).filter(view => view)
         // each kind of result in a colour of nvim's palette, as Blink colours its
         // completion kinds; the rest take their view's
         readonly property var kindTones: ({
@@ -108,7 +109,7 @@ Scope {
 
         readonly property string clipboardText: clipboardOut.text
         readonly property string selectedText: selectionOut.text
-        property var userConfig: ({ snippets: [], quicklinks: [], aiCommands: [] })
+        property var userConfig: ({ aliases: {}, ai: { model: "", thinking: "" }, chips: [], fallbacks: [], webSearch: "", pomodoro: { focus: 25, break: 5, rounds: 4 }, terminal: [], floatingTerminal: [], browser: [], tools: [], snippets: [], quicklinks: [], aiCommands: [] })
         property string mode: ""   // "" searches everything, else the mode of one of `views`
         readonly property string query: search.text.trim()
         readonly property var results: collect()
@@ -123,6 +124,7 @@ Scope {
         property string notice: ""
         property var actionTarget: null   // the item whose Ctrl+K panel is open
         property string savedQuery: ""
+        property string lastQuery: ""   // ↑ brings it back when nothing is listed to move through
 
         // a form runs its fields one by one through the search field
         property var form: null   // { title, fields: [{ key, label, value, options, optional, strict: only an option }], submit: values => closes, closeOnCancel }
@@ -130,7 +132,7 @@ Scope {
         property var formValues: ({})
         readonly property var formField: form ? form.fields[formStep] : null
 
-        readonly property string tag: actionTarget ? "Actions" : form ? form.title : currentView && !currentView.chip ? currentView.title.replace(/^Search /, "") : ""
+        readonly property string tag: actionTarget ? "Actions" : form ? form.title : currentView && !chips.includes(currentView) ? currentView.title.replace(/^Search /, "") : ""
         readonly property string completion: {
             const top = results[0];
             const typed = search.text;
@@ -145,6 +147,8 @@ Scope {
         property bool sourcesChecked: false
         onQueryChanged: {
             keepSelection = false;
+            if (query.startsWith(":"))
+                snippets.load();
             if (mode || !query)
                 return;
             if (!sourcesChecked) {
@@ -160,8 +164,6 @@ Scope {
             }
             if (query.length >= 2)
                 web.load();
-            if (query.startsWith(":"))
-                snippets.load();
         }
         // currentView may not have caught up with mode yet in here
         onModeChanged: {
@@ -229,6 +231,8 @@ Scope {
 
         // everything goes back to an empty search, so the next opening starts clean
         function close() {
+            if (query && !form && !actionTarget)
+                lastQuery = search.text;
             shown = false;
             sourcesChecked = false;
             form = null;
@@ -488,8 +492,8 @@ Scope {
                 ["GitHub", ranked(web.repoItems(tokens), tokens).slice(0, 4)],
                 ...files.sections(tokens, true),
                 ["Documents", answer.length ? [] : files.contentItems().slice(0, 3)],
-                ["AI", ai.askItems(raw)],
-                ["Web", web.searchItems(raw)]
+                // spotlight.json's `fallbacks`: "pi", "web" or a quicklink's keyword
+                ...userConfig.fallbacks.map(name => name === "pi" ? ["AI", ai.askItems(raw)] : ["Web", name === "web" ? web.searchItems(raw) : web.fallbackItems(name, raw)])
             ];
         }
 
@@ -518,8 +522,9 @@ Scope {
         // `actions` are [keys, label] pairs: they feed the footer and the Ctrl+K panel;
         // [keys, label, name] ones (keys may be "") run store.act(item, name)
         function describe(item) {
+            // the panel closes before the results drop its actions
             if (item.kind === "action")
-                return describe(actionTarget);
+                return actionTarget ? describe(actionTarget) : { icon: item.icon, title: item.title };
             if (item.kind === "form")
                 return { icon: item.icon, title: form.title, subtitle: `Step ${formStep + 1} of ${form.fields.length}: ${form.fields[formStep].label}`, metadata: Object.entries(formValues), footer: "Enter continues · Esc cancels" };
             const info = item.store.describe(item);
@@ -534,8 +539,9 @@ Scope {
                 return;
             }
             current = Math.max(0, Math.min(results.length - 1, index));
+            if (results[current].key !== selectedKey)
+                armed = "";
             selectedKey = results[current].key;
-            armed = "";
             if (current === 0) {
                 list.positionViewAtBeginning();
                 return;
@@ -603,6 +609,8 @@ Scope {
         function act(item, action, confirmed) {
             if (!item?.store?.act)
                 return;
+            if (action === "delete" && !(describe(item).actions ?? []).some(([keys]) => keys === "Ctrl+X"))
+                return;
             if (action === "delete" && !confirmed && armed !== item.key + ":delete") {
                 armed = item.key + ":delete";
                 return;
@@ -631,6 +639,7 @@ Scope {
         }
         FileStore {
             id: files
+            host: win
             query: (win.mode === "" || win.mode === "files") && !win.form && !win.actionTarget && !/^[:>]/.test(win.query) ? win.query : ""
             contentQuery: (win.mode === "" || win.mode === "contents") && !win.form && !win.actionTarget && !/^[:>]/.test(win.query) ? win.query : ""
         }
@@ -670,12 +679,14 @@ Scope {
         }
         SshStore {
             id: ssh
+            host: win
         }
         PasswordStore {
             id: passwords
         }
         RunStore {
             id: run
+            host: win
         }
         ClipboardStore {
             id: clipboard
@@ -725,7 +736,7 @@ Scope {
         }
 
         FileView {
-            path: Spot.home + "/.config/quickshell/spotlight/spotlight.json"
+            path: Spot.configFile
             blockLoading: true
             watchChanges: true
             onFileChanged: reload()
@@ -944,7 +955,7 @@ Scope {
                                 win.closeActions();
                             else
                                 win.openActions();
-                        } else if (ctrl && event.key >= Qt.Key_1 && event.key < Qt.Key_1 + win.chips.length) {
+                        } else if (ctrl && event.key >= Qt.Key_1 && event.key < Qt.Key_1 + win.chips.length && !listing) {
                             const picked = win.chips[event.key - Qt.Key_1].mode;
                             win.mode = win.mode === picked ? "" : picked;
                         } else if (ctrl && event.key === Qt.Key_C && quiet) {
@@ -983,6 +994,8 @@ Scope {
                             search.text = win.results[0].title;
                         } else if (event.key === Qt.Key_Down) {
                             win.step(1);
+                        } else if (event.key === Qt.Key_Up && !search.text && !win.results.length && win.lastQuery && !listing) {
+                            search.text = win.lastQuery;
                         } else if (event.key === Qt.Key_Up) {
                             win.step(-1);
                         } else if (event.key === Qt.Key_PageDown) {
@@ -1034,7 +1047,7 @@ Scope {
 
                             Label {
                                 anchors.centerIn: parent
-                                text: chip.modelData.chip
+                                text: chip.modelData.chip ?? chip.modelData.alias ?? chip.modelData.title
                                 color: chip.active ? win.accentText : win.inkSoft
                                 font.family: Theme.menu
                                 font.pixelSize: win.px(14)
@@ -1367,7 +1380,7 @@ Scope {
                                 linkColor: Theme.eyes.blue0
                                 font.family: preview.info?.mono ? "Iosevka Nerd Font" : Theme.menuText
                                 font.pixelSize: preview.info?.mono ? win.px(11) : win.px(13)
-                                onLinkActivated: link => Quickshell.execDetached(["xdg-open", link])
+                                onLinkActivated: link => Spot.open(link)
                             }
                         }
                     }

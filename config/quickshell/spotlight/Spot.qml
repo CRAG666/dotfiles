@@ -9,6 +9,9 @@ Singleton {
     readonly property string dataDir: (Quickshell.env("XDG_DATA_HOME") || home + "/.local/share") + "/spotlight"
     readonly property string stateDir: (Quickshell.env("XDG_STATE_HOME") || home + "/.local/state") + "/spotlight"
     readonly property string cacheDir: (Quickshell.env("XDG_CACHE_HOME") || home + "/.cache") + "/spotlight"
+    // what you configure: spotlight.json and the script commands, apart from the code
+    readonly property string configDir: (Quickshell.env("XDG_CONFIG_HOME") || home + "/.config") + "/spotlight"
+    readonly property string configFile: configDir + "/spotlight.json"
     readonly property string helper: home + "/.config/quickshell/spotlight/spotlight.py"
     readonly property var terminals: ["kitty", "foot", "Alacritty", "org.wezfurlong.wezterm", "com.mitchellh.ghostty", "ghostty.dialog"]
 
@@ -36,6 +39,32 @@ esac`
         Quickshell.execDetached(["wl-copy", "--", text]);
     }
 
+    function open(target) {
+        Quickshell.execDetached(["xdg-open", target]);
+    }
+
+    // `path` in $EDITOR, at `line` when given, for a terminal prefix to run
+    function editor(path, line) {
+        return ["sh", "-c", '"${EDITOR:-nvim}" ${2:+"+$2"} "$1"', "sh", path, line === undefined ? "" : String(line)];
+    }
+
+    function tilde(path) {
+        return path === home || path.startsWith(home + "/") ? "~" + path.slice(home.length) : path;
+    }
+
+    function basename(path) {
+        return path.slice(path.lastIndexOf("/") + 1);
+    }
+
+    // "" for a bare name
+    function dirname(path) {
+        return path.slice(0, Math.max(0, path.lastIndexOf("/")));
+    }
+
+    function dateTime(milliseconds) {
+        return new Date(milliseconds).toLocaleString(Qt.locale(), Locale.ShortFormat);
+    }
+
     // type into the window that had focus once Spotlight is gone, then walk the
     // cursor back to {cursor}; the clipboard is left untouched
     function type(text) {
@@ -48,9 +77,18 @@ esac`
         Quickshell.execDetached(command);
     }
 
-    // runs spotlight.py detached and surfaces a failure as a notification
+    // keeps the terminal open after `command` ends
+    function hold(command) {
+        return ["sh", "-c", '"$@"; printf "\\n[exit %s] Press Enter to close" "$?"; read -r _', "sh", ...command];
+    }
+
+    // runs spotlight.py, its failure shown as a notification
+    function helperCommand(args) {
+        return ["sh", "-c", 'out=$(python3 "$@" 2>&1) || notify-send -u critical Spotlight "$out"', "sh", helper, ...args];
+    }
+
     function helperDetached(args) {
-        Quickshell.execDetached(["sh", "-c", 'out=$(python3 "$@" 2>&1) || notify-send -u critical Spotlight "$out"', "sh", helper, ...args]);
+        Quickshell.execDetached(helperCommand(args));
     }
 
     // reads the (asynchronously loaded) app list, so callers refresh once it arrives
@@ -58,6 +96,16 @@ esac`
         const id = name.toLowerCase();
         const entry = DesktopEntries.applications.values.find(app => app.id.toLowerCase() === id || app.startupClass.toLowerCase() === id);
         return (entry ?? DesktopEntries.heuristicLookup(name))?.icon ?? "application-x-executable";
+    }
+
+    // "now", "5 min", "3 h" or "2 d" since `time` (ms)
+    function ago(time) {
+        const minutes = Math.round((Date.now() - time) / 60000);
+        if (minutes < 1)
+            return "now";
+        if (minutes < 60)
+            return minutes + " min";
+        return minutes < 1440 ? Math.round(minutes / 60) + " h" : Math.round(minutes / 1440) + " d";
     }
 
     function formatSize(bytes) {

@@ -13,25 +13,27 @@ Scope {
     property double now: Date.now()
     readonly property var running: timers.filter(timer => timer.end > now)
     readonly property string sounds: "/usr/share/sounds/freedesktop/stereo"
-    readonly property int focusMinutes: 25
-    readonly property int breakMinutes: 5
-    readonly property int rounds: 4
+    readonly property int focusMinutes: host.userConfig.pomodoro.focus
+    readonly property int breakMinutes: host.userConfig.pomodoro.break
+    readonly property int rounds: host.userConfig.pomodoro.rounds
 
     function save(list) {
         timers = list;
         state.setText(JSON.stringify(list));
     }
 
-    // "10m tea", "1h30m", "90s", "10" (minutes) → { seconds, name }
+    // "10m tea", "1h30m", "2 hours 30 min", "90s", "10" (minutes) → { seconds, name }
+    readonly property string unitPattern: "(h(?:ours?|rs?)?|m(?:in(?:ute)?s?)?|s(?:ec(?:ond)?s?)?)(?![a-z])"
+
     function parse(text) {
-        const match = text.match(/^((?:\d+\s*[hms]\s*)+|\d+)(.*)$/i);
+        const match = text.match(new RegExp(`^((?:\\d+\\s*${unitPattern}\\s*)+|\\d+(?![a-z]))(.*)$`, "i"));
         if (!match)
             return null;
-        const pattern = /(\d+)\s*([hms]?)/gi;
+        const pattern = new RegExp(`(\\d+)\\s*(?:${unitPattern})?`, "gi");
         let seconds = 0;
         for (let part = pattern.exec(match[1]); part; part = pattern.exec(match[1]))
-            seconds += Number(part[1]) * ({ h: 3600, m: 60, s: 1 }[part[2].toLowerCase()] ?? 60);
-        return seconds > 0 ? { seconds, name: match[2].trim() } : null;
+            seconds += Number(part[1]) * ({ h: 3600, m: 60, s: 1 }[(part[2] ?? "m")[0].toLowerCase()]);
+        return seconds > 0 ? { seconds, name: match[match.length - 1].trim() } : null;
     }
 
     function clock(milliseconds) {
@@ -72,7 +74,7 @@ Scope {
 
     function describe(item) {
         if (item.kind === "timerStart")
-            return { icon: item.icon, title: item.title, subtitle: "Rings at " + Qt.formatTime(new Date(now + item.spec.seconds * 1000), "HH:mm"), actions: [["Enter", "Start"]] };
+            return { icon: item.icon, title: item.title, subtitle: "Rings at " + Qt.formatTime(new Date(Date.now() + item.spec.seconds * 1000), "HH:mm"), actions: [["Enter", "Start"]] };
         if (item.kind === "pomodoroStart")
             return { icon: item.icon, title: item.title, subtitle: `${rounds} rounds of ${focusMinutes} min focus and ${breakMinutes} min break`, actions: [["Enter", "Start"]] };
         if (item.timer.kind === "pomodoro") {
@@ -83,6 +85,7 @@ Scope {
     }
 
     function activate(item, keys) {
+        now = Date.now();
         const unit = `spotlight-${item.kind === "pomodoroStart" ? "pomodoro" : "timer"}-${Date.now()}`;
         if (item.kind === "timerStart") {
             const name = item.spec.name || `${duration(item.spec.seconds)} timer`;

@@ -8,7 +8,6 @@ import QtQuick
 Scope {
     id: root
     property var host
-    readonly property string webSearch: "https://www.google.com/search?q="
 
     function load() {
         repos.load();
@@ -30,7 +29,7 @@ Scope {
         const rest = words.join(" ");
         const hits = [];
         for (const link of host.userConfig.quicklinks) {
-            const opener = link.open ?? ["xdg-open"];
+            const opener = link.open ?? host.userConfig.browser;
             const searchable = (link.url ?? "").includes("{query}");
             if (rest && searchable && link.keyword === keyword.toLowerCase())
                 hits.unshift({ key: "link:" + link.name, kind: "quicklink", store: root, lead: true, title: `${link.name}: “${rest}”`, hint: link.keyword, icon: "web-browser", urls: [link.url.replace("{query}", encodeURIComponent(rest))], opener });
@@ -46,8 +45,14 @@ Scope {
             .map(repo => ({ key: "repo:" + repo.nameWithOwner, kind: "repo", store: root, repo, title: repo.nameWithOwner, hint: repo.isPrivate ? "Private" : "", icon: "github", urls: [repo.url] }));
     }
 
+    // a fallback that searches the quicklink with this keyword
+    function fallbackItems(keyword, text) {
+        const link = host.userConfig.quicklinks.find(link => link.keyword === keyword && (link.url ?? "").includes("{query}"));
+        return link ? [{ key: "fallback:" + keyword, kind: "quicklink", store: root, title: `Search ${link.name} for “${text}”`, hint: keyword, icon: "web-browser", urls: [link.url.replace("{query}", encodeURIComponent(text))], opener: link.open ?? host.userConfig.browser }] : [];
+    }
+
     function searchItems(text) {
-        return [{ key: "web", kind: "web", store: root, title: `Search the web for “${text}”`, icon: "web-browser", value: text, urls: [webSearch + encodeURIComponent(text)] }];
+        return [{ key: "web", kind: "web", store: root, title: `Search the web for “${text}”`, icon: "web-browser", value: text, urls: [host.userConfig.webSearch.replace("{query}", encodeURIComponent(text))] }];
     }
 
     function describe(item) {
@@ -59,13 +64,12 @@ Scope {
         case "url":
             return { icon: item.icon, title: item.title, subtitle: "Open in your browser", actions: [["Enter", "Open"], ["Ctrl+C", "Copy URL"]] };
         default:
-            return { icon: item.icon, title: item.title, subtitle: "Search with Google", actions: [["Enter", "Search"]] };
+            return { icon: item.icon, title: item.title, subtitle: "Search the web", actions: [["Enter", "Search"]] };
         }
     }
 
     function activate(item, keys) {
-        for (const url of item.urls)
-            Quickshell.execDetached([...(item.opener ?? ["xdg-open"]), url]);
+        Quickshell.execDetached([...(item.opener ?? host.userConfig.browser), ...item.urls]);
         return true;
     }
 
@@ -77,6 +81,5 @@ Scope {
         id: repos
         maxAge: 600000
         command: ["gh", "repo", "list", "--limit", "300", "--json", "nameWithOwner,description,url,isPrivate,stargazerCount,updatedAt"]
-        parse: output => output.trim() ? JSON.parse(output) : []
     }
 }

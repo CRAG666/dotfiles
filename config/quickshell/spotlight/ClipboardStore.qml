@@ -107,7 +107,6 @@ Scope {
     Source {
         id: pins
         command: ["python3", Spot.helper, "pins"]
-        parse: output => JSON.parse(output)
     }
 
     // decodes every image entry not cached yet and drops thumbs of deleted ones

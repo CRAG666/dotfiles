@@ -3,9 +3,10 @@ import Quickshell.Io
 import QtQuick
 
 // SSH hosts: ~/.ssh/config (git-only hosts skipped) merged with your Tailscale
-// peers, with their online state. Enter connects with ssh in ghostty.
+// peers, with their online state. Enter connects with ssh in the terminal.
 Scope {
     id: root
+    property var host
     property var hosts: []
 
     function load() {
@@ -39,7 +40,8 @@ Scope {
 
     function items(tokens) {
         const peers = tailnet.items;
-        const merged = hosts.filter(host => host.user !== "git").map(host => ({
+        // git remotes and the AUR take ssh but give no shell
+        const merged = hosts.filter(host => host.user !== "git" && (host.hostName || host.name) !== "aur.archlinux.org").map(host => ({
             name: host.name,
             target: host.name,
             address: (host.user ? host.user + "@" : "") + (host.hostName || host.name),
@@ -58,7 +60,7 @@ Scope {
     }
 
     function activate(item, keys) {
-        Quickshell.execDetached(["ghostty", "+new-window", "-e", "env", "TERM=xterm-256color", "ssh", item.value]);
+        Quickshell.execDetached([...host.userConfig.terminal, "env", "TERM=xterm-256color", "ssh", item.value]);
         return true;
     }
 

@@ -11,7 +11,6 @@ Scope {
     property string query: ""   // sent to spotlight.py, debounced; "" clears the answer
     property var answer: null   // { query, value, detail }
 
-    onQueryChanged: debounce.restart()
 
     // arithmetic only: the input is whitelisted to numbers, operators and the
     // Math names below before it is evaluated
@@ -53,28 +52,13 @@ Scope {
         return true;
     }
 
-    Timer {
-        id: debounce
+    Lookup {
+        query: root.query
         interval: 120
-        onTriggered: {
-            if (!/\d|^(now|time)\b/i.test(root.query) || root.calculate(root.query) !== null) {
-                root.answer = null;
-                return;
-            }
-            helper.forQuery = root.query;
-            helper.exec(["python3", Spot.helper, "calc", root.query]);
-        }
-    }
-
-    Process {
-        id: helper
-        property string forQuery: ""
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const answer = text.trim() ? JSON.parse(text) : null;
-                if (helper.forQuery === root.query)
-                    root.answer = answer ? Object.assign({ query: helper.forQuery }, answer) : null;
-            }
+        command: query => !/\d|^(now|time)\b/i.test(query) || root.calculate(query) !== null ? null : ["python3", Spot.helper, "calc", query]
+        onDone: output => {
+            const answer = output.trim() ? JSON.parse(output) : null;
+            root.answer = answer ? Object.assign({ query: root.query }, answer) : null;
         }
     }
 }

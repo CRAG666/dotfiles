@@ -10,10 +10,10 @@ import qs
 Scope {
     id: root
     property var host
-    readonly property string configDir: Spot.home + "/.config/quickshell"
+    readonly property string quickshellDir: Spot.home + "/.config/quickshell"
 
     readonly property var commands: [
-        { title: "Lock Screen", icon: "system-lock-screen", command: [configDir + "/lock.sh"] },
+        { title: "Lock Screen", icon: "system-lock-screen", command: [quickshellDir + "/lock.sh"] },
         { title: "Sleep", icon: "system-suspend", command: ["systemctl", "suspend"] },
         { title: "Hibernate", icon: "system-hibernate", command: ["systemctl", "hibernate"], confirm: true },
         { title: "Restart", icon: "system-reboot", command: ["systemctl", "reboot"], confirm: true },
@@ -23,9 +23,11 @@ Scope {
         { title: "Next Wallpaper", icon: "preferences-desktop-wallpaper", command: [Spot.home + "/.config/awww/awwwallpaper.sh", "-n"] },
         { title: "Toggle Caffeine", icon: "caffeine", command: ["sh", "-c", 'if pkill swayidle; then notify-send -t 2000 "Caffeine on"; else swayidle -w & notify-send -t 2000 "Caffeine off"; fi'] },
         { title: "Screenshot Area", icon: "applets-screenshooter", command: ["sh", "-c", 'sleep 0.3; grim -g "$(slurp -d)" - | swappy -f -'] },
+        // tesseract reads the area in every language it has data for
+        { title: "Copy Text from Screen", icon: "edit-copy", words: "ocr live text recognize", command: ["sh", "-c", 'sleep 0.3; area=$(slurp -d) || exit 0; text=$(grim -g "$area" - | tesseract stdin stdout -l "$(tesseract --list-langs 2> /dev/null | tail -n +2 | grep -vx osd | paste -sd+)" 2> /dev/null | tr -d "\\f"); if [ -n "$(printf %s "$text" | tr -d "[:space:]")" ]; then printf %s "$text" | wl-copy; notify-send -t 3000 -i edit-copy "Text copied" "$(printf %s "$text" | head -c 200)"; else notify-send -t 3000 -i edit-copy "No text found"; fi'] },
         { title: "Screenshot Screen", icon: "applets-screenshooter", command: ["sh", "-c", 'sleep 0.3; grim -o "$(scrollmsg -t get_outputs | jq -r ".[] | select(.focused) | .name")" - | swappy -f -'] },
         { title: "Empty Trash", icon: "user-trash-full", command: ["gio", "trash", "--empty"], confirm: true },
-        { title: "Edit Snippets, Quicklinks and AI Commands", icon: "accessories-text-editor", command: ["ghostty", "+new-window", "-e", "sh", "-c", '"${EDITOR:-nvim}" "$1"', "sh", configDir + "/spotlight/spotlight.json"] },
+        { title: "Edit Aliases, Snippets, Quicklinks and AI Commands", icon: "accessories-text-editor", command: [...host.userConfig.terminal, ...Spot.editor(Spot.configFile)] },
         { title: "Close Window", icon: "window-close", command: ["scrollmsg", "kill"] },
         { title: "Toggle Fullscreen", icon: "view-fullscreen", command: ["scrollmsg", "fullscreen", "toggle"] },
         { title: "Toggle Floating", icon: "window-new", command: ["scrollmsg", "floating", "toggle"] },
@@ -48,16 +50,6 @@ Scope {
         ...Array.from({ length: 9 }, (_, index) => ({ title: `Move Window to Workspace ${index + 1}`, icon: "go-next", command: ["scrollmsg", "move", "container", "to", "workspace", String(index + 1)] }))
     ]
 
-    readonly property var tools: [
-        { title: "Email", program: "aerc", command: ["ghostty", "+new-window", "--title=aerc", "-e", "aerc"] },
-        { title: "Bluetooth", program: "bluetui", icon: "bluetooth", command: ["ghostty", "--class=ghostty.dialog", "--title=bluetui", "-e", "bluetui"] },
-        { title: "Wi-Fi", program: "impala", icon: "network-wireless", command: ["ghostty", "--class=ghostty.dialog", "--title=impala", "-e", "impala"] },
-        { title: "Files", program: "yazi", icon: "system-file-manager", command: ["ghostty", "--class=ghostty.dialog", "--title=yazi", "-e", "yazi"] },
-        { title: "Calendar", program: "cal", icon: "office-calendar", command: ["ghostty", "--class=ghostty.dialog", "--title=calendar", "--wait-after-command=true", "-e", "cal", "-3", "-m"] },
-        { title: "Music", program: "termusic", command: ["ghostty", "+new-window", "--title=termusic", "-e", "termusic"] },
-        { title: "Volume Mixer", program: "wiremix", icon: "audio-volume-high", command: ["ghostty", "--class=ghostty.dialog", "--title=wiremix", "-e", "wiremix"] }
-    ]
-
     readonly property MprisPlayer player: {
         const players = Mpris.players.values;
         return players.find(candidate => candidate.isPlaying) ?? players[0] ?? null;
@@ -65,7 +57,7 @@ Scope {
 
     function items(tokens) {
         return commands
-            .filter(command => Spot.matches(command.title, tokens))
+            .filter(command => Spot.matches(`${command.title} ${command.words ?? ""}`, tokens))
             .map(command => ({ key: "cmd:" + command.title, kind: "command", store: root, title: command.title, icon: command.icon, command: command.command, confirm: command.confirm ?? false }));
     }
 
@@ -78,9 +70,9 @@ Scope {
     }
 
     function toolItems(tokens) {
-        return tools
-            .filter(tool => Spot.matches(`${tool.title} ${tool.program}`, tokens))
-            .map(tool => ({ key: "tool:" + tool.title, kind: "command", store: root, title: tool.title, hint: tool.program, icon: tool.icon ?? Spot.iconFor(tool.program), command: tool.command }));
+        return host.userConfig.tools
+            .filter(tool => Spot.matches(`${tool.title} ${tool.command[0]}`, tokens))
+            .map(tool => ({ key: "tool:" + tool.title, kind: "command", store: root, title: tool.title, hint: tool.command.join(" "), icon: tool.icon ?? Spot.iconFor(tool.command[0]), command: [...(tool.floating ? host.userConfig.floatingTerminal : host.userConfig.terminal), ...(tool.hold ? Spot.hold(tool.command) : tool.command)] }));
     }
 
     function mediaItems(tokens) {

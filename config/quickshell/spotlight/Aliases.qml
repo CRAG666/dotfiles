@@ -11,7 +11,8 @@ Scope {
     property var entries: ({})   // alias → { key, kind, title }
 
     function get(alias) {
-        return entries[alias.toLowerCase()] ?? null;
+        // own keys only: "constructor" is not an alias
+        return Object.prototype.hasOwnProperty.call(entries, alias.toLowerCase()) ? entries[alias.toLowerCase()] : null;
     }
 
     function aliasOf(key) {

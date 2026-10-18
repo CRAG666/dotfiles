@@ -3,16 +3,21 @@ import Quickshell.Io
 import QtQuick
 import "search.js" as Search
 
-// Files and folders under ~. With nothing typed: recently used files (GTK's
-// recently-used.xbel), the home folders, then zoxide's frequent folders; typing:
-// recent and frequent matches first, then fd over ~ (other file systems, like
-// rclone mounts, are skipped; accents are ignored). Documents are also searched
+// Files and folders under ~. With nothing typed: recent files (spotlight.py
+// recent-files: opened from Spotlight or GTK apps, or saved lately), the home
+// folders, then zoxide's frequent folders; typing: recent and frequent matches
+// first, then fd over ~ (other file systems, like rclone mounts, are skipped;
+// accents are ignored). Documents are also searched
 // by their text, through an SQLite index of ~/Documents, ~/Desktop and
 // ~/Downloads that spotlight.py brings up to date at most once an hour. The
 // preview lists a folder, shows the head of a text file, or a thumbnail of an
-// image, a PDF's first page or a video.
+// image, a PDF's first page or a video. Spotlight's filters narrow the
+// search: "kind:pdf" (image, video, audio, archive, folder or any extension),
+// "modified:today|week|month|year" or "modified:3d", "in:~/Documents". The
+// newest file in ~/Downloads leads the view. Ctrl+K moves a file.
 Scope {
     id: root
+    property var host
     property string query: ""   // fd runs on it, debounced; "" clears the hits
     property string contentQuery: ""   // the index is searched for it, debounced
     property var found: []
@@ -25,15 +30,17 @@ Scope {
     property var peekFacts: []
     readonly property var imageTypes: ["png", "jpg", "jpeg", "gif", "webp", "bmp", "svg", "avif"]
     readonly property var videoTypes: ["mp4", "mkv", "webm", "mov", "avi"]
+    readonly property var audioTypes: ["mp3", "flac", "ogg", "wav", "m4a", "opus"]
+    readonly property var archiveTypes: ["zip", "tar", "gz", "xz", "zst", "7z", "rar"]
+    readonly property var kinds: ({ image: imageTypes, video: videoTypes, audio: audioTypes, archive: archiveTypes })
     readonly property var textTypes: ["txt", "md", "qml", "js", "ts", "py", "sh", "rs", "go", "c", "h", "cpp", "json", "toml", "yaml", "yml", "ini", "conf", "lua", "nix", "tex", "csv", "log", "rasi", "css", "html", "xml"]
 
-    onQueryChanged: debounce.restart()
-    onContentQueryChanged: contentDebounce.restart()
 
     function load() {
         frequent.load();
         homeDirs.load();
         recent.load();
+        latestDownload.load();
         if (Date.now() - indexedAt > 3600000) {
             indexedAt = Date.now();
             Quickshell.execDetached(["flock", "-n", Spot.cacheDir + "/index.lock", "nice", "-n", "19", "sh", "-c", 'out=$(python3 "$@" 2>&1) || notify-send -u critical "Spotlight index" "$out"', "sh", Spot.helper, "index-contents"]);
@@ -41,14 +48,56 @@ Scope {
     }
 
     function sections(tokens, everything) {
+        const words = tokens.filter(token => !/^(kind|modified|in):/.test(token));
+        if (words.length < tokens.length)
+            return [["Files", found.slice(0, everything ? 6 : 60)]];
+        const download = Spot.matches("latest download downloads", tokens) ? downloadItems() : [];
         if (!tokens.length)
-            return everything ? [] : [["Recent", recentItems([], 8)], ["Home", homeDirs.items.map(path => fileItem(path, true, ""))], ["Frequent", frequentItems([], 12)]];
+            return everything ? [] : [["Latest Download", downloadItems()], ["Recent", recentItems([], 9).filter(item => item.path !== latestDownload.items?.path).slice(0, 8)], ["Home", homeDirs.items.map(path => fileItem(path, true, ""))], ["Frequent", frequentItems([], 12)]];
         const shown = new Set();
         const unseen = items => items.filter(item => !shown.has(item.path) && shown.add(item.path));
         const recentHits = unseen(recentItems(tokens, everything ? 3 : 6));
         const frequentHits = unseen(frequentItems(tokens, everything ? 3 : 6));
         const fileHits = unseen(found.filter(file => Spot.matchesFolded(file.folded, tokens, false))).slice(0, everything ? 6 : 60);
-        return [["Recent", recentHits], ["Frequent", frequentHits], ["Files", fileHits]];
+        return [["Latest Download", download], ["Recent", recentHits], ["Frequent", frequentHits], ["Files", fileHits]];
+    }
+
+    function downloadItems() {
+        const latest = latestDownload.items;
+        return latest?.path ? [Object.assign(fileItem(latest.path, false, Spot.ago(latest.modified)), { key: "latest-download" })] : [];
+    }
+
+    // the words to match, and fd's arguments and folder for the filters among them
+    function search(query) {
+        const words = [];
+        const args = [];
+        let folder = Spot.home;
+        for (const word of query.split(/\s+/).filter(word => word)) {
+            const filter = word.match(/^(kind|modified|in):(\S+)$/i);
+            if (!filter) {
+                words.push(word);
+                continue;
+            }
+            const value = filter[2].toLowerCase();
+            switch (filter[1].toLowerCase()) {
+            case "kind":
+                if (value === "folder")
+                    args.push("--type", "d");
+                else
+                    for (const type of kinds[value] ?? [value])
+                        args.push("--extension", type);
+                break;
+            case "modified":
+                args.push("--changed-within", value === "today" ? Qt.formatDate(new Date(), "yyyy-MM-dd") + " 00:00:00" : ({ week: "7d", month: "30d", year: "365d" })[value] ?? value);
+                break;
+            default:
+                folder = filter[2].replace(/^~/, Spot.home);
+            }
+        }
+        // a folder's time changes with whatever changes inside it, so dates look at files
+        if (args.includes("--changed-within") && !args.includes("--type"))
+            args.push("--type", "f");
+        return { text: words.join(" "), args, folder, filtered: args.length > 0 || folder !== Spot.home };
     }
 
     function contentItems() {
@@ -59,7 +108,7 @@ Scope {
         return recent.items
             .filter(entry => Spot.matchesFolded(entry.folded, tokens, false))
             .slice(0, limit)
-            .map(entry => fileItem(entry.path, entry.isDir, entry.path.slice(0, entry.path.lastIndexOf("/")).replace(Spot.home, "~")));
+            .map(entry => fileItem(entry.path, entry.isDir, Spot.tilde(Spot.dirname(entry.path))));
     }
 
     // zoxide's most visited directories, best first
@@ -67,11 +116,11 @@ Scope {
         return frequent.items
             .filter(entry => Spot.matchesFolded(entry.folded, tokens, false))
             .slice(0, limit)
-            .map(({ path }) => fileItem(path, true, path.slice(0, path.lastIndexOf("/")).replace(Spot.home, "~")));
+            .map(({ path }) => fileItem(path, true, Spot.tilde(Spot.dirname(path))));
     }
 
     function fileItem(path, isDir, hint) {
-        const name = path.slice(path.lastIndexOf("/") + 1);
+        const name = Spot.basename(path);
         return { key: "file:" + path, kind: "file", store: root, path, isDir, title: name, hint, icon: fileIcon(name, isDir) };
     }
 
@@ -90,9 +139,9 @@ Scope {
             return "application-pdf";
         if (videoTypes.includes(type))
             return "video-x-generic";
-        if (["mp3", "flac", "ogg", "wav", "m4a", "opus"].includes(type))
+        if (audioTypes.includes(type))
             return "audio-x-generic";
-        if (["zip", "tar", "gz", "xz", "zst", "7z", "rar"].includes(type))
+        if (archiveTypes.includes(type))
             return "package-x-generic";
         return "text-x-generic";
     }
@@ -113,7 +162,7 @@ Scope {
             .map(line => {
                 const isDir = line.endsWith("/");
                 const path = isDir ? line.slice(0, -1) : line;
-                const name = Search.fold(path.slice(path.lastIndexOf("/") + 1));
+                const name = Search.fold(Spot.basename(path));
                 const rank = name.startsWith(first) ? 0 : name.includes(first) ? 1 : 2;
                 return Object.assign(fileItem(path, isDir, ""), { folded: Search.fold(path), rank });
             })
@@ -127,7 +176,7 @@ Scope {
         const kind = item.isDir ? "Folder" : type ? type.toUpperCase() + " file" : "File";
         const image = imageTypes.includes(type) ? "file://" + item.path : peeked && peekThumb ? "file://" + peekThumb : "";
         const body = item.snippet ? item.snippet : peeked ? peekText : "";
-        return { image, icon: item.icon, title: item.title, subtitle: item.path.replace(Spot.home, "~"), metadata: [["Kind", kind], ["Page", item.page || ""], ...(peeked ? peekFacts : [])], body, mono: !item.snippet, actions: [["Enter", "Open"], ["Ctrl+Enter", "Show in folder"], ["Ctrl+C", "Copy path"]] };
+        return { image, icon: item.icon, title: item.title, subtitle: Spot.tilde(item.path), metadata: [["Kind", kind], ["Page", item.page || ""], ...(peeked ? peekFacts : [])], body, mono: !item.snippet, actions: [["Enter", "Open"], ["Ctrl+Enter", "Show in folder"], ["Ctrl+C", "Copy path"], ["", "Move to…", "move"]] };
     }
 
     // the header lines hold the size and modification time, the thumbnail (made
@@ -168,12 +217,29 @@ if [ -d "$1" ]; then ls -1Ap -- "$1" | head -n 40; elif [ "$2" = text ]; then he
     }
 
     function activate(item, keys) {
-        Quickshell.execDetached(["xdg-open", keys.ctrl ? item.path.slice(0, item.path.lastIndexOf("/")) : item.path]);
+        Spot.open(keys.ctrl ? Spot.dirname(item.path) : item.path);
         return true;
     }
 
     function copy(item) {
         Spot.copy(item.path);
+    }
+
+    function act(item, action) {
+        if (action !== "move")
+            return false;
+        host.openForm({
+            title: "Move " + item.title,
+            fields: [{ key: "folder", label: "Folder", value: "", options: homeDirs.items.map(path => Spot.tilde(path)) }],
+            submit: values => {
+                const folder = values.folder.trim().replace(/^~/, Spot.home);
+                Quickshell.execDetached(["sh", "-c", 'if [ -e "$2/${1##*/}" ]; then notify-send -u critical Spotlight "${2##*/} already has ${1##*/}"; else mkdir -p "$2" && mv -- "$1" "$2"/ && notify-send -t 3000 -i folder "Moved to ${2##*/}" "${1##*/}"; fi', "sh", item.path, folder]);
+                recent.reload();
+                latestDownload.reload();
+                return true;
+            }
+        });
+        return false;
     }
 
     Source {
@@ -197,52 +263,32 @@ if [ -d "$1" ]; then ls -1Ap -- "$1" | head -n 40; elif [ "$2" = text ]; then he
         parse: output => JSON.parse(output).map(entry => Object.assign(entry, { folded: Search.fold(entry.path) }))
     }
 
-    Timer {
-        id: debounce
+    // the newest finished download: browsers' partial files are left out
+    Source {
+        id: latestDownload
+        maxAge: 5000
+        command: ["sh", "-c", 'find "$1" -maxdepth 1 -type f -not -name "*.part" -not -name "*.crdownload" -not -name ".*" -printf "%T@ %p\\n" | sort -nr | head -n 1', "sh", Spot.home + "/Downloads"]
+        parse: output => {
+            const line = output.trim();
+            return line ? { modified: Number(line.slice(0, line.indexOf(" "))) * 1000, path: line.slice(line.indexOf(" ") + 1) } : null;
+        }
+    }
+
+    Lookup {
+        query: root.query
         interval: 150
-        onTriggered: {
-            if (root.query.length < 2) {
-                root.found = [];
-                return;
-            }
-            fd.forQuery = root.query;
-            fd.exec(["fd", "--one-file-system", "--ignore-case", "--absolute-path", "--max-results", "200", "--", root.accentPattern(Search.tokens(root.query)[0]), Spot.home]);
+        command: query => {
+            const wanted = root.search(query);
+            return !wanted.filtered && query.length < 2 ? null : ["fd", "--one-file-system", "--ignore-case", "--absolute-path", "--max-results", "200", ...wanted.args, "--", root.accentPattern(Search.tokens(wanted.text)[0] ?? ""), wanted.folder];
         }
+        onDone: output => root.found = root.rank(output, root.search(root.query).text)
     }
 
-    Process {
-        id: fd
-        property string forQuery: ""
-        stdout: StdioCollector {
-            onStreamFinished: {
-                if (fd.forQuery === root.query)
-                    root.found = root.rank(text, root.query);
-            }
-        }
-    }
-
-    Timer {
-        id: contentDebounce
+    Lookup {
+        query: root.contentQuery
         interval: 200
-        onTriggered: {
-            if (root.contentQuery.length < 3) {
-                root.contentHits = [];
-                return;
-            }
-            contents.forQuery = root.contentQuery;
-            contents.exec(["python3", Spot.helper, "contents", root.contentQuery]);
-        }
-    }
-
-    Process {
-        id: contents
-        property string forQuery: ""
-        stdout: StdioCollector {
-            onStreamFinished: {
-                if (contents.forQuery === root.contentQuery)
-                    root.contentHits = text.trim() ? JSON.parse(text) : [];
-            }
-        }
+        command: query => query.length < 3 ? null : ["python3", Spot.helper, "contents", query]
+        onDone: output => root.contentHits = output.trim() ? JSON.parse(output) : []
     }
 
     Process {
@@ -256,7 +302,7 @@ if [ -d "$1" ]; then ls -1Ap -- "$1" | head -n 40; elif [ "$2" = text ]; then he
                 const entries = content.split("\n").filter(line => line).length;
                 const size = peeker.isDir ? `${entries}${entries === 40 ? "+" : ""} ${entries === 1 ? "item" : "items"}` : Spot.formatSize(Number(bytes));
                 const [extraLabel, extraValue] = (extra ?? "").split("|");
-                root.peekFacts = [[peeker.isDir ? "Contents" : "Size", size], ["Modified", new Date(Number(modified) * 1000).toLocaleString(Qt.locale(), Locale.ShortFormat)], [extraLabel, extraLabel === "Duration" && extraValue ? root.duration(Number(extraValue)) : extraValue]];
+                root.peekFacts = [[peeker.isDir ? "Contents" : "Size", size], ["Modified", Spot.dateTime(Number(modified) * 1000)], [extraLabel, extraLabel === "Duration" && extraValue ? root.duration(Number(extraValue)) : extraValue]];
                 root.peekThumb = thumb ?? "";
                 root.peekText = content;
             }

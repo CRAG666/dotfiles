@@ -2,9 +2,10 @@ import Quickshell
 import QtQuick
 
 // Shell commands (the "run" view, or "> cmd" from anywhere) and the
-// executables on PATH that complete the program name. Ctrl+Enter runs in ghostty.
+// executables on PATH that complete the program name. Ctrl+Enter runs in the terminal.
 Scope {
     id: root
+    property var host
 
     function load() {
         executables.load();
@@ -26,7 +27,7 @@ Scope {
     }
 
     function activate(item, keys) {
-        Quickshell.execDetached(keys.ctrl ? ["ghostty", "--wait-after-command=true", "-e", "sh", "-c", item.value] : ["sh", "-c", item.value]);
+        Quickshell.execDetached(keys.ctrl ? [...host.userConfig.terminal, ...Spot.hold(["sh", "-c", item.value])] : ["sh", "-c", item.value]);
         return true;
     }
 

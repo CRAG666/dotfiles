@@ -92,13 +92,13 @@ Scope {
             icon: "office-calendar",
             title: event.title,
             subtitle: `${dayLabel(event.date)} · ${when(event)}`,
-            metadata: [["Kind", event.recurring ? "Weekly schedule" : event.kind === "due" ? "Deadline" : "Event"], ["Link", event.link ?? ""], ["Note", `${event.file.replace(Spot.home, "~")}:${event.line}`]],
+            metadata: [["Kind", event.recurring ? "Weekly schedule" : event.kind === "due" ? "Deadline" : "Event"], ["Link", event.link ?? ""], ["Note", `${Spot.tilde(event.file)}:${event.line}`]],
             actions: event.link ? [["Enter", "Join"], ["Ctrl+Enter", "Open in Neovim"], ["Ctrl+C", "Copy link"]] : [["Enter", "Open in Neovim"], ["Ctrl+C", "Copy title"]]
         };
     }
 
     function openNote(event) {
-        Quickshell.execDetached(["ghostty", "+new-window", "-e", "sh", "-c", '"${EDITOR:-nvim}" "+$2" "$1"', "sh", event.file, String(event.line)]);
+        Quickshell.execDetached([...host.userConfig.terminal, ...Spot.editor(event.file, event.line)]);
     }
 
     function activate(item, keys) {
@@ -118,7 +118,7 @@ Scope {
             return false;
         }
         if (item.event.link && !keys.ctrl)
-            Quickshell.execDetached(["xdg-open", item.event.link]);
+            Spot.open(item.event.link);
         else
             openNote(item.event);
         return true;
@@ -132,7 +132,6 @@ Scope {
         id: source
         maxAge: 60000
         command: ["python3", Spot.helper, "agenda", "14"]
-        parse: output => output.trim() ? JSON.parse(output) : []
     }
 
     Process {

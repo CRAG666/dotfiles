@@ -25,18 +25,18 @@ Scope {
 
     // the counter in the query makes rows reload thumbs rendered after the first paint
     function items(tokens) {
-        const item = (path, section) => ({ key: "wallpaper:" + path, kind: "wallpaper", store: root, section, path, title: path.slice(path.lastIndexOf("/") + 1), hint: path === current ? "Current" : "", thumb: `${thumbOf(path)}?${thumbsReady}` });
+        const item = (path, section) => ({ key: "wallpaper:" + path, kind: "wallpaper", store: root, section, path, title: Spot.basename(path), hint: path === current ? "Current" : "", thumb: `${thumbOf(path)}?${thumbsReady}` });
         const matching = wallpapers.filter(path => Spot.matches(path.slice(folder.length), tokens));
         return [...matching.filter(path => path === current).map(path => item(path, "Current")), ...matching.filter(path => path !== current).map(path => item(path, "Wallpapers"))];
     }
 
     function describe(item) {
-        return { image: "file://" + item.path, title: item.title, subtitle: item.path.replace(Spot.home, "~"), details: [item.path === current ? "Current wallpaper" : ""], actions: [["Enter", "Set wallpaper"], ["Ctrl+Enter", "Open image"], ["Ctrl+C", "Copy path"]] };
+        return { image: "file://" + item.path, title: item.title, subtitle: Spot.tilde(item.path), details: [item.path === current ? "Current wallpaper" : ""], actions: [["Enter", "Set wallpaper"], ["Ctrl+Enter", "Open image"], ["Ctrl+C", "Copy path"]] };
     }
 
     function activate(item, keys) {
         if (keys.ctrl)
-            Quickshell.execDetached(["xdg-open", item.path]);
+            Spot.open(item.path);
         else
             Quickshell.execDetached(["sh", "-c", '"$1" -s "$2" && notify-send -a Spotlight -i "$3" Wallpaper "${2##*/}"', "sh", Spot.home + "/.config/awww/awwwallpaper.sh", item.path, thumbOf(item.path).slice("file://".length)]);
         return true;

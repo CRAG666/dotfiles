@@ -26,7 +26,7 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
     function items(tokens) {
         return entries.items
             .filter(entry => Spot.matches(entry, tokens))
-            .map(entry => ({ key: "pass:" + entry, kind: "password", store: root, title: entry.slice(entry.lastIndexOf("/") + 1), hint: entry.includes("/") ? entry.slice(0, entry.lastIndexOf("/")) : "", icon: "dialog-password", value: entry }));
+            .map(entry => ({ key: "pass:" + entry, kind: "password", store: root, title: Spot.basename(entry), hint: Spot.dirname(entry), icon: "dialog-password", value: entry }));
     }
 
     function describe(item) {

@@ -6,7 +6,7 @@
 # only starts it, e.g. at login). "toggle-mark" unmarks the
 # focused window when it has a mark and otherwise asks for one.
 # Compositor keybindings run with a bare PATH, so pi, jq and eyes-theme are put
-# back on it for the resident instance.
+# back on it for the resident instance, and nvim for the terminals it opens.
 config="$HOME/.config/quickshell/spotlight.qml"
 fifo="${XDG_RUNTIME_DIR:-/tmp}/spotlight.fifo"
 mode="${1:-}"
@@ -27,7 +27,7 @@ if [ "$mode" != start ]; then
 fi
 
 mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}/spotlight"
-export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$HOME/.local/share/bob/nvim-bin:$PATH"
 qs -n -d -p "$config" > /dev/null 2>&1
 [ "$mode" = start ] && exit 0
 for _ in $(seq 50); do

@@ -1,9 +1,10 @@
 import Quickshell
 import QtQuick
 
-// Zen history and open tabs of every profile, read by spotlight.py from a copy
-// of places.sqlite and from the session file. Enter opens the page in its
-// profile (a tab can't be switched to from outside Zen, so it opens again).
+// Zen history of every profile, read by spotlight.py from a copy of
+// places.sqlite, and the open tabs of every running profile, listed through
+// tabctl's extension. Enter opens a visited page in its profile, or switches
+// to a tab and focuses its Zen window.
 Scope {
     id: root
     property var host
@@ -13,7 +14,7 @@ Scope {
     }
 
     function loadTabs() {
-        tabs.load();
+        tabs.reload();
     }
 
     function domain(url) {
@@ -27,22 +28,26 @@ Scope {
             .map(visit => ({ key: `visit:${visit.profile}:${visit.url}`, kind: "visit", store: root, page: visit, title: visit.title, hint: domain(visit.url), icon: "web-browser" }));
     }
 
-    function tabItems(tokens) {
-        return tabs.items
-            .filter(tab => Spot.matches(tab.title + " " + tab.url, tokens))
-            .map((tab, index) => ({ key: `tab:${index}:${tab.url}`, kind: "tab", store: root, page: tab, title: tab.title, hint: tab.pinned ? "Pinned" : domain(tab.url), icon: "web-browser" }));
+    function tabSections(tokens) {
+        const shown = tabs.items.filter(tab => Spot.matches(tab.title + " " + tab.url, tokens));
+        return [...new Set(shown.map(tab => tab.profile))].map(profile => [profile, shown
+            .filter(tab => tab.profile === profile)
+            .map(tab => ({ key: `tab:${tab.id}`, kind: "tab", store: root, page: tab, title: tab.title, hint: domain(tab.url), icon: "web-browser" }))]);
     }
 
     function describe(item) {
         const page = item.page;
         const where = item.kind === "visit"
-            ? [["Visits", page.visits], ["Last visit", new Date(page.last * 1000).toLocaleString(Qt.locale(), Locale.ShortFormat)]]
-            : [["Window", page.window], ["Pinned", page.pinned ? "Yes" : "No"]];
-        return { icon: item.icon, title: item.title, subtitle: page.url, metadata: [["Profile", page.profile], ...where], actions: [["Enter", "Open in Zen"], ["Ctrl+C", "Copy URL"]] };
+            ? [["Visits", page.visits], ["Last visit", Spot.dateTime(page.last * 1000)]]
+            : [["Window", page.window]];
+        return { icon: item.icon, title: item.title, subtitle: page.url, metadata: [["Profile", page.profile], ...where], actions: [["Enter", item.kind === "visit" ? "Open in Zen" : "Switch to tab"], ["Ctrl+C", "Copy URL"]] };
     }
 
     function activate(item, keys) {
-        Quickshell.execDetached(["zen-browser", "-P", item.page.profile, item.page.url]);
+        if (item.kind === "visit")
+            Quickshell.execDetached([...host.userConfig.browser, "-P", item.page.profile, item.page.url]);
+        else
+            Quickshell.execDetached(["sh", "-c", 'tabctl activate --focused "$1" && scrollmsg "[pid=$2] focus"', "sh", item.page.id, String(item.page.pid)]);
         return true;
     }
 
@@ -54,13 +59,10 @@ Scope {
         id: history
         maxAge: 60000
         command: ["python3", Spot.helper, "zen-history"]
-        parse: output => JSON.parse(output)
     }
 
     Source {
         id: tabs
-        maxAge: 60000
         command: ["python3", Spot.helper, "zen-tabs"]
-        parse: output => JSON.parse(output)
     }
 }

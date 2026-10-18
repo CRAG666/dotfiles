@@ -89,7 +89,7 @@ Scope {
     function activate(item, keys) {
         switch (item.kind) {
         case "bookmark":
-            Quickshell.execDetached(["xdg-open", item.entry.body]);
+            Spot.open(item.entry.body);
             return true;
         case "note":
             Spot.copy(item.entry.body);
@@ -123,7 +123,7 @@ Scope {
     }
 
     function copy(item) {
-        Spot.copy(item.entry.body);
+        Spot.copy(item.entry ? item.entry.body : item.title);
     }
 
     function act(item, action) {
