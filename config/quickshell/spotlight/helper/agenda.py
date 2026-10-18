@@ -111,7 +111,7 @@ def is_schedule(lines: list[str]) -> bool:
 #   overdue while not done)
 def agenda(days: str = "14") -> list[dict]:
     today = datetime.now().astimezone().date()
-    window = [today + timedelta(days=offset) for offset in range(int(days))]
+    until = today + timedelta(days=int(days))
     events = []
 
     def add(day, text, kind, path, number, recurring=False):
@@ -169,18 +169,26 @@ def agenda(days: str = "14") -> list[dict]:
                     continue
                 stamped = True
                 due = marker == "<"
-                if day in window or (due and day < today):
+                if today <= day < until or (due and day < today):
                     text = f"/{when[2]}/ {item[2]}" if when[2] else item[2]
                     add(day, text, "due" if due else "event", path, number)
             if stamped or not context:
                 continue
             if isinstance(context[1], date):
-                if context[1] in window:
+                if today <= context[1] < until:
                     add(context[1], item[2], "event", path, number)
             else:
-                for day in window:
-                    if day.weekday() == context[1]:
-                        add(day, item[2], "schedule", path, number, recurring=True)
+                # the window's days on that weekday: the first, then every 7th
+                first = today + timedelta(days=(context[1] - today.weekday()) % 7)
+                for offset in range(0, (until - first).days, 7):
+                    add(
+                        first + timedelta(days=offset),
+                        item[2],
+                        "schedule",
+                        path,
+                        number,
+                        recurring=True,
+                    )
     return sorted(events, key=lambda event: (event["date"], event["start"] or "~"))
 
 

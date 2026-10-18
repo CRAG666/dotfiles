@@ -1,6 +1,7 @@
 """Zen's profiles, history and open tabs."""
 
 import configparser
+import heapq
 import json
 import os
 import re
@@ -50,17 +51,20 @@ def zen_history() -> list[dict]:
                     "SELECT url, title, visit_count, last_visit_date FROM moz_places "
                     "WHERE hidden = 0 AND last_visit_date IS NOT NULL ORDER BY last_visit_date DESC LIMIT 3000"
                 )
-                visits += [
-                    {
-                        "profile": profile,
-                        "url": url,
-                        "title": title or url,
-                        "visits": count,
-                        "last": last // 1_000_000,
-                    }
-                    for url, title, count, last in rows
-                ]
-    return sorted(visits, key=lambda visit: visit["last"], reverse=True)
+                visits.append(
+                    [
+                        {
+                            "profile": profile,
+                            "url": url,
+                            "title": title or url,
+                            "visits": count,
+                            "last": last // 1_000_000,
+                        }
+                        for url, title, count, last in rows
+                    ]
+                )
+    # each profile's visits come newest first, so a k-way merge orders them all
+    return list(heapq.merge(*visits, key=lambda visit: visit["last"], reverse=True))
 
 
 def parent_pid(pid: int) -> int:

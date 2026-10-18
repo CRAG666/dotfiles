@@ -5,6 +5,7 @@ import os
 import subprocess
 import time
 from datetime import datetime
+from itertools import islice
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 from xml.etree import ElementTree
@@ -60,12 +61,18 @@ def recent_files() -> list[dict]:
         except FileNotFoundError:
             continue  # removed since fd listed it
     newest = sorted(used.items(), key=lambda entry: entry[1], reverse=True)
-    return [
-        {
-            "path": str(path),
-            "isDir": path.is_dir(),
-            "used": datetime.fromtimestamp(when).astimezone().isoformat(),
-        }
-        for path, when in newest
-        if path.exists()
-    ][:100]
+    # lazily, so only the files up to the 100th that still exists are looked at
+    return list(
+        islice(
+            (
+                {
+                    "path": str(path),
+                    "isDir": path.is_dir(),
+                    "used": datetime.fromtimestamp(when).astimezone().isoformat(),
+                }
+                for path, when in newest
+                if path.exists()
+            ),
+            100,
+        )
+    )

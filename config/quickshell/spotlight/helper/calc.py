@@ -3,7 +3,9 @@
 import re
 import subprocess
 from datetime import date, datetime
-from zoneinfo import ZoneInfo, available_timezones
+from functools import cache
+from pathlib import Path
+from zoneinfo import TZPATH, ZoneInfo, available_timezones
 
 ZONE_ALIASES = {
     "cdmx": "America/Mexico_City",
@@ -55,18 +57,37 @@ BASES = {
 }
 
 
+# every zone (Z) and link (L) name, from tzdata.zi in one read:
+# available_timezones() opens each of the ~600 zone files (4 ms against 75)
+def timezones() -> list[str]:
+    for root in TZPATH:
+        listing = Path(root) / "tzdata.zi"
+        if listing.exists():
+            return [
+                fields[1] if fields[0] == "Z" else fields[2]
+                for fields in map(str.split, listing.read_text().splitlines())
+                if fields and fields[0] in ("Z", "L")
+            ]
+    return list(available_timezones())
+
+
+# a zone's full name and its city, lowercase, to the first such zone in
+# alphabetical order, built once
+@cache
+def zone_names() -> dict[str, str]:
+    names: dict[str, str] = {}
+    for tz in sorted(timezones()):
+        names.setdefault(tz.lower(), tz)
+        names.setdefault(tz.lower().rsplit("/", 1)[-1], tz)
+    return names
+
+
 def zone(name: str) -> ZoneInfo | None:
     key = name.lower().replace(" ", "_")
     if key in ZONE_ALIASES:
         return ZoneInfo(ZONE_ALIASES[key])
-    return next(
-        (
-            ZoneInfo(tz)
-            for tz in sorted(available_timezones())
-            if key in (tz.lower(), tz.lower().rsplit("/", 1)[-1])
-        ),
-        None,
-    )
+    found = zone_names().get(key)
+    return ZoneInfo(found) if found else None
 
 
 def zone_label(moment: datetime) -> str:
