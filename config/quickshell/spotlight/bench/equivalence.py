@@ -183,7 +183,8 @@ ShellRoot {
             const { corpus, typed } = JSON.parse(input.text());
             const items = corpus.map(text => ({ text: Search.fold(text) }));
             const textOf = item => item.text;
-            let steps = 0, differences = 0, cachedMs = 0, plainMs = 0;
+            let steps = 0, differences = 0;
+            const cachedMs = { exact: 0, loose: 0 }, plainMs = { exact: 0, loose: 0 };
             const examples = [];
             for (const states of typed)
                 for (const state of states)
@@ -191,10 +192,10 @@ ShellRoot {
                         const tokens = Search.tokens(state);
                         let started = Date.now();
                         const cached = Search.matching(items, "bench", textOf, tokens, loose);
-                        cachedMs += Date.now() - started;
+                        cachedMs[loose ? "loose" : "exact"] += Date.now() - started;
                         started = Date.now();
                         const plain = items.filter(item => Search.score(item.text, tokens, loose) > 0);
-                        plainMs += Date.now() - started;
+                        plainMs[loose ? "loose" : "exact"] += Date.now() - started;
                         steps++;
                         if (cached.length !== plain.length || cached.some((item, index) => item !== plain[index])) {
                             if (differences++ < 10)
@@ -231,9 +232,10 @@ def narrowing(texts_count: int, queries_count: int) -> bool:
     print(
         f"narrowing: {result['steps']} keystroke answers over {len(corpus)} texts, {result['differences']} differ"
     )
-    print(
-        f"  {result['cachedMs']} ms with the query cache, {result['plainMs']} ms filtering afresh"
-    )
+    for mode in ("exact", "loose"):
+        print(
+            f"  {mode}: {result['cachedMs'][mode]} ms with the query cache, {result['plainMs'][mode]} ms filtering afresh"
+        )
     for example in result["examples"]:
         print("  ", example)
     return result["differences"] == 0

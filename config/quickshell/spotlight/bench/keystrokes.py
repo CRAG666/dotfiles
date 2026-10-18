@@ -81,6 +81,8 @@ def typing(
 def measure(
     rev: str | None, typed: list[list[str]], warm: list[str], mode: str
 ) -> dict:
+    """One sandbox's samples: time per keystroke and per source landing,
+    garbage collection cycles and time, resident memory."""
     body = typing(typed, warm, mode)
     with sandbox(rev, GC_RULES) as instance:
         answer = instance.probe(body, timeout=600)
@@ -92,36 +94,50 @@ def measure(
         )
     ]
     steps = [int(match[1]) for line in window if (match := STEP.search(line))]
-    times, arrivals = answer["times"], answer["arrivals"]
-    deciles = quantiles(times, n=10)
+    return {
+        "times": answer["times"],
+        "arrivals": answer["arrivals"],
+        "gc cycles": sum("End GC" in line for line in window),
+        "gc ms": sum(steps) / 1000,
+        "rss": rss,
+    }
+
+
+def summary(runs: list[dict]) -> dict:
+    """Statistics over the samples of every run together."""
+    times = [time for run in runs for time in run["times"]]
+    arrivals = [time for run in runs for time in run["arrivals"]]
     return {
         "keystrokes": len(times),
         "median ms": median(times),
-        "p90 ms": deciles[8],
+        "p90 ms": quantiles(times, n=10)[8],
         "max ms": max(times),
         "mean ms": round(fmean(times), 2),
         "arrival median ms": median(arrivals),
         "arrival max ms": max(arrivals),
-        "gc cycles": sum("End GC" in line for line in window),
-        "gc ms": round(sum(steps) / 1000, 1),
-        "rss MB": rss,
+        "gc cycles/run": round(fmean(run["gc cycles"] for run in runs), 1),
+        "gc ms/run": round(fmean(run["gc ms"] for run in runs), 1),
+        "rss MB": round(fmean(run["rss"] for run in runs)),
     }
 
 
-def keystrokes(rev: str, count: int, warm: int, mode: str) -> None:
+def keystrokes(rev: str, count: int, warm: int, mode: str, repeat: int = 1) -> None:
+    """`repeat` runs each side that many times, alternating, so a slow moment
+    of the machine falls on both."""
     rng = Random(11)
     typed = sequences(rng, count)
     warming = matcher_queries(texts(3000, rng), warm, rng)[:warm] if warm else []
     print(
-        f"keystrokes: {sum(map(len, typed))} keystrokes in {len(typed)} queries in {mode or 'the search of everything'}, after {len(warming)} warm-up queries"
+        f"keystrokes: {sum(map(len, typed))} keystrokes in {len(typed)} queries in {mode or 'the search of everything'}, after {len(warming)} warm-up queries, {repeat} run(s) a side"
     )
-    results = {
-        label: measure(target, typed, warming, mode)
-        for label, target in ((rev, rev), ("working tree", None))
-    }
-    width = max(map(len, results))
-    for label, measured in results.items():
+    sides = ((rev, rev), ("working tree", None))
+    runs: dict[str, list[dict]] = {label: [] for label, _ in sides}
+    for _ in range(repeat):
+        for label, target in sides:
+            runs[label].append(measure(target, typed, warming, mode))
+    width = max(map(len, runs))
+    for label, measured in runs.items():
         print(
             f"  {label:<{width}}  "
-            + "  ".join(f"{name} {value}" for name, value in measured.items())
+            + "  ".join(f"{name} {value}" for name, value in summary(measured).items())
         )

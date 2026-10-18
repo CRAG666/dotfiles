@@ -49,8 +49,13 @@ def main() -> None:
         "--warm", type=int, default=0, help="queries run first, as in a long session"
     )
     command.add_argument("--mode", default="", help="a view to type in, e.g. history")
+    command.add_argument(
+        "--repeat", type=int, default=1, help="runs a side, alternating"
+    )
     command.set_defaults(
-        run=lambda args: keystrokes(args.against, args.queries, args.warm, args.mode)
+        run=lambda args: keystrokes(
+            args.against, args.queries, args.warm, args.mode, args.repeat
+        )
     )
     command = commands.add_parser(
         "profile", help="QML self time per function while typing"
