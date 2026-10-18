@@ -792,7 +792,7 @@ Scope {
             readonly property real radius: Spot.px(14)
 
             width: Spot.px(820)
-            height: bar.height + (expanded ? Spot.px(460) + actionBar.height : 0)
+            height: bar.height + (expanded ? Spot.px(415) + actionBar.height : 0)
             Behavior on height { enabled: win.shown; NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
             visible: win.shown
             x: Math.round((parent.width - width) / 2)

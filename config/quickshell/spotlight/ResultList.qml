@@ -108,7 +108,7 @@ Item {
 
             Rectangle {
                 width: parent.width
-                height: host.thumbs || row.modelData.thumb ? Spot.px(44) : Spot.px(34)
+                height: host.thumbs || row.modelData.thumb ? Spot.px(44) : Spot.px(40)
                 radius: Spot.px(8)
                 color: row.isCurrent ? Theme.selection : rowMouse.containsMouse ? Theme.hairline : "transparent"
 
@@ -178,6 +178,7 @@ Item {
                     textFormat: host.query ? Text.StyledText : Text.PlainText
                     text: host.query ? host.marked(row.modelData.title.replace(/\s+/g, " ")) : row.modelData.title.replace(/\s+/g, " ")
                     color: row.isCurrent ? Theme.selectionText : Theme.ink
+                    font.pixelSize: Spot.px(15)
                 }
                 MouseArea {
                     id: rowMouse

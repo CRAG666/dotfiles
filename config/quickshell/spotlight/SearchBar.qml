@@ -55,11 +55,10 @@ Item {
         selectionColor: Theme.selection
         selectedTextColor: Theme.selectionText
         font.family: Theme.menu
-        font.pixelSize: Spot.px(26)
+        font.pixelSize: Spot.px(21)
         renderType: Text.NativeRendering
         onTextChanged: host.jumpToAlias(text)
         Keys.onPressed: event => root.keyMap.handle(event)
-
 
         Label {
             anchors.verticalCenter: parent.verticalCenter

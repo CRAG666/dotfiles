@@ -21,8 +21,8 @@ Item {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: facts.visible ? facts.top : parent.bottom
-        anchors.margins: Spot.px(24)
-        anchors.bottomMargin: facts.visible ? Spot.px(12) : Spot.px(24)
+        anchors.margins: Spot.px(18)
+        anchors.bottomMargin: facts.visible ? Spot.px(12) : Spot.px(18)
         clip: true
         contentHeight: details.implicitHeight
         boundsBehavior: Flickable.StopAtBounds
@@ -54,11 +54,12 @@ Item {
             }
             Image {
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: Spot.px(104)
-                height: Spot.px(104)
+                // 96 macOS points, as the window's other sizes 1.2× them
+                width: Spot.px(115)
+                height: Spot.px(115)
                 readonly property bool showsIcon: !preview.info?.image && !preview.info?.glyph && !preview.info?.swatch && !!preview.info?.icon
                 visible: showsIcon
-                sourceSize: Qt.size(Spot.px(208), Spot.px(208))
+                sourceSize: Qt.size(Spot.px(230), Spot.px(230))
                 source: showsIcon ? Quickshell.iconPath(preview.info?.icon ?? "", "application-x-executable") : ""
                 asynchronous: true
             }
@@ -140,8 +141,8 @@ Item {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.leftMargin: Spot.px(24)
-        anchors.rightMargin: Spot.px(24)
+        anchors.leftMargin: Spot.px(18)
+        anchors.rightMargin: Spot.px(18)
         anchors.bottomMargin: Spot.px(10)
         visible: preview.visible && rows.length > 0
 
