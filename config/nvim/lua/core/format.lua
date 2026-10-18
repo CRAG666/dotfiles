@@ -18,16 +18,20 @@ local function setup(event)
     return
   end
 
-  if #vim.api.nvim_get_autocmds({ group = fmt_group, buf = event.buf }) > 0 then
+  if
+    #vim.api.nvim_get_autocmds({ group = fmt_group, buf = event.buf }) > 0
+  then
     return
   end
 
   local buf_format = function(e)
     local preferred
-    for _, formatter in ipairs(vim.lsp.get_clients({
-      bufnr = e.buf,
-      method = 'textDocument/formatting',
-    })) do
+    for _, formatter in
+      ipairs(vim.lsp.get_clients({
+        bufnr = e.buf,
+        method = 'textDocument/formatting',
+      }))
+    do
       if
         dedicated_formatters[formatter.name]
         and (not preferred or formatter.id < preferred.id)
