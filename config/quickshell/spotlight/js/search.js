@@ -6,8 +6,22 @@
 // ("vsc"), as letters in order within a word ("frfx") or, from five letters,
 // with one typo ("fierfox"). score() says how well, from 1 down to 0 for no match.
 
+// QML's JS engine looks Map keys up one by one and runs for…of loops several
+// times slower than indexed ones: the caches are plain objects and the hot
+// loops index
+let folds = Object.create(null);
+let foldCount = 0;
+
 function fold(text) {
-    return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    let found = folds[text];
+    if (found === undefined) {
+        if (++foldCount > 20000) {
+            folds = Object.create(null);
+            foldCount = 1;
+        }
+        found = folds[text] = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+    return found;
 }
 
 function tokens(text) {
@@ -18,8 +32,9 @@ function tokens(text) {
 // or a typo would match almost anything
 function score(text, queryTokens, loose = true) {
     let total = 0;
-    for (const token of queryTokens) {
-        const quality = exactScore(text, token) || loose && looseScore(shape(text), token);
+    for (let index = 0; index < queryTokens.length; index++) {
+        const token = queryTokens[index];
+        const quality = tokenScore(text, token, loose);
         if (!quality)
             return 0;
         total += quality;
@@ -27,39 +42,91 @@ function score(text, queryTokens, loose = true) {
     return queryTokens.length ? total / queryTokens.length : 1;
 }
 
-const shapes = new Map();
+let shapes = Object.create(null);
+let shapeCount = 0;
 
 // the compact form, words and initials of a text, kept between keystrokes
 function shape(text) {
-    let found = shapes.get(text);
+    let found = shapes[text];
     if (!found) {
-        if (shapes.size > 20000)
-            shapes.clear();
+        if (++shapeCount > 20000) {
+            shapes = Object.create(null);
+            shapeCount = 1;
+        }
         const words = text.split(/[^a-z0-9]+/).filter(word => word).slice(0, 40);
-        found = { compact: text.replace(/[^a-z0-9]+/g, ""), words, initials: words.length <= 12 ? words.map(word => word[0]).join("") : "" };
-        shapes.set(text, found);
+        found = { compact: text.replace(/[^a-z0-9]+/g, ""), words, initials: words.length <= 12 ? words.map(word => word[0]).join("") : "", mask: charMask(text) };
+        shapes[text] = found;
     }
     return found;
 }
 
-function exactScore(text, token) {
+const tokenShapes = Object.create(null);
+
+function tokenShape(token) {
+    let found = tokenShapes[token];
+    if (!found)
+        found = tokenShapes[token] = { compact: token.replace(/[^a-z0-9]+/g, ""), mask: charMask(token) };
+    return found;
+}
+
+// a bit for each letter and digit a text holds (the digits share six bits):
+// the bit-parallel character-set filter of fuzzy finders. Every letter of a
+// token must be in the text for an exact, compact, initials or in-order match,
+// and each typo accounts for at most one missing letter, so a text lacking
+// more letters than the token's typos allow is dropped without looking further
+function charMask(text) {
+    let mask = 0;
+    for (let index = 0; index < text.length; index++) {
+        const code = text.charCodeAt(index);
+        if (code >= 97 && code <= 122)
+            mask |= 1 << code - 97;
+        else if (code >= 48 && code <= 57)
+            mask |= 1 << 26 + (code - 48) % 6;
+    }
+    return mask;
+}
+
+function bitCount(bits) {
+    bits -= bits >>> 1 & 0x55555555;
+    bits = (bits & 0x33333333) + (bits >>> 2 & 0x33333333);
+    return Math.imul(bits + (bits >>> 4) & 0x0f0f0f0f, 0x01010101) >>> 24;
+}
+
+function typoLimit(token) {
+    return token.length >= 8 ? 2 : token.length >= 5 ? 1 : 0;
+}
+
+function isAlphanumeric(code) {
+    return code >= 97 && code <= 122 || code >= 48 && code <= 57;
+}
+
+function tokenScore(text, token, loose) {
     const at = text.indexOf(token);
     if (at === 0)
         return 1;
     if (at > 0)
-        return /[a-z0-9]/.test(text[at - 1]) ? 0.75 : 0.9;
-    const compactToken = token.replace(/[^a-z0-9]+/g, "");
-    return compactToken && shape(text).compact.includes(compactToken) ? 0.7 : 0;
+        return isAlphanumeric(text.charCodeAt(at - 1)) ? 0.75 : 0.9;
+    const wanted = tokenShape(token);
+    const found = shape(text);
+    const missing = bitCount(wanted.mask & ~found.mask);
+    if (missing > (loose ? typoLimit(token) : 0))
+        return 0;
+    if (!missing && wanted.compact && found.compact.includes(wanted.compact))
+        return 0.7;
+    return loose ? looseScore(found, token, missing) : 0;
 }
 
-function looseScore({ words, initials }, token) {
-    if (token.length >= 2 && initials.includes(token))
+// with letters `missing` from the text, only a typo can match
+function looseScore({ words, initials }, token, missing) {
+    if (!missing && token.length >= 2 && initials.includes(token))
         return 0.8;
     let quality = 0;
-    for (const word of words) {
-        if (word[0] !== token[0])
+    const first = token.charCodeAt(0);
+    for (let index = 0; index < words.length; index++) {
+        const word = words[index];
+        if (word.charCodeAt(0) !== first)
             continue;
-        if (token.length >= 3 && word.length <= token.length * 2 && isSubsequence(token, word))
+        if (!missing && token.length >= 3 && word.length <= token.length * 2 && isSubsequence(token, word))
             quality = Math.max(quality, 0.5);
         else if (token.length >= 5 && isTypo(token, word))
             quality = Math.max(quality, 0.45);
@@ -69,8 +136,8 @@ function looseScore({ words, initials }, token) {
 
 function isSubsequence(token, word) {
     let at = 0;
-    for (const letter of word)
-        if (letter === token[at] && ++at === token.length)
+    for (let index = 0; index < word.length; index++)
+        if (word.charCodeAt(index) === token.charCodeAt(at) && ++at === token.length)
             return true;
     return false;
 }
@@ -78,27 +145,37 @@ function isSubsequence(token, word) {
 // one edit away from the word or from its start, two for long tokens
 function isTypo(token, word) {
     const limit = token.length >= 8 ? 2 : 1;
-    return Math.abs(token.length - word.length) <= limit && distance(token, word) <= limit
-        || word.length > token.length && distance(token, word.slice(0, token.length)) <= 1;
+    return Math.abs(token.length - word.length) <= limit && within(token, word, limit)
+        || word.length > token.length && within(token, word.slice(0, token.length), 1);
 }
 
-// optimal string alignment distance: insertions, deletions, substitutions and
-// swaps of neighbours
-function distance(a, b) {
+// whether the optimal string alignment distance (insertions, deletions,
+// substitutions and swaps of neighbours) is at most `limit`, with Ukkonen's
+// cutoff: once two rows in a row all exceed it, no later cell can come back
+// under it (a swap looks two rows back)
+function within(a, b, limit) {
     let twoBack = [];
-    let previous = Array.from({ length: b.length + 1 }, (_, column) => column);
+    let previous = [];
+    for (let column = 0; column <= b.length; column++)
+        previous.push(column);
+    let previousLeast = 0;
     for (let row = 1; row <= a.length; row++) {
         const current = [row];
+        let least = row;
         for (let column = 1; column <= b.length; column++) {
-            let value = Math.min(previous[column] + 1, current[column - 1] + 1, previous[column - 1] + (a[row - 1] === b[column - 1] ? 0 : 1));
-            if (row > 1 && column > 1 && a[row - 1] === b[column - 2] && a[row - 2] === b[column - 1])
+            let value = Math.min(previous[column] + 1, current[column - 1] + 1, previous[column - 1] + (a.charCodeAt(row - 1) === b.charCodeAt(column - 1) ? 0 : 1));
+            if (row > 1 && column > 1 && a.charCodeAt(row - 1) === b.charCodeAt(column - 2) && a.charCodeAt(row - 2) === b.charCodeAt(column - 1))
                 value = Math.min(value, twoBack[column - 2] + 1);
             current.push(value);
+            least = Math.min(least, value);
         }
+        if (least > limit && previousLeast > limit)
+            return false;
+        previousLeast = least;
         twoBack = previous;
         previous = current;
     }
-    return previous[b.length];
+    return previous[b.length] <= limit;
 }
 
 // what having been picked `weight` times adds to a score: enough to reorder
