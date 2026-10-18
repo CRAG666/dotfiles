@@ -3,7 +3,7 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 import qs.spotlight
-import "spotlight/search.js" as Search
+import "spotlight/js/search.js" as Search
 
 // App search for spotlight.qml and launcher.qml: the name matches loosely
 // (search.js: initials, typos, accents), the generic name, exec, categories and

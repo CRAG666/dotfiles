@@ -1,7 +1,7 @@
 import Quickshell
 import Quickshell.Io
 import QtQuick
-import "search.js" as Search
+import "js/search.js" as Search
 
 // Bookmarks and notes, the git-crypt'd sqlite databases in
 // ~/.local/share/spotlight, read and written through spotlight.py. Bookmarks

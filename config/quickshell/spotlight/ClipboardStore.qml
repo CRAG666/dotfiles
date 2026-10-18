@@ -1,7 +1,7 @@
 import Quickshell
 import Quickshell.Io
 import QtQuick
-import "search.js" as Search
+import "js/search.js" as Search
 
 // Clipboard history (cliphist) plus pinned entries kept by spotlight.py, with
 // image thumbnails decoded once into the cache and a text / image / link

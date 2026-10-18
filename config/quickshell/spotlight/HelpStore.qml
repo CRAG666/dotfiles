@@ -1,6 +1,6 @@
 import Quickshell
 import QtQuick
-import "help.js" as Help
+import "js/help.js" as Help
 
 // The help view (Ctrl+?): every shortcut and feature from help.js, plus the
 // abbreviations of the views and of spotlight.json's quicklinks and snippets,

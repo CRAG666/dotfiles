@@ -4,7 +4,7 @@ import Quickshell.Wayland
 import QtQuick
 import QtQuick.Effects
 import qs
-import "search.js" as Search
+import "js/search.js" as Search
 
 // Spotlight/Raycast-style launcher. It stays resident and hidden: spotlight.sh
 // toggles it over IPC, optionally straight into a view, so opening it only

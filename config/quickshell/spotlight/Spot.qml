@@ -1,7 +1,7 @@
 pragma Singleton
 import Quickshell
 import QtQuick
-import "search.js" as Search
+import "js/search.js" as Search
 
 // Paths and small actions shared by spotlight.qml and its stores.
 Singleton {

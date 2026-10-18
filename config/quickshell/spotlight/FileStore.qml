@@ -1,7 +1,7 @@
 import Quickshell
 import Quickshell.Io
 import QtQuick
-import "search.js" as Search
+import "js/search.js" as Search
 
 // Files and folders under ~. With nothing typed: recent files (spotlight.py
 // recent-files: opened from Spotlight or GTK apps, or saved lately), the home
