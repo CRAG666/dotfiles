@@ -110,7 +110,7 @@ Scope {
         // offsets hold in the title
         function marked(title) {
             const folded = Search.fold(title);
-            const spans = Search.tokens(query).map(token => [folded.indexOf(token), token.length]).filter(([at]) => at >= 0).sort((a, b) => a[0] - b[0]);
+            const spans = queryTokens.map(token => [folded.indexOf(token), token.length]).filter(([at]) => at >= 0).sort((a, b) => a[0] - b[0]);
             const escape = text => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             let html = "", from = 0;
             for (const [at, length] of spans) {
@@ -132,6 +132,8 @@ Scope {
         property string mode: ""   // "" searches everything, else the mode of one of `views`
         property alias search: bar.field
         readonly property string query: search.text.trim()
+        // once a keystroke, for every row that marks them in its title
+        readonly property var queryTokens: Search.tokens(query)
         readonly property var results: collect()
         property int current: -1
         property string selectedKey: ""

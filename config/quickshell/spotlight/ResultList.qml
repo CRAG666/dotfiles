@@ -79,6 +79,11 @@ Item {
         height: parent.height - clipboardFilters.height
         clip: true
         boundsBehavior: Flickable.StopAtBounds
+        // the rows in sight and one more are made: the 320 px Qt makes ahead are
+        // some eight more rows on every keystroke (p90 21 → 19 ms). The one more
+        // keeps the list's height exact, and so the fade, for a list just longer
+        // than the window; scrolling makes the rest
+        cacheBuffer: Spot.px(90)
         // diffed, so the rows a change leaves in place keep their delegates
         model: ScriptModel {
             values: host.results
@@ -102,15 +107,22 @@ Item {
             readonly property bool isCalc: modelData.kind === "calc"
             width: ListView.view.width
 
-            Label {
-                visible: row.opensSection
-                leftPadding: Spot.px(10)
-                topPadding: row.index ? Spot.px(12) : Spot.px(4)
-                bottomPadding: Spot.px(4)
-                text: row.modelData.section
-                color: Theme.inkSoft
-                font.pixelSize: Spot.px(11)
-                font.weight: Font.Bold
+            // what only some rows show is loaded where it shows: a row would
+            // otherwise make seven texts for the three it draws. An inactive
+            // Loader keeps the height it had, so it is hidden too: the Column
+            // skips it when a moved row no longer opens a section
+            Loader {
+                active: row.opensSection
+                visible: active
+                sourceComponent: Label {
+                    leftPadding: Spot.px(10)
+                    topPadding: row.index ? Spot.px(12) : Spot.px(4)
+                    bottomPadding: Spot.px(4)
+                    text: row.modelData.section
+                    color: Theme.inkSoft
+                    font.pixelSize: Spot.px(11)
+                    font.weight: Font.Bold
+                }
             }
 
             Rectangle {
@@ -127,22 +139,26 @@ Item {
                     width: host.thumbs || row.modelData.thumb ? Spot.px(36) : Spot.px(22)
                     height: row.modelData.thumb ? Spot.px(32) : Spot.px(22)
 
-                    Rectangle {
+                    Loader {
                         anchors.fill: parent
-                        visible: !!row.modelData.swatch
-                        radius: Spot.px(6)
-                        color: row.modelData.swatch ?? "transparent"
-                        border.width: 1
-                        border.color: Theme.hairline
+                        active: !!row.modelData.swatch
+                        sourceComponent: Rectangle {
+                            radius: Spot.px(6)
+                            color: row.modelData.swatch
+                            border.width: 1
+                            border.color: Theme.hairline
+                        }
                     }
-                    Image {
+                    Loader {
                         anchors.fill: parent
-                        visible: !!row.modelData.thumb
-                        fillMode: Image.PreserveAspectCrop
-                        sourceSize: Qt.size(Spot.px(96), Spot.px(96))
-                        source: row.modelData.thumb ?? ""
-                        cache: false
-                        asynchronous: true
+                        active: !!row.modelData.thumb
+                        sourceComponent: Image {
+                            fillMode: Image.PreserveAspectCrop
+                            sourceSize: Qt.size(Spot.px(96), Spot.px(96))
+                            source: row.modelData.thumb
+                            cache: false
+                            asynchronous: true
+                        }
                     }
                     Image {
                         anchors.centerIn: parent
@@ -155,13 +171,15 @@ Item {
                         source: showsIcon ? Quickshell.iconPath(row.modelData.icon ?? "", "application-x-executable") : ""
                         asynchronous: true
                     }
-                    Label {
+                    Loader {
                         anchors.centerIn: parent
-                        visible: !!row.modelData.glyph && !row.modelData.thumb
-                        text: row.modelData.glyph ?? ""
-                        color: row.isCurrent ? Theme.selectionText : host.tone(row.modelData)
-                        font.family: "Noto Color Emoji"
-                        font.pixelSize: Spot.px(17)
+                        active: !!row.modelData.glyph && !row.modelData.thumb
+                        sourceComponent: Label {
+                            text: row.modelData.glyph
+                            color: row.isCurrent ? Theme.selectionText : host.tone(row.modelData)
+                            font.family: "Noto Color Emoji"
+                            font.pixelSize: Spot.px(17)
+                        }
                     }
                 }
                 Label {
@@ -215,62 +233,65 @@ Item {
             }
 
             // the calculator's answer as Raycast shows it: what was typed → the result
-            Rectangle {
+            Loader {
                 width: parent.width
-                height: Spot.px(110)
-                visible: row.isCalc
-                radius: Spot.px(10)
-                color: row.isCurrent ? Theme.selection : Theme.fill
+                active: row.isCalc
+                visible: active
+                sourceComponent: Rectangle {
+                    height: Spot.px(110)
+                    radius: Spot.px(10)
+                    color: row.isCurrent ? Theme.selection : Theme.fill
 
-                Label {
-                    x: Spot.px(16)
-                    width: parent.width / 2 - Spot.px(40)
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.verticalCenterOffset: -Spot.px(10)
-                    horizontalAlignment: Text.AlignHCenter
-                    elide: Text.ElideRight
-                    text: row.modelData.expression ?? ""
-                    color: row.isCurrent ? Theme.selectionText : Theme.ink
-                    font.family: Theme.menu
-                    font.pixelSize: Spot.px(24)
-                    font.weight: Font.Bold
-                }
-                Label {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.verticalCenterOffset: -Spot.px(10)
-                    text: "→"
-                    color: row.isCurrent ? Theme.selectionText : Theme.inkSoft
-                    font.pixelSize: Spot.px(22)
-                }
-                Label {
-                    x: parent.width / 2 + Spot.px(24)
-                    width: parent.width / 2 - Spot.px(40)
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.verticalCenterOffset: -Spot.px(10)
-                    horizontalAlignment: Text.AlignHCenter
-                    elide: Text.ElideRight
-                    text: row.modelData.title
-                    color: row.isCurrent ? Theme.selectionText : Theme.ink
-                    font.family: Theme.menu
-                    font.pixelSize: Spot.px(24)
-                    font.weight: Font.Bold
-                }
-                Label {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: Spot.px(14)
-                    width: parent.width - Spot.px(32)
-                    horizontalAlignment: Text.AlignHCenter
-                    elide: Text.ElideRight
-                    text: row.modelData.detail ?? ""
-                    color: row.isCurrent ? Qt.alpha(Theme.selectionText, 0.75) : Theme.inkSoft
-                    font.pixelSize: Spot.px(12)
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: host.pick(row.index)
-                    onDoubleClicked: host.activate(row.modelData, { ctrl: false, shift: false })
+                    Label {
+                        x: Spot.px(16)
+                        width: parent.width / 2 - Spot.px(40)
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.verticalCenterOffset: -Spot.px(10)
+                        horizontalAlignment: Text.AlignHCenter
+                        elide: Text.ElideRight
+                        text: row.modelData.expression ?? ""
+                        color: row.isCurrent ? Theme.selectionText : Theme.ink
+                        font.family: Theme.menu
+                        font.pixelSize: Spot.px(24)
+                        font.weight: Font.Bold
+                    }
+                    Label {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.verticalCenterOffset: -Spot.px(10)
+                        text: "→"
+                        color: row.isCurrent ? Theme.selectionText : Theme.inkSoft
+                        font.pixelSize: Spot.px(22)
+                    }
+                    Label {
+                        x: parent.width / 2 + Spot.px(24)
+                        width: parent.width / 2 - Spot.px(40)
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.verticalCenterOffset: -Spot.px(10)
+                        horizontalAlignment: Text.AlignHCenter
+                        elide: Text.ElideRight
+                        text: row.modelData.title
+                        color: row.isCurrent ? Theme.selectionText : Theme.ink
+                        font.family: Theme.menu
+                        font.pixelSize: Spot.px(24)
+                        font.weight: Font.Bold
+                    }
+                    Label {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: Spot.px(14)
+                        width: parent.width - Spot.px(32)
+                        horizontalAlignment: Text.AlignHCenter
+                        elide: Text.ElideRight
+                        text: row.modelData.detail ?? ""
+                        color: row.isCurrent ? Qt.alpha(Theme.selectionText, 0.75) : Theme.inkSoft
+                        font.pixelSize: Spot.px(12)
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: host.pick(row.index)
+                        onDoubleClicked: host.activate(row.modelData, { ctrl: false, shift: false })
+                    }
                 }
             }
         }
