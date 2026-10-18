@@ -39,7 +39,7 @@ Scope {
             const type = pin.image ? "image" : typeOf(pin.text);
             return { key: "pin:" + pin.name, kind: "pin", store: root, section: "Pinned", pin, type, title: pin.image ? "Pinned image" : pin.text.split("\n")[0], hint: "Pinned", icon: pin.image ? "image-x-generic" : "edit-paste", thumb: pin.image ? "file://" + pin.path : "" };
         });
-        const recent = Spot.take(history.items, entry => (filter === "all" || entry.type === filter) && Spot.matchesFolded(entry.haystack, tokens, false), 200)
+        const recent = Spot.take(Search.matching(history.items, "clipboard", entry => entry.haystack, tokens, false), entry => filter === "all" || entry.type === filter, 200)
             .map(entry => ({ key: "clip:" + entry.id, kind: "clip", store: root, section: "History", entry, type: entry.type, title: entry.title, hint: entry.hint, icon: entry.type === "image" ? "image-x-generic" : entry.type === "link" ? "web-browser" : "edit-paste", thumb: entry.image && thumbsReady ? `file://${thumbDir}/${entry.id}` : "" }));
         return [...pinned.filter(shown), ...recent];
     }

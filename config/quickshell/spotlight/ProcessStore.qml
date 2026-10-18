@@ -1,6 +1,7 @@
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import "js/search.js" as Search
 
 // Your processes, busiest first. Enter ends the selected one (SIGTERM),
 // Ctrl+Enter kills it (SIGKILL); both ask for a second press.
@@ -13,7 +14,7 @@ Scope {
     }
 
     function items(tokens) {
-        return Spot.take(list.items, process => Spot.matches(process.args, tokens, false), 150)
+        return Search.matching(list.items, "processes", process => Search.fold(process.args), tokens, false).slice(0, 150)
             .map(process => ({ key: "process:" + process.pid, kind: "process", store: root, process, title: process.name, hint: `${process.cpu}% · ${Spot.formatSize(process.memory)}`, icon: Spot.iconFor(process.name), confirm: true }));
     }
 

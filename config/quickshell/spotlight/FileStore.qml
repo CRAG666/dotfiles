@@ -110,7 +110,7 @@ Scope {
         const unseen = items => items.filter(item => !(item.path in shown) && (shown[item.path] = true));
         const recentHits = unseen(recentItems(tokens, everything ? 3 : 6));
         const frequentHits = unseen(frequentItems(tokens, everything ? 3 : 6));
-        const fileHits = Spot.take(found, file => Spot.matchesFolded(file.folded, tokens, false) && !(file.path in shown) && (shown[file.path] = true), everything ? 6 : 60);
+        const fileHits = Spot.take(Search.matching(found, "found", file => file.folded, tokens, false), file => !(file.path in shown) && (shown[file.path] = true), everything ? 6 : 60);
         return [["Latest Download", download], ["Recent", recentHits], ["Frequent", frequentHits], ["Files", fileHits]];
     }
 
@@ -157,13 +157,13 @@ Scope {
     }
 
     function recentItems(tokens, limit) {
-        return Spot.take(recent.items, entry => Spot.matchesFolded(entry.folded, tokens, false), limit)
+        return Search.matching(recent.items, "recent", entry => entry.folded, tokens, false).slice(0, limit)
             .map(entry => fileItem(entry.path, entry.isDir, Spot.tilde(Spot.dirname(entry.path))));
     }
 
     // zoxide's most visited directories, best first
     function frequentItems(tokens, limit) {
-        return Spot.take(frequent.items, entry => Spot.matchesFolded(entry.folded, tokens, false), limit)
+        return Search.matching(frequent.items, "frequent", entry => entry.folded, tokens, false).slice(0, limit)
             .map(({ path }) => fileItem(path, true, Spot.tilde(Spot.dirname(path))));
     }
 

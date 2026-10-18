@@ -1,5 +1,6 @@
 import Quickshell
 import QtQuick
+import "js/search.js" as Search
 
 // Zen history of every profile, read by the helper from a copy of
 // places.sqlite, and the open tabs of every running profile, listed through
@@ -22,7 +23,7 @@ Scope {
     }
 
     function historyItems(tokens) {
-        return Spot.take(history.items, visit => Spot.matches(visit.title + " " + visit.url, tokens, false), 200)
+        return Search.matching(history.items, "history", visit => Search.fold(visit.title + " " + visit.url), tokens, false).slice(0, 200)
             .map(visit => ({ key: `visit:${visit.profile}:${visit.url}`, kind: "visit", store: root, page: visit, title: visit.title, hint: domain(visit.url), icon: "web-browser" }));
     }
 

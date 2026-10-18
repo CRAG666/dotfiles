@@ -183,3 +183,57 @@ function within(a, b, limit) {
 function boost(weight) {
     return Math.min(0.35, 0.07 * Math.log2(1 + weight));
 }
+
+const remembered = 16;
+
+// items.filter(item => score(textOf(item), queryTokens, loose) > 0), textOf
+// giving folded text, with the answers to the last queries kept on `items`
+// itself under `name` (a reloaded list starts clean). The same query again, as
+// when a source lands for the typed query, scores nothing. An exact match of a
+// query is also one of every query it extends (the words so far, the last one
+// shorter), so exact matching scans only the matches of the longest such
+// query already answered, as fzf's query cache does. The answers are a short
+// array, not an object: V4 puts a deleted key that comes back where it was,
+// which would evict the newest answer
+function matching(items, name, textOf, queryTokens, loose = true) {
+    const answers = answersOf(items, name + (loose ? ":loose" : ":exact"));
+    const key = queryTokens.join(" ");
+    let candidates = items;
+    let longest = -1;
+    for (let index = 0; index < answers.length; index++) {
+        const answer = answers[index];
+        if (answer.key === key)
+            return answer.found;
+        if (!loose && answer.key.length > longest && extendsQuery(queryTokens, answer.tokens)) {
+            candidates = answer.found;
+            longest = answer.key.length;
+        }
+    }
+    const found = [];
+    for (let index = 0; index < candidates.length; index++)
+        if (score(textOf(candidates[index]), queryTokens, loose) > 0)
+            found.push(candidates[index]);
+    if (answers.push({ key, tokens: queryTokens, found }) > remembered)
+        answers.shift();
+    return found;
+}
+
+function answersOf(items, name) {
+    if (!items.spotlightMatches)
+        Object.defineProperty(items, "spotlightMatches", { value: Object.create(null) });
+    return items.spotlightMatches[name] || (items.spotlightMatches[name] = []);
+}
+
+// whether a query with `queryTokens` extends one with `earlier`, so that each of
+// its exact matches is one of the earlier's; a token of punctuation alone never
+// matches as a compact form and stays out
+function extendsQuery(queryTokens, earlier) {
+    if (earlier.length > queryTokens.length)
+        return false;
+    for (let index = 0; index < earlier.length; index++) {
+        const last = index === earlier.length - 1;
+        if (!tokenShape(earlier[index]).compact || (last ? !queryTokens[index].startsWith(earlier[index]) : queryTokens[index] !== earlier[index]))
+            return false;
+    }
+    return true;
+}
