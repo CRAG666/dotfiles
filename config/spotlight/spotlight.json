@@ -4,7 +4,7 @@
     "snippets": "sn", "commands": "cmd", "bookmarks": "bm", "notes": "nt", "quicklinks": "ql", "processes": "ps",
     "history": "bh", "tabs": "bt", "timers": "tm", "colors": "co", "notifications": "nf", "ai": "ac",
     "marks": "mk", "herdr": "hr", "agenda": "ag", "wallpapers": "wp", "tools": "tl", "help": "?",
-    "wifi": "wf", "bluetooth": "bl"
+    "wifi": "wf", "bluetooth": "bl", "selection": "ua"
   },
   "chips": ["apps", "files", "clipboard", "windows", "passwords", "snippets", "commands"],
   "webSearch": "https://www.google.com/search?q={query}",

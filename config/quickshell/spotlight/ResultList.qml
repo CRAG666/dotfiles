@@ -226,7 +226,7 @@ Item {
                     anchors.verticalCenterOffset: -Spot.px(10)
                     horizontalAlignment: Text.AlignHCenter
                     elide: Text.ElideRight
-                    text: host.query
+                    text: row.modelData.expression ?? ""
                     color: row.isCurrent ? Theme.selectionText : Theme.ink
                     font.family: Theme.menu
                     font.pixelSize: Spot.px(24)

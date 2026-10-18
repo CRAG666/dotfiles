@@ -34,7 +34,8 @@ Scope {
         // `chip`: its glyph in the bar, which lists the views of spotlight.json's
         // `chips` (Ctrl+1…9 and Tab reach them); its alias in spotlight.json plus a
         // space opens the view ("hr " → Herdr); `open` loads what it shows;
-        // `grid` shows them as cells (emoji);
+        // `grid` shows them as cells (emoji); `preview: "answers"` only for pi's
+        // answers and papers, as the search of everything;
         // `preview: false` lists its results across the whole window, as Raycast
         // does where a preview adds little;
         // `tone`: its colour in Theme.eyes
@@ -66,6 +67,7 @@ Scope {
             { mode: "tools", tone: "green2", preview: false, title: "Tools", placeholder: "Search Tools", icon: "applications-utilities", sections: tokens => [["Tools", ranked(commands.toolItems(tokens), tokens)]] },
             { mode: "wifi", tone: "teal", preview: false, title: "Wi-Fi", placeholder: "Search Wi-Fi networks", icon: "network-wireless", open: () => { wifi.load(); system.load(); }, sections: tokens => [["Networks", wifi.items(tokens)], ["Wi-Fi", [...wifi.commandItems(tokens), ...system.items([...tokens, "wifi"])]]] },
             { mode: "bluetooth", tone: "blue1", preview: false, title: "Bluetooth", placeholder: "Search Bluetooth devices", icon: "bluetooth", open: () => system.load(), sections: tokens => [["Devices", bluetooth.items(tokens)], ["Bluetooth", system.items([...tokens, "bluetooth"])]] },
+            { mode: "selection", tone: "violet", preview: "answers", title: "Universal Actions", placeholder: "Search actions for the selection", icon: "edit-select-all", sections: tokens => universal.sections(tokens) },
             { mode: "help", tone: "aqua", title: "Spotlight Help", placeholder: "Search shortcuts and features", icon: "help-about", sections: tokens => [["Help", help.items(tokens)]] }
         ].map(view => Object.assign({}, view, { alias: userConfig.aliases[view.mode] }))
         readonly property var chips: userConfig.chips.map(mode => views.find(view => view.mode === mode)).filter(view => view)
@@ -93,7 +95,7 @@ Scope {
             snippet: "Snippet", run: "Shell", bookmark: "Bookmark", quicklink: "Quicklink", url: "Website", web: "Web Search",
             visit: "History", tab: "Tab", note: "Note", paper: "Paper", ai: "AI", aiCommand: "AI Command",
             herdrAgent: "Agent", herdrWorkspace: "Workspace", herdrTab: "Herdr Tab", herdrPane: "Pane", agendaEvent: "Event",
-            wifi: "Network", bluetoothDevice: "Device"
+            wifi: "Network", bluetoothDevice: "Device", selection: "Action"
         })
 
         function kindLabel(item) {
@@ -118,7 +120,7 @@ Scope {
         readonly property var currentView: views.find(view => view.mode === mode) ?? null
         // the search of everything keeps the whole width but for an answer to read
         readonly property bool gridView: !!currentView?.grid && !form && !actionTarget
-        readonly property bool previewing: currentView ? currentView.preview !== false : ["ai", "aiCommand", "paper", "paperPending"].includes(selection?.kind)
+        readonly property bool previewing: currentView && currentView.preview !== "answers" ? currentView.preview !== false : ["ai", "aiCommand", "paper", "paperPending"].includes(selection?.kind)
 
         readonly property string clipboardText: clipboardOut.text
         readonly property string selectedText: selectionOut.text
@@ -776,6 +778,15 @@ Scope {
         WifiStore {
             id: wifi
             host: win
+        }
+        SelectionStore {
+            id: universal
+            host: win
+            files: files
+            web: web
+            ai: ai
+            calculator: calculator
+            library: library
         }
         BluetoothStore {
             id: bluetooth

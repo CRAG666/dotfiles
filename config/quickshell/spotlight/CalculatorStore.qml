@@ -37,9 +37,9 @@ Scope {
     function items(text) {
         const value = calculate(text);
         if (value !== null)
-            return [{ key: "calc", kind: "calc", store: root, title: value, icon: "accessories-calculator", value, detail: text + " =" }];
+            return [{ key: "calc", kind: "calc", store: root, title: value, icon: "accessories-calculator", value, expression: text, detail: text + " =" }];
         if (answer?.query === text)
-            return [{ key: "calc", kind: "calc", store: root, title: answer.value, icon: "accessories-calculator", value: answer.value, detail: answer.detail }];
+            return [{ key: "calc", kind: "calc", store: root, title: answer.value, icon: "accessories-calculator", value: answer.value, expression: text, detail: answer.detail }];
         return [];
     }
 

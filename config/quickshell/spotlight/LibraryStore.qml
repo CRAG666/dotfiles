@@ -56,6 +56,21 @@ Scope {
         return { icon: item.icon, title: item.title, subtitle: item.action.includes("note") ? "Notes" : "Bookmarks", actions: [["Enter", "Run"]] };
     }
 
+    // asks title and category, then opens the note, starting with `body`, in nvim
+    function noteForm(body) {
+        host.openForm({
+            title: "Create Note",
+            fields: [
+                { key: "title", label: "Title", value: "" },
+                { key: "category", label: "Category", value: "", options: categories(notes) }
+            ],
+            submit: values => {
+                Spot.helperDetached(["note-add", values.title, values.category, body]);
+                return true;
+            }
+        });
+    }
+
     // `entry` without an id only prefills a new bookmark
     function bookmarkForm(title, entry) {
         host.openForm({
@@ -100,17 +115,7 @@ Scope {
             bookmarkForm("Add Bookmark", null);
             break;
         case "create-note":
-            host.openForm({
-                title: "Create Note",
-                fields: [
-                    { key: "title", label: "Title", value: "" },
-                    { key: "category", label: "Category", value: "", options: categories(notes) }
-                ],
-                submit: values => {
-                    Spot.helperDetached(["note-add", values.title, values.category]);
-                    return true;
-                }
-            });
+            noteForm("");
             break;
         case "rename-bookmarks":
             renameCategoryForm("bookmarks", bookmarks);

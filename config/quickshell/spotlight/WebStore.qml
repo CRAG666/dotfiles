@@ -51,6 +51,11 @@ Scope {
         return link ? [{ key: "fallback:" + keyword, kind: "quicklink", store: root, title: `Search ${link.name} for “${text}”`, hint: keyword, icon: "web-browser", urls: [link.url.replace("{query}", encodeURIComponent(text))], opener: link.open ?? host.userConfig.browser }] : [];
     }
 
+    // a search of every quicklink that searches, for a text
+    function queryItems(text) {
+        return host.userConfig.quicklinks.filter(link => (link.url ?? "").includes("{query}")).map(link => fallbackItems(link.keyword, text)[0]);
+    }
+
     function searchItems(text) {
         return [{ key: "web", kind: "web", store: root, title: `Search the web for “${text}”`, icon: "web-browser", value: text, urls: [host.userConfig.webSearch.replace("{query}", encodeURIComponent(text))] }];
     }

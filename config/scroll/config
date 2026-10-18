@@ -659,6 +659,7 @@ bindsym Find exec $spotlight windows # x + ;
 bindsym XF86Tools exec $spotlight tools # F13 / + A
 bindsym XF86Favorites exec $spotlight bookmarks # ; + B
 bindsym $mod+b exec $spotlight quicklinks
+bindsym $mod+u exec $spotlight selection # Universal Actions: the selection's actions
 
 # WiFi / Bluetooth / File manager / Volume control
 bindsym XF86Launch5 exec $RUN_TUI_DIALOG --title=wiremix -e wiremix # F14 / + V

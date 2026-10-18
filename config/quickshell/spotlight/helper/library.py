@@ -76,10 +76,10 @@ def bookmark_save(entry_id: str, url: str, title: str, category: str) -> None:
         prune_categories(db)
 
 
-def note_add(title: str, category: str) -> None:
+def note_add(title: str, category: str, body: str = "") -> None:
     with connect("notes") as db:
         ensure_unique(db, title, category)
-    content = edit_in_terminal("")
+    content = edit_in_terminal(body)
     if not content:
         sys.exit("empty note, nothing saved")
     with connect("notes") as db:
