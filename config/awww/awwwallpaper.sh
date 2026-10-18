@@ -4,7 +4,7 @@
 
 Wall_Cycle() { # $1 = 1 (next) | -1 (previous)
     local -a Wallist
-    mapfile -d '' -t Wallist < <(find "$(dirname "$getWall2")" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.bmp" -o -iname "*.tiff" -o -iname "*.svg" \) -print0)
+    mapfile -d '' -t Wallist < <(find "$(dirname "$getWall2")" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.bmp" -o -iname "*.tiff" -o -iname "*.svg" -o -iname "*.webp" \) -print0)
     local i n=${#Wallist[@]}
     for ((i = 0; i < n; i++)); do
         if [ "${Wallist[i]}" = "${getWall2}" ]; then
@@ -73,7 +73,7 @@ WallDir="${HOME}/Pictures/wallpaperCicle"
 if [ ! -s "$BaseDir/wall.ctl" ]; then
     seed="$(find "$WallDir" -type f \( -iname '*.jpg' -o -iname '*.jpeg' \
         -o -iname '*.png' -o -iname '*.gif' -o -iname '*.bmp' \
-        -o -iname '*.tiff' -o -iname '*.svg' \) | sort | head -n1)"
+        -o -iname '*.tiff' -o -iname '*.svg' -o -iname '*.webp' \) | sort | head -n1)"
     if [ -z "$seed" ]; then
         echo "ERROR: No wallpapers in $WallDir to bootstrap wall.ctl/wall.set" >&2
         exit 1
