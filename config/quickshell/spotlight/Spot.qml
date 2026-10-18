@@ -13,6 +13,8 @@ Singleton {
     readonly property string configDir: (Quickshell.env("XDG_CONFIG_HOME") || home + "/.config") + "/spotlight"
     readonly property string configFile: configDir + "/spotlight.json"
     readonly property string helper: home + "/.config/quickshell/spotlight/spotlight.py"
+    // Spotlight's window sets it from the size of the screen it opens on
+    property real scale: 1
     readonly property var terminals: ["kitty", "foot", "Alacritty", "org.wezfurlong.wezterm", "com.mitchellh.ghostty", "ghostty.dialog"]
 
     // run after Spotlight closes: send the paste shortcut to the focused window
@@ -33,6 +35,11 @@ esac`
     // every keystroke
     function matchesFolded(haystack, tokens, loose = true) {
         return Search.score(haystack, tokens, loose) > 0;
+    }
+
+    // whole pixels keep text and icons on the pixel grid, so they stay sharp
+    function px(value) {
+        return Math.round(value * scale);
     }
 
     function copy(text) {

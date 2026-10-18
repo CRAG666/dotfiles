@@ -1,0 +1,205 @@
+import Quickshell
+import QtQuick
+import QtQuick.Effects
+import qs
+
+// The results under their section headers, each row with its icon, thumbnail,
+// glyph or swatch, the query's words in bold and a hint (or a confirmation) on
+// the right; the clipboard's type filter sits above them. The list fades out at
+// the bottom while more rows follow
+Item {
+    id: root
+    property var host
+    property var clipboardStore
+
+    // scrolls row `index` into view, clear of the fade at the bottom, but not
+    // while the panel is still opening and the list too short to hold a row
+    function reveal(index) {
+        if (index === 0) {
+            list.positionViewAtBeginning();
+            return;
+        }
+        list.positionViewAtIndex(index, ListView.Contain);
+        const row = list.itemAtIndex(index);
+        if (row && list.height >= row.height + list.fade)
+            list.contentY = Math.max(list.originY, Math.min(Math.max(list.contentY, row.y + row.height + list.fade - list.height), list.originY + list.contentHeight - list.height));
+    }
+
+    Row {
+        id: clipboardFilters
+        // not `visible`, which is false while Spotlight is hidden
+        readonly property bool filtering: host.mode === "clipboard" && !host.form
+        visible: filtering
+        height: filtering ? Spot.px(38) : 0
+        spacing: Spot.px(6)
+        leftPadding: Spot.px(6)
+        topPadding: Spot.px(4)
+
+        Repeater {
+            model: clipboardStore.filters
+
+            Rectangle {
+                id: pill
+                required property string modelData
+                readonly property bool active: clipboardStore.filter === modelData
+                width: pillText.implicitWidth + Spot.px(22)
+                height: Spot.px(26)
+                radius: height / 2
+                color: active ? host.viewTone : Theme.fill
+
+                Label {
+                    id: pillText
+                    anchors.centerIn: parent
+                    text: pill.modelData[0].toUpperCase() + pill.modelData.slice(1)
+                    color: pill.active ? Theme.accentText : Theme.ink
+                    font.pixelSize: Spot.px(12)
+                    font.weight: Font.DemiBold
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: clipboardStore.filter = pill.modelData
+                }
+            }
+        }
+
+        Label {
+            topPadding: Spot.px(6)
+            text: "Ctrl+T"
+            color: Theme.inkSoft
+            font.pixelSize: Spot.px(11)
+        }
+    }
+
+    ListView {
+        id: list
+        readonly property int fade: Spot.px(40)
+        y: clipboardFilters.height
+        width: parent.width
+        height: parent.height - clipboardFilters.height
+        clip: true
+        boundsBehavior: Flickable.StopAtBounds
+        model: host.results
+        layer.enabled: !atYEnd
+        layer.effect: MultiEffect {
+            maskEnabled: true
+            maskSource: listFade
+            maskSpreadAtMin: 1
+        }
+
+        delegate: Column {
+            id: row
+            required property var modelData
+            required property int index
+            readonly property bool isCurrent: index === host.current
+            readonly property bool opensSection: index === 0 || host.results[index - 1]?.section !== modelData.section
+            width: ListView.view.width
+
+            Label {
+                visible: row.opensSection
+                leftPadding: Spot.px(10)
+                topPadding: row.index ? Spot.px(12) : Spot.px(4)
+                bottomPadding: Spot.px(4)
+                text: row.modelData.section
+                color: Theme.inkSoft
+                font.pixelSize: Spot.px(11)
+                font.weight: Font.Bold
+            }
+
+            Rectangle {
+                width: parent.width
+                height: host.thumbs || row.modelData.thumb ? Spot.px(44) : Spot.px(34)
+                radius: Spot.px(8)
+                color: row.isCurrent ? Theme.selection : rowMouse.containsMouse ? Theme.hairline : "transparent"
+
+                Item {
+                    id: rowIcon
+                    x: Spot.px(8)
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: host.thumbs || row.modelData.thumb ? Spot.px(36) : Spot.px(22)
+                    height: row.modelData.thumb ? Spot.px(32) : Spot.px(22)
+
+                    Rectangle {
+                        anchors.fill: parent
+                        visible: !!row.modelData.swatch
+                        radius: Spot.px(6)
+                        color: row.modelData.swatch ?? "transparent"
+                        border.width: 1
+                        border.color: Theme.hairline
+                    }
+                    Image {
+                        anchors.fill: parent
+                        visible: !!row.modelData.thumb
+                        fillMode: Image.PreserveAspectCrop
+                        sourceSize: Qt.size(Spot.px(96), Spot.px(96))
+                        source: row.modelData.thumb ?? ""
+                        cache: false
+                        asynchronous: true
+                    }
+                    Image {
+                        anchors.centerIn: parent
+                        width: Spot.px(22)
+                        height: Spot.px(22)
+                        // not `visible`, which is false while Spotlight is hidden
+                        readonly property bool showsIcon: !row.modelData.glyph && !row.modelData.thumb && !row.modelData.swatch
+                        visible: showsIcon
+                        sourceSize: Qt.size(Spot.px(44), Spot.px(44))
+                        source: showsIcon ? Quickshell.iconPath(row.modelData.icon ?? "", "application-x-executable") : ""
+                        asynchronous: true
+                    }
+                    Label {
+                        anchors.centerIn: parent
+                        visible: !!row.modelData.glyph && !row.modelData.thumb
+                        text: row.modelData.glyph ?? ""
+                        color: row.isCurrent ? Theme.selectionText : host.tone(row.modelData)
+                        font.family: "Noto Color Emoji"
+                        font.pixelSize: Spot.px(17)
+                    }
+                }
+                Label {
+                    id: rowHint
+                    anchors.right: parent.right
+                    anchors.rightMargin: Spot.px(10)
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: Math.min(implicitWidth, parent.width * 0.4)
+                    elide: Text.ElideRight
+                    text: host.armed === row.modelData.key ? "Press Enter again" : host.armed === row.modelData.key + ":delete" ? "Ctrl+X again to delete" : row.modelData.hint ?? ""
+                    color: row.isCurrent ? Qt.alpha(Theme.selectionText, 0.75) : Theme.eyes.ash
+                    font.pixelSize: Spot.px(12)
+                }
+                Label {
+                    anchors.left: rowIcon.right
+                    anchors.leftMargin: Spot.px(10)
+                    anchors.right: rowHint.left
+                    anchors.rightMargin: Spot.px(8)
+                    anchors.verticalCenter: parent.verticalCenter
+                    elide: Text.ElideRight
+                    maximumLineCount: 1
+                    textFormat: host.query ? Text.StyledText : Text.PlainText
+                    text: host.query ? host.marked(row.modelData.title.replace(/\s+/g, " ")) : row.modelData.title.replace(/\s+/g, " ")
+                    color: row.isCurrent ? Theme.selectionText : Theme.ink
+                }
+                MouseArea {
+                    id: rowMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: host.pick(row.index)
+                    onDoubleClicked: host.activate(row.modelData, { ctrl: false, shift: false })
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        id: listFade
+        width: list.width
+        height: list.height
+        visible: false
+        layer.enabled: true
+        gradient: Gradient {
+            GradientStop { position: 0; color: "white" }
+            GradientStop { position: 1 - list.fade / Math.max(list.height, list.fade); color: "white" }
+            GradientStop { position: 1; color: "transparent" }
+        }
+    }
+}

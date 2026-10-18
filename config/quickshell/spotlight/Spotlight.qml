@@ -12,12 +12,16 @@ import "search.js" as Search
 // a search needs them and keeps them cached between openings (see Source).
 // One query searches apps, windows, Herdr, commands, AI commands, SSH hosts,
 // snippets, bookmarks, notes, passwords, GitHub repos, files and the text of
-// documents, agenda events, script commands, plus math and conversions, DOIs (BibTeX), URLs and quicklinks, then offers a question to pi or a web search; the
-// selection is previewed on the right. Matching is loose (search.js) and results
-// are ranked by how well their title matches plus how often they were picked
-// (Frecency), which also picks the Top Hit across kinds. Each view is an entry of `views`; each
-// kind of result belongs to a store (AppStore, FileStore, ...), which lists,
-// describes and activates its own items. Keys are listed in help.js (Ctrl+?).
+// documents, agenda events, script commands, plus math and conversions, DOIs
+// (BibTeX), URLs and quicklinks, then offers a question to pi or a web search;
+// the selection is previewed on the right. Matching is loose (search.js) and
+// results are ranked by how well their title matches plus how often they were
+// picked (Frecency), which also picks the Top Hit across kinds. Each view is an
+// entry of `views`; each kind of result belongs to a store (AppStore,
+// FileStore, ...), which lists, describes and activates its own items. This
+// file holds the state (query, results, selection, forms, the Ctrl+K panel)
+// and wires the stores; SearchBar, ResultList, Preview and ActionBar draw it,
+// Shortcuts maps the keys (listed in help.js, Ctrl+?).
 Scope {
     PanelWindow {
         id: win
@@ -26,19 +30,6 @@ Scope {
         // keyboard focus and no input region, and draws nothing
         property bool shown: false
 
-        // the sizes below are 1.2× macOS Spotlight's points on a 1920×1080 screen;
-        // u brings them to 1.44× and follows the logical size of the screen it opens on
-        readonly property real u: Math.min(width / 1920, height / 1080) * 1.2
-        readonly property bool dark: Theme.eyesDark
-        readonly property color ink: Theme.ink
-        readonly property color inkSoft: Theme.inkSoft
-        readonly property color glass: Theme.glass
-        readonly property color hairline: Theme.hairline
-        readonly property color fill: Theme.fill
-        readonly property color highlight: Theme.selection
-        readonly property color highlightText: Theme.selectionText
-        readonly property color accent: Theme.accent
-        readonly property color accentText: Theme.accentText
 
         // `chip`: its glyph in the bar, which lists the views of spotlight.json's
         // `chips` (Ctrl+1…9 and Tab reach them); its alias in spotlight.json plus a
@@ -84,7 +75,7 @@ Scope {
             bookmark: "blue0", quicklink: "blue0", url: "blue0", web: "blue0", visit: "blue0", tab: "blue0",
             note: "green1", paper: "green1", ai: "green1", brightness: "green2", sink: "green2", media: "green2", radio: "green2"
         })
-        readonly property color viewTone: currentView ? Theme.eyes[currentView.tone] : accent
+        readonly property color viewTone: currentView ? Theme.eyes[currentView.tone] : Theme.accent
 
         function tone(item) {
             return Theme.eyes[kindTones[item?.kind]] ?? viewTone;
@@ -111,6 +102,7 @@ Scope {
         readonly property string selectedText: selectionOut.text
         property var userConfig: ({ aliases: {}, ai: { model: "", thinking: "" }, chips: [], fallbacks: [], webSearch: "", pomodoro: { focus: 25, break: 5, rounds: 4 }, terminal: [], floatingTerminal: [], browser: [], tools: [], snippets: [], quicklinks: [], aiCommands: [] })
         property string mode: ""   // "" searches everything, else the mode of one of `views`
+        property alias search: bar.field
         readonly property string query: search.text.trim()
         readonly property var results: collect()
         property int current: -1
@@ -204,11 +196,6 @@ Scope {
                 close();
             else
                 open(mode);
-        }
-
-        // whole pixels keep text and icons on the pixel grid, so they stay sharp
-        function px(value) {
-            return Math.round(value * u);
         }
 
         function open(requested) {
@@ -407,10 +394,6 @@ Scope {
             activate(target, { ctrl: shortcut === "Ctrl+Enter", shift: shortcut === "Shift+Enter" });
         }
 
-        function scrollPreview(delta) {
-            preview.contentY = Math.max(0, Math.min(preview.contentHeight - preview.height, preview.contentY + delta));
-        }
-
         function back() {
             if (actionTarget) {
                 closeActions();
@@ -542,16 +525,7 @@ Scope {
             if (results[current].key !== selectedKey)
                 armed = "";
             selectedKey = results[current].key;
-            if (current === 0) {
-                list.positionViewAtBeginning();
-                return;
-            }
-            list.positionViewAtIndex(current, ListView.Contain);
-            // keep the selection clear of the fade at the bottom of the list, but not
-            // while the panel is still opening and the list too short to hold a row
-            const row = list.itemAtIndex(current);
-            if (row && list.height >= row.height + list.fade)
-                list.contentY = Math.max(list.originY, Math.min(Math.max(list.contentY, row.y + row.height + list.fade - list.height), list.originY + list.contentHeight - list.height));
+            resultList.reveal(current);
         }
 
         // a selection the user moved survives results arriving late (files)
@@ -620,6 +594,12 @@ Scope {
                 close();
         }
 
+        Shortcuts {
+            id: shortcuts
+            host: win
+            preview: previewPane
+            clipboardStore: clipboard
+        }
         Frecency {
             id: frecency
         }
@@ -764,6 +744,14 @@ Scope {
             onTriggered: win.notice = ""
         }
 
+        // 1.2× macOS Spotlight's points on a 1920×1080 screen, following the logical
+        // size of the screen it opens on
+        Binding {
+            target: Spot
+            property: "scale"
+            value: Math.min(win.width / 1920, win.height / 1080) * 1.2
+        }
+
         screen: FocusedOutput.screen
         color: "transparent"
         WlrLayershell.layer: shown ? WlrLayer.Overlay : WlrLayer.Background
@@ -788,47 +776,12 @@ Scope {
             onClicked: win.close()
         }
 
-        // "Ctrl+Enter" as keycaps: Ctrl ↵
-        component KeyCaps: Row {
-            id: keyCaps
-            property string keys: ""
-            spacing: win.px(3)
-
-            Repeater {
-                model: keyCaps.keys.split("+").map(key => key === "Enter" ? "↵" : key)
-
-                Rectangle {
-                    required property string modelData
-                    width: Math.max(height, capText.implicitWidth + win.px(10))
-                    height: win.px(20)
-                    radius: win.px(5)
-                    color: win.hairline
-
-                    Label {
-                        id: capText
-                        anchors.centerIn: parent
-                        text: parent.modelData
-                        color: win.inkSoft
-                        font.pixelSize: win.px(11)
-                    }
-                }
-            }
-        }
-
-        component Label: Text {
-            color: win.ink
-            font.family: Theme.menuText
-            font.pixelSize: win.px(14)
-            textFormat: Text.PlainText
-            renderType: Text.NativeRendering
-        }
-
         RectangularShadow {
             anchors.fill: panel
             radius: panel.radius
-            blur: win.px(50)
-            offset.y: win.px(18)
-            color: Qt.rgba(0, 0, 0, win.dark ? 0.55 : 0.3)
+            blur: Spot.px(50)
+            offset.y: Spot.px(18)
+            color: Qt.rgba(0, 0, 0, Theme.eyesDark ? 0.55 : 0.3)
             opacity: panel.opacity
             visible: win.shown
         }
@@ -836,10 +789,10 @@ Scope {
         Item {
             id: panel
             readonly property bool expanded: win.results.length > 0 || win.notice !== ""
-            readonly property real radius: win.px(14)
+            readonly property real radius: Spot.px(14)
 
-            width: win.px(820)
-            height: bar.height + (expanded ? win.px(460) + actionBar.height : 0)
+            width: Spot.px(820)
+            height: bar.height + (expanded ? Spot.px(460) + actionBar.height : 0)
             Behavior on height { enabled: win.shown; NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
             visible: win.shown
             x: Math.round((parent.width - width) / 2)
@@ -869,7 +822,7 @@ Scope {
                 }
                 Rectangle {
                     anchors.fill: parent
-                    color: win.glass
+                    color: Theme.glass
                 }
             }
             Item {
@@ -890,176 +843,11 @@ Scope {
                 border.color: Theme.border
             }
 
-            Item {
+            SearchBar {
                 id: bar
                 width: parent.width
-                height: win.px(64)
-
-                Label {
-                    id: glassIcon
-                    x: win.px(24)
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: "\uf002"
-                    color: win.inkSoft
-                    font.family: Theme.menu
-                    font.pixelSize: win.px(22)
-                }
-
-                Rectangle {
-                    id: tagPill
-                    anchors.left: glassIcon.right
-                    anchors.leftMargin: win.px(12)
-                    anchors.verticalCenter: parent.verticalCenter
-                    visible: win.tag !== ""
-                    width: win.tag !== "" ? tagText.implicitWidth + win.px(20) : 0
-                    height: win.px(28)
-                    radius: height / 2
-                    color: win.actionTarget || win.form ? win.accent : win.viewTone
-
-                    Label {
-                        id: tagText
-                        anchors.centerIn: parent
-                        text: win.tag
-                        color: win.accentText
-                        font.pixelSize: win.px(13)
-                        font.weight: Font.DemiBold
-                    }
-                }
-
-                TextInput {
-                    id: search
-                    anchors.left: tagPill.right
-                    anchors.leftMargin: win.px(12)
-                    anchors.right: chipRow.left
-                    anchors.rightMargin: win.px(12)
-                    anchors.verticalCenter: parent.verticalCenter
-                    focus: true
-                    clip: true
-                    color: win.ink
-                    selectionColor: win.highlight
-                    selectedTextColor: win.highlightText
-                    font.family: Theme.menu
-                    font.pixelSize: win.px(26)
-                    renderType: Text.NativeRendering
-                    onTextChanged: win.jumpToAlias(text)
-
-                    Keys.onPressed: event => {
-                        const ctrl = (event.modifiers & Qt.ControlModifier) !== 0;
-                        const shift = (event.modifiers & Qt.ShiftModifier) !== 0;
-                        const quiet = search.selectedText === "";
-                        const listing = win.form || win.actionTarget;
-                        if (ctrl && (event.key === Qt.Key_Question || event.key === Qt.Key_Slash) && !listing) {
-                            win.mode = win.mode === "help" ? "" : "help";
-                        } else if (ctrl && event.key === Qt.Key_K) {
-                            if (win.actionTarget)
-                                win.closeActions();
-                            else
-                                win.openActions();
-                        } else if (ctrl && event.key >= Qt.Key_1 && event.key < Qt.Key_1 + win.chips.length && !listing) {
-                            const picked = win.chips[event.key - Qt.Key_1].mode;
-                            win.mode = win.mode === picked ? "" : picked;
-                        } else if (ctrl && event.key === Qt.Key_C && quiet) {
-                            win.copyItem(win.selection);
-                        } else if (ctrl && event.key === Qt.Key_X && quiet) {
-                            win.act(win.selection, "delete", false);
-                        } else if (ctrl && event.key === Qt.Key_P) {
-                            win.act(win.selection, "pin", false);
-                        } else if (ctrl && event.key === Qt.Key_E) {
-                            win.act(win.selection, "edit", false);
-                        } else if (ctrl && event.key === Qt.Key_R) {
-                            win.act(win.selection, "rename", false);
-                        } else if (ctrl && event.key === Qt.Key_T && win.mode === "clipboard") {
-                            clipboard.cycleFilter();
-                        } else if (ctrl && (event.key === Qt.Key_Up || event.key === Qt.Key_Down)) {
-                            win.scrollPreview(event.key === Qt.Key_Down ? 120 : -120);
-                        } else if (ctrl && event.key === Qt.Key_Home) {
-                            win.pick(0);
-                        } else if (ctrl && event.key === Qt.Key_End) {
-                            win.pick(win.results.length - 1);
-                        } else if (event.key === Qt.Key_Escape) {
-                            win.back();
-                        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                            win.activate(win.selection, { ctrl, shift });
-                        } else if (event.key === Qt.Key_Tab) {
-                            if (listing)
-                                win.step(1);
-                            else
-                                win.cycleMode(1);
-                        } else if (event.key === Qt.Key_Backtab) {
-                            if (listing)
-                                win.step(-1);
-                            else
-                                win.cycleMode(-1);
-                        } else if (event.key === Qt.Key_Right && win.completion) {
-                            search.text = win.results[0].title;
-                        } else if (event.key === Qt.Key_Down) {
-                            win.step(1);
-                        } else if (event.key === Qt.Key_Up && !search.text && !win.results.length && win.lastQuery && !listing) {
-                            search.text = win.lastQuery;
-                        } else if (event.key === Qt.Key_Up) {
-                            win.step(-1);
-                        } else if (event.key === Qt.Key_PageDown) {
-                            win.pick(win.current + 8);
-                        } else if (event.key === Qt.Key_PageUp) {
-                            win.pick(win.current - 8);
-                        } else {
-                            return;
-                        }
-                        event.accepted = true;
-                    }
-
-                    Label {
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: search.width
-                        elide: Text.ElideRight
-                        visible: search.text === ""
-                        text: win.actionTarget ? `Search actions for ${win.actionTarget.title}` : win.formField ? win.formField.label : win.currentView ? win.currentView.placeholder ?? win.currentView.title : "Search"
-                        color: win.inkSoft
-                        font: search.font
-                    }
-                    Label {
-                        x: search.contentWidth
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: win.completion
-                        color: win.inkSoft
-                        font: search.font
-                    }
-                }
-
-                Row {
-                    id: chipRow
-                    anchors.right: parent.right
-                    anchors.rightMargin: win.px(18)
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: win.px(4)
-
-                    Repeater {
-                        model: win.chips
-
-                        Rectangle {
-                            id: chip
-                            required property var modelData
-                            readonly property bool active: win.mode === modelData.mode
-                            width: win.px(30)
-                            height: win.px(30)
-                            radius: height / 2
-                            color: active ? Theme.eyes[modelData.tone] : "transparent"
-
-                            Label {
-                                anchors.centerIn: parent
-                                text: chip.modelData.chip ?? chip.modelData.alias ?? chip.modelData.title
-                                color: chip.active ? win.accentText : win.inkSoft
-                                font.family: Theme.menu
-                                font.pixelSize: win.px(14)
-                            }
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: win.mode = chip.active ? "" : chip.modelData.mode
-                            }
-                        }
-                    }
-                }
+                host: win
+                keyMap: shortcuts
             }
 
             Item {
@@ -1074,362 +862,35 @@ Scope {
                 Rectangle {
                     width: parent.width
                     height: 1
-                    color: win.hairline
+                    color: Theme.hairline
                 }
 
-                Row {
-                    id: clipboardFilters
-                    // not `visible`, which is false while Spotlight is hidden
-                    readonly property bool filtering: win.mode === "clipboard" && !win.form
-                    visible: filtering
-                    x: win.px(10)
-                    y: win.px(8)
-                    height: filtering ? win.px(38) : 0
-                    spacing: win.px(6)
-                    leftPadding: win.px(6)
-                    topPadding: win.px(4)
-
-                    Repeater {
-                        model: clipboard.filters
-
-                        Rectangle {
-                            id: pill
-                            required property string modelData
-                            readonly property bool active: clipboard.filter === modelData
-                            width: pillText.implicitWidth + win.px(22)
-                            height: win.px(26)
-                            radius: height / 2
-                            color: active ? win.viewTone : win.fill
-
-                            Label {
-                                id: pillText
-                                anchors.centerIn: parent
-                                text: pill.modelData[0].toUpperCase() + pill.modelData.slice(1)
-                                color: pill.active ? win.accentText : win.ink
-                                font.pixelSize: win.px(12)
-                                font.weight: Font.DemiBold
-                            }
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: clipboard.filter = pill.modelData
-                            }
-                        }
-                    }
-
-                    Label {
-                        topPadding: win.px(6)
-                        text: "Ctrl+T"
-                        color: win.inkSoft
-                        font.pixelSize: win.px(11)
-                    }
-                }
-
-                ListView {
-                    id: list
-                    readonly property int fade: win.px(40)
-                    x: win.px(10)
-                    y: win.px(8) + clipboardFilters.height
-                    width: win.currentView?.wide ? win.px(410) : win.px(330)
-                    height: parent.height - win.px(16) - clipboardFilters.height - actionBar.height
-                    clip: true
-                    boundsBehavior: Flickable.StopAtBounds
-                    model: win.results
-                    layer.enabled: !atYEnd
-                    layer.effect: MultiEffect {
-                        maskEnabled: true
-                        maskSource: listFade
-                        maskSpreadAtMin: 1
-                    }
-
-                    delegate: Column {
-                        id: row
-                        required property var modelData
-                        required property int index
-                        readonly property bool isCurrent: index === win.current
-                        readonly property bool opensSection: index === 0 || win.results[index - 1]?.section !== modelData.section
-                        width: ListView.view.width
-
-                        Label {
-                            visible: row.opensSection
-                            leftPadding: win.px(10)
-                            topPadding: row.index ? win.px(12) : win.px(4)
-                            bottomPadding: win.px(4)
-                            text: row.modelData.section
-                            color: win.inkSoft
-                            font.pixelSize: win.px(11)
-                            font.weight: Font.Bold
-                        }
-
-                        Rectangle {
-                            width: parent.width
-                            height: win.thumbs || row.modelData.thumb ? win.px(44) : win.px(34)
-                            radius: win.px(8)
-                            color: row.isCurrent ? win.highlight : rowMouse.containsMouse ? win.hairline : "transparent"
-
-                            Item {
-                                id: rowIcon
-                                x: win.px(8)
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: win.thumbs || row.modelData.thumb ? win.px(36) : win.px(22)
-                                height: row.modelData.thumb ? win.px(32) : win.px(22)
-
-                                Rectangle {
-                                    anchors.fill: parent
-                                    visible: !!row.modelData.swatch
-                                    radius: win.px(6)
-                                    color: row.modelData.swatch ?? "transparent"
-                                    border.width: 1
-                                    border.color: win.hairline
-                                }
-                                Image {
-                                    anchors.fill: parent
-                                    visible: !!row.modelData.thumb
-                                    fillMode: Image.PreserveAspectCrop
-                                    sourceSize: Qt.size(win.px(96), win.px(96))
-                                    source: row.modelData.thumb ?? ""
-                                    cache: false
-                                    asynchronous: true
-                                }
-                                Image {
-                                    anchors.centerIn: parent
-                                    width: win.px(22)
-                                    height: win.px(22)
-                                    // not `visible`, which is false while Spotlight is hidden
-                                    readonly property bool showsIcon: !row.modelData.glyph && !row.modelData.thumb && !row.modelData.swatch
-                                    visible: showsIcon
-                                    sourceSize: Qt.size(win.px(44), win.px(44))
-                                    source: showsIcon ? Quickshell.iconPath(row.modelData.icon ?? "", "application-x-executable") : ""
-                                    asynchronous: true
-                                }
-                                Label {
-                                    anchors.centerIn: parent
-                                    visible: !!row.modelData.glyph && !row.modelData.thumb
-                                    text: row.modelData.glyph ?? ""
-                                    color: row.isCurrent ? win.highlightText : win.tone(row.modelData)
-                                    font.family: "Noto Color Emoji"
-                                    font.pixelSize: win.px(17)
-                                }
-                            }
-                            Label {
-                                id: rowHint
-                                anchors.right: parent.right
-                                anchors.rightMargin: win.px(10)
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: Math.min(implicitWidth, parent.width * 0.4)
-                                elide: Text.ElideRight
-                                text: win.armed === row.modelData.key ? "Press Enter again" : win.armed === row.modelData.key + ":delete" ? "Ctrl+X again to delete" : row.modelData.hint ?? ""
-                                color: row.isCurrent ? Qt.alpha(win.highlightText, 0.75) : Theme.eyes.ash
-                                font.pixelSize: win.px(12)
-                            }
-                            Label {
-                                anchors.left: rowIcon.right
-                                anchors.leftMargin: win.px(10)
-                                anchors.right: rowHint.left
-                                anchors.rightMargin: win.px(8)
-                                anchors.verticalCenter: parent.verticalCenter
-                                elide: Text.ElideRight
-                                maximumLineCount: 1
-                                textFormat: win.query ? Text.StyledText : Text.PlainText
-                                text: win.query ? win.marked(row.modelData.title.replace(/\s+/g, " ")) : row.modelData.title.replace(/\s+/g, " ")
-                                color: row.isCurrent ? win.highlightText : win.ink
-                            }
-                            MouseArea {
-                                id: rowMouse
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                onClicked: win.pick(row.index)
-                                onDoubleClicked: win.activate(row.modelData, { ctrl: false, shift: false })
-                            }
-                        }
-                    }
-                }
-
-                Rectangle {
-                    id: listFade
-                    width: list.width
-                    height: list.height
-                    visible: false
-                    layer.enabled: true
-                    gradient: Gradient {
-                        GradientStop { position: 0; color: "white" }
-                        GradientStop { position: 1 - list.fade / Math.max(list.height, list.fade); color: "white" }
-                        GradientStop { position: 1; color: "transparent" }
-                    }
+                ResultList {
+                    id: resultList
+                    x: Spot.px(10)
+                    y: Spot.px(8)
+                    width: win.currentView?.wide ? Spot.px(410) : Spot.px(330)
+                    height: parent.height - Spot.px(16) - actionBar.height
+                    host: win
+                    clipboardStore: clipboard
                 }
 
                 Rectangle {
                     id: divider
-                    x: list.x + list.width + win.px(10)
+                    x: resultList.x + resultList.width + Spot.px(10)
                     y: 1
                     width: 1
                     height: parent.height - 1 - actionBar.height
-                    color: win.hairline
+                    color: Theme.hairline
                 }
 
-                Flickable {
-                    id: preview
-                    readonly property var info: win.selection ? win.describe(win.selection) : null
+                Preview {
+                    id: previewPane
                     anchors.left: divider.right
                     anchors.right: parent.right
                     anchors.top: parent.top
-                    anchors.bottom: facts.visible ? facts.top : noticeBar.top
-                    anchors.margins: win.px(24)
-                    anchors.bottomMargin: facts.visible ? win.px(12) : win.px(24)
-                    clip: true
-                    contentHeight: details.implicitHeight
-                    boundsBehavior: Flickable.StopAtBounds
-                    visible: info !== null
-
-                    Column {
-                        id: details
-                        y: win.mode === "clipboard" ? 0 : Math.max(0, (preview.height - implicitHeight) / 2)
-                        width: preview.width
-                        spacing: win.px(8)
-
-                        Image {
-                            width: parent.width
-                            height: win.px(200)
-                            visible: !!preview.info?.image
-                            fillMode: Image.PreserveAspectFit
-                            sourceSize: Qt.size(win.px(800), win.px(600))
-                            source: preview.info?.image ?? ""
-                            asynchronous: true
-                        }
-                        Rectangle {
-                            width: parent.width
-                            height: win.px(140)
-                            visible: !!preview.info?.swatch
-                            radius: win.px(16)
-                            color: preview.info?.swatch ?? "transparent"
-                            border.width: 1
-                            border.color: win.hairline
-                        }
-                        Image {
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            width: win.px(104)
-                            height: win.px(104)
-                            readonly property bool showsIcon: !preview.info?.image && !preview.info?.glyph && !preview.info?.swatch && !!preview.info?.icon
-                            visible: showsIcon
-                            sourceSize: Qt.size(win.px(208), win.px(208))
-                            source: showsIcon ? Quickshell.iconPath(preview.info?.icon ?? "", "application-x-executable") : ""
-                            asynchronous: true
-                        }
-                        Label {
-                            width: parent.width
-                            visible: !!preview.info?.glyph
-                            topPadding: win.px(24)
-                            horizontalAlignment: Text.AlignHCenter
-                            fontSizeMode: Text.HorizontalFit
-                            minimumPixelSize: win.px(18)
-                            text: preview.info?.glyph ?? ""
-                            color: win.selection?.kind === "emoji" ? win.ink : win.tone(win.selection)
-                            font.family: win.selection?.kind === "emoji" ? "Noto Color Emoji" : Theme.menu
-                            font.pixelSize: preview.info?.glyph?.length > 2 ? win.px(48) : win.px(72)
-                            font.weight: Font.Bold
-                        }
-                        Label {
-                            width: parent.width
-                            visible: text !== ""
-                            horizontalAlignment: Text.AlignHCenter
-                            wrapMode: Text.Wrap
-                            text: preview.info?.title ?? ""
-                            font.family: Theme.menu
-                            font.pixelSize: win.px(20)
-                            font.weight: Font.Bold
-                        }
-                        Label {
-                            width: parent.width
-                            visible: text !== ""
-                            horizontalAlignment: Text.AlignHCenter
-                            wrapMode: Text.Wrap
-                            maximumLineCount: 3
-                            elide: Text.ElideMiddle
-                            text: preview.info?.subtitle ?? ""
-                            color: win.inkSoft
-                        }
-                        Repeater {
-                            model: (preview.info?.details ?? []).filter(line => line)
-
-                            Label {
-                                required property string modelData
-                                width: details.width
-                                horizontalAlignment: Text.AlignHCenter
-                                wrapMode: Text.Wrap
-                                text: modelData
-                                color: win.inkSoft
-                                font.pixelSize: win.px(12)
-                            }
-                        }
-                        Rectangle {
-                            width: parent.width
-                            height: body.implicitHeight + win.px(24)
-                            visible: !!preview.info?.body
-                            radius: win.px(10)
-                            color: win.fill
-
-                            Label {
-                                id: body
-                                x: win.px(12)
-                                y: win.px(12)
-                                width: parent.width - win.px(24)
-                                wrapMode: Text.Wrap
-                                textFormat: preview.info?.markdown ? Text.MarkdownText : Text.PlainText
-                                text: preview.info?.body ?? ""
-                                color: preview.info?.mono ? Theme.eyes.green1 : win.ink
-                                linkColor: Theme.eyes.blue0
-                                font.family: preview.info?.mono ? "Iosevka Nerd Font" : Theme.menuText
-                                font.pixelSize: preview.info?.mono ? win.px(11) : win.px(13)
-                                onLinkActivated: link => Spot.open(link)
-                            }
-                        }
-                    }
-                }
-
-                // label → value rows at the foot of the preview, like Raycast's metadata
-                Column {
-                    id: facts
-                    readonly property var rows: (preview.info?.metadata ?? []).filter(([label, value]) => value !== undefined && value !== null && value !== "")
-                    anchors.left: divider.right
-                    anchors.right: parent.right
                     anchors.bottom: noticeBar.top
-                    anchors.leftMargin: win.px(24)
-                    anchors.rightMargin: win.px(24)
-                    anchors.bottomMargin: win.px(10)
-                    visible: preview.visible && rows.length > 0
-
-                    Repeater {
-                        model: facts.rows
-
-                        Item {
-                            required property var modelData
-                            width: facts.width
-                            height: win.px(30)
-
-                            Rectangle {
-                                width: parent.width
-                                height: 1
-                                color: win.hairline
-                            }
-                            Label {
-                                id: factLabel
-                                anchors.left: parent.left
-                                anchors.verticalCenter: parent.verticalCenter
-                                text: parent.modelData[0]
-                                color: win.inkSoft
-                                font.pixelSize: win.px(12)
-                            }
-                            Label {
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: Math.min(implicitWidth, parent.width - factLabel.implicitWidth - win.px(16))
-                                horizontalAlignment: Text.AlignRight
-                                elide: Text.ElideMiddle
-                                text: String(parent.modelData[1])
-                                font.pixelSize: win.px(12)
-                            }
-                        }
-                    }
+                    host: win
                 }
 
                 Rectangle {
@@ -1437,125 +898,32 @@ Scope {
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.bottom: actionBar.top
-                    anchors.margins: win.px(10)
-                    height: win.notice ? noticeText.implicitHeight + win.px(16) : 0
+                    anchors.margins: Spot.px(10)
+                    height: win.notice ? noticeText.implicitHeight + Spot.px(16) : 0
                     visible: win.notice !== ""
-                    radius: win.px(10)
+                    radius: Spot.px(10)
                     color: Theme.eyes.winterBlue
 
                     Label {
                         id: noticeText
                         anchors.centerIn: parent
-                        width: parent.width - win.px(24)
+                        width: parent.width - Spot.px(24)
                         horizontalAlignment: Text.AlignHCenter
                         wrapMode: Text.Wrap
                         text: win.notice
                         color: Theme.eyes.blue1
-                        font.pixelSize: win.px(13)
+                        font.pixelSize: Spot.px(13)
                         font.weight: Font.DemiBold
                     }
                 }
 
-                // the view on the left; the primary action and the Ctrl+K panel on the
-                // right, or a confirmation or a store's own status in their place
-                Item {
+                ActionBar {
                     id: actionBar
-                    readonly property var info: preview.info
-                    readonly property var primary: win.actionTarget ? (win.selection ? ["Enter", win.selection.title] : null) : info?.actions?.[0] ?? null
-                    readonly property bool confirming: win.armed !== "" && win.armed.startsWith(win.selectedKey)
-                    readonly property string status: confirming ? (win.armed.endsWith(":delete") ? "Press Ctrl+X again to delete it" : "Press Enter again to confirm") : info?.footer ?? ""
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
-                    height: win.px(40)
-
-                    Rectangle {
-                        width: parent.width
-                        height: 1
-                        color: win.hairline
-                    }
-
-                    Row {
-                        anchors.left: parent.left
-                        anchors.leftMargin: win.px(16)
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: win.px(8)
-
-                        Image {
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: win.px(16)
-                            height: win.px(16)
-                            readonly property string viewIcon: win.actionTarget || win.form ? "" : win.currentView?.icon ?? ""
-                            visible: viewIcon !== ""
-                            sourceSize: Qt.size(win.px(32), win.px(32))
-                            source: viewIcon ? Quickshell.iconPath(viewIcon, "application-x-executable") : ""
-                            asynchronous: true
-                        }
-                        Label {
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: win.actionTarget ? "Actions" : win.form ? win.form.title : win.currentView ? win.currentView.title.replace(/^Search /, "") : win.selection?.section ?? "Search"
-                            color: win.currentView ? win.viewTone : win.selection ? win.tone(win.selection) : win.inkSoft
-                            font.pixelSize: win.px(12)
-                            font.weight: Font.DemiBold
-                        }
-                    }
-
-                    Row {
-                        anchors.right: parent.right
-                        anchors.rightMargin: win.px(14)
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: win.px(8)
-
-                        Label {
-                            anchors.verticalCenter: parent.verticalCenter
-                            visible: actionBar.status !== ""
-                            text: actionBar.status
-                            color: !actionBar.confirming ? win.inkSoft : win.armed.endsWith(":delete") ? Theme.eyes.red : Theme.eyes.yellow
-                            font.pixelSize: win.px(12)
-                            font.weight: actionBar.confirming ? Font.DemiBold : Font.Normal
-                        }
-                        Label {
-                            anchors.verticalCenter: parent.verticalCenter
-                            visible: actionBar.status === "" && actionBar.primary !== null
-                            text: actionBar.primary?.[1] ?? ""
-                            font.pixelSize: win.px(12)
-                        }
-                        KeyCaps {
-                            anchors.verticalCenter: parent.verticalCenter
-                            visible: actionBar.status === "" && actionBar.primary !== null
-                            keys: actionBar.primary?.[0] ?? ""
-                        }
-                        Rectangle {
-                            anchors.verticalCenter: parent.verticalCenter
-                            visible: actionsButton.visible && actionBar.status === "" && actionBar.primary !== null
-                            width: 1
-                            height: win.px(16)
-                            color: win.hairline
-                        }
-                        Row {
-                            id: actionsButton
-                            anchors.verticalCenter: parent.verticalCenter
-                            visible: !actionBar.confirming && (!!win.actionTarget || !!actionBar.info?.actions?.length)
-                            spacing: win.px(6)
-
-                            Label {
-                                anchors.verticalCenter: parent.verticalCenter
-                                text: win.actionTarget ? "Close" : "Actions"
-                                color: win.inkSoft
-                                font.pixelSize: win.px(12)
-                            }
-                            KeyCaps {
-                                anchors.verticalCenter: parent.verticalCenter
-                                keys: "Ctrl+K"
-                            }
-                            TapHandler {
-                                onTapped: win.actionTarget ? win.closeActions() : win.openActions()
-                            }
-                            HoverHandler {
-                                cursorShape: Qt.PointingHandCursor
-                            }
-                        }
-                    }
+                    host: win
+                    info: previewPane.info
                 }
             }
         }
