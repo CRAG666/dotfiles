@@ -14,6 +14,11 @@ QtObject {
         const shift = (event.modifiers & Qt.ShiftModifier) !== 0;
         const quiet = host.search.selectedText === "";
         const listing = host.form || host.actionTarget;
+        if (host.largeText) {
+            host.largeText = "";
+            event.accepted = true;
+            return;
+        }
         if (ctrl && (event.key === Qt.Key_Question || event.key === Qt.Key_Slash) && !listing) {
             host.mode = host.mode === "help" ? "" : "help";
         } else if (ctrl && event.key === Qt.Key_K) {
@@ -24,6 +29,10 @@ QtObject {
         } else if (ctrl && event.key >= Qt.Key_1 && event.key < Qt.Key_1 + host.chips.length && !listing) {
             const picked = host.chips[event.key - Qt.Key_1].mode;
             host.mode = host.mode === picked ? "" : picked;
+        } else if (ctrl && event.key === Qt.Key_L) {
+            host.showLarge(host.selection);
+        } else if (ctrl && event.key === Qt.Key_B) {
+            host.act(host.selection, "buffer", false);
         } else if (ctrl && event.key === Qt.Key_C && quiet) {
             host.copyItem(host.selection);
         } else if (ctrl && event.key === Qt.Key_X && quiet) {
@@ -60,6 +69,10 @@ QtObject {
             host.step(event.key === Qt.Key_Right ? 1 : -1);
         } else if (host.gridView && (event.key === Qt.Key_Up || event.key === Qt.Key_Down)) {
             grid.stepRow(event.key === Qt.Key_Down ? 1 : -1);
+        } else if (event.key === Qt.Key_Right && !listing && host.isFolder(host.selection)) {
+            host.browse(host.selection.path);
+        } else if (event.key === Qt.Key_Left && !listing && host.atBrowsedFolder()) {
+            host.browseUp();
         } else if (event.key === Qt.Key_Right && host.completion) {
             host.search.text = host.results[0].title;
         } else if (event.key === Qt.Key_Down) {

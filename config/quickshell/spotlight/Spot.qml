@@ -99,11 +99,15 @@ esac`
         Quickshell.execDetached(helperCommand(args));
     }
 
-    // reads the (asynchronously loaded) app list, so callers refresh once it arrives
-    function iconFor(name) {
+    // the desktop entry of an app id or window class; reads the (asynchronously
+    // loaded) app list, so callers refresh once it arrives
+    function desktopEntry(name) {
         const id = name.toLowerCase();
-        const entry = DesktopEntries.applications.values.find(app => app.id.toLowerCase() === id || app.startupClass.toLowerCase() === id);
-        return (entry ?? DesktopEntries.heuristicLookup(name))?.icon ?? "application-x-executable";
+        return DesktopEntries.applications.values.find(app => app.id.toLowerCase() === id || app.startupClass.toLowerCase() === id) ?? DesktopEntries.heuristicLookup(name);
+    }
+
+    function iconFor(name) {
+        return desktopEntry(name)?.icon ?? "application-x-executable";
     }
 
     // "now", "5 min", "3 h" or "2 d" since `time` (ms)

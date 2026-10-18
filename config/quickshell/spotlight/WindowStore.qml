@@ -60,15 +60,34 @@ Scope {
             .map(window => ({ key: "window:" + window.id, kind: "window", store: root, window, title: window.title, hint: window.appId, icon: Spot.iconFor(window.appId), thumb: capturing === "all" ? shot(window) : "" }));
     }
 
+    // "Quit <app>" closes every window of a running app, "Quit All Apps" every
+    // window (asking twice): scroll's kill asks each politely, as closing does
+    function quitItems(tokens) {
+        const apps = [...new Set(list.map(window => window.appId).filter(id => id))].map(id => {
+            const count = list.filter(window => window.appId === id).length;
+            return { key: "quit:" + id, kind: "quit", store: root, appId: id, title: "Quit " + (Spot.desktopEntry(id)?.name ?? id), hint: count === 1 ? "1 window" : `${count} windows`, icon: Spot.iconFor(id) };
+        });
+        const all = { key: "quit:all", kind: "quit", store: root, title: "Quit All Apps", hint: `${list.length} windows`, icon: "application-exit", confirm: true };
+        return [...apps, all].filter(item => Spot.matches(item.title + " close", tokens));
+    }
+
     function describe(item) {
+        if (item.kind === "quit")
+            return { icon: item.icon, title: item.title, subtitle: item.hint, actions: [["Enter", "Quit"]] };
         return { image: shot(item.window), icon: item.icon, title: item.title, metadata: [["App", item.window.appId], ["Workspace", item.window.workspace]], actions: [["Enter", "Focus window"]] };
     }
 
     function peek(item) {
-        capture([item.window]);
+        if (item.kind === "window")
+            capture([item.window]);
     }
 
     function activate(item, keys) {
+        // the windows are looked up when it runs, so ones opened since the list loaded close too
+        if (item.kind === "quit") {
+            Quickshell.execDetached(["sh", "-c", `scrollmsg -t get_tree | jq -r --arg app "$1" '.. | objects | select(.pid? > 0 and ((.nodes // []) | length) == 0 and ($app == "" or (.app_id // .window_properties.class) == $app)) | .id' | while read -r id; do scrollmsg "[con_id=$id] kill" > /dev/null; done`, "sh", item.appId ?? ""]);
+            return true;
+        }
         Quickshell.execDetached(["scrollmsg", `[con_id=${item.window.id}] focus`]);
         return true;
     }

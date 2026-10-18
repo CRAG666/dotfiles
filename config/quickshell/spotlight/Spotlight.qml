@@ -139,6 +139,7 @@ Scope {
         property var actionTarget: null   // the item whose Ctrl+K panel is open
         property string savedQuery: ""
         property string lastQuery: ""   // ↑ brings it back when nothing is listed to move through
+        property string largeText: ""   // shown across the screen (LargeType) instead of the panel
 
         // a form runs its fields one by one through the search field
         property var form: null   // { title, fields: [{ key, label, value, options, optional, strict: only an option, secret: typed hidden }], submit: values => closes, closeOnCancel }
@@ -250,6 +251,7 @@ Scope {
             search.text = "";
             armed = "";
             notice = "";
+            largeText = "";
             ai.reset();
         }
 
@@ -338,7 +340,7 @@ Scope {
         function actionItems() {
             const tokens = Search.tokens(query);
             const alias = aliases.aliasOf(actionTarget.key);
-            const own = [["", alias ? `Change alias “${alias}”…` : "Set alias…", "alias"], ...(alias ? [["", "Remove alias", "unalias"]] : [])];
+            const own = [["Ctrl+L", "Large Type"], ["", alias ? `Change alias “${alias}”…` : "Set alias…", "alias"], ...(alias ? [["", "Remove alias", "unalias"]] : [])];
             return [...(describe(actionTarget).actions ?? []), ...own]
                 .filter(([keys, label]) => Spot.matches(label + " " + keys, tokens))
                 .map(([keys, label, name]) => ({ key: "action:" + (name ?? keys), kind: "action", section: "Actions · " + actionTarget.title, title: label, hint: keys, shortcut: keys, name, icon: actionTarget.icon, glyph: actionTarget.glyph, swatch: actionTarget.swatch }));
@@ -411,9 +413,38 @@ Scope {
             case "Ctrl+R":
                 act(target, "rename", true);
                 return;
+            case "Ctrl+B":
+                act(target, "buffer", true);
+                return;
+            case "Ctrl+L":
+                showLarge(target);
+                return;
             }
             armed = target.key;   // picking it from the panel is the confirmation
             activate(target, { ctrl: shortcut === "Ctrl+Enter", shift: shortcut === "Shift+Enter" });
+        }
+
+        // → on a folder browses into it, ← at the end of a browsed path goes up
+        function isFolder(item) {
+            return item?.kind === "file" && item.isDir && (!mode || mode === "files");
+        }
+
+        function browse(path) {
+            search.text = Spot.tilde(path) + "/";
+        }
+
+        function atBrowsedFolder() {
+            return files.isPath(search.text) && search.text.endsWith("/") && search.cursorPosition === search.text.length;
+        }
+
+        function browseUp() {
+            search.text = files.parentPath(search.text);
+        }
+
+        // Ctrl+L: the result's value (a calculation, an emoji, a path…) or what was typed
+        function showLarge(item) {
+            const usable = item && item.kind !== "form" && item.kind !== "action";
+            largeText = usable ? (typeof item.value === "string" && item.value ? item.value : item.title) : query;
         }
 
         function back() {
@@ -434,7 +465,7 @@ Scope {
         }
 
         function commandItems(tokens) {
-            return [...commands.items(tokens), ...system.items(tokens), ...commands.viewItems(tokens), ...commands.toolItems(tokens), ...library.commandItems(tokens), ...herdr.commandItems(tokens), ...colors.pickItem(tokens), ...notifications.commandItems(tokens), ...commands.mediaItems(tokens), ...apps.actionItems(tokens), ...scripts.items(tokens), ...scripts.commandItems(tokens), ...agenda.commandItems(tokens)];
+            return [...commands.items(tokens), ...system.items(tokens), ...commands.viewItems(tokens), ...commands.toolItems(tokens), ...library.commandItems(tokens), ...herdr.commandItems(tokens), ...colors.pickItem(tokens), ...notifications.commandItems(tokens), ...commands.mediaItems(tokens), ...apps.actionItems(tokens), ...scripts.items(tokens), ...scripts.commandItems(tokens), ...agenda.commandItems(tokens), ...windows.quitItems(tokens)];
         }
 
         // best first: how well the title matches plus how often the item was picked
@@ -507,7 +538,8 @@ Scope {
             ];
         }
 
-        // ":" searches emoji and ">" runs a command from any view
+        // ":" searches emoji and ">" runs a command from any view; a path browses
+        // its folder in the search of everything and the files
         function collect() {
             if (actionTarget)
                 return actionItems();
@@ -520,6 +552,8 @@ Scope {
                 sections = [["Emoji", snippets.emojiItems(tokens)]];
             else if (!mode && raw.startsWith(">"))
                 sections = [["Run", run.items(raw.slice(1).trim(), false)]];
+            else if ((!mode || mode === "files") && files.isPath(raw))
+                sections = files.browseSections(raw);
             else
                 sections = currentView ? currentView.sections(tokens, raw) : everything(tokens, raw);
             const items = [];
@@ -786,6 +820,7 @@ Scope {
             target: Spot
             property: "scale"
             value: Math.min(win.width / 1920, win.height / 1080) * 1.2
+            when: win.width > 0 && win.height > 0
         }
 
         screen: FocusedOutput.screen
@@ -812,6 +847,13 @@ Scope {
             onClicked: win.close()
         }
 
+        LargeType {
+            anchors.fill: parent
+            z: 1
+            text: win.shown ? win.largeText : ""
+            onDismissed: win.largeText = ""
+        }
+
         RectangularShadow {
             anchors.fill: panel
             radius: panel.radius
@@ -819,7 +861,7 @@ Scope {
             offset.y: Spot.px(18)
             color: Qt.rgba(0, 0, 0, Theme.eyesDark ? 0.55 : 0.3)
             opacity: panel.opacity
-            visible: win.shown
+            visible: win.shown && !win.largeText
         }
 
         Item {
@@ -830,7 +872,7 @@ Scope {
             width: Spot.px(820)
             height: bar.height + (expanded ? Spot.px(415) + actionBar.height : 0)
             Behavior on height { enabled: win.shown; NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
-            visible: win.shown
+            visible: win.shown && !win.largeText
             x: Math.round((parent.width - width) / 2)
             y: Math.round(parent.height * 0.2)
 

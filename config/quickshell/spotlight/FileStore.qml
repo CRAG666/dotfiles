@@ -14,7 +14,9 @@ import "js/search.js" as Search
 // image, a PDF's first page or a video. Spotlight's filters narrow the
 // search: "kind:pdf" (image, video, audio, archive, folder or any extension),
 // "modified:today|week|month|year" or "modified:3d", "in:~/Documents". The
-// newest file in ~/Downloads leads the view. Ctrl+K moves a file.
+// newest file in ~/Downloads leads the view. Ctrl+K moves a file. A typed path
+// ("~/Doc", "/etc/") browses its folder: → enters a folder, ← goes up. Ctrl+B
+// gathers files in a buffer, whose actions lead the view while it holds any.
 Scope {
     id: root
     property var host
@@ -28,6 +30,9 @@ Scope {
     property string peekText: ""
     property string peekThumb: ""
     property var peekFacts: []
+    property var buffer: []   // paths gathered with Ctrl+B, acted on together
+    property var listing: ({ dir: "", entries: [] })   // the folder a typed path browses
+    readonly property string browseDir: isPath(query) ? expand(query.slice(0, query.lastIndexOf("/") + 1)) : ""
     readonly property var imageTypes: ["png", "jpg", "jpeg", "gif", "webp", "bmp", "svg", "avif"]
     readonly property var videoTypes: ["mp4", "mkv", "webm", "mov", "avi"]
     readonly property var audioTypes: ["mp3", "flac", "ogg", "wav", "m4a", "opus"]
@@ -47,7 +52,48 @@ Scope {
         }
     }
 
+    function isPath(text) {
+        return /^(~\/|\/)/.test(text);
+    }
+
+    function expand(path) {
+        return path.replace(/^~(?=\/)/, Spot.home);
+    }
+
+    // the folder of a typed path, filtered by what follows its last "/" (hidden
+    // entries only for a filter starting with "."), folders first
+    function browseSections(raw) {
+        const filter = raw.slice(raw.lastIndexOf("/") + 1);
+        const tokens = Search.tokens(filter);
+        const dir = expand(raw.slice(0, raw.lastIndexOf("/") + 1));
+        const entries = listing.dir === dir ? listing.entries : [];
+        const shown = entries
+            .filter(entry => (filter.startsWith(".") || !Spot.basename(entry.path).startsWith(".")) && Spot.matches(Spot.basename(entry.path), tokens))
+            .sort((a, b) => b.isDir - a.isDir || Spot.basename(a.path).localeCompare(Spot.basename(b.path)))
+            .map(entry => fileItem(entry.path, entry.isDir, ""));
+        return [["Buffer", bufferItems(tokens)], [Spot.tilde(dir), shown]];
+    }
+
+    // ← at the end of a browsed path: its parent folder
+    function parentPath(text) {
+        const dir = expand(text).replace(/\/$/, "");
+        return Spot.tilde(dir.slice(0, dir.lastIndexOf("/") + 1) || "/");
+    }
+
+    function bufferItems(tokens) {
+        if (!buffer.length)
+            return [];
+        const count = buffer.length === 1 ? "1 file" : `${buffer.length} files`;
+        return [["move", `Move ${count} to…`, "folder-move"], ["copy", `Copy ${count} to…`, "edit-copy"], ["open", `Open ${count}`, "document-open"], ["trash", `Move ${count} to Trash`, "user-trash"], ["paths", buffer.length === 1 ? "Copy Path" : "Copy Paths", "edit-paste"], ["clear", "Clear Buffer", "edit-clear"]]
+            .filter(([, title]) => Spot.matches(title + " buffer", tokens))
+            .map(([action, title, icon]) => ({ key: "buffer:" + action, kind: "buffer", store: root, action, title, hint: count, icon, confirm: action === "trash" }));
+    }
+
     function sections(tokens, everything) {
+        return everything ? searchSections(tokens, true) : [["Buffer", bufferItems(tokens)], ...searchSections(tokens, false)];
+    }
+
+    function searchSections(tokens, everything) {
         const words = tokens.filter(token => !/^(kind|modified|in):/.test(token));
         if (words.length < tokens.length)
             return [["Files", found.slice(0, everything ? 6 : 60)]];
@@ -121,7 +167,7 @@ Scope {
 
     function fileItem(path, isDir, hint) {
         const name = Spot.basename(path);
-        return { key: "file:" + path, kind: "file", store: root, path, isDir, title: name, hint, icon: fileIcon(name, isDir) };
+        return { key: "file:" + path, kind: "file", store: root, path, isDir, title: name, hint: buffer.includes(path) ? "● Buffer" : hint, icon: fileIcon(name, isDir) };
     }
 
     function extension(name) {
@@ -171,12 +217,14 @@ Scope {
     }
 
     function describe(item) {
+        if (item.kind === "buffer")
+            return { icon: item.icon, title: item.title, body: buffer.map(path => Spot.tilde(path)).join("\n"), mono: true, metadata: [["Files", buffer.length]], actions: [["Enter", item.title]] };
         const peeked = peekKey === item.key;
         const type = extension(item.title);
         const kind = item.isDir ? "Folder" : type ? type.toUpperCase() + " file" : "File";
         const image = imageTypes.includes(type) ? "file://" + item.path : peeked && peekThumb ? "file://" + peekThumb : "";
         const body = item.snippet ? item.snippet : peeked ? peekText : "";
-        return { image, icon: item.icon, metadata: [["Name", item.title], ["Where", Spot.tilde(Spot.dirname(item.path))], ["Kind", kind], ["Page", item.page || ""], ...(peeked ? peekFacts : [])], body, mono: !item.snippet, actions: [["Enter", "Open"], ["Ctrl+Enter", "Show in folder"], ["Ctrl+C", "Copy path"], ["", "Move to…", "move"]] };
+        return { image, icon: item.icon, metadata: [["Name", item.title], ["Where", Spot.tilde(Spot.dirname(item.path))], ["Kind", kind], ["Page", item.page || ""], ...(peeked ? peekFacts : [])], body, mono: !item.snippet, actions: [["Enter", "Open"], ["Ctrl+Enter", "Show in folder"], ["Ctrl+C", "Copy path"], ["Ctrl+B", buffer.includes(item.path) ? "Remove from buffer" : "Add to buffer"], ["", "Move to…", "move"]] };
     }
 
     // the header lines hold the size and modification time, the thumbnail (made
@@ -217,8 +265,57 @@ if [ -d "$1" ]; then ls -1Ap -- "$1" | head -n 40; elif [ "$2" = text ]; then he
     }
 
     function activate(item, keys) {
+        if (item.kind === "buffer")
+            return runBuffer(item.action);
         Spot.open(keys.ctrl ? Spot.dirname(item.path) : item.path);
         return true;
+    }
+
+    function runBuffer(action) {
+        const paths = buffer;
+        switch (action) {
+        case "move":
+        case "copy":
+            transferForm(paths, action === "copy");
+            return false;
+        case "open":
+            paths.forEach(path => Spot.open(path));
+            break;
+        case "trash":
+            Quickshell.execDetached(["gio", "trash", "--", ...paths]);
+            break;
+        case "paths":
+            Spot.copy(paths.join("\n"));
+            break;
+        }
+        buffer = [];
+        return action !== "clear";
+    }
+
+    // asks the folder, then moves (or copies) the files there, never over one
+    function transferForm(paths, copy) {
+        host.openForm({
+            title: `${copy ? "Copy" : "Move"} ${paths.length === 1 ? Spot.basename(paths[0]) : paths.length + " files"}`,
+            fields: [{ key: "folder", label: "Folder", value: "", options: homeDirs.items.map(path => Spot.tilde(path)) }],
+            submit: values => {
+                Quickshell.execDetached(["sh", "-c", `verb=$1 dest=$2
+shift 2
+mkdir -p "$dest" || exit
+moved=0
+for file; do
+    if [ -e "$dest/\${file##*/}" ]; then
+        notify-send -u critical Spotlight "\${dest##*/} already has \${file##*/}"
+    elif ${copy ? "cp -r" : "mv"} -- "$file" "$dest"/; then
+        moved=$((moved + 1))
+    fi
+done
+notify-send -t 3000 -i folder "$verb to \${dest##*/}" "$moved of $# files"`, "sh", copy ? "Copied" : "Moved", values.folder.trim().replace(/^~/, Spot.home), ...paths]);
+                buffer = buffer.filter(path => !paths.includes(path));
+                recent.reload();
+                latestDownload.reload();
+                return true;
+            }
+        });
     }
 
     function copy(item) {
@@ -226,19 +323,15 @@ if [ -d "$1" ]; then ls -1Ap -- "$1" | head -n 40; elif [ "$2" = text ]; then he
     }
 
     function act(item, action) {
-        if (action !== "move")
+        if (item.kind !== "file")
             return false;
-        host.openForm({
-            title: "Move " + item.title,
-            fields: [{ key: "folder", label: "Folder", value: "", options: homeDirs.items.map(path => Spot.tilde(path)) }],
-            submit: values => {
-                const folder = values.folder.trim().replace(/^~/, Spot.home);
-                Quickshell.execDetached(["sh", "-c", 'if [ -e "$2/${1##*/}" ]; then notify-send -u critical Spotlight "${2##*/} already has ${1##*/}"; else mkdir -p "$2" && mv -- "$1" "$2"/ && notify-send -t 3000 -i folder "Moved to ${2##*/}" "${1##*/}"; fi', "sh", item.path, folder]);
-                recent.reload();
-                latestDownload.reload();
-                return true;
-            }
-        });
+        if (action === "move") {
+            transferForm([item.path], false);
+        } else if (action === "buffer") {
+            const had = buffer.includes(item.path);
+            buffer = had ? buffer.filter(path => path !== item.path) : [...buffer, item.path];
+            host.notify(`${had ? "Removed from" : "Added to"} the buffer (${buffer.length})`);
+        }
         return false;
     }
 
@@ -278,10 +371,19 @@ if [ -d "$1" ]; then ls -1Ap -- "$1" | head -n 40; elif [ "$2" = text ]; then he
         query: root.query
         interval: 150
         command: query => {
+            if (root.isPath(query))
+                return null;
             const wanted = root.search(query);
             return !wanted.filtered && query.length < 2 ? null : ["fd", "--one-file-system", "--ignore-case", "--absolute-path", "--max-results", "200", ...wanted.args, "--", root.accentPattern(Search.tokens(wanted.text)[0] ?? ""), wanted.folder];
         }
         onDone: output => root.found = root.rank(output, root.search(root.query).text)
+    }
+
+    Lookup {
+        query: root.browseDir
+        interval: 0
+        command: dir => dir ? ["find", dir, "-mindepth", "1", "-maxdepth", "1", "-printf", "%Y\t%p\n"] : null
+        onDone: output => root.listing = { dir: root.browseDir, entries: output.split("\n").filter(line => line).map(line => ({ isDir: line[0] === "d", path: line.slice(2) })) }
     }
 
     Lookup {
