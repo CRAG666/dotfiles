@@ -12,7 +12,18 @@ import "spotlight/js/search.js" as Search
 // are kept in rofi's drun history format under the spotlight state dir.
 Singleton {
     id: root
-    property var launches: ({})
+    // a binding on the file's text, which blocks until loaded: right from the
+    // first read, whoever creates this singleton and whenever, and redone as
+    // the file changes
+    readonly property var launches: {
+        const counts = {};
+        for (const line of history.text().split("\n")) {
+            const match = line.match(/^(\d+) (.+)$/);
+            if (match)
+                counts[match[2]] = Number(match[1]);
+        }
+        return counts;
+    }
     // `order`: the app's alphabetical rank, so a search breaks ties without
     // comparing names on every keystroke
     readonly property var indexed: {
@@ -29,15 +40,6 @@ Singleton {
         watchChanges: true
         printErrors: false
         onFileChanged: reload()
-        onLoaded: {
-            const counts = {};
-            for (const line of text().split("\n")) {
-                const match = line.match(/^(\d+) (.+)$/);
-                if (match)
-                    counts[match[2]] = Number(match[1]);
-            }
-            root.launches = counts;
-        }
     }
 
     function search(query) {
