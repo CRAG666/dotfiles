@@ -79,7 +79,10 @@ Item {
         height: parent.height - clipboardFilters.height
         clip: true
         boundsBehavior: Flickable.StopAtBounds
-        model: host.results
+        // diffed, so the rows a change leaves in place keep their delegates
+        model: ScriptModel {
+            values: host.results
+        }
         layer.enabled: !atYEnd
         layer.effect: MultiEffect {
             maskEnabled: true

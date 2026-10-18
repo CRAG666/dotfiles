@@ -11,8 +11,11 @@ Item {
     readonly property real gap: Spot.px(10)
     readonly property real cell: Math.floor((width - (columns - 1) * gap) / columns)
 
-    // { section, count (on a section's first row), first, cells: [result index] }
+    // { section, count (on a section's first row), first, cells: [result index] };
+    // none while the list shows the results, so no keystroke builds hidden cells
     readonly property var rows: {
+        if (!host.gridView)
+            return [];
         const counts = {};
         for (const item of host.results)
             counts[item.section] = (counts[item.section] ?? 0) + 1;
