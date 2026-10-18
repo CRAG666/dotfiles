@@ -69,7 +69,18 @@ def main() -> None:
     command = commands.add_parser(
         "precision", help="ranking quality: Top-1, Top-3, MRR@10, noise"
     )
-    command.set_defaults(run=lambda args: precision(args.against))
+    command.add_argument(
+        "--misses",
+        type=int,
+        default=0,
+        help="queries per kind shown where the item was not first",
+    )
+    command.add_argument(
+        "--alone", action="store_true", help="measure the working tree only"
+    )
+    command.set_defaults(
+        run=lambda args: precision(args.against, args.misses, args.alone)
+    )
     args = parser.parse_args()
     if args.run(args) is False:
         sys.exit(1)

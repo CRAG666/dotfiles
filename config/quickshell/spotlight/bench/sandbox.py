@@ -12,7 +12,7 @@ import subprocess
 import tarfile
 import tempfile
 import time
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -245,8 +245,12 @@ def ipc(config: Path, function: str, *args: str) -> None:
 
 @contextmanager
 def sandbox(
-    rev: str | None, logging_rules: str = "", debug_port: int = 0
+    rev: str | None,
+    logging_rules: str = "",
+    debug_port: int = 0,
+    prepare: Callable[[Path], None] | None = None,
 ) -> Iterator[Instance]:
+    """`prepare` edits the copied config before it starts, for experiments."""
     with tempfile.TemporaryDirectory(prefix="spotlight-bench-") as scratch:
         root = Path(scratch)
         config = tree(rev, root / "quickshell")
@@ -261,6 +265,8 @@ def sandbox(
                 '"/spotlight.fifo"', '"/spotlight-bench.fifo"'
             )
         )
+        if prepare:
+            prepare(config)
         if STATE.is_dir():
             shutil.copytree(STATE, root / "state/spotlight")
         env = os.environ | {

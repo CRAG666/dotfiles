@@ -33,9 +33,14 @@ const noise = JSON.parse(NOISE);
 loadAll();
 settle(() => LOADED, () => {
     const flat = query => [].concat(...win.everything(tokens(query), query).map(([section, list]) => list.map(item => [section, item.key])));
-    const ranks = asked.map(({ query, expect }) => flat(query).findIndex(([, key]) => key === expect) + 1);
+    const firsts = [];
+    const ranks = asked.map(({ query, expect }) => {
+        const found = flat(query);
+        firsts.push(found.length ? found[0][1] : "");
+        return found.findIndex(([, key]) => key === expect) + 1;
+    });
     const noiseCounts = noise.map(query => flat(query).filter(([section]) => !FALLBACKS.includes(section)).length);
-    done({ ranks, noiseCounts });
+    done({ ranks, firsts, noiseCounts });
 });
 """
 
@@ -60,14 +65,14 @@ def asked(found: list[dict], rng: Random) -> list[dict]:
     return generated + [entry | {"kind": "curated"} for entry in curated]
 
 
-def ranks(rev: str | None, queries: list[dict], noise: list[str]) -> dict:
+def ranks(rev: str | None, queries: list[dict], noise: list[str], prepare=None) -> dict:
     body = (
         RANKS.replace("QUERIES", json.dumps(json.dumps(queries)))
         .replace("NOISE", json.dumps(json.dumps(noise)))
         .replace("FALLBACKS", json.dumps(sorted(FALLBACKS)))
         .replace("LOADED", LOADED)
     )
-    with sandbox(rev) as instance:
+    with sandbox(rev, prepare=prepare) as instance:
         return instance.probe(body, timeout=900)
 
 
@@ -82,7 +87,7 @@ def metrics(places: list[int]) -> dict:
     }
 
 
-def precision(rev: str) -> dict:
+def precision(rev: str, misses: int = 0, alone: bool = False) -> dict:
     rng = Random(5)
     found = targets(None)
     queries = asked(found, rng)
@@ -91,8 +96,10 @@ def precision(rev: str) -> dict:
         f"precision: {len(found)} targets, {len(queries)} queries, {len(noise)} noise strings"
     )
     report = {}
-    for label, target in ((rev, rev), ("working tree", None)):
-        answer = ranks(target, queries, noise)
+    sides = (("working tree", None),) if alone else ((rev, rev), ("working tree", None))
+    answers = {}
+    for label, target in sides:
+        answer = answers[label] = ranks(target, queries, noise)
         by_kind = defaultdict(list)
         for entry, place in zip(queries, answer["ranks"], strict=True):
             by_kind[entry["kind"]].append(place)
@@ -101,6 +108,34 @@ def precision(rev: str) -> dict:
             **{kind: metrics(places) for kind, places in sorted(by_kind.items())},
             "noise results": round(fmean(answer["noiseCounts"]), 2),
         }
+        if label == "working tree" and misses:
+            missed = defaultdict(list)
+            for entry, place, first in zip(
+                queries, answer["ranks"], answer["firsts"], strict=True
+            ):
+                if place != 1:
+                    missed[entry["kind"]].append(
+                        f"{entry['query']!r} → {entry['expect']} at {place or '—'}, first {first}"
+                    )
+            for kind, lines in sorted(missed.items()):
+                print(f"  misses of {kind} ({len(lines)}):")
+                for line in lines[:misses]:
+                    print("    " + line)
+    if not alone:
+        worse = [
+            f"{entry['kind']}: {entry['query']!r} → {entry['expect']} from {was or '—'} to {now or '—'}, first {first}"
+            for entry, was, now, first in zip(
+                queries,
+                answers[rev]["ranks"],
+                answers["working tree"]["ranks"],
+                answers["working tree"]["firsts"],
+                strict=True,
+            )
+            if (now or 99) > (was or 99)
+        ]
+        print(f"  {len(worse)} queries rank worse than at {rev}:")
+        for line in worse[: misses or 15]:
+            print("    " + line)
     kinds = list(report["working tree"])
     for kind in kinds:
         print(

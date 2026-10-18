@@ -122,7 +122,7 @@ LOADED = """[windows.list.length, Apps.indexed.length, library.bookmarkItems([])
 browser.historyItems([]).length, browser.tabSections([]).length, run.items("a", true).length, snippets.allEmoji().length,
 wallpapers.items([]).length, JSON.stringify(files.sections([], false).map(([s, l]) => l.length)), ssh.items([]).length,
 passwords.items([]).length, web.repoItems([]).length, agenda.sections([]).length, clipboard.items([]).length,
-herdr.workspaceItems([]).length]"""
+herdr.workspaceItems([]).length, system.items([]).length]"""
 
 
 def matcher(rev: str, texts_count: int, queries_count: int) -> bool:

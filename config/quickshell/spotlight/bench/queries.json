@@ -1,0 +1,182 @@
+[
+ {
+  "query": "zen",
+  "expect": "app:zen"
+ },
+ {
+  "query": "ze",
+  "expect": "app:zen"
+ },
+ {
+  "query": "ina",
+  "expect": "app:Inaoe"
+ },
+ {
+  "query": "inaoe",
+  "expect": "app:Inaoe"
+ },
+ {
+  "query": "chro",
+  "expect": "app:chromium"
+ },
+ {
+  "query": "chromium",
+  "expect": "app:chromium"
+ },
+ {
+  "query": "chromuim",
+  "expect": "app:chromium"
+ },
+ {
+  "query": "gtk",
+  "expect": "app:nwg-look"
+ },
+ {
+  "query": "ghost",
+  "expect": "app:com.mitchellh.ghostty"
+ },
+ {
+  "query": "ghosty",
+  "expect": "app:com.mitchellh.ghostty"
+ },
+ {
+  "query": "mullvad",
+  "expect": "app:mullvad-browser"
+ },
+ {
+  "query": "mulvad",
+  "expect": "app:mullvad-browser"
+ },
+ {
+  "query": "yazi",
+  "expect": "app:yazi"
+ },
+ {
+  "query": "file manager",
+  "expect": "app:yazi"
+ },
+ {
+  "query": "zathura",
+  "expect": "app:org.pwmt.zathura"
+ },
+ {
+  "query": "btop",
+  "expect": "app:btop"
+ },
+ {
+  "query": "qbit",
+  "expect": "app:org.qbittorrent.qBittorrent"
+ },
+ {
+  "query": "mpv",
+  "expect": "app:mpv"
+ },
+ {
+  "query": "shut",
+  "expect": "cmd:Shut Down"
+ },
+ {
+  "query": "shutdown",
+  "expect": "cmd:Shut Down"
+ },
+ {
+  "query": "sd",
+  "expect": "cmd:Shut Down"
+ },
+ {
+  "query": "caff",
+  "expect": "cmd:Toggle Caffeine"
+ },
+ {
+  "query": "lock",
+  "expect": "cmd:Lock Screen"
+ },
+ {
+  "query": "sleep",
+  "expect": "cmd:Sleep"
+ },
+ {
+  "query": "restart",
+  "expect": "cmd:Restart"
+ },
+ {
+  "query": "dark",
+  "expect": "cmd:Toggle Dark Mode"
+ },
+ {
+  "query": "next wall",
+  "expect": "cmd:Next Wallpaper"
+ },
+ {
+  "query": "screenshot area",
+  "expect": "cmd:Screenshot Area"
+ },
+ {
+  "query": "aliases",
+  "expect": "cmd:Edit Aliases, Snippets, Quicklinks and AI Commands"
+ },
+ {
+  "query": "mute mic",
+  "expect": "mute:mic"
+ },
+ {
+  "query": "mute",
+  "expect": "mute:mic"
+ },
+ {
+  "query": "calendar",
+  "expect": "tool:Calendar"
+ },
+ {
+  "query": "youtube",
+  "expect": "link:YouTube"
+ },
+ {
+  "query": "arch wiki",
+  "expect": "link:Arch Wiki"
+ },
+ {
+  "query": "whats",
+  "expect": "link:WhatsApp"
+ },
+ {
+  "query": "claude",
+  "expect": "link:Claude"
+ },
+ {
+  "query": "p53",
+  "expect": "ssh:p53"
+ },
+ {
+  "query": "ssh inaoe",
+  "expect": "ssh:inaoe-int"
+ },
+ {
+  "query": "commit",
+  "expect": "note:8"
+ },
+ {
+  "query": "paper analysis",
+  "expect": "note:4"
+ },
+ {
+  "query": "data struct",
+  "expect": "bookmark:85"
+ },
+ {
+  "query": "microserv",
+  "expect": "bookmark:6"
+ },
+ {
+  "query": "cheat",
+  "expect": "bookmark:8"
+ },
+ {
+  "query": "elixir",
+  "expect": "bookmark:18"
+ },
+ {
+  "query": "python3",
+  "expect": "bookmark:14"
+ }
+]
