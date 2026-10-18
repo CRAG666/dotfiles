@@ -7,7 +7,8 @@ flag="$XDG_RUNTIME_DIR/qs-lock.secure"
 
 if ! pgrep -f "$config" > /dev/null; then
     rm -f "$flag"
-    qs -n -d -p "$config"
+    # quickshell, not qs, which ananicy renices to 10 (see spotlight/spotlight.sh)
+    quickshell -n -d -p "$config"
 fi
 
 for _ in $(seq 50); do
