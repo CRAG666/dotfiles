@@ -1,6 +1,7 @@
 #!/bin/sh
 # Toggle Spotlight, opening it in an optional mode (clipboard, windows, commands,
-# passwords, bookmarks, notes, quicklinks, marks, run, ...). Spotlight stays
+# passwords, bookmarks, notes, quicklinks, marks, run, ...) or the fullscreen
+# app launcher ("launcher", which shares Spotlight's process). Spotlight stays
 # resident and hidden between uses: a toggle is one line written to its fifo
 # (qs ipc when nothing reads the fifo), and the first one starts it ("start"
 # only starts it, e.g. at login). "toggle-mark" unmarks the

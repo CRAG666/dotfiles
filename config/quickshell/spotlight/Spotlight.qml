@@ -23,6 +23,10 @@ import "js/search.js" as Search
 // and wires the stores; SearchBar, ResultList, Preview and ActionBar draw it,
 // Shortcuts maps the keys (listed in help.js, Ctrl+?).
 Scope {
+    Launcher {
+        id: launcher
+    }
+
     PanelWindow {
         id: win
         // the surface stays mapped while hidden: showing a fresh one costs ~40 ms
@@ -216,8 +220,11 @@ Scope {
             onRunningChanged: if (!running) running = true
         }
 
+        // "launcher" toggles the fullscreen launcher, which shares this process
         function toggle(mode) {
-            if (shown)
+            if (mode === "launcher")
+                launcher.toggle();
+            else if (shown)
                 close();
             else
                 open(mode);

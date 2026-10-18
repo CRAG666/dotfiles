@@ -652,7 +652,7 @@ bindsym XF86Search exec $BROWSER # x + i
 # Launchers
 bindsym XF86Launch7 exec $spotlight run # F16
 bindsym $mod+space exec $spotlight
-bindsym XF86Open exec qs kill -p ~/.config/quickshell/launcher.qml || qs -n -p ~/.config/quickshell/launcher.qml #; + G
+bindsym XF86Open exec $spotlight launcher #; + G
 bindsym Find exec $spotlight windows # x + ;
 
 # Tools / Bookmarks

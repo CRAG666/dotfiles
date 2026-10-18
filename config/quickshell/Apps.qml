@@ -5,7 +5,7 @@ import QtQuick
 import qs.spotlight
 import "spotlight/js/search.js" as Search
 
-// App search for spotlight.qml and launcher.qml: the name matches loosely
+// App search for Spotlight and the Launcher: the name matches loosely
 // (search.js: initials, typos, accents), the generic name, exec, categories and
 // keywords only exactly and below any name match. How well an app matches and
 // how often it was launched make one score; ties are alphabetical. Launch counts
