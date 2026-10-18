@@ -526,10 +526,13 @@ Scope {
                 ["Paper", papers.items()],
                 ["Calculator", answer],
                 ["Website", web.urlItems(raw)],
-                ["Quicklinks", rest(found.quicklinks).slice(0, 3)],
+                // a keyword and text ("yt lofi") lead; a quicklink found by name is ranked
+                // like everything else, below the Top Hit
+                ["Quicklinks", rest(found.quicklinks).filter(item => item.lead).slice(0, 3)],
                 ["SSH", tokens[0] === "ssh" ? rest(found.ssh) : []],
                 ["Timers", ["timer", "pomodoro"].includes(tokens[0]) ? timers.items(tokens, raw.replace(/^timer\s*/i, ""), false) : []],
                 ["Top Hit", top ? [top] : []],
+                ["Quicklinks", rest(found.quicklinks).filter(item => !item.lead).slice(0, 3)],
                 ["Applications", rest(found.apps).slice(0, 5)],
                 ["Windows", windows.items(tokens, 4)],
                 ["Herdr", [...herdr.agentItems(tokens).slice(0, 3), ...herdr.workspaceItems(tokens).slice(0, 2)]],

@@ -4,7 +4,8 @@
 // folded (lowercase, accents dropped), and every token of the query has to
 // match: exactly, across spaces ("shutdown" finds "Shut Down"), as initials
 // ("vsc"), as letters in order within a word ("frfx") or, from five letters,
-// with one typo ("fierfox"). score() says how well, from 1 down to 0 for no match.
+// with one typo anywhere ("fierfox", "girefox"). score() says how well: from
+// 1 down to 0 for no match, plus a tie-break within a tier (coverage).
 
 // QML's JS engine looks Map keys up one by one and runs for…of loops several
 // times slower than indexed ones: the caches are plain objects and the hot
@@ -59,7 +60,21 @@ function score(text, queryTokens, loose = true) {
             return 0;
         total += quality;
     }
-    return queryTokens.length ? total / queryTokens.length : 1;
+    return queryTokens.length ? total / queryTokens.length + coverage(text, queryTokens) : 1;
+}
+
+// a tie-break within a tier, at most 0.04, below the 0.05 between tiers and
+// the 0.5 a Top Hit needs: how much of the text the query covers, and whether
+// it is the text, spaces and punctuation aside ("shutdown" is "Shut Down"), so
+// "Config" leads "Reload Herdr Config" for "config"
+function coverage(text, queryTokens) {
+    let typed = queryTokens.length - 1;
+    let compact = "";
+    for (let index = 0; index < queryTokens.length; index++) {
+        typed += queryTokens[index].length;
+        compact += tokenShape(queryTokens[index]).compact;
+    }
+    return 0.03 * Math.min(1, typed / text.length) + (compact && compact === shape(text).compact ? 0.01 : 0);
 }
 
 const shapes = generations(10000);
@@ -144,9 +159,7 @@ function looseScore({ words, initials }, token, missing) {
     const first = token.charCodeAt(0);
     for (let index = 0; index < words.length; index++) {
         const word = words[index];
-        if (word.charCodeAt(0) !== first)
-            continue;
-        if (!missing && token.length >= 3 && word.length <= token.length * 2 && isSubsequence(token, word))
+        if (word.charCodeAt(0) === first && !missing && token.length >= 3 && word.length <= token.length * 2 && isSubsequence(token, word))
             quality = Math.max(quality, 0.5);
         else if (token.length >= 5 && isTypo(token, word))
             quality = Math.max(quality, 0.45);
