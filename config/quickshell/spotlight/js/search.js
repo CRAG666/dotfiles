@@ -8,20 +8,40 @@
 
 // QML's JS engine looks Map keys up one by one and runs for…of loops several
 // times slower than indexed ones: the caches are plain objects and the hot
-// loops index
-let folds = Object.create(null);
-let foldCount = 0;
+// loops index. Each cache keeps two generations of up to `limit` entries:
+// when the young one fills it becomes the old one, and an entry read from the
+// old one moves back to the young, so what is in use survives and nothing is
+// ever deleted (V4 puts a deleted key that comes back where it was)
+function generations(limit) {
+    return { young: Object.create(null), old: Object.create(null), size: 0, limit };
+}
 
-function fold(text) {
-    let found = folds[text];
-    if (found === undefined) {
-        if (++foldCount > 20000) {
-            folds = Object.create(null);
-            foldCount = 1;
+function cached(cache, key, make) {
+    let value = cache.young[key];
+    if (value === undefined) {
+        value = cache.old[key];
+        if (value === undefined)
+            value = make(key);
+        cache.young[key] = value;
+        if (++cache.size >= cache.limit) {
+            cache.old = cache.young;
+            cache.young = Object.create(null);
+            cache.size = 0;
         }
-        found = folds[text] = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     }
-    return found;
+    return value;
+}
+
+const folds = generations(10000);
+
+// the young generation is read in place: a hit allocates nothing
+function fold(text) {
+    const known = folds.young[text];
+    return known !== undefined ? known : cached(folds, text, foldText);
+}
+
+function foldText(text) {
+    return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
 function tokens(text) {
@@ -42,31 +62,31 @@ function score(text, queryTokens, loose = true) {
     return queryTokens.length ? total / queryTokens.length : 1;
 }
 
-let shapes = Object.create(null);
-let shapeCount = 0;
+const shapes = generations(10000);
 
 // the compact form, words and initials of a text, kept between keystrokes
 function shape(text) {
-    let found = shapes[text];
-    if (!found) {
-        if (++shapeCount > 20000) {
-            shapes = Object.create(null);
-            shapeCount = 1;
-        }
-        const words = text.split(/[^a-z0-9]+/).filter(word => word).slice(0, 40);
-        found = { compact: text.replace(/[^a-z0-9]+/g, ""), words, initials: words.length <= 12 ? words.map(word => word[0]).join("") : "", mask: charMask(text) };
-        shapes[text] = found;
-    }
-    return found;
+    return shapes.young[text] || cached(shapes, text, shapeOf);
 }
 
-const tokenShapes = Object.create(null);
+function shapeOf(text) {
+    const words = text.split(/[^a-z0-9]+/).filter(word => word).slice(0, 40);
+    return { compact: text.replace(/[^a-z0-9]+/g, ""), words, initials: words.length <= 12 ? words.map(word => word[0]).join("") : "", mask: charMask(text) };
+}
 
+const tokenShapes = generations(1000);
+
+// `positions`: for each of the token's letters, a bit at each place it holds,
+// for the bit-parallel edit distance
 function tokenShape(token) {
-    let found = tokenShapes[token];
-    if (!found)
-        found = tokenShapes[token] = { compact: token.replace(/[^a-z0-9]+/g, ""), mask: charMask(token) };
-    return found;
+    return tokenShapes.young[token] || cached(tokenShapes, token, tokenShapeOf);
+}
+
+function tokenShapeOf(token) {
+    const positions = Object.create(null);
+    for (let index = 0; index < Math.min(token.length, 32); index++)
+        positions[token[index]] = (positions[token[index]] | 0) | 1 << index;
+    return { compact: token.replace(/[^a-z0-9]+/g, ""), mask: charMask(token), positions };
 }
 
 // a bit for each letter and digit a text holds (the digits share six bits):
@@ -150,10 +170,42 @@ function isTypo(token, word) {
 }
 
 // whether the optimal string alignment distance (insertions, deletions,
-// substitutions and swaps of neighbours) is at most `limit`, with Ukkonen's
-// cutoff: once two rows in a row all exceed it, no later cell can come back
-// under it (a swap looks two rows back)
-function within(a, b, limit) {
+// substitutions and swaps of neighbours) of `token` and `word` is at most `limit`
+function within(token, word, limit) {
+    return token.length <= 32 ? distance(token, word) <= limit : withinTable(token, word, limit);
+}
+
+// Hyyrö's bit-parallel optimal string alignment distance (2003, as RapidFuzz's
+// osa_hyrroe2003): every row of the table for one letter of `word` at once, in
+// 32-bit words, so the token can be up to 32 letters; JavaScript's bit
+// operators wrap sums to 32 bits as the algorithm needs
+function distance(token, word) {
+    const positions = tokenShape(token).positions;
+    const last = 1 << token.length - 1;
+    let vertical = ~0, verticalDown = 0, diagonal = 0, previousMatches = 0, score = token.length;
+    for (let index = 0; index < word.length; index++) {
+        const matches = positions[word[index]] | 0;
+        const swapped = (~diagonal & matches) << 1 & previousMatches;
+        diagonal = ((matches & vertical) + vertical ^ vertical) | matches | verticalDown | swapped;
+        let horizontal = verticalDown | ~(diagonal | vertical);
+        let horizontalDown = diagonal & vertical;
+        if (horizontal & last)
+            score++;
+        else if (horizontalDown & last)
+            score--;
+        horizontal = horizontal << 1 | 1;
+        horizontalDown <<= 1;
+        vertical = horizontalDown | ~(diagonal | horizontal);
+        verticalDown = horizontal & diagonal;
+        previousMatches = matches;
+    }
+    return score;
+}
+
+// the same, row by row, for tokens too long for 32 bits, with Ukkonen's
+// cutoff: once two rows in a row all exceed `limit`, no later cell can come
+// back under it (a swap looks two rows back)
+function withinTable(a, b, limit) {
     let twoBack = [];
     let previous = [];
     for (let column = 0; column <= b.length; column++)
