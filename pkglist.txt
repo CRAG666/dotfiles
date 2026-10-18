@@ -67,6 +67,7 @@ pipewire
 pipewire-alsa
 pipewire-pulse
 pipewire-jack
+sound-theme-freedesktop
 wireplumber
 wiremix
 
@@ -78,7 +79,6 @@ noto-fonts-cjk
 
 # Basic
 python
-python-lz4
 libnotify
 rust
 
@@ -130,6 +130,9 @@ keyd
 swappy
 grim
 slurp
+tesseract
+tesseract-data-eng
+tesseract-data-spa
 hunspell-en_us
 hunspell-es_mx
 acpi
