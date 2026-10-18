@@ -43,8 +43,12 @@ Scope {
         return { key: `agenda:${event.file}:${event.line}:${event.date}`, kind: "agendaEvent", store: root, event, title: event.title, hint: when(event), swatch: colors[overdue(event) ? "overdue" : event.kind] };
     }
 
+    function matches(event, tokens) {
+        return Spot.matches(`${event.title} ${event.kind === "due" ? "due deadline" : "event"} agenda`, tokens);
+    }
+
     function matching(tokens) {
-        return source.items.filter(event => Spot.matches(`${event.title} ${event.kind === "due" ? "due deadline" : "event"} agenda`, tokens));
+        return source.items.filter(event => matches(event, tokens));
     }
 
     function dayLabel(day) {
@@ -57,16 +61,23 @@ Scope {
     // today and the routine of days after tomorrow stay out unless searched for
     function sections(tokens) {
         const events = matching(tokens).filter(event => tokens.length || !finished(event));
+        const byDay = Object.create(null);
+        for (const event of events) {
+            if (!(event.date in byDay))
+                byDay[event.date] = [];
+            byDay[event.date].push(event);
+        }
         const days = [["Overdue", events.filter(overdue).map(item)]];
-        for (const day of [...new Set(events.map(event => event.date))].filter(day => day >= today)) {
-            const shown = events.filter(event => event.date === day && (tokens.length || !event.recurring || dayLabel(day) === "Today" || dayLabel(day) === "Tomorrow"));
-            days.push([dayLabel(day), shown.map(item)]);
+        for (const day of Object.keys(byDay).filter(day => day >= today)) {
+            const label = dayLabel(day);
+            const shown = byDay[day].filter(event => tokens.length || !event.recurring || label === "Today" || label === "Tomorrow");
+            days.push([label, shown.map(item)]);
         }
         return days;
     }
 
     function searchItems(tokens) {
-        return matching(tokens).filter(event => event.date >= today || overdue(event)).slice(0, 3).map(item);
+        return Spot.take(source.items, event => matches(event, tokens) && (event.date >= today || overdue(event)), 3).map(item);
     }
 
     function soonItems() {

@@ -32,8 +32,10 @@ Scope {
         const sectionRank = {};
         for (const hit of hits)
             sectionRank[hit.topic.section] = Math.min(sectionRank[hit.topic.section] ?? 1, hit.rank);
-        const sectionOrder = [...new Set(topics.map(topic => topic.section))];
-        const sectionKey = section => sectionRank[section] * sectionOrder.length + sectionOrder.indexOf(section);
+        const sectionOrder = Spot.unique(topics.map(topic => topic.section));
+        const position = Object.create(null);
+        sectionOrder.forEach((section, index) => position[section] = index);
+        const sectionKey = section => sectionRank[section] * sectionOrder.length + position[section];
         return hits
             .sort((a, b) => sectionKey(a.topic.section) - sectionKey(b.topic.section) || a.rank - b.rank || a.index - b.index)
             .map(({ topic }) => ({ key: `help:${topic.section}:${topic.keys}`, kind: "help", store: root, section: topic.section, topic, title: topic.title, hint: topic.keys, icon: "help-about" }));

@@ -32,16 +32,14 @@ Scope {
         return /^https?:\/\/\S+$/.test(text.trim()) ? "link" : "text";
     }
 
-    // only the 200 shown history entries become items; the rest are matched as loaded
+    // matching stops at the 200 history entries shown
     function items(tokens) {
         const shown = entry => (filter === "all" || entry.type === filter) && Spot.matches(entry.title + " " + (entry.hint ?? ""), tokens, false);
         const pinned = pins.items.map(pin => {
             const type = pin.image ? "image" : typeOf(pin.text);
             return { key: "pin:" + pin.name, kind: "pin", store: root, section: "Pinned", pin, type, title: pin.image ? "Pinned image" : pin.text.split("\n")[0], hint: "Pinned", icon: pin.image ? "image-x-generic" : "edit-paste", thumb: pin.image ? "file://" + pin.path : "" };
         });
-        const recent = history.items
-            .filter(entry => (filter === "all" || entry.type === filter) && Spot.matchesFolded(entry.haystack, tokens, false))
-            .slice(0, 200)
+        const recent = Spot.take(history.items, entry => (filter === "all" || entry.type === filter) && Spot.matchesFolded(entry.haystack, tokens, false), 200)
             .map(entry => ({ key: "clip:" + entry.id, kind: "clip", store: root, section: "History", entry, type: entry.type, title: entry.title, hint: entry.hint, icon: entry.type === "image" ? "image-x-generic" : entry.type === "link" ? "web-browser" : "edit-paste", thumb: entry.image && thumbsReady ? `file://${thumbDir}/${entry.id}` : "" }));
         return [...pinned.filter(shown), ...recent];
     }
@@ -115,10 +113,7 @@ Scope {
         id: thumbs
         function refresh() {
             exec(["sh", "-c", `dir=$1; shift; mkdir -p "$dir"
-for file in "$dir"/*; do
-    [ -e "$file" ] || continue
-    case " $* " in *" \${file##*/} "*) ;; *) rm -f "$file" ;; esac
-done
+ls "$dir" | grep -Fxv "$(printf '%s\\n' "$@")" | while read -r file; do rm -f "$dir/$file"; done
 for id in "$@"; do [ -s "$dir/$id" ] || cliphist decode "$id" > "$dir/$id"; done`, "sh", root.thumbDir, ...history.items.filter(entry => entry.type === "image").map(entry => entry.id)]);
         }
         onExited: root.thumbsReady++

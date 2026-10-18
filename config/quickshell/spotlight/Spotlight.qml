@@ -482,15 +482,16 @@ Scope {
         // score, which picks the Top Hit. An empty query keeps the store's order
         // the 16 emoji picked most
         function pickedEmoji() {
-            return Object.keys(frecency.picks).filter(key => key.startsWith("emoji:")).sort((a, b) => frecency.weight(b) - frecency.weight(a)).slice(0, 16).map(key => key.slice(6));
+            return Object.keys(frecency.picks).filter(key => key.startsWith("emoji:")).map(key => [key, frecency.weight(key)]).sort((a, b) => b[1] - a[1]).slice(0, 16).map(([key]) => key.slice(6));
         }
 
-        function ranked(items, tokens) {
+        // `limit`: only the best that many are ordered and copied (top-k selection)
+        function ranked(items, tokens, limit = Infinity) {
             if (!tokens.length)
                 return items;
-            return items
-                .map((item, index) => ({ item, index, score: (Search.score(Search.fold(item.title), tokens) || 0.4) + (item.lead ? 1 : 0) + Search.boost(item.uses ?? frecency.weight(item.key)) }))
-                .sort((a, b) => b.score - a.score || a.index - b.index)
+            const scored = items.map((item, index) => ({ item, index, score: (Search.score(Search.fold(item.title), tokens) || 0.4) + (item.lead ? 1 : 0) + Search.boost(item.uses ?? frecency.weight(item.key)) }));
+            const order = (a, b) => b.score - a.score || a.index - b.index;
+            return (limit < scored.length ? Spot.firstSorted(scored, order, limit) : scored.sort(order))
                 .map(({ item, score }) => Object.assign({ score }, item));
         }
 
@@ -504,14 +505,15 @@ Scope {
             if (aliased)
                 return [["Alias", [aliased]], ...everything(tokens, raw, true).map(([section, list]) => [section, list.filter(item => item.key !== aliased.key)])];
             const view = views.find(entry => entry.alias === raw.toLowerCase());
+            // one more than each section shows, as the Top Hit may leave its list
             const found = {
-                apps: ranked(apps.items(raw), tokens),
-                commands: ranked(commandItems(tokens).filter(item => item.key !== "mode:" + view?.mode), tokens),
-                quicklinks: ranked(web.quicklinkItems(tokens, raw), tokens),
-                bookmarks: ranked(library.bookmarkItems(tokens), tokens),
-                snippets: ranked(snippets.snippetItems(tokens), tokens),
-                notes: ranked(library.noteItems(tokens), tokens),
-                ssh: ranked(ssh.items(tokens), tokens)
+                apps: ranked(apps.items(raw), tokens, 6),
+                commands: ranked(commandItems(tokens).filter(item => item.key !== "mode:" + view?.mode), tokens, 6),
+                quicklinks: ranked(web.quicklinkItems(tokens, raw), tokens, 4),
+                bookmarks: ranked(library.bookmarkItems(tokens), tokens, 5),
+                snippets: ranked(snippets.snippetItems(tokens), tokens, 4),
+                notes: ranked(library.noteItems(tokens), tokens, 4),
+                ssh: ranked(ssh.items(tokens), tokens, tokens[0] === "ssh" ? Infinity : 5)
             };
             // the best of every kind that is opened by name, if its title matches;
             // apps win a tie
@@ -533,13 +535,13 @@ Scope {
                 ["Herdr", [...herdr.agentItems(tokens).slice(0, 3), ...herdr.workspaceItems(tokens).slice(0, 2)]],
                 ["Agenda", agenda.searchItems(tokens)],
                 ["Commands", rest(found.commands).slice(0, 5)],
-                ["AI Commands", ranked(ai.commandItems(tokens), tokens).slice(0, 3)],
+                ["AI Commands", ranked(ai.commandItems(tokens), tokens, 3)],
                 ["SSH", tokens[0] === "ssh" ? [] : rest(found.ssh).slice(0, 4)],
                 ["Snippets", rest(found.snippets).slice(0, 3)],
                 ["Bookmarks", rest(found.bookmarks).slice(0, 4)],
                 ["Notes", rest(found.notes).slice(0, 3)],
-                ["Passwords", ranked(passwords.items(tokens), tokens).slice(0, 3)],
-                ["GitHub", ranked(web.repoItems(tokens), tokens).slice(0, 4)],
+                ["Passwords", ranked(passwords.items(tokens), tokens, 3)],
+                ["GitHub", ranked(web.repoItems(tokens), tokens, 4)],
                 ...files.sections(tokens, true),
                 ["Documents", answer.length ? [] : files.contentItems().slice(0, 3)],
                 // spotlight.json's `fallbacks`: "pi", "web" or a quicklink's keyword

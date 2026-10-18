@@ -22,17 +22,18 @@ Scope {
     }
 
     function historyItems(tokens) {
-        return history.items
-            .filter(visit => Spot.matches(visit.title + " " + visit.url, tokens, false))
-            .slice(0, 200)
+        return Spot.take(history.items, visit => Spot.matches(visit.title + " " + visit.url, tokens, false), 200)
             .map(visit => ({ key: `visit:${visit.profile}:${visit.url}`, kind: "visit", store: root, page: visit, title: visit.title, hint: domain(visit.url), icon: "web-browser" }));
     }
 
     function tabSections(tokens) {
-        const shown = tabs.items.filter(tab => Spot.matches(tab.title + " " + tab.url, tokens));
-        return [...new Set(shown.map(tab => tab.profile))].map(profile => [profile, shown
-            .filter(tab => tab.profile === profile)
-            .map(tab => ({ key: `tab:${tab.id}`, kind: "tab", store: root, page: tab, title: tab.title, hint: domain(tab.url), icon: "web-browser" }))]);
+        const byProfile = Object.create(null);
+        for (const tab of tabs.items.filter(tab => Spot.matches(tab.title + " " + tab.url, tokens))) {
+            if (!(tab.profile in byProfile))
+                byProfile[tab.profile] = [];
+            byProfile[tab.profile].push({ key: `tab:${tab.id}`, kind: "tab", store: root, page: tab, title: tab.title, hint: domain(tab.url), icon: "web-browser" });
+        }
+        return Object.keys(byProfile).map(profile => [profile, byProfile[profile]]);
     }
 
     function describe(item) {

@@ -9,6 +9,13 @@ import QtQuick
 Scope {
     id: root
     property var entries: ({})   // alias → { key, kind, title }
+    readonly property var aliasesByKey: {
+        const index = Object.create(null);
+        for (const alias of Object.keys(entries))
+            if (!(entries[alias].key in index))
+                index[entries[alias].key] = alias;
+        return index;
+    }
 
     function get(alias) {
         // own keys only: "constructor" is not an alias
@@ -16,7 +23,7 @@ Scope {
     }
 
     function aliasOf(key) {
-        return Object.keys(entries).find(alias => entries[alias].key === key) ?? "";
+        return aliasesByKey[key] ?? "";
     }
 
     function set(alias, item) {

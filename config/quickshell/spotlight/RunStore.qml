@@ -17,9 +17,29 @@ Scope {
         const [program, ...rest] = commandLine.split(/\s+/);
         const list = [{ key: "run:" + commandLine, kind: "run", store: root, title: `Run “${commandLine}”`, icon: "system-run", value: commandLine }];
         if (withExecutables)
-            for (const name of executables.items.filter(name => name.startsWith(program) && name !== program).slice(0, 40))
+            for (const name of startingWith(program, 40))
                 list.push({ key: "run:" + name, kind: "run", store: root, title: name, hint: rest.join(" "), icon: Spot.iconFor(name), value: [name, ...rest].join(" ") });
         return list;
+    }
+
+    // up to `limit` executables that extend `prefix`: sorted, they sit together
+    // from the first name not below it, found by binary search
+    function startingWith(prefix, limit) {
+        const names = executables.items;
+        let low = 0;
+        let high = names.length;
+        while (low < high) {
+            const middle = (low + high) >> 1;
+            if (names[middle] < prefix)
+                low = middle + 1;
+            else
+                high = middle;
+        }
+        const found = [];
+        for (let at = low; at < names.length && found.length < limit && names[at].startsWith(prefix); at++)
+            if (names[at] !== prefix)
+                found.push(names[at]);
+        return found;
     }
 
     function describe(item) {
@@ -35,6 +55,7 @@ Scope {
         id: executables
         maxAge: 300000
         command: ["bash", "-c", "compgen -c | sort -u"]
-        parse: output => output.split("\n").filter(line => line)
+        // in code-unit order, the one startingWith() searches by
+        parse: output => output.split("\n").filter(line => line).sort()
     }
 }

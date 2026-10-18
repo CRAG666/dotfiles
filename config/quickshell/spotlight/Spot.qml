@@ -99,11 +99,59 @@ esac`
         Quickshell.execDetached(helperCommand(args));
     }
 
+    // app id or window class (lowercase) → the first app with it, so a lookup
+    // scans no list
+    readonly property var entriesByName: {
+        const index = Object.create(null);
+        for (const app of DesktopEntries.applications.values)
+            for (const name of [app.id.toLowerCase(), app.startupClass.toLowerCase()])
+                if (!(name in index))
+                    index[name] = app;
+        return index;
+    }
+
     // the desktop entry of an app id or window class; reads the (asynchronously
     // loaded) app list, so callers refresh once it arrives
     function desktopEntry(name) {
-        const id = name.toLowerCase();
-        return DesktopEntries.applications.values.find(app => app.id.toLowerCase() === id || app.startupClass.toLowerCase() === id) ?? DesktopEntries.heuristicLookup(name);
+        return entriesByName[name.toLowerCase()] ?? DesktopEntries.heuristicLookup(name);
+    }
+
+    // distinct values in first-seen order: V4's Set looks values up one by one
+    function unique(values) {
+        const seen = Object.create(null);
+        return values.filter(value => !(value in seen) && (seen[value] = true));
+    }
+
+    // values.filter(keep).slice(0, limit), stopping at the limit-th kept value
+    function take(values, keep, limit) {
+        const kept = [];
+        for (let index = 0; index < values.length && kept.length < limit; index++)
+            if (keep(values[index]))
+                kept.push(values[index]);
+        return kept;
+    }
+
+    // entries.sort(order).slice(0, limit) for a total `order`, without sorting
+    // them all: each entry is binary-inserted into the best `limit` so far
+    function firstSorted(entries, order, limit) {
+        const best = [];
+        for (const entry of entries) {
+            if (best.length === limit && order(entry, best[limit - 1]) >= 0)
+                continue;
+            let low = 0;
+            let high = best.length;
+            while (low < high) {
+                const middle = (low + high) >> 1;
+                if (order(entry, best[middle]) < 0)
+                    high = middle;
+                else
+                    low = middle + 1;
+            }
+            best.splice(low, 0, entry);
+            if (best.length > limit)
+                best.pop();
+        }
+        return best;
     }
 
     function iconFor(name) {

@@ -39,13 +39,22 @@ Scope {
         return { key: "emoji:" + entry.char, kind: "emoji", store: root, title: entry.name.replace(/\b\w/g, letter => letter.toUpperCase()), glyph: entry.char, value: entry.char };
     }
 
-    // the best 120 matches, the shortest names first
+    // the best 120 matches, the shortest names first: a counting sort by name
+    // length, linear and stable, so equal lengths keep the faces-first order
     function emojiItems(tokens) {
-        return emoji.items
-            .filter(entry => Spot.matchesFolded(entry.name, tokens))
-            .sort((a, b) => a.name.length - b.name.length)
-            .slice(0, 120)
-            .map(emojiItem);
+        const byLength = [];
+        for (const entry of emoji.items)
+            if (Spot.matchesFolded(entry.name, tokens)) {
+                if (!byLength[entry.name.length])
+                    byLength[entry.name.length] = [];
+                byLength[entry.name.length].push(entry);
+            }
+        const best = [];
+        for (const bucket of byLength)
+            for (const entry of bucket ?? [])
+                if (best.length < 120)
+                    best.push(entry);
+        return best.map(emojiItem);
     }
 
     function allEmoji() {

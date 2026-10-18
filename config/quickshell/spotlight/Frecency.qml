@@ -15,11 +15,23 @@ Scope {
         return pick ? pick[0] * Math.pow(0.5, (Date.now() - pick[1]) / halfLife) : 0;
     }
 
+    // at most one key over 500 after a pick, so dropping the lightest is one pass
     function bump(key) {
         picks[key] = [(picks[key]?.[0] ?? 0) + 1, Date.now()];
-        const kept = {};
-        for (const name of Object.keys(picks).sort((a, b) => weight(b) - weight(a)).slice(0, 500))
-            kept[name] = picks[name];
+        const kept = Object.assign({}, picks);
+        const names = Object.keys(kept);
+        if (names.length > 500) {
+            let lightest = names[0];
+            let least = weight(lightest);
+            for (const name of names) {
+                const current = weight(name);
+                if (current < least) {
+                    lightest = name;
+                    least = current;
+                }
+            }
+            delete kept[lightest];
+        }
         picks = kept;
         file.setText(JSON.stringify(kept));
     }

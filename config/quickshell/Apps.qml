@@ -13,7 +13,13 @@ import "spotlight/js/search.js" as Search
 Singleton {
     id: root
     property var launches: ({})
-    readonly property var indexed: DesktopEntries.applications.values.map(app => ({ app, name: Search.fold(app.name), haystack: Search.fold([app.name, app.genericName, app.execString, ...app.categories, ...app.keywords].join(" ")) }))
+    // `order`: the app's alphabetical rank, so a search breaks ties without
+    // comparing names on every keystroke
+    readonly property var indexed: {
+        const entries = DesktopEntries.applications.values.map(app => ({ app, name: Search.fold(app.name), haystack: Search.fold([app.name, app.genericName, app.execString, ...app.categories, ...app.keywords].join(" ")) }));
+        [...entries].sort((a, b) => a.name.localeCompare(b.name)).forEach((entry, order) => entry.order = order);
+        return entries;
+    }
 
     FileView {
         id: history
@@ -37,12 +43,12 @@ Singleton {
     function search(query) {
         const tokens = Search.tokens(query);
         const ranked = [];
-        for (const { app, name, haystack } of indexed) {
+        for (const { app, name, haystack, order } of indexed) {
             const quality = Search.score(name, tokens) || Search.score(haystack, tokens, false) * 0.4;
             if (quality)
-                ranked.push({ app, name, score: quality + Search.boost(launches[app.id + ".desktop"] ?? 0) });
+                ranked.push({ app, order, score: quality + Search.boost(launches[app.id + ".desktop"] ?? 0) });
         }
-        ranked.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+        ranked.sort((a, b) => b.score - a.score || a.order - b.order);
         return ranked.map(entry => entry.app);
     }
 

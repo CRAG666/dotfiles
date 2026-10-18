@@ -32,8 +32,15 @@ Item {
         return built;
     }
 
+    // result index → its row, so moving through the grid scans no rows
+    readonly property var rowAt: {
+        const at = [];
+        rows.forEach((row, index) => row.cells.forEach(() => at.push(index)));
+        return at;
+    }
+
     function rowOf(index) {
-        return rows.findIndex(row => index >= row.first && index < row.first + row.cells.length);
+        return rowAt[index] ?? -1;
     }
 
     function reveal(index) {

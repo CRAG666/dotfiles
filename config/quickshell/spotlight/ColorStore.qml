@@ -61,7 +61,7 @@ notify-send -i color-picker "Color picked" "$color"`, "sh", file.path]);
         watchChanges: true
         printErrors: false
         onFileChanged: reload()
-        onLoaded: root.colors = [...new Set(text().split("\n").filter(line => line).reverse())]
+        onLoaded: root.colors = Spot.unique(text().split("\n").filter(line => line).reverse())
         onSaved: reload()
     }
 }

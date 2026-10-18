@@ -19,8 +19,16 @@ Scope {
         listing.reload();
     }
 
+    // path → md5 of it, the thumb's name, hashed once per listing, not per keystroke
+    readonly property var thumbNames: {
+        const names = Object.create(null);
+        for (const path of wallpapers)
+            names[path] = Qt.md5(path);
+        return names;
+    }
+
     function thumbOf(path) {
-        return `file://${thumbDir}/${Qt.md5(path)}.sqre`;
+        return `file://${thumbDir}/${thumbNames[path] ?? Qt.md5(path)}.sqre`;
     }
 
     // the counter in the query makes rows reload thumbs rendered after the first paint

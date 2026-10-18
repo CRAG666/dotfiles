@@ -31,6 +31,12 @@ Scope {
     property string peekThumb: ""
     property var peekFacts: []
     property var buffer: []   // paths gathered with Ctrl+B, acted on together
+    readonly property var buffered: {
+        const index = Object.create(null);
+        for (const path of buffer)
+            index[path] = true;
+        return index;
+    }
     property var listing: ({ dir: "", entries: [] })   // the folder a typed path browses
     readonly property string browseDir: isPath(query) ? expand(query.slice(0, query.lastIndexOf("/") + 1)) : ""
     readonly property var imageTypes: ["png", "jpg", "jpeg", "gif", "webp", "bmp", "svg", "avif"]
@@ -61,15 +67,15 @@ Scope {
     }
 
     // the folder of a typed path, filtered by what follows its last "/" (hidden
-    // entries only for a filter starting with "."), folders first
+    // entries only for a filter starting with "."), folders first; the listing
+    // is sorted once as it arrives, so each keystroke only filters it
     function browseSections(raw) {
         const filter = raw.slice(raw.lastIndexOf("/") + 1);
         const tokens = Search.tokens(filter);
         const dir = expand(raw.slice(0, raw.lastIndexOf("/") + 1));
         const entries = listing.dir === dir ? listing.entries : [];
         const shown = entries
-            .filter(entry => (filter.startsWith(".") || !Spot.basename(entry.path).startsWith(".")) && Spot.matches(Spot.basename(entry.path), tokens))
-            .sort((a, b) => b.isDir - a.isDir || Spot.basename(a.path).localeCompare(Spot.basename(b.path)))
+            .filter(entry => (filter.startsWith(".") || !entry.name.startsWith(".")) && Spot.matches(entry.name, tokens))
             .map(entry => fileItem(entry.path, entry.isDir, ""));
         return [["Buffer", bufferItems(tokens)], [Spot.tilde(dir), shown]];
     }
@@ -100,11 +106,11 @@ Scope {
         const download = Spot.matches("latest download downloads", tokens) ? downloadItems() : [];
         if (!tokens.length)
             return everything ? [] : [["Latest Download", downloadItems()], ["Recent", recentItems([], 9).filter(item => item.path !== latestDownload.items?.path).slice(0, 8)], ["Home", homeDirs.items.map(path => fileItem(path, true, ""))], ["Frequent", frequentItems([], 12)]];
-        const shown = new Set();
-        const unseen = items => items.filter(item => !shown.has(item.path) && shown.add(item.path));
+        const shown = Object.create(null);
+        const unseen = items => items.filter(item => !(item.path in shown) && (shown[item.path] = true));
         const recentHits = unseen(recentItems(tokens, everything ? 3 : 6));
         const frequentHits = unseen(frequentItems(tokens, everything ? 3 : 6));
-        const fileHits = unseen(found.filter(file => Spot.matchesFolded(file.folded, tokens, false))).slice(0, everything ? 6 : 60);
+        const fileHits = Spot.take(found, file => Spot.matchesFolded(file.folded, tokens, false) && !(file.path in shown) && (shown[file.path] = true), everything ? 6 : 60);
         return [["Latest Download", download], ["Recent", recentHits], ["Frequent", frequentHits], ["Files", fileHits]];
     }
 
@@ -151,23 +157,19 @@ Scope {
     }
 
     function recentItems(tokens, limit) {
-        return recent.items
-            .filter(entry => Spot.matchesFolded(entry.folded, tokens, false))
-            .slice(0, limit)
+        return Spot.take(recent.items, entry => Spot.matchesFolded(entry.folded, tokens, false), limit)
             .map(entry => fileItem(entry.path, entry.isDir, Spot.tilde(Spot.dirname(entry.path))));
     }
 
     // zoxide's most visited directories, best first
     function frequentItems(tokens, limit) {
-        return frequent.items
-            .filter(entry => Spot.matchesFolded(entry.folded, tokens, false))
-            .slice(0, limit)
+        return Spot.take(frequent.items, entry => Spot.matchesFolded(entry.folded, tokens, false), limit)
             .map(({ path }) => fileItem(path, true, Spot.tilde(Spot.dirname(path))));
     }
 
     function fileItem(path, isDir, hint) {
         const name = Spot.basename(path);
-        return { key: "file:" + path, kind: "file", store: root, path, isDir, title: name, hint: buffer.includes(path) ? "● Buffer" : hint, icon: fileIcon(name, isDir) };
+        return { key: "file:" + path, kind: "file", store: root, path, isDir, title: name, hint: path in buffered ? "● Buffer" : hint, icon: fileIcon(name, isDir) };
     }
 
     function extension(name) {
@@ -383,7 +385,7 @@ notify-send -t 3000 -i folder "$verb to \${dest##*/}" "$moved of $# files"`, "sh
         query: root.browseDir
         interval: 0
         command: dir => dir ? ["find", dir, "-mindepth", "1", "-maxdepth", "1", "-printf", "%Y\t%p\n"] : null
-        onDone: output => root.listing = { dir: root.browseDir, entries: output.split("\n").filter(line => line).map(line => ({ isDir: line[0] === "d", path: line.slice(2) })) }
+        onDone: output => root.listing = { dir: root.browseDir, entries: output.split("\n").filter(line => line).map(line => ({ isDir: line[0] === "d", path: line.slice(2), name: Spot.basename(line.slice(2)) })).sort((a, b) => b.isDir - a.isDir || a.name.localeCompare(b.name)) }
     }
 
     Lookup {

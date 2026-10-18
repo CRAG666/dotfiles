@@ -17,7 +17,7 @@ Scope {
     }
 
     function categories(source) {
-        return [...new Set(source.items.map(entry => entry.category))].sort((a, b) => a.localeCompare(b));
+        return Spot.unique(source.items.map(entry => entry.category)).sort((a, b) => a.localeCompare(b));
     }
 
     function bookmarkItems(tokens) {

@@ -17,7 +17,7 @@ Scope {
     property var files
     readonly property var snapshot: snapshotSource.items[0] ?? null
     readonly property var kinds: manifests.items.map(manifest => manifest.agent)
-    readonly property var statusOrder: ["blocked", "done", "working", "idle", "unknown"]
+    readonly property var statusRank: ({ blocked: 0, done: 1, working: 2, idle: 3, unknown: 4 })
     readonly property var statusLabels: ({ blocked: "Needs input", done: "Done", working: "Working", idle: "Idle", unknown: "Unknown" })
     readonly property var statusColors: ({ blocked: "#e5a03a", done: "#4caf72", working: "#4a8fe0", idle: "#9a9a9a", unknown: "#9a9a9a" })
     // logical key names as `agent send-keys` takes them
@@ -32,12 +32,25 @@ Scope {
         manifests.load();
     }
 
+    // id → the snapshot's workspace or tab, so joining agents, tabs and panes to
+    // theirs scans no list
+    readonly property var workspacesById: indexBy(snapshot?.workspaces ?? [], "workspace_id")
+    readonly property var tabsById: indexBy(snapshot?.tabs ?? [], "tab_id")
+
+    function indexBy(entries, field) {
+        const index = Object.create(null);
+        for (const entry of entries)
+            if (!(entry[field] in index))
+                index[entry[field]] = entry;
+        return index;
+    }
+
     function workspace(id) {
-        return snapshot?.workspaces.find(candidate => candidate.workspace_id === id) ?? null;
+        return workspacesById[id] ?? null;
     }
 
     function tab(id) {
-        return snapshot?.tabs.find(candidate => candidate.tab_id === id) ?? null;
+        return tabsById[id] ?? null;
     }
 
     function agentName(agent) {
@@ -58,7 +71,7 @@ Scope {
         return snapshot.agents
             .map(agent => ({ agent, space: workspace(agent.workspace_id) }))
             .filter(({ agent, space }) => Spot.matches(`herdr agent ${agentName(agent)} ${statusLabels[agent.agent_status]} ${space?.label ?? ""} ${agent.title ?? ""} ${agent.cwd ?? ""}`, tokens))
-            .sort((a, b) => statusOrder.indexOf(a.agent.agent_status) - statusOrder.indexOf(b.agent.agent_status))
+            .sort((a, b) => (statusRank[a.agent.agent_status] ?? -1) - (statusRank[b.agent.agent_status] ?? -1))
             .map(({ agent, space }) => ({ key: "herdr-agent:" + agent.pane_id, kind: "herdrAgent", store: root, agent, paneId: agent.pane_id, space, title: `${agentName(agent)} · ${space?.label ?? agent.workspace_id}`, hint: statusLabels[agent.agent_status], swatch: statusColors[agent.agent_status] }));
     }
 
@@ -82,9 +95,9 @@ Scope {
     function paneItems(tokens) {
         if (!snapshot)
             return [];
-        const agentPanes = new Set(snapshot.agents.map(agent => agent.pane_id));
+        const agentPanes = indexBy(snapshot.agents, "pane_id");
         return snapshot.panes
-            .filter(pane => !agentPanes.has(pane.pane_id))
+            .filter(pane => !(pane.pane_id in agentPanes))
             .map(pane => ({ pane, space: workspace(pane.workspace_id), tab: tab(pane.tab_id) }))
             .filter(({ pane, space, tab }) => Spot.matches(`herdr pane ${paneName(pane)} ${pane.cwd ?? ""} ${space?.label ?? ""} ${tab?.label ?? ""}`, tokens))
             .map(({ pane, space, tab }) => ({ key: "herdr-pane:" + pane.pane_id, kind: "herdrPane", store: root, pane, paneId: pane.pane_id, space, tab, title: paneName(pane), hint: `${space?.label ?? pane.workspace_id} › ${tab?.label ?? pane.tab_id}`, icon: "utilities-terminal" }));
