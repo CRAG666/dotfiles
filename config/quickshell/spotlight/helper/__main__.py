@@ -24,6 +24,7 @@ from papers import paper
 from pins import PINS, pin_add, pins
 from recent import recent_files
 from scripts import script_new, scripts
+from wifi import wifi, wifi_connect, wifi_disconnect, wifi_forget, wifi_scan
 from zen import zen_history, zen_tabs
 
 
@@ -42,6 +43,7 @@ def main() -> None:
         "agenda": lambda: agenda(*args),
         "recent-files": recent_files,
         "contents": lambda: contents(*args),
+        "wifi": wifi,
     }
     writers = {
         "bookmark-save": bookmark_save,
@@ -56,6 +58,10 @@ def main() -> None:
         "pin-add": pin_add,
         "pin-remove": lambda name: (PINS / Path(name).name).unlink(),
         "index-contents": index_contents,
+        "wifi-scan": wifi_scan,
+        "wifi-connect": wifi_connect,
+        "wifi-disconnect": wifi_disconnect,
+        "wifi-forget": wifi_forget,
     }
     if command in readers:
         json.dump(readers[command](), sys.stdout)

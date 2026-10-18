@@ -57,6 +57,7 @@ Item {
         font.family: Theme.menu
         font.pixelSize: Spot.px(21)
         renderType: Text.NativeRendering
+        echoMode: host.formField?.secret ? TextInput.Password : TextInput.Normal
         onTextChanged: host.jumpToAlias(text)
         Keys.onPressed: event => root.keyMap.handle(event)
 

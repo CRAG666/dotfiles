@@ -64,6 +64,8 @@ Scope {
             { mode: "agenda", tone: "pink", title: "Agenda", placeholder: "Search events and deadlines", icon: "office-calendar", open: () => agenda.load(), sections: tokens => [...agenda.sections(tokens), ["Commands", agenda.commandItems(tokens)]] },
             { mode: "wallpapers", tone: "aqua", title: "Wallpapers", placeholder: "Search Wallpapers", icon: "preferences-desktop-wallpaper", open: () => wallpapers.load(), sections: tokens => [["Wallpapers", wallpapers.items(tokens)]] },
             { mode: "tools", tone: "green2", preview: false, title: "Tools", placeholder: "Search Tools", icon: "applications-utilities", sections: tokens => [["Tools", ranked(commands.toolItems(tokens), tokens)]] },
+            { mode: "wifi", tone: "teal", preview: false, title: "Wi-Fi", placeholder: "Search Wi-Fi networks", icon: "network-wireless", open: () => { wifi.load(); system.load(); }, sections: tokens => [["Networks", wifi.items(tokens)], ["Wi-Fi", [...wifi.commandItems(tokens), ...system.items([...tokens, "wifi"])]]] },
+            { mode: "bluetooth", tone: "blue1", preview: false, title: "Bluetooth", placeholder: "Search Bluetooth devices", icon: "bluetooth", open: () => system.load(), sections: tokens => [["Devices", bluetooth.items(tokens)], ["Bluetooth", system.items([...tokens, "bluetooth"])]] },
             { mode: "help", tone: "aqua", title: "Spotlight Help", placeholder: "Search shortcuts and features", icon: "help-about", sections: tokens => [["Help", help.items(tokens)]] }
         ].map(view => Object.assign({}, view, { alias: userConfig.aliases[view.mode] }))
         readonly property var chips: userConfig.chips.map(mode => views.find(view => view.mode === mode)).filter(view => view)
@@ -90,7 +92,8 @@ Scope {
             emoji: "Emoji", timer: "Timer", pomodoro: "Timer", password: "Password", process: "Process", mark: "Mark",
             snippet: "Snippet", run: "Shell", bookmark: "Bookmark", quicklink: "Quicklink", url: "Website", web: "Web Search",
             visit: "History", tab: "Tab", note: "Note", paper: "Paper", ai: "AI", aiCommand: "AI Command",
-            herdrAgent: "Agent", herdrWorkspace: "Workspace", herdrTab: "Herdr Tab", herdrPane: "Pane", agendaEvent: "Event"
+            herdrAgent: "Agent", herdrWorkspace: "Workspace", herdrTab: "Herdr Tab", herdrPane: "Pane", agendaEvent: "Event",
+            wifi: "Network", bluetoothDevice: "Device"
         })
 
         function kindLabel(item) {
@@ -138,7 +141,7 @@ Scope {
         property string lastQuery: ""   // ↑ brings it back when nothing is listed to move through
 
         // a form runs its fields one by one through the search field
-        property var form: null   // { title, fields: [{ key, label, value, options, optional, strict: only an option }], submit: values => closes, closeOnCancel }
+        property var form: null   // { title, fields: [{ key, label, value, options, optional, strict: only an option, secret: typed hidden }], submit: values => closes, closeOnCancel }
         property int formStep: 0
         property var formValues: ({})
         readonly property var formField: form ? form.fields[formStep] : null
@@ -324,7 +327,7 @@ Scope {
             const section = `${form.title} · ${field.label}`;
             const items = [];
             if (typed && !options.includes(typed) && !field.strict)
-                items.push({ key: "form:typed", kind: "form", section, title: options.length ? `Use “${typed}”` : typed, value: typed, icon: "document-edit" });
+                items.push({ key: "form:typed", kind: "form", section, title: field.secret ? "•".repeat(typed.length) : options.length ? `Use “${typed}”` : typed, value: typed, icon: "document-edit" });
             if (!typed && (!options.length || field.optional))
                 items.push({ key: "form:empty", kind: "form", section, title: field.optional ? `Leave the ${field.label.toLowerCase()} empty` : `Type the ${field.label.toLowerCase()}`, value: "", icon: "document-edit" });
             for (const option of options.filter(option => Spot.matches(option, tokens)))
@@ -533,7 +536,7 @@ Scope {
             if (item.kind === "action")
                 return actionTarget ? describe(actionTarget) : { icon: item.icon, title: item.title };
             if (item.kind === "form")
-                return { icon: item.icon, title: form.title, subtitle: `Step ${formStep + 1} of ${form.fields.length}: ${form.fields[formStep].label}`, metadata: Object.entries(formValues), footer: "Enter continues · Esc cancels" };
+                return { icon: item.icon, title: form.title, subtitle: `Step ${formStep + 1} of ${form.fields.length}: ${form.fields[formStep].label}`, metadata: Object.entries(formValues).map(([key, value]) => [key, form.fields.find(field => field.key === key)?.secret ? "••••••" : value]), footer: "Enter continues · Esc cancels" };
             const info = item.store.describe(item);
             const alias = aliases.aliasOf(item.key);
             return alias ? Object.assign({}, info, { metadata: [...(info.metadata ?? []), ["Alias", alias]] }) : info;
@@ -734,6 +737,14 @@ Scope {
         }
         SystemStore {
             id: system
+            host: win
+        }
+        WifiStore {
+            id: wifi
+            host: win
+        }
+        BluetoothStore {
+            id: bluetooth
             host: win
         }
         NotificationStore {
