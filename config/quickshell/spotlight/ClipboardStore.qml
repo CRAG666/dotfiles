@@ -101,7 +101,8 @@ Scope {
             const hint = image ? `${image[2]} · ${image[1]}` : type === "link" ? "Link" : "";
             return { id: line.slice(0, tab), line, preview, type, image: !!image, title, hint, haystack: Search.fold(title + " " + hint) };
         })
-        onItemsChanged: thumbs.refresh()
+        // not for the empty list it starts with: that would delete every thumb
+        onItemsChanged: if (loadedAt) thumbs.refresh()
     }
 
     Source {
