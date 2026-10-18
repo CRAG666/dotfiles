@@ -3,7 +3,7 @@ import Quickshell.Io
 import QtQuick
 
 // A DOI or a paper URL holding one ("10.1145/…", "dl.acm.org/doi/…") is
-// looked up, debounced, through spotlight.py paper: BibTeX from doi.org, the
+// looked up, debounced, through the helper's paper: BibTeX from doi.org, the
 // open access PDF from OpenAlex. Enter copies the BibTeX, Ctrl+Enter opens the PDF, Ctrl+C copies
 // the citation key; Ctrl+K opens the page or adds it to the bookmarks.
 Scope {

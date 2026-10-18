@@ -3,7 +3,7 @@ import Quickshell.Io
 import QtQuick
 import "js/search.js" as Search
 
-// Clipboard history (cliphist) plus pinned entries kept by spotlight.py, with
+// Clipboard history (cliphist) plus pinned entries kept by the helper, with
 // image thumbnails decoded once into the cache and a text / image / link
 // filter. Enter pastes into the focused window, Shift+Enter pastes as plain
 // text, Ctrl+P pins or unpins, Ctrl+X deletes.

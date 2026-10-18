@@ -3,7 +3,7 @@ import Quickshell.Io
 import QtQuick
 
 // Herdr (terminal workspace manager for coding agents) through its socket API,
-// called by spotlight.py. Agents are listed most urgent first (needs input,
+// called by the helper. Agents are listed most urgent first (needs input,
 // done, working, idle), then workspaces, tabs and the panes that run no agent;
 // agents and panes preview their recent output. Enter focuses any of them in
 // Herdr and raises the terminal running it, Ctrl+R renames, Ctrl+X closes

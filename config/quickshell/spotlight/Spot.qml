@@ -12,7 +12,8 @@ Singleton {
     // what you configure: spotlight.json and the script commands, apart from the code
     readonly property string configDir: (Quickshell.env("XDG_CONFIG_HOME") || home + "/.config") + "/spotlight"
     readonly property string configFile: configDir + "/spotlight.json"
-    readonly property string helper: home + "/.config/quickshell/spotlight/spotlight.py"
+    // the Python helper, a package: python3 runs its __main__.py
+    readonly property string helper: home + "/.config/quickshell/spotlight/helper"
     // Spotlight's window sets it from the size of the screen it opens on
     property real scale: 1
     readonly property var terminals: ["kitty", "foot", "Alacritty", "org.wezfurlong.wezterm", "com.mitchellh.ghostty", "ghostty.dialog"]
@@ -89,7 +90,7 @@ esac`
         return ["sh", "-c", '"$@"; printf "\\n[exit %s] Press Enter to close" "$?"; read -r _', "sh", ...command];
     }
 
-    // runs spotlight.py, its failure shown as a notification
+    // runs the helper, its failure shown as a notification
     function helperCommand(args) {
         return ["sh", "-c", 'out=$(python3 "$@" 2>&1) || notify-send -u critical Spotlight "$out"', "sh", helper, ...args];
     }

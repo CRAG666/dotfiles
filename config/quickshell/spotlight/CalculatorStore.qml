@@ -4,11 +4,11 @@ import QtQuick
 
 // Inline math ("sqrt(16)*2") answered at once; anything else with a digit or a
 // clock ("5 km to mi", "100 usd to mxn", "20% of 350", "0xff", "5pm cdmx in
-// tokyo", "days until dec 25", "in 3 weeks") goes, debounced, to spotlight.py
+// tokyo", "days until dec 25", "in 3 weeks") goes, debounced, to the helper
 // calc (qalc, date and zoneinfo). Enter copies the result.
 Scope {
     id: root
-    property string query: ""   // sent to spotlight.py, debounced; "" clears the answer
+    property string query: ""   // sent to the helper, debounced; "" clears the answer
     property var answer: null   // { query, value, detail }
 
 

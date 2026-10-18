@@ -3,13 +3,13 @@ import Quickshell.Io
 import QtQuick
 import "js/search.js" as Search
 
-// Files and folders under ~. With nothing typed: recent files (spotlight.py
+// Files and folders under ~. With nothing typed: recent files (the helper's
 // recent-files: opened from Spotlight or GTK apps, or saved lately), the home
 // folders, then zoxide's frequent folders; typing: recent and frequent matches
 // first, then fd over ~ (other file systems, like rclone mounts, are skipped;
 // accents are ignored). Documents are also searched
 // by their text, through an SQLite index of ~/Documents, ~/Desktop and
-// ~/Downloads that spotlight.py brings up to date at most once an hour. The
+// ~/Downloads that the helper brings up to date at most once an hour. The
 // preview lists a folder, shows the head of a text file, or a thumbnail of an
 // image, a PDF's first page or a video. Spotlight's filters narrow the
 // search: "kind:pdf" (image, video, audio, archive, folder or any extension),

@@ -4,7 +4,7 @@ import QtQuick
 import "js/search.js" as Search
 
 // Bookmarks and notes, the git-crypt'd sqlite databases in
-// ~/.local/share/spotlight, read and written through spotlight.py. Bookmarks
+// ~/.local/share/spotlight, read and written through the helper. Bookmarks
 // open on Enter, notes are copied; Ctrl+E edits (notes open in nvim), Ctrl+R
 // renames a note, Ctrl+X deletes. Forms run inside Spotlight's search field.
 Scope {

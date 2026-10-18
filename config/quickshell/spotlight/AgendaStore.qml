@@ -2,7 +2,7 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 
-// The agenda of your neorg workspaces, read by spotlight.py agenda for the
+// The agenda of your neorg workspaces, read by the helper's agenda for the
 // next 14 days: the weekly schedule and dated events of `categories: Schedule`
 // files, plus tasks stamped `( |@ date time)` or due `( |< date)` anywhere.
 // Enter joins an event's meeting link or opens its line in Neovim; "New Agenda

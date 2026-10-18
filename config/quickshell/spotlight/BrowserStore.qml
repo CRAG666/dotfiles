@@ -1,7 +1,7 @@
 import Quickshell
 import QtQuick
 
-// Zen history of every profile, read by spotlight.py from a copy of
+// Zen history of every profile, read by the helper from a copy of
 // places.sqlite, and the open tabs of every running profile, listed through
 // tabctl's extension. Enter opens a visited page in its profile, or switches
 // to a tab and focuses its Zen window.
