@@ -34,6 +34,7 @@ Scope {
         // `chip`: its glyph in the bar, which lists the views of spotlight.json's
         // `chips` (Ctrl+1…9 and Tab reach them); its alias in spotlight.json plus a
         // space opens the view ("hr " → Herdr); `open` loads what it shows;
+        // `grid` shows them as cells (emoji);
         // `preview: false` lists its results across the whole window, as Raycast
         // does where a preview adds little;
         // `tone`: its colour in Theme.eyes
@@ -43,7 +44,7 @@ Scope {
             { mode: "contents", tone: "aqua", title: "Search File Contents", placeholder: "Search inside documents", icon: "x-office-document", open: () => files.load(), sections: () => [["Documents", files.contentItems()]] },
             { mode: "clipboard", tone: "pink", chip: "\uf0ea", title: "Clipboard History", placeholder: "Search Clipboard", icon: "edit-paste", open: () => clipboard.load(), sections: tokens => [["Clipboard", clipboard.items(tokens)]] },
             { mode: "windows", tone: "teal", chip: "\uf2d0", title: "Switch Windows", placeholder: "Search Windows", icon: "preferences-system-windows", open: () => windows.load(), sections: tokens => [["Windows", windows.items(tokens, 80)]] },
-            { mode: "emoji", tone: "yellow", title: "Search Emoji", icon: "face-smile", open: () => snippets.load(), sections: tokens => [["Emoji", snippets.emojiItems(tokens)]] },
+            { mode: "emoji", tone: "yellow", preview: false, grid: true, title: "Search Emoji", icon: "face-smile", open: () => snippets.load(), sections: tokens => tokens.length ? [["Emoji", snippets.emojiItems(tokens)]] : [["Frequently Used", snippets.emojiOf(pickedEmoji())], ["Emoji", snippets.allEmoji()]] },
             { mode: "passwords", tone: "red", preview: false, chip: "\uf084", title: "Search Passwords", icon: "dialog-password", open: () => passwords.load(), sections: tokens => [["Passwords", ranked(passwords.items(tokens), tokens)]] },
             { mode: "snippets", tone: "violet", chip: "\uf121", title: "Search Snippets", icon: "insert-text", sections: tokens => [["Snippets", ranked(snippets.snippetItems(tokens), tokens)]] },
             { mode: "commands", tone: "orange0", preview: false, chip: "\uf0e7", title: "Commands", placeholder: "Search Commands", icon: "system-run", open: () => { herdr.load(); system.load(); scripts.load(); windows.load(); files.load(); }, sections: tokens => [["Commands", ranked(commandItems(tokens), tokens)]] },
@@ -113,6 +114,7 @@ Scope {
         }
         readonly property var currentView: views.find(view => view.mode === mode) ?? null
         // the search of everything keeps the whole width but for an answer to read
+        readonly property bool gridView: !!currentView?.grid && !form && !actionTarget
         readonly property bool previewing: currentView ? currentView.preview !== false : ["ai", "aiCommand", "paper", "paperPending"].includes(selection?.kind)
 
         readonly property string clipboardText: clipboardOut.text
@@ -435,6 +437,11 @@ Scope {
         // best first: how well the title matches plus how often the item was picked
         // (apps: launched); `lead` items stay ahead. Each item is copied with its
         // score, which picks the Top Hit. An empty query keeps the store's order
+        // the 16 emoji picked most
+        function pickedEmoji() {
+            return Object.keys(frecency.picks).filter(key => key.startsWith("emoji:")).sort((a, b) => frecency.weight(b) - frecency.weight(a)).slice(0, 16).map(key => key.slice(6));
+        }
+
         function ranked(items, tokens) {
             if (!tokens.length)
                 return items;
@@ -542,7 +549,7 @@ Scope {
             if (results[current].key !== selectedKey)
                 armed = "";
             selectedKey = results[current].key;
-            resultList.reveal(current);
+            (gridView ? resultGrid : resultList).reveal(current);
         }
 
         // a selection the user moved survives results arriving late (files)
@@ -615,6 +622,7 @@ Scope {
             id: shortcuts
             host: win
             preview: previewPane
+            grid: resultGrid
             clipboardStore: clipboard
         }
         Frecency {
@@ -888,8 +896,19 @@ Scope {
                     y: Spot.px(8)
                     width: win.previewing ? Spot.px(330) : parent.width - Spot.px(20)
                     height: parent.height - Spot.px(16) - actionBar.height
+                    visible: !win.gridView
                     host: win
                     clipboardStore: clipboard
+                }
+
+                ResultGrid {
+                    id: resultGrid
+                    x: Spot.px(16)
+                    y: Spot.px(8)
+                    width: parent.width - Spot.px(32)
+                    height: parent.height - Spot.px(16) - actionBar.height
+                    visible: win.gridView
+                    host: win
                 }
 
                 Rectangle {

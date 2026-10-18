@@ -6,6 +6,7 @@ QtObject {
     id: root
     property var host
     property var preview   // a Preview
+    property var grid   // a ResultGrid
     property var clipboardStore
 
     function handle(event) {
@@ -55,6 +56,10 @@ QtObject {
                 host.step(-1);
             else
                 host.cycleMode(-1);
+        } else if (host.gridView && (event.key === Qt.Key_Left || event.key === Qt.Key_Right)) {
+            host.step(event.key === Qt.Key_Right ? 1 : -1);
+        } else if (host.gridView && (event.key === Qt.Key_Up || event.key === Qt.Key_Down)) {
+            grid.stepRow(event.key === Qt.Key_Down ? 1 : -1);
         } else if (event.key === Qt.Key_Right && host.completion) {
             host.search.text = host.results[0].title;
         } else if (event.key === Qt.Key_Down) {

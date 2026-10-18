@@ -37,7 +37,7 @@ Item {
         }
         Label {
             anchors.verticalCenter: parent.verticalCenter
-            text: host.actionTarget ? "Actions" : host.form ? host.form.title : host.currentView ? host.currentView.title.replace(/^Search /, "") : host.selection?.section ?? "Search"
+            text: host.actionTarget ? "Actions" : host.form ? host.form.title : host.currentView ? host.currentView.title.replace(/^Search /, "") + (host.gridView && host.selection ? " · " + host.selection.title : "") : host.selection?.section ?? "Search"
             color: host.currentView ? host.viewTone : host.selection ? host.tone(host.selection) : Theme.inkSoft
             font.pixelSize: Spot.px(12)
             font.weight: Font.DemiBold
