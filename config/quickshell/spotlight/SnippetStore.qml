@@ -95,10 +95,12 @@ codes = set()
 for span in charset.partition("=")[2].split():
     start, _, end = span.partition("-")
     codes.update(range(int(start, 16), int(end or start, 16) + 1))
-# skin tones and the regional indicator letters only make sense inside a sequence
+# skin tones, the regional indicator letters, and the joiner, tags and keycap
+# (format characters and enclosing marks, drawn as nothing) only make sense
+# inside a sequence
 parts = set(range(0x1F3FB, 0x1F400)) | set(range(0x1F1E6, 0x1F200))
 # the faces (the Emoticons block) lead, as in Raycast
-print(json.dumps([{"char": chr(code), "name": unicodedata.name(chr(code)).lower()} for code in sorted(codes - parts, key=lambda code: (not 0x1F600 <= code <= 0x1F64F, code)) if code > 0x7F and unicodedata.name(chr(code), "")]))
+print(json.dumps([{"char": chr(code), "name": unicodedata.name(chr(code)).lower()} for code in sorted(codes - parts, key=lambda code: (not 0x1F600 <= code <= 0x1F64F, code)) if code > 0x7F and unicodedata.name(chr(code), "") and unicodedata.category(chr(code)) not in ("Cf", "Me")]))
 `]
     }
 }
