@@ -119,7 +119,10 @@ Scope {
                     { key: "title", label: "Title (a {https://…} link becomes Join)", value: "" }
                 ],
                 submit: values => {
-                    writer.exec(["python3", Spot.helper, "agenda-add", values.day, values.time ?? "", values.title]);
+                    Spot.call(["agenda-add", values.day, values.time ?? "", values.title], (output, error) => {
+                        root.host.notify(error || "Added to agenda.norg");
+                        source.reload();
+                    });
                     return false;
                 }
             });
@@ -139,20 +142,9 @@ Scope {
     Source {
         id: source
         maxAge: 60000
-        command: ["python3", Spot.helper, "agenda", "14"]
+        request: ["agenda", "14"]
         // the text an event is found by, folded once as it loads
         parse: output => output.trim() ? JSON.parse(output).map(event => Object.assign(event, { text: Search.fold(`${event.title} ${event.kind === "due" ? "due deadline" : "event"} agenda`) })) : []
-    }
-
-    Process {
-        id: writer
-        stderr: StdioCollector {
-            id: writerErrors
-        }
-        onExited: exitCode => {
-            root.host.notify(exitCode === 0 ? "Added to agenda.norg" : writerErrors.text.trim());
-            source.reload();
-        }
     }
 
     Timer {

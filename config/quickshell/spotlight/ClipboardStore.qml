@@ -76,11 +76,19 @@ Scope {
         toClipboard(item, false, "");
     }
 
+    function pin(args) {
+        Spot.call(args, (output, error) => {
+            if (error)
+                root.host.notify(error);
+            pins.reload();
+        });
+    }
+
     function act(item, action) {
         if (action === "pin")
-            job.run(item.kind === "pin" ? ["python3", Spot.helper, "pin-remove", item.pin.name] : ["python3", Spot.helper, "pin-add", item.entry.id], () => pins.reload());
+            pin(item.kind === "pin" ? ["pin-remove", item.pin.name] : ["pin-add", item.entry.id]);
         else if (action === "delete" && item.kind === "pin")
-            job.run(["python3", Spot.helper, "pin-remove", item.pin.name], () => pins.reload());
+            pin(["pin-remove", item.pin.name]);
         else if (action === "delete")
             job.run(["sh", "-c", 'printf "%s\\n" "$1" | cliphist delete', "sh", item.entry.line], () => history.reload());
         return false;
@@ -105,7 +113,7 @@ Scope {
 
     Source {
         id: pins
-        command: ["python3", Spot.helper, "pins"]
+        request: ["pins"]
     }
 
     // decodes every image entry not cached yet and drops thumbs of deleted ones

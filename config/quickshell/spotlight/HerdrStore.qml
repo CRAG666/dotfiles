@@ -159,7 +159,10 @@ Scope {
             return;
         peekKey = item.key;
         peekText = "";
-        reader.exec(["python3", Spot.helper, "herdr", "pane.read", JSON.stringify({ pane_id: item.paneId, source: "recent", lines: 40, strip_ansi: true })]);
+        Spot.call(["herdr", "pane.read", JSON.stringify({ pane_id: item.paneId, source: "recent", lines: 40, strip_ansi: true })], output => {
+            if (peekKey === item.key)
+                peekText = output.trim() ? JSON.parse(output).read.text.replace(/\s+$/, "") : "";
+        });
     }
 
     // the Herdr client titles its terminal exactly "<host>: <workspace label>"
@@ -173,11 +176,15 @@ Scope {
     }
 
     function call(method, params) {
-        job.exec(["python3", Spot.helper, "herdr", method, JSON.stringify(params)]);
+        Spot.call(["herdr", method, JSON.stringify(params)], (output, error) => {
+            if (error)
+                root.host.notify(error);
+            snapshotSource.reload();
+        });
     }
 
     function focusIn(method, params) {
-        Spot.helperDetached(["herdr", method, JSON.stringify(params)]);
+        Spot.send(["herdr", method, JSON.stringify(params)]);
         raiseTerminal();
         return true;
     }
@@ -196,7 +203,7 @@ Scope {
             title: "Start Agent",
             fields: [{ key: "kind", label: "Agent", value: "", options: kinds }],
             submit: values => {
-                Spot.helperDetached(["herdr-start", values.kind, target]);
+                Spot.send(["herdr-start", values.kind, target]);
                 raiseTerminal();
                 return true;
             }
@@ -230,7 +237,7 @@ Scope {
                 title: "New Herdr Agent",
                 fields: [{ key: "cwd", label: "Folder", value: "", options: folderOptions() }, { key: "kind", label: "Agent", value: "", options: kinds }],
                 submit: values => {
-                    Spot.helperDetached(["herdr-start", values.kind, expandHome(values.cwd)]);
+                    Spot.send(["herdr-start", values.kind, expandHome(values.cwd)]);
                     raiseTerminal();
                     return true;
                 }
@@ -356,7 +363,7 @@ Scope {
     Source {
         id: snapshotSource
         maxAge: 2000
-        command: ["python3", Spot.helper, "herdr", "session.snapshot"]
+        request: ["herdr", "session.snapshot"]
         parse: output => output.trim() ? [JSON.parse(output).snapshot] : []
     }
 
@@ -369,28 +376,10 @@ Scope {
 
     Source {
         id: manifests
-        command: ["python3", Spot.helper, "herdr", "server.agent_manifests"]
+        request: ["herdr", "server.agent_manifests"]
         parse: output => output.trim() ? JSON.parse(output).manifests : []
     }
 
-    Process {
-        id: reader
-        stdout: StdioCollector {
-            onStreamFinished: root.peekText = text.trim() ? JSON.parse(text).read.text.replace(/\s+$/, "") : ""
-        }
-    }
-
-    Process {
-        id: job
-        stderr: StdioCollector {
-            id: jobErrors
-        }
-        onExited: exitCode => {
-            if (exitCode !== 0)
-                root.host.notify(jobErrors.text.trim());
-            snapshotSource.reload();
-        }
-    }
 
     Timer {
         interval: 2000

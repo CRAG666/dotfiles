@@ -178,33 +178,25 @@ Scope {
     }
 
     function run(args) {
-        job.exec(["python3", Spot.helper, ...args]);
+        Spot.call(args, (output, error) => {
+            if (error)
+                root.host.notify(error);
+            bookmarks.reload();
+            notes.reload();
+        });
     }
 
     Source {
         id: bookmarks
         maxAge: 30000
-        command: ["python3", Spot.helper, "list", "bookmarks"]
+        request: ["list", "bookmarks"]
         parse: output => root.indexed(output)
     }
 
     Source {
         id: notes
         maxAge: 30000
-        command: ["python3", Spot.helper, "list", "notes"]
+        request: ["list", "notes"]
         parse: output => root.indexed(output)
-    }
-
-    Process {
-        id: job
-        stderr: StdioCollector {
-            id: jobErrors
-        }
-        onExited: exitCode => {
-            if (exitCode !== 0)
-                root.host.notify(jobErrors.text.trim() || `Failed with code ${exitCode}`);
-            bookmarks.reload();
-            notes.reload();
-        }
     }
 }

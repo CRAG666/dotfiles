@@ -33,7 +33,7 @@ SETTLE(() => LOADED, () => {
             win.results.length;
             times.push(Date.now() - started);
         }
-        // fd's files landing for the typed query, as they do 150 ms after it rests
+        // fd's files landing for the typed query, as they do 50 ms after it rests
         const started = Date.now();
         files.found = files.found.slice();
         win.results.length;

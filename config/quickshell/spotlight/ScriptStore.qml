@@ -122,7 +122,7 @@ Scope {
     Source {
         id: source
         maxAge: 10000
-        command: ["python3", Spot.helper, "scripts"]
+        request: ["scripts"]
     }
 
     // script-new returns when its editor closes, with the header filled in

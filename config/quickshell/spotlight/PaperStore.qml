@@ -91,31 +91,13 @@ Scope {
         id: debounce
         interval: 300
         onTriggered: {
-            // a restarted lookup would report the old one's exit as this one's
-            if (lookup.running) {
-                restart();
-                return;
-            }
-            lookup.forTarget = root.target;
-            lookup.exec(["python3", Spot.helper, "paper", root.target]);
-        }
-    }
-
-    Process {
-        id: lookup
-        property string forTarget: ""
-        stdout: StdioCollector {
-            onStreamFinished: {
-                if (text.trim())
-                    root.papers = Object.assign({}, root.papers, { [lookup.forTarget]: JSON.parse(text) });
-            }
-        }
-        stderr: StdioCollector {
-            id: lookupErrors
-        }
-        onExited: exitCode => {
-            if (exitCode !== 0)
-                root.failure = { target: forTarget, reason: lookupErrors.text.trim() };
+            const target = root.target;
+            Spot.call(["paper", target], (output, error) => {
+                if (error)
+                    root.failure = { target, reason: error };
+                else if (output.trim())
+                    root.papers = Object.assign({}, root.papers, { [target]: JSON.parse(output) });
+            });
         }
     }
 }

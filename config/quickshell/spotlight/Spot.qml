@@ -1,5 +1,6 @@
 pragma Singleton
 import Quickshell
+import Quickshell.Io
 import QtQuick
 import "js/search.js" as Search
 
@@ -90,13 +91,76 @@ esac`
         return ["sh", "-c", '"$@"; printf "\\n[exit %s] Press Enter to close" "$?"; read -r _', "sh", ...command];
     }
 
-    // runs the helper, its failure shown as a notification
+    // runs the helper, its failure shown as a notification: a process of its own
+    // for what waits on an editor, which a restart of Spotlight must not end
     function helperCommand(args) {
         return ["sh", "-c", 'out=$(python3 "$@" 2>&1) || notify-send -u critical Spotlight "$out"', "sh", helper, ...args];
     }
 
     function helperDetached(args) {
         Quickshell.execDetached(helperCommand(args));
+    }
+
+    // asks the resident helper: `done(output, error)` gets what
+    // `python3 helper args…` prints and the reason it failed ("" when it did not).
+    // A call is a JSON line on its stdin answered by id, so it costs the work and
+    // not Python's start and imports (~100 ms). Calls made while it starts wait
+    // for it; a death fails the calls it held, and it starts again
+    function call(args, done) {
+        const id = ++helperCalls;
+        answering[id] = done;
+        const line = JSON.stringify({ id, args }) + "\n";
+        if (resident.running)
+            resident.write(line);
+        else
+            waiting.push(line);
+    }
+
+    // a writer in the resident helper, its failure shown as a notification
+    function send(args) {
+        call(args, (output, error) => {
+            if (error)
+                Quickshell.execDetached(["notify-send", "-u", "critical", "Spotlight", error]);
+        });
+    }
+
+    property int helperCalls: 0
+    property var answering: ({})
+    property var waiting: []
+
+    Process {
+        id: resident
+        running: true
+        stdinEnabled: true
+        command: ["python3", helper, "serve"]
+        stdout: SplitParser {
+            onRead: line => {
+                const reply = JSON.parse(line);
+                const done = answering[reply.id];
+                delete answering[reply.id];
+                done(reply.output ?? "", reply.error ?? "");
+            }
+        }
+        onRunningChanged: {
+            if (!running)
+                return;
+            for (let index = 0; index < waiting.length; index++)
+                write(waiting[index]);
+            waiting = [];
+        }
+        onExited: {
+            const lost = answering;
+            answering = {};
+            for (const id in lost)
+                lost[id]("", "Spotlight's helper stopped");
+            restartHelper.start();
+        }
+    }
+
+    Timer {
+        id: restartHelper
+        interval: 1000
+        onTriggered: resident.running = true
     }
 
     // app id or window class (lowercase) → the app with it, so a lookup scans no

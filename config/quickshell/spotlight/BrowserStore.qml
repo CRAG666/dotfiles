@@ -60,13 +60,13 @@ Scope {
     Source {
         id: history
         maxAge: 60000
-        command: ["python3", Spot.helper, "zen-history"]
+        request: ["zen-history"]
         // folded once as it loads, not on every keystroke
         parse: output => output.trim() ? JSON.parse(output).map(visit => Object.assign(visit, { folded: Search.fold(visit.title + " " + visit.url) })) : []
     }
 
     Source {
         id: tabs
-        command: ["python3", Spot.helper, "zen-tabs"]
+        request: ["zen-tabs"]
     }
 }

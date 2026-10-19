@@ -2,6 +2,7 @@
 
 import subprocess
 import time
+from pathlib import Path
 
 from paths import STATE
 
@@ -28,6 +29,10 @@ def pins() -> list[dict]:
             }
         )
     return listed
+
+
+def pin_remove(name: str) -> None:
+    (PINS / Path(name).name).unlink()
 
 
 def pin_add(clip_id: str) -> None:

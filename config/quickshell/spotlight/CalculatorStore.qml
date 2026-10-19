@@ -54,8 +54,11 @@ Scope {
 
     Lookup {
         query: root.query
-        interval: 120
-        command: query => !/\d|^(now|time)\b/i.test(query) || root.calculate(query) !== null ? null : ["python3", Spot.helper, "calc", query]
+        // at every keystroke: the resident helper answers zones and dates at once,
+        // qalc's conversions in ~40 ms, and an answer to an old query is dropped
+        interval: 0
+        helper: true
+        command: query => !/\d|^(now|time)\b/i.test(query) || root.calculate(query) !== null ? null : ["calc", query]
         onDone: output => {
             const answer = output.trim() ? JSON.parse(output) : null;
             root.answer = answer ? Object.assign({ query: root.query }, answer) : null;

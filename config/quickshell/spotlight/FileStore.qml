@@ -354,7 +354,7 @@ notify-send -t 3000 -i folder "$verb to \${dest##*/}" "$moved of $# files"`, "sh
     Source {
         id: recent
         maxAge: 60000
-        command: ["python3", Spot.helper, "recent-files"]
+        request: ["recent-files"]
         parse: output => JSON.parse(output).map(entry => Object.assign(entry, { folded: Search.fold(entry.path) }))
     }
 
@@ -371,7 +371,8 @@ notify-send -t 3000 -i folder "$verb to \${dest##*/}" "$moved of $# files"`, "sh
 
     Lookup {
         query: root.query
-        interval: 150
+        // fd answers in 15-45 ms and a newer query stops it
+        interval: 50
         command: query => {
             if (root.isPath(query))
                 return null;
@@ -390,8 +391,9 @@ notify-send -t 3000 -i folder "$verb to \${dest##*/}" "$moved of $# files"`, "sh
 
     Lookup {
         query: root.contentQuery
-        interval: 200
-        command: query => query.length < 3 ? null : ["python3", Spot.helper, "contents", query]
+        interval: 50
+        helper: true
+        command: query => query.length < 3 ? null : ["contents", query]
         onDone: output => root.contentHits = output.trim() ? JSON.parse(output) : []
     }
 

@@ -1,74 +1,101 @@
 """Spotlight's helper: runs one command and prints its JSON (readers) or does
 its work (writers); a failure exits non-zero with the reason on stderr.
+`serve` keeps it resident for Spotlight, which would otherwise wait ~100 ms
+for Python to start and import at every call.
 """
 
 import json
+import os
 import sys
-from pathlib import Path
+import threading
+import traceback
+from importlib import import_module
 
-from agenda import agenda, agenda_add
-from calc import calc
-from contents import contents, index_contents
-from herdr import herdr_call, herdr_start
-from library import (
-    bookmark_save,
-    categories,
-    category_rename,
-    entry_delete,
-    list_entries,
-    note_add,
-    note_edit,
-    note_rename,
-)
-from papers import paper
-from pins import PINS, pin_add, pins
-from recent import recent_files
-from scripts import script_new, scripts
-from wifi import wifi, wifi_connect, wifi_disconnect, wifi_forget, wifi_scan
-from zen import zen_history, zen_tabs
+# a command's module and function, imported on its first call
+READERS = {
+    "list": ("library", "list_entries"),
+    "categories": ("library", "categories"),
+    "zen-history": ("zen", "zen_history"),
+    "zen-tabs": ("zen", "zen_tabs"),
+    "pins": ("pins", "pins"),
+    "herdr": ("herdr", "herdr_call"),
+    "calc": ("calc", "calc"),
+    "paper": ("papers", "paper"),
+    "scripts": ("scripts", "scripts"),
+    "agenda": ("agenda", "agenda"),
+    "recent-files": ("recent", "recent_files"),
+    "contents": ("contents", "contents"),
+    "wifi": ("wifi", "wifi"),
+}
+WRITERS = {
+    "bookmark-save": ("library", "bookmark_save"),
+    "note-add": ("library", "note_add"),
+    "note-edit": ("library", "note_edit"),
+    "note-rename": ("library", "note_rename"),
+    "delete": ("library", "entry_delete"),
+    "category-rename": ("library", "category_rename"),
+    "herdr-start": ("herdr", "herdr_start"),
+    "script-new": ("scripts", "script_new"),
+    "agenda-add": ("agenda", "agenda_add"),
+    "pin-add": ("pins", "pin_add"),
+    "pin-remove": ("pins", "pin_remove"),
+    "index-contents": ("contents", "index_contents"),
+    "wifi-scan": ("wifi", "wifi_scan"),
+    "wifi-connect": ("wifi", "wifi_connect"),
+    "wifi-disconnect": ("wifi", "wifi_disconnect"),
+    "wifi-forget": ("wifi", "wifi_forget"),
+}
+
+
+def run(command: str, *args: str) -> str:
+    """A reader's JSON, or "" once a writer is done."""
+    if command in READERS:
+        module, function = READERS[command]
+        return json.dumps(getattr(import_module(module), function)(*args))
+    if command in WRITERS:
+        module, function = WRITERS[command]
+        getattr(import_module(module), function)(*args)
+        return ""
+    sys.exit(f"unknown command: {command}")
+
+
+def answer(request: dict, answers, lock: threading.Lock) -> None:
+    try:
+        reply = {"id": request["id"], "output": run(*request["args"])}
+    except SystemExit as error:
+        reply = {"id": request["id"], "error": str(error.code)}
+    except Exception as error:  # noqa: BLE001 - any failure is the caller's error reply
+        traceback.print_exc()
+        reply = {
+            "id": request["id"],
+            "error": "".join(traceback.format_exception_only(error)).strip(),
+        }
+    with lock:
+        answers.write(json.dumps(reply) + "\n")
+        answers.flush()
+
+
+def serve() -> None:
+    """Reads {"id", "args"} lines and answers each, in its own thread so a slow
+    call (a paper, a Wi-Fi scan) holds up no other, with an {"id", "output"} or
+    {"id", "error"} line. The protocol keeps its own descriptors: children and
+    stray prints get /dev/null and stderr. Ends when Spotlight closes stdin."""
+    requests = os.fdopen(os.dup(0), encoding="utf-8")
+    answers = os.fdopen(os.dup(1), "w", encoding="utf-8")
+    os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
+    os.dup2(2, 1)
+    lock = threading.Lock()
+    for line in requests:
+        threading.Thread(
+            target=answer, args=(json.loads(line), answers, lock), daemon=True
+        ).start()
 
 
 def main() -> None:
-    command, *args = sys.argv[1:]
-    readers = {
-        "list": lambda: list_entries(*args),
-        "categories": lambda: categories(*args),
-        "zen-history": zen_history,
-        "zen-tabs": zen_tabs,
-        "pins": pins,
-        "herdr": lambda: herdr_call(*args),
-        "calc": lambda: calc(*args),
-        "paper": lambda: paper(*args),
-        "scripts": scripts,
-        "agenda": lambda: agenda(*args),
-        "recent-files": recent_files,
-        "contents": lambda: contents(*args),
-        "wifi": wifi,
-    }
-    writers = {
-        "bookmark-save": bookmark_save,
-        "note-add": note_add,
-        "note-edit": note_edit,
-        "note-rename": note_rename,
-        "delete": entry_delete,
-        "category-rename": category_rename,
-        "herdr-start": herdr_start,
-        "script-new": script_new,
-        "agenda-add": agenda_add,
-        "pin-add": pin_add,
-        "pin-remove": lambda name: (PINS / Path(name).name).unlink(),
-        "index-contents": index_contents,
-        "wifi-scan": wifi_scan,
-        "wifi-connect": wifi_connect,
-        "wifi-disconnect": wifi_disconnect,
-        "wifi-forget": wifi_forget,
-    }
-    if command in readers:
-        json.dump(readers[command](), sys.stdout)
-    elif command in writers:
-        writers[command](*args)
+    if sys.argv[1:] == ["serve"]:
+        serve()
     else:
-        sys.exit(f"unknown command: {command}")
+        sys.stdout.write(run(*sys.argv[1:]))
 
 
 if __name__ == "__main__":

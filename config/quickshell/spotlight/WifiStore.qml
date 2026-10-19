@@ -11,7 +11,7 @@ Scope {
     property var host
 
     function load() {
-        Spot.helperDetached(["wifi-scan"]);
+        Spot.send(["wifi-scan"]);
         networks.reload();
         rescanned.restart();
     }
@@ -36,7 +36,7 @@ Scope {
 
     // the helper's command, then a notification of how it went
     function run(args, done) {
-        Quickshell.execDetached(["sh", "-c", 'done=$1; shift; if out=$(python3 "$@" 2>&1); then notify-send -t 3000 -i network-wireless Wi-Fi "$done"; else notify-send -u critical -i network-wireless Wi-Fi "$out"; fi', "sh", done, Spot.helper, ...args]);
+        Spot.call(args, (output, error) => Quickshell.execDetached(error ? ["notify-send", "-u", "critical", "-i", "network-wireless", "Wi-Fi", error] : ["notify-send", "-t", "3000", "-i", "network-wireless", "Wi-Fi", done]));
     }
 
     function activate(item, keys) {
@@ -79,7 +79,7 @@ Scope {
 
     Source {
         id: networks
-        command: ["python3", Spot.helper, "wifi"]
+        request: ["wifi"]
     }
 
     // a scan takes a few seconds; list again once it is done
