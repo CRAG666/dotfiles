@@ -132,7 +132,7 @@ Item {
                     text: preview.info?.body ?? ""
                     color: preview.info?.mono ? Theme.eyes.green1 : Theme.ink
                     linkColor: Theme.eyes.blue0
-                    font.family: preview.info?.mono ? "Iosevka Nerd Font" : Theme.menuText
+                    font.family: preview.info?.mono ? Theme.mono : Theme.menuText
                     font.pixelSize: preview.info?.mono ? Spot.px(11) : preview.info?.document ? Spot.px(14) : Spot.px(13)
                     onLinkActivated: link => Spot.open(link)
                 }

@@ -22,7 +22,7 @@
 ;; Font (aligned with kitty/kitty.conf)
 ;; ============================================================
 (setq doom-font              (font-spec :family "DankMono Nerd Font Mono" :size 20.0)
-      doom-unicode-font      (font-spec :family "Iosevka Nerd Font"       :size 20.0)
+      doom-unicode-font      (font-spec :family "DankMono Nerd Font Mono" :size 20.0)
       doom-big-font          (font-spec :family "DankMono Nerd Font Mono" :size 26.0)
       doom-variable-pitch-font (font-spec :family "DankMono Nerd Font"    :size 20.0))
 
