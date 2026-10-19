@@ -1,0 +1,49 @@
+{
+  "spaces": [
+    {
+      "name": "Space",
+      "icon": "🎉",
+      "container": 0,
+      "accent": "green0",
+      "essentials": [
+        "https://grok.com/",
+        "https://gemini.google.com/app?hl=es",
+        "https://chat.qwen.ai/",
+        "https://chat.openai.com/",
+        "https://claude.ai/new",
+        "https://chat.minimax.io/",
+        "https://chat.mistral.ai/chat",
+        "https://duck.ai/",
+        "https://chat.deepseek.com",
+        "https://www.kimi.com/",
+        "https://copilot.cloud.microsoft/",
+        "https://www.dola.com/chat"
+      ],
+      "pinned": [
+        "https://web.whatsapp.com/",
+        "https://pi.dev/packages/pi-herdr-agents?name=herdr",
+        "https://tidal.com/"
+      ]
+    },
+    {
+      "name": "Work",
+      "icon": "👨‍💼",
+      "container": 2,
+      "accent": "orange0",
+      "essentials": [
+        "https://centrospublicos.turnitin.com/originality/inbox/b2ceb4fb-cf65-42c5-adf7-93c81c4cec2d",
+        "https://drive.google.com/drive/home"
+      ],
+      "pinned": [
+        "https://web.whatsapp.com/",
+        "https://github.com/",
+        "https://quillbot.com/ai-content-detector",
+        "https://mail.google.com/mail/u/0/#inbox",
+        "https://outlook.office.com/mail/",
+        "https://m365.cloud.microsoft/chat",
+        "https://drive.google.com/drive/home",
+        "https://notebook.google.com/"
+      ]
+    }
+  ]
+}

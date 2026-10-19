@@ -1,0 +1,42 @@
+{
+  "spaces": [
+    {
+      "name": "Space",
+      "icon": "👨‍🔬",
+      "container": 0,
+      "accent": "pink",
+      "essentials": [
+        "https://ieeexplore.ieee.org/Xplore/home.jsp",
+        "https://www.sciencedirect.com",
+        "https://link.springer.com",
+        "https://dl.acm.org",
+        "https://dblp.org/search",
+        "https://core.ac.uk",
+        "https://openalex.org",
+        "https://incitefulmed.com/academic/",
+        "https://research.ebsco.com",
+        "https://onlinelibrary.wiley.com",
+        "https://www.semanticscholar.org",
+        "https://www.scopus.com/search/form.uri?display=basic#basic"
+      ],
+      "pinned": [
+        "https://www.webofscience.com/wos/woscc/basic-search",
+        "https://storm.genie.stanford.edu",
+        "https://jcr.clarivate.com/jcr/home",
+        "https://www.base-search.net",
+        "https://zenodo.org",
+        "https://europepmc.org",
+        "https://fabian-beck.github.io/pure-suggest",
+        "https://www.tandfonline.com"
+      ]
+    },
+    {
+      "name": "Guruom",
+      "icon": "🙄",
+      "container": 1,
+      "accent": "violet",
+      "essentials": [],
+      "pinned": []
+    }
+  ]
+}

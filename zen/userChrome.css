@@ -1,0 +1,68 @@
+/* eyes palette as light-dark(light, dark): Zen follows the portal's scheme and
+   `eyes-theme variant` recolors the light values. zen-spaces.css is generated
+   per profile by zen_layout.py and sets each space's --eyes-space-accent and
+   --eyes-space-pastel, which tint the sidebar: the pastel in light mode keeps
+   the text contrast that a dark accent would lower. */
+@import url("zen-spaces.css");
+
+:root {
+  --eyes-bg0: light-dark(#f7dbb9, #192019);
+  --eyes-bg1: light-dark(#f2d5b2, #1f271f);
+  --eyes-bg2: light-dark(#edcfac, #252f25);
+  --eyes-bg3: light-dark(#e6c7a3, #2c372c);
+  --eyes-fg0: light-dark(#231d18, #e4e0cc);
+  --eyes-green0: light-dark(#294f01, #bfe6a1);
+  --eyes-teal: light-dark(#004d44, #95ded1);
+  --eyes-blue0: light-dark(#073c6e, #a2cdf7);
+  --eyes-aqua: light-dark(#003e4c, #96d4e2);
+  --eyes-violet: light-dark(#3f206c, #d5c9fc);
+  --eyes-pink: light-dark(#661b53, #efb7db);
+  --eyes-red: light-dark(#630005, #ffbab1);
+  --eyes-orange0: light-dark(#5e2600, #f7bc95);
+  --eyes-yellow: light-dark(#574a00, #f1de95);
+  --eyes-winterGreen: #b2e2af;
+  --eyes-winterBlue: #b3d7e9;
+  --eyes-winterRed: #f2c7c2;
+  --eyes-winterYellow: #e4dcab;
+
+  --zen-branding-paper: #f7dbb9 !important;
+  --zen-branding-dark: #192019 !important;
+  --zen-primary-color: var(--eyes-space-accent, var(--eyes-green0)) !important;
+  --toolbox-textcolor: var(--eyes-fg0) !important;
+  --zen-urlbar-background: var(--eyes-bg2) !important;
+  --toolbar-field-background-color: var(--eyes-bg2) !important;
+  --toolbar-field-focus-background-color: var(--eyes-bg0) !important;
+  --arrowpanel-background: var(--eyes-bg1) !important;
+  --arrowpanel-color: var(--eyes-fg0) !important;
+  --zen-dialog-background: var(--eyes-bg1) !important;
+  --eyes-sidebar: light-dark(
+    color-mix(in oklab, var(--eyes-space-pastel, #f7dbb9) 50%, #f7dbb9),
+    color-mix(in oklab, var(--zen-primary-color) 22%, #192019)
+  );
+}
+
+zen-workspace,
+.tabbrowser-tab[zen-essential="true"] {
+  --tab-background-color-selected: var(--eyes-bg0) !important;
+}
+
+.browserSidebarContainer {
+  --zen-transparent-browser-background: var(--eyes-bg0) !important;
+}
+
+.zen-browser-generic-background {
+  --zen-main-browser-background: var(--eyes-sidebar) !important;
+  --zen-main-browser-background-toolbar: var(--eyes-sidebar) !important;
+  --zen-main-browser-background-old: var(--eyes-sidebar) !important;
+  --zen-main-browser-background-toolbar-old: var(--eyes-sidebar) !important;
+}
+
+#urlbar .urlbar-background {
+  --zen-urlbar-background-base: var(--eyes-bg0) !important;
+  --zen-urlbar-background-transparent: var(--eyes-bg0) !important;
+}
+
+#commonDialogWindow {
+  background-color: var(--eyes-bg1) !important;
+  color: var(--eyes-fg0) !important;
+}

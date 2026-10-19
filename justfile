@@ -447,7 +447,7 @@ nvidia:
     sudo install -Dm 644 "{{ src }}/wayland/sessions/scroll-nvidia.desktop" \
         /usr/share/wayland-sessions/scroll-nvidia.desktop
 
-# Create the zen-browser "Inaoe" profile + install its .desktop launcher
+# Create the zen-browser "Inaoe" profile, apply zen/inaoe.json + install its .desktop launcher
 inaoe:
     #!/usr/bin/env bash
     set -eu
@@ -459,12 +459,23 @@ inaoe:
     fi
     echo "==> Configuring proxy for profile 'Inaoe'..."
     "{{ src }}/.scripts/configure_proxy.sh" "Inaoe"
+    echo "==> Applying its essentials + pinned tabs..."
+    just zen-layout Inaoe inaoe
     echo "==> Installing Inaoe icon + .desktop launcher..."
     install -Dm 644 "{{ src }}/local/applications/Inaoe.png" \
         "$HOME/.local/share/icons/hicolor/256x256/apps/Inaoe.png"
     mkdir -p "$HOME/.local/share/applications"
     ln -vsfn "{{ src }}/local/applications/Inaoe.desktop" "$HOME/.local/share/applications/Inaoe.desktop"
     gtk-update-icon-cache -q "$HOME/.local/share/icons/hicolor" 2>/dev/null || true
+
+# Apply zen/default.json (spaces, essentials, pinned tabs) + the eyes userChrome.css to the default Zen profile
+zen: (zen-layout "Default (release)" "default")
+
+# Apply zen/<layout>.json, zen/userChrome.css and its prefs to a Zen profile (Zen must be closed)
+[private]
+zen-layout profile layout:
+    python3 -c "import lz4" 2>/dev/null || just install-pkgs python-lz4
+    "{{ src }}/.scripts/zen_layout.py" "{{ profile }}" "{{ src }}/zen/{{ layout }}.json"
 
 # Configure unbound (local DNS resolver) + resolv.conf
 unbound:
