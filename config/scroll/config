@@ -735,6 +735,7 @@ for_window [title="(?i)^([Pp]icture[-\s]?[Ii]n[-\s]?[Pp]icture)(.*)$"] floating 
 # RDP
 for_window [class="sdl-freerdp3"] floating disable
 for_window [class="xfreerdp"] floating disable
+for_window [app_id="com.moonlight_stream.Moonlight"] fullscreen enable
 
 # System tools and control panels
 for_window [app_id="pwvucontrol"] floating enable, resize set 70ppt 70ppt
