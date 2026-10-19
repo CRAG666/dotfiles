@@ -32,7 +32,7 @@ yq = "latest"
 typst = "latest"
 "pipx:notebooklm-py" = { version = "latest", extras = "browser" }
 # tabctl install writes the mediator's versioned path into the native-messaging manifest, so rerun it on every upgrade
-"github:slastra/tabctl" = { version = "latest", asset_pattern = "tabctl-linux-amd64-*.tar.gz", rename_exe = { "tabctl-linux-amd64" = "tabctl", "tabctl-mediator-linux-amd64" = "tabctl-mediator" }, postinstall = "tabctl install" }
+"github:slastra/tabctl" = { version = "latest", asset_pattern = "tabctl-linux-amd64-*.tar.gz", rename_exe = { "tabctl-linux-amd64" = "tabctl", "tabctl-mediator-linux-amd64" = "tabctl-mediator" }, postinstall = "tabctl install --browser Firefox" }
 
 [settings]
 minimum_release_age = "0"
