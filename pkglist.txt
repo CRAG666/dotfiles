@@ -55,6 +55,8 @@ mise
 luarocks
 corkscrew
 jujutsu
+libqalculate
+github-cli
 
 # Monitoring
 btop
