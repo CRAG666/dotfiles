@@ -542,6 +542,9 @@ sunshine: nftables
         rm -rf "$dst"
     fi
     ln -vsfn "{{ src }}/config/sunshine" "$dst"
+    echo "==> Installing the sudoers rule that lets Sunshine lock the GPU clocks while streaming..."
+    sudo visudo -cf "{{ src }}/etc/sudoers.d/sunshine-gpu-clocks"
+    sudo install -m 440 "{{ src }}/etc/sudoers.d/sunshine-gpu-clocks" /etc/sudoers.d/
     echo "==> Enabling its user service (starts with graphical-session.target)..."
     {{ systemd_enable_user }} app-dev.lizardbyte.app.Sunshine.service
 

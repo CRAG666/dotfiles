@@ -1,0 +1,1 @@
+%wheel ALL=(root) NOPASSWD: /usr/bin/nvidia-smi --lock-gpu-clocks=1575\,2100, /usr/bin/nvidia-smi --reset-gpu-clocks

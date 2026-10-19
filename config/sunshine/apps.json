@@ -3,7 +3,13 @@
   "apps": [
     {
       "name": "Desktop",
-      "image-path": "desktop.png"
+      "image-path": "desktop.png",
+      "prep-cmd": [
+        {
+          "do": "sudo -n /usr/bin/nvidia-smi --lock-gpu-clocks=1575,2100",
+          "undo": "sudo -n /usr/bin/nvidia-smi --reset-gpu-clocks"
+        }
+      ]
     }
   ]
 }
