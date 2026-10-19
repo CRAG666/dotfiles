@@ -479,22 +479,26 @@ Scope {
             return [...commands.items(tokens), ...system.items(tokens), ...commands.viewItems(tokens), ...commands.toolItems(tokens), ...library.commandItems(tokens), ...herdr.commandItems(tokens), ...colors.pickItem(tokens), ...notifications.commandItems(tokens), ...commands.mediaItems(tokens), ...apps.actionItems(tokens), ...scripts.items(tokens), ...scripts.commandItems(tokens), ...agenda.commandItems(tokens), ...windows.quitItems(tokens)];
         }
 
-        // best first: how well the title matches plus how often the item was picked
-        // (apps: launched); `lead` items stay ahead. Each item is copied with its
-        // score, which picks the Top Hit. An empty query keeps the store's order
         // the 16 emoji picked most
         function pickedEmoji() {
             return Object.keys(frecency.picks).filter(key => key.startsWith("emoji:")).map(key => [key, frecency.weight(key)]).sort((a, b) => b[1] - a[1]).slice(0, 16).map(([key]) => key.slice(6));
         }
 
-        // `limit`: only the best that many are ordered and copied (top-k selection)
+        // best first: how well the title matches plus how often the item was picked
+        // (apps: launched); `lead` items stay ahead. An empty query keeps the store's
+        // order. The items are not copied with their scores, which change at every
+        // keystroke and would make the list remake their rows: the list's `best`
+        // holds its first's, which picks the Top Hit. `limit`: only the best that
+        // many are ordered (top-k selection)
         function ranked(items, tokens, limit = Infinity) {
             if (!tokens.length)
                 return items;
             const scored = items.map((item, index) => ({ item, index, score: (Search.score(Search.fold(item.title), tokens) || 0.4) + (item.lead ? 1 : 0) + Search.boost(item.uses ?? frecency.weight(item.key)) }));
             const order = (a, b) => b.score - a.score || a.index - b.index;
-            return (limit < scored.length ? Spot.firstSorted(scored, order, limit) : scored.sort(order))
-                .map(({ item, score }) => Object.assign({ score }, item));
+            const best = limit < scored.length ? Spot.firstSorted(scored, order, limit) : scored.sort(order);
+            const sorted = best.map(({ item }) => item);
+            sorted.best = best.length ? best[0].score : 0;
+            return sorted;
         }
 
         // the search of everything: [section, items] pairs, best kinds first; an
@@ -519,7 +523,8 @@ Scope {
             };
             // the best of every kind that is opened by name, if its title matches;
             // apps win a tie
-            const top = Object.values(found).map(list => list[0]).filter(item => item?.score >= 0.5).reduce((best, item) => !best || item.score > best.score ? item : best, null);
+            const topList = Object.values(found).filter(list => list.best >= 0.5).reduce((best, list) => !best || list.best > best.best ? list : best, null);
+            const top = topList ? topList[0] : null;
             const rest = list => list.filter(item => item !== top);
             // a DOI like 10.1145/3292500.3330701 is no sum
             const answer = papers.target ? [] : calculator.items(raw);

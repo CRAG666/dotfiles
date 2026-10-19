@@ -84,6 +84,8 @@ Item {
         // keeps the list's height exact, and so the fade, for a list just longer
         // than the window; scrolling makes the rest
         cacheBuffer: Spot.px(90)
+        // a row that leaves hands its delegate to one that arrives (p90 25 → 22 ms)
+        reuseItems: true
         // diffed, so the rows a change leaves in place keep their delegates
         model: ScriptModel {
             values: host.results

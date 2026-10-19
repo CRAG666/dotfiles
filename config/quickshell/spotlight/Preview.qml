@@ -9,7 +9,7 @@ import qs
 Item {
     id: root
     property var host
-    readonly property alias info: preview.info
+    readonly property var info: host.selection ? host.describe(host.selection) : null
 
     function scroll(delta) {
         preview.contentY = Math.max(0, Math.min(preview.contentHeight - preview.height, preview.contentY + delta));
@@ -17,7 +17,9 @@ Item {
 
     Flickable {
         id: preview
-        readonly property var info: host.selection ? host.describe(host.selection) : null
+        // the action bar reads the selection's description; the pane lays it
+        // out only while it shows
+        readonly property var info: host.previewing ? root.info : null
         x: Spot.px(18)
         y: Spot.px(18)
         width: parent.width - Spot.px(36)
@@ -97,14 +99,17 @@ Item {
                 color: Theme.inkSoft
             }
             Repeater {
-                model: (preview.info?.details ?? []).filter(line => line)
+                id: detailLines
+                readonly property var lines: (preview.info?.details ?? []).filter(line => line)
+                // a count, so another selection's lines update the labels in place
+                model: lines.length
 
                 Label {
-                    required property string modelData
+                    required property int index
                     width: details.width
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.Wrap
-                    text: modelData
+                    text: detailLines.lines[index] ?? ""
                     color: Theme.inkSoft
                     font.pixelSize: Spot.px(12)
                 }
@@ -152,10 +157,11 @@ Item {
             font.weight: Font.DemiBold
         }
         Repeater {
-            model: facts.rows
+            model: facts.rows.length
 
             Item {
-                required property var modelData
+                required property int index
+                readonly property var fact: facts.rows[index] ?? ["", ""]
                 width: facts.width
                 height: Spot.px(30)
 
@@ -168,7 +174,7 @@ Item {
                     id: factLabel
                     anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
-                    text: parent.modelData[0]
+                    text: parent.fact[0]
                     color: Theme.inkSoft
                     font.pixelSize: Spot.px(12)
                 }
@@ -178,7 +184,7 @@ Item {
                     width: Math.min(implicitWidth, parent.width - factLabel.implicitWidth - Spot.px(16))
                     horizontalAlignment: Text.AlignRight
                     elide: Text.ElideMiddle
-                    text: String(parent.modelData[1])
+                    text: String(parent.fact[1])
                     font.pixelSize: Spot.px(12)
                 }
             }
