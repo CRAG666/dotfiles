@@ -1,3 +1,4 @@
+import Quickshell
 import QtQuick
 import qs
 
@@ -14,7 +15,7 @@ Item {
     // { section, count (on a section's first row), first, cells: [result index] };
     // none while the list shows the results, so no keystroke builds hidden cells
     readonly property var rows: {
-        if (!host.gridView)
+        if (!host.results.grid)
             return [];
         const counts = {};
         for (let index = 0; index < host.results.length; index++)
@@ -61,7 +62,12 @@ Item {
         anchors.fill: parent
         clip: true
         boundsBehavior: Flickable.StopAtBounds
-        model: root.rows
+        // rows are known by their first result, so a keystroke updates them in place
+        // instead of remaking every row
+        model: ScriptModel {
+            objectProp: "first"
+            values: root.rows
+        }
 
         delegate: Column {
             id: gridRow
@@ -94,13 +100,15 @@ Item {
                 spacing: root.gap
 
                 Repeater {
-                    model: gridRow.modelData.cells
+                    // a count, as a row's cells are consecutive results
+                    model: gridRow.modelData.cells.length
 
                     Rectangle {
                         id: cell
-                        required property int modelData
-                        readonly property var item: root.host.results[modelData]
-                        readonly property bool isCurrent: modelData === root.host.current
+                        required property int index
+                        readonly property int at: gridRow.modelData.first + index
+                        readonly property var item: root.host.results[at]
+                        readonly property bool isCurrent: at === root.host.current
                         width: root.cell
                         height: root.cell
                         radius: Spot.px(10)
@@ -118,7 +126,7 @@ Item {
                             id: cellMouse
                             anchors.fill: parent
                             hoverEnabled: true
-                            onClicked: root.host.pick(cell.modelData)
+                            onClicked: root.host.pick(cell.at)
                             onDoubleClicked: root.host.activate(cell.item, { ctrl: false, shift: false })
                         }
                     }

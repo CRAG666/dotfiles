@@ -124,7 +124,10 @@ Scope {
         }
         readonly property var currentView: views.find(view => view.mode === mode) ?? null
         // the search of everything keeps the whole width but for an answer to read
-        readonly property bool gridView: !!currentView?.grid && !form && !actionTarget
+        // the results say whether they fill the grid: the list and the grid read it
+        // from them, so neither sees the other's results for a moment when the view
+        // changes (bindings run in no set order: the list once took the 1404 emoji)
+        readonly property bool gridView: results.grid === true
         readonly property bool previewing: currentView && currentView.preview !== "answers" ? currentView.preview !== false : ["ai", "aiCommand", "paper", "paperPending"].includes(selection?.kind)
 
         readonly property string clipboardText: clipboardOut.text
@@ -579,13 +582,19 @@ Scope {
                 sections = files.browseSections(raw);
             else
                 sections = currentView ? currentView.sections(tokens, raw) : everything(tokens, raw);
-            // indexed: V4's for…of goes through an iterator for every item
+            // indexed: V4's for…of goes through an iterator for every item. `place`
+            // (section and key, unique where a key is not: a folder in Home and
+            // Frequent) is what the list knows a row by
             const items = [];
             for (let at = 0; at < sections.length; at++) {
                 const [section, list] = sections[at];
-                for (let index = 0; index < list.length; index++)
-                    items.push(Object.assign({ section }, list[index]));
+                for (let index = 0; index < list.length; index++) {
+                    const item = Object.assign({ section }, list[index]);
+                    item.place = item.section + "\n" + item.key;
+                    items.push(item);
+                }
             }
+            items.grid = !!currentView?.grid;
             return items;
         }
 

@@ -86,9 +86,14 @@ Item {
         cacheBuffer: Spot.px(90)
         // a row that leaves hands its delegate to one that arrives (p90 25 → 22 ms)
         reuseItems: true
-        // diffed, so the rows a change leaves in place keep their delegates
+        // diffed, so the rows a change leaves in place keep their delegates, and
+        // a row whose text changed is updated, not remade. Rows compare by
+        // `place`, a string, not field by field, as the diff compares each row with
+        // the old ones (n·m); and none under the grid: leaving the emoji for the
+        // history cost 130 ms
         model: ScriptModel {
-            values: host.results
+            objectProp: "place"
+            values: host.results.grid ? [] : host.results
         }
         layer.enabled: !atYEnd
         layer.effect: MultiEffect {
