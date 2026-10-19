@@ -536,7 +536,7 @@ sunshine: nftables
     set -eu
     echo "==> Installing sunshine + enabling its user service (starts with graphical-session.target)..."
     just install-pkgs sunshine
-    {{ systemd_enable_user }} sunshine.service
+    {{ systemd_enable_user }} app-dev.lizardbyte.app.Sunshine.service
 
 # L14: Moonlight client to stream the P53 desktop
 moonlight:
