@@ -148,7 +148,7 @@ links group:
                 ! -name .claude ! -name .a5c ! -name .crush \
                 -printf "%p\t$HOME/%f\n" ;;
         config)
-            find "{{ src }}/config" -mindepth 1 -maxdepth 1 ! -name .gitignore ! -name systemd \
+            find "{{ src }}/config" -mindepth 1 -maxdepth 1 ! -name .gitignore ! -name systemd ! -name moonlight \
                 -printf "%p\t$HOME/.config/%f\n" ;;
         bin)
             find "{{ src }}/local/bin" -mindepth 1 -maxdepth 1 ! -name ".*" \
@@ -545,12 +545,31 @@ sunshine: nftables
     echo "==> Enabling its user service (starts with graphical-session.target)..."
     {{ systemd_enable_user }} app-dev.lizardbyte.app.Sunshine.service
 
-# L14: Moonlight client to stream the P53 desktop
+# L14: Moonlight client to stream the P53 desktop + its streaming settings
 moonlight:
     #!/usr/bin/env bash
     set -eu
     echo "==> Installing moonlight-qt..."
     just install-pkgs moonlight-qt
+    if pgrep -x moonlight >/dev/null; then
+        echo "Close Moonlight first: it rewrites its settings on exit" >&2
+        exit 1
+    fi
+    # Moonlight.conf also holds the pairing key and certificate, so only the settings are merged in
+    echo "==> Merging config/moonlight/Moonlight.conf into Moonlight's settings..."
+    conf="$HOME/.config/Moonlight Game Streaming Project/Moonlight.conf"
+    if [ ! -f "$conf" ]; then
+        install -Dm 644 "{{ src }}/config/moonlight/Moonlight.conf" "$conf"
+        exit 0
+    fi
+    grep -q '^\[General\]$' "$conf" || printf '[General]\n' >>"$conf"
+    grep -v '^\[' "{{ src }}/config/moonlight/Moonlight.conf" | while IFS='=' read -r name value; do
+        if grep -q "^$name=" "$conf"; then
+            sed -i "s|^$name=.*|$name=$value|" "$conf"
+        else
+            sed -i "/^\[General\]$/a $name=$value" "$conf"
+        fi
+    done
 
 # Configure dnscrypt-proxy (DoH/443 egress for networks that block 53)
 dnscrypt:
