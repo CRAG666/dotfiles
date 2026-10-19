@@ -1,8 +1,9 @@
 # Lock after 10 min (lock.sh is a no-op if the session is already locked)
 timeout 600 '~/.config/quickshell/lock.sh'
 
-# Turn off screens after 10 min; turn back on when returning from idle
-timeout 900 'scrollmsg "output * dpms off"' resume 'scrollmsg "output * dpms on"'
+# Turn off screens after 15 min; turn back on when returning from idle.
+# Never on the P53: Sunshine's KMS capture finds no monitor while it is off
+timeout 900 '[ "$(cat /proc/sys/kernel/hostname)" = P53 ] || scrollmsg "output * dpms off"' resume 'scrollmsg "output * dpms on"'
 
 # Suspend after 30 min ONLY on battery (online=0); does nothing when plugged in
 timeout 1800 'grep -q 0 /sys/class/power_supply/AC/online && systemctl suspend'
