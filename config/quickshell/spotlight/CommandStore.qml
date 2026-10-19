@@ -23,10 +23,10 @@ Scope {
         { title: "Toggle Dark Mode", icon: "weather-clear-night", command: ["eyes-theme", "toggle"] },
         { title: "Next Wallpaper", icon: "preferences-desktop-wallpaper", command: [Spot.home + "/.config/awww/awwwallpaper.sh", "-n"] },
         { title: "Toggle Caffeine", icon: "caffeine", command: ["sh", "-c", 'if pkill swayidle; then notify-send -t 2000 "Caffeine on"; else swayidle -w & notify-send -t 2000 "Caffeine off"; fi'] },
-        { title: "Screenshot Area", icon: "applets-screenshooter", command: ["sh", "-c", 'sleep 0.3; grim -g "$(slurp -d)" - | swappy -f -'] },
+        { title: "Screenshot Area", icon: "applets-screenshooter", command: ["sh", "-c", 'grim -g "$(slurp -d)" - | swappy -f -'], offScreen: true },
         // tesseract reads the area in every language it has data for
-        { title: "Copy Text from Screen", icon: "edit-copy", words: "ocr live text recognize", command: ["sh", "-c", 'sleep 0.3; area=$(slurp -d) || exit 0; text=$(grim -g "$area" - | tesseract stdin stdout -l "$(tesseract --list-langs 2> /dev/null | tail -n +2 | grep -vx osd | paste -sd+)" 2> /dev/null | tr -d "\\f"); if [ -n "$(printf %s "$text" | tr -d "[:space:]")" ]; then printf %s "$text" | wl-copy; notify-send -t 3000 -i edit-copy "Text copied" "$(printf %s "$text" | head -c 200)"; else notify-send -t 3000 -i edit-copy "No text found"; fi'] },
-        { title: "Screenshot Screen", icon: "applets-screenshooter", command: ["sh", "-c", 'sleep 0.3; grim -o "$(scrollmsg -t get_outputs | jq -r ".[] | select(.focused) | .name")" - | swappy -f -'] },
+        { title: "Copy Text from Screen", icon: "edit-copy", words: "ocr live text recognize", command: ["sh", "-c", 'area=$(slurp -d) || exit 0; text=$(grim -g "$area" - | tesseract stdin stdout -l "$(tesseract --list-langs 2> /dev/null | tail -n +2 | grep -vx osd | paste -sd+)" 2> /dev/null | tr -d "\\f"); if [ -n "$(printf %s "$text" | tr -d "[:space:]")" ]; then printf %s "$text" | wl-copy; notify-send -t 3000 -i edit-copy "Text copied" "$(printf %s "$text" | head -c 200)"; else notify-send -t 3000 -i edit-copy "No text found"; fi'], offScreen: true },
+        { title: "Screenshot Screen", icon: "applets-screenshooter", command: ["sh", "-c", 'grim -o "$(scrollmsg -t get_outputs | jq -r ".[] | select(.focused) | .name")" - | swappy -f -'], offScreen: true },
         { title: "Empty Trash", icon: "user-trash-full", command: ["gio", "trash", "--empty"], confirm: true },
         { title: "Edit Aliases, Snippets, Quicklinks and AI Commands", icon: "accessories-text-editor", command: [...host.userConfig.terminal, ...Spot.editor(Spot.configFile)] },
         { title: "Close Window", icon: "window-close", command: ["scrollmsg", "kill"] },
@@ -58,7 +58,7 @@ Scope {
 
     // the commands, views and tools as items, each with the text it is found by
     // folded once, so a keystroke only matches them (Search.matching)
-    readonly property var commandEntries: commands.map(command => ({ key: "cmd:" + command.title, kind: "command", store: root, title: command.title, icon: command.icon, command: command.command, confirm: command.confirm ?? false, text: Search.fold(`${command.title} ${command.words ?? ""}`) }))
+    readonly property var commandEntries: commands.map(command => ({ key: "cmd:" + command.title, kind: "command", store: root, title: command.title, icon: command.icon, command: command.command, offScreen: command.offScreen ?? false, confirm: command.confirm ?? false, text: Search.fold(`${command.title} ${command.words ?? ""}`) }))
     readonly property var viewEntries: host.views.map(view => Object.assign(viewItem(view), { text: Search.fold(`${view.title} ${view.alias ?? ""}`) }))
     readonly property var toolEntries: host.userConfig.tools.map(tool => ({ key: "tool:" + tool.title, kind: "command", store: root, title: tool.title, hint: tool.command.join(" "), icon: tool.icon ?? Spot.iconFor(tool.command[0]), command: [...(tool.floating ? host.userConfig.floatingTerminal : host.userConfig.terminal), ...(tool.hold ? Spot.hold(tool.command) : tool.command)], text: Search.fold(`${tool.title} ${tool.command[0]}`) }))
 
@@ -113,7 +113,11 @@ Scope {
                 player.previous();
             return true;
         default:
-            Quickshell.execDetached(item.command);
+            // what captures the screen waits for Spotlight to leave it
+            if (item.offScreen)
+                Spot.whenHidden(item.command);
+            else
+                Quickshell.execDetached(item.command);
             return true;
         }
     }

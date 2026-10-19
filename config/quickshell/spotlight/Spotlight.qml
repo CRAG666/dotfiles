@@ -837,6 +837,15 @@ Scope {
             onLoaded: win.userConfig = JSON.parse(text())
         }
 
+        // the frame that hides Spotlight lets what waits for it run (Spot.whenHidden)
+        Connections {
+            target: win.contentItem.Window.window
+            function onFrameSwapped() {
+                if (!win.shown)
+                    Spot.hidden();
+            }
+        }
+
         Process {
             id: clipboardNow
             command: ["wl-paste", "--no-newline", "--type", "text"]

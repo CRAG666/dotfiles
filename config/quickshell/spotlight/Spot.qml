@@ -19,9 +19,9 @@ Singleton {
     property real scale: 1
     readonly property var terminals: ["kitty", "foot", "Alacritty", "org.wezfurlong.wezterm", "com.mitchellh.ghostty", "ghostty.dialog"]
 
-    // run after Spotlight closes: send the paste shortcut to the focused window
-    // (terminals take Ctrl+Shift+V)
-    readonly property string pasteKeys: `sleep 0.3
+    // run after Spotlight closes (whenHidden): send the paste shortcut to the
+    // focused window (terminals take Ctrl+Shift+V)
+    readonly property string pasteKeys: `
 app=$(scrollmsg -t get_tree | jq -r '[.. | select(.focused? == true)][0] | .app_id // .window_properties.class // ""')
 case "$app" in
 kitty | foot | Alacritty | org.wezfurlong.wezterm | com.mitchellh.ghostty | ghostty.dialog) wtype -M ctrl -M shift v -m shift -m ctrl ;;
@@ -79,11 +79,49 @@ esac`
     function type(text) {
         const marker = "{cursor}";
         const at = text.indexOf(marker);
-        const command = ["sh", "-c", 'sleep 0.25; wtype -- "$1"; shift; [ $# -eq 0 ] || wtype "$@"', "sh", text.split(marker).join("")];
+        const command = ["sh", "-c", 'wtype -- "$1"; shift; [ $# -eq 0 ] || wtype "$@"', "sh", text.split(marker).join("")];
         const lefts = at < 0 ? 0 : [...text.slice(at + marker.length).split(marker).join("")].length;
         for (let step = 0; step < lefts; step++)
             command.push("-k", "Left");
-        Quickshell.execDetached(command);
+        whenHidden(command);
+    }
+
+    // runs `command` once Spotlight is off the screen and the keyboard is back
+    // with the window under it, for what types, pastes or captures the screen:
+    // two frames after the frame that hid it (Spotlight's window calls hidden()),
+    // where a fixed pause waited 300 ms; after those 300 ms anyway if no such
+    // frame comes
+    function whenHidden(command) {
+        afterHiding.push(command);
+        hidingFallback.restart();
+    }
+
+    function hidden() {
+        if (afterHiding.length)
+            hidingSettled.restart();
+    }
+
+    function runHidden() {
+        const commands = afterHiding;
+        afterHiding = [];
+        hidingSettled.stop();
+        hidingFallback.stop();
+        for (let index = 0; index < commands.length; index++)
+            Quickshell.execDetached(commands[index]);
+    }
+
+    property var afterHiding: []
+
+    Timer {
+        id: hidingSettled
+        interval: 34
+        onTriggered: runHidden()
+    }
+
+    Timer {
+        id: hidingFallback
+        interval: 300
+        onTriggered: runHidden()
     }
 
     // keeps the terminal open after `command` ends

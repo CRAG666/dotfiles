@@ -35,8 +35,7 @@ Scope {
             Spot.copy(item.title);
             return true;
         }
-        Quickshell.execDetached(["sh", "-c", `sleep 0.3
-color=$(grim -g "$(slurp -p)" -t ppm - | magick - -depth 8 -format '#%[hex:p{0,0}]' info:) || exit 0
+        Spot.whenHidden(["sh", "-c", `color=$(grim -g "$(slurp -p)" -t ppm - | magick - -depth 8 -format '#%[hex:p{0,0}]' info:) || exit 0
 printf %s "$color" | wl-copy
 printf '%s\\n' "$color" >> "$1"
 notify-send -i color-picker "Color picked" "$color"`, "sh", file.path]);

@@ -64,7 +64,11 @@ Scope {
     function toClipboard(item, plain, followUp) {
         const target = plain && item.type !== "image" ? " --type text/plain" : "";
         const source = item.kind === "pin" ? `wl-copy${target} < "$1"` : `cliphist decode "$1" | wl-copy${target}`;
-        Quickshell.execDetached(["sh", "-c", source + "\n" + followUp, "sh", item.kind === "pin" ? item.pin.path : item.entry.id]);
+        const command = ["sh", "-c", source + "\n" + followUp, "sh", item.kind === "pin" ? item.pin.path : item.entry.id];
+        if (followUp)
+            Spot.whenHidden(command);
+        else
+            Quickshell.execDetached(command);
     }
 
     function activate(item, keys) {

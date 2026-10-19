@@ -16,7 +16,6 @@ sleep 30
 [ "$(wl-paste -n 2>/dev/null)" = "$pw" ] && wl-copy --clear && notify-send -i passwordsafe "Password cleared from the clipboard"`
     readonly property string passType: `
 pw=$(pass show -- "$1") || { notify-send -u critical "pass" "Could not decrypt $1"; exit 1; }
-sleep 0.3
 printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
 
     function load() {
@@ -34,7 +33,10 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
     }
 
     function activate(item, keys) {
-        Quickshell.execDetached(["sh", "-c", keys.ctrl ? passType : passCopy, "sh", item.value]);
+        if (keys.ctrl)
+            Spot.whenHidden(["sh", "-c", passType, "sh", item.value]);
+        else
+            Quickshell.execDetached(["sh", "-c", passCopy, "sh", item.value]);
         return true;
     }
 
