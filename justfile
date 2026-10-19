@@ -531,7 +531,7 @@ ssh: nftables
     {{ systemd_enable }} sshd
 
 # P53: Sunshine stream host for the desktop, only over the tailnet (pair at https://<tailscale-ip>:47990)
-sunshine: nftables
+sunshine: nftables (link "config")
     #!/usr/bin/env bash
     set -eu
     echo "==> Installing sunshine + enabling its user service (starts with graphical-session.target)..."
