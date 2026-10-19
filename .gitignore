@@ -632,3 +632,9 @@ config/xdg-desktop-portal-termfilechooser/.last_selected
 **/.crush
 /config/nvim/nvim-pack-lock.json
 /config/nushell/mise.nu
+
+# sunshine — TLS key, web UI credentials, paired clients and logs written at runtime
+/config/sunshine/credentials/
+/config/sunshine/sunshine_state.json
+/config/sunshine/sunshine.log*
+/config/sunshine/covers/

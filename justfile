@@ -530,19 +530,20 @@ ssh: nftables
     just install-pkgs openssh
     {{ systemd_enable }} sshd
 
-# P53: VNC server for the Wayland desktop, only over the tailnet (wayvnc <tailscale-ip>)
-wayvnc: nftables
+# P53: Sunshine stream host for the desktop, only over the tailnet (pair at https://<tailscale-ip>:47990)
+sunshine: nftables
     #!/usr/bin/env bash
     set -eu
-    echo "==> Installing wayvnc..."
-    just install-pkgs wayvnc
+    echo "==> Installing sunshine + enabling its user service (starts with graphical-session.target)..."
+    just install-pkgs sunshine
+    {{ systemd_enable_user }} sunshine.service
 
-# L14: native Wayland VNC client to view the P53 (AUR: wlvncc-git)
-vncviewer:
+# L14: Moonlight client to stream the P53 desktop
+moonlight:
     #!/usr/bin/env bash
     set -eu
-    echo "==> Installing wlvncc (AUR)..."
-    just install-pkgs wlvncc-git
+    echo "==> Installing moonlight-qt..."
+    just install-pkgs moonlight-qt
 
 # Configure dnscrypt-proxy (DoH/443 egress for networks that block 53)
 dnscrypt:
@@ -607,10 +608,10 @@ firmware *pkgs:
         sudo pacman -Rns --noconfirm linux-firmware
     fi
 
-# Install for ThinkPad P53 with NVIDIA (server SSH + wayvnc)
-p53: install init thinkpad laptop-intel nvidia dns tailscale ssh wayvnc (firmware p53_firmware)
+# Install for ThinkPad P53 with NVIDIA (server SSH + Sunshine)
+p53: install init thinkpad laptop-intel nvidia dns tailscale ssh sunshine (firmware p53_firmware)
     sudo install -Dm 644 "{{ src }}/etc/greetd/P53.png" /etc/greetd/laptop.png
 
-# Install for ThinkPad L14 Gen 4 (Ryzen 5, + client VNC)
-l14: install init thinkpad-amd dns tailscale vncviewer (firmware l14_firmware)
+# Install for ThinkPad L14 Gen 4 (Ryzen 5, + client Moonlight)
+l14: install init thinkpad-amd dns tailscale moonlight (firmware l14_firmware)
     sudo install -Dm 644 "{{ src }}/etc/greetd/L14_Gen4.png" /etc/greetd/laptop.png

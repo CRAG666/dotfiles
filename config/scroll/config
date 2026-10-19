@@ -339,7 +339,7 @@ animations {
     bindsym  $mod+slash mode "filter"
 
     # Remote: release all local binds so they reach the focused
-    # window (e.g. the P53 VNC viewer). $mod+F12 enters and exits.
+    # window (e.g. Moonlight streaming the P53). $mod+F12 enters and exits.
     mode "passthrough" {
         bindsym $mod+F12 mode "default"
     }
