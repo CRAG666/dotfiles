@@ -2,7 +2,7 @@
 and how well it ranks, against a commit (HEAD by default), each side in a
 hidden sandbox that shares nothing writable with the running Spotlight.
 
-    python3 config/quickshell/spotlight/bench matcher|stores|keystrokes|precision [--against REV]
+    python3 config/quickshell/spotlight/bench <command> [--against REV]
 """
 
 import argparse
@@ -10,6 +10,7 @@ import sys
 
 from equivalence import matcher, narrowing, stores
 from keystrokes import keystrokes
+from latency import latency
 from precision import precision
 from profiling import profile
 
@@ -56,6 +57,15 @@ def main() -> None:
         run=lambda args: keystrokes(
             args.against, args.queries, args.warm, args.mode, args.repeat
         )
+    )
+    command = commands.add_parser(
+        "latency", help="keystroke to frame, the window drawn behind the desktop"
+    )
+    command.add_argument("--queries", type=int, default=40)
+    command.add_argument("--mode", default="")
+    command.add_argument("--repeat", type=int, default=1)
+    command.set_defaults(
+        run=lambda args: latency(args.against, args.queries, args.mode, args.repeat)
     )
     command = commands.add_parser(
         "profile", help="QML self time per function while typing"
