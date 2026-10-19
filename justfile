@@ -531,11 +531,18 @@ ssh: nftables
     {{ systemd_enable }} sshd
 
 # P53: Sunshine stream host for the desktop, only over the tailnet (pair at https://<tailscale-ip>:47990)
-sunshine: nftables (link "config")
+sunshine: nftables
     #!/usr/bin/env bash
     set -eu
-    echo "==> Installing sunshine + enabling its user service (starts with graphical-session.target)..."
+    echo "==> Installing sunshine..."
     just install-pkgs sunshine
+    echo "==> Linking config/sunshine (replaces a ~/.config/sunshine that is not a symlink)..."
+    dst="$HOME/.config/sunshine"
+    if [ -e "$dst" ] && [ ! -L "$dst" ]; then
+        rm -rf "$dst"
+    fi
+    ln -vsfn "{{ src }}/config/sunshine" "$dst"
+    echo "==> Enabling its user service (starts with graphical-session.target)..."
     {{ systemd_enable_user }} app-dev.lizardbyte.app.Sunshine.service
 
 # L14: Moonlight client to stream the P53 desktop
