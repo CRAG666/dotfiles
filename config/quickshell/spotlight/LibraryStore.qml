@@ -20,27 +20,39 @@ Scope {
         return Spot.unique(source.items.map(entry => entry.category)).sort((a, b) => a.localeCompare(b));
     }
 
+    // made once a load, not for every match at every keystroke
+    readonly property var bookmarkList: bookmarks.items.map(entry => ({ key: "bookmark:" + entry.id, kind: "bookmark", store: root, entry, title: entry.title, hint: entry.category, icon: "web-browser" }))
+    readonly property var noteList: notes.items.map(entry => ({ key: "note:" + entry.id, kind: "note", store: root, entry, title: entry.title, hint: entry.category, icon: "accessories-text-editor" }))
+
     function bookmarkItems(tokens) {
-        return matching(bookmarks.items, tokens)
-            .map(entry => ({ key: "bookmark:" + entry.id, kind: "bookmark", store: root, entry, title: entry.title, hint: entry.category, icon: "web-browser" }));
+        return matching(bookmarkList, tokens);
     }
 
     function noteItems(tokens) {
-        return matching(notes.items, tokens)
-            .map(entry => ({ key: "note:" + entry.id, kind: "note", store: root, entry, title: entry.title, hint: entry.category, icon: "accessories-text-editor" }));
+        return matching(noteList, tokens);
     }
 
-    // the entries whose title and category match loosely or whose URL or note
-    // text match exactly, in their order; each half keeps its answers (Search.matching)
-    function matching(entries, tokens) {
-        const named = Search.matching(entries, "name", entry => entry.name, tokens);
-        const written = Search.matching(entries, "haystack", entry => entry.haystack, tokens, false);
+    // the items whose title and category match loosely or whose URL or note
+    // text match exactly, in their order; each half keeps its answers (Search.matching).
+    // Both halves follow the items' order, so one walk merges them
+    function matching(items, tokens) {
+        const named = Search.matching(items, "name", item => item.entry.name, tokens);
+        const written = Search.matching(items, "haystack", item => item.entry.haystack, tokens, false);
         if (!written.length || !named.length)
             return named.length ? named : written;
-        const kept = Object.create(null);
-        for (const entry of [...named, ...written])
-            kept[entry.id] = true;
-        return entries.filter(entry => entry.id in kept);
+        const merged = [];
+        let fromNamed = 0, fromWritten = 0;
+        for (let index = 0; index < items.length && (fromNamed < named.length || fromWritten < written.length); index++) {
+            const item = items[index];
+            const isNamed = named[fromNamed] === item, isWritten = written[fromWritten] === item;
+            if (isNamed)
+                fromNamed++;
+            if (isWritten)
+                fromWritten++;
+            if (isNamed || isWritten)
+                merged.push(item);
+        }
+        return merged;
     }
 
     function commandItems(tokens) {

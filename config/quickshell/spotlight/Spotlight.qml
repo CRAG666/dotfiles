@@ -113,7 +113,8 @@ Scope {
             const spans = queryTokens.map(token => [folded.indexOf(token), token.length]).filter(([at]) => at >= 0).sort((a, b) => a[0] - b[0]);
             const escape = text => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             let html = "", from = 0;
-            for (const [at, length] of spans) {
+            for (let index = 0; index < spans.length; index++) {
+                const [at, length] = spans[index];
                 if (at < from)
                     continue;
                 html += escape(title.slice(from, at)) + `<b>${escape(title.slice(at, at + length))}</b>`;
@@ -476,7 +477,8 @@ Scope {
         }
 
         function commandItems(tokens) {
-            return [...commands.items(tokens), ...system.items(tokens), ...commands.viewItems(tokens), ...commands.toolItems(tokens), ...library.commandItems(tokens), ...herdr.commandItems(tokens), ...colors.pickItem(tokens), ...notifications.commandItems(tokens), ...commands.mediaItems(tokens), ...apps.actionItems(tokens), ...scripts.items(tokens), ...scripts.commandItems(tokens), ...agenda.commandItems(tokens), ...windows.quitItems(tokens)];
+            // concat, as V4 spreads an array element by element through its iterator
+            return commands.items(tokens).concat(system.items(tokens), commands.viewItems(tokens), commands.toolItems(tokens), library.commandItems(tokens), herdr.commandItems(tokens), colors.pickItem(tokens), notifications.commandItems(tokens), commands.mediaItems(tokens), apps.actionItems(tokens), scripts.items(tokens), scripts.commandItems(tokens), agenda.commandItems(tokens), windows.quitItems(tokens));
         }
 
         // the 16 emoji picked most
@@ -577,10 +579,13 @@ Scope {
                 sections = files.browseSections(raw);
             else
                 sections = currentView ? currentView.sections(tokens, raw) : everything(tokens, raw);
+            // indexed: V4's for…of goes through an iterator for every item
             const items = [];
-            for (const [section, list] of sections)
-                for (const item of list)
-                    items.push(Object.assign({ section }, item));
+            for (let at = 0; at < sections.length; at++) {
+                const [section, list] = sections[at];
+                for (let index = 0; index < list.length; index++)
+                    items.push(Object.assign({ section }, list[index]));
+            }
             return items;
         }
 

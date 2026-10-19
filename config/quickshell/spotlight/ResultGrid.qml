@@ -17,8 +17,8 @@ Item {
         if (!host.gridView)
             return [];
         const counts = {};
-        for (const item of host.results)
-            counts[item.section] = (counts[item.section] ?? 0) + 1;
+        for (let index = 0; index < host.results.length; index++)
+            counts[host.results[index].section] = (counts[host.results[index].section] ?? 0) + 1;
         const built = [];
         host.results.forEach((item, index) => {
             const last = built[built.length - 1];

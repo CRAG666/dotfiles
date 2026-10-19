@@ -35,7 +35,7 @@ Scope {
     function items(tokens) {
         const item = (path, section) => ({ key: "wallpaper:" + path, kind: "wallpaper", store: root, section, path, title: Spot.basename(path), hint: path === current ? "Current" : "", thumb: `${thumbOf(path)}?${thumbsReady}` });
         const matching = wallpapers.filter(path => Spot.matches(path.slice(folder.length), tokens));
-        return [...matching.filter(path => path === current).map(path => item(path, "Current")), ...matching.filter(path => path !== current).map(path => item(path, "Wallpapers"))];
+        return matching.filter(path => path === current).map(path => item(path, "Current")).concat(matching.filter(path => path !== current).map(path => item(path, "Wallpapers")));
     }
 
     function describe(item) {

@@ -29,10 +29,12 @@ Scope {
             .map(snippet => ({ key: "snippet:" + snippet.name, kind: "snippet", store: root, snippet, title: snippet.name, hint: snippet.keyword, icon: "edit-paste", value: expand(snippet.text) }));
     }
 
+    // one item an emoji, made once a load, not for every match at every keystroke
+    readonly property var emojiList: emoji.items.map(emojiItem)
     readonly property var emojiByChar: {
         const found = {};
-        for (const entry of emoji.items)
-            found[entry.char] = entry;
+        for (let index = 0; index < emojiList.length; index++)
+            found[emojiList[index].glyph] = emojiList[index];
         return found;
     }
 
@@ -43,27 +45,30 @@ Scope {
     // the best 120 matches, the shortest names first: a counting sort by name
     // length, linear and stable, so equal lengths keep the faces-first order
     function emojiItems(tokens) {
+        const found = Search.matching(emoji.items, "emoji", entry => entry.name, tokens);
         const byLength = [];
-        for (const entry of Search.matching(emoji.items, "emoji", entry => entry.name, tokens)) {
+        for (let index = 0; index < found.length; index++) {
+            const entry = found[index];
             if (!byLength[entry.name.length])
                 byLength[entry.name.length] = [];
             byLength[entry.name.length].push(entry);
         }
         const best = [];
-        for (const bucket of byLength)
-            for (const entry of bucket ?? [])
-                if (best.length < 120)
-                    best.push(entry);
-        return best.map(emojiItem);
+        for (let length = 0; length < byLength.length && best.length < 120; length++) {
+            const bucket = byLength[length] ?? [];
+            for (let index = 0; index < bucket.length && best.length < 120; index++)
+                best.push(emojiByChar[bucket[index].char]);
+        }
+        return best;
     }
 
     function allEmoji() {
-        return emoji.items.map(emojiItem);
+        return emojiList;
     }
 
     // the characters `picked` (most picked first) that are emoji
     function emojiOf(characters) {
-        return characters.filter(char => char in emojiByChar).map(char => emojiItem(emojiByChar[char]));
+        return characters.filter(char => char in emojiByChar).map(char => emojiByChar[char]);
     }
 
     function describe(item) {

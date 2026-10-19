@@ -50,7 +50,7 @@ Scope {
                 const muted = device.node.audio.muted;
                 return { key: "mute:" + device.volArg, kind: "mute", store: root, device, title: `${muted ? "Unmute" : "Mute"} ${device.name}`, hint: muted ? "Muted" : "On", icon: device.icons[muted ? 0 : 1] };
             });
-        return [...radioItems, ...muteItems, ...sinkItems, ...sourceItems, ...levelItems(tokens)];
+        return radioItems.concat(muteItems, sinkItems, sourceItems, levelItems(tokens));
     }
 
     function levelItems(tokens) {

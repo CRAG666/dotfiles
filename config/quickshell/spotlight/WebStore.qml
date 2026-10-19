@@ -40,9 +40,11 @@ Scope {
         return hits;
     }
 
+    // made once a load, not for every match at every keystroke
+    readonly property var repoList: repos.items.map(repo => ({ key: "repo:" + repo.nameWithOwner, kind: "repo", store: root, repo, title: repo.nameWithOwner, hint: repo.isPrivate ? "Private" : "", icon: "github", urls: [repo.url] }))
+
     function repoItems(tokens) {
-        return Search.matching(repos.items, "repos", repo => repo.text, tokens)
-            .map(repo => ({ key: "repo:" + repo.nameWithOwner, kind: "repo", store: root, repo, title: repo.nameWithOwner, hint: repo.isPrivate ? "Private" : "", icon: "github", urls: [repo.url] }));
+        return Search.matching(repoList, "repos", item => item.repo.text, tokens);
     }
 
     // a fallback that searches the quicklink with this keyword

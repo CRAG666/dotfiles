@@ -136,7 +136,8 @@ esac`
     // them all: each entry is binary-inserted into the best `limit` so far
     function firstSorted(entries, order, limit) {
         const best = [];
-        for (const entry of entries) {
+        for (let index = 0; index < entries.length; index++) {
+            const entry = entries[index];
             if (best.length === limit && order(entry, best[limit - 1]) >= 0)
                 continue;
             let low = 0;
