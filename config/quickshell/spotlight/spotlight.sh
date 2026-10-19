@@ -8,6 +8,8 @@
 # focused window when it has a mark and otherwise asks for one.
 # Compositor keybindings run with a bare PATH, so pi, jq and eyes-theme are put
 # back on it for the resident instance, and nvim for the terminals it opens.
+# mise's shims go after the system's: python3 through its shim starts in 53 ms,
+# /usr/bin/python3 in 13.
 # It runs as `quickshell`, not `qs`: CachyOS's ananicy rules renice `qs` to 10
 # like a background service, and every key press would wait behind real work.
 config="$HOME/.config/quickshell/spotlight.qml"
@@ -30,7 +32,7 @@ if [ "$mode" != start ]; then
 fi
 
 mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}/spotlight"
-export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$HOME/.local/share/bob/nvim-bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.local/share/bob/nvim-bin:$PATH:$HOME/.local/share/mise/shims"
 quickshell -n -d -p "$config" > /dev/null 2>&1
 [ "$mode" = start ] && exit 0
 for _ in $(seq 50); do
