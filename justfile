@@ -549,12 +549,12 @@ sunshine: nftables
 moonlight:
     #!/usr/bin/env bash
     set -eu
-    echo "==> Installing moonlight-qt..."
-    just install-pkgs moonlight-qt
     if pgrep -x moonlight >/dev/null; then
         echo "Close Moonlight first: it rewrites its settings on exit" >&2
         exit 1
     fi
+    echo "==> Installing moonlight-qt..."
+    just install-pkgs moonlight-qt
     # Moonlight.conf also holds the pairing key and certificate, so only the settings are merged in
     echo "==> Merging config/moonlight/Moonlight.conf into Moonlight's settings..."
     conf="$HOME/.config/Moonlight Game Streaming Project/Moonlight.conf"
