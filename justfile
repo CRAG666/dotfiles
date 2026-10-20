@@ -556,6 +556,11 @@ sunshine: nftables
     echo "==> Installing the sudoers rule that lets Sunshine lock the GPU clocks while streaming..."
     sudo visudo -cf "{{ src }}/etc/sudoers.d/sunshine-gpu-clocks"
     sudo install -m 440 "{{ src }}/etc/sudoers.d/sunshine-gpu-clocks" /etc/sudoers.d/
+    echo "==> Linking the drop-in that waits for /dev/uinput (else no mouse after boot)..."
+    unit_d="app-dev.lizardbyte.app.Sunshine.service.d"
+    mkdir -p "$HOME/.config/systemd/user"
+    ln -vsfn "{{ src }}/config/systemd/user/$unit_d" "$HOME/.config/systemd/user/$unit_d"
+    systemctl --user daemon-reload
     echo "==> Enabling its user service (starts with graphical-session.target)..."
     {{ systemd_enable_user }} app-dev.lizardbyte.app.Sunshine.service
 
