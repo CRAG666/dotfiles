@@ -41,8 +41,8 @@ Scope {
         if (dnd && !critical)
             return;
         notification.tracked = true;
-        // remapped if its output went away (see Spotlight.open)
-        win.visible = true;
+        // mapped again if the compositor closed it (see FocusedPanel)
+        win.follow();
         Wallpaper.refresh();
         if (!notification.lastGeneration)
             Quickshell.execDetached(["pw-play", `${sounds}/${critical ? "critical" : "normal"}.wav`]);
@@ -112,14 +112,13 @@ Scope {
         }
     }
 
-    PanelWindow {
+    FocusedPanel {
         id: win
         readonly property real u: Math.min(screen.width / 1920, screen.height / 1080) * 1.2
         readonly property bool active: root.shown.length > 0
         // room for the cards' shadow on the left
         readonly property int gutter: Math.round(30 * u)
         readonly property int overhang: Math.round(8 * u)
-        screen: FocusedOutput.screen
         color: "transparent"
         WlrLayershell.layer: active ? WlrLayer.Overlay : WlrLayer.Background
         WlrLayershell.namespace: "qs-notifications"

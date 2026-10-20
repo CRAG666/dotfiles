@@ -4,10 +4,12 @@ import Quickshell.Io
 import QtQuick
 
 // The screen holding scroll's focused workspace, read once and then followed
-// through workspace events, so popups open where you are working.
+// through workspace events, so popups open where you are working. Null while
+// no output is connected: a nameless screen is Qt's placeholder for none, or
+// one that went away.
 Singleton {
     id: root
-    readonly property var screen: Quickshell.screens.find(screen => screen.name === focused.name) ?? Quickshell.screens[0]
+    readonly property var screen: Quickshell.screens.find(screen => screen.name && screen.name === focused.name) ?? Quickshell.screens.find(screen => screen.name) ?? null
 
     // kept across hot reloads: starting again from "" sends every popup window
     // to the first screen and back mid-reload, and Quickshell crashes in setScreen

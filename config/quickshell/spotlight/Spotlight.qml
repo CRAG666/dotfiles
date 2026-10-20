@@ -27,7 +27,7 @@ Scope {
         id: launcher
     }
 
-    PanelWindow {
+    FocusedPanel {
         id: win
         // the surface stays mapped while hidden: showing a fresh one costs ~40 ms
         // before its first frame. Hidden, it sits in the background layer with no
@@ -242,9 +242,7 @@ Scope {
                 marks.promptAdd();
             else
                 mode = views.some(view => view.mode === requested) ? requested : "";
-            // the compositor closes the surface when its output goes away (a monitor
-            // unplugged during suspend) and Quickshell never maps it again by itself
-            visible = true;
+            follow();
             shown = true;
             agenda.load();
             search.forceActiveFocus();
@@ -876,7 +874,6 @@ Scope {
             when: win.width > 0 && win.height > 0
         }
 
-        screen: FocusedOutput.screen
         color: "transparent"
         WlrLayershell.layer: shown ? WlrLayer.Overlay : WlrLayer.Background
         WlrLayershell.namespace: "qs-spotlight"

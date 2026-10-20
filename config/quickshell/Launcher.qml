@@ -8,7 +8,7 @@ import QtQuick.Effects
 // click launches; Esc or a click on empty space closes. It stays resident and
 // hidden in Spotlight's process, as Spotlight does, so opening only maps a
 // ready window: `spotlight.sh launcher` toggles it.
-PanelWindow {
+FocusedPanel {
     id: win
     readonly property real u: height / 1440
     readonly property var apps: Apps.search(search.text)
@@ -23,10 +23,8 @@ PanelWindow {
             open();
     }
 
-    // the compositor closes the surface when its output goes away, and
-    // Quickshell never maps it again by itself
     function open() {
-        visible = true;
+        follow();
         shown = true;
         search.forceActiveFocus();
         Wallpaper.refresh();
@@ -50,7 +48,6 @@ PanelWindow {
 
     // hidden, it sits in the background layer with no keyboard focus and no
     // input region, and draws nothing
-    screen: FocusedOutput.screen
     color: "transparent"
     WlrLayershell.layer: shown ? WlrLayer.Overlay : WlrLayer.Background
     WlrLayershell.namespace: "qs-launcher"

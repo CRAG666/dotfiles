@@ -39,8 +39,8 @@ Scope {
         kind = newKind;
         level = Math.max(0, Math.min(1, newLevel));
         muted = newMuted;
-        // remapped if its output went away (see Spotlight.open)
-        win.visible = true;
+        // mapped again if the compositor closed it (see FocusedPanel)
+        win.follow();
         shown = true;
         hideTimer.restart();
     }
@@ -87,11 +87,10 @@ Scope {
         onRunningChanged: if (!running) running = true
     }
 
-    PanelWindow {
+    FocusedPanel {
         id: win
         readonly property real u: Math.min(screen.width / 1920, screen.height / 1080) * 1.2
         readonly property int bottomGap: Math.round(screen.height * 0.12)
-        screen: FocusedOutput.screen
         color: "transparent"
         // on top only while visible, fade-out included
         WlrLayershell.layer: hud.opacity > 0 ? WlrLayer.Overlay : WlrLayer.Background

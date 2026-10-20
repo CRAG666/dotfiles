@@ -97,12 +97,11 @@ Scope {
         }
     }
 
-    PanelWindow {
+    FocusedPanel {
         id: win
         readonly property real u: Math.min(screen.width / 1920, screen.height / 1080) * 1.2
-        visible: agent.isActive || root.pin !== null
+        mapped: agent.isActive || root.pin !== null
         onVisibleChanged: if (visible) fadeIn.restart()
-        screen: FocusedOutput.screen
         color: "transparent"
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.namespace: "qs-polkit"
