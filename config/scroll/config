@@ -138,6 +138,11 @@ input type:touchpad {
     middle_emulation enabled
 }
 
+# Sunshine's absolute devices on the P53: map them to the KTC, which sits at x=1920
+input "4617:3:libvirtualhid_Mouse_(Absolute)" map_to_output DP-3
+input "4617:4:libvirtualhid_Touchscreen" map_to_output DP-3
+input "4617:6:libvirtualhid_Pen_Tablet" map_to_output DP-3
+
 ### Windows defaults
 
 include colors.conf
