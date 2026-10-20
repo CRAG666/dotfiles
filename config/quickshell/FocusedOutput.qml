@@ -1,41 +1,13 @@
 pragma Singleton
 import Quickshell
-import Quickshell.Io
+import Quickshell.I3
 import QtQuick
 
-// The screen holding scroll's focused workspace, read once and then followed
-// through workspace events, so popups open where you are working. Null while
-// no output is connected: a nameless screen is Qt's placeholder for none, or
-// one that went away.
+// The screen holding scroll's focused workspace, followed through scroll's IPC
+// (sway's, which Quickshell.I3 speaks), so popups open where you are working.
+// Null while no output is connected: a nameless screen is Qt's placeholder for
+// none, or one that went away.
 Singleton {
-    id: root
-    readonly property var screen: Quickshell.screens.find(screen => screen.name && screen.name === focused.name) ?? Quickshell.screens.find(screen => screen.name) ?? null
-
-    // kept across hot reloads: starting again from "" sends every popup window
-    // to the first screen and back mid-reload, and Quickshell crashes in setScreen
-    PersistentProperties {
-        id: focused
-        reloadableId: "focusedOutput"
-        property string name: ""
-    }
-
-    Process {
-        running: true
-        command: ["scrollmsg", "-t", "get_workspaces", "-r"]
-        stdout: StdioCollector {
-            onStreamFinished: focused.name = JSON.parse(text).find(workspace => workspace.focused)?.output ?? ""
-        }
-    }
-
-    Process {
-        running: true
-        command: ["scrollmsg", "-t", "subscribe", "-m", "-r", '["workspace"]']
-        stdout: SplitParser {
-            onRead: line => {
-                const event = JSON.parse(line);
-                if (event.change === "focus" && event.current?.output)
-                    focused.name = event.current.output;
-            }
-        }
-    }
+    readonly property string name: I3.focusedMonitor?.name ?? ""
+    readonly property var screen: Quickshell.screens.find(screen => screen.name && screen.name === name) ?? Quickshell.screens.find(screen => screen.name) ?? null
 }
