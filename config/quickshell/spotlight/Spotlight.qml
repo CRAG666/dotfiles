@@ -638,6 +638,7 @@ Scope {
                     items.push(rowOf(list[index], section));
             }
             items.grid = !!currentView?.grid;
+            items.view = mode;
             return items;
         }
 
