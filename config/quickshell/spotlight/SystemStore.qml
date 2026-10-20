@@ -74,7 +74,7 @@ Scope {
     // as brightness.sh does, the laptop panel is left alone at 0 only while an
     // external monitor answers DDC (ktc-brightness.sh turned the panel off)
     function setBrightness(level) {
-        Quickshell.execDetached(["sh", "-c", '{ [ "$(brightnessctl get)" -eq 0 ] && grep -qvx none "${XDG_RUNTIME_DIR:-/tmp}/ddc-brightness.bus" 2>/dev/null; } || brightnessctl -q set "$1%"; "$2" init "$1"', "sh", String(level), brightnessScript]);
+        Quickshell.execDetached(["sh", "-c", '{ [ "$(brightnessctl -c backlight get)" -eq 0 ] && grep -qvx none "${XDG_RUNTIME_DIR:-/tmp}/ddc-brightness.bus" 2>/dev/null; } || brightnessctl -q -c backlight set "$1%"; "$2" init "$1"', "sh", String(level), brightnessScript]);
     }
 
     function describe(item) {
@@ -149,7 +149,7 @@ Scope {
     Source {
         id: backlight
         maxAge: 1000
-        command: ["brightnessctl", "-m"]
+        command: ["brightnessctl", "-m", "-c", "backlight"]
         parse: output => output.trim() ? [output.split(",")[3]] : []
     }
 }
