@@ -211,7 +211,7 @@ Item {
                     elide: Text.ElideRight
                     maximumLineCount: 1
                     textFormat: host.query ? Text.StyledText : Text.PlainText
-                    text: host.query ? host.marked(row.modelData.title.replace(/\s+/g, " ")) : row.modelData.title.replace(/\s+/g, " ")
+                    text: host.query ? host.marked(row.modelData.title.slice(0, 200).replace(/\s+/g, " ")) : row.modelData.title.slice(0, 200).replace(/\s+/g, " ")
                     color: row.isCurrent ? Theme.selectionText : Theme.ink
                     font.pixelSize: Spot.px(15)
                 }

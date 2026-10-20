@@ -39,20 +39,13 @@ Scope {
         return [];
     }
 
+    // made once a subject, so a keystroke only filters them and the list keeps its rows
+    readonly property var actions: subject ? typed().concat(ai.askItems(subject), selected ? ai.commandItems([]) : [], web.searchItems(subject), web.queryItems(subject), [own("note", "Save as Note", "accessories-text-editor"), own("spotlight", "Search Spotlight", "system-search"), own("large", "Large Type", "zoom-in"), own("copy", "Copy", "edit-copy")]) : []
+
     function sections(tokens) {
         if (!subject)
             return [["Selection", [own("none", "Select some text in any window, then press $mod+u", "edit-select-all")]]];
-        const actions = [
-            ...typed(),
-            ...ai.askItems(subject),
-            ...(selected ? ai.commandItems([]) : []),
-            ...web.searchItems(subject),
-            ...web.queryItems(subject),
-            own("note", "Save as Note", "accessories-text-editor"),
-            own("spotlight", "Search Spotlight", "system-search"),
-            own("large", "Large Type", "zoom-in"),
-            own("copy", "Copy", "edit-copy")
-        ].filter(item => Spot.matches(item.title, tokens));
+        const actions = root.actions.filter(item => Spot.matches(item.title, tokens));
         const shown = subject.replace(/\s+/g, " ");
         return [[`${selected ? "Selected" : "Copied"} ${type.toLowerCase()} · ${shown.length > 48 ? shown.slice(0, 48) + "…" : shown}`, actions]];
     }
