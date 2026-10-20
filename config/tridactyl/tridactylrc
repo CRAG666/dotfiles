@@ -21,7 +21,6 @@ sanitize tridactyllocal tridactylsync
 " GENERAL CONFIGURATION
 " ============================================================================
 set configversion 2.0
-set smoothscroll false
 set newtab about:blank
 colorscheme theme
 
@@ -58,8 +57,6 @@ bind l scrollpx 100
 " Basic navigation
 bind $ tablast
 bind 0 tabfirst
-bind << tabmove -1
-bind >> tabmove +1
 
 bind ;1 tab 13
 bind ;2 tab 14
@@ -82,17 +79,17 @@ bind N findnext -1
 bind <C-f> fillcmdline find
 bind * fillcmdline find
 
+" Search keywords: o gh <query>, t aur <query>
+set searchurls.gh https://github.com/search?type=code&q=%s
+set searchurls.aur https://aur.archlinux.org/packages?K=%s
+set searchurls.aw https://wiki.archlinux.org/index.php?search=%s
+
 " ============================================================================
 " UNBINDS
 " ============================================================================
 unbind J
 unbind K
 unbind F1
-
-" Allow Ctrl-a to select all in the commandline
-unbind --mode=ex <C-a>
-" Allow Ctrl-c to copy in the commandline
-unbind --mode=ex <C-c>
 
 " Custom command line (uncomment if you want to use it)
 " bind ñ fillcmdline_notrail
@@ -105,7 +102,6 @@ bind yg composite js "git clone " + document.location.href.replace(/\/$/,"") + "
 
 " Additional useful commands
 bind yt composite js document.title + " - " + document.location.href | clipboard yank
-bind ym composite js "[" + document.title + "](" + document.location.href + ")" | clipboard yank
 
 " ============================================================================
 " ORGANIZED QUICKMARKS
@@ -131,30 +127,26 @@ quickmark r https://relay.firefox.com
 " USEFUL ALIASES
 " ============================================================================
 alias tabuniq jsb browser.tabs.query({}).then(tabs => browser.tabs.remove(tabs.filter((tab, index) => tabs.slice(index + 1).find(t => t.url == tab.url)).map(tab => tab.id)))
-alias tabonly tabclose -o
-alias tabdetach winopen -c
-alias mksession-ts js tri.excmds.mksession(new Date().toISOString().slice(0,10))
 
 " Additional useful aliases
-alias q tabclose
-alias qa qall
 alias w winclose
-alias h help
 alias clear fillcmdline_notrail
 
 " ============================================================================
 " ZEN BROWSER - SIDEBAR / WORKSPACES / FEATURES
 " ============================================================================
 
-" zt = Toggle Compact Mode (Ctrl+S)
-bind zt !s wtype -M ctrl -k s
+" zt = Toggle Compact Mode (Alt+L)
+bind zt !s wtype -s 30 -M alt -k l
 " zf = Toggle Floating Sidebar (Ctrl+Alt+S)
 bind zf !s wtype -s 30 -M ctrl -M alt -k s
+" zb = Toggle Sidebar (Ctrl+Alt+Z)
+bind zb !s wtype -s 30 -M alt -k l
 
 " --- Workspaces ---
-" zn = Forward Workspace ; zp = Backward Workspace
-bind zn !s wtype -s 30 -M ctrl -M alt -k right
-bind zp !s wtype -s 30 -M ctrl -M alt -k left
+" zn = Forward Workspace (Alt+J) ; zp = Backward Workspace (Alt+K)
+bind zn !s wtype -s 30 -M alt -k j
+bind zp !s wtype -s 30 -M alt -k k
 " zk = Close All Unpinned Tabs (Ctrl+Shift+K)
 bind zk !s wtype -s 30 -M ctrl -M shift -k k
 
@@ -183,34 +175,27 @@ bind zsc !s wtype -s 30 -M ctrl -M alt -k u
 " ze = Toggle Pin Tab (Ctrl+Shift+D)
 bind ze !s wtype -s 30 -M ctrl -M shift -k d
 " zg = Expand Glance (Ctrl+O)
-bind zg !s wtype -M ctrl -k o
+bind zg !s wtype -s 30 -M ctrl -k o
 " zN = New Blank Window (Ctrl+Shift+N)
 bind zN !s wtype -s 30 -M ctrl -M shift -k n
+" gp = Push the current tab to the next window
+bind gp tabpush
 
 " ============================================================================
 " HARDCORE VIM - EXTERNAL EDITOR (Neovim)
 " ============================================================================
-set editorcmd ghostty -e nvim
+set editorcmd ghostty -e nvim %f '+normal!%lGzv%c|'
 
 " ============================================================================
 " HARDCORE VIM - ADVANCED HINTS
 " ============================================================================
 set hintautoselect true
-set hintfocusinput-mode auto
 set hintshift true
-bind ;c hint -W containeropen
-bind F hint -b
 
 " ============================================================================
 " HARDCORE VIM - TAB / HISTORY HARDENING
 " ============================================================================
 set tabopenpos related
-set newtabfocus page
-set tabclosepivot true
-bind u undo
-bind U undo window
-bind ]] followpage next
-bind [[ followpage prev
 
 " ============================================================================
 " HARDCORE VIM - MARKS AND QUICK SCROLL
@@ -222,13 +207,8 @@ bind gm scrollto 50
 " ============================================================================
 " HARDCORE VIM - URL / DOMAIN HACKING
 " ============================================================================
-bind gu urlparent
-bind gU urlroot
 " Edit the current URL in the cmdline before opening in a new tab
 bind gE composite get_current_url | fillcmdline tabopen
-" Hard reload
-bind <C-r> reload
-bind <C-S-r> reloadhard
 
 " ============================================================================
 " HARDCORE VIM - INSERT MODE / INPUT MASTERY
@@ -239,24 +219,11 @@ set allowautofocus false
 " HARDCORE VIM - SITES THAT PREFER THEIR OWN KEYBINDINGS
 " ============================================================================
 " Disable Tridactyl on sites with their own vim mode
-seturl ^https://mail.google.com mode ignore
-seturl ^https://app.element.io mode ignore
-" Re-enable with <C-,> (default: shift+esc to toggle)
-" Toggle Tridactyl on/off
+blacklistadd ^https://mail\.google\.com
+blacklistadd ^https://app\.element\.io
+" Toggle Tridactyl on/off (default: Shift+Insert)
 bind <A-Escape> mode ignore
 bind --mode=ignore <A-Escape> mode normal
-
-" ============================================================================
-" HARDCORE VIM - MINIMAL GUI (hides Firefox/Zen UI)
-" ============================================================================
-guiset_quiet hoverlink right
-guiset_quiet tabs count
-guiset_quiet navbar autohide
-
-" ============================================================================
-" HARDCORE VIM - PERFORMANCE / CHROME
-" ============================================================================
-set closedtabhistorymaxsize 30
 
 " ============================================================================
 " SITE-SPECIFIC CONFIGURATIONS
@@ -271,7 +238,6 @@ bindurl web.whatsapp.com --mode=input <Escape> composite hint -f m2 ; fillcmdlin
 " ============================================================================
 " Reduce lag on heavy sites
 set update.nag false
-set update.lastchecktime 1999999999999
 
 " Improve hint performance
 set hintnames uniform

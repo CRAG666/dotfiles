@@ -1,0 +1,10 @@
+{
+  "zen-compact-mode-toggle": "Alt+L",
+  "zen-workspace-forward": "Alt+J",
+  "zen-workspace-backward": "Alt+K",
+  "zen-workspace-switch-1": "Ctrl+1",
+  "zen-workspace-switch-2": "Ctrl+2",
+  "zen-workspace-switch-3": "Ctrl+3",
+  "zen-workspace-switch-4": "Ctrl+4",
+  "zen-workspace-switch-5": "Ctrl+5"
+}

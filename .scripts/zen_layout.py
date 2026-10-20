@@ -7,8 +7,9 @@ The layout lists spaces (matched by name) with their essentials and pinned URLs.
 Pinned tabs in the same container and host are reused; pinned tabs the layout
 does not list become normal tabs. Essentials past the per-container limit are
 pinned instead. Spaces take Zen's default theme so the userChrome.css next to
-the layout colors them, each with its eyes `accent`. The profile must be closed:
-Zen rewrites its session on exit.
+the layout colors them, each with its eyes `accent`. shortcuts.json next to the
+layout rebinds Zen shortcuts by id and disables any other one on the same keys.
+The profile must be closed: Zen rewrites its session on exit.
 """
 
 import configparser
@@ -41,6 +42,7 @@ PASTEL_OF_ACCENT = {
 USER_PREFS = (
     'user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);',
     'user_pref("zen.theme.content-element-separation", 0);',
+    'user_pref("zen.view.use-single-toolbar", true);',
 )
 
 
@@ -152,6 +154,54 @@ def install_styles(profile: Path, user_chrome: Path, accents: dict[str, str]) ->
         stream.writelines(pref + "\n" for pref in USER_PREFS if pref not in existing)
 
 
+def key_combo(shortcut: dict) -> tuple:
+    modifiers = shortcut["modifiers"]
+    return (
+        (shortcut.get("key") or shortcut["keycode"] or "").lower(),
+        bool(modifiers.get("control") or modifiers.get("accel")),
+        bool(modifiers.get("alt")),
+        bool(modifiers.get("shift")),
+        bool(modifiers.get("meta")),
+    )
+
+
+def apply_shortcuts(profile: Path, wanted: dict[str, str]) -> None:
+    path = profile / "zen-keyboard-shortcuts.json"
+    if not path.exists():
+        print(f"    no {path.name} yet: start Zen once with this profile, then rerun")
+        return
+    saved = json.loads(path.read_text())
+    by_id = {shortcut["id"]: shortcut for shortcut in saved["shortcuts"]}
+    if unknown := wanted.keys() - by_id.keys():
+        sys.exit(f"ERROR: unknown Zen shortcut ids {unknown}")
+    for shortcut_id, combo in wanted.items():
+        *modifiers, key = combo.split("+")
+        if extra := set(modifiers) - {"Ctrl", "Alt", "Shift"}:
+            sys.exit(f"ERROR: {combo}: use Ctrl, Alt or Shift, not {extra}")
+        by_id[shortcut_id].update(
+            key=key.lower(),
+            keycode="",
+            disabled=False,
+            modifiers={
+                "control": False,
+                "alt": "Alt" in modifiers,
+                "shift": "Shift" in modifiers,
+                "meta": False,
+                "accel": "Ctrl" in modifiers,
+            },
+        )
+    taken = {key_combo(by_id[shortcut_id]) for shortcut_id in wanted}
+    for shortcut in saved["shortcuts"]:
+        if (
+            shortcut["id"] not in wanted
+            and not shortcut["disabled"]
+            and key_combo(shortcut) in taken
+        ):
+            shortcut["disabled"] = True
+            print(f"    disabled {shortcut['id']}, its keys are taken")
+    path.write_text(json.dumps(saved))
+
+
 def main() -> None:
     if len(sys.argv) != 3:
         sys.exit(__doc__)
@@ -210,6 +260,9 @@ def main() -> None:
 
     session["tabs"] = managed + [tab for tab in tabs if not tab.get("pinned")]
     install_styles(profile, layout_path.with_name("userChrome.css"), accents)
+    apply_shortcuts(
+        profile, json.loads(layout_path.with_name("shortcuts.json").read_text())
+    )
     write_session(session_path, session)
     essentials = sum(1 for tab in managed if tab["zenEssential"])
     print(
