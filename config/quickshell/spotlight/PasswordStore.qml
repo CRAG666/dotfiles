@@ -23,9 +23,7 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
     }
 
     function items(tokens) {
-        return entries.items
-            .filter(entry => Spot.matches(entry, tokens))
-            .map(entry => ({ key: "pass:" + entry, kind: "password", store: root, title: Spot.basename(entry), hint: Spot.dirname(entry), icon: "dialog-password", value: entry }));
+        return entries.items.filter(item => Spot.matches(item.value, tokens));
     }
 
     function describe(item) {
@@ -48,6 +46,8 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
         id: entries
         maxAge: 300000
         command: ["sh", "-c", 'cd "${PASSWORD_STORE_DIR:-$HOME/.password-store}" && find . -name "*.gpg" -printf "%P\\n"']
+        // the items made once a listing
         parse: output => output.split("\n").filter(line => line).map(line => line.slice(0, -4)).sort()
+            .map(entry => ({ key: "pass:" + entry, kind: "password", store: root, title: Spot.basename(entry), hint: Spot.dirname(entry), icon: "dialog-password", value: entry }))
     }
 }
