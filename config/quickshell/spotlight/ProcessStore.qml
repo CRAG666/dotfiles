@@ -13,9 +13,11 @@ Scope {
         list.reload();
     }
 
+    // made once a listing, with the text they are found by folded
+    readonly property var entries: list.items.map(process => ({ key: "process:" + process.pid, kind: "process", store: root, process, title: process.name, hint: `${process.cpu}% · ${Spot.formatSize(process.memory)}`, icon: Spot.iconFor(process.name), confirm: true, text: Search.fold(process.args) }))
+
     function items(tokens) {
-        return Search.matching(list.items, "processes", process => Search.fold(process.args), tokens, false).slice(0, 150)
-            .map(process => ({ key: "process:" + process.pid, kind: "process", store: root, process, title: process.name, hint: `${process.cpu}% · ${Spot.formatSize(process.memory)}`, icon: Spot.iconFor(process.name), confirm: true }));
+        return Search.matching(entries, "processes", item => item.text, tokens, false).slice(0, 150);
     }
 
     function describe(item) {
