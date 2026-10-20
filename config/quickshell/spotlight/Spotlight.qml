@@ -33,7 +33,8 @@ Scope {
         // before its first frame. Hidden, it sits in the background layer with no
         // keyboard focus and no input region, and draws nothing
         property bool shown: false
-
+        // the reads open() leaves for its first frame (see onFrameSwapped)
+        property bool readPending: false
 
         // `chip`: its glyph in the bar, which lists the views of spotlight.json's
         // `chips` (Ctrl+1…9 and Tab reach them); its alias in spotlight.json plus a
@@ -110,15 +111,26 @@ Scope {
         // offsets hold in the title
         function marked(title) {
             const folded = Search.fold(title);
-            const spans = queryTokens.map(token => [folded.indexOf(token), token.length]).filter(([at]) => at >= 0).sort((a, b) => a[0] - b[0]);
-            const escape = text => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            let html = "", from = 0;
-            for (let index = 0; index < spans.length; index++) {
-                const [at, length] = spans[index];
-                if (at < from)
+            const tokens = queryTokens;
+            // the spans by where they start, kept sorted as they come (a few tokens)
+            const starts = [], ends = [];
+            for (let index = 0; index < tokens.length; index++) {
+                const at = folded.indexOf(tokens[index]);
+                if (at < 0)
                     continue;
-                html += escape(title.slice(from, at)) + `<b>${escape(title.slice(at, at + length))}</b>`;
-                from = at + length;
+                let slot = starts.length;
+                while (slot > 0 && starts[slot - 1] > at)
+                    slot--;
+                starts.splice(slot, 0, at);
+                ends.splice(slot, 0, at + tokens[index].length);
+            }
+            const escape = /[&<>]/.test(title) ? text => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : text => text;
+            let html = "", from = 0;
+            for (let index = 0; index < starts.length; index++) {
+                if (starts[index] < from)
+                    continue;
+                html += escape(title.slice(from, starts[index])) + "<b>" + escape(title.slice(starts[index], ends[index])) + "</b>";
+                from = ends[index];
             }
             return html + escape(title.slice(from));
         }
@@ -247,9 +259,7 @@ Scope {
             agenda.load();
             search.forceActiveFocus();
             fadeIn.restart();
-            clipboardNow.running = true;
-            selectionNow.running = true;
-            Wallpaper.refresh();
+            readPending = true;
         }
 
         // everything goes back to an empty search, so the next opening starts clean
@@ -580,20 +590,35 @@ Scope {
                 sections = files.browseSections(raw);
             else
                 sections = currentView ? currentView.sections(tokens, raw) : everything(tokens, raw);
-            // indexed: V4's for…of goes through an iterator for every item. `place`
-            // (section and key, unique where a key is not: a folder in Home and
-            // Frequent) is what the list knows a row by
+            // indexed: V4's for…of goes through an iterator for every item
             const items = [];
             for (let at = 0; at < sections.length; at++) {
                 const [section, list] = sections[at];
-                for (let index = 0; index < list.length; index++) {
-                    const item = Object.assign({ section }, list[index]);
-                    item.place = item.section + "\n" + item.key;
-                    items.push(item);
-                }
+                for (let index = 0; index < list.length; index++)
+                    items.push(rowOf(list[index], section));
             }
             items.grid = !!currentView?.grid;
             return items;
+        }
+
+        // a store item as a row of `section`, made once per item and section and
+        // kept on the item (hidden from Object.assign), so a keystroke copies no
+        // rows and the list sees the same objects. `place` (section and key,
+        // unique where a key is not: a folder in Home and Frequent) is what the
+        // list knows a row by
+        function rowOf(source, section) {
+            let rows = source.spotlightRows;
+            if (!rows) {
+                rows = Object.create(null);
+                Object.defineProperty(source, "spotlightRows", { value: rows });
+            }
+            let row = rows[section];
+            if (!row) {
+                row = Object.assign({ section }, source);
+                row.place = section + "\n" + row.key;
+                rows[section] = row;
+            }
+            return row;
         }
 
         // `actions` are [keys, label] pairs: they feed the footer and the Ctrl+K panel;
@@ -835,12 +860,20 @@ Scope {
             onLoaded: win.userConfig = JSON.parse(text())
         }
 
-        // the frame that hides Spotlight lets what waits for it run (Spot.whenHidden)
+        // the frame that hides Spotlight lets what waits for it run (Spot.whenHidden);
+        // the first one shown starts the clipboard, selection and wallpaper reads,
+        // which would otherwise spawn their processes before it
         Connections {
             target: win.contentItem.Window.window
             function onFrameSwapped() {
-                if (!win.shown)
+                if (!win.shown) {
                     Spot.hidden();
+                } else if (win.readPending) {
+                    win.readPending = false;
+                    clipboardNow.running = true;
+                    selectionNow.running = true;
+                    Wallpaper.refresh();
+                }
             }
         }
 

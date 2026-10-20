@@ -62,6 +62,8 @@ Item {
         anchors.fill: parent
         clip: true
         boundsBehavior: Flickable.StopAtBounds
+        cacheBuffer: 0
+        reuseItems: true
         // rows are known by their first result, so a keystroke updates them in place
         // instead of remaking every row
         model: ScriptModel {
