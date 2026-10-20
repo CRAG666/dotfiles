@@ -1,5 +1,4 @@
 import Quickshell
-import Quickshell.Io
 import QtQuick
 import "js/search.js" as Search
 
@@ -229,35 +228,28 @@ Scope {
         return { image, icon: item.icon, metadata: [["Name", item.title], ["Where", Spot.tilde(Spot.dirname(item.path))], ["Kind", kind], ["Page", item.page || ""], ...(peeked ? peekFacts : [])], body, mono: !item.snippet, actions: [["Enter", "Open"], ["Ctrl+Enter", "Show in folder"], ["Ctrl+C", "Copy path"], ["Ctrl+B", buffer.includes(item.path) ? "Remove from buffer" : "Add to buffer"], ["", "Move to…", "move"]] };
     }
 
-    // the header lines hold the size and modification time, the thumbnail (made
-    // once into the cache) and a PDF's page count or a video's duration
+    // the size and modification time, the thumbnail (made once into the cache),
+    // a PDF's page count or a video's duration, and a folder's first entries or
+    // a text's first bytes, from the resident helper (helper/peek.py)
     function peek(item) {
         const type = extension(item.title);
         peekKey = item.key;
         peekText = "";
         peekThumb = "";
         peekFacts = [];
-        peeker.isDir = item.isDir;
-        peeker.exec(["sh", "-c", `stat -c "%s|%Y" -- "$1"
-thumb=""
-if [ "$2" = pdf ] || [ "$2" = video ]; then
-    thumb="$3/$(printf %s "$1" | md5sum | cut -c1-32).png"
-    if [ ! "$thumb" -nt "$1" ]; then
-        mkdir -p "$3"
-        if [ "$2" = pdf ]; then
-            pdftoppm -png -singlefile -f 1 -scale-to 800 "$1" "\${thumb%.png}"
-        else
-            ffmpegthumbnailer -i "$1" -o "$thumb" -s 800
-        fi > /dev/null 2>&1 || thumb=""
-    fi
-fi
-echo "$thumb"
-case "$2" in
-pdf) echo "Pages|$(pdfinfo "$1" 2> /dev/null | sed -n "s/^Pages: *//p")" ;;
-video) echo "Duration|$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$1")" ;;
-*) echo ;;
-esac
-if [ -d "$1" ]; then ls -1Ap -- "$1" | head -n 40; elif [ "$2" = text ]; then head -c 3000 -- "$1"; fi`, "sh", item.path, type === "pdf" ? "pdf" : videoTypes.includes(type) ? "video" : textTypes.includes(type) ? "text" : "", Spot.cacheDir + "/thumbs"]);
+        const kind = type === "pdf" ? "pdf" : videoTypes.includes(type) ? "video" : textTypes.includes(type) ? "text" : "";
+        Spot.call(["peek", item.path, kind, Spot.cacheDir + "/thumbs"], (output, error) => {
+            // a later selection's, or a file gone since it was listed
+            if (error || peekKey !== item.key)
+                return;
+            const peeked = JSON.parse(output);
+            const entries = peeked.content.split("\n").filter(line => line).length;
+            const size = item.isDir ? `${entries}${entries === 40 ? "+" : ""} ${entries === 1 ? "item" : "items"}` : Spot.formatSize(peeked.bytes);
+            const [extraLabel, extraValue] = peeked.extra;
+            peekFacts = [[item.isDir ? "Contents" : "Size", size], ["Modified", Spot.dateTime(peeked.modified * 1000)], [extraLabel, extraLabel === "Duration" && extraValue ? duration(Number(extraValue)) : extraValue]];
+            peekThumb = peeked.thumb;
+            peekText = peeked.content;
+        });
     }
 
     function duration(seconds) {
@@ -395,23 +387,5 @@ notify-send -t 3000 -i folder "$verb to \${dest##*/}" "$moved of $# files"`, "sh
         helper: true
         command: query => query.length < 3 ? null : ["contents", query]
         onDone: output => root.contentHits = output.trim() ? JSON.parse(output) : []
-    }
-
-    Process {
-        id: peeker
-        property bool isDir: false
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const [stamp, thumb, extra, ...rest] = text.split("\n");
-                const [bytes, modified] = stamp.split("|");
-                const content = rest.join("\n");
-                const entries = content.split("\n").filter(line => line).length;
-                const size = peeker.isDir ? `${entries}${entries === 40 ? "+" : ""} ${entries === 1 ? "item" : "items"}` : Spot.formatSize(Number(bytes));
-                const [extraLabel, extraValue] = (extra ?? "").split("|");
-                root.peekFacts = [[peeker.isDir ? "Contents" : "Size", size], ["Modified", Spot.dateTime(Number(modified) * 1000)], [extraLabel, extraLabel === "Duration" && extraValue ? root.duration(Number(extraValue)) : extraValue]];
-                root.peekThumb = thumb ?? "";
-                root.peekText = content;
-            }
-        }
     }
 }

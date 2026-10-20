@@ -26,6 +26,8 @@ READERS = {
     "recent-files": ("recent", "recent_files"),
     "contents": ("contents", "contents"),
     "wifi": ("wifi", "wifi"),
+    "peek": ("peek", "peek"),
+    "clip-peek": ("clipboard", "clip_peek"),
 }
 WRITERS = {
     "bookmark-save": ("library", "bookmark_save"),

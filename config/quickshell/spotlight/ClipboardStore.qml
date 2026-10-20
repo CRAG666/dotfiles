@@ -57,7 +57,11 @@ Scope {
             return;
         peekKey = item.key;
         peekText = "";
-        preview.exec(["sh", "-c", 'cliphist decode "$1" | head -c 4000', "sh", item.entry.id]);
+        Spot.call(["clip-peek", item.entry.id], (output, error) => {
+            // a later selection's, or an entry deleted since
+            if (!error && peekKey === item.key)
+                peekText = JSON.parse(output);
+        });
     }
 
     // `followUp` runs after the content is on the clipboard
@@ -129,13 +133,6 @@ ls "$dir" | grep -Fxv "$(printf '%s\\n' "$@")" | while read -r file; do rm -f "$
 for id in "$@"; do [ -s "$dir/$id" ] || cliphist decode "$id" > "$dir/$id"; done`, "sh", root.thumbDir, ...history.items.filter(entry => entry.type === "image").map(entry => entry.id)]);
         }
         onExited: root.thumbsReady++
-    }
-
-    Process {
-        id: preview
-        stdout: StdioCollector {
-            onStreamFinished: root.peekText = text
-        }
     }
 
     Process {
