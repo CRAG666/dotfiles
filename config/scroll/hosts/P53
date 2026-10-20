@@ -1,0 +1,2 @@
+# The KTC is the P53's only monitor: at x=0, so Sunshine's absolute mouse spans all of it
+output "Shenzhen KTC Technology Group H32S17 0x00000001" position 0 0
