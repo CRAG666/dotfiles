@@ -143,6 +143,9 @@ def agenda(days: str = "14") -> list[dict]:
         schedule = is_schedule(lines)
         context = None  # (heading level, weekday index or date)
         for number, line in enumerate(lines, 1):
+            # outside a schedule only stamped tasks count, and their stamp has a "|"
+            if not schedule and "|" not in line:
+                continue
             if heading := NORG_HEADING.match(line):
                 level, text = len(heading[1]), heading[2]
                 if schedule and fold(text) in WEEKDAYS:

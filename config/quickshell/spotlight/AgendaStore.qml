@@ -16,8 +16,9 @@ Scope {
     readonly property string today: Qt.formatDate(new Date(now), "yyyy-MM-dd")
     readonly property var colors: ({ schedule: "#9a9a9a", event: "#4a8fe0", due: "#e5a03a", overdue: "#d9534f" })
 
+    // whole minutes, the agenda's grain: a load in the same minute changes nothing
     function load() {
-        now = Date.now();
+        now = Math.floor(Date.now() / 60000) * 60000;
         source.load();
     }
 
@@ -40,8 +41,16 @@ Scope {
         return event.kind === "due" && event.start ? "Due " + time : time;
     }
 
+    // one item per event and day, so a keystroke or a reopening hands the list the same rows
+    readonly property var made: {
+        source.items;
+        today;
+        return Object.create(null);
+    }
+
     function item(event) {
-        return { key: `agenda:${event.file}:${event.line}:${event.date}`, kind: "agendaEvent", store: root, event, title: event.title, hint: when(event), swatch: colors[overdue(event) ? "overdue" : event.kind] };
+        const key = `agenda:${event.file}:${event.line}:${event.date}`;
+        return made[key] ?? (made[key] = { key, kind: "agendaEvent", store: root, event, title: event.title, hint: when(event), swatch: colors[overdue(event) ? "overdue" : event.kind] });
     }
 
     function matching(tokens) {
@@ -151,6 +160,6 @@ Scope {
         interval: 60000
         running: root.host.shown
         repeat: true
-        onTriggered: root.now = Date.now()
+        onTriggered: root.now = Math.floor(Date.now() / 60000) * 60000
     }
 }
