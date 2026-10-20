@@ -46,11 +46,21 @@ Scope {
     readonly property var textTypes: ["txt", "md", "qml", "js", "ts", "py", "sh", "rs", "go", "c", "h", "cpp", "json", "toml", "yaml", "yml", "ini", "conf", "lua", "nix", "tex", "csv", "log", "rasi", "css", "html", "xml"]
 
 
+    // zoxide's folders alone, for the views that only offer them (Herdr's forms)
+    function loadFrequent() {
+        frequent.load();
+    }
+
     function load() {
         frequent.load();
         homeDirs.load();
         recent.load();
         latestDownload.load();
+        indexContents();
+    }
+
+    // the contents view needs the index alone, not the folders and downloads load() lists
+    function indexContents() {
         if (Date.now() - indexedAt > 3600000) {
             indexedAt = Date.now();
             Quickshell.execDetached(["flock", "-n", Spot.cacheDir + "/index.lock", "nice", "-n", "19", "sh", "-c", 'out=$(python3 "$@" 2>&1) || notify-send -u critical "Spotlight index" "$out"', "sh", Spot.helper, "index-contents"]);
