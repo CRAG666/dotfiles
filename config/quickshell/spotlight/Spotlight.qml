@@ -35,6 +35,9 @@ Scope {
         property bool shown: false
         // the reads open() leaves for its first frame (see onFrameSwapped)
         property bool readPending: false
+        // the selection view's reads still running, and whether both are in (see open)
+        property int reads: 0
+        property bool readsDone: false
 
         // `chip`: its glyph in the bar, which lists the views of spotlight.json's
         // `chips` (Ctrl+1…9 and Tab reach them); its alias in spotlight.json plus a
@@ -250,6 +253,17 @@ Scope {
         }
 
         function open(requested) {
+            // the selection view shows once both reads are in: until then their
+            // collectors still hold the last opening's text
+            if (requested === "selection" && !readsDone) {
+                reads = 2;
+                clipboardNow.running = true;
+                selectionNow.running = true;
+                return;
+            }
+            const readNow = !readsDone;
+            reads = 0;
+            readsDone = false;
             windows.forget();
             const target = views.some(view => view.mode === requested) ? requested : "";
             if (requested === "mark-add") {
@@ -269,7 +283,14 @@ Scope {
             agenda.load();
             search.forceActiveFocus();
             fadeIn.restart();
-            readPending = true;
+            readPending = readNow;
+        }
+
+        function readDone() {
+            if (reads && --reads === 0) {
+                readsDone = true;
+                open("selection");
+            }
         }
 
         // everything goes back to an empty search, so the next opening starts clean;
@@ -279,6 +300,8 @@ Scope {
             if (query && !form && !actionTarget)
                 lastQuery = search.text;
             shown = false;
+            reads = 0;
+            readsDone = false;
             sourcesChecked = false;
             form = null;
             actionTarget = null;
@@ -893,6 +916,7 @@ Scope {
             command: ["wl-paste", "--no-newline", "--type", "text"]
             stdout: StdioCollector {
                 id: clipboardOut
+                onStreamFinished: win.readDone()
             }
         }
         Process {
@@ -900,6 +924,7 @@ Scope {
             command: ["wl-paste", "--primary", "--no-newline", "--type", "text"]
             stdout: StdioCollector {
                 id: selectionOut
+                onStreamFinished: win.readDone()
             }
         }
 
