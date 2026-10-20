@@ -3,6 +3,10 @@ import QtQuick
 // Battery gauge: circular charge ring with status and time remaining.
 Column {
     id: root
+    layer.enabled: true
+    layer.effect: Halo {
+        dark: root.dark
+    }
     property real u: 1
     property bool dark: Theme.systemDark
     spacing: 18 * u

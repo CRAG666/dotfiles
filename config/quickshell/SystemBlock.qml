@@ -3,6 +3,10 @@ import QtQuick
 // System panel: circular CPU / RAM / TEMP / NET gauges + uptime.
 Column {
     id: root
+    layer.enabled: true
+    layer.effect: Halo {
+        dark: root.dark
+    }
     property real u: 1
     property bool dark: Theme.systemDark
     spacing: 22 * u

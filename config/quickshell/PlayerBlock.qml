@@ -5,6 +5,10 @@ import Quickshell.Services.Mpris
 // Icon glyphs use \u escapes (Nerd Font / FontAwesome) so they survive editing.
 Column {
     id: root
+    layer.enabled: true
+    layer.effect: Halo {
+        dark: root.dark
+    }
     property real u: 1
     property bool dark: Theme.playerDark
     spacing: 13 * u

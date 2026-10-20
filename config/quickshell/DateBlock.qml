@@ -4,6 +4,10 @@ import QtQuick
 // Centred date stack: framed weekday · cursive ordinal · month · time.
 Column {
     id: root
+    layer.enabled: true
+    layer.effect: Halo {
+        dark: root.dark
+    }
     property real u: 1                 // responsive unit (= screen height / 1440)
     property bool dark: Theme.dateDark
     property var now: clock.date

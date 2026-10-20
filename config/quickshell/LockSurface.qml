@@ -104,11 +104,14 @@ Item {
                 }
             }
 
+            // over the pill's glass, so each text takes its own halo
             WText {
                 anchors.left: parent.left
                 anchors.leftMargin: 30 * root.u
                 anchors.verticalCenter: parent.verticalCenter
                 dark: true
+                layer.enabled: true
+                layer.effect: Halo {}
                 text: "\uf023"
                 font.family: Theme.mono
                 font.pixelSize: 24 * root.u
@@ -119,6 +122,8 @@ Item {
                 anchors.centerIn: parent
                 visible: root.password === ""
                 dark: true
+                layer.enabled: true
+                layer.effect: Halo {}
                 text: root.failed ? root.message : "Enter password"
                 color: root.failed ? Theme.orange(true) : Qt.alpha(Wallpaper.tint, 0.75)
                 font.pixelSize: 22 * root.u
@@ -158,6 +163,8 @@ Item {
             anchors.right: parent.right
             anchors.margins: 40 * root.u
             spacing: 10 * root.u
+            layer.enabled: true
+            layer.effect: Halo {}
 
             WText {
                 dark: true
