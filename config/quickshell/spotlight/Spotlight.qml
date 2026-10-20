@@ -153,7 +153,12 @@ Scope {
         readonly property string query: search.text.trim()
         // once a keystroke, for every row that marks them in its title
         readonly property var queryTokens: Search.tokens(query)
-        readonly property var results: collect()
+        // each opening computes them again: a kept view's texts may tell the time ("5 min")
+        property int openings: 0
+        readonly property var results: {
+            openings;
+            return collect();
+        }
         property int current: -1
         property string selectedKey: ""
         readonly property var selection: current >= 0 && current < results.length ? results[current] : null
@@ -279,6 +284,7 @@ Scope {
                 mode = target;
             }
             follow();
+            openings++;
             shown = true;
             agenda.load();
             search.forceActiveFocus();
