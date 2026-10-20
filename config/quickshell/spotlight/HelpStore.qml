@@ -1,6 +1,7 @@
 import Quickshell
 import QtQuick
 import "js/help.js" as Help
+import "js/search.js" as Search
 
 // The help view (Ctrl+?): every shortcut and feature from help.js, plus the
 // abbreviations of the views and of spotlight.json's quicklinks and snippets,
@@ -25,20 +26,30 @@ Scope {
         return "Opens " + link.url;
     }
 
+    // each topic as an item once, with the texts it is found by folded
+    readonly property var entries: topics.map((topic, index) => ({ index, section: topic.section, named: Search.fold(`${topic.keys} ${topic.title}`), described: Search.fold(`${topic.section} ${topic.keys} ${topic.title} ${topic.text ?? ""}`), item: { key: `help:${topic.section}:${topic.keys}`, kind: "help", store: root, section: topic.section, topic, title: topic.title, hint: topic.keys, icon: "help-about" } }))
+    readonly property var sectionOrder: Spot.unique(topics.map(topic => topic.section))
+
     function items(tokens) {
-        const hits = topics
-            .map((topic, index) => ({ topic, index, rank: Spot.matches(`${topic.keys} ${topic.title}`, tokens) ? 0 : 1 }))
-            .filter(hit => hit.rank === 0 || Spot.matches(`${hit.topic.section} ${hit.topic.keys} ${hit.topic.title} ${hit.topic.text ?? ""}`, tokens, false));
-        const sectionRank = {};
-        for (const hit of hits)
-            sectionRank[hit.topic.section] = Math.min(sectionRank[hit.topic.section] ?? 1, hit.rank);
-        const sectionOrder = Spot.unique(topics.map(topic => topic.section));
+        const hits = [];
+        for (let index = 0; index < entries.length; index++) {
+            const entry = entries[index];
+            const rank = Spot.matchesFolded(entry.named, tokens) ? 0 : Spot.matchesFolded(entry.described, tokens, false) ? 1 : -1;
+            if (rank >= 0)
+                hits.push({ entry, rank });
+        }
+        const sectionRank = Object.create(null);
+        for (let index = 0; index < hits.length; index++) {
+            const section = hits[index].entry.section;
+            sectionRank[section] = Math.min(sectionRank[section] ?? 1, hits[index].rank);
+        }
         const position = Object.create(null);
-        sectionOrder.forEach((section, index) => position[section] = index);
+        for (let index = 0; index < sectionOrder.length; index++)
+            position[sectionOrder[index]] = index;
         const sectionKey = section => sectionRank[section] * sectionOrder.length + position[section];
         return hits
-            .sort((a, b) => sectionKey(a.topic.section) - sectionKey(b.topic.section) || a.rank - b.rank || a.index - b.index)
-            .map(({ topic }) => ({ key: `help:${topic.section}:${topic.keys}`, kind: "help", store: root, section: topic.section, topic, title: topic.title, hint: topic.keys, icon: "help-about" }));
+            .sort((a, b) => sectionKey(a.entry.section) - sectionKey(b.entry.section) || a.rank - b.rank || a.entry.index - b.entry.index)
+            .map(hit => hit.entry.item);
     }
 
     function describe(item) {
