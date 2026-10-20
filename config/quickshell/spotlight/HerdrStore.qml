@@ -383,7 +383,8 @@ Scope {
 
     Timer {
         interval: 2000
-        running: root.host.shown && root.host.mode === "herdr"
+        // while herdr answers: down, it is asked again at the next opening
+        running: root.host.shown && root.host.mode === "herdr" && root.snapshot !== null
         repeat: true
         onTriggered: snapshotSource.reload()
     }
