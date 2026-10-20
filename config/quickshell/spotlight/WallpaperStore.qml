@@ -3,17 +3,21 @@ import Quickshell.Io
 import QtQuick
 import qs
 
-// Wallpapers in ~/Pictures/wallpaperCicle with the square thumbnails awww's
-// scripts cache as <md5 of the path>.sqre (missing ones are rendered here).
-// The current one comes first; Enter applies one through awwwallpaper.sh.
+// Wallpapers in ~/Pictures/wallpaperCicle, each with a square thumbnail cached
+// as <md5 of the path>.sqre and a 960x720 preview, both JPEG (Qt reads no
+// WebP here) and made once from one decode. The current one comes first;
+// Enter applies one through awwwallpaper.sh.
 Scope {
     id: root
     property var host
     readonly property string folder: Spot.home + "/Pictures/wallpaperCicle"
     readonly property string thumbDir: Spot.home + "/.cache/wallpapers/thumbnails"
+    readonly property string previewDir: Spot.cacheDir + "/wallpapers"
     readonly property string current: listing.items[0] ?? ""
     readonly property var wallpapers: listing.items.slice(1).sort((a, b) => a.localeCompare(b))
     property int thumbsReady: 0
+    // whether this listing's thumbnails and previews were all made
+    property bool rendered: false
 
     function load() {
         listing.reload();
@@ -31,6 +35,11 @@ Scope {
         return `file://${thumbDir}/${thumbNames[path] ?? Qt.md5(path)}.sqre`;
     }
 
+    // the original until the previews are made: a 5K image took up to ~1 s to decode
+    function previewOf(path) {
+        return rendered ? `file://${previewDir}/${thumbNames[path] ?? Qt.md5(path)}.jpg` : "file://" + path;
+    }
+
     // the counter in the query makes rows reload thumbs rendered after the first paint
     function items(tokens) {
         const item = (path, section) => ({ key: "wallpaper:" + path, kind: "wallpaper", store: root, section, path, title: Spot.basename(path), hint: path === current ? "Current" : "", thumb: `${thumbOf(path)}?${thumbsReady}` });
@@ -39,7 +48,7 @@ Scope {
     }
 
     function describe(item) {
-        return { image: "file://" + item.path, title: item.title, subtitle: Spot.tilde(item.path), details: [item.path === current ? "Current wallpaper" : ""], actions: [["Enter", "Set wallpaper"], ["Ctrl+Enter", "Open image"], ["Ctrl+C", "Copy path"]] };
+        return { image: previewOf(item.path), title: item.title, subtitle: Spot.tilde(item.path), details: [item.path === current ? "Current wallpaper" : ""], actions: [["Enter", "Set wallpaper"], ["Ctrl+Enter", "Open image"], ["Ctrl+C", "Copy path"]] };
     }
 
     function activate(item, keys) {
@@ -59,15 +68,30 @@ Scope {
         id: listing
         command: ["sh", "-c", 'readlink -f "$HOME/.config/awww/wall.set"; fd --type f -e jpg -e jpeg -e png -e gif -e bmp -e tiff -e svg -e webp . "$1"', "sh", root.folder]
         parse: output => output.split("\n").filter(line => line)
-        onItemsChanged: thumbs.exec(["sh", "-c", `dir=$1; shift; mkdir -p "$dir"
-for path in "$@"; do
-    thumb="$dir/$(printf %s "$path" | md5sum | cut -d" " -f1).sqre"
-    [ -f "$thumb" ] || printf '%s\\0%s\\0' "$path" "$thumb"
-done | xargs -0 -r -n2 -P "$(nproc)" sh -c 'magick "$1[0]" -resize 400x400^ -gravity center -quality 90 -extent 400x400 "$2"' _`, "sh", root.thumbDir, ...root.wallpapers])
     }
 
+    // here, not in the listing's onItemsChanged, which still sees the last
+    // listing's wallpapers; hashed here too, as thumbNames may not have caught up.
+    // Niced: the first run makes every preview, about a minute on all cores
+    onWallpapersChanged: {
+        rendered = false;
+        const pairs = [];
+        for (let index = 0; index < wallpapers.length; index++)
+            pairs.push(wallpapers[index], Qt.md5(wallpapers[index]));
+        thumbs.exec(["sh", "-c", `thumbs=$1 previews=$2; shift 2; mkdir -p "$thumbs" "$previews"
+while [ $# -gt 0 ]; do
+    [ -f "$thumbs/$2.sqre" ] && [ -f "$previews/$2.jpg" ] || printf '%s\\0%s\\0%s\\0' "$1" "$thumbs/$2.sqre" "$previews/$2.jpg"
+    shift 2
+done | xargs -0 -r -n3 -P "$(nproc)" nice -n 19 sh -c 'magick "$1[0]" \\( +clone -resize "960x720>" -quality 85 -write "jpg:$3" +delete \\) -resize 400x400^ -gravity center -quality 90 -extent 400x400 "jpg:$2" && echo "$2"' _`, "sh", thumbDir, previewDir].concat(pairs));
+    }
+
+    // a counter bumped only when thumbnails were made reloads the rows' images
     Process {
         id: thumbs
-        onExited: root.thumbsReady++
+        stdout: StdioCollector {
+            onStreamFinished: if (text)
+                root.thumbsReady++
+        }
+        onExited: root.rendered = true
     }
 }
