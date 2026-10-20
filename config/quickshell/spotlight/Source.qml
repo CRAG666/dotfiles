@@ -16,6 +16,8 @@ Process {
     property string output: ""
     property var request: null
     property bool asking: false
+    // a reload asked for while one runs, made once it answers
+    property bool again: false
 
     function load() {
         if (!loadedAt || maxAge >= 0 && Date.now() - loadedAt > maxAge)
@@ -28,14 +30,23 @@ Process {
                 running = true;
             return;
         }
-        if (asking)
+        if (asking) {
+            again = true;
             return;
+        }
         asking = true;
         Spot.call(request, (output, error) => {
             asking = false;
             if (error)
                 console.warn(`helper ${request.join(" ")}: ${error}`);
             take(output);
+            // a failed answer is asked for again at the next load()
+            if (error)
+                loadedAt = 0;
+            if (again) {
+                again = false;
+                reload();
+            }
         });
     }
 
