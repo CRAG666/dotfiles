@@ -10,10 +10,14 @@ Scope {
     id: root
     property var host
 
+    // what is known now, then again once the scan is over (wifi-scan waits for it)
     function load() {
-        Spot.send(["wifi-scan"]);
         networks.reload();
-        rescanned.restart();
+        Spot.call(["wifi-scan"], (output, error) => {
+            if (error)
+                Quickshell.execDetached(["notify-send", "-u", "critical", "-i", "network-wireless", "Wi-Fi", error]);
+            networks.reload();
+        });
     }
 
     function items(tokens) {
@@ -35,8 +39,12 @@ Scope {
     }
 
     // the helper's command, then a notification of how it went
+    // the list loads again once iwctl is done, not before
     function run(args, done) {
-        Spot.call(args, (output, error) => Quickshell.execDetached(error ? ["notify-send", "-u", "critical", "-i", "network-wireless", "Wi-Fi", error] : ["notify-send", "-t", "3000", "-i", "network-wireless", "Wi-Fi", done]));
+        Spot.call(args, (output, error) => {
+            Quickshell.execDetached(error ? ["notify-send", "-u", "critical", "-i", "network-wireless", "Wi-Fi", error] : ["notify-send", "-t", "3000", "-i", "network-wireless", "Wi-Fi", done]);
+            networks.reload();
+        });
     }
 
     function activate(item, keys) {
@@ -69,7 +77,6 @@ Scope {
         if (item.kind !== "wifi" || action !== "delete" || !item.network.known)
             return false;
         run(["wifi-forget", item.network.name], "Forgot " + item.network.name.trim());
-        networks.reload();
         return false;
     }
 
@@ -80,12 +87,5 @@ Scope {
     Source {
         id: networks
         request: ["wifi"]
-    }
-
-    // a scan takes a few seconds; list again once it is done
-    Timer {
-        id: rescanned
-        interval: 4000
-        onTriggered: networks.reload()
     }
 }
