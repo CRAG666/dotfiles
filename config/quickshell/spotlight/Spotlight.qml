@@ -250,10 +250,19 @@ Scope {
 
         function open(requested) {
             windows.forget();
-            if (requested === "mark-add")
+            const target = views.some(view => view.mode === requested) ? requested : "";
+            if (requested === "mark-add") {
+                mode = "";
                 marks.promptAdd();
-            else
-                mode = views.some(view => view.mode === requested) ? requested : "";
+            } else if (target === mode) {
+                // the view closed last, whose rows were kept: it loads again as
+                // onModeChanged would, and the list starts at its top
+                keepSelection = false;
+                currentView?.open?.();
+                select(0);
+            } else {
+                mode = target;
+            }
             follow();
             shown = true;
             agenda.load();
@@ -262,7 +271,9 @@ Scope {
             readPending = true;
         }
 
-        // everything goes back to an empty search, so the next opening starts clean
+        // everything goes back to an empty search, so the next opening starts clean;
+        // the view stays, hidden, with its rows: opening it again then makes none
+        // (apps 17 ms, history 24 ms to the first frame when it made them)
         function close() {
             if (query && !form && !actionTarget)
                 lastQuery = search.text;
@@ -270,7 +281,6 @@ Scope {
             sourcesChecked = false;
             form = null;
             actionTarget = null;
-            mode = "";
             search.text = "";
             armed = "";
             notice = "";
