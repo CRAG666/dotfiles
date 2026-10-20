@@ -76,7 +76,7 @@ Scope {
 
     Process {
         running: true
-        command: ["sh", "-c", 'echo "$PPID" > "$1.pid"; rm -f "$1"; mkfifo -m 600 "$1"; exec cat 0<> "$1"', "sh", (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/osd.fifo"]
+        command: ["sh", "-c", 'echo "$PPID" > "$1.pid"; rm -f "$1"; mkfifo -m 600 "$1"; exec setpriv --pdeathsig TERM cat 0<> "$1"', "sh", (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/osd.fifo"]
         stdout: SplitParser {
             onRead: line => {
                 const [kind, value] = line.split(" ");

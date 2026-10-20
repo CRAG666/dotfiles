@@ -227,11 +227,12 @@ Scope {
         // spotlight.sh writes "toggle <mode>" lines here: a printf from the shell
         // answers a key press much sooner than starting `qs ipc` (~60 ms). cat
         // holds the fifo open read-write, so it never sees an end and writers never
-        // block; the fifo is made anew, so a cat left behind by a crash reads nothing.
-        // The pid lets spotlight.sh check that a Spotlight is reading
+        // block; the fifo is made anew, and pdeathsig ends cat with Spotlight, as a
+        // kill left it reading forever. The pid lets spotlight.sh check that a
+        // Spotlight is reading
         Process {
             running: true
-            command: ["sh", "-c", 'echo "$PPID" > "$1.pid"; rm -f "$1"; mkfifo -m 600 "$1"; exec cat 0<> "$1"', "sh", (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/spotlight.fifo"]
+            command: ["sh", "-c", 'echo "$PPID" > "$1.pid"; rm -f "$1"; mkfifo -m 600 "$1"; exec setpriv --pdeathsig TERM cat 0<> "$1"', "sh", (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/spotlight.fifo"]
             stdout: SplitParser {
                 onRead: line => win.toggle(line.replace(/^toggle ?/, ""))
             }
