@@ -28,17 +28,114 @@
   --zen-branding-paper: #f7dbb9 !important;
   --zen-branding-dark: #192019 !important;
   --zen-primary-color: var(--eyes-space-accent, var(--eyes-green0)) !important;
+  --zen-colors-primary: var(--eyes-bg2) !important;
+  --zen-colors-secondary: var(--eyes-bg2) !important;
+  --zen-colors-tertiary: var(--eyes-sidebar) !important;
+  --zen-colors-border: var(--zen-primary-color) !important;
+  --toolbarbutton-icon-fill: var(--zen-primary-color) !important;
   --toolbox-textcolor: var(--eyes-fg0) !important;
+  --lwt-text-color: var(--eyes-fg0) !important;
+  --toolbar-color: var(--eyes-fg0) !important;
+  --toolbar-bgcolor: var(--eyes-bg2) !important;
+  --toolbar-field-color: var(--eyes-fg0) !important;
+  --toolbar-field-focus-color: var(--eyes-fg0) !important;
+  --tab-selected-textcolor: var(--zen-primary-color) !important;
   --zen-urlbar-background: var(--eyes-bg2) !important;
   --toolbar-field-background-color: var(--eyes-bg2) !important;
   --toolbar-field-focus-background-color: var(--eyes-bg0) !important;
   --arrowpanel-background: var(--eyes-bg1) !important;
   --arrowpanel-color: var(--eyes-fg0) !important;
   --zen-dialog-background: var(--eyes-bg1) !important;
+  --sidebar-text-color: var(--eyes-fg0) !important;
+  --lwt-sidebar-text-color: var(--eyes-fg0) !important;
+  --lwt-sidebar-background-color: var(--eyes-bg0) !important;
+  --newtab-text-primary-color: var(--eyes-fg0) !important;
+  --newtab-background-color: var(--eyes-bg0) !important;
+  --zen-themed-toolbar-bg: var(--eyes-sidebar) !important;
+  --zen-main-browser-background: var(--eyes-sidebar) !important;
+  --toolbox-bgcolor-inactive: var(--eyes-sidebar) !important;
   --eyes-sidebar: light-dark(
     color-mix(in oklab, var(--eyes-space-pastel, #f7dbb9) 50%, #f7dbb9),
     color-mix(in oklab, var(--zen-primary-color) 22%, #192019)
   );
+}
+
+hbox#titlebar,
+#zen-appcontent-navbar-container,
+#TabsToolbar {
+  background-color: var(--eyes-sidebar) !important;
+}
+
+#permissions-granted-icon {
+  color: var(--eyes-sidebar) !important;
+}
+
+.sidebar-placesTree,
+#zen-workspaces-button {
+  background-color: var(--eyes-bg1) !important;
+}
+
+.content-shortcuts {
+  background-color: var(--eyes-bg1) !important;
+  border-color: var(--zen-primary-color) !important;
+}
+
+.urlbarView-url {
+  color: var(--zen-primary-color) !important;
+}
+
+#zenEditBookmarkPanelFaviconContainer {
+  background: var(--eyes-bg0) !important;
+}
+
+#zen-media-controls-toolbar #zen-media-progress-bar::-moz-range-track {
+  background: var(--eyes-bg2) !important;
+}
+
+toolbar
+  .toolbarbutton-1:not([disabled]):is([open], [checked])
+  > :is(.toolbarbutton-icon, .toolbarbutton-text, .toolbarbutton-badge-stack) {
+  fill: var(--eyes-bg0);
+}
+
+.identity-color-blue {
+  --identity-tab-color: var(--eyes-blue0) !important;
+  --identity-icon-color: var(--eyes-blue0) !important;
+}
+
+.identity-color-turquoise {
+  --identity-tab-color: var(--eyes-teal) !important;
+  --identity-icon-color: var(--eyes-teal) !important;
+}
+
+.identity-color-green {
+  --identity-tab-color: var(--eyes-green0) !important;
+  --identity-icon-color: var(--eyes-green0) !important;
+}
+
+.identity-color-yellow {
+  --identity-tab-color: var(--eyes-yellow) !important;
+  --identity-icon-color: var(--eyes-yellow) !important;
+}
+
+.identity-color-orange {
+  --identity-tab-color: var(--eyes-orange0) !important;
+  --identity-icon-color: var(--eyes-orange0) !important;
+}
+
+.identity-color-red {
+  --identity-tab-color: var(--eyes-red) !important;
+  --identity-icon-color: var(--eyes-red) !important;
+}
+
+.identity-color-pink {
+  --identity-tab-color: var(--eyes-pink) !important;
+  --identity-icon-color: var(--eyes-pink) !important;
+}
+
+.identity-color-purple {
+  --identity-tab-color: var(--eyes-violet) !important;
+  --identity-icon-color: var(--eyes-violet) !important;
 }
 
 zen-workspace,
@@ -58,6 +155,7 @@ zen-workspace,
 }
 
 #urlbar .urlbar-background {
+  background-color: var(--eyes-bg0) !important;
   --zen-urlbar-background-base: var(--eyes-bg0) !important;
   --zen-urlbar-background-transparent: var(--eyes-bg0) !important;
 }
