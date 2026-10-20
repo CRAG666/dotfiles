@@ -70,7 +70,7 @@ Scope {
         if (item.kind === "bookmark")
             return { icon: item.icon, title: item.title, subtitle: item.entry.body, metadata: [["Category", item.entry.category]], actions: [["Enter", "Open"], ["Ctrl+C", "Copy URL"], ["Ctrl+E", "Edit"], ["Ctrl+X", "Delete"]] };
         if (item.kind === "note")
-            return { document: true, title: item.title, body: item.entry.body, markdown: true, metadata: [["Category", item.entry.category], ["Words", item.entry.body.split(/\s+/).filter(word => word).length]], actions: [["Enter", "Copy"], ["Ctrl+E", "Edit text"], ["Ctrl+R", "Rename"], ["Ctrl+X", "Delete"]] };
+            return { document: true, title: item.title, body: item.entry.body, markdown: true, metadata: [["Category", item.entry.category], ["Words", item.entry.words]], actions: [["Enter", "Copy"], ["Ctrl+E", "Edit text"], ["Ctrl+R", "Rename"], ["Ctrl+X", "Delete"]] };
         return { icon: item.icon, title: item.title, subtitle: item.action.includes("note") ? "Notes" : "Bookmarks", actions: [["Enter", "Run"]] };
     }
 
@@ -186,16 +186,18 @@ Scope {
         });
     }
 
+    // listed again at every opening (~1 ms of Python, off this thread): an edit
+    // in Ctrl+E's terminal or a new note must show at once
     Source {
         id: bookmarks
-        maxAge: 30000
+        maxAge: 0
         request: ["list", "bookmarks"]
         parse: output => root.indexed(output)
     }
 
     Source {
         id: notes
-        maxAge: 30000
+        maxAge: 0
         request: ["list", "notes"]
         parse: output => root.indexed(output)
     }

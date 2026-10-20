@@ -47,7 +47,8 @@ def list_entries(name: str) -> list[dict]:
             f"SELECT e.id, c.name AS category, e.title, {column} AS body FROM entries e "
             "JOIN categories c ON c.id = e.category_id ORDER BY lower(c.name), lower(e.title)"
         )
-        return [dict(row) for row in rows]
+        # counted here once, not at every preview (5 ms for a 3 KB note in QML)
+        return [dict(row, words=len(row["body"].split())) for row in rows]
 
 
 def categories(name: str) -> list[str]:
