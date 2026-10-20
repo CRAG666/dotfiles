@@ -169,19 +169,23 @@ def contents(query: str) -> list[dict]:
     words = [word for word in re.findall(r"\w+", query) if len(word) >= 3]
     if not words or not CONTENTS.exists():
         return []
+    hits: dict[str, dict] = {}
+    # ORDER BY rank sorts inside FTS5 with the rank function given by MATCH, so
+    # snippet() runs only for the rows read, not for every match (61k for "the")
     with contents_db() as db:
         rows = db.execute(
             "SELECT path, page, snippet(passages, 3, '', '', '…', 14) FROM passages "
-            f"WHERE passages MATCH ? ORDER BY bm25(passages, 0, 0, {NAME_WEIGHT}, 1) "
-            "LIMIT 300",
+            f"WHERE passages MATCH ? AND rank MATCH 'bm25(0, 0, {NAME_WEIGHT}, 1)' "
+            "ORDER BY rank LIMIT 300",
             (" ".join(f'"{word}"*' for word in words),),
-        ).fetchall()
-    hits: dict[str, dict] = {}
-    for path, page, snippet in rows:
-        if path not in hits and Path(path).exists():
-            hits[path] = {
-                "path": path,
-                "page": page,
-                "snippet": " ".join(snippet.split()),
-            }
-    return list(hits.values())[:40]
+        )
+        for path, page, snippet in rows:
+            if path not in hits and Path(path).exists():
+                hits[path] = {
+                    "path": path,
+                    "page": page,
+                    "snippet": " ".join(snippet.split()),
+                }
+                if len(hits) == 40:
+                    break
+    return list(hits.values())

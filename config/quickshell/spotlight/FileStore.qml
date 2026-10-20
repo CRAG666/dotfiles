@@ -161,8 +161,11 @@ Scope {
         return { text: words.join(" "), args, folder, filtered: args.length > 0 || folder !== Spot.home };
     }
 
+    // made once an answer, so the keystrokes before the next one remake no rows
+    readonly property var contentList: contentHits.map(hit => Object.assign(fileItem(hit.path, false, hit.page ? "p. " + hit.page : ""), { key: "content:" + hit.path, page: hit.page, snippet: hit.snippet }))
+
     function contentItems() {
-        return contentHits.map(hit => Object.assign(fileItem(hit.path, false, hit.page ? "p. " + hit.page : ""), { key: "content:" + hit.path, page: hit.page, snippet: hit.snippet }));
+        return contentList;
     }
 
     function recentItems(tokens, limit) {
