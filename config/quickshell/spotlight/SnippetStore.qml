@@ -74,16 +74,18 @@ Scope {
     function describe(item) {
         if (item.kind === "emoji")
             return { glyph: item.glyph, title: item.title, actions: [["Enter", "Paste"], ["Ctrl+C", "Copy"]] };
-        return { icon: item.icon, title: item.title, subtitle: "Snippet · " + item.snippet.keyword, body: item.value, actions: [["Enter", "Paste"], ["Ctrl+C", "Copy"]] };
+        return { icon: item.icon, title: item.title, subtitle: "Snippet · " + item.snippet.keyword, body: expand(item.snippet.text), actions: [["Enter", "Paste"], ["Ctrl+C", "Copy"]] };
     }
 
+    // a snippet's placeholders are filled as it is used: its item may be older
+    // than the minute ({time}) or the day
     function activate(item, keys) {
-        Spot.type(item.value);
+        Spot.type(item.kind === "emoji" ? item.value : expand(item.snippet.text));
         return true;
     }
 
     function copy(item) {
-        Spot.copy(item.value.split("{cursor}").join(""));
+        Spot.copy((item.kind === "emoji" ? item.value : expand(item.snippet.text)).split("{cursor}").join(""));
     }
 
     Source {
