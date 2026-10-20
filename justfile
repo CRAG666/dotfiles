@@ -1,7 +1,7 @@
 home := env_var("HOME")
 src := justfile_directory()
 
-export PATH := home + "/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/bin/core_perl:" + home + "/.local/share/mise/shims"
+export PATH := home + "/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/bin/core_perl:" + home + "/.local/share/mise/shims:" + env_var_or_default("PREFIX", "/usr") + "/bin"
 export GOPATH := home
 
 hypr_pkgs := "hyprland xdg-desktop-portal-hyprland hyprland-guiutils hyprland-qt-support hyprsunset hyprtoolkit hyprutils"
@@ -136,7 +136,7 @@ system-config:
 # Install Arch Linux packages and apply base system configuration
 install: makepkg-conf bootstrap-paru install-repo install-aur fonts system-config nftables
 
-# Print "<source>\t<link>" for every symlink of a group: home, config, bin, data, systemd, harness
+# Print "<source>\t<link>" for every symlink of a group: home, config, bin, data, systemd, harness, termux
 [private]
 links group:
     #!/usr/bin/env bash
@@ -166,6 +166,11 @@ links group:
             find "{{ src }}/harness/opencode" -type f -printf "%p\t$HOME/.config/opencode/%P\n"
             # settings*.json are installed as copies by the harness recipe
             find "{{ src }}/harness/claude" -type f ! -name 'settings*' -printf "%p\t$HOME/.claude/%P\n" ;;
+        termux)
+            printf "%s\t$HOME/%s\n" \
+                "{{ src }}/termux/tmux.conf" .tmux.conf \
+                "{{ src }}/.tmux.colors.eyes.conf" .tmux.colors.eyes.conf \
+                "{{ src }}/.tmux.colors.eyes-dark.conf" .tmux.colors.eyes-dark.conf ;;
         *)
             echo "Unknown link group: {{ group }}" >&2
             exit 1 ;;
@@ -660,3 +665,7 @@ p53: install init thinkpad laptop-intel nvidia dns tailscale ssh sunshine (firmw
 # Install for ThinkPad L14 Gen 4 (Ryzen 5, + client Moonlight)
 l14: install init thinkpad-amd dns tailscale moonlight (firmware l14_firmware)
     sudo install -Dm 644 "{{ src }}/etc/greetd/L14_Gen4.png" /etc/greetd/laptop.png
+
+# Install for the Android phones (Termux): tmux with the eyes theme, without plugins
+phone: (link "termux")
+    pkg install -y tmux
