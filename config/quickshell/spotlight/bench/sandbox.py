@@ -1,6 +1,7 @@
 """A hidden Spotlight built from any commit (or the working tree) in a scratch
-directory, with its own state copy, empty cache and fifo, so it shares nothing
-writable with the running one. Probes are QML text evaluated inside Spotlight's
+directory, with its own state copy, a cache holding only a copy of the
+wallpaper previews, and its own fifo, so it shares nothing writable with the
+running one. Probes are QML text evaluated inside Spotlight's
 window, where every store id is in scope; each writes its JSON answer to a file.
 """
 
@@ -28,6 +29,12 @@ REPO = Path(
 )
 STATE = (
     Path(os.environ.get("XDG_STATE_HOME", Path.home() / ".local/state")) / "spotlight"
+)
+# the wallpaper previews Spotlight makes once (about a minute on every core):
+# an empty cache would make them again in each sandbox, while it is measured
+PREVIEWS = (
+    Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+    / "spotlight/wallpapers"
 )
 ANCHOR = '        IpcHandler {\n            target: "spotlight"'
 ENTRY = """        IpcHandler {
@@ -254,6 +261,10 @@ def sandbox(
     with tempfile.TemporaryDirectory(prefix="spotlight-bench-") as scratch:
         root = Path(scratch)
         config = tree(rev, root / "quickshell")
+        # before the fifo is renamed: a prepare that rewrites Spotlight.qml would
+        # otherwise point the sandbox at the running Spotlight's fifo
+        if prepare:
+            prepare(config)
         spotlight = config / "spotlight/Spotlight.qml"
         source = spotlight.read_text()
         if ANCHOR not in source or '"/spotlight.fifo"' not in source:
@@ -265,10 +276,10 @@ def sandbox(
                 '"/spotlight.fifo"', '"/spotlight-bench.fifo"'
             )
         )
-        if prepare:
-            prepare(config)
         if STATE.is_dir():
             shutil.copytree(STATE, root / "state/spotlight")
+        if PREVIEWS.is_dir():
+            shutil.copytree(PREVIEWS, root / "cache/spotlight/wallpapers")
         env = os.environ | {
             "XDG_STATE_HOME": str(root / "state"),
             "XDG_CACHE_HOME": str(root / "cache"),
