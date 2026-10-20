@@ -163,7 +163,8 @@ Item {
                             fillMode: Image.PreserveAspectCrop
                             sourceSize: Qt.size(Spot.px(96), Spot.px(96))
                             source: row.modelData.thumb
-                            cache: false
+                            // window snapshots come decoded from the cache (see Spotlight)
+                            cache: !!row.modelData.window
                             asynchronous: true
                         }
                     }

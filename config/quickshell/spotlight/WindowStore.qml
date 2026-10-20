@@ -4,27 +4,61 @@ import QtQuick
 
 // Open windows from Scroll's tree, each with a snapshot: grim -T captures a
 // toplevel through ext-image-copy-capture (off-screen ones too), all in
-// parallel, once per opening. `capturing` ("all", "marked" or "") says which
+// parallel, once per opening. It saves the full size as JPEG and Image scales
+// it while decoding: grim's own -s 0.35 took ~420 of the ~470 ms a window
+// cost, a full JPEG ~50. `capturing` ("all", "marked" or "") says which
 // windows the current view shows with their snapshot. Enter focuses a window.
+// An opening shows the last snapshots at once and takes new ones, which all
+// show together once every one is decoded (see decoding).
 Scope {
     id: root
     property string capturing: ""
     readonly property var list: tree.items
-    property var shots: ({})   // foreign toplevel identifier → snapshot url
+    // foreign toplevel identifier → the snapshot url shown
+    property var shots: ({})
+    // the newest snapshot of each window, which Spotlight decodes ahead into
+    // Qt's image cache at the rows' and the preview's sizes, and those not in yet
+    property var latest: ({})
+    readonly property var decoding: Object.keys(latest).map(ident => ({ ident, url: latest[ident] }))
+    property var undecoded: ({})
+    // the windows asked for in this opening
+    property var taken: ({})
 
     onCapturingChanged: captureShown()
 
+    // a view that shows snapshots asks for them as it opens: a tree still fresh
+    // changes nothing that would ask again
     function load() {
         tree.load();
+        captureShown();
     }
 
     function reload() {
         tree.reload();
+        captureShown();
     }
 
-    // snapshots are only good for one opening
+    // each opening takes the snapshots again; the last ones show meanwhile
     function forget() {
-        shots = {};
+        taken = {};
+    }
+
+    // every snapshot taken is decoded and grim has none left to take: they show
+    // together, from the cache, in one frame, and those of windows closed since
+    // go. The selected window, asked for first, waits for the others
+    function decoded(url) {
+        delete undecoded[url];
+        if (Object.keys(undecoded).length || grabber.running || grabber.queue.length)
+            return;
+        const open = Object.create(null);
+        for (let index = 0; index < list.length; index++)
+            open[list[index].ident] = true;
+        const kept = {};
+        for (const ident in latest)
+            if (ident in open)
+                kept[ident] = latest[ident];
+        latest = kept;
+        shots = kept;
     }
 
     function shot(window) {
@@ -35,17 +69,23 @@ Scope {
         if (capturing === "all")
             capture(list);
         else if (capturing === "marked")
-            capture(list.filter(window => window.marks.length));
+            // the focused window too, which "Add mark" previews
+            capture(list.filter(window => window.marks.length || window.focused));
     }
 
-    // requests made while grim runs wait their turn
+    // once a window an opening; requests made in one go (the selected window's,
+    // then the view's) make one grim run, and those made while grim runs wait
     function capture(windows) {
-        const waiting = Object.create(null);
-        for (const ident of [...grabber.queue, ...grabber.pending])
-            waiting[ident] = true;
-        const wanted = windows.map(window => window.ident).filter(ident => ident && !(ident in shots) && !(ident in waiting));
-        grabber.queue = [...grabber.queue, ...wanted];
-        grabber.next();
+        const wanted = [];
+        for (let index = 0; index < windows.length; index++) {
+            const ident = windows[index].ident;
+            if (ident && !(ident in taken)) {
+                taken[ident] = true;
+                wanted.push(ident);
+            }
+        }
+        grabber.queue = grabber.queue.concat(wanted);
+        Qt.callLater(grabber.next);
     }
 
     // the windows are pushed onto `found` as the tree is walked, once each
@@ -119,16 +159,22 @@ Scope {
                 return;
             pending = queue;
             queue = [];
-            exec(["sh", "-c", 'dir=$1; shift; mkdir -p "$dir"; for id in "$@"; do grim -T "$id" -s 0.35 "$dir/$id.png" & done; wait', "sh", dir, ...pending]);
+            exec(["sh", "-c", 'dir=$1; shift; mkdir -p "$dir"; for id in "$@"; do grim -t jpeg -T "$id" "$dir/$id.jpg" & done; wait', "sh", dir, ...pending]);
         }
 
         // the timestamp keeps Image from showing a snapshot of an earlier opening
         onExited: {
-            const taken = Object.assign({}, root.shots);
-            for (const ident of pending)
-                taken[ident] = `file://${dir}/${ident}.png?${Date.now()}`;
+            const stamp = Date.now();
+            const newest = Object.assign({}, root.latest);
+            const waiting = Object.assign({}, root.undecoded);
+            for (let index = 0; index < pending.length; index++) {
+                const url = `file://${dir}/${pending[index]}.jpg?${stamp}`;
+                newest[pending[index]] = url;
+                waiting[url] = true;
+            }
             pending = [];
-            root.shots = taken;
+            root.undecoded = waiting;
+            root.latest = newest;
             next();
         }
     }

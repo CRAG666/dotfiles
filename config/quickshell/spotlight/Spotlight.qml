@@ -948,6 +948,56 @@ Scope {
             onDismissed: win.largeText = ""
         }
 
+        // window snapshots decode here, unseen, into Qt's image cache at the sizes
+        // and fill modes the rows and the preview ask for (all part of its key);
+        // WindowStore shows them once every one is in, so they appear in one
+        // frame, from the cache, and arrowing through them decodes nothing
+        Item {
+            visible: false
+
+            Repeater {
+                model: ScriptModel {
+                    objectProp: "url"
+                    values: windows.decoding
+                }
+
+                Item {
+                    id: ahead
+                    required property var modelData
+                    property bool rowReady: false
+                    property bool previewReady: false
+
+                    function settle(image, preview) {
+                        if (image.status !== Image.Ready && image.status !== Image.Error)
+                            return;
+                        if (preview)
+                            previewReady = true;
+                        else
+                            rowReady = true;
+                        if (rowReady && previewReady)
+                            windows.decoded(modelData.url);
+                    }
+
+                    Image {
+                        source: ahead.modelData.url
+                        sourceSize: Qt.size(Spot.px(96), Spot.px(96))
+                        fillMode: Image.PreserveAspectCrop
+                        asynchronous: true
+                        onStatusChanged: ahead.settle(this, false)
+                        Component.onCompleted: ahead.settle(this, false)
+                    }
+                    Image {
+                        source: ahead.modelData.url
+                        sourceSize: Qt.size(Spot.px(800), Spot.px(600))
+                        fillMode: Image.PreserveAspectFit
+                        asynchronous: true
+                        onStatusChanged: ahead.settle(this, true)
+                        Component.onCompleted: ahead.settle(this, true)
+                    }
+                }
+            }
+        }
+
         RectangularShadow {
             anchors.fill: panel
             radius: panel.radius
