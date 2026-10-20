@@ -10,6 +10,12 @@ Scope {
     property var host
     property var windows
 
+    // a mark as one quoted argument of a scroll command: unquoted, a ";" or ","
+    // in it would start a second command ("x;kill" closing the window)
+    function quoted(mark) {
+        return '"' + mark.replace(/["\\]/g, "\\$&") + '"';
+    }
+
     // con_mark is a regex, so the name is escaped to match literally
     function criteria(mark) {
         const literal = mark.replace(/[.*+?^$(){}|[\]\\"]/g, "\\$&");
@@ -37,7 +43,7 @@ Scope {
             closeOnCancel: true,
             fields: [{ key: "mark", label: "Mark for the focused window", value: "" }],
             submit: values => {
-                Quickshell.execDetached(["scrollmsg", "mark --add " + values.mark.replace(/\s+/g, "-")]);
+                Quickshell.execDetached(["scrollmsg", "mark --add " + root.quoted(values.mark.replace(/\s+/g, "-"))]);
                 return true;
             }
         });
@@ -58,10 +64,10 @@ Scope {
             return true;
         }
         if (item.kind === "markAdd") {
-            Quickshell.execDetached(["scrollmsg", "mark --add " + item.mark]);
+            Quickshell.execDetached(["scrollmsg", "mark --add " + quoted(item.mark)]);
             return true;
         }
-        job.exec(["sh", "-c", 'for mark in "$@"; do scrollmsg unmark "$mark"; done', "sh", ...item.window.marks]);
+        job.exec(["scrollmsg", item.window.marks.map(mark => "unmark " + quoted(mark)).join("; ")]);
         return false;
     }
 
@@ -71,7 +77,7 @@ Scope {
 
     function act(item, action) {
         if (item.kind === "mark" && action === "delete")
-            job.exec(["scrollmsg", "unmark", item.mark]);
+            job.exec(["scrollmsg", "unmark " + quoted(item.mark)]);
         return false;
     }
 
