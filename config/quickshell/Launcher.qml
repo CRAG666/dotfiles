@@ -107,13 +107,26 @@ FocusedPanel {
         onClicked: win.close()
     }
 
+    // animated in only: Behaviors would keep drawing frames after it is hidden
     Item {
+        id: content
         anchors.fill: parent
         visible: win.shown
-        opacity: win.shown ? 1 : 0
-        scale: win.shown ? 1 : 1.04
-        Behavior on opacity { NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
-        Behavior on scale { NumberAnimation { duration: 450; easing.type: Easing.OutCubic } }
+        opacity: 0
+        scale: 1.04
+        states: State {
+            name: "shown"
+            when: win.shown
+            PropertyChanges {
+                content.opacity: 1
+                content.scale: 1
+            }
+        }
+        transitions: Transition {
+            to: "shown"
+            NumberAnimation { property: "opacity"; duration: 350; easing.type: Easing.OutCubic }
+            NumberAnimation { property: "scale"; duration: 450; easing.type: Easing.OutCubic }
+        }
 
         Rectangle {
             id: pill
@@ -126,7 +139,10 @@ FocusedPanel {
             color: Qt.alpha(Wallpaper.tint, 0.14)
             border.width: Math.max(1, win.px(2))
             border.color: search.text !== "" ? Wallpaper.tint : Qt.alpha(Wallpaper.tint, 0.45)
-            Behavior on border.color { ColorAnimation { duration: 200 } }
+            Behavior on border.color {
+                enabled: win.shown
+                ColorAnimation { duration: 200 }
+            }
 
             Label {
                 id: searchIcon
@@ -217,7 +233,10 @@ FocusedPanel {
             height: rows * cellHeight
             clip: true
             keyNavigationWraps: true
-            model: win.apps
+            model: ScriptModel {
+                values: win.apps
+            }
+            reuseItems: true
             highlightMoveDuration: 120
             highlight: Rectangle {
                 radius: win.px(28)
@@ -243,7 +262,7 @@ FocusedPanel {
                         anchors.horizontalCenter: parent.horizontalCenter
                         width: win.px(128)
                         height: width
-                        sourceSize: Qt.size(256, 256)
+                        sourceSize: Qt.size(width, height)
                         source: Quickshell.iconPath(tile.modelData.icon, "application-x-executable")
                         asynchronous: true
                     }
