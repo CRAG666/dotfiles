@@ -167,10 +167,8 @@ links group:
             # settings*.json are installed as copies by the harness recipe
             find "{{ src }}/harness/claude" -type f ! -name 'settings*' -printf "%p\t$HOME/.claude/%P\n" ;;
         termux)
-            printf "%s\t$HOME/%s\n" \
-                "{{ src }}/termux/tmux.conf" .tmux.conf \
-                "{{ src }}/.tmux.colors.eyes.conf" .tmux.colors.eyes.conf \
-                "{{ src }}/.tmux.colors.eyes-dark.conf" .tmux.colors.eyes-dark.conf ;;
+            find "{{ src }}/termux" -name '*.properties' -printf "%p\t$HOME/.termux/%f\n"
+            printf "%s\t%s\n" "{{ src }}/termux/eyes-theme.sh" "$PREFIX/etc/profile.d/eyes-theme.sh" ;;
         *)
             echo "Unknown link group: {{ group }}" >&2
             exit 1 ;;
@@ -666,6 +664,7 @@ p53: install init thinkpad laptop-intel nvidia dns tailscale ssh sunshine (firmw
 l14: install init thinkpad-amd dns tailscale moonlight (firmware l14_firmware)
     sudo install -Dm 644 "{{ src }}/etc/greetd/L14_Gen4.png" /etc/greetd/laptop.png
 
-# Install for the Android phones (Termux): tmux with the eyes theme, without plugins
+# Configure Termux on the Android phones: eyes colors by the hour + underline cursor
 phone: (link "termux")
-    pkg install -y tmux
+    sh "{{ src }}/termux/eyes-theme.sh"
+    termux-reload-settings
