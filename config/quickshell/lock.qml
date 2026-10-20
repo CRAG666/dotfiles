@@ -1,11 +1,14 @@
 import Quickshell
+import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Services.Pam
 import QtQuick
 
 // Session lock, run as its own process (via lock.sh) so a widget reload/crash
-// never drops it. The password is shared by every screen's surface; PAM uses
-// /etc/pam.d/login. On success the blur dissolves back to the wallpaper, then unlocks.
+// never drops it. It stays resident between locks, as starting it took ~300 ms
+// of the ~370 before the screen was secure; lock.sh locks it through a fifo. The
+// password is shared by every screen's surface; PAM uses /etc/pam.d/login. On
+// success the blur dissolves back to the wallpaper, then unlocks.
 ShellRoot {
     id: root
     property string password: ""
@@ -43,14 +46,46 @@ ShellRoot {
         interval: 450
         onTriggered: {
             Quickshell.execDetached(["rm", "-f", root.secureFlag]);
-            lock.locked = false;
-            Qt.quit();
+            session.locked = false;
+        }
+    }
+
+    // does nothing while locked
+    function lock() {
+        if (session.locked)
+            return;
+        password = "";
+        message = "";
+        failed = false;
+        unlocking = false;
+        session.locked = true;
+    }
+
+    // lock.sh writes "lock" lines here, as spotlight.sh does to Spotlight's: a
+    // printf costs nothing next to starting a `quickshell ipc` client (~150 ms),
+    // which it only uses right after starting this instance
+    Process {
+        running: true
+        command: ["sh", "-c", 'echo "$PPID" > "$1.pid"; rm -f "$1"; mkfifo -m 600 "$1"; exec setpriv --pdeathsig TERM cat 0<> "$1"', "sh", Quickshell.env("XDG_RUNTIME_DIR") + "/qs-lock.fifo"]
+        stdout: SplitParser {
+            onRead: line => {
+                if (line === "lock")
+                    root.lock();
+            }
+        }
+        onRunningChanged: if (!running) running = true
+    }
+
+    IpcHandler {
+        target: "lock"
+
+        function lock(): void {
+            root.lock();
         }
     }
 
     WlSessionLock {
-        id: lock
-        locked: true
+        id: session
         onSecureChanged: if (secure) Quickshell.execDetached(["touch", root.secureFlag])
 
         WlSessionLockSurface {

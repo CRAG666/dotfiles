@@ -24,6 +24,8 @@ exec wl-paste --type image --watch cliphist store
 exec ~/.config/awww/awwwallpaper.sh
 exec quickshell -d
 exec $spotlight start
+# resident and unlocked until lock.sh locks it
+exec quickshell -n -d -p ~/.config/quickshell/lock.qml
 exec ~/.scripts/cloud_mount
 exec systemctl --user start podman.socket
 exec ~/Git/selfhost/instances.sh
