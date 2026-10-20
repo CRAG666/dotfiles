@@ -1,12 +1,15 @@
 pragma Singleton
 import Quickshell
 import Quickshell.Io
+import Quickshell.Services.UPower
 import QtQuick
 
 // Samples CPU / RAM / TEMP / NET / uptime every 2s straight from /proc and
 // /sys via FileView — no subprocesses on the hot path. Rates (CPU %, net B/s)
 // are deltas between consecutive samples, so no blocking sleep is needed
 // either. The only process ever spawned is a one-shot hwmon lookup at startup.
+// The battery comes from UPower, which signals its changes. Percentages are
+// whole numbers, so a sample that moves none of them redraws nothing.
 Singleton {
     id: root
     property real cpu: 0
@@ -18,10 +21,19 @@ Singleton {
     property string netup: "—"
     property real netpct: 0
     property string uptime: "—"
-    property real batPct: 0
-    property string batStatus: "—"
-    property string batTime: "—"
-    property bool batPresent: false
+    readonly property UPowerDevice battery: UPower.displayDevice
+    readonly property bool batPresent: battery.isLaptopBattery
+    readonly property real batPct: Math.round(battery.percentage * 100)
+    // in sysfs' words, which the blocks show
+    readonly property string batStatus: ({
+            [UPowerDeviceState.Charging]: "Charging",
+            [UPowerDeviceState.Discharging]: "Discharging",
+            [UPowerDeviceState.PendingDischarge]: "Discharging",
+            [UPowerDeviceState.PendingCharge]: "Not charging",
+            [UPowerDeviceState.FullyCharged]: "Full",
+            [UPowerDeviceState.Empty]: "Empty"
+        })[battery.state] ?? "Unknown"
+    readonly property string batTime: battery.timeToEmpty > 0 ? fmtDuration(battery.timeToEmpty) : battery.timeToFull > 0 ? fmtDuration(battery.timeToFull) : batStatus
 
     // previous sample, for deltas
     property real _prevIdle: 0
@@ -45,19 +57,20 @@ Singleton {
     }
 
     // /proc and /sys reads complete in microseconds, so blocking reloads keep
-    // the sampling fully synchronous (no async-load races).
-    FileView { id: statFile;   path: "/proc/stat";      blockAllReads: true; printErrors: false }
-    FileView { id: memFile;    path: "/proc/meminfo";   blockAllReads: true; printErrors: false }
-    FileView { id: routeFile;  path: "/proc/net/route"; blockAllReads: true; printErrors: false }
-    FileView { id: uptimeFile; path: "/proc/uptime";    blockAllReads: true; printErrors: false }
-    FileView { id: tempFile;   blockAllReads: true; printErrors: false }
-    FileView { id: rxFile;     blockAllReads: true; printErrors: false }
-    FileView { id: txFile;     blockAllReads: true; printErrors: false }
-    FileView { id: batCapFile;  path: "/sys/class/power_supply/BAT0/capacity";   blockAllReads: true; printErrors: false }
-    FileView { id: batStatFile; path: "/sys/class/power_supply/BAT0/status";    blockAllReads: true; printErrors: false }
-    FileView { id: batNowFile;  path: "/sys/class/power_supply/BAT0/energy_now";blockAllReads: true; printErrors: false }
-    FileView { id: batFullFile; path: "/sys/class/power_supply/BAT0/energy_full";blockAllReads: true; printErrors: false }
-    FileView { id: batPowFile;  path: "/sys/class/power_supply/BAT0/power_now"; blockAllReads: true; printErrors: false }
+    // the sampling fully synchronous (no async-load races); without preload a
+    // reload reads on this thread instead of handing a job to a thread pool
+    component ProcFile: FileView {
+        blockAllReads: true
+        preload: false
+        printErrors: false
+    }
+    ProcFile { id: statFile;   path: "/proc/stat" }
+    ProcFile { id: memFile;    path: "/proc/meminfo" }
+    ProcFile { id: routeFile;  path: "/proc/net/route" }
+    ProcFile { id: uptimeFile; path: "/proc/uptime" }
+    ProcFile { id: tempFile }
+    ProcFile { id: rxFile }
+    ProcFile { id: txFile }
 
     Timer {
         interval: 2000
@@ -84,7 +97,7 @@ Singleton {
         for (let i = 0; i < 8; i++) total += c[i];
         if (_prevTotal > 0 && total > _prevTotal) {
             const dt = total - _prevTotal;
-            cpu = (100 * (dt - (idle - _prevIdle))) / dt;
+            cpu = Math.round((100 * (dt - (idle - _prevIdle))) / dt);
         }
         _prevIdle = idle;
         _prevTotal = total;
@@ -96,7 +109,7 @@ Singleton {
         const ma = +(mem.match(/MemAvailable:\s+(\d+)/)?.[1] ?? 0);
         if (mt > 0) {
             const mu = mt - ma;
-            ram = (100 * mu) / mt;
+            ram = Math.round((100 * mu) / mt);
             const ug = (mu / 1048576).toFixed(1);
             const tg = Math.round(mt / 1048576);
             ramtxt = ug + " GiB / " + tg + " GB";
@@ -107,7 +120,7 @@ Singleton {
         if (tempFile.path) {
             tempFile.reload();
             const tv = parseInt(tempFile.text());
-            if (!isNaN(tv)) temp = tv / 1000;
+            if (!isNaN(tv)) temp = Math.round(tv / 1000);
         }
 
         // ── NET: default-route interface, rate over the real elapsed time ──
@@ -137,7 +150,7 @@ Singleton {
                 const txr = Math.max(0, (tx - _prevTx) / dtSec);
                 netdown = hr(rxr);
                 netup = hr(txr);
-                netpct = activity(rxr + txr);
+                netpct = Math.round(activity(rxr + txr));
             }
             _prevRx = rx;
             _prevTx = tx;
@@ -145,34 +158,6 @@ Singleton {
             netdown = "—";
             netup = "—";
             netpct = 0;
-        }
-
-        // ── BATTERY ──
-        batCapFile.reload();
-        const cap = parseInt(batCapFile.text());
-        batPresent = !isNaN(cap);
-        if (batPresent) {
-            batPct = cap;
-            batStatFile.reload();
-            batStatus = batStatFile.text().trim();
-            if (batStatus === "Full") {
-                batTime = "Full";
-            } else {
-                batNowFile.reload();
-                batFullFile.reload();
-                batPowFile.reload();
-                const now = parseInt(batNowFile.text()) || 0;
-                const full = parseInt(batFullFile.text()) || 0;
-                const pow = parseInt(batPowFile.text()) || 0;
-                if (pow > 0) {
-                    const secs = batStatus === "Charging"
-                        ? ((full - now) / pow) * 3600
-                        : (now / pow) * 3600;
-                    batTime = fmtDuration(Math.round(secs));
-                } else {
-                    batTime = batStatus;
-                }
-            }
         }
 
         // ── uptime ──
