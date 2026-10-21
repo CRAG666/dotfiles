@@ -2,7 +2,6 @@
 
 MOUNT_OPTIONS=(
 	--daemon
-	--allow-non-empty
 	--vfs-cache-mode full
 	--vfs-cache-max-size 8G
 	--vfs-cache-max-age 168h
@@ -43,10 +42,14 @@ done
 
 echo "Conexión a internet establecida. Montando unidades..."
 
+failed=0
 for MOUNT in "${MOUNT_POINTS[@]}"; do
 	read -r SOURCE TARGET <<<"$MOUNT"
-	rclone mount "$SOURCE" "$TARGET" "${MOUNT_OPTIONS[@]}" &
+	rclone mount "$SOURCE" "$TARGET" "${MOUNT_OPTIONS[@]}" || failed=1
 done
 
-wait
+if [ "$failed" -ne 0 ]; then
+	echo "Error: no se pudieron montar todas las unidades."
+	exit 1
+fi
 echo "Todos los puntos de montaje están listos."
