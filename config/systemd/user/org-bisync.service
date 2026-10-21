@@ -1,0 +1,9 @@
+[Unit]
+Description=Two-way sync of ~/Documents/Org with Google Drive, mirror to the INAOE clouds
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/rclone bisync %h/Documents/Org Drive:/Org --check-access --resilient --recover --max-lock 2m --conflict-resolve newer --create-empty-src-dirs --disable ListR --drive-skip-gdocs --exclude ".st**" --exclude ".syncthing.*"
+ExecStart=/usr/bin/rclone sync %h/Documents/Org InaoeDrive:/Org --checksum --fast-list
+ExecStart=/usr/bin/rclone sync %h/Documents/Org InaoeOneDrive:/Org --checksum

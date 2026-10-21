@@ -320,6 +320,12 @@ systemd-user: (link "systemd")
     systemctl --user daemon-reload
     {{ systemd_enable_user }} eyes-theme.service eyes-theme.timer
 
+# Two-way sync ~/Documents/Org with Google Drive every 5 min; Org is not shared over Syncthing
+org-bisync: (link "systemd")
+    rclone bisync "$HOME/Documents/Org" Drive:/Org --resync --resync-mode newer --check-access --create-empty-src-dirs --disable ListR --drive-skip-gdocs --exclude ".st**" --exclude ".syncthing.*"
+    systemctl --user daemon-reload
+    {{ systemd_enable_user }} org-bisync.timer
+
 # Install greetd and the Quickshell greeter from etc/greetd (applies on the next boot)
 greetd:
     #!/usr/bin/env bash
