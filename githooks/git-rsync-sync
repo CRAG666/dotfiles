@@ -38,7 +38,7 @@ synced=0
 skipped=0
 
 for MOUNT_POINT in "${MOUNT_POINTS[@]}"; do
-    if [[ ! -d "$MOUNT_POINT" ]]; then
+    if ! mountpoint -q "$MOUNT_POINT"; then
         echo -e "${YELLOW}⚠  $MOUNT_POINT not mounted, skipping.${NC}"
         (( skipped++ ))
         continue
