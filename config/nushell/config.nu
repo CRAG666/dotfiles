@@ -179,7 +179,7 @@ def polars-open [file: path] {
 }
 
 def norg [
-    workspace: string  # Workspace name (e.g. academic, personal, work)
+    workspace: string = "life"  # Workspace name (e.g. academic, personal, work)
 ] {
     nvim -c $"Neorg workspace ($workspace)"
 }

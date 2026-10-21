@@ -71,10 +71,8 @@ Scope {
         Quickshell.execDetached(["sh", "-c", 'wpctl set-mute @DEFAULT_AUDIO_SINK@ 0; wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ "$1%"', "sh", String(level)]);
     }
 
-    // as brightness.sh does, the laptop panel is left alone at 0 only while an
-    // external monitor answers DDC (ktc-brightness.sh turned the panel off)
     function setBrightness(level) {
-        Quickshell.execDetached(["sh", "-c", '{ [ "$(brightnessctl -c backlight get)" -eq 0 ] && grep -qvx none "${XDG_RUNTIME_DIR:-/tmp}/ddc-brightness.bus" 2>/dev/null; } || brightnessctl -q -c backlight set "$1%"; "$2" init "$1"', "sh", String(level), brightnessScript]);
+        Quickshell.execDetached([brightnessScript, "init", String(level)]);
     }
 
     function describe(item) {

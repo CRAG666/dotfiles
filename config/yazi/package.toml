@@ -30,18 +30,18 @@ hash = "b95f898e6dc60b52edbc415952e14395"
 
 [[plugin.deps]]
 use = "AminurAlam/yazi-plugins:preview-audio"
-rev = "28eea47"
-hash = "475141b0337cf9934b0bc81202e2537c"
+rev = "7f4e7ca"
+hash = "6f01d98391ba55868fd5cdc753aa94d5"
 
 [[plugin.deps]]
 use = "AminurAlam/yazi-plugins:preview-epub"
-rev = "28eea47"
-hash = "475ca512768cd51412461ee58b17188e"
+rev = "7f4e7ca"
+hash = "98173e496259511036e1f02fa7c0bd35"
 
 [[plugin.deps]]
 use = "AminurAlam/yazi-plugins:preview-typst"
-rev = "28eea47"
-hash = "2aacd8b872663cc36ac6c5bf6b6dc867"
+rev = "7f4e7ca"
+hash = "b51195fb14479a22751230b638830097"
 
 [flavor]
 deps = []

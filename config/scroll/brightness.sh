@@ -3,9 +3,11 @@ rt="${XDG_RUNTIME_DIR:-/tmp}"
 busfile="$rt/ddc-brightness.bus"
 pend="$rt/ddc-brightness.pending"
 lock="$rt/ddc-brightness.lock"
-# Last % of the external monitor. systemd remembers the laptop's; not the external's
-# (and ktc-brightness.sh sets the laptop backlight to 0, so it can't act as a proxy).
-levelfile="$rt/ddc-brightness.level"
+# The one % every screen gets, laptop panel and external monitors alike; it
+# survives reboots, and 50 is only the first one.
+statefile="${XDG_STATE_HOME:-$HOME/.local/state}/brightness"
+level=50
+[[ -s $statefile ]] && read -r level < "$statefile"
 
 clamp() { local v=$1 hi=${2:-100}; ((v<0)) && v=0; ((v>hi)) && v=$hi; echo "$v"; }
 
@@ -21,17 +23,13 @@ step_after() {
     fi
 }
 
-# Shows the level on the Quickshell HUD (quickshell/osd/Osd.qml): the laptop
-# panel's, or the external monitor's $1 while ktc-brightness.sh keeps the panel
-# off. Only builtins guard the write: the pid the HUD left must still be a
-# quickshell holding the fifo open, so it cannot block.
+# Shows the % $1 on the Quickshell HUD (quickshell/osd/Osd.qml). Only builtins
+# guard the write: the pid the HUD left must still be a quickshell holding the
+# fifo open, so it cannot block.
 osd() {
-    local pct pid name fifo="$rt/osd.fifo"
-    pct=$(brightnessctl -m 2>/dev/null | cut -d, -f4)
-    pct=${pct%\%}
-    [[ -n $pct && $pct -gt 0 ]] || pct=$1
+    local pid name fifo="$rt/osd.fifo"
     read -r pid 2>/dev/null < "$fifo.pid" && read -r name 2>/dev/null < "/proc/$pid/comm" &&
-        [[ $name == quickshell && -p $fifo ]] && printf 'brightness %s\n' "$pct" > "$fifo"
+        [[ $name == quickshell && -p $fifo ]] && printf 'brightness %s\n' "$1" > "$fifo"
 }
 
 # Detects the DDC buses of external monitors by probing a real VCP 10 read
@@ -60,10 +58,10 @@ case $1 in
 up)   d=1 ;;
 down) d=-1 ;;
 init)
-    # Restore the last saved % (explicit arg > levelfile > 50).
-    level="$2"
-    [[ -z $level && -s $levelfile ]] && read -r level < "$levelfile"
-    : "${level:=50}"
+    # Restores the saved %, or sets and saves $2 (Spotlight's "brightness 40").
+    [[ -n $2 ]] && level=$2
+    echo "$level" > "$statefile"
+    brightnessctl -q s "$level%" 2>/dev/null
     # a monitor can take a while to answer DDC after login or a plug-in:
     # keep probing for half a minute while an external output is active
     for _ in {1..6}; do
@@ -78,7 +76,6 @@ init)
         ddcutil --bus "$bus" --skip-ddc-checks --noverify --sleep-multiplier .1 \
             setvcp 10 "$level" >/dev/null 2>&1
     done < "$busfile"
-    echo "$level" > "$levelfile"
     exit 0
     ;;
 test)
@@ -108,8 +105,10 @@ worker() {
     # "none" = laptop screen only: no external buses, but we still
     # adjust the internal backlight with brightnessctl further down.
     [[ "${buses[0]}" == none ]] && buses=()
-    local level=50
-    [[ -s $levelfile ]] && read -r level < "$levelfile"
+    # again: a worker that just let go of the lock may have saved a newer one
+    [[ -s $statefile ]] && read -r level < "$statefile"
+    local max
+    max=$(brightnessctl m 2>/dev/null)
     local empty=0 n
     while :; do
         {
@@ -127,20 +126,13 @@ worker() {
         empty=0
 
         # macOS steps: each press moves 1/16 of the range, snapped to that grid,
-        # so it fills or empties one of the HUD's sixteen segments. The panel is
-        # left alone at 0 while an external monitor is on: ktc-brightness.sh
-        # turned it off; brightnessctl never sets it below 1 itself.
-        local cur max step
-        cur=$(brightnessctl g 2>/dev/null)
-        max=$(brightnessctl m 2>/dev/null)
-        if [[ -n $max ]] && (( cur > 0 || ${#buses[@]} == 0 )); then
-            step=$(step_after "$cur" "$max" "$n" 16)
-            brightnessctl -q s $(( step * max / 16 )) &
-        fi
+        # so it fills or empties one of the HUD's sixteen segments.
+        local step
+        step=$(step_after "$level" 100 "$n" 8)
+        [[ -n $max ]] && brightnessctl -q s $(( step * max / 16 )) &
 
         if [[ ${#buses[@]} -gt 0 ]]; then
             local ok=0
-            step=$(step_after "$level" 100 "$n" 8)
             for bus in "${buses[@]}"; do
                 ddcutil --bus "$bus" --skip-ddc-checks --noverify --sleep-multiplier .1 \
                     setvcp 10 $(( (step * 100 + 8) / 16 )) >/dev/null 2>&1 && ok=1
@@ -148,10 +140,10 @@ worker() {
             # Re-detect only if NO bus responded (full disconnect). A
             # monitor without DDC or a one-off timeout is ignored; the rest continue
             # and the failed one is retried on the next keypress.
-            [[ $ok -eq 0 ]] && { rm -f "$busfile"; break; }
-            level=$(( (step * 100 + 8) / 16 ))
-            echo "$level" > "$levelfile"
+            [[ $ok -eq 0 ]] && { rm -f "$busfile"; buses=(); }
         fi
+        level=$(( (step * 100 + 8) / 16 ))
+        echo "$level" > "$statefile"
         wait
         osd "$level"
     done
