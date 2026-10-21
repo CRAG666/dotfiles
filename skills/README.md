@@ -70,6 +70,9 @@ Converts files and office documents to Markdown: PDF, DOCX, PPTX, XLSX, images (
 ### [matplotlib](./matplotlib)
 Foundational Python plotting with fine-grained control over every element. Covers both the pyplot interface and the object-oriented Figure/Axes API for publication-quality static, animated, and interactive plots.
 
+### [typart](./typart)
+SmartArt-style diagrams in Typst with typart 0.2.1: when to use each built-in widget (process, cycle, hierarchy, timeline, Gantt, KPI, bars…), plus worked `flowchart` examples (automatic and grid layout, decisions, PRISMA, paper figures) and `panels` sub-figure grids that compose other widgets.
+
 ---
 
 ## Performance & Engineering

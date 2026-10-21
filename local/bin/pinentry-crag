@@ -1,4 +1,0 @@
-#!/bin/bash
-# pinentry-rofi (AUR) replaced by pinentry-qt (official, qt6-base already installed).
-# The rofi theme is lost: no pinentry in the official repos has a rofi UI.
-exec /usr/bin/pinentry-qt "$@"
