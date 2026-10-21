@@ -1,16 +1,24 @@
 #!/bin/bash
 
-MOUNT_OPTIONS="--vfs-cache-mode full \
-  --vfs-cache-max-size 8G \
-  --vfs-cache-max-age 24h \
-  --buffer-size 512M \
-  --dir-cache-time 24h \
-  --vfs-read-chunk-size 128M \
-  --vfs-read-chunk-size-limit off \
-  --transfers 8 \
-  --checkers 16 \
-  --poll-interval 1m \
-  --allow-non-empty"
+MOUNT_OPTIONS=(
+	--daemon
+	--allow-non-empty
+	--vfs-cache-mode full
+	--vfs-cache-max-size 8G
+	--vfs-cache-max-age 168h
+	--buffer-size 32M
+	--vfs-read-ahead 256M
+	--vfs-read-chunk-size 128M
+	--vfs-read-chunk-size-limit off
+	--dir-cache-time 1000h
+	--poll-interval 15s
+	--vfs-refresh
+	--transfers 8
+	--checkers 16
+	--drive-chunk-size 64M
+	--onedrive-chunk-size 100M
+	--onedrive-delta
+)
 
 MOUNT_POINTS=(
 	"Drive:/ $HOME/Public/Drive"
@@ -36,41 +44,9 @@ done
 echo "Conexión a internet establecida. Montando unidades..."
 
 for MOUNT in "${MOUNT_POINTS[@]}"; do
-	read -r SOURCE TARGET <<< "$MOUNT"
-
-	if [[ "$SOURCE" == "InaoeOneDrive:/" ]]; then
-		rclone mount "$SOURCE" "$TARGET" $MOUNT_OPTIONS --onedrive-chunk-size 320M &
-	else
-		rclone mount "$SOURCE" "$TARGET" $MOUNT_OPTIONS &
-	fi
+	read -r SOURCE TARGET <<<"$MOUNT"
+	rclone mount "$SOURCE" "$TARGET" "${MOUNT_OPTIONS[@]}" &
 done
 
-echo "Esperando a que todos los puntos de montaje estén listos..."
-
-all_mounted=false
-while [ "$all_mounted" = false ]; do
-	all_mounted=true
-	for MOUNT in "${MOUNT_POINTS[@]}"; do
-		read -r _ TARGET <<< "$MOUNT"
-		if ! mountpoint -q "$TARGET"; then
-			all_mounted=false
-			echo "$TARGET no está montado. Esperando..."
-			sleep 5
-			break
-		fi
-	done
-done
-
+wait
 echo "Todos los puntos de montaje están listos."
-
-LOCAL_FOLDER="$HOME/Documents/Org"
-
-echo "Iniciando sincronización con rsync..."
-
-for MOUNT in "${MOUNT_POINTS[@]}"; do
-	read -r _ TARGET <<< "$MOUNT"
-	echo "Sincronizando con $TARGET..."
-	rsync -av --delete --progress "$LOCAL_FOLDER" "$TARGET"
-done
-
-echo "Sincronización completada."
