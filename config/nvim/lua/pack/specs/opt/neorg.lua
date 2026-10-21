@@ -79,9 +79,9 @@ return {
           ['core.dirman'] = {
             config = {
               workspaces = {
-                life = '~/Documents/Org/Life/',
-                work = '~/Documents/Org/Work/',
-                phd = '~/Documents/Org/PhD/',
+                life = '~/Public/Drive/Org/Life/',
+                work = '~/Public/Drive/Org/Work/',
+                phd = '~/Public/Drive/Org/PhD/',
                 lectures = '~/Documents/Projects/Postgraduate_studies/lectures',
               },
             },
