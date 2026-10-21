@@ -1,0 +1,10 @@
+#!/bin/bash
+
+org="$HOME/Documents/Org"
+watch=(inotifywait -qq -r -e close_write -e create -e delete -e move --exclude '/\.st|\.syncthing\.' "$org")
+
+while "${watch[@]}"; do
+	# Editors save by rename + rewrite; wait for 3 s of quiet so bisync never sees the file half-saved
+	while "${watch[@]}" -t 3; do :; done
+	systemctl --user start org-mirror.service
+done

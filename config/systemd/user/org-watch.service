@@ -1,0 +1,10 @@
+[Unit]
+Description=Sync ~/Documents/Org a few seconds after it changes locally
+
+[Service]
+ExecStart=%h/.local/bin/org-watch
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target

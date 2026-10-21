@@ -48,6 +48,7 @@ fzf
 zoxide
 imagemagick
 rclone
+inotify-tools
 bc
 gnome-epub-thumbnailer
 gitleaks

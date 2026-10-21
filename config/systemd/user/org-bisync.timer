@@ -1,8 +1,8 @@
 [Unit]
-Description=Every 5 minutes — two-way sync of ~/Documents/Org with Google Drive (also fires on resume if missed)
+Description=Every minute — two-way sync of ~/Documents/Org with Google Drive (also fires on resume if missed)
 
 [Timer]
-OnCalendar=*:0/5
+OnCalendar=minutely
 Persistent=true
 
 [Install]

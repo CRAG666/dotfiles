@@ -1,0 +1,9 @@
+[Unit]
+Description=Push local ~/Documents/Org changes to Google Drive and mirror them to the INAOE clouds
+Wants=org-bisync.service
+After=org-bisync.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/rclone sync %h/Documents/Org InaoeDrive:/Org --checksum --fast-list
+ExecStart=/usr/bin/rclone sync %h/Documents/Org InaoeOneDrive:/Org --checksum
