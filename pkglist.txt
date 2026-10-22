@@ -13,6 +13,7 @@ playerctl
 impala
 bluetui
 power-profiles-daemon
+udisks2
 
 # ZSH
 zsh

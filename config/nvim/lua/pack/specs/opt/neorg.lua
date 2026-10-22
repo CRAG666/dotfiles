@@ -32,6 +32,7 @@ return {
     events = {
       event = 'FileType',
       pattern = 'norg',
+      retrig = true,
     },
     postload = function()
       require('neorg').setup({
