@@ -5,7 +5,8 @@ import "js/search.js" as Search
 
 // The agenda of your neorg workspaces, read by the helper's agenda for the
 // next 14 days: the weekly schedule and dated events of `categories: Schedule`
-// files, plus tasks stamped `( |@ date time)` or due `( |< date)` anywhere.
+// files, plus tasks anywhere that happen `( |@ date time)`, start `( |> date)`
+// or are due `( |< date)`, dates as Morg writes them or ISO.
 // Enter joins an event's meeting link or opens its line in Neovim; "New Agenda
 // Event" writes to agenda.norg. An empty search shows what starts within
 // 15 minutes, and what is underway unless it is part of the weekly routine.
@@ -14,7 +15,8 @@ Scope {
     property var host
     property double now: Date.now()
     readonly property string today: Qt.formatDate(new Date(now), "yyyy-MM-dd")
-    readonly property var colors: ({ schedule: "#9a9a9a", event: "#4a8fe0", due: "#e5a03a", overdue: "#d9534f" })
+    readonly property var colors: ({ schedule: "#9a9a9a", event: "#4a8fe0", start: "#3aa88f", due: "#e5a03a", overdue: "#d9534f" })
+    readonly property var kinds: ({ event: "Event", start: "Starts", due: "Deadline" })
 
     // whole minutes, the agenda's grain: a load in the same minute changes nothing
     function load() {
@@ -37,8 +39,9 @@ Scope {
     function when(event) {
         if (overdue(event))
             return "Overdue since " + Qt.formatDate(new Date(event.date + "T00:00:00"), "d MMM");
-        const time = event.start ? event.start + (event.end ? "–" + event.end : "") : event.kind === "due" ? "Due" : "All day";
-        return event.kind === "due" && event.start ? "Due " + time : time;
+        const word = event.kind === "due" ? "Due" : event.kind === "start" ? "Starts" : "";
+        const time = event.start ? event.start + (event.end ? "–" + event.end : "") : word || "All day";
+        return word && event.start ? word + " " + time : time;
     }
 
     // one item per event and day, so a keystroke or a reopening hands the list the same rows
@@ -49,7 +52,7 @@ Scope {
     }
 
     function item(event) {
-        const key = `agenda:${event.file}:${event.line}:${event.date}`;
+        const key = `agenda:${event.file}:${event.line}:${event.date}:${event.kind}`;
         return made[key] ?? (made[key] = { key, kind: "agendaEvent", store: root, event, title: event.title, hint: when(event), swatch: colors[overdue(event) ? "overdue" : event.kind] });
     }
 
@@ -109,7 +112,7 @@ Scope {
             icon: "office-calendar",
             title: event.title,
             subtitle: `${dayLabel(event.date)} · ${when(event)}`,
-            metadata: [["Kind", event.recurring ? "Weekly schedule" : event.kind === "due" ? "Deadline" : "Event"], ["Link", event.link ?? ""], ["Note", `${Spot.tilde(event.file)}:${event.line}`]],
+            metadata: [["Kind", event.recurring ? "Weekly schedule" : kinds[event.kind]], ["Link", event.link ?? ""], ["Note", `${Spot.tilde(event.file)}:${event.line}`]],
             actions: event.link ? [["Enter", "Join"], ["Ctrl+Enter", "Open in Neovim"], ["Ctrl+C", "Copy link"]] : [["Enter", "Open in Neovim"], ["Ctrl+C", "Copy title"]]
         };
     }
@@ -153,7 +156,7 @@ Scope {
         maxAge: 60000
         request: ["agenda", "14"]
         // the text an event is found by, folded once as it loads
-        parse: output => output.trim() ? JSON.parse(output).map(event => Object.assign(event, { text: Search.fold(`${event.title} ${event.kind === "due" ? "due deadline" : "event"} agenda`) })) : []
+        parse: output => output.trim() ? JSON.parse(output).map(event => Object.assign(event, { text: Search.fold(`${event.title} ${event.kind === "due" ? "due deadline" : event.kind === "start" ? "start" : "event"} agenda`) })) : []
     }
 
     Timer {

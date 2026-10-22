@@ -1,4 +1,5 @@
-"""The agenda read from, and written to, the neorg workspaces."""
+"""The agenda and open tasks read from, and the agenda written to, the neorg
+workspaces."""
 
 import os
 import re
@@ -29,19 +30,55 @@ WEEKDAYS = {
 }
 
 
-NORG_HEADING = re.compile(r"^\s*(\*+)\s+(.*?)\s*$")
+NORG_HEADING = re.compile(r"^\s*(\*+)\s+(?P<text>.*?)\s*$")
 
 
-NORG_ITEM = re.compile(r"^\s*-+\s+(?:\(([^)]*)\)\s*)?(.*?)\s*$")
+# list items, definitions and footnotes: what besides headings can be a task
+NORG_ITEM = re.compile(r"^\s*(?:-+|~+|\$\$?|\^\^?)\s+(?P<text>.*?)\s*$")
+
+
+NORG_EXTENSION = re.compile(r"^\(([^)]*)\)\s+(.*)$")
 
 
 NORG_SPAN = re.compile(r"^/(\d{1,2}:\d{2})(?:\s*-\s*(\d{1,2}:\d{2}))?/\s*(.*)$")
 
 
-NORG_WHEN = re.compile(r"^(\d{4}-\d{2}-\d{2})(?:[ T](\d{1,2}:\d{2}))?$")
+NORG_ISO = re.compile(r"^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2}))?")
+
+
+# "Thu, 22 Oct 2026", as Morg writes it, or neorg's "Thursday 22nd October"
+NORG_SPEC = re.compile(
+    r"^(?:[a-z]+,?\s+)?(\d{1,3})(?:st|nd|rd|th)?\s+([a-z]+)(?:\s+(\d{4}))?"
+    r"(?:\s+(\d{1,2}):(\d{2}))?",
+    re.IGNORECASE,
+)
+
+
+MONTHS = [
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december",
+]
 
 
 NORG_LINK = re.compile(r"(?:\[([^\]]*)\])?\{([^}]*)\}")
+
+
+# the status of a task, by its order in Morg's task list
+STATUSES = "!- ?=+x_"
+
+
+# the date markers of a task's extension
+MARKERS = {"@": "event", "<": "due", ">": "start"}
 
 
 def fold(text: str) -> str:
@@ -57,16 +94,64 @@ def clock(text: str) -> str:
     return f"{int(hours):02}:{minutes}"
 
 
+# a date as Morg's parseNorgDate reads it, ISO or "[weekday,] day month [year]
+# [time]" (any unambiguous start of an English month, this year if none), and
+# its time ("" for none); an impossible date such as 2026-02-30 is none
+def norg_when(text: str, today: date) -> tuple[date, str] | None:
+    text = text.strip()
+    if iso := NORG_ISO.match(text):
+        year, month, day, hour, minute = iso.groups()
+    elif spec := NORG_SPEC.match(text):
+        day, word, year, hour, minute = spec.groups()
+        months = [
+            number
+            for number, name in enumerate(MONTHS, 1)
+            if name.startswith(word.lower())
+        ]
+        if len(months) != 1:
+            return None
+        month, year = months[0], year or today.year
+    else:
+        return None
+    try:
+        when = date(int(year), int(month), int(day))
+    except ValueError:
+        return None
+    return when, clock(f"{hour}:{minute}") if hour else ""
+
+
+# the status, the other segments and the title of a task: "( |< Thu, 22 Oct
+# 2026|# A) Call" is (" ", ["< Thu, 22 Oct 2026", "# A"], "Call"). As in Morg,
+# the status is the segment that is blank, one of STATUSES or a recurrence
+# ("+ Fri"); an extension without one makes no task
+def norg_task(text: str) -> tuple[str, list[str], str] | None:
+    if not (extension := NORG_EXTENSION.match(text)):
+        return None
+    segments = [segment.strip() for segment in extension[1].split("|")]
+    at = next(
+        (
+            index
+            for index, segment in enumerate(segments)
+            if not segment or segment in STATUSES or segment.startswith("+ ")
+        ),
+        None,
+    )
+    if at is None:
+        return None
+    details = [
+        segment for index, segment in enumerate(segments) if segment and index != at
+    ]
+    return segments[at][:1] or " ", details, extension[2]
+
+
+def norg_detail(details: list[str], marker: str) -> str | None:
+    return next(
+        (detail[1:].strip() for detail in details if detail.startswith(marker)), None
+    )
+
+
 # "[label]{url}" keeps its label, a bare "{url}" goes; the first web URL is the
 # event's link (a meeting to join)
-def norg_date(when: re.Match) -> date | None:
-    try:
-        return date.fromisoformat(when[1])
-    except ValueError:
-        # an impossible date such as 2026-02-30 is left as plain text
-        return None
-
-
 def norg_text(text: str) -> tuple[str, str | None]:
     links = [target for _, target in NORG_LINK.findall(text)]
     link = next((target for target in links if target.startswith("http")), None)
@@ -106,9 +191,9 @@ def is_schedule(lines: list[str]) -> bool:
 # - in files whose metadata has `categories: Schedule`, items under a weekday
 #   heading (* Lunes) repeat every week and items under a date heading
 #   (* 2026-10-16) happen that day; "/10:00-11:00/ title" gives the time
-# - in any file, tasks with norg's timestamp extensions: `- ( |@ 2026-10-17
-#   16:00) Call` happens then, `- ( |< 2026-10-20) Submit` is due then (and
-#   overdue while not done)
+# - in any file, open tasks with norg's date extensions (see norg_when):
+#   `- ( |@ Sat, 17 Oct 2026 16:00) Call` happens then, `( |> …)` starts then
+#   and `( |< …)` is due then (and overdue while not done)
 def agenda(days: str = "14") -> list[dict]:
     today = datetime.now().astimezone().date()
     until = today + timedelta(days=int(days))
@@ -137,62 +222,105 @@ def agenda(days: str = "14") -> list[dict]:
             }
         )
 
+    # whether the task has a date, adding those within the window
+    def dated(task, path, number):
+        _, details, title = task
+        found = False
+        for detail in details:
+            kind = MARKERS.get(detail[:1])
+            if not kind or not (when := norg_when(detail[1:], today)):
+                continue
+            found = True
+            day, time = when
+            if today <= day < until or (kind == "due" and day < today):
+                add(day, f"/{time}/ {title}" if time else title, kind, path, number)
+        return found
+
     folders = [folder for folder in norg_workspaces().values() if folder.is_dir()]
     for path in sorted(path for folder in folders for path in folder.rglob("*.norg")):
         lines = path.read_text(errors="replace").splitlines()
         schedule = is_schedule(lines)
         context = None  # (heading level, weekday index or date)
         for number, line in enumerate(lines, 1):
-            # outside a schedule only stamped tasks count, and their stamp has a "|"
+            # outside a schedule only dated tasks count, and their date follows a "|"
             if not schedule and "|" not in line:
                 continue
-            if heading := NORG_HEADING.match(line):
-                level, text = len(heading[1]), heading[2]
+            heading = NORG_HEADING.match(line)
+            if heading:
+                level, text = len(heading[1]), heading["text"]
                 if schedule and fold(text) in WEEKDAYS:
                     context = (level, WEEKDAYS[fold(text)])
-                elif (
-                    schedule
-                    and (when := NORG_WHEN.match(text))
-                    and (day := norg_date(when))
-                ):
-                    context = (level, day)
+                elif schedule and (when := norg_when(text, today)):
+                    context = (level, when[0])
                 elif context and level <= context[0]:
                     context = None
+            elif not (item := NORG_ITEM.match(line)):
                 continue
-            if not (item := NORG_ITEM.match(line)):
-                continue
-            state, *extensions = (item[1] or "").split("|")
-            if state.strip() in ("x", "_"):
-                continue
-            stamped = False
-            for extension in extensions:
-                marker, value = extension.strip()[:1], extension.strip()[1:].strip()
-                when = NORG_WHEN.match(value)
-                if marker not in "@<" or not when or not (day := norg_date(when)):
+            text = (heading or item)["text"]
+            if task := norg_task(text):
+                if task[0] in "x_" or dated(task, path, number):
                     continue
-                stamped = True
-                due = marker == "<"
-                if today <= day < until or (due and day < today):
-                    text = f"/{when[2]}/ {item[2]}" if when[2] else item[2]
-                    add(day, text, "due" if due else "event", path, number)
-            if stamped or not context:
+                text = task[2]
+            # a heading is never an entry of the schedule
+            if heading or not context:
                 continue
             if isinstance(context[1], date):
                 if today <= context[1] < until:
-                    add(context[1], item[2], "event", path, number)
+                    add(context[1], text, "event", path, number)
             else:
                 # the window's days on that weekday: the first, then every 7th
                 first = today + timedelta(days=(context[1] - today.weekday()) % 7)
                 for offset in range(0, (until - first).days, 7):
                     add(
                         first + timedelta(days=offset),
-                        item[2],
+                        text,
                         "schedule",
                         path,
                         number,
                         recurring=True,
                     )
     return sorted(events, key=lambda event: (event["date"], event["start"] or "~"))
+
+
+# The open tasks of every workspace, as Morg's task list: by status (urgent, in
+# progress, to do, needs input, on hold, recurring), then soonest due
+def tasks() -> list[dict]:
+    today = datetime.now().astimezone().date()
+    found = []
+
+    def day(details, marker):
+        when = norg_when(norg_detail(details, marker) or "", today)
+        return when[0].isoformat() if when else ""
+
+    for name, folder in norg_workspaces().items():
+        if not folder.is_dir():
+            continue
+        for path in sorted(folder.rglob("*.norg")):
+            lines = path.read_text(errors="replace").splitlines()
+            for number, line in enumerate(lines, 1):
+                if "(" not in line:
+                    continue
+                match = NORG_HEADING.match(line) or NORG_ITEM.match(line)
+                if not match or not (task := norg_task(match["text"])):
+                    continue
+                status, details, text = task
+                if status in "x_":
+                    continue
+                found.append(
+                    {
+                        "title": norg_text(text)[0],
+                        "status": status,
+                        "due": day(details, "<"),
+                        "start": day(details, ">"),
+                        "priority": norg_detail(details, "#") or "",
+                        "workspace": name,
+                        "file": str(path),
+                        "line": number,
+                    }
+                )
+    return sorted(
+        found, key=lambda task: (STATUSES.index(task["status"]), task["due"] or "~")
+    )
 
 
 def agenda_day(text: str) -> date:

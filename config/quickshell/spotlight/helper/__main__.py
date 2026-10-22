@@ -23,6 +23,7 @@ READERS = {
     "paper": ("papers", "paper"),
     "scripts": ("scripts", "scripts"),
     "agenda": ("agenda", "agenda"),
+    "tasks": ("agenda", "tasks"),
     "recent-files": ("recent", "recent_files"),
     "contents": ("contents", "contents"),
     "wifi": ("wifi", "wifi"),

@@ -190,14 +190,25 @@ Item {
                         source: showsIcon ? Quickshell.iconPath(row.modelData.icon ?? "", "application-x-executable") : ""
                         asynchronous: true
                     }
+                    // `mono`: a glyph of the monospace Nerd Font, such as a task's "(⚠)";
+                    // `badge`: drawn on its tone, as neorg highlights an urgent task
                     Loader {
                         anchors.centerIn: parent
                         active: !!row.modelData.glyph && !row.modelData.thumb
-                        sourceComponent: Label {
-                            text: row.modelData.glyph
-                            color: row.isCurrent ? Theme.selectionText : host.tone(row.modelData)
-                            font.family: "Noto Color Emoji"
-                            font.pixelSize: Spot.px(17)
+                        sourceComponent: Rectangle {
+                            implicitWidth: glyph.implicitWidth + (row.modelData.badge ? Spot.px(4) : 0)
+                            implicitHeight: glyph.implicitHeight
+                            radius: Spot.px(4)
+                            color: row.modelData.badge ? host.tone(row.modelData) : "transparent"
+
+                            Label {
+                                id: glyph
+                                anchors.centerIn: parent
+                                text: row.modelData.glyph
+                                color: row.modelData.badge ? Theme.eyes.bg0 : row.isCurrent ? Theme.selectionText : host.tone(row.modelData)
+                                font.family: row.modelData.mono ? Theme.mono : "Noto Color Emoji"
+                                font.pixelSize: row.modelData.mono ? Spot.px(13) : Spot.px(17)
+                            }
                         }
                     }
                 }

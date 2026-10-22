@@ -71,6 +71,7 @@ Scope {
             { mode: "marks", tone: "orange1", title: "Scroll Marks", placeholder: "Search marks or type a new one", icon: "bookmark-new", open: () => windows.reload(), sections: (tokens, raw) => [["Marks", marks.items(tokens, raw)]] },
             { mode: "herdr", tone: "teal", title: "Herdr", placeholder: "Search Herdr agents, workspaces, tabs and panes", icon: "utilities-terminal", open: () => { herdr.load(); windows.load(); files.loadFrequent(); }, sections: tokens => [["Agents", herdr.agentItems(tokens)], ["Workspaces", herdr.workspaceItems(tokens)], ["Tabs", herdr.tabItems(tokens)], ["Panes", herdr.paneItems(tokens)], ["Herdr", herdr.commandItems(tokens)]] },
             { mode: "agenda", tone: "pink", title: "Agenda", placeholder: "Search events and deadlines", icon: "office-calendar", open: () => agenda.load(), sections: tokens => [...agenda.sections(tokens), ["Commands", agenda.commandItems(tokens)]] },
+            { mode: "tasks", tone: "orange1", title: "Tasks", placeholder: "Search open tasks", icon: "task-due", open: () => tasks.load(), sections: tokens => tasks.sections(tokens) },
             { mode: "wallpapers", tone: "aqua", title: "Wallpapers", placeholder: "Search Wallpapers", icon: "preferences-desktop-wallpaper", open: () => wallpapers.load(), sections: tokens => [["Wallpapers", wallpapers.items(tokens)]] },
             { mode: "tools", tone: "green2", preview: false, title: "Tools", placeholder: "Search Tools", icon: "applications-utilities", sections: tokens => [["Tools", ranked(commands.toolItems(tokens), tokens)]] },
             { mode: "wifi", tone: "teal", preview: false, title: "Wi-Fi", placeholder: "Search Wi-Fi networks", icon: "network-wireless", open: () => { wifi.load(); system.load(); }, sections: tokens => [["Networks", wifi.items(tokens)], ["Wi-Fi", [...wifi.commandItems(tokens), ...system.items([...tokens, "wifi"])]]] },
@@ -91,8 +92,9 @@ Scope {
         })
         readonly property color viewTone: currentView ? Theme.eyes[currentView.tone] : Theme.accent
 
+        // a result's own `tone` (a colour of Theme.eyes), else its kind's
         function tone(item) {
-            return Theme.eyes[kindTones[item?.kind]] ?? viewTone;
+            return Theme.eyes[item?.tone ?? kindTones[item?.kind]] ?? viewTone;
         }
 
         // what a result is, on the right of a row that spans the window
@@ -102,7 +104,7 @@ Scope {
             emoji: "Emoji", timer: "Timer", pomodoro: "Timer", password: "Password", process: "Process", mark: "Mark",
             snippet: "Snippet", run: "Shell", bookmark: "Bookmark", quicklink: "Quicklink", url: "Website", web: "Web Search",
             visit: "History", tab: "Tab", note: "Note", paper: "Paper", ai: "AI", aiCommand: "AI Command",
-            herdrAgent: "Agent", herdrWorkspace: "Workspace", herdrTab: "Herdr Tab", herdrPane: "Pane", agendaEvent: "Event",
+            herdrAgent: "Agent", herdrWorkspace: "Workspace", herdrTab: "Herdr Tab", herdrPane: "Pane", agendaEvent: "Event", task: "Task",
             wifi: "Network", bluetoothDevice: "Device", selection: "Action"
         })
 
@@ -287,6 +289,7 @@ Scope {
             openings++;
             shown = true;
             agenda.load();
+            tasks.load();
             search.forceActiveFocus();
             fadeIn.restart();
             readPending = readNow;
@@ -581,6 +584,7 @@ Scope {
             const rest = list => list.filter(item => item !== top);
             // a DOI like 10.1145/3292500.3330701 is no sum
             const answer = papers.target ? [] : calculator.items(raw);
+            const events = agenda.searchItems(tokens);
             return [
                 ["Views", view ? [Object.assign(commands.viewItem(view), { key: "alias:" + view.mode })] : []],
                 ["Paper", papers.items()],
@@ -596,7 +600,8 @@ Scope {
                 ["Applications", rest(found.apps).slice(0, 5)],
                 ["Windows", windows.items(tokens, 4)],
                 ["Herdr", [...herdr.agentItems(tokens).slice(0, 3), ...herdr.workspaceItems(tokens).slice(0, 2)]],
-                ["Agenda", agenda.searchItems(tokens)],
+                ["Agenda", events],
+                ["Tasks", tasks.searchItems(tokens, events)],
                 ["Commands", rest(found.commands).slice(0, 5)],
                 ["AI Commands", ranked(ai.commandItems(tokens), tokens, 3)],
                 ["SSH", tokens[0] === "ssh" ? [] : rest(found.ssh).slice(0, 4)],
@@ -773,6 +778,10 @@ Scope {
         }
         AgendaStore {
             id: agenda
+            host: win
+        }
+        TaskStore {
+            id: tasks
             host: win
         }
         AppStore {
