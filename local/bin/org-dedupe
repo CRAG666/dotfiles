@@ -1,0 +1,19 @@
+#!/bin/bash
+# Phone apps and Drive web may create a second file with the same name instead of updating it, and bisync
+# then silently ignores one copy: drop identical copies, keep the newest and rename the rest to <name>.dupN
+set -euo pipefail
+
+org=Drive:/Org
+
+duplicates() {
+	rclone lsjson -R --files-only --fast-list --drive-skip-gdocs "$org" |
+		jq -r 'group_by(.Path)[] | select(length > 1) | sort_by(.ModTime)[:-1][] | [.ID, .Path] | @tsv'
+}
+
+[[ -n $(duplicates) ]] || exit 0
+rclone dedupe --dedupe-mode skip --drive-skip-gdocs "$org"
+duplicates | while IFS=$'\t' read -r id path; do
+	n=1
+	while rclone lsf "$org/$path.dup$n" &>/dev/null; do ((n++)); done
+	rclone backend moveid Drive: "$id" "$org/$path.dup$n"
+done

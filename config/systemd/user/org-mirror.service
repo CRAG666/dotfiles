@@ -1,7 +1,5 @@
 [Unit]
-Description=Push local ~/Documents/Org changes to Google Drive and mirror them to the INAOE clouds
-Wants=org-bisync.service
-After=org-bisync.service
+Description=Mirror ~/Documents/Org to the INAOE clouds
 
 [Service]
 Type=oneshot

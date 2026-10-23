@@ -4,4 +4,7 @@ After=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/rclone bisync %h/Documents/Org Drive:/Org --check-access --resilient --recover --max-lock 2m --conflict-resolve newer --create-empty-src-dirs --disable ListR --drive-skip-gdocs --exclude ".st**" --exclude ".syncthing.*"
+ExecStart=/usr/bin/rclone bisync %h/Documents/Org Drive:/Org --check-access --check-filename .rclone-check --resilient --recover --max-lock 2m --conflict-resolve newer --create-empty-src-dirs --disable ListR --drive-skip-gdocs --exclude ".st**" --exclude ".syncthing.*"
+ExecStartPost=%h/.local/bin/org-dedupe
+# Exit 7 means bisync aborted and keeps failing until fixed (missing .rclone-check, or a resync via just org-bisync)
+ExecStopPost=/bin/sh -c '[ "$$EXIT_STATUS" != 7 ] || notify-send -u critical "Org sync stopped" "journalctl --user -u org-bisync"'

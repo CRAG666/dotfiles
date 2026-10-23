@@ -320,10 +320,10 @@ systemd-user: (link "systemd")
     systemctl --user daemon-reload
     {{ systemd_enable_user }} eyes-theme.service eyes-theme.timer
 
-# Two-way sync ~/Documents/Org with Google Drive every minute and on local changes; Org is not shared over Syncthing
+# Two-way sync ~/Documents/Org with Google Drive seconds after either side changes; Org is not shared over Syncthing; resyncs only on first run or after a critical error
 org-bisync: (link "systemd") (link "bin")
     just install-pkgs inotify-tools
-    rclone bisync "$HOME/Documents/Org" Drive:/Org --resync --resync-mode newer --check-access --create-empty-src-dirs --disable ListR --drive-skip-gdocs --exclude ".st**" --exclude ".syncthing.*"
+    test -e ~/.cache/rclone/bisync/*_Documents_Org..Drive_Org.path1.lst || rclone bisync "$HOME/Documents/Org" Drive:/Org --resync --resync-mode newer --check-access --check-filename .rclone-check --create-empty-src-dirs --disable ListR --drive-skip-gdocs --exclude ".st**" --exclude ".syncthing.*"
     systemctl --user daemon-reload
     {{ systemd_enable_user }} org-bisync.timer org-watch.service
 

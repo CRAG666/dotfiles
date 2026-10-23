@@ -1,5 +1,5 @@
 [Unit]
-Description=Sync ~/Documents/Org a few seconds after it changes locally
+Description=Sync ~/Documents/Org seconds after it changes locally or on Google Drive
 
 [Service]
 ExecStart=%h/.local/bin/org-watch
