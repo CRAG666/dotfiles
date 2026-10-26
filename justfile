@@ -155,21 +155,6 @@ stow action +groups:
         esac
     done
 
-# One-off: delete the absolute links of the pre-Stow linker, which Stow refuses to replace; remove once P53, L14 and the phone ran it
-[private]
-[script]
-migrate-links:
-    drop() { if [ -d "$1" ]; then find "$1" "${@:3}" -lname "{{ src }}/$2" -print -delete; fi; }
-    drop "$HOME" '.*' -maxdepth 1
-    drop "$HOME/.config" 'config/*' -maxdepth 2
-    drop "$HOME/.config/systemd/user" 'config/systemd/user/*' -maxdepth 1
-    drop "$HOME/.local/bin" 'local/bin/*' -maxdepth 1
-    drop "$HOME/.local/share" 'local/share/*' -maxdepth 1
-    drop "$HOME/.termux" 'termux/*' -maxdepth 1
-    drop "$HOME/.claude" 'harness/*'
-    drop "$HOME/.pi/agent" 'harness/*'
-    drop "$HOME/.config/opencode" 'harness/*'
-
 # Show the links Stow would add in every link group and any conflict, without touching HOME
 [group('base')]
 status: (stow "--simulate --verbose" "home config bin data systemd harness")
