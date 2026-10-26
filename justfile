@@ -211,6 +211,8 @@ user-tools:
     mkdir -p "$HOME/.local/bin"
     curl -fsSL https://raw.githubusercontent.com/chubin/cheat.sh/HEAD/share/cht.sh.txt -o "$HOME/.local/bin/cht.sh"
     chmod +x "$HOME/.local/bin/cht.sh"
+    echo "==> Installing the mise tools (config/mise/config.toml)..."
+    mise install
     echo "==> Installing Tridactyl native messenger (user-level, no root)..."
     curl -fsSL https://raw.githubusercontent.com/tridactyl/native_messenger/HEAD/installers/install.sh | sh
 
