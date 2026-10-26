@@ -159,11 +159,16 @@ stow action +groups:
 [group('base')]
 status: (stow "--simulate --verbose" "home config bin data systemd harness")
 
+# Relink every group, e.g. after a git pull (Stow aborts without changes on a conflict), and reload the user units
+[group('base')]
+link: (stow "--restow" "home config bin data systemd harness")
+    systemctl --user daemon-reload
+
 # Deploy the initial dotfiles
 [group('base')]
-init: theme systemd-user bin user-tools uosc mpv-assets harness (stow "--restow" "home config data")
+init: theme link systemd-user user-tools uosc mpv-assets harness
 
-# Remove the links Stow created for init/bin/systemd-user/harness
+# Remove the links Stow created for link/init
 [group('base')]
 [script]
 rollback: (stow "--delete" "home config bin data systemd harness")
@@ -177,10 +182,6 @@ rollback: (stow "--delete" "home config bin data systemd harness")
 theme:
     @echo "==> Applying eyes theme (creates the gitignored active symlinks)..."
     @{{ src }}/local/bin/eyes-theme auto
-
-# Link the local/bin scripts into ~/.local/bin
-[group('base')]
-bin: (stow "--restow" "bin")
 
 # Install user-level tools without AUR (cht.sh + tridactyl native messenger)
 [group('base')]
@@ -260,11 +261,14 @@ mpv-assets:
 [group('base')]
 [script]
 harness: (stow "--restow" "harness")
-    # eyes-theme rewrites settings.json when its theme key differs (atomic replace): install a copy
-    if [ -f "$HOME/.claude/settings.json" ] && [ ! -f "$HOME/.claude/settings.json.bak" ]; then
-        cp -v "$HOME/.claude/settings.json" "$HOME/.claude/settings.json.bak"
-    fi
+    # eyes-theme and pi rewrite settings.json with an atomic replace, which turns a link into a file: install copies
+    for settings in "$HOME/.claude/settings.json" "$HOME/.pi/agent/settings.json"; do
+        if [ -f "$settings" ] && [ ! -L "$settings" ] && [ ! -f "$settings.bak" ]; then
+            cp -v "$settings" "$settings.bak"
+        fi
+    done
     install -m 644 "{{ src }}/harness/claude/settings.json" "$HOME/.claude/settings.json"
+    install -m 644 "{{ src }}/harness/pi/settings.json" "$HOME/.pi/agent/settings.json"
     if [ ! -f "$HOME/.claude/settings.local.json" ]; then
         cp -v "{{ src }}/harness/claude/settings.local.json.example" "$HOME/.claude/settings.local.json"
         echo "    WARNING: set your ANTHROPIC_AUTH_TOKEN in ~/.claude/settings.local.json"
