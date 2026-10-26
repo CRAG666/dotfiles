@@ -1,7 +1,10 @@
-home := env_var("HOME")
+set default-list
+set script-interpreter := ['bash', '-euo', 'pipefail']
+
+home := home_directory()
 src := justfile_directory()
 
-export PATH := home + "/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/bin/core_perl:" + home + "/.local/share/mise/shims:" + env_var_or_default("PREFIX", "/usr") + "/bin"
+export PATH := home + "/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/bin/core_perl:" + home + "/.local/share/mise/shims:" + env("PREFIX", "/usr") + "/bin"
 export GOPATH := home
 
 hypr_pkgs := "hyprland xdg-desktop-portal-hyprland hyprland-guiutils hyprland-qt-support hyprsunset hyprtoolkit hyprutils"
@@ -31,16 +34,10 @@ l14_firmware := "linux-firmware-amd linux-firmware-amdgpu linux-firmware-mediate
 systemd_enable := "sudo systemctl --now enable"
 systemd_enable_user := "systemctl --user --now enable"
 
-# List available recipes
-[private]
-default:
-    @just --list
-
 # Install packages, routing each to pacman (repo) or paru (AUR)
 [private]
+[script]
 install-pkgs *pkgs:
-    #!/usr/bin/env bash
-    set -eu
     pkgs="{{ pkgs }}"
     if [ -z "$pkgs" ]; then exit 0; fi
     sync_pkgs=$(pacman -Slq)
@@ -84,15 +81,15 @@ makepkg-conf:
     sudo install -Dm 644 "{{ src }}/etc/makepkg.conf.d/zz-native.conf" /etc/makepkg.conf.d/zz-native.conf
 
 # Install the fontconfig rule that repairs the Apple fonts' family names
+[group('base')]
 fonts:
     sudo install -Dm 644 "{{ src }}/etc/fonts/conf.d/50-apple-family-names.conf" /etc/fonts/conf.d/50-apple-family-names.conf
     sudo fc-cache -fs
 
 # Ensure paru is installed and sync databases are fresh
 [private]
+[script]
 bootstrap-paru:
-    #!/usr/bin/env bash
-    set -eu
     echo "==> Refreshing package databases..."
     sudo pacman -Sy
     echo "==> Installing paru if necessary..."
@@ -100,27 +97,24 @@ bootstrap-paru:
 
 # Install official-repo packages from pkglist.txt
 [private]
+[script]
 install-repo:
-    #!/usr/bin/env bash
-    set -eu
     echo "==> Installing official-repo packages from pkglist.txt..."
     pkgs=$(grep -v '^#' "{{ src }}/pkglist.txt" | grep -v '^$' || true)
     if [ -n "$pkgs" ]; then just install-pkgs $pkgs; fi
 
 # Install AUR packages from pkglist-aur.txt
 [private]
+[script]
 install-aur:
-    #!/usr/bin/env bash
-    set -eu
     echo "==> Installing AUR packages from pkglist-aur.txt..."
     pkgs=$(grep -v '^#' "{{ src }}/pkglist-aur.txt" | grep -v '^$' || true)
     if [ -n "$pkgs" ]; then just install-pkgs $pkgs; fi
 
 # Apply base system configuration (keyd, sysctl, services)
 [private]
+[script]
 system-config:
-    #!/usr/bin/env bash
-    set -eu
     echo "==> Enabling services..."
     {{ systemd_enable }} ananicy-cpp
     echo "==> Configuring keyd..."
@@ -134,13 +128,13 @@ system-config:
     command -v bob >/dev/null 2>&1 && bob use nightly || echo "bob not installed, skipping..."
 
 # Install Arch Linux packages and apply base system configuration
+[group('base')]
 install: makepkg-conf bootstrap-paru install-repo install-aur fonts system-config nftables
 
 # Print "<source>\t<link>" for every symlink of a group: home, config, bin, data, systemd, harness, termux
 [private]
+[script]
 links group:
-    #!/usr/bin/env bash
-    set -eu
     case "{{ group }}" in
         home)
             find "{{ src }}" -mindepth 1 -maxdepth 1 -name ".*" \
@@ -176,9 +170,8 @@ links group:
 
 # Symlink a group into HOME, never replacing real files
 [private]
+[script]
 link group:
-    #!/usr/bin/env bash
-    set -euo pipefail
     echo "==> Linking {{ group }}..."
     just links {{ group }} | while IFS=$'\t' read -r from to; do
         if [ -e "$to" ] && [ ! -L "$to" ]; then
@@ -191,9 +184,8 @@ link group:
 
 # Remove the symlinks of a group that point into this repo
 [private]
+[script]
 unlink group:
-    #!/usr/bin/env bash
-    set -euo pipefail
     echo "==> Unlinking {{ group }}..."
     just links {{ group }} | while IFS=$'\t' read -r from to; do
         if [ -L "$to" ] && [ "$(readlink "$to")" = "$from" ]; then
@@ -202,40 +194,43 @@ unlink group:
     done
 
 # Deploy the initial dotfiles
+[group('base')]
 init: theme systemd-user bin user-tools uosc mpv-assets harness (link "home") (link "config") (link "data")
 
 # Remove symlinks created by init/bin/systemd-user/harness/data (only if they point into this repo)
+[group('base')]
+[script]
 rollback: (unlink "home") (unlink "config") (unlink "bin") (unlink "data") (unlink "systemd") (unlink "harness")
-    #!/usr/bin/env bash
-    set -eu
     systemctl --user daemon-reload || true
     dst="$HOME/.pi/agent/themes/eyes.json"
     if [ -f "$dst" ]; then rm -v "$dst"; fi
     echo "==> Rollback complete."
 
 # Apply the eyes theme (active symlinks + claude/opencode themes)
+[group('base')]
 theme:
     @echo "==> Applying eyes theme (creates the gitignored active symlinks)..."
     @{{ src }}/local/bin/eyes-theme auto
 
 # Link the local/bin scripts into ~/.local/bin
+[group('base')]
 bin: (link "bin")
 
 # Install user-level tools without AUR (cht.sh + tridactyl native messenger)
+[group('base')]
+[script]
 user-tools:
-    #!/usr/bin/env bash
-    set -eu
     echo "==> Installing cht.sh into ~/.local/bin..."
     mkdir -p "$HOME/.local/bin"
     curl -fsSL https://raw.githubusercontent.com/chubin/cheat.sh/master/share/cht.sh.txt -o "$HOME/.local/bin/cht.sh"
     chmod +x "$HOME/.local/bin/cht.sh"
-    echo "==> Installing Tridactyl native messenger (user-level, sin root)..."
+    echo "==> Installing Tridactyl native messenger (user-level, no root)..."
     curl -fsSL https://raw.githubusercontent.com/tridactyl/native_messenger/master/installers/install.sh | sh
 
 # Install or update uosc (mpv UI) to its latest release in the gitignored config/mpv/{scripts/uosc,fonts}
+[group('apps')]
+[script]
 uosc:
-    #!/usr/bin/env bash
-    set -euo pipefail
     main="{{ src }}/config/mpv/scripts/uosc/main.lua"
     release=$(curl -fsSL https://api.github.com/repos/tomasklaen/uosc/releases/latest)
     latest=$(jq -er .tag_name <<<"$release")
@@ -260,9 +255,9 @@ uosc:
         --exclude 'scripts/uosc/bin/ziggy-darwin' --exclude 'scripts/uosc/bin/ziggy-windows.exe'
 
 # Install or update the mpv shaders and thumbfast from upstream into the gitignored config/mpv/{shaders,scripts}
+[group('apps')]
+[script]
 mpv-assets:
-    #!/usr/bin/env bash
-    set -euo pipefail
     mpv="{{ src }}/config/mpv"
     tmp=$(mktemp -d)
     trap 'rm -rf "$tmp"' EXIT
@@ -296,9 +291,9 @@ mpv-assets:
     cp "$tmp/thumbfast.lua" "$mpv/scripts/"
 
 # Install the AI harness configs (pi, claude, opencode) + shared skills
+[group('base')]
+[script]
 harness: (link "harness")
-    #!/usr/bin/env bash
-    set -eu
     # eyes-theme rewrites settings.json when its theme key differs (atomic replace): install a copy
     if [ -f "$HOME/.claude/settings.json" ] && [ ! -f "$HOME/.claude/settings.json.bak" ]; then
         cp -v "$HOME/.claude/settings.json" "$HOME/.claude/settings.json.bak"
@@ -316,22 +311,22 @@ harness: (link "harness")
     fi
 
 # Link the user unit files (eyes-theme*) and enable timers/boot
+[group('base')]
 systemd-user: (link "systemd")
     systemctl --user daemon-reload
     {{ systemd_enable_user }} eyes-theme.service eyes-theme.timer
 
 # Two-way sync ~/Documents/Org with Google Drive seconds after either side changes; Org is not shared over Syncthing; resyncs only on first run or after a critical error
-org-bisync: (link "systemd") (link "bin")
-    just install-pkgs inotify-tools
+[group('apps')]
+org-bisync: (link "systemd") (link "bin") (install-pkgs "inotify-tools")
     test -e ~/.cache/rclone/bisync/*_Documents_Org..Drive_Org.path1.lst || rclone bisync "$HOME/Documents/Org" Drive:/Org --resync --resync-mode newer --check-access --check-filename .rclone-check --create-empty-src-dirs --disable ListR --drive-skip-gdocs --exclude ".st**" --exclude ".syncthing.*"
     systemctl --user daemon-reload
     {{ systemd_enable_user }} org-bisync.timer org-watch.service
 
 # Install greetd and the Quickshell greeter from etc/greetd (applies on the next boot)
-greetd:
-    #!/usr/bin/env bash
-    set -eu
-    just install-pkgs greetd quickshell
+[group('desktop')]
+[script]
+greetd: (install-pkgs "greetd quickshell")
     echo "==> Configuring greetd..."
     sudo cp -r "{{ src }}/etc/greetd" /etc/
     sudo install -m 644 "{{ src }}"/config/quickshell/{Theme,WText,DateBlock}.qml /etc/greetd/quickshell/
@@ -339,43 +334,37 @@ greetd:
     {{ systemd_enable }} greetd
 
 # Install packages required for Wayland
-wayland: greetd
-    #!/usr/bin/env bash
-    set -eu
+[group('desktop')]
+[script]
+wayland: greetd (install-pkgs wayland_pkgs)
     echo "==> Enabling Electron/Chromium flags for Wayland..."
     "{{ src }}/wayland/enable-electron-flags.sh"
-    echo "==> Installing Wayland packages..."
-    just install-pkgs {{ wayland_pkgs }}
     {{ systemd_enable_user }} app-com.mitchellh.ghostty.service
 
 # Configure Hyprland (Wayland)
-hypr: wayland
-    #!/usr/bin/env bash
-    set -eu
+[group('desktop')]
+[script]
+hypr: wayland (install-pkgs hypr_pkgs)
     echo "==> Installing hypr-run script..."
     sudo install -m 755 "{{ src }}/wayland/scripts/hypr-run.sh" /usr/local/bin/
     echo "==> Installing Hyprland sessions..."
     sudo install -Dm 644 "{{ src }}/wayland/sessions/hyprland-crag.desktop" \
         /usr/share/wayland-sessions/hyprland-crag.desktop
-    echo "==> Installing Hyprland packages..."
-    just install-pkgs {{ hypr_pkgs }}
 
 # Configure Scroll (Wayland)
-scroll: wayland
-    #!/usr/bin/env bash
-    set -eu
+[group('desktop')]
+[script]
+scroll: wayland (install-pkgs scroll_pkgs)
     echo "==> Installing scroll-run script..."
     sudo install -m 755 "{{ src }}/wayland/scripts/scroll-run.sh" /usr/local/bin/
     echo "==> Installing Scroll session..."
     sudo install -Dm 644 "{{ src }}/wayland/sessions/scroll-auto.desktop" \
         /usr/share/wayland-sessions/scroll-auto.desktop
-    echo "==> Installing Scroll packages..."
-    just install-pkgs {{ scroll_pkgs }}
 
 # Configure suspend-on-lid (skipped when docked); idle lock/DPMS via swayidle
+[group('hardware')]
+[script]
 suspend:
-    #!/usr/bin/env bash
-    set -eu
     echo "==> Installing power-profile auto-switch udev rule..."
     sudo install -Dm 644 "{{ src }}/etc/udev/rules.d/99-power-profile.rules" \
         /etc/udev/rules.d/99-power-profile.rules
@@ -389,33 +378,22 @@ suspend:
     sudo systemctl restart systemd-logind || true
 
 # Configure laptop (power management)
-laptop: suspend
-    #!/usr/bin/env bash
-    set -eu
-    echo "==> Installing power management tools..."
-    just install-pkgs {{ laptop_pkgs }}
+[group('hardware')]
+laptop: suspend (install-pkgs laptop_pkgs)
     {{ systemd_enable }} thermald
 
 # Configure Intel laptop (power management + Intel GPU)
-laptop-intel: laptop
-    #!/usr/bin/env bash
-    set -eu
-    echo "==> Installing Intel GPU tools..."
-    just install-pkgs {{ laptop_intel_pkgs }}
+[group('hardware')]
+laptop-intel: laptop (install-pkgs laptop_intel_pkgs)
 
 # Configure AMD laptop (power management + Radeon GPU)
-laptop-amd: suspend
-    #!/usr/bin/env bash
-    set -eu
-    echo "==> Installing microcode, Radeon GPU and AMD power management..."
-    just install-pkgs {{ laptop_amd_pkgs }}
+[group('hardware')]
+laptop-amd: suspend (install-pkgs laptop_amd_pkgs)
 
 # ThinkPad-specific configuration (Intel)
-thinkpad: laptop
-    #!/usr/bin/env bash
-    set -eu
-    echo "==> Installing ThinkPad-specific tools..."
-    just install-pkgs {{ thinkpad_pkgs }}
+[group('hardware')]
+[script]
+thinkpad: laptop (install-pkgs thinkpad_pkgs)
     echo "==> Installing P53-specific sysctl..."
     sudo install -m 644 "{{ src }}/etc/sysctl.d/99-p53.conf" /etc/sysctl.d/
     sudo sysctl --system
@@ -431,9 +409,9 @@ thinkpad: laptop
     {{ systemd_enable }} throttled
 
 # AMD ThinkPad configuration (e.g. L14 Gen 4)
+[group('hardware')]
+[script]
 thinkpad-amd: laptop-amd
-    #!/usr/bin/env bash
-    set -eu
     echo "==> Installing L14-specific sysctl..."
     sudo install -m 644 "{{ src }}/etc/sysctl.d/99-l14.conf" /etc/sysctl.d/
     sudo sysctl --system
@@ -448,19 +426,14 @@ thinkpad-amd: laptop-amd
     sudo udevadm trigger --subsystem-match=leds --sysname-match=platform::micmute --action=add
 
 # Configure NVIDIA drivers (+ NVIDIA-only Scroll session)
-nvidia:
-    #!/usr/bin/env bash
-    set -eu
-    echo "==> Installing NVIDIA packages..."
-    just install-pkgs {{ nvidia_pkgs }}
-    echo "==> Installing NVIDIA-only Scroll session..."
-    sudo install -Dm 644 "{{ src }}/wayland/sessions/scroll-nvidia.desktop" \
-        /usr/share/wayland-sessions/scroll-nvidia.desktop
+[group('hardware')]
+nvidia: (install-pkgs nvidia_pkgs)
+    sudo install -Dm 644 "{{ src }}/wayland/sessions/scroll-nvidia.desktop" /usr/share/wayland-sessions/scroll-nvidia.desktop
 
 # Create the zen-browser "Inaoe" profile, apply zen/inaoe.json + install its .desktop launcher
+[group('apps')]
+[script]
 inaoe:
-    #!/usr/bin/env bash
-    set -eu
     echo "==> Creating zen-browser profile 'Inaoe' (if missing)..."
     if grep -qs '^Name=Inaoe$' "$HOME/.config/zen/profiles.ini" 2>/dev/null; then
         echo "    Profile 'Inaoe' already exists, skipping..."
@@ -479,6 +452,7 @@ inaoe:
     gtk-update-icon-cache -q "$HOME/.local/share/icons/hicolor" 2>/dev/null || true
 
 # Apply zen/default.json (spaces, essentials, pinned tabs) + the eyes userChrome.css to the default Zen profile
+[group('apps')]
 zen: (zen-layout "Default (release)" "default")
 
 # Apply zen/<layout>.json, zen/userChrome.css and its prefs to a Zen profile (Zen must be closed)
@@ -488,11 +462,9 @@ zen-layout profile layout:
     "{{ src }}/.scripts/zen_layout.py" "{{ profile }}" "{{ src }}/zen/{{ layout }}.json"
 
 # Configure unbound (local DNS resolver) + resolv.conf
-unbound:
-    #!/usr/bin/env bash
-    set -eu
-    echo "==> Installing unbound..."
-    just install-pkgs unbound
+[group('network')]
+[script]
+unbound: (install-pkgs "unbound")
     echo "==> Disabling systemd-resolved..."
     sudo systemctl disable --now systemd-resolved 2>/dev/null || true
     echo "==> Configuring resolv.conf..."
@@ -505,16 +477,14 @@ unbound:
     {{ systemd_enable }} unbound
 
 # Configure networking: iwd (wifi + DHCP) + systemd-networkd (cable) + DNS egress probe
-network:
-    #!/usr/bin/env bash
-    set -eu
-    echo "==> Installing iwd + impala..."
-    just install-pkgs iwd impala
-    echo "==> Configuring iwd (DHCP propio, sin tocar resolv.conf)..."
+[group('network')]
+[script]
+network: (install-pkgs "iwd impala")
+    echo "==> Configuring iwd (own DHCP, leaves resolv.conf alone)..."
     sudo install -Dm 644 "{{ src }}/etc/iwd/main.conf" /etc/iwd/main.conf
     echo "==> Configuring systemd-networkd for wired interfaces..."
     sudo install -Dm 644 "{{ src }}/etc/systemd/network/20-wired.network" /etc/systemd/network/20-wired.network
-    echo "==> Masking systemd-networkd-wait-online (bloquea el arranque sin cable)..."
+    echo "==> Masking systemd-networkd-wait-online (it blocks boot without a cable)..."
     sudo systemctl mask systemd-networkd-wait-online.service
     echo "==> Installing unbound-forward probe + service..."
     sudo install -Dm 755 "{{ src }}/etc/unbound/unbound-forward" /usr/local/bin/unbound-forward
@@ -535,28 +505,21 @@ network:
     fi
 
 # Install AND (re)load the nftables firewall (avoids config drift)
+[group('network')]
 nftables:
-    #!/usr/bin/env bash
-    set -eu
-    echo "==> Installing + (re)loading nftables..."
     sudo install -m 644 "{{ src }}/etc/nftables.conf" /etc/nftables.conf
     sudo nft -f /etc/nftables.conf
     {{ systemd_enable }} nftables
 
 # P53: SSH server reachable only over the tailnet (applies firewall + enables sshd)
-ssh: nftables
-    #!/usr/bin/env bash
-    set -eu
-    echo "==> Installing openssh + habilitando sshd..."
-    just install-pkgs openssh
+[group('network')]
+ssh: nftables (install-pkgs "openssh")
     {{ systemd_enable }} sshd
 
 # P53: Sunshine stream host for the desktop, only over the tailnet (pair at https://<tailscale-ip>:47990)
-sunshine: nftables
-    #!/usr/bin/env bash
-    set -eu
-    echo "==> Installing sunshine..."
-    just install-pkgs sunshine
+[group('apps')]
+[script]
+sunshine: nftables (install-pkgs "sunshine")
     echo "==> Linking config/sunshine (replaces a ~/.config/sunshine that is not a symlink)..."
     dst="$HOME/.config/sunshine"
     if [ -e "$dst" ] && [ ! -L "$dst" ]; then
@@ -575,14 +538,13 @@ sunshine: nftables
     {{ systemd_enable_user }} app-dev.lizardbyte.app.Sunshine.service
 
 # L14: Moonlight client to stream the P53 desktop + its streaming settings
+[group('apps')]
+[script]
 moonlight:
-    #!/usr/bin/env bash
-    set -eu
     if pgrep -x moonlight >/dev/null; then
         echo "Close Moonlight first: it rewrites its settings on exit" >&2
         exit 1
     fi
-    echo "==> Installing moonlight-qt..."
     just install-pkgs moonlight-qt
     # Moonlight.conf also holds the pairing key and certificate, so only the settings are merged in
     echo "==> Merging config/moonlight/Moonlight.conf into Moonlight's settings..."
@@ -601,11 +563,9 @@ moonlight:
     done
 
 # Configure dnscrypt-proxy (DoH/443 egress for networks that block 53)
-dnscrypt:
-    #!/usr/bin/env bash
-    set -eu
-    echo "==> Installing dnscrypt-proxy..."
-    just install-pkgs dnscrypt-proxy
+[group('network')]
+[script]
+dnscrypt: (install-pkgs "dnscrypt-proxy")
     echo "==> Configuring dnscrypt-proxy.toml..."
     sudo install -Dm 644 "{{ src }}/etc/dnscrypt-proxy/dnscrypt-proxy.toml" \
         /etc/dnscrypt-proxy/dnscrypt-proxy.toml
@@ -613,26 +573,26 @@ dnscrypt:
     {{ systemd_enable }} dnscrypt-proxy
 
 # Configure the whole local DNS stack (unbound + dnscrypt + network)
+[group('network')]
 dns: unbound dnscrypt network
 
 # Install Tailscale + join the tailnet (base for P53 and L14)
-tailscale: nftables
-    #!/usr/bin/env bash
-    set -eu
-    echo "==> Installing tailscale..."
-    just install-pkgs tailscale
+[group('network')]
+[script]
+tailscale: nftables (install-pkgs "tailscale")
     {{ systemd_enable }} tailscaled
-    echo "==> Uniendo al tailnet (--accept-dns=false: NO tocar resolv.conf, usamos unbound local)..."
+    echo "==> Joining the tailnet (--accept-dns=false: resolv.conf stays on the local unbound)..."
     sudo tailscale up --accept-dns=false
 
 # Build the Podman image for testing
+[group('test')]
 podman-image:
     podman build -t dotfiles "{{ src }}"
 
 # Test the justfile with Podman
+[group('test')]
+[script]
 test: podman-image
-    #!/usr/bin/env bash
-    set -eu
     echo "==> Starting test container..."
     podman run -it --name maketest -d dotfiles:latest /bin/bash || true
     for target in install init wayland hypr thinkpad; do
@@ -643,35 +603,38 @@ test: podman-image
     podman stop maketest && podman rm maketest || true
 
 # Show the PATH and GOPATH variables
+[group('test')]
 testpath:
     @echo "PATH: $PATH"
     @echo "GOPATH: {{ GOPATH }}"
 
 # Clean up test containers
+[group('test')]
 clean:
     @podman stop maketest 2>/dev/null || true
     @podman rm maketest 2>/dev/null || true
 
 # Keep only the given firmware (marked explicit) and drop the linux-firmware meta with the rest
 [private]
-firmware *pkgs:
-    #!/usr/bin/env bash
-    set -eu
-    just install-pkgs {{ pkgs }}
+[script]
+firmware *pkgs: (install-pkgs pkgs)
     if pacman -Q linux-firmware >/dev/null 2>&1; then
         echo "==> Removing the linux-firmware meta and the firmware this machine does not use..."
         sudo pacman -Rns --noconfirm linux-firmware
     fi
 
 # Install for ThinkPad P53 with NVIDIA (server SSH + Sunshine)
+[group('machine')]
 p53: install init thinkpad laptop-intel nvidia dns tailscale ssh sunshine (firmware p53_firmware)
     sudo install -Dm 644 "{{ src }}/etc/greetd/P53.png" /etc/greetd/laptop.png
 
 # Install for ThinkPad L14 Gen 4 (Ryzen 5, + client Moonlight)
+[group('machine')]
 l14: install init thinkpad-amd dns tailscale moonlight (firmware l14_firmware)
     sudo install -Dm 644 "{{ src }}/etc/greetd/L14_Gen4.png" /etc/greetd/laptop.png
 
 # Configure Termux on the Android phones: eyes colors by the hour + underline cursor
+[group('machine')]
 phone: (link "termux")
     sh "{{ src }}/termux/eyes-theme.sh"
     termux-reload-settings
