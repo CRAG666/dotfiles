@@ -228,7 +228,7 @@ alias fontl="fc-list | cut -d ':' -f2 | sort | uniq"
 
 # -< Environ variable >-
 set -a
-DOT_DIR=${${(%):-%x}:A:h}
+DOT_DIR=${${(%):-%x}:A:h:h}
 source "$DOT_DIR/config/shell/vars.env"
 source "$DOT_DIR/config/shell/colors.env"
 set +a

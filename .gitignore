@@ -605,8 +605,8 @@ config/xdg-desktop-portal-termfilechooser/.last_selected
 # Gitignored symlinks repointed by local/bin/eyes-theme on each light/dark
 # switch. The two committed variants live beside them; only the pointer
 # moves, so toggling the theme never dirties the repo.
-/.tmux.colors.conf
-/.Xresources
+/home/.tmux.colors.conf
+/home/.Xresources
 /config/hunk/config.toml
 /config/herdr/config.toml
 /config/eza/theme.yml

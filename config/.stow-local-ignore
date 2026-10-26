@@ -1,0 +1,5 @@
+\.gitignore
+^/systemd
+^/moonlight
+# Inputs eyes-theme builds config/starship.toml from
+^/starship\.(base|palette\..*)\.toml

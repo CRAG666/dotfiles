@@ -1,5 +1,5 @@
 set -a
-DOT_DIR=$(dirname "$(readlink -f "$HOME/.profile")")
+DOT_DIR=$(dirname "$(dirname "$(readlink -f "$HOME/.profile")")")
 . "$DOT_DIR/config/shell/vars.env"
 . "$DOT_DIR/config/shell/colors.env"
 set +a

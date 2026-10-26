@@ -131,76 +131,57 @@ system-config:
 [group('base')]
 install: makepkg-conf bootstrap-paru install-repo install-aur fonts system-config nftables
 
-# Print "<source>\t<link>" for every symlink of a group: home, config, bin, data, systemd, harness, termux
+# Run Stow with ACTION on link groups: home, config, bin, data, systemd, harness, termux
 [private]
 [script]
-links group:
-    case "{{ group }}" in
-        home)
-            find "{{ src }}" -mindepth 1 -maxdepth 1 -name ".*" \
-                ! -name .git ! -name .gitignore ! -name .gitattributes \
-                ! -name .claude ! -name .a5c ! -name .crush \
-                -printf "%p\t$HOME/%f\n" ;;
-        config)
-            find "{{ src }}/config" -mindepth 1 -maxdepth 1 ! -name .gitignore ! -name systemd ! -name moonlight \
-                -printf "%p\t$HOME/.config/%f\n" ;;
-        bin)
-            find "{{ src }}/local/bin" -mindepth 1 -maxdepth 1 ! -name ".*" \
-                -printf "%p\t$HOME/.local/bin/%f\n" ;;
-        data)
-            # eyes-theme reads its manifest from the repo, so it is not linked
-            find "{{ src }}/local/share" -mindepth 1 -maxdepth 1 -type d ! -name eyes-theme \
-                -printf "%p\t$HOME/.local/share/%f\n" ;;
-        systemd)
-            find "{{ src }}/config/systemd/user" -maxdepth 1 -type f \
-                \( -name '*.service' -o -name '*.timer' -o -name '*.target' \) \
-                -printf "%p\t$HOME/.config/systemd/user/%f\n" ;;
-        harness)
-            find "{{ src }}/harness/pi" -type f -printf "%p\t$HOME/.pi/agent/%P\n"
-            find "{{ src }}/harness/opencode" -type f -printf "%p\t$HOME/.config/opencode/%P\n"
-            # settings*.json are installed as copies by the harness recipe
-            find "{{ src }}/harness/claude" -type f ! -name 'settings*' -printf "%p\t$HOME/.claude/%P\n" ;;
-        termux)
-            find "{{ src }}/termux" -name '*.properties' -printf "%p\t$HOME/.termux/%f\n"
-            printf "%s\t%s\n" "{{ src }}/termux/eyes-theme.sh" "$PREFIX/etc/profile.d/eyes-theme.sh" ;;
-        *)
-            echo "Unknown link group: {{ group }}" >&2
-            exit 1 ;;
-    esac
-
-# Symlink a group into HOME, never replacing real files
-[private]
-[script]
-link group:
-    echo "==> Linking {{ group }}..."
-    just links {{ group }} | while IFS=$'\t' read -r from to; do
-        if [ -e "$to" ] && [ ! -L "$to" ]; then
-            echo "WARNING: $to exists but is not a symlink. Back it up manually."
-        else
-            mkdir -p "$(dirname "$to")"
-            ln -vsfn "$from" "$to"
-        fi
+stow action +groups:
+    pkg() { mkdir -p "$2"; stow {{ action }} --dir="$1" --target="$2" "${@:3}"; }
+    for group in {{ groups }}; do
+        echo "==> stow {{ action }} $group..."
+        case "$group" in
+            home) pkg "{{ src }}" "$HOME" home ;;
+            config) pkg "{{ src }}" "$HOME/.config" config ;;
+            bin) pkg "{{ src }}/local" "$HOME/.local/bin" bin ;;
+            data) pkg "{{ src }}/local" "$HOME/.local/share" share ;;
+            systemd) pkg "{{ src }}/config/systemd" "$HOME/.config/systemd/user" --no-folding user ;;
+            harness)
+                pkg "{{ src }}/harness" "$HOME/.pi/agent" --no-folding pi
+                pkg "{{ src }}/harness" "$HOME/.config/opencode" --no-folding opencode
+                pkg "{{ src }}/harness" "$HOME/.claude" --no-folding claude ;;
+            termux) pkg "{{ src }}" "$HOME/.termux" termux ;;
+            *)
+                echo "Unknown link group: $group" >&2
+                exit 1 ;;
+        esac
     done
 
-# Remove the symlinks of a group that point into this repo
+# One-off: delete the absolute links of the pre-Stow linker, which Stow refuses to replace; remove once P53, L14 and the phone ran it
 [private]
 [script]
-unlink group:
-    echo "==> Unlinking {{ group }}..."
-    just links {{ group }} | while IFS=$'\t' read -r from to; do
-        if [ -L "$to" ] && [ "$(readlink "$to")" = "$from" ]; then
-            rm -v "$to"
-        fi
-    done
+migrate-links:
+    drop() { if [ -d "$1" ]; then find "$1" "${@:3}" -lname "{{ src }}/$2" -print -delete; fi; }
+    drop "$HOME" '.*' -maxdepth 1
+    drop "$HOME/.config" 'config/*' -maxdepth 2
+    drop "$HOME/.config/systemd/user" 'config/systemd/user/*' -maxdepth 1
+    drop "$HOME/.local/bin" 'local/bin/*' -maxdepth 1
+    drop "$HOME/.local/share" 'local/share/*' -maxdepth 1
+    drop "$HOME/.termux" 'termux/*' -maxdepth 1
+    drop "$HOME/.claude" 'harness/*'
+    drop "$HOME/.pi/agent" 'harness/*'
+    drop "$HOME/.config/opencode" 'harness/*'
+
+# Show the links Stow would add in every link group and any conflict, without touching HOME
+[group('base')]
+status: (stow "--simulate --verbose" "home config bin data systemd harness")
 
 # Deploy the initial dotfiles
 [group('base')]
-init: theme systemd-user bin user-tools uosc mpv-assets harness (link "home") (link "config") (link "data")
+init: theme systemd-user bin user-tools uosc mpv-assets harness (stow "--restow" "home config data")
 
-# Remove symlinks created by init/bin/systemd-user/harness/data (only if they point into this repo)
+# Remove the links Stow created for init/bin/systemd-user/harness
 [group('base')]
 [script]
-rollback: (unlink "home") (unlink "config") (unlink "bin") (unlink "data") (unlink "systemd") (unlink "harness")
+rollback: (stow "--delete" "home config bin data systemd harness")
     systemctl --user daemon-reload || true
     dst="$HOME/.pi/agent/themes/eyes.json"
     if [ -f "$dst" ]; then rm -v "$dst"; fi
@@ -214,7 +195,7 @@ theme:
 
 # Link the local/bin scripts into ~/.local/bin
 [group('base')]
-bin: (link "bin")
+bin: (stow "--restow" "bin")
 
 # Install user-level tools without AUR (cht.sh + tridactyl native messenger)
 [group('base')]
@@ -293,7 +274,7 @@ mpv-assets:
 # Install the AI harness configs (pi, claude, opencode) + shared skills
 [group('base')]
 [script]
-harness: (link "harness")
+harness: (stow "--restow" "harness")
     # eyes-theme rewrites settings.json when its theme key differs (atomic replace): install a copy
     if [ -f "$HOME/.claude/settings.json" ] && [ ! -f "$HOME/.claude/settings.json.bak" ]; then
         cp -v "$HOME/.claude/settings.json" "$HOME/.claude/settings.json.bak"
@@ -312,13 +293,13 @@ harness: (link "harness")
 
 # Link the user unit files (eyes-theme*) and enable timers/boot
 [group('base')]
-systemd-user: (link "systemd")
+systemd-user: (stow "--restow" "systemd")
     systemctl --user daemon-reload
     {{ systemd_enable_user }} eyes-theme.service eyes-theme.timer
 
 # Two-way sync ~/Documents/Org with Google Drive seconds after either side changes; Org is not shared over Syncthing; resyncs only on first run or after a critical error
 [group('apps')]
-org-bisync: (link "systemd") (link "bin") (install-pkgs "inotify-tools")
+org-bisync: (stow "--restow" "systemd bin") (install-pkgs "inotify-tools")
     test -e ~/.cache/rclone/bisync/*_Documents_Org..Drive_Org.path1.lst || rclone bisync "$HOME/Documents/Org" Drive:/Org --resync --resync-mode newer --check-access --check-filename .rclone-check --create-empty-src-dirs --disable ListR --drive-skip-gdocs --exclude ".st**" --exclude ".syncthing.*"
     systemctl --user daemon-reload
     {{ systemd_enable_user }} org-bisync.timer org-watch.service
@@ -441,7 +422,7 @@ inaoe:
         zen-browser -CreateProfile "Inaoe"
     fi
     echo "==> Configuring proxy for profile 'Inaoe'..."
-    "{{ src }}/.scripts/configure_proxy.sh" "Inaoe"
+    "{{ src }}/home/.scripts/configure_proxy.sh" "Inaoe"
     echo "==> Applying its essentials + pinned tabs..."
     just zen-layout Inaoe inaoe
     echo "==> Installing Inaoe icon + .desktop launcher..."
@@ -459,7 +440,7 @@ zen: (zen-layout "Default (release)" "default")
 [private]
 zen-layout profile layout:
     python3 -c "import lz4" 2>/dev/null || just install-pkgs python-lz4
-    "{{ src }}/.scripts/zen_layout.py" "{{ profile }}" "{{ src }}/zen/{{ layout }}.json"
+    "{{ src }}/home/.scripts/zen_layout.py" "{{ profile }}" "{{ src }}/zen/{{ layout }}.json"
 
 # Configure unbound (local DNS resolver) + resolv.conf
 [group('network')]
@@ -520,19 +501,15 @@ ssh: nftables (install-pkgs "openssh")
 [group('apps')]
 [script]
 sunshine: nftables (install-pkgs "sunshine")
-    echo "==> Linking config/sunshine (replaces a ~/.config/sunshine that is not a symlink)..."
+    echo "==> Linking config/sunshine (replaces a ~/.config/sunshine that is not a symlink) and the drop-in that waits for /dev/uinput (else no mouse after boot)..."
     dst="$HOME/.config/sunshine"
     if [ -e "$dst" ] && [ ! -L "$dst" ]; then
         rm -rf "$dst"
     fi
-    ln -vsfn "{{ src }}/config/sunshine" "$dst"
+    just stow --restow config systemd
     echo "==> Installing the sudoers rule that lets Sunshine lock the GPU clocks while streaming..."
     sudo visudo -cf "{{ src }}/etc/sudoers.d/sunshine-gpu-clocks"
     sudo install -m 440 "{{ src }}/etc/sudoers.d/sunshine-gpu-clocks" /etc/sudoers.d/
-    echo "==> Linking the drop-in that waits for /dev/uinput (else no mouse after boot)..."
-    unit_d="app-dev.lizardbyte.app.Sunshine.service.d"
-    mkdir -p "$HOME/.config/systemd/user"
-    ln -vsfn "{{ src }}/config/systemd/user/$unit_d" "$HOME/.config/systemd/user/$unit_d"
     systemctl --user daemon-reload
     echo "==> Enabling its user service (starts with graphical-session.target)..."
     {{ systemd_enable_user }} app-dev.lizardbyte.app.Sunshine.service
@@ -635,6 +612,10 @@ l14: install init thinkpad-amd dns tailscale moonlight (firmware l14_firmware)
 
 # Configure Termux on the Android phones: eyes colors by the hour + underline cursor
 [group('machine')]
-phone: (link "termux")
+[script]
+phone:
+    pkg install -y stow
+    just stow --restow termux
+    ln -sfn "{{ src }}/termux/eyes-theme.sh" "$PREFIX/etc/profile.d/eyes-theme.sh"
     sh "{{ src }}/termux/eyes-theme.sh"
     termux-reload-settings

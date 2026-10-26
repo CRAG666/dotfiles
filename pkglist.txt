@@ -1,5 +1,6 @@
 # System utilities
 ananicy-cpp
+stow
 
 # Basic security
 nftables

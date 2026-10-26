@@ -90,17 +90,17 @@ wired = [{ file = "config/foot/foot.ini", pattern = 'colors\.ini' }]
 reload = [{ process = "foot", signal = "SIGUSR1" }]
 
 [apps.tmux]
-switch = [{ pointer = ".tmux.colors.conf", light = ".tmux.colors.eyes.conf", dark = ".tmux.colors.eyes-dark.conf", generate = "hash" }]
-wired = [{ file = ".tmux.conf", pattern = 'tmux\.colors\.conf' }]
+switch = [{ pointer = "home/.tmux.colors.conf", light = ".tmux.colors.eyes.conf", dark = ".tmux.colors.eyes-dark.conf", generate = "hash" }]
+wired = [{ file = "home/.tmux.conf", pattern = 'tmux\.colors\.conf' }]
 reload = [{ process = "tmux: server", run = ["tmux", "source-file", "{home}/.tmux.conf"] }]
 
 [apps.xresources]
-switch = [{ pointer = ".Xresources", light = ".Xresources.eyes", dark = ".Xresources.eyes-dark", generate = "hash" }]
+switch = [{ pointer = "home/.Xresources", light = ".Xresources.eyes", dark = ".Xresources.eyes-dark", generate = "hash" }]
 reload = [{ binary = "xrdb", env_required = "DISPLAY", run = ["xrdb", "-merge", "{home}/.Xresources"] }]
 
 [apps.shell]
 switch = [{ pointer = "config/shell/colors.env", light = "colors.eyes.env", dark = "colors.eyes-dark.env", generate = "hash", generate_replace = [['BAT_THEME="eyes"', 'BAT_THEME="eyes-dark"']], generate_after = ["bat", "cache", "--build"] }]
-wired = [{ file = ".zshrc", pattern = 'colors\.env' }]
+wired = [{ file = "home/.zshrc", pattern = 'colors\.env' }]
 
 # Hand-maintained pair: the dark accents don't follow the palette 1:1.
 [apps.scroll]

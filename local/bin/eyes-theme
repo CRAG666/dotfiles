@@ -89,8 +89,11 @@ def shown(path: Path) -> str:
 
 def live(path: Path) -> Path:
     relative = path.relative_to(ROOT)
-    if relative.parts[0] == "config":
-        return HOME / ".config" / relative.relative_to("config")
+    match relative.parts[0]:
+        case "config":
+            return HOME / ".config" / relative.relative_to("config")
+        case "home":
+            return HOME / relative.relative_to("home")
     return HOME / relative
 
 

@@ -1,0 +1,3 @@
+# Variants eyes-theme switches between inside the repo
+\.Xresources\.eyes.*
+\.tmux\.colors\.eyes.*
