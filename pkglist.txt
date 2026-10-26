@@ -29,7 +29,6 @@ starship
 gum
 graphviz
 gocryptfs
-eza
 git
 git-crypt
 git-filter-repo
