@@ -7,7 +7,7 @@ require('utils.ftplugin')({
   wrap = false,
   spell = false,
 }, 'setlocal errorformat< | silent! nunmap <buffer> <leader>;')
-vim.g.mason = { 'roslyn', 'netcoredbg' }
+vim.g.mason = { 'roslyn' }
 vim.g.ts = { 'c_sharp', 'jsonnet' }
 
 -- Set ; to end line

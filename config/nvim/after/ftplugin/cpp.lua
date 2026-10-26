@@ -10,7 +10,6 @@ require('utils.ftplugin')({
   spell = false,
 }, 'setlocal errorformat<')
 
-vim.g.mason = { 'codelldb' }
 vim.g.ts = { 'c', 'cpp' }
 
 -- Set ; to end line

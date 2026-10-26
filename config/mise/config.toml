@@ -49,6 +49,9 @@ typstyle = "latest"
 "github:latex-lsp/texlab" = "latest"
 "github:ltex-plus/ltex-ls-plus" = "latest"
 "github:WGUNDERWOOD/tex-fmt" = "latest"
+"github:Samsung/netcoredbg" = "latest"
+"github:microsoft/vscode-js-debug" = { version = "latest", asset_pattern = "js-debug-dap-*.tar.gz" }
+"github:vadimcn/codelldb" = { version = "latest", asset_pattern = "codelldb-linux-x64.vsix", bin_path = "extension/adapter" }
 "npm:@fsouza/prettierd" = "latest"
 "npm:@olrtg/emmet-language-server" = "latest"
 "npm:bash-language-server" = "latest"

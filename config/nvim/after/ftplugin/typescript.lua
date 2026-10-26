@@ -1,4 +1,3 @@
-vim.g.mason = { 'js-debug-adapter' }
 require('utils.ftplugin')({
   shiftwidth = 2,
   tabstop = 2,
