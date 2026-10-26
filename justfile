@@ -446,7 +446,7 @@ unbound: (install-pkgs "unbound")
 # Configure networking: iwd (wifi + DHCP) + systemd-networkd (cable) + DNS egress probe
 [group('network')]
 [script]
-network: (install-pkgs "iwd impala")
+network: (install-pkgs "iwd impala bind")
     echo "==> Configuring iwd (own DHCP, leaves resolv.conf alone)..."
     sudo install -Dm 644 "{{ src }}/etc/iwd/main.conf" /etc/iwd/main.conf
     echo "==> Configuring systemd-networkd for wired interfaces..."
