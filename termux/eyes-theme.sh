@@ -1,3 +1,4 @@
+# shellcheck shell=sh
 # Sourced by every Termux login shell: picks the eyes variant by the hour, as `eyes-theme auto` does
 hour=$(date +%-H)
 if [ "$hour" -ge 6 ] && [ "$hour" -lt 19 ]; then

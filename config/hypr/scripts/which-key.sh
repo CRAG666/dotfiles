@@ -2,8 +2,6 @@
 
 CONFIG_DIR="$HOME/.config/eww-which-key"
 
-togleBase=false
-
 print_help() {
     cat <<EOF
 Usage: $(basename "$0") [OPTIONS]

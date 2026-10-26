@@ -47,7 +47,9 @@ detect_device() {
     local pci
     pci=$(lspci -k | grep -E '(VGA|3D)' | grep -iE "$1" | awk '{print $1}')
     [ -z "$pci" ] && return
-    ls -l /dev/dri/by-path | grep "$pci" | awk -F/ '{print $NF}'
+    for link in /dev/dri/by-path/*"$pci"*; do
+        [ -e "$link" ] && basename "$(readlink "$link")"
+    done
 }
 
 MODE=""

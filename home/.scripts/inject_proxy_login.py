@@ -14,6 +14,7 @@ Usage:
 The password is read from the PROXY_PASSWORD environment variable so it never
 appears in the process list (argv). The browser must be closed.
 """
+
 import base64
 import ctypes as ct
 import ctypes.util
@@ -25,17 +26,21 @@ import uuid
 
 
 class SECItem(ct.Structure):
-    _fields_ = [("type", ct.c_uint),
-                ("data", ct.POINTER(ct.c_ubyte)),
-                ("len", ct.c_uint)]
+    _fields_ = [
+        ("type", ct.c_uint),
+        ("data", ct.POINTER(ct.c_ubyte)),
+        ("len", ct.c_uint),
+    ]
 
 
 def load_nss():
-    for cand in (ctypes.util.find_library("nss3"),
-                 "libnss3.so",
-                 "/usr/lib/libnss3.so",
-                 "/usr/lib64/libnss3.so",
-                 "/usr/lib/x86_64-linux-gnu/libnss3.so"):
+    for cand in (
+        ctypes.util.find_library("nss3"),
+        "libnss3.so",
+        "/usr/lib/libnss3.so",
+        "/usr/lib64/libnss3.so",
+        "/usr/lib/x86_64-linux-gnu/libnss3.so",
+    ):
         if not cand:
             continue
         try:
@@ -63,22 +68,29 @@ def main():
     nss.PK11_FreeSlot.argtypes = [ct.c_void_p]
     nss.PK11_CheckUserPassword.argtypes = [ct.c_void_p, ct.c_char_p]
     nss.PK11_CheckUserPassword.restype = ct.c_int
-    nss.PK11SDR_Encrypt.argtypes = [ct.POINTER(SECItem), ct.POINTER(SECItem),
-                                    ct.POINTER(SECItem), ct.c_void_p]
+    nss.PK11SDR_Encrypt.argtypes = [
+        ct.POINTER(SECItem),
+        ct.POINTER(SECItem),
+        ct.POINTER(SECItem),
+        ct.c_void_p,
+    ]
     nss.PK11SDR_Encrypt.restype = ct.c_int
     nss.SECITEM_ZfreeItem.argtypes = [ct.POINTER(SECItem), ct.c_int]
 
     if nss.NSS_InitReadWrite(b"sql:" + profile.encode()) != 0:
-        sys.exit("ERROR: NSS_InitReadWrite fallo "
-                 "(perfil invalido o navegador abierto).")
+        sys.exit(
+            "ERROR: NSS_InitReadWrite fallo (perfil invalido o navegador abierto)."
+        )
 
     slot = nss.PK11_GetInternalKeySlot()
     # Empty primary password is the common case; if a primary password is set,
     # provide it via PROXY_PRIMARY_PASSWORD.
     primary = os.environ.get("PROXY_PRIMARY_PASSWORD", "").encode()
     if nss.PK11_CheckUserPassword(slot, primary) != 0:
-        sys.exit("ERROR: no se pudo autenticar el almacen de claves "
-                 "(hay contrasena primaria? usa PROXY_PRIMARY_PASSWORD).")
+        sys.exit(
+            "ERROR: no se pudo autenticar el almacen de claves "
+            "(hay contrasena primaria? usa PROXY_PRIMARY_PASSWORD)."
+        )
 
     keyid = SECItem(0, None, 0)
 
@@ -87,8 +99,10 @@ def main():
         buf = (ct.c_ubyte * len(data)).from_buffer_copy(data)
         inp = SECItem(0, ct.cast(buf, ct.POINTER(ct.c_ubyte)), len(data))
         out = SECItem(0, None, 0)
-        if nss.PK11SDR_Encrypt(ct.byref(keyid), ct.byref(inp),
-                               ct.byref(out), None) != 0:
+        if (
+            nss.PK11SDR_Encrypt(ct.byref(keyid), ct.byref(inp), ct.byref(out), None)
+            != 0
+        ):
             sys.exit("ERROR: PK11SDR_Encrypt fallo.")
         raw = ct.string_at(out.data, out.len)
         nss.SECITEM_ZfreeItem(ct.byref(out), 0)
@@ -99,41 +113,50 @@ def main():
     nss.PK11_FreeSlot(slot)
     nss.NSS_Shutdown()
 
-    hostname = "moz-proxy://%s:%s" % (host, port)
+    hostname = f"moz-proxy://{host}:{port}"
     path = os.path.join(profile, "logins.json")
     if os.path.exists(path):
         with open(path) as fh:
             db = json.load(fh)
     else:
-        db = {"nextId": 1, "logins": [], "potentiallyVulnerablePasswords": [],
-              "dismissedBreachAlertsByLoginGUID": {}, "version": 3}
+        db = {
+            "nextId": 1,
+            "logins": [],
+            "potentiallyVulnerablePasswords": [],
+            "dismissedBreachAlertsByLoginGUID": {},
+            "version": 3,
+        }
 
     # Drop any previous entry for this proxy realm so we never duplicate.
-    db["logins"] = [l for l in db.get("logins", [])
-                    if not (l.get("hostname") == hostname
-                            and l.get("httpRealm") == realm)]
+    db["logins"] = [
+        l
+        for l in db.get("logins", [])
+        if not (l.get("hostname") == hostname and l.get("httpRealm") == realm)
+    ]
 
     now = int(time.time() * 1000)
     new_id = max([l.get("id", 0) for l in db["logins"]], default=0) + 1
-    db["logins"].append({
-        "id": new_id,
-        "hostname": hostname,
-        "httpRealm": realm,
-        "formSubmitURL": None,
-        "usernameField": "",
-        "passwordField": "",
-        "encryptedUsername": enc_user,
-        "encryptedPassword": enc_pass,
-        "guid": "{%s}" % uuid.uuid4(),
-        "encType": 1,
-        "timeCreated": now,
-        "timeLastUsed": now,
-        "timePasswordChanged": now,
-        "timesUsed": 1,
-        "syncCounter": 0,
-        "everSynced": False,
-        "encryptedUnknownFields": None,
-    })
+    db["logins"].append(
+        {
+            "id": new_id,
+            "hostname": hostname,
+            "httpRealm": realm,
+            "formSubmitURL": None,
+            "usernameField": "",
+            "passwordField": "",
+            "encryptedUsername": enc_user,
+            "encryptedPassword": enc_pass,
+            "guid": f"{{{uuid.uuid4()}}}",
+            "encType": 1,
+            "timeCreated": now,
+            "timeLastUsed": now,
+            "timePasswordChanged": now,
+            "timesUsed": 1,
+            "syncCounter": 0,
+            "everSynced": False,
+            "encryptedUnknownFields": None,
+        }
+    )
     db["nextId"] = max(db.get("nextId", 1), new_id + 1)
     db.setdefault("version", 3)
 
@@ -145,8 +168,7 @@ def main():
         os.replace(tmp, target)
         os.chmod(target, 0o600)
 
-    print("    Credencial de proxy inyectada: %s@%s (realm: %s)"
-          % (user, hostname, realm))
+    print(f"    Credencial de proxy inyectada: {user}@{hostname} (realm: {realm})")
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 LTMP="$HOME/.cache/fzf-preview"
 _hash=$(printf "%s" "$1" | md5sum)
