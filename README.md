@@ -2,7 +2,7 @@
 
 ## Quick start
 
-This repository is built with [just](https://github.com/casey/just). It is an attempt to set up a minimal environment for development and entertainment on arch linux.
+This repository is built with [just](https://github.com/casey/just) and links the dotfiles with [GNU Stow](https://www.gnu.org/software/stow/). It is an attempt to set up a minimal environment for development and entertainment on arch linux.
 
 ### List of commands
 
@@ -10,20 +10,31 @@ This repository is built with [just](https://github.com/casey/just). It is an at
 just --list
 ```
 
-### For P53
+### New machine
+
+Some files are encrypted with [git-crypt](https://github.com/AGWA/git-crypt); linking aborts while the repo is locked.
 
 ```bash
-just p53
+sudo pacman -S --needed git git-crypt just stow
+git clone git@github.com:CRAG666/dotfiles.git ~/Git/dotfiles
+cd ~/Git/dotfiles
+git-crypt unlock
+just p53   # or: just l14
 just scroll
-just dns
 ```
 
-### L14
+### After a git pull
 
 ```bash
-just l14
-just scroll
-just dns
+just link     # relink every group; Stow aborts without changes on a conflict
+just status   # what Stow would add, without touching HOME
+just drift    # packages installed but not declared, and declared but missing
+```
+
+### Phone (Termux)
+
+```bash
+just phone
 ```
 
 ## Results

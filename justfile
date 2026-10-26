@@ -136,13 +136,17 @@ install: makepkg-conf bootstrap-paru install-repo install-aur fonts system-confi
 [script]
 stow action +groups:
     pkg() { mkdir -p "$2"; stow {{ action }} --dir="$1" --target="$2" "${@:3}"; }
+    unlocked() {
+        git -C "{{ src }}" config --get filter.git-crypt.smudge >/dev/null \
+            || { echo "$1 holds git-crypt files and the repo is locked: run git-crypt unlock first" >&2; exit 1; }
+    }
     for group in {{ groups }}; do
         echo "==> stow {{ action }} $group..."
         case "$group" in
-            home) pkg "{{ src }}" "$HOME" home ;;
+            home) unlocked home && pkg "{{ src }}" "$HOME" home ;;
             config) pkg "{{ src }}" "$HOME/.config" config ;;
-            bin) pkg "{{ src }}/local" "$HOME/.local/bin" bin ;;
-            data) pkg "{{ src }}/local" "$HOME/.local/share" share ;;
+            bin) unlocked bin && pkg "{{ src }}/local" "$HOME/.local/bin" bin ;;
+            data) unlocked data && pkg "{{ src }}/local" "$HOME/.local/share" share ;;
             systemd) pkg "{{ src }}/config/systemd" "$HOME/.config/systemd/user" --no-folding user ;;
             harness)
                 pkg "{{ src }}/harness" "$HOME/.pi/agent" --no-folding pi
@@ -167,6 +171,21 @@ link: (stow "--restow" "home config bin data systemd harness")
 # Deploy the initial dotfiles
 [group('base')]
 init: theme link systemd-user user-tools uosc mpv-assets harness
+
+# List explicitly installed packages that nothing declares, and pkglist entries that are not installed
+[group('base')]
+[script]
+drift:
+    lists=("{{ src }}/pkglist.txt" "{{ src }}/pkglist-aur.txt")
+    declared=$(
+        grep -hvE '^\s*(#|$)' "${lists[@]}"
+        just --evaluate | sed -nE 's/^[a-z0-9_]+_(pkgs|firmware) +:= "(.*)"$/\2/p'
+        grep -oE 'install-pkgs ("[^"]+"|[a-z0-9][a-z0-9._+-]*$)' "{{ src }}/justfile" | sed -E 's/^install-pkgs "?//; s/"$//'
+    )
+    echo "==> Installed explicitly but not declared:"
+    comm -23 <(pacman -Qqe | sort) <(tr ' ' '\n' <<<"$declared" | sort -u)
+    echo "==> In pkglist but not installed:"
+    comm -13 <(pacman -Qq | sort) <(grep -hvE '^\s*(#|$)' "${lists[@]}" | sort -u)
 
 # Remove the links Stow created for link/init
 [group('base')]
