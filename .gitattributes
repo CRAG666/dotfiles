@@ -5,9 +5,5 @@ local/share/spotlight/notes.db filter=git-crypt diff=git-crypt
 home/.scripts/vpn filter=git-crypt diff=git-crypt
 home/.scripts/vpn-cookie filter=git-crypt diff=git-crypt
 home/.scripts/configure_proxy.sh filter=git-crypt diff=git-crypt
-local/bin/ssh-inaoe filter=git-crypt diff=git-crypt
 local/bin/rsync-inaoe filter=git-crypt diff=git-crypt
 local/bin/forti-vpn filter=git-crypt diff=git-crypt
-
-.zsh_history filter=git-crypt diff=git-crypt
-config/nushell/history.txt filter=git-crypt diff=git-crypt
