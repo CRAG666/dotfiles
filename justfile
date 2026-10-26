@@ -70,10 +70,10 @@ install-pkgs *pkgs:
         fi
     done
     if [ -n "$failed" ]; then
-        echo "==> WARNING: packages that failed:$failed"
-    else
-        echo "==> All packages installed successfully."
+        echo "==> Packages that failed:$failed" >&2
+        exit 1
     fi
+    echo "==> All packages installed successfully."
 
 # Install the makepkg drop-in that builds packages for the native CPU
 [private]
@@ -90,8 +90,8 @@ fonts:
 [private]
 [script]
 bootstrap-paru:
-    echo "==> Refreshing package databases..."
-    sudo pacman -Sy
+    echo "==> Upgrading the system (Arch does not support partial upgrades)..."
+    sudo pacman -Syu --noconfirm
     echo "==> Installing paru if necessary..."
     sudo pacman -S --needed --noconfirm paru || { echo "Error installing paru"; exit 1; }
 
@@ -462,7 +462,7 @@ network: (install-pkgs "iwd impala")
     echo "==> Switching from NetworkManager to iwd + systemd-networkd (skipped over SSH)..."
     if [ -z "${SSH_CONNECTION:-}" ]; then
         sudo systemctl disable --now NetworkManager 2>/dev/null || true
-        sudo pacman -Rnsc --noconfirm networkmanager
+        sudo pacman -Rns --noconfirm networkmanager
         sudo systemctl unmask NetworkManager-wait-online.service
         sudo systemctl enable systemd-networkd iwd
         sudo systemctl restart systemd-networkd iwd
