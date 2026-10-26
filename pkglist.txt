@@ -42,9 +42,11 @@ yazi
 ffmpeg
 ffmpegthumbnailer
 7zip
+unrar
 zip
 unzip
 jq
+shellcheck
 poppler
 fd
 ripgrep
@@ -58,7 +60,6 @@ bc
 gnome-epub-thumbnailer
 gitleaks
 mise
-luarocks
 corkscrew
 jujutsu
 libqalculate
@@ -72,6 +73,7 @@ progress
 
 # Audio
 pipewire
+pipewire-audio
 pipewire-alsa
 pipewire-pulse
 pipewire-jack
@@ -130,7 +132,6 @@ ungoogled-chromium-bin
 # Utilities
 podman
 podman-compose
-parallel
 pacman-contrib
 nushell
 freerdp
