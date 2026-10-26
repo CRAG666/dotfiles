@@ -451,6 +451,7 @@ unbound: (install-pkgs "unbound")
 network: (install-pkgs "iwd impala bind")
     echo "==> Configuring iwd (own DHCP, leaves resolv.conf alone)..."
     sudo install -Dm 644 "{{ src }}/etc/iwd/main.conf" /etc/iwd/main.conf
+    sudo install -Dm 644 "{{ src }}/etc/systemd/system/iwd.service.d/wait-wlan0.conf" /etc/systemd/system/iwd.service.d/wait-wlan0.conf
     echo "==> Configuring systemd-networkd for wired interfaces..."
     sudo install -Dm 644 "{{ src }}/etc/systemd/network/20-wired.network" /etc/systemd/network/20-wired.network
     echo "==> Masking systemd-networkd-wait-online (it blocks boot without a cable)..."
