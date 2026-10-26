@@ -527,36 +527,6 @@ tailscale: nftables (install-pkgs "tailscale")
     echo "==> Joining the tailnet (--accept-dns=false: resolv.conf stays on the local unbound)..."
     sudo tailscale up --accept-dns=false
 
-# Build the Podman image for testing
-[group('test')]
-podman-image:
-    podman build -t dotfiles "{{ src }}"
-
-# Test the justfile with Podman
-[group('test')]
-[script]
-test: podman-image
-    echo "==> Starting test container..."
-    podman run -it --name maketest -d dotfiles:latest /bin/bash || true
-    for target in install init wayland hypr thinkpad; do
-        echo "==> Testing recipe: $target"
-        podman exec -it maketest sh -c "cd {{ src }}; just $target"
-    done
-    echo "==> Cleaning up test container..."
-    podman stop maketest && podman rm maketest || true
-
-# Show the PATH and GOPATH variables
-[group('test')]
-testpath:
-    @echo "PATH: $PATH"
-    @echo "GOPATH: {{ GOPATH }}"
-
-# Clean up test containers
-[group('test')]
-clean:
-    @podman stop maketest 2>/dev/null || true
-    @podman rm maketest 2>/dev/null || true
-
 # Keep only the given firmware (marked explicit) and drop the linux-firmware meta with the rest
 [private]
 [script]
