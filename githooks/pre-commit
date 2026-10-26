@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Lints the staged content (not the working tree, so partial commits are checked as committed)
+set -euo pipefail
+
+failed=0
+fail() {
+    echo "pre-commit: $*" >&2
+    failed=1
+}
+
+if command -v git-crypt >/dev/null && git crypt status -e 2>&1 | grep -q 'NOT ENCRYPTED'; then
+    fail "a file marked for git-crypt would be committed unencrypted (see: git crypt status -e)"
+fi
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+while IFS= read -r -d '' file; do
+    [[ $file == skills/* || $(git ls-files --stage -- "$file") == 120000* ]] && continue
+    staged="$tmp/$(basename "$file")"
+    git show ":$file" >"$staged"
+    shebang=$(head -n1 "$staged")
+    if [[ $file == justfile ]]; then
+        just --justfile "$staged" --fmt --check >/dev/null 2>&1 || fail "justfile is not formatted (run: just --fmt)"
+    elif [[ $file == *.sh || $shebang =~ ^#!.*[/\ ](ba|da)?sh(\ |$) ]]; then
+        shellcheck -S warning "$staged" >&2 || fail "shellcheck: $file"
+    elif [[ $file == *.py || $shebang =~ ^#!.*python ]]; then
+        ruff check --quiet --stdin-filename "$file" - <"$staged" >&2 || fail "ruff: $file"
+    fi
+done < <(git diff --cached --name-only --diff-filter=ACMR -z)
+
+exit "$failed"

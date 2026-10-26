@@ -168,9 +168,10 @@ status: (stow "--simulate --verbose" "home config bin data systemd harness")
 link: (stow "--restow" "home config bin data systemd harness")
     systemctl --user daemon-reload
 
-# Deploy the initial dotfiles
+# Deploy the initial dotfiles and enable the repo's pre-commit checks
 [group('base')]
 init: theme link systemd-user user-tools uosc mpv-assets harness
+    git -C "{{ src }}" config core.hooksPath githooks
 
 # List explicitly installed packages that nothing declares, and pkglist entries that are not installed
 [group('base')]
