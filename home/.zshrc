@@ -232,7 +232,7 @@ DOT_DIR=${${(%):-%x}:A:h:h}
 source "$DOT_DIR/config/shell/vars.env"
 source "$DOT_DIR/config/shell/colors.env"
 set +a
-export PATH="$HOME/.config/emacs/bin:$HOME/.local/bin:$HOME/.dotnet/tools:$HOME/.local/share/bob/nvim-bin:$HOME/.local/share/nvim/mason/bin:$PATH"
+export PATH="$HOME/.config/emacs/bin:$HOME/.local/bin:$HOME/.dotnet/tools:$HOME/.local/share/bob/nvim-bin:$PATH"
 
 export GPG_TTY=$TTY
 

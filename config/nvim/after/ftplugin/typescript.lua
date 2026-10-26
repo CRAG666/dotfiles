@@ -1,9 +1,4 @@
-vim.g.mason = {
-  'typescript-language-server',
-  'emmet-language-server',
-  'prettierd',
-  'js-debug-adapter',
-}
+vim.g.mason = { 'js-debug-adapter' }
 require('utils.ftplugin')({
   shiftwidth = 2,
   tabstop = 2,

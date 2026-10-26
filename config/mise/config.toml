@@ -35,6 +35,29 @@ typst = "latest"
 # tabctl install writes the mediator's versioned path into the native-messaging manifest, so rerun it on every upgrade
 "github:slastra/tabctl" = { version = "latest", asset_pattern = "tabctl-linux-amd64-*.tar.gz", rename_exe = { "tabctl-linux-amd64" = "tabctl", "tabctl-mediator-linux-amd64" = "tabctl-mediator" }, postinstall = "tabctl install --browser Firefox" }
 
+# Neovim LSP servers, linters and formatters; mason (vim.g.mason) keeps only what mise cannot install
+bibtex-tidy = "latest"
+lua-language-server = "latest"
+marksman = "latest"
+shellcheck = "latest"
+shfmt = "latest"
+stylua = "latest"
+tinymist = "latest"
+typstyle = "latest"
+"aqua:mattn/efm-langserver" = "latest"
+"aqua:Feel-ix-343/markdown-oxide" = "latest"
+"github:latex-lsp/texlab" = "latest"
+"github:ltex-plus/ltex-ls-plus" = "latest"
+"github:WGUNDERWOOD/tex-fmt" = "latest"
+"npm:@fsouza/prettierd" = "latest"
+"npm:@olrtg/emmet-language-server" = "latest"
+"npm:bash-language-server" = "latest"
+"npm:typescript-language-server" = "latest"
+# TypeScript 7 (native) drops the tsserver API that typescript-language-server drives
+"npm:typescript" = "5"
+"pipx:basedpyright" = "latest"
+"pipx:pyrefly" = "latest"
+
 [settings]
 minimum_release_age = "0"
 

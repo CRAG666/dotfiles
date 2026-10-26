@@ -9,7 +9,6 @@ require('utils.ftplugin')({
 }, 'setlocal errorformat<')
 
 vim.treesitter.language.register('bash', 'zsh')
-vim.g.mason = { 'bash-language-server', 'shfmt', 'shellcheck' }
 vim.g.ts = { 'bash', 'zsh' }
 
 -- Parse bash/zsh diagnostics (code_runner quickfix mode)

@@ -27,6 +27,8 @@ return {
     },
     postload = function()
       require('mason').setup({
+        -- mise and pacman provide the other tools; theirs win on a clash
+        PATH = 'append',
         registries = {
           'github:mason-org/mason-registry',
           'github:Crashdummyy/mason-registry',

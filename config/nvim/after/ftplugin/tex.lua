@@ -42,12 +42,6 @@ vim.bo.errorformat = table.concat({
   [[%-Q[%\d%*[^()])%r]],
   [[%-G%.%#]],
 }, ',')
-vim.g.mason = {
-  'texlab',
-  'tex-fmt',
-  'ltex-ls-plus',
-  'bibtex-tidy',
-}
 vim.g.ts = { 'latex', 'bibtex' }
 vim.b.root_markers =
   vim.list_extend({ 'main.tex' }, require('utils.fs').root_markers)

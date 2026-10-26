@@ -11,7 +11,6 @@ require('utils.ftplugin')({
 }, 'setlocal errorformat<')
 
 vim.g.ts = { 'typst' }
-vim.g.mason = { 'tinymist', 'typstyle' }
 
 -- Parse typst diagnostics (code_runner quickfix mode)
 vim.bo.errorformat =

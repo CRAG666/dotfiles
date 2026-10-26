@@ -12,7 +12,6 @@ require('utils.ftplugin')({
   breakindent = true,
   spell = true,
 }, 'unlet! b:should_join_line')
-vim.g.mason = { 'marksman', 'markdown-oxide' }
 vim.g.ts = { 'markdown', 'markdown_inline' }
 
 ---Don't join title/first line of list item with previous lines when yanking

@@ -46,7 +46,6 @@ unrar
 zip
 unzip
 jq
-shellcheck
 poppler
 fd
 ripgrep
@@ -60,6 +59,7 @@ bc
 gnome-epub-thumbnailer
 gitleaks
 mise
+luarocks
 corkscrew
 jujutsu
 libqalculate
