@@ -126,7 +126,7 @@ sudo systemctl --now enable acpid
 
 #### Config battery charging thresholds
 
-The kernel's `thinkpad_acpi` driver exposes the thresholds in sysfs, so `tpacpi-bat` and `acpi_call` are no longer needed. `just thinkpad` and `just thinkpad-amd` install [99-battery-threshold.rules](../etc/udev/rules.d/99-battery-threshold.rules), which applies them on every boot:
+The kernel's `thinkpad_acpi` driver exposes the thresholds in sysfs, so `tpacpi-bat` and `acpi_call` are no longer needed. `just thinkpad` (run by `just p53` and `just l14`) installs [99-battery-threshold.rules](../etc/udev/rules.d/99-battery-threshold.rules), which applies them on every boot:
 
 ```
 ACTION=="add", SUBSYSTEM=="power_supply", KERNEL=="BAT0", ATTR{charge_control_end_threshold}="80", ATTR{charge_control_start_threshold}="75"

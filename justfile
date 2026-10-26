@@ -25,7 +25,7 @@ laptop_amd_pkgs := "amd-ucode vulkan-radeon libva-mesa-driver"
 laptop_pkgs := "thermald"
 
 # zcfan
-thinkpad_pkgs := "throttled"
+p53_pkgs := "throttled"
 
 p53_firmware := "linux-firmware-intel linux-firmware-nvidia linux-firmware-realtek linux-firmware-other linux-firmware-whence"
 
@@ -360,36 +360,13 @@ laptop-intel: laptop (install-pkgs laptop_intel_pkgs)
 [group('hardware')]
 laptop-amd: suspend (install-pkgs laptop_amd_pkgs)
 
-# ThinkPad-specific configuration (Intel)
+# ThinkPad configuration shared by the P53 and the L14: battery charge threshold + mic-mute LED
 [group('hardware')]
 [script]
-thinkpad: laptop (install-pkgs thinkpad_pkgs)
-    echo "==> Installing P53-specific sysctl..."
-    sudo install -m 644 "{{ src }}/etc/sysctl.d/99-p53.conf" /etc/sysctl.d/
-    sudo sysctl --system
-    echo "==> Installing battery charge threshold udev rule..."
+thinkpad:
+    echo "==> Installing battery charge threshold and mic-mute LED udev rules..."
     sudo install -Dm 644 "{{ src }}/etc/udev/rules.d/99-battery-threshold.rules" \
         /etc/udev/rules.d/99-battery-threshold.rules
-    sudo udevadm control --reload || true
-    echo "==> Installing mic-mute LED udev rule..."
-    sudo install -Dm 644 "{{ src }}/etc/udev/rules.d/99-micmute-led.rules" \
-        /etc/udev/rules.d/99-micmute-led.rules
-    sudo udevadm control --reload || true
-    sudo udevadm trigger --subsystem-match=leds --sysname-match=platform::micmute --action=add
-    {{ systemd_enable }} throttled
-
-# AMD ThinkPad configuration (e.g. L14 Gen 4)
-[group('hardware')]
-[script]
-thinkpad-amd: laptop-amd
-    echo "==> Installing L14-specific sysctl..."
-    sudo install -m 644 "{{ src }}/etc/sysctl.d/99-l14.conf" /etc/sysctl.d/
-    sudo sysctl --system
-    echo "==> Installing battery charge threshold udev rule..."
-    sudo install -Dm 644 "{{ src }}/etc/udev/rules.d/99-battery-threshold.rules" \
-        /etc/udev/rules.d/99-battery-threshold.rules
-    sudo udevadm control --reload || true
-    echo "==> Installing mic-mute LED udev rule..."
     sudo install -Dm 644 "{{ src }}/etc/udev/rules.d/99-micmute-led.rules" \
         /etc/udev/rules.d/99-micmute-led.rules
     sudo udevadm control --reload || true
@@ -591,12 +568,17 @@ firmware *pkgs: (install-pkgs pkgs)
 
 # Install for ThinkPad P53 with NVIDIA (server SSH + Sunshine)
 [group('machine')]
-p53: install init thinkpad laptop-intel nvidia dns tailscale ssh sunshine (firmware p53_firmware)
+p53: install init laptop-intel thinkpad nvidia dns tailscale ssh sunshine (install-pkgs p53_pkgs) (firmware p53_firmware)
+    sudo install -m 644 "{{ src }}/etc/sysctl.d/99-p53.conf" /etc/sysctl.d/
+    sudo sysctl --system
+    {{ systemd_enable }} throttled
     sudo install -Dm 644 "{{ src }}/etc/greetd/P53.png" /etc/greetd/laptop.png
 
 # Install for ThinkPad L14 Gen 4 (Ryzen 5, + client Moonlight)
 [group('machine')]
-l14: install init thinkpad-amd dns tailscale moonlight (firmware l14_firmware)
+l14: install init laptop-amd thinkpad dns tailscale moonlight (firmware l14_firmware)
+    sudo install -m 644 "{{ src }}/etc/sysctl.d/99-l14.conf" /etc/sysctl.d/
+    sudo sysctl --system
     sudo install -Dm 644 "{{ src }}/etc/greetd/L14_Gen4.png" /etc/greetd/laptop.png
 
 # Configure Termux on the Android phones: eyes colors by the hour + underline cursor
