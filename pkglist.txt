@@ -34,6 +34,7 @@ git
 git-crypt
 git-filter-repo
 rsync
+wget
 prettyping
 bob
 bat
@@ -41,6 +42,8 @@ yazi
 ffmpeg
 ffmpegthumbnailer
 7zip
+zip
+unzip
 jq
 poppler
 fd
@@ -86,6 +89,7 @@ noto-fonts-cjk
 python
 libnotify
 rust
+clang
 
 # Text edition
 tree-sitter
