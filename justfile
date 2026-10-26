@@ -189,10 +189,10 @@ theme:
 user-tools:
     echo "==> Installing cht.sh into ~/.local/bin..."
     mkdir -p "$HOME/.local/bin"
-    curl -fsSL https://raw.githubusercontent.com/chubin/cheat.sh/master/share/cht.sh.txt -o "$HOME/.local/bin/cht.sh"
+    curl -fsSL https://raw.githubusercontent.com/chubin/cheat.sh/HEAD/share/cht.sh.txt -o "$HOME/.local/bin/cht.sh"
     chmod +x "$HOME/.local/bin/cht.sh"
     echo "==> Installing Tridactyl native messenger (user-level, no root)..."
-    curl -fsSL https://raw.githubusercontent.com/tridactyl/native_messenger/master/installers/install.sh | sh
+    curl -fsSL https://raw.githubusercontent.com/tridactyl/native_messenger/HEAD/installers/install.sh | sh
 
 # Install or update uosc (mpv UI) to its latest release in the gitignored config/mpv/{scripts/uosc,fonts}
 [group('apps')]
@@ -221,7 +221,7 @@ uosc:
     bsdtar -xf "$tmp/uosc.zip" -C "{{ src }}/config/mpv" \
         --exclude 'scripts/uosc/bin/ziggy-darwin' --exclude 'scripts/uosc/bin/ziggy-windows.exe'
 
-# Install or update the mpv shaders and thumbfast from upstream into the gitignored config/mpv/{shaders,scripts}
+# Install or update the mpv shaders and thumbfast to their newest upstream versions in the gitignored config/mpv/{shaders,scripts}
 [group('apps')]
 [script]
 mpv-assets:
@@ -229,21 +229,21 @@ mpv-assets:
     tmp=$(mktemp -d)
     trap 'rm -rf "$tmp"' EXIT
     mkdir "$tmp/shaders"
-    release_assets() {
-        curl -fsSL "https://api.github.com/repos/$1/releases/latest" \
-            | jq -er --arg pattern "$2" '.assets[] | select(.name | test($pattern)) | .browser_download_url'
-    }
-    echo "==> Downloading Anime4K and FSRCNNX (latest releases)..."
-    anime4k=$(release_assets bloc97/Anime4K '\.zip$')
-    curl -fsSL -o "$tmp/anime4k.zip" "$anime4k"
-    bsdtar -xf "$tmp/anime4k.zip" -C "$tmp/shaders"
-    fsrcnnx=$(release_assets igv/FSRCNN-TensorFlow '^FSRCNNX_.*\.glsl$')
+    # Anime4K's last release (2021) predates shaders on its default branch; FSRCNNX ships its shaders only as release assets
+    echo "==> Downloading Anime4K (default branch) and FSRCNNX (latest release)..."
+    curl -fsSL "https://api.github.com/repos/bloc97/Anime4K/git/trees/HEAD?recursive=1" \
+        | jq -er '.tree[] | select(.type == "blob" and (.path | test("^glsl/.*\\.glsl$"))) | .path' \
+        | while read -r path; do
+            curl -fsSL -o "$tmp/shaders/${path##*/}" "https://raw.githubusercontent.com/bloc97/Anime4K/HEAD/$path"
+        done
+    fsrcnnx=$(curl -fsSL https://api.github.com/repos/igv/FSRCNN-TensorFlow/releases/latest \
+        | jq -er '.assets[] | select(.name | test("^FSRCNNX_.*\\.glsl$")) | .browser_download_url')
     for url in $fsrcnnx; do
         curl -fsSL -o "$tmp/shaders/${url##*/}" "$url"
     done
-    echo "==> Downloading nnedi3, CAS, FSR, NVScaler, KrigBilateral and SSimDownscaler (default branches/gists)..."
+    echo "==> Downloading nnedi3, CAS, FSR, NVScaler, KrigBilateral and SSimDownscaler (default branch, latest gist revisions)..."
     for url in \
-        https://raw.githubusercontent.com/bjin/mpv-prescalers/master/nnedi3-nns{16,32,64,128,256}-win8x6.hook \
+        https://raw.githubusercontent.com/bjin/mpv-prescalers/HEAD/nnedi3-nns{16,32,64,128,256}-win8x6.hook \
         https://gist.githubusercontent.com/agyild/bbb4e58298b2f86aa24da3032a0d2ee6/raw/CAS-scaled.glsl \
         https://gist.githubusercontent.com/agyild/82219c545228d70c5604f865ce0b0ce5/raw/FSR.glsl \
         https://gist.githubusercontent.com/agyild/7e8951915b2bf24526a9343d951db214/raw/NVScaler.glsl \
@@ -252,7 +252,7 @@ mpv-assets:
         curl -fsSL -o "$tmp/shaders/${url##*/}" "$url"
     done
     echo "==> Downloading thumbfast (default branch)..."
-    curl -fsSL -o "$tmp/thumbfast.lua" https://raw.githubusercontent.com/po5/thumbfast/master/thumbfast.lua
+    curl -fsSL -o "$tmp/thumbfast.lua" https://raw.githubusercontent.com/po5/thumbfast/HEAD/thumbfast.lua
     mkdir -p "$mpv/shaders" "$mpv/scripts"
     cp "$tmp"/shaders/* "$mpv/shaders/"
     cp "$tmp/thumbfast.lua" "$mpv/scripts/"
