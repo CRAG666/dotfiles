@@ -37,7 +37,7 @@ load.on_events({ 'CmdlineEnter', 'InsertEnter' }, 'plugin.readline', function()
 end)
 
 -- winbar
-load.on_events('FileType', 'plugin.winbar', function()
+load.on_events(load.ft_event, 'plugin.winbar', function()
   if vim.g.loaded_winbar ~= nil then
     return
   end

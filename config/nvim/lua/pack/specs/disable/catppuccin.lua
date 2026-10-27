@@ -158,8 +158,6 @@ return {
               ['@neorg.headings.6.prefix'] = { fg = C.lavender },
               ['@neorg.headings.6.prefix.norg'] = { fg = C.lavender },
               ['@neorg.links.location.heading.6.norg'] = { fg = C.lavender },
-              LspRenamerTitle = { fg = C.base, bg = C.red },
-              LspRenamerBorder = { fg = C.red, bg = C.base },
               SnacksTitle = {
                 fg = C.red,
                 bg = util.blend(C.red, C.surface0, 0.15),

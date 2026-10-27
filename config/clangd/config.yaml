@@ -1,0 +1,7 @@
+# User config, applies to every project and wins over a project's .clangd
+# https://clangd.llvm.org/config
+Diagnostics:
+  ClangTidy:
+    Add: [bugprone-*, performance-*, portability-*]
+    Remove: [bugprone-easily-swappable-parameters]
+  MissingIncludes: Strict

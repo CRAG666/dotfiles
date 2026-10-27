@@ -1,5 +1,17 @@
 local lsp = require('utils.lsp')
 
+-- `vim.version()` converts the whole `api_info()` (~2ms) on every call, which
+-- each client's `initialize` request does; the version cannot change at runtime
+do
+  local version_mt = getmetatable(vim.version)
+  local get_version = version_mt.__call
+  local version ---@type vim.Version?
+  version_mt.__call = function()
+    version = version or get_version()
+    return vim.deepcopy(version)
+  end
+end
+
 vim.lsp.config('*', lsp.default_config)
 
 -- Override to perform additional checks on starting language servers
@@ -19,6 +31,21 @@ do
   end
   vim.lsp.enable(names)
 end
+
+vim.lsp.inlay_hint.enable()
+
+-- Format the finished line on <CR> (clangd's only trigger); only clangd, which
+-- follows `.clang-format`, other servers would disagree with stylua/ruff
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('lsp.on_type_formatting', {}),
+  desc = 'Enable on-type formatting for clangd.',
+  callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    if client and client.name == 'clangd' then
+      vim.lsp.on_type_formatting.enable(true, { client_id = client.id })
+    end
+  end,
+})
 
 -- Show notification if no references, definition, declaration,
 -- implementation or type definition is found
@@ -76,7 +103,6 @@ do
       contents,
       syntax,
       vim.tbl_deep_extend('force', opts or {}, {
-        border = 'solid',
         max_width = math.max(80, math.ceil(vim.go.columns * 0.75)),
         max_height = math.max(20, math.ceil(vim.go.lines * 0.4)),
         close_events = {
@@ -142,6 +168,5 @@ do
   vim.keymap.set({ 'n', 'x' }, 'g.', function() vim.lsp.buf.implementation() end, { desc = 'Go to implementation' })
   vim.keymap.set({ 'n', 'x' }, '<Leader><', function() vim.lsp.buf.incoming_calls() end, { desc = 'Show incoming calls' })
   vim.keymap.set({ 'n', 'x' }, '<Leader>>', function() vim.lsp.buf.outgoing_calls() end, { desc = 'Show outgoing calls' })
-  vim.keymap.set("n", "grn", require("plugin.lsp-renamer"), { desc = "Rename symbol" })
   -- stylua: ignore end
 end

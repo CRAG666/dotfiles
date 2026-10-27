@@ -90,6 +90,10 @@ function M.root(source, marker)
           break
         end
       end
+      -- Lower priority groups in the same directory must not override `best`
+      if best == i then
+        break
+      end
     end
     if best == 1 then
       break

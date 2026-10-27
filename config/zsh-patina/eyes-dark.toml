@@ -3,8 +3,8 @@
 # comments (c_ash from nvim eyes)
 "comment" = "#9fb9a1"
 
-# strings (c_green1 from nvim eyes)
-"string" = "#96d4a6"
+# strings (c_green0: farther from the blue commands than c_green1)
+"string" = "#bfe6a1"
 
 # regular expressions
 "keyword.operator.regexp" = "#efb7db"

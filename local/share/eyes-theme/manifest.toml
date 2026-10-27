@@ -47,6 +47,8 @@ wired = [
 
 [apps.ghostty]
 wired = [{ file = "config/ghostty/config.ghostty", pattern = "light:eyes-light,dark:eyes-dark" }]
+# The portal only signals mode changes; a variant switch keeps the mode.
+reload = [{ process = "ghostty", signal = "SIGUSR2" }]
 
 [apps.eza]
 switch = [{ pointer = "config/eza/theme.yml", light = "eyes.yml", dark = "eyes-dark.yml" }]

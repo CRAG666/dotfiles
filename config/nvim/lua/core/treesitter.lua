@@ -40,6 +40,14 @@ vim.api.nvim_create_autocmd({ 'BufEnter', 'FileType' }, {
   end,
 })
 
+local ts_foldexpr_vimscript = 'v:lua.vim.treesitter.foldexpr()'
+
+-- A Lua function skips the per-line Vimscript `v:lua` bridge, ~4x faster fold
+-- updates; looked up on each call to pick up the bigfile wrapper
+local function ts_foldexpr()
+  return vim.treesitter.foldexpr()
+end
+
 ---Enable treesitter folding for given buffer if fold expr and method are unset
 ---@param buf integer
 local function enable_ts_folding(buf)
@@ -47,12 +55,16 @@ local function enable_ts_folding(buf)
     return
   end
 
-  local ts_foldexpr = 'v:lua.vim.treesitter.foldexpr()'
   for _, win in ipairs(vim.fn.win_findbuf(buf)) do
     local wo = vim.wo[win][0]
     -- Builtin ftplugins (e.g. lua) already set treesitter `foldexpr` without
     -- changing `foldmethod`
-    if wo.foldexpr ~= '0' and wo.foldexpr ~= ts_foldexpr then
+    local foldexpr = wo.foldexpr
+    if
+      foldexpr ~= '0'
+      and foldexpr ~= ts_foldexpr_vimscript
+      and foldexpr ~= ts_foldexpr
+    then
       goto continue
     end
     wo.foldexpr = ts_foldexpr

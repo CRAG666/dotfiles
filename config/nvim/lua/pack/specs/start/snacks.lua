@@ -1,12 +1,16 @@
 return {
   src = 'https://github.com/folke/snacks.nvim',
   data = {
-    deps = {
-      {
-        src = 'https://github.com/kyazdani42/nvim-web-devicons',
-        data = { optional = false },
-      },
-    },
+    -- Only the dashboard and the explorer on a directory show icons on the
+    -- first redraw, else nvim-web-devicons loads after it
+    deps = (vim.fn.argc(-1) == 0 or vim.fn.isdirectory(vim.fn.argv(0)) == 1)
+        and {
+          {
+            src = 'https://github.com/kyazdani42/nvim-web-devicons',
+            data = { optional = false },
+          },
+        }
+      or nil,
     -- events = { 'VimEnter' },
     postload = function()
       require('snacks').setup({

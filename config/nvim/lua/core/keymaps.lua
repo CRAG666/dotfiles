@@ -195,10 +195,12 @@ require('utils.load').on_events(
     --
     -- Don't use `map()` here because `<C-l>` is already defined as nvim's
     -- default keymap before loading this config and we want to override it
+    --
+    -- Also clear multicursors like the default keymap does
     vim.keymap.set(
       { 'n', 'x' },
       '<C-l>',
-      [['<Cmd>ec|noh|sil! dif<CR>' . (v:hlsearch ? '' : '<C-l>')]],
+      [['<Cmd>ec|noh|sil! dif|call nvim_buf_clear_namespace(0, nvim_create_namespace("nvim.multicursor"), 0, -1)<CR>' . (v:hlsearch ? '' : '<C-l>')]],
       {
         expr = true,
         replace_keycodes = false,

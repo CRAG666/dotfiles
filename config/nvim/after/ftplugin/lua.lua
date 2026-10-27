@@ -8,5 +8,4 @@ require('utils.ftplugin')({
   wrap = false,
   spell = false,
 })
-vim.g.mason = { 'luacheck' }
 vim.g.ts = { 'lua', 'luadoc', 'luap' }

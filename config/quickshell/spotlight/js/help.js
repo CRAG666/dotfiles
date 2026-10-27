@@ -26,7 +26,7 @@ const topics = [
     { section: "Actions", keys: "Ctrl+X", title: "Delete", text: "Clipboard entries, pins, bookmarks, notes and picked colors. Press twice to confirm." },
     { section: "Actions", keys: "Ctrl+E", title: "Edit", text: "Bookmarks open a form; notes open in nvim." },
     { section: "Actions", keys: "Ctrl+R", title: "Rename", text: "Notes: title and category." },
-    { section: "Actions", keys: "Ctrl+T", title: "Clipboard filter", text: "Cycles All → Text → Image → Link in the clipboard view.", mode: "clipboard" },
+    { section: "Actions", keys: "Ctrl+T", title: "Clipboard filter", text: "Cycles All → Text → Image → Link in the clipboard view, All → Frequent → Categories in bookmarks.", mode: "clipboard" },
 
     { section: "Typing", keys: "hr␣", title: "View aliases", text: "An alias and a space open that view at once; the alias alone puts the view first. Every alias is listed under Aliases below, and Commands shows each one on the right.", insert: "hr" },
     { section: "Typing", keys: ":heart", title: "Search emoji", text: "A leading colon searches emoji and symbols; Enter pastes it.", insert: ":heart" },
@@ -54,7 +54,7 @@ const topics = [
     { section: "Views", keys: "Snippets", title: "Snippets", text: "Text from spotlight.json pasted into the focused window. Placeholders: {date}, {time}, {weekday}, {clipboard} and {cursor}.", mode: "snippets" },
     { section: "Views", keys: "Emoji", title: "Emoji", text: "Type “ej” and a space, or a leading colon from any view (:heart).", mode: "emoji" },
     { section: "Views", keys: "Passwords", title: "Passwords", text: "pass entries, decrypted only when copied or typed.", mode: "passwords" },
-    { section: "Views", keys: "Bookmarks", title: "Bookmarks", text: "Search, add (the URL comes from the clipboard), edit, delete and rename categories.", mode: "bookmarks" },
+    { section: "Views", keys: "Bookmarks", title: "Bookmarks", text: "Search, add (the URL comes from the clipboard), edit, delete and rename categories. Tabs (Ctrl+T): Frequent lists the ones you open most; Categories lists the categories, and Enter opens all of a category's bookmarks.", mode: "bookmarks" },
     { section: "Views", keys: "Notes", title: "Notes", text: "Search and copy; create and edit in nvim; rename and delete.", mode: "notes" },
     { section: "Views", keys: "Quicklinks", title: "Quicklinks", mode: "quicklinks" },
     { section: "Views", keys: "Processes", title: "Kill process", text: "Your processes, busiest first.", mode: "processes" },

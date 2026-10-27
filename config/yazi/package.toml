@@ -30,17 +30,17 @@ hash = "ba1a606728adb75b091b6eaf3fd60372"
 
 [[plugin.deps]]
 use = "AminurAlam/yazi-plugins:preview-audio"
-rev = "72bdb41"
+rev = "50d82a7"
 hash = "6f01d98391ba55868fd5cdc753aa94d5"
 
 [[plugin.deps]]
 use = "AminurAlam/yazi-plugins:preview-epub"
-rev = "72bdb41"
+rev = "50d82a7"
 hash = "98173e496259511036e1f02fa7c0bd35"
 
 [[plugin.deps]]
 use = "AminurAlam/yazi-plugins:preview-typst"
-rev = "72bdb41"
+rev = "50d82a7"
 hash = "b51195fb14479a22751230b638830097"
 
 [[plugin.deps]]

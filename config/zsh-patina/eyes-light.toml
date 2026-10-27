@@ -4,8 +4,8 @@
 # comments (c_ash from nvim eyes)
 "comment" = "#504531"
 
-# strings (c_green1 from nvim eyes — distinct from comments)
-"string" = "#003d1b"
+# strings (c_green0: farther from the blue commands than c_green1)
+"string" = "#294f01"
 
 # regular expressions
 "keyword.operator.regexp" = "#661b53"

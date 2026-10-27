@@ -7,7 +7,7 @@ QtObject {
     property var host
     property var preview   // a Preview
     property var grid   // a ResultGrid
-    property var clipboardStore
+    property var filterStore   // the view's store with filter tabs, or null
 
     function handle(event) {
         const ctrl = (event.modifiers & Qt.ControlModifier) !== 0;
@@ -43,8 +43,8 @@ QtObject {
             host.act(host.selection, "edit", false);
         } else if (ctrl && event.key === Qt.Key_R) {
             host.act(host.selection, "rename", false);
-        } else if (ctrl && event.key === Qt.Key_T && host.mode === "clipboard") {
-            clipboardStore.cycleFilter();
+        } else if (ctrl && event.key === Qt.Key_T && filterStore && !host.form) {
+            filterStore.cycleFilter();
         } else if (ctrl && (event.key === Qt.Key_Up || event.key === Qt.Key_Down)) {
             preview.scroll(event.key === Qt.Key_Down ? 120 : -120);
         } else if (ctrl && event.key === Qt.Key_Home) {

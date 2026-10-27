@@ -42,7 +42,8 @@ function M.diffstat(buf, args)
     local dirname = vim.fs.dirname(bufname)
     local now = vim.uv.hrtime()
     vim.b[buf].git_diffstat_writetick = now
-    pcall(
+    -- Spawning blocks, keep it out of the statusline redraw
+    vim.schedule_wrap(pcall)(
       vim.system,
       vim.list_extend({ 'git', '-C', dirname, unpack(args or {}) }, {
         '--no-pager',
@@ -103,7 +104,8 @@ function M.execute(buf, args)
     local now = vim.uv.hrtime()
     entry = { tick = now, out = entry and entry.out }
     exec_cache[buf][key] = entry
-    pcall(
+    -- Spawning blocks, keep it out of the statusline redraw
+    vim.schedule_wrap(pcall)(
       vim.system,
       {
         'git',

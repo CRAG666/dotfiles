@@ -58,6 +58,8 @@ return {
   root_markers = { '.git' },
   settings = {
     formatterMode = 'typstyle',
+    -- Keeps the PDF next to the source current for zathura, which reloads it
+    exportPdf = 'onSave',
   },
   on_attach = function(client, bufnr)
     for _, command in ipairs({

@@ -17,11 +17,11 @@ require('core.pack')
 
 local load = require('utils.load')
 
-load.on_events('FileType', 'core.treesitter')
+load.on_events(load.ft_event, 'core.treesitter')
 load.on_events('DiagnosticChanged', 'core.diagnostic')
 -- Start language servers after the first redraw instead of blocking it,
 -- `vim.lsp.enable()` only attaches to existing buffers after `VimEnter`
-load.on_events('FileType', 'core.lsp', function()
+load.on_events(load.ft_event, 'core.lsp', function()
   local function setup()
     vim.schedule(function()
       require('core.lsp')

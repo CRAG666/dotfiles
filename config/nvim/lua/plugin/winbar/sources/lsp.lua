@@ -359,14 +359,18 @@ local function init()
   end
   initialized = true
 
-  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if
-      not vim.tbl_isempty(vim.lsp.get_clients({
-        bufnr = buf,
-        method = 'textDocument/documentSymbol',
-      }))
-    then
-      attach(buf)
+  -- No clients exist before `vim.lsp` is loaded, loading it here would block
+  -- the first redraw
+  if package.loaded['vim.lsp'] then
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+      if
+        not vim.tbl_isempty(vim.lsp.get_clients({
+          bufnr = buf,
+          method = 'textDocument/documentSymbol',
+        }))
+      then
+        attach(buf)
+      end
     end
   end
 

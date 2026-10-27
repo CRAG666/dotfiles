@@ -1,16 +1,15 @@
 let scheme = {
-  # Token mapping mirrors config/nvim/colors/eyes.lua:
-  # recognized_command/Function=blue1, operator/Operator=teal,
-  # string/String=green1, filepath/Directory=blue1, Number=pink.
-  recognized_command: $theme.flamingo
+  # Command-line tokens take the most distinct hues of the palette (blue0,
+  # green0, orange1, red), since its fg colors share a dark lightness.
+  recognized_command: $theme.blue
   unrecognized_command: $theme.text
   constant: $theme.peach
   punctuation: $theme.overlay2
   operator: $theme.teal
-  string: $theme.rosewater
+  string: $theme.green
   virtual_text: $theme.surface2
-  variable: $theme.text
-  filepath: $theme.flamingo
+  variable: $theme.red
+  filepath: { fg: $theme.text attr: u }
 }
 
 $env.config.color_config = {
@@ -22,11 +21,11 @@ $env.config.color_config = {
   list: $theme.text
   hints: $scheme.virtual_text
   search_result: { fg: $theme.base bg: $theme.yellow }
-  shape_closure: $theme.flamingo
-  closure: $theme.flamingo
+  shape_closure: $scheme.punctuation
+  closure: $scheme.punctuation
   shape_flag: { fg: $theme.maroon attr: i }
   shape_matching_brackets: { attr: u }
-  shape_garbage: $theme.red
+  shape_garbage: { fg: $theme.red attr: u }
   shape_keyword: $theme.mauve
   shape_match_pattern: $theme.peach
   shape_signature: $theme.flamingo
@@ -91,8 +90,8 @@ $env.config.color_config = {
   shape_external: $scheme.unrecognized_command
   shape_internalcall: $scheme.recognized_command
   shape_external_resolved: $scheme.recognized_command
-  shape_block: $scheme.recognized_command
-  block: $scheme.recognized_command
+  shape_block: $scheme.punctuation
+  block: $scheme.punctuation
   shape_custom: $theme.pink
   custom: $theme.pink
   background: $theme.base
@@ -122,9 +121,9 @@ $env.config.color_config = {
   shape_literal: $scheme.constant
   string: $scheme.string
   shape_string: $scheme.string
-  shape_string_interpolation: $theme.flamingo
+  shape_string_interpolation: $scheme.string
   shape_raw_string: $scheme.string
-  shape_externalarg: $scheme.string
+  shape_externalarg: $theme.text
 }
 $env.config.highlight_resolved_externals = true
 $env.config.explore = {

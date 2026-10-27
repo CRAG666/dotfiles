@@ -15,6 +15,7 @@ return {
     Lua = {
       hint = { enable = true },
       format = { enable = false }, -- use stylua for formatting
+      workspace = { checkThirdParty = 'Disable' },
     },
   },
 }

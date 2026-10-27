@@ -16,4 +16,8 @@ return {
     { 'venv', 'env', '.venv', '.env' },
     { '.python-version' },
   },
+  -- ty hovers with types, ruff only with rule docs
+  on_init = function(client)
+    client.server_capabilities.hoverProvider = false
+  end,
 }

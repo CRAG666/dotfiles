@@ -1,5 +1,10 @@
 local M = {}
 
+---`FileType` event spec that skips plugin filetypes with underscores (e.g.
+---`snacks_dashboard`), so they don't load modules before the first redraw
+---@type load.event.structured_spec
+M.ft_event = { event = 'FileType', pattern = '[^_]\\+' }
+
 ---@type table<string, boolean> plugins/modules loaded
 local loaded = {}
 

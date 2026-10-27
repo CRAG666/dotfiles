@@ -33,6 +33,9 @@ vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.completeopt = 'menuone'
 vim.opt.tabclose = 'uselast'
+vim.opt.winborder = 'rounded'
+-- `CursorHold` delay, which refreshes diagnostic `virtual_lines.current_line`
+vim.opt.updatetime = 300
 
 -- Defer shada reading
 do
@@ -353,7 +356,7 @@ local function load_runtime()
 end
 
 require('utils.load').on_events(
-  { 'FileType', 'BufReadPre', 'BufWritePost' },
+  { require('utils.load').ft_event, 'BufReadPre', 'BufWritePost' },
   'load_runtime',
   load_runtime
 )

@@ -125,7 +125,7 @@ system-config:
     sudo cp "{{ src }}/etc/sysctl.d/99-sysctl.conf" /etc/sysctl.d/
     {{ systemd_enable }} keyd
     echo "==> Configuring bob (neovim version manager)..."
-    command -v bob >/dev/null 2>&1 && bob use nightly || echo "bob not installed, skipping..."
+    command -v bob >/dev/null 2>&1 && CFLAGS="-march=native" bob use nightly || echo "bob not installed, skipping..."
 
 # Install Arch Linux packages and apply base system configuration
 [group('base')]

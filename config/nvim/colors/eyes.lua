@@ -279,7 +279,7 @@ local hlgroups = {
   SpecialKey = { fg = c_gray2 },
   Statement = { fg = c_violet },
   String = { fg = c_green1 },
-  Todo = { fg = c_bg0, bg = c_blue0, bold = true },
+  Todo = { fg = c_blue0, bg = c_winterBlue, bold = true },
   Type = { fg = c_aqua },
   -- }}}2
   -- Treesitter syntax {{{2

@@ -18,7 +18,6 @@ dotnet = "10.0"
 herdr = "latest"
 hunk = "latest"
 node = "latest"
-"npm:@fission-ai/openspec" = "latest"
 "npm:oh-my-logo" = "latest"
 opencode = "latest"
 pi = "latest"
@@ -55,11 +54,9 @@ typstyle = "latest"
 "npm:@fsouza/prettierd" = "latest"
 "npm:@olrtg/emmet-language-server" = "latest"
 "npm:bash-language-server" = "latest"
-"npm:typescript-language-server" = "latest"
-# TypeScript 7 (native) drops the tsserver API that typescript-language-server drives
-"npm:typescript" = "5"
-"pipx:basedpyright" = "latest"
-"pipx:pyrefly" = "latest"
+# TypeScript 7 (native) serves the language server itself with `tsc --lsp`
+"npm:typescript" = "latest"
+ty = "latest"
 
 [settings]
 minimum_release_age = "0"

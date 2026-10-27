@@ -42,7 +42,7 @@ utils.load.on_events(
   end)
 )
 utils.load.on_events(
-  { 'CmdUndefined', 'SessionLoadPost', 'FileType' },
+  { 'CmdUndefined', 'SessionLoadPost', utils.load.ft_event },
   'pack.load_opt',
   function()
     utils.pack.add(collect_specs(specs_opt_path))

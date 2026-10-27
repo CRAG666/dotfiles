@@ -6,10 +6,19 @@ import "js/search.js" as Search
 // Bookmarks and notes, the git-crypt'd sqlite databases in
 // ~/.local/share/spotlight, read and written through the helper. Bookmarks
 // open on Enter, notes are copied; Ctrl+E edits (notes open in nvim), Ctrl+R
-// renames a note, Ctrl+X deletes. Forms run inside Spotlight's search field.
+// renames a note, Ctrl+X deletes. The Frequent tab lists the bookmarks picked
+// most, the Categories tab their categories, and Enter opens all of a
+// category's bookmarks. Forms run inside
+// Spotlight's search field.
 Scope {
     id: root
     property var host
+    readonly property var filters: ["all", "frequent", "categories"]
+    property string filter: "all"
+
+    function cycleFilter() {
+        filter = filters[(filters.indexOf(filter) + 1) % filters.length];
+    }
 
     function load() {
         bookmarks.load();
@@ -21,8 +30,17 @@ Scope {
     }
 
     // made once a load, not for every match at every keystroke
-    readonly property var bookmarkList: bookmarks.items.map(entry => ({ key: "bookmark:" + entry.id, kind: "bookmark", store: root, entry, title: entry.title, hint: entry.category, icon: "web-browser" }))
+    readonly property var bookmarkList: bookmarks.items.map(entry => ({ key: "bookmark:" + entry.id, kind: "bookmark", store: root, entry, title: entry.title, hint: entry.category + " · " + entry.body.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""), icon: "web-browser" }))
     readonly property var noteList: notes.items.map(entry => ({ key: "note:" + entry.id, kind: "note", store: root, entry, title: entry.title, hint: entry.category, icon: "accessories-text-editor" }))
+
+    readonly property var categoryList: categories(bookmarks).map(category => {
+        const urls = bookmarks.items.filter(entry => entry.category === category).map(entry => entry.body);
+        return { key: "bookmarkCategory:" + category, kind: "bookmarkCategory", store: root, urls, title: category, hint: urls.length + (urls.length === 1 ? " bookmark" : " bookmarks"), icon: "folder" };
+    })
+
+    function categoryItems(tokens) {
+        return categoryList.filter(item => Spot.matches(item.title, tokens));
+    }
 
     function bookmarkItems(tokens) {
         return matching(bookmarkList, tokens);
@@ -69,6 +87,8 @@ Scope {
     function describe(item) {
         if (item.kind === "bookmark")
             return { icon: item.icon, title: item.title, subtitle: item.entry.body, metadata: [["Category", item.entry.category]], actions: [["Enter", "Open"], ["Ctrl+C", "Copy URL"], ["Ctrl+E", "Edit"], ["Ctrl+X", "Delete"]] };
+        if (item.kind === "bookmarkCategory")
+            return { icon: item.icon, title: item.title, subtitle: item.hint, actions: [["Enter", "Open all"], ["Ctrl+C", "Copy URLs"]] };
         if (item.kind === "note")
             return { document: true, title: item.title, body: item.entry.body, markdown: true, metadata: [["Category", item.entry.category], ["Words", item.entry.words]], actions: [["Enter", "Copy"], ["Ctrl+E", "Edit text"], ["Ctrl+R", "Rename"], ["Ctrl+X", "Delete"]] };
         return { icon: item.icon, title: item.title, subtitle: item.action.includes("note") ? "Notes" : "Bookmarks", actions: [["Enter", "Run"]] };
@@ -124,6 +144,9 @@ Scope {
         case "bookmark":
             Spot.open(item.entry.body);
             return true;
+        case "bookmarkCategory":
+            item.urls.forEach(url => Spot.open(url));
+            return true;
         case "note":
             Spot.copy(item.entry.body);
             return true;
@@ -146,7 +169,7 @@ Scope {
     }
 
     function copy(item) {
-        Spot.copy(item.entry ? item.entry.body : item.title);
+        Spot.copy(item.entry ? item.entry.body : item.urls ? item.urls.join("\n") : item.title);
     }
 
     function act(item, action) {

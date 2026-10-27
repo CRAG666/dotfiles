@@ -57,7 +57,7 @@ Scope {
             { mode: "passwords", tone: "red", preview: false, chip: "\uf084", title: "Search Passwords", icon: "dialog-password", open: () => passwords.load(), sections: tokens => [["Passwords", ranked(passwords.items(tokens), tokens)]] },
             { mode: "snippets", tone: "violet", chip: "\uf121", title: "Search Snippets", icon: "insert-text", sections: tokens => [["Snippets", ranked(snippets.snippetItems(tokens), tokens)]] },
             { mode: "commands", tone: "orange0", preview: false, chip: "\uf0e7", title: "Commands", placeholder: "Search Commands", icon: "system-run", open: () => { herdr.load(); system.load(); scripts.load(); windows.load(); files.loadFrequent(); }, sections: tokens => [["Commands", ranked(commandItems(tokens), tokens)]] },
-            { mode: "bookmarks", tone: "blue0", preview: false, title: "Search Bookmarks", icon: "user-bookmarks", open: () => library.load(), sections: tokens => [["Bookmarks", ranked(library.bookmarkItems(tokens), tokens)], ["Commands", library.commandItems(["bookmark"])]] },
+            { mode: "bookmarks", tone: "blue0", preview: false, title: "Search Bookmarks", icon: "user-bookmarks", open: () => library.load(), sections: tokens => [bookmarkSection(tokens), ["Commands", library.commandItems(["bookmark"])]] },
             { mode: "notes", tone: "green1", title: "Search Notes", icon: "accessories-text-editor", open: () => library.load(), sections: tokens => [["Notes", ranked(library.noteItems(tokens), tokens)], ["Commands", library.commandItems(["note"])]] },
             { mode: "quicklinks", tone: "blue0", preview: false, title: "Quicklinks", placeholder: "Search Quicklinks", icon: "web-browser", sections: (tokens, raw) => [["Quicklinks", ranked(web.quicklinkItems(tokens, raw), tokens)]] },
             { mode: "processes", tone: "orange1", preview: false, title: "Kill Process", placeholder: "Search Processes", icon: "utilities-system-monitor", open: () => processes.refresh(), sections: tokens => [["Processes", processes.items(tokens)]] },
@@ -87,7 +87,7 @@ Scope {
             clip: "pink", color: "pink", calc: "pink", window: "teal", ssh: "teal", notification: "teal",
             emoji: "yellow", timer: "yellow", pomodoro: "yellow", password: "red", process: "orange1", mark: "orange1",
             snippet: "violet", run: "violet", command: "orange0", script: "orange0",
-            bookmark: "blue0", quicklink: "blue0", url: "blue0", web: "blue0", visit: "blue0", tab: "blue0",
+            bookmark: "blue0", bookmarkCategory: "blue0", quicklink: "blue0", url: "blue0", web: "blue0", visit: "blue0", tab: "blue0",
             note: "green1", paper: "green1", ai: "green1", brightness: "green2", sink: "green2", media: "green2", radio: "green2"
         })
         readonly property color viewTone: currentView ? Theme.eyes[currentView.tone] : Theme.accent
@@ -102,7 +102,7 @@ Scope {
             app: "Application", mode: "View", file: "File", repo: "Repository", wallpaper: "Wallpaper", help: "Help",
             clip: "Clipboard", pin: "Clipboard", color: "Color", window: "Window", ssh: "SSH Host", notification: "Notification",
             emoji: "Emoji", timer: "Timer", pomodoro: "Timer", password: "Password", process: "Process", mark: "Mark",
-            snippet: "Snippet", run: "Shell", bookmark: "Bookmark", quicklink: "Quicklink", url: "Website", web: "Web Search",
+            snippet: "Snippet", run: "Shell", bookmark: "Bookmark", bookmarkCategory: "Category", quicklink: "Quicklink", url: "Website", web: "Web Search",
             visit: "History", tab: "Tab", note: "Note", paper: "Paper", ai: "AI", aiCommand: "AI Command",
             herdrAgent: "Agent", herdrWorkspace: "Workspace", herdrTab: "Herdr Tab", herdrPane: "Pane", agendaEvent: "Event", task: "Task",
             wifi: "Network", bluetoothDevice: "Device", selection: "Action"
@@ -145,6 +145,7 @@ Scope {
         // from them, so neither sees the other's results for a moment when the view
         // changes (bindings run in no set order: the list once took the 1404 emoji)
         readonly property bool gridView: results.grid === true
+        readonly property var filterStore: mode === "clipboard" ? clipboard : mode === "bookmarks" ? library : null
         readonly property bool previewing: currentView && currentView.preview !== "answers" ? currentView.preview !== false : ["ai", "aiCommand", "paper", "paperPending"].includes(selection?.kind)
 
         readonly property string clipboardText: clipboardOut.text
@@ -540,6 +541,17 @@ Scope {
             return Object.keys(frecency.picks).filter(key => key.startsWith("emoji:")).map(key => [key, frecency.weight(key)]).sort((a, b) => b[1] - a[1]).slice(0, 16).map(([key]) => key.slice(6));
         }
 
+        // the bookmarks view's tab: all, the picked ones most picked first, or the categories
+        function bookmarkSection(tokens) {
+            switch (library.filter) {
+            case "frequent":
+                return ["Frequent", library.bookmarkItems(tokens).map(item => [item, frecency.weight(item.key)]).filter(([, weight]) => weight > 0).sort((a, b) => b[1] - a[1]).map(([item]) => item)];
+            case "categories":
+                return ["Categories", ranked(library.categoryItems(tokens), tokens)];
+            }
+            return ["Bookmarks", ranked(library.bookmarkItems(tokens), tokens)];
+        }
+
         // best first: how well the title matches plus how often the item was picked
         // (apps: launched); `lead` items stay ahead. An empty query keeps the store's
         // order. The items are not copied with their scores, which change at every
@@ -764,7 +776,7 @@ Scope {
             host: win
             preview: previewPane
             grid: resultGrid
-            clipboardStore: clipboard
+            filterStore: win.filterStore
         }
         Frecency {
             id: frecency
@@ -1136,7 +1148,7 @@ Scope {
                     height: parent.height - Spot.px(16) - actionBar.height
                     visible: !win.gridView
                     host: win
-                    clipboardStore: clipboard
+                    filterStore: win.filterStore
                 }
 
                 ResultGrid {

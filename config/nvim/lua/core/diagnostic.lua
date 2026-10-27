@@ -18,6 +18,7 @@ vim.diagnostic.config({
   float = {
     source = true,
   },
+  virtual_lines = { current_line = true },
   signs = {
     text = {
       [vim.diagnostic.severity.ERROR] = icons.DiagnosticSignError,
@@ -189,8 +190,9 @@ vim.keymap.set('n', 'yd', function()
 end, { desc = 'Yank diagnostic message on current line' })
 
 -- stylua: ignore start
-vim.keymap.set({ 'n', 'x' }, '[d', function() vim.diagnostic.jump({ count = -vim.v.count1 }) end, { desc = 'Go to previous diagnostic' })
-vim.keymap.set({ 'n', 'x' }, ']d', function() vim.diagnostic.jump({ count =  vim.v.count1 }) end, { desc = 'Go to next diagnostic' })
+-- nvim's default `[d`/`]d` only cover normal mode
+vim.keymap.set('x', '[d', function() vim.diagnostic.jump({ count = -vim.v.count1 }) end, { desc = 'Go to previous diagnostic' })
+vim.keymap.set('x', ']d', function() vim.diagnostic.jump({ count =  vim.v.count1 }) end, { desc = 'Go to next diagnostic' })
 vim.keymap.set({ 'n', 'x' }, '[e', function() vim.diagnostic.jump({ count = -vim.v.count1, severity = vim.diagnostic.severity.ERROR }) end, { desc = 'Go to previous diagnostic error' })
 vim.keymap.set({ 'n', 'x' }, ']e', function() vim.diagnostic.jump({ count =  vim.v.count1, severity = vim.diagnostic.severity.ERROR }) end, { desc = 'Go to next diagnostic error' })
 vim.keymap.set({ 'n', 'x' }, '[w', function() vim.diagnostic.jump({ count = -vim.v.count1, severity = vim.diagnostic.severity.WARN }) end, { desc = 'Go to previous diagnostic warning' })

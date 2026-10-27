@@ -955,6 +955,8 @@ picks the one light mode uses. Restart Quickshell after switching.
 
 
 def main() -> int:
+    variants = Variants.load(VARIANTS)
+    names = ", ".join(f"{name}*" if name == variants.light else name for name in variants.palettes)
     parser = argparse.ArgumentParser(
         prog="eyes-theme",
         description="Switch the eyes theme between light and dark, and pick its light palette.",
@@ -962,7 +964,7 @@ def main() -> int:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("command", nargs="?", default="status", choices=COMMANDS, metavar="COMMAND")
-    parser.add_argument("name", nargs="?", metavar="NAME", help="light palette for variant")
+    parser.add_argument("name", nargs="?", metavar="NAME", help=f"light palette for variant: {names} (* = in use)")
     parser.add_argument("--dry-run", action="store_true", help="show what would change without changing it")
     parser.add_argument("--force", action="store_true", help="re-apply even if the mode is already set")
     args = parser.parse_args()
@@ -970,7 +972,6 @@ def main() -> int:
     logging.basicConfig(format="eyes-theme: %(levelname)s: %(message)s")
     store = ModeStore(STATE_DIR)
     switcher = Switcher(Manifest.load(MANIFEST), store, dry_run=args.dry_run, force=args.force)
-    variants = Variants.load(VARIANTS)
     if args.command in {"light", "dark", "toggle", "auto", "reapply"}:
         switcher.ensure_variant(variants)
     match args.command:

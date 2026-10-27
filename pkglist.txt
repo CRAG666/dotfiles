@@ -91,6 +91,7 @@ python
 libnotify
 rust
 clang
+bear
 
 # Text edition
 tree-sitter

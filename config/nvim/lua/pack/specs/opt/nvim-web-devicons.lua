@@ -2,7 +2,9 @@
 return {
   src = 'https://github.com/kyazdani42/nvim-web-devicons',
   data = {
-    lazy = true,
+    -- Defining ~1500 icon highlights takes ~7ms, keep it off the first redraw
+    events = 'BufEnter',
+    defer = true,
     optional = not vim.g.has_nf,
     postload = function()
       local icons = require('utils.static.icons')

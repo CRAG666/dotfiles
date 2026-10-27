@@ -5,12 +5,12 @@ import qs
 
 // The results under their section headers, each row with its icon, thumbnail,
 // glyph or swatch, the query's words in bold and a hint (or a confirmation) on
-// the right; the clipboard's type filter sits above them. The list fades out at
+// the right; the view's filter tabs sit above them. The list fades out at
 // the bottom while more rows follow
 Item {
     id: root
     property var host
-    property var clipboardStore
+    property var filterStore   // the view's store with filter tabs, or null
 
     // scrolls row `index` into view, clear of the fade at the bottom, but not
     // while the panel is still opening and the list too short to hold a row
@@ -26,9 +26,9 @@ Item {
     }
 
     Row {
-        id: clipboardFilters
+        id: filterTabs
         // not `visible`, which is false while Spotlight is hidden
-        readonly property bool filtering: host.mode === "clipboard" && !host.form
+        readonly property bool filtering: !!filterStore && !host.form
         visible: filtering
         height: filtering ? Spot.px(38) : 0
         spacing: Spot.px(6)
@@ -36,12 +36,12 @@ Item {
         topPadding: Spot.px(4)
 
         Repeater {
-            model: clipboardStore.filters
+            model: filterStore?.filters ?? []
 
             Rectangle {
                 id: pill
                 required property string modelData
-                readonly property bool active: clipboardStore.filter === modelData
+                readonly property bool active: filterStore?.filter === modelData
                 width: pillText.implicitWidth + Spot.px(22)
                 height: Spot.px(26)
                 radius: height / 2
@@ -58,7 +58,7 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: clipboardStore.filter = pill.modelData
+                    onClicked: filterStore.filter = pill.modelData
                 }
             }
         }
@@ -74,9 +74,9 @@ Item {
     ListView {
         id: list
         readonly property int fade: Spot.px(40)
-        y: clipboardFilters.height
+        y: filterTabs.height
         width: parent.width
-        height: parent.height - clipboardFilters.height
+        height: parent.height - filterTabs.height
         clip: true
         boundsBehavior: Flickable.StopAtBounds
         // the rows in sight and one more are made: the 320 px Qt makes ahead are

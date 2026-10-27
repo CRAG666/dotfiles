@@ -165,10 +165,11 @@ M.opts = {
         and (
           ft == 'markdown'
           or utils.ts.is_active(buf)
-          or not vim.tbl_isempty(vim.lsp.get_clients({
-            bufnr = buf,
-            method = 'textDocument/documentSymbol',
-          }))
+          or package.loaded['vim.lsp']
+            and not vim.tbl_isempty(vim.lsp.get_clients({
+              bufnr = buf,
+              method = 'textDocument/documentSymbol',
+            }))
         )
     end,
     ---@alias winbar.event winbar.structured_event|vim.api.keyset.events
@@ -308,6 +309,7 @@ M.opts = {
     ---@see vim.api.nvim_open_win
     win_configs = {
       style = 'minimal',
+      border = 'none',
       relative = 'win',
       win = function(menu)
         return menu.prev_menu and menu.prev_menu.win

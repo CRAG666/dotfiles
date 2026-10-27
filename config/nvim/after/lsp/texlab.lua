@@ -12,7 +12,6 @@ return {
   },
   settings = {
     texlab = {
-      rootDirectory = nil,
       build = {
         executable = 'tectonic',
         args = {
@@ -28,20 +27,13 @@ return {
         forwardSearchAfter = false,
       },
       auxDirectory = '.',
-      forwardSearch = {
-        executable = nil,
-        args = {},
-      },
       chktex = {
         onOpenAndSave = false,
         onEdit = false,
       },
       diagnosticsDelay = 300,
       latexFormatter = 'texlab',
-      latexindent = {
-        ['local'] = nil,
-        modifyLineBreaks = false,
-      },
+      latexindent = { modifyLineBreaks = false },
       bibtexFormatter = 'texlab',
     },
   },
