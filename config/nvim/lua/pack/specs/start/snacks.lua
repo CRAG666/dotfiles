@@ -50,7 +50,11 @@ return {
         statuscolumn = { enabled = false },
         dim = { enabled = false },
         indent = { enabled = true },
-        scope = { enabled = true },
+        scope = {
+          enabled = true,
+          -- Injections make every scope update parse the whole document
+          treesitter = { injections = false },
+        },
         layout = { enabled = true },
         picker = {
           enabled = true,

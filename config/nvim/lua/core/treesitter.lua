@@ -40,6 +40,18 @@ vim.api.nvim_create_autocmd({ 'BufEnter', 'FileType' }, {
   end,
 })
 
+-- Parse injections of the whole buffer while idle instead of on every
+-- keystroke (snacks scope) or line by line while scrolling (highlighter)
+vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
+  group = vim.api.nvim_create_augroup('ts.idle_parse', {}),
+  desc = 'Parse treesitter injections of the whole buffer while idle.',
+  callback = function(args)
+    if ts.is_active(args.buf) then
+      vim.treesitter.get_parser(args.buf):parse(true, function() end)
+    end
+  end,
+})
+
 local ts_foldexpr_vimscript = 'v:lua.vim.treesitter.foldexpr()'
 
 -- A Lua function skips the per-line Vimscript `v:lua` bridge, ~4x faster fold

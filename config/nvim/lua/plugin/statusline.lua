@@ -316,15 +316,15 @@ end
 
 ---Add a buffer to `fnames`, calc diff for buffer with non-unique file names
 ---@param buf integer buffer number
----@return nil
+---@return boolean added whether `buf` was not tracked before
 local function add_buf(buf)
   if not buf_visible(buf) then
-    return
+    return false
   end
 
   local fname = vim.fs.basename(vim.api.nvim_buf_get_name(buf))
   if fname == '' then
-    return
+    return false
   end
 
   if not fnames[fname] then
@@ -332,10 +332,12 @@ local function add_buf(buf)
   end
 
   local bufs = fnames[fname] -- buffers with the same name as the removed buf
-  if not vim.tbl_contains(bufs, buf) then
-    table.insert(bufs, buf)
-    update_pdiffs(bufs)
+  if vim.tbl_contains(bufs, buf) then
+    return false
   end
+  table.insert(bufs, buf)
+  update_pdiffs(bufs)
+  return true
 end
 
 ---Remove a buffer from `fnames` and update path diffs
@@ -388,11 +390,14 @@ vim.api.nvim_create_autocmd({ 'BufAdd', 'BufWinEnter', 'BufFilePost' }, {
   -- Delay adding buffer to fnames to ensure attributes, e.g.
   -- `bt`, are set for special buffers, for example, terminal buffers
   callback = vim.schedule_wrap(function(args)
-    add_buf(args.buf)
-    pcall(vim.cmd.redrawstatus, {
-      bang = true,
-      mods = { emsg_silent = true },
-    })
+    -- `:redrawstatus!` forces a full redraw, skip it for windows that don't
+    -- change path diffs, e.g. completion menus
+    if add_buf(args.buf) then
+      pcall(vim.cmd.redrawstatus, {
+        bang = true,
+        mods = { emsg_silent = true },
+      })
+    end
   end),
 })
 

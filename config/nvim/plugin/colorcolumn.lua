@@ -37,6 +37,9 @@ local opts = {
   end,
   blending = {
     threshold = 0.5,
+    -- Each step stays under 1 ΔE2000 for the eyes palettes, more steps only
+    -- add full redraws
+    steps = 8,
     colorcode = '#000000',
     hlgroup = { 'Normal', 'bg' },
   },
@@ -72,7 +75,10 @@ local function get_hl_hex(hlgroup_name, field, fallback)
   return attr_val and hl.dec2hex(attr_val, 6) or fallback
 end
 
----Update base colors: bg color of Normal & ColorColumn, and fg of Error
+---Update base colors: bg color of Normal & ColorColumn, and fg of Error, and
+---define a highlight group per blending step, so that updates only switch the
+---window's 'winhl' instead of changing a global highlight group, which
+---redraws every window
 ---@return nil
 local function update_hl_hex()
   C_NORMAL = get_hl_hex(
@@ -86,6 +92,16 @@ local function update_hl_hex()
     opts.warning.colorcode
   )
   C_CC = get_hl_hex('ColorColumn', 'bg')
+
+  local steps = opts.blending.steps
+  for step = 0, steps do
+    vim.api.nvim_set_hl(0, '_ColorColumn' .. step, {
+      bg = hl.cblend(C_CC, C_NORMAL, step / steps).dec,
+    })
+  end
+  vim.api.nvim_set_hl(0, '_ColorColumnWarning', {
+    bg = hl.cblend(C_ERROR, C_NORMAL, opts.warning.alpha).dec,
+  })
 end
 
 ---Set the window's ColorColumn highlight mapping in 'winhl' if it changed,
@@ -112,8 +128,9 @@ end
 
 ---Show colorcolumn
 ---@param winid integer? window handler
-local function cc_show(winid)
-  cc_set_winhl(winid, '_ColorColumn')
+---@param hlgroup string
+local function cc_show(winid, hlgroup)
+  cc_set_winhl(winid, hlgroup)
 end
 
 ---@param opt_name string name of the mode option
@@ -136,7 +153,6 @@ end
 local check_mode = check_mode_fn('modes')
 local check_warning_mode = check_mode_fn('warning_modes')
 
-local cc_bg = nil
 local cc_link = nil
 
 ---Update colorcolumn highlight or conceal it
@@ -174,25 +190,21 @@ local function cc_update(winid)
     if not C_CC or not C_NORMAL or not C_ERROR then
       update_hl_hex()
     end
-    local new_cc_color = show_warning
-        and hl.cblend(C_ERROR, C_NORMAL, opts.warning.alpha).dec
-      or hl.cblend(
-        C_CC,
-        C_NORMAL,
-        math.min(1, (length - thresh) / (cc - thresh))
-      ).dec
-    if new_cc_color ~= cc_bg then
-      cc_bg = new_cc_color
-      vim.api.nvim_set_hl(0, '_ColorColumn', { bg = cc_bg })
-    end
+    local steps = opts.blending.steps
+    local step =
+      math.floor(math.min(1, (length - thresh) / (cc - thresh)) * steps)
+    cc_show(
+      winid,
+      show_warning and '_ColorColumnWarning' or '_ColorColumn' .. step
+    )
   else
     local link = show_warning and opts.warning.hlgroup[1] or 'ColorColumn'
     if cc_link ~= link then
       cc_link = link
       vim.api.nvim_set_hl(0, '_ColorColumn', { link = cc_link })
     end
+    cc_show(winid, '_ColorColumn')
   end
-  cc_show(winid)
 end
 
 ---Setup colorcolumn
