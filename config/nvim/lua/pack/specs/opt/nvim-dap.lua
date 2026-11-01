@@ -34,11 +34,19 @@ return {
       local icons = require('utils.static.icons')
 
       local function set_cond_breakpoint()
-        dap.set_breakpoint(nil, vim.fn.input('Breakpoint condition: '))
+        vim.ui.input({ prompt = 'Breakpoint condition: ' }, function(cond)
+          if cond then
+            dap.set_breakpoint(nil, cond)
+          end
+        end)
       end
 
       local function set_logpoint()
-        dap.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))
+        vim.ui.input({ prompt = 'Log point message: ' }, function(msg)
+          if msg then
+            dap.set_breakpoint(nil, nil, msg)
+          end
+        end)
       end
 
       local last_dap_fn = function() end

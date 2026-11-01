@@ -41,13 +41,13 @@ return {
         callback = function(args)
           -- Make surrounding delimiters large
           vim.keymap.set('n', 'css', vim.fn['vimtex#delim#add_modifiers'], {
-            buffer = args.buf,
+            buf = args.buf,
             desc = 'Surround with large delimiters',
           })
           -- Remove default `]]` mapping in insert mode as it causes lagging
           -- when typing `]`
           pcall(vim.keymap.del, 'i', ']]', {
-            buffer = args.buf,
+            buf = args.buf,
           })
         end,
       })

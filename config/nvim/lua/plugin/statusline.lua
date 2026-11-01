@@ -695,6 +695,14 @@ vim.api.nvim_create_autocmd('LspProgress', {
   end,
 })
 
+vim.api.nvim_create_autocmd('Progress', {
+  desc = 'Redraw the status line on progress messages.',
+  group = groupid,
+  callback = vim.schedule_wrap(function()
+    pcall(vim.cmd.redrawstatus, { mods = { emsg_silent = true } })
+  end),
+})
+
 ---@return string
 function _G._statusline.spinner()
   local spinner = utils.stl.spinner.get_by_id(vim.b.spinner_id)
@@ -740,6 +748,7 @@ local components = {
   fname    = [[%{%v:lua._statusline.fname()%} ]],
   args     = [[%{%v:lua._statusline.info()%}]],
   spinner  = [[%{%v:lua._statusline.spinner()%}]],
+  progress = [[%(%{v:lua.vim.ui.progress_status()} %)]],
   mode     = [[%{%v:lua._statusline.mode()%}]],
   padding  = [[ ]],
   pos      = [[%{%&ru?(((!&nu&&!&rnu)?"%l:%c ":"")."%P "):""%}]],
@@ -755,6 +764,7 @@ local stl = table.concat({
   components.align,
   components.truncate,
   components.spinner,
+  components.progress,
   components.diag,
   components.pos,
 })

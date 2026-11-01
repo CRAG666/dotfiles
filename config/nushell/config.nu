@@ -153,7 +153,7 @@ def dirsum [directory?: string] {
     | get 0
 }
 
-def du1 [] { du -d 1 | sort-by apparent }
+def du1 [] { du ...(glob --no-file --no-symlink --depth 1 '*') | sort-by physical -r }
 def paci [] { ^bash -c "pacman -Slq | fzf --multi --preview 'pacman -Si {1}' | xargs -ro sudo pacman -S" }
 def pacr [] { ^bash -c "pacman -Qq | fzf --multi --preview 'pacman -Qi {1}' | xargs -ro sudo pacman -Rns" }
 def ys [] {

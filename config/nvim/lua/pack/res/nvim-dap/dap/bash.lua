@@ -2,20 +2,24 @@ local M = {}
 
 local utils = require('utils')
 
----@type my.dap.cache
+---@type dap.cache
 local cache = utils.dap.new_cache()
 
-M.adapter = {
-  name = 'bashdb',
-  type = 'executable',
-  command = 'node',
-  args = {
-    vim.fs.joinpath(
-      vim.fn.stdpath('data') --[[@as string]],
-      'vscode-bash-debug/extension/out/bashDebug.js'
-    ),
-  },
-}
+local function bash_debug_path(...)
+  return vim.fs.joinpath(
+    utils.dap.mise_where('github:rogalmic/vscode-bash-debug'),
+    'extension',
+    ...
+  )
+end
+
+M.adapter = function(cb)
+  cb({
+    type = 'executable',
+    command = 'node',
+    args = { bash_debug_path('out', 'bashDebug.js') },
+  })
+end
 
 M.config = {
   {
@@ -23,20 +27,18 @@ M.config = {
     request = 'launch',
     name = 'Launch file',
     showDebugOutput = true,
-    pathBashdb = vim.fs.joinpath(
-      vim.fn.stdpath('data') --[[@as string]],
-      'vscode-bash-debug/extension/bashdb_dir/bashdb'
-    ),
-    pathBashdbLib = vim.fs.joinpath(
-      vim.fn.stdpath('data') --[[@as string]],
-      '/vscode-bash-debug/extension/bashdb_dir/'
-    ),
+    pathBashdb = function()
+      return bash_debug_path('bashdb_dir', 'bashdb')
+    end,
+    pathBashdbLib = function()
+      return bash_debug_path('bashdb_dir')
+    end,
     trace = true,
     file = '${file}',
     program = '${file}',
     cwd = '${workspaceFolder}',
     pathCat = 'cat',
-    pathBash = '/bin/bash',
+    pathBash = vim.fn.exepath('bash'),
     pathMkfifo = 'mkfifo',
     pathPkill = 'pkill',
     env = {},

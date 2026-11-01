@@ -49,7 +49,7 @@ return {
             {
               mode = 'x',
               lhs = '<CR>',
-              opts = { buffer = args.buf, desc = 'Run selected code' },
+              opts = { buf = args.buf, desc = 'Run selected code' },
             },
             'molten',
             function()
@@ -60,10 +60,10 @@ return {
             utils.load.on_keys(
               {
                 -- stylua: ignore start
-                { lhs = '<CR>', opts = { buffer = args.buf, desc = 'Run current cell' } },
-                { lhs = '<LocalLeader>k', opts = { buffer = args.buf, desc = 'Run current cell and all above' } },
-                { lhs = '<LocalLeader>j', opts = { buffer = args.buf, desc = 'Run current cell and all below' } },
-                { lhs = '<LocalLeader><CR>', opts = { buffer = args.buf, desc = 'Run current cell by operator' } },
+                { lhs = '<CR>', opts = { buf = args.buf, desc = 'Run current cell' } },
+                { lhs = '<LocalLeader>k', opts = { buf = args.buf, desc = 'Run current cell and all above' } },
+                { lhs = '<LocalLeader>j', opts = { buf = args.buf, desc = 'Run current cell and all below' } },
+                { lhs = '<LocalLeader><CR>', opts = { buf = args.buf, desc = 'Run current cell by operator' } },
                 -- stylua: ignore end
               },
               'molten',
@@ -422,7 +422,7 @@ return {
         end
 
         vim.keymap.set('n', '<C-c>', vim.cmd.MoltenInterrupt, {
-          buffer = buf,
+          buf = buf,
           desc = 'Interrupt kernel',
         })
 
@@ -437,7 +437,7 @@ return {
             vim.fn['matchup#loader#bufwinenter']()
           end
 
-          local opts = { buffer = true, desc = 'Exit cell output' }
+          local opts = { buf = 0, desc = 'Exit cell output' }
           vim.keymap.set('n', '<C-k>', '<C-w>c', opts)
           vim.keymap.set('n', '<C-Up>', '<C-w>c', opts)
 
@@ -462,7 +462,7 @@ return {
           })
         end
 
-        local opts = { buffer = buf, desc = 'Enter cell output' }
+        local opts = { buf = buf, desc = 'Enter cell output' }
         vim.keymap.set('n', '<C-j>', enter_cell_output, opts)
         vim.keymap.set('n', '<C-Down>', enter_cell_output, opts)
 
@@ -477,18 +477,18 @@ return {
           vim.api.nvim_buf_create_user_command(buf, 'MoltenNotebookRunCellCurrent', run_cell_current, {})
           vim.api.nvim_buf_create_user_command(buf, 'MoltenNotebookRunVisual', run_visual, { range = true })
           vim.api.nvim_buf_create_user_command(buf, 'MoltenNotebookRunOperator', run_operator, {})
-          vim.keymap.set('n', '<LocalLeader><CR>', run_operator, { buffer = buf, desc = 'Run code selected by operator' })
-          vim.keymap.set('n', '<LocalLeader>k', run_cell_above, { buffer = buf, desc = 'Run current cell and all above' })
-          vim.keymap.set('n', '<LocalLeader>j', run_cell_below, { buffer = buf, desc = 'Run current cell and all below' })
-          vim.keymap.set('n', '<CR>', run_cell_current, { buffer = buf, desc = 'Run current cell' })
-          vim.keymap.set('x', '<CR>', ':<C-u>MoltenNotebookRunVisual<CR>', { buffer = buf, desc = 'Run selected code' })
+          vim.keymap.set('n', '<LocalLeader><CR>', run_operator, { buf = buf, desc = 'Run code selected by operator' })
+          vim.keymap.set('n', '<LocalLeader>k', run_cell_above, { buf = buf, desc = 'Run current cell and all above' })
+          vim.keymap.set('n', '<LocalLeader>j', run_cell_below, { buf = buf, desc = 'Run current cell and all below' })
+          vim.keymap.set('n', '<CR>', run_cell_current, { buf = buf, desc = 'Run current cell' })
+          vim.keymap.set('x', '<CR>', ':<C-u>MoltenNotebookRunVisual<CR>', { buf = buf, desc = 'Run selected code' })
           -- stylua: ignore end
         else -- ft == 'python' or otter.keeper not found
           -- stylua: ignore start
-          vim.keymap.set('n', '<LocalLeader><CR>', vim.cmd.MoltenEvaluateOperator, { buffer = buf, desc = 'Run code selected by operator' })
-          vim.keymap.set('n', '<LocalLeader><CR><CR>', vim.cmd.MoltenReevaluateAll, { buffer = buf, desc = 'Rerun all cells' })
-          vim.keymap.set('n', '<CR>', '<Cmd>MoltenReevaluateCell<CR>', { buffer = buf, desc = 'Rerun current cell' })
-          vim.keymap.set('x', '<CR>', ':<C-u>MoltenEvaluateVisual<CR>', { buffer = buf, desc = 'Run selected code' })
+          vim.keymap.set('n', '<LocalLeader><CR>', vim.cmd.MoltenEvaluateOperator, { buf = buf, desc = 'Run code selected by operator' })
+          vim.keymap.set('n', '<LocalLeader><CR><CR>', vim.cmd.MoltenReevaluateAll, { buf = buf, desc = 'Rerun all cells' })
+          vim.keymap.set('n', '<CR>', '<Cmd>MoltenReevaluateCell<CR>', { buf = buf, desc = 'Rerun current cell' })
+          vim.keymap.set('x', '<CR>', ':<C-u>MoltenEvaluateVisual<CR>', { buf = buf, desc = 'Run selected code' })
           -- stylua: ignore end
         end
       end

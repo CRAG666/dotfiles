@@ -466,10 +466,10 @@ function winbar_menu:make_buf()
   for key, mapping in pairs(configs.opts.menu.keymaps) do
     local mapping_type = type(mapping)
     if mapping_type == 'function' or mapping_type == 'string' then
-      vim.keymap.set('n', key, mapping, { buffer = self.buf })
+      vim.keymap.set('n', key, mapping, { buf = self.buf })
     elseif mapping_type == 'table' then
       for mode, rhs in pairs(mapping) do
-        vim.keymap.set(mode, key, rhs, { buffer = self.buf })
+        vim.keymap.set(mode, key, rhs, { buf = self.buf })
       end
     end
   end

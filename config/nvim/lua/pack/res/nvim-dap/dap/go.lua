@@ -2,7 +2,7 @@ local M = {}
 
 local utils = require('utils')
 
----@type my.dap.cache
+---@type dap.cache
 local cache = utils.dap.new_cache()
 
 M.adapter = function(callback, config)
@@ -64,7 +64,7 @@ M.config = {
       -- to { '-test.v', '-test.failfast', '-test.run', 'TestMain$', './.' }
       -- See https://stackoverflow.com/a/67421231
       return vim
-        .iter(utils.cmd.split(test_cmd))
+        .iter(require('dap.utils').splitstr(test_cmd))
         :map(function(arg)
           return (arg:gsub('^%-(%w+)', '-test.%1'))
         end)

@@ -450,57 +450,66 @@ local subcommands = {
     incoming_calls = {},
     outgoing_calls = {},
     signature_help = {},
-    codelens_clear = {
+    codelens_enable = {
       fn_override = function(args)
-        vim.lsp.codelens.clear(args.client_id, args.bufnr)
+        vim.lsp.codelens.enable(true, args.filter)
       end,
       opts = {
-        ['client_id'] = subcommand_opt_vals.lsp_clients,
-        ['bufnr'] = subcommand_opt_vals.bufs,
+        'filter',
+        ['filter.bufnr'] = subcommand_opt_vals.bufs,
+        ['filter.client_id'] = subcommand_opt_vals.lsp_client_ids,
       },
     },
-    codelens_display = {
+    codelens_disable = {
       fn_override = function(args)
-        vim.lsp.codelens.display(args.lenses, args.bufnr, args.client_id)
+        vim.lsp.codelens.enable(false, args.filter)
       end,
       opts = {
-        ['client_id'] = subcommand_opt_vals.lsp_clients,
-        ['bufnr'] = subcommand_opt_vals.bufs,
-        'lenses',
+        'filter',
+        ['filter.bufnr'] = subcommand_opt_vals.bufs,
+        ['filter.client_id'] = subcommand_opt_vals.lsp_client_ids,
+      },
+    },
+    codelens_toggle = {
+      fn_override = function(args)
+        vim.lsp.codelens.enable(
+          not vim.lsp.codelens.is_enabled(args.filter),
+          args.filter
+        )
+      end,
+      opts = {
+        'filter',
+        ['filter.bufnr'] = subcommand_opt_vals.bufs,
+        ['filter.client_id'] = subcommand_opt_vals.lsp_client_ids,
+      },
+    },
+    codelens_is_enabled = {
+      fn_override = function(args)
+        vim.print(vim.lsp.codelens.is_enabled(args.filter))
+      end,
+      opts = {
+        'filter',
+        ['filter.bufnr'] = subcommand_opt_vals.bufs,
+        ['filter.client_id'] = subcommand_opt_vals.lsp_client_ids,
       },
     },
     codelens_get = {
       fn_override = function(args)
-        vim.lsp.codelens.get(args[1])
-      end,
-      completion = subcommand_completions.bufs,
-    },
-    codelens_on_codelens = {
-      fn_override = function(args)
-        vim.lsp.codelens.on_codelens(args.err, args.result, args.ctx)
-      end,
-      opts = { 'err', 'result', 'ctx' },
-    },
-    codelens_refresh = {
-      fn_override = function(args)
-        vim.lsp.codelens.refresh(args.opts)
+        vim.print(vim.lsp.codelens.get(args.filter))
       end,
       opts = {
-        'opts',
-        ['opts.bufnr'] = subcommand_opt_vals.bufs,
+        'filter',
+        ['filter.bufnr'] = subcommand_opt_vals.bufs,
+        ['filter.client_id'] = subcommand_opt_vals.lsp_client_ids,
       },
     },
     codelens_run = {
-      fn_override = vim.lsp.codelens.run,
-    },
-    codelens_save = {
       fn_override = function(args)
-        vim.lsp.codelens.save(args.lenses, args.bufnr, args.client_id)
+        vim.lsp.codelens.run(args.opts)
       end,
       opts = {
-        'lenses',
-        ['bufnr'] = subcommand_opt_vals.bufs,
-        ['client_id'] = subcommand_opt_vals.lsp_clients,
+        'opts',
+        ['opts.client_id'] = subcommand_opt_vals.lsp_client_ids,
       },
     },
     inlay_hint_enable = {
@@ -595,28 +604,47 @@ local subcommands = {
         'opts.priority',
       },
     },
-    semantic_tokens_start = {
+    semantic_tokens_enable = {
       fn_override = function(args)
-        vim.lsp.semantic_tokens.start(
-          args.bufnr or 0,
-          args.client_id,
-          args.opts
+        vim.lsp.semantic_tokens.enable(true, args.filter)
+      end,
+      opts = {
+        'filter',
+        ['filter.bufnr'] = subcommand_opt_vals.bufs,
+        ['filter.client_id'] = subcommand_opt_vals.lsp_client_ids,
+      },
+    },
+    semantic_tokens_disable = {
+      fn_override = function(args)
+        vim.lsp.semantic_tokens.enable(false, args.filter)
+      end,
+      opts = {
+        'filter',
+        ['filter.bufnr'] = subcommand_opt_vals.bufs,
+        ['filter.client_id'] = subcommand_opt_vals.lsp_client_ids,
+      },
+    },
+    semantic_tokens_toggle = {
+      fn_override = function(args)
+        vim.lsp.semantic_tokens.enable(
+          not vim.lsp.semantic_tokens.is_enabled(args.filter),
+          args.filter
         )
       end,
       opts = {
-        ['bufnr'] = subcommand_opt_vals.bufs,
-        ['client_id'] = subcommand_opt_vals.lsp_clients,
-        'opts',
-        'opts.debounce',
+        'filter',
+        ['filter.bufnr'] = subcommand_opt_vals.bufs,
+        ['filter.client_id'] = subcommand_opt_vals.lsp_client_ids,
       },
     },
-    semantic_tokens_stop = {
+    semantic_tokens_is_enabled = {
       fn_override = function(args)
-        vim.lsp.semantic_tokens.stop(args.bufnr or 0, args.client_id)
+        vim.print(vim.lsp.semantic_tokens.is_enabled(args.filter))
       end,
       opts = {
-        ['bufnr'] = subcommand_opt_vals.bufs,
-        ['client_id'] = subcommand_opt_vals.lsp_clients,
+        'filter',
+        ['filter.bufnr'] = subcommand_opt_vals.bufs,
+        ['filter.client_id'] = subcommand_opt_vals.lsp_client_ids,
       },
     },
     fold_close = {

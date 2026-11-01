@@ -727,9 +727,11 @@ bindgesture swipe:4:down scale_workspaces toggle
 # Workspace zoom; 3 fingers to leave the apps' 2-finger pinch alone
 bindgesture pinch:3:outward scale_workspace incr 0.05
 bindgesture pinch:3:inward scale_workspace incr -0.05
-# Volume via rotation
-bindgesture pinch:clockwise exec $vol up
-bindgesture pinch:counterclockwise exec $vol down
+# 4 fingers so 2-finger pinches still reach apps; on ties the later bind wins, so pinch beats rotation
+bindgesture pinch:4:clockwise exec $vol up
+bindgesture pinch:4:counterclockwise exec $vol down
+bindgesture pinch:4:outward cycle_size h next
+bindgesture pinch:4:inward cycle_size h prev
 
 # Window rules
 for_window [app_id="ghostty.dialog"] floating enable, resize set 80ppt 80ppt

@@ -2,8 +2,17 @@ local M = {}
 
 local utils = require('utils')
 
----@type my.dap.cache
+---@type dap.cache
 local cache = utils.dap.new_cache()
+
+---Python of the active or project `.venv`, so the debuggee sees its packages
+---@return string
+local function python_path()
+  local venv = vim.env.VIRTUAL_ENV
+    or vim.fs.joinpath(vim.fn.getcwd(0), '.venv')
+  local python = vim.fs.joinpath(venv, 'bin', 'python')
+  return vim.fn.executable(python) == 1 and python or vim.fn.exepath('python3')
+end
 
 M.adapter = function(cb, config)
   if config.request == 'attach' then
@@ -23,8 +32,7 @@ M.adapter = function(cb, config)
   else
     cb({
       type = 'executable',
-      command = 'python3',
-      args = { '-m', 'debugpy.adapter' },
+      command = 'debugpy-adapter',
       options = {
         source_filetype = 'python',
       },
@@ -49,9 +57,7 @@ M.config = {
       ) ~= 1
     end,
     args = utils.dap.get_args(cache),
-    pythonPath = function()
-      return vim.fn.exepath('python3')
-    end,
+    pythonPath = python_path,
     -- Fix debugpy cannot find local python modules, assuming cwd has been
     -- set to project root, see https://stackoverflow.com/a/63271966
     env = function()
@@ -62,6 +68,7 @@ M.config = {
     type = 'debugpy',
     name = 'Debug test',
     request = 'launch',
+    pythonPath = python_path,
     console = 'integratedTerminal',
     justMyCode = function()
       return vim.fn.confirm(
@@ -78,7 +85,7 @@ M.config = {
       end
 
       -- Extract module name, e.g. 'pytest'
-      local test_cmd_args = utils.cmd.split(test_cmd)
+      local test_cmd_args = require('dap.utils').splitstr(test_cmd)
       for i, arg in ipairs(test_cmd_args) do
         if arg == '-m' then
           return test_cmd_args[i + 1]
@@ -91,7 +98,7 @@ M.config = {
         return
       end
 
-      local test_cmd_args = utils.cmd.split(test_cmd)
+      local test_cmd_args = require('dap.utils').splitstr(test_cmd)
       for i, arg in ipairs(test_cmd_args) do
         if arg == '-m' then
           return vim.iter(test_cmd_args):skip(i + 1):totable()

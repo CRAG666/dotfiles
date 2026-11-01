@@ -178,7 +178,7 @@ function M.amend(modes, lhs, rhs, opts)
         mode,
         lhs,
         rhs_fn,
-        vim.tbl_deep_extend('keep', { buffer = true }, opts)
+        vim.tbl_deep_extend('keep', { buf = 0 }, opts)
       )
       -- The global keymap with an empty callback as fallback function, i.e.
       -- we shouldn't invoke the original keymap callback when we are not in

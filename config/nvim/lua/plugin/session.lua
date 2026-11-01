@@ -113,9 +113,7 @@ function M.get(path)
   path = vim.fn.fnamemodify(path, ':p')
 
   local session_dir = M.opts.dir
-  if vim.fn.isdirectory(session_dir) == 0 then
-    vim.fn.mkdir(session_dir, 'p')
-  end
+  vim.fs.mkdir(session_dir, { parents = true })
 
   -- Find an existing session file that matches the prefix of `path`, e.g.
   -- if `path` is '/foo/bar/baz', then valid sessions are:

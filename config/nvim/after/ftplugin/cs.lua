@@ -15,7 +15,7 @@ vim.keymap.set(
   'n',
   '<leader>;',
   '<esc>mzA;<esc>`z',
-  { buffer = true, silent = true }
+  { buf = 0, silent = true }
 )
 
 -- Parse dotnet/msbuild diagnostics (code_runner quickfix mode)

@@ -16,5 +16,5 @@ require('utils.ftplugin')(
   'silent! nunmap <buffer> d | silent! xunmap <buffer> d | silent! nunmap <buffer> u | silent! xunmap <buffer> u'
 )
 
-vim.keymap.set({ 'n', 'x' }, 'd', '<C-d>', { buffer = true, nowait = true })
-vim.keymap.set({ 'n', 'x' }, 'u', '<C-u>', { buffer = true, nowait = true })
+vim.keymap.set({ 'n', 'x' }, 'd', '<C-d>', { buf = 0, nowait = true })
+vim.keymap.set({ 'n', 'x' }, 'u', '<C-u>', { buf = 0, nowait = true })

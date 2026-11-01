@@ -228,13 +228,13 @@ function M.select(items, opts, on_choice)
       local i_str = tostring(i)
       vim.keymap.set('n', i_str, function()
         vim.cmd(i_str)
-      end, { buffer = smenu.buf })
+      end, { buf = smenu.buf })
     end
     -- Press Meta + letter to go to the corresponding item
     for i = 1, math.min(len_pivots, num_items - 9) do
       vim.keymap.set('n', string.format('<M-%s>', pivots:sub(i, i)), function()
         vim.cmd(tostring(i + 9))
-      end, { buffer = smenu.buf })
+      end, { buf = smenu.buf })
     end
   end
 end

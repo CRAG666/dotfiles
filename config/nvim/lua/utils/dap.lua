@@ -13,63 +13,79 @@ function M.new_cache()
   }
 end
 
----Returns a function that gets arguments for the current buffer, using cached
----arguments if arguments are provided before
+---Install directory of a mise tool, for adapters that are scripts, not binaries
+---@param tool string
+---@return string
+function M.mise_where(tool)
+  local out = vim.system({ 'mise', 'where', tool }, { text = true }):wait()
+  if out.code ~= 0 then
+    error(
+      string.format('[utils.dap] `mise where %s` failed: %s', tool, out.stderr)
+    )
+  end
+  return vim.trim(out.stdout)
+end
+
+---Prompt with `vim.ui.input()` inside the nvim-dap run coroutine, so async
+---inputs (e.g. snacks.input) are awaited
+---@param opts table `vim.ui.input()` options
+---@param on_input fun(input: string): any maps the input to the option value
+---@return thread
+local function input_co(opts, on_input)
+  return coroutine.create(function(dap_run_co)
+    vim.ui.input(opts, function(input)
+      vim.cmd.stopinsert()
+      coroutine.resume(
+        dap_run_co,
+        input == nil and require('dap').ABORT or on_input(input)
+      )
+    end)
+  end)
+end
+
+---Returns a function that prompts for the arguments of the current buffer,
+---defaulting to the previous ones
 ---@param cache dap.cache
----@return fun(): string[]?
+---@return fun(): thread
 function M.get_args(cache)
   return function()
     local bufname = vim.api.nvim_buf_get_name(0)
-
-    vim.ui.input({
+    return input_co({
       prompt = 'Enter arguments: ',
       completion = 'file',
       default = cache.args[bufname],
     }, function(input)
-      if input and input ~= '' then
-        cache.args[bufname] = input
-      end
-      vim.cmd.stopinsert()
+      cache.args[bufname] = input
+      return require('dap.utils').splitstr(input)
     end)
-
-    return cache.args[bufname]
-      and require('utils.cmd').split(cache.args[bufname])
   end
 end
 
----Return a function that gets the path to the executable for the current
----buffer, using cached executable path when possible
+---Return a function that prompts for the executable of the current buffer,
+---defaulting to the previous one or a file named like the buffer or cwd
 ---@param cache dap.cache
----@return fun(): string?
+---@return fun(): thread
 function M.get_prog(cache)
   return function()
     local bufname = vim.api.nvim_buf_get_name(0)
-
-    vim.ui.input({
+    local cwd = vim.fn.getcwd(0)
+    return input_co({
       prompt = 'Enter path to executable: ',
       completion = 'file',
-      default = (function()
-        local prog = cache.progs[bufname]
-        if prog then
-          return prog
-        end
-
-        local cwd = vim.fn.getcwd(0)
-        local progs = vim.fs.find({
-          vim.fn.fnamemodify(bufname, ':t:r'),
-          vim.fn.fnamemodify(cwd, ':t'),
-        }, {
-          path = vim.fn.fnamemodify(bufname, ':p:h'),
-          upward = true,
-        })
-        return progs[1] or cwd
-      end)(),
+      default = cache.progs[bufname] or vim.fs.find({
+        vim.fn.fnamemodify(bufname, ':t:r'),
+        vim.fs.basename(cwd),
+      }, {
+        path = vim.fs.dirname(bufname),
+        upward = true,
+      })[1] or cwd,
     }, function(input)
+      if input == '' then
+        return require('dap').ABORT
+      end
       cache.progs[bufname] = input
-      vim.cmd.stopinsert()
+      return input
     end)
-
-    return cache.progs[bufname]
   end
 end
 

@@ -50,10 +50,7 @@ local function load()
           ('quarto preview %s --no-browser --port 4444'):format(root)
         )
         vim.defer_fn(function()
-          vim.fn.jobstart(
-            { 'xdg-open', 'http://localhost:4444' },
-            { detach = true }
-          )
+          vim.ui.open('http://localhost:4444')
         end, 10000)
       end,
       markdown = function(...)

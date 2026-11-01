@@ -243,7 +243,7 @@ augroup('prompt_keymaps', {
     desc = 'Undo automatic <C-w> remap in prompt buffers.',
     callback = function(args)
       if vim.bo[args.buf].buftype == 'prompt' then
-        vim.keymap.set('i', '<C-w>', '<C-S-W>', { buffer = args.buf })
+        vim.keymap.set('i', '<C-w>', '<C-S-W>', { buf = args.buf })
       end
     end,
   },
