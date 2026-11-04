@@ -420,9 +420,13 @@ inaoe:
     ln -vsfn "{{ src }}/local/applications/Inaoe.desktop" "$HOME/.local/share/applications/Inaoe.desktop"
     gtk-update-icon-cache -q "$HOME/.local/share/icons/hicolor" 2>/dev/null || true
 
-# Apply zen/default.json (spaces, essentials, pinned tabs) + the eyes userChrome.css to the default Zen profile
+# Apply zen/default.json (spaces, essentials, pinned tabs) + the eyes userChrome.css to the default Zen profile,
+# and SearXNG as default search engine via policies
 [group('apps')]
 zen: (zen-layout "Default (release)" "default")
+    # /etc/zen/policies replaces the package's policies.json instead of merging, so carry its policies over
+    jq -s '.[0] * .[1]' /opt/zen-browser-bin/distribution/policies.json "{{ src }}/etc/zen/policies/policies.json" \
+        | sudo install -Dm 644 /dev/stdin /etc/zen/policies/policies.json
 
 # Apply zen/<layout>.json, zen/userChrome.css and its prefs to a Zen profile (Zen must be closed)
 [private]

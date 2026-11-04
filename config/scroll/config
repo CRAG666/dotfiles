@@ -29,7 +29,6 @@ exec quickshell -n -d -p ~/.config/quickshell/lock.qml
 exec ~/.scripts/cloud_mount
 exec systemctl --user start podman.socket
 exec ~/Git/selfhost/instances.sh
-exec ~/.scripts/check_battery.sh
 exec swayidle -w
 exec $vol mic-led
 exec ~/.config/scroll/brightness.sh init

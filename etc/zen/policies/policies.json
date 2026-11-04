@@ -1,0 +1,15 @@
+{
+  "policies": {
+    "SearchEngines": {
+      "Add": [
+        {
+          "Name": "SearXNG",
+          "URLTemplate": "http://searxng.localhost:8080/search?q={searchTerms}",
+          "Method": "GET",
+          "IconURL": "http://searxng.localhost:8080/favicon.ico"
+        }
+      ],
+      "Default": "SearXNG"
+    }
+  }
+}

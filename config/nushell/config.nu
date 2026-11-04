@@ -196,7 +196,9 @@ def ddl [
 }
 
 # SSH tunnel to the cluster's ollama (gpuserver02:11652 via login node).
-def otun-up [] { ^setsid ssh -fN ollama-tunnel; print "túnel arriba → localhost:11652 (sobrevive al cerrar la terminal)" }
+def otun-up [] {
+    if (^ss -Hltn 'sport = :11652' | str trim | is-not-empty) { print "túnel ya arriba → localhost:11652"; return }
+    ^setsid ssh -fN ollama-tunnel; print "túnel arriba → localhost:11652 (sobrevive al cerrar la terminal)" }
 def otun-down [] { do -i { ^pkill -f 'ssh -fN ollama-tunnel' }; print "túnel cerrado" }
 
 source $"($nu.cache-dir)/carapace.nu"

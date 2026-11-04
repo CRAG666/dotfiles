@@ -9,5 +9,11 @@
     "npm:pi-herdr-agents",
     "npm:@bacnh85/pi-notebooklm"
   ],
-  "lastChangelogVersion": "1.4.0"
+  "lastChangelogVersion": "1.5.0",
+  "extensionChangelogVersions": {
+    "{\"source\":\"npm:pi-web-access\",\"scope\":\"user\"}": "0.46.0",
+    "{\"source\":\"npm:pi-ollama-cloud\",\"scope\":\"user\"}": "0.13.1",
+    "{\"source\":\"npm:pi-herdr-agents\",\"scope\":\"user\"}": "3.7.2",
+    "{\"source\":\"npm:@bacnh85/pi-notebooklm\",\"scope\":\"user\"}": "0.2.0"
+  }
 }

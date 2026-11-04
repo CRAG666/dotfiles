@@ -34,7 +34,7 @@ fi
 mounts=(-v "$PWD:/work" -w /work)
 
 if [ -d "$LATEX_UTILS" ]; then
-  mounts+=(-v "$LATEX_UTILS:/latex-utils:ro" -e TEXINPUTS="/latex-utils//:")
+  mounts+=(-v "$LATEX_UTILS:/latex-utils:ro" -e TEXINPUTS=".:/latex-utils//:")
 fi
 
 exec podman run "${run_flags[@]}" "${mounts[@]}" "$IMAGE" "$cmd" "$@"

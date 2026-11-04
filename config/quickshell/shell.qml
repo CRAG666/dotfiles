@@ -15,6 +15,8 @@ ShellRoot {
     Notifications {}
     Osd {}
     Auth {}
+    BatteryWarnings {}
+    Privacy {}
 
     Variants {
         model: Quickshell.screens

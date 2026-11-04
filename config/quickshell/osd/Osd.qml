@@ -2,19 +2,21 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Services.Pipewire
+import Quickshell.Services.UPower
 import QtQuick
 import qs
 
 // macOS Mojave's volume, microphone and brightness HUD, on Spotlight's glass:
 // a rounded square low in the middle of the screen, a large glyph and sixteen
 // segments. Volume and the microphone come straight from PipeWire, so any
-// change shows it (the keys, a mixer or an app); brightness.sh reports the
-// level it sets as "brightness 40" lines on a fifo. The surface stays mapped,
+// change shows it (the keys, a mixer or an app); plugging or unplugging the
+// charger shows the charge, from UPower; brightness.sh reports the level it
+// sets as "brightness 40" lines on a fifo. The surface stays mapped,
 // hidden in the background layer, because a fresh one costs ~40 ms before its
 // first frame.
 Scope {
     id: root
-    property string kind: "volume"   // "volume", "mic" or "brightness"
+    property string kind: "volume"   // "volume", "mic", "brightness" or "battery"
     property real level: 0           // 0..1
     property bool muted: false
     property bool shown: false
@@ -26,10 +28,12 @@ Scope {
     readonly property real volume: sink?.audio?.volume ?? 0
     readonly property bool sinkMuted: sink?.audio?.muted ?? false
     readonly property bool micMuted: source?.audio?.muted ?? false
+    readonly property bool plugged: [UPowerDeviceState.Charging, UPowerDeviceState.FullyCharged, UPowerDeviceState.PendingCharge].includes(SysInfo.battery.state)
 
     onVolumeChanged: show("volume", volume, sinkMuted)
     onSinkMutedChanged: show("volume", volume, sinkMuted)
     onMicMutedChanged: show("mic", 1, micMuted)
+    onPluggedChanged: if (SysInfo.batPresent) show("battery", SysInfo.batPct / 100, false)
 
     function show(newKind, newLevel, newMuted) {
         if (!armed)
@@ -45,12 +49,14 @@ Scope {
         hideTimer.restart();
     }
 
-    // volume blue1, the microphone teal, brightness yellow, and red when muted
-    readonly property color tone: muted ? Theme.eyes.red : Theme.eyes[{ volume: "blue1", mic: "teal", brightness: "yellow" }[kind]]
+    // volume blue1, the microphone teal, brightness yellow, the battery green, and red when muted
+    readonly property color tone: muted ? Theme.eyes.red : Theme.eyes[{ volume: "blue1", mic: "teal", brightness: "yellow", battery: "green0" }[kind]]
 
     function glyph() {
         if (kind === "brightness")
             return String.fromCodePoint(0xF00E0);
+        if (kind === "battery")
+            return String.fromCodePoint(plugged ? 0xF0084 : 0xF0079);
         if (kind === "mic")
             return String.fromCodePoint(muted ? 0xF036D : 0xF036C);
         if (muted || level === 0)
