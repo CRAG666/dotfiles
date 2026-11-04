@@ -87,20 +87,6 @@ output 'Lenovo Group Limited 0x40A9 Unknown' {
 # Laptop Thinkpad P53
 output 'BOE 0x086E Unknown' disable
 
-# Work - ViewSonic (right)
-output "ViewSonic Corporation VA1912wSERIES PW6061112038" {
-    scale 1
-    resolution 1440x900@59.89Hz
-    position 3840 0
-}
-
-# Work - Samsung (center)
-output "Samsung Electric Company S27E360 0x304E4135" {
-    scale 1
-    resolution 1920x1080@60Hz
-    position 1920 0
-}
-
 # Home - KTC H32S17
 output "Shenzhen KTC Technology Group H32S17 0x00000001" {
     scale 1
@@ -112,6 +98,23 @@ output "Shenzhen KTC Technology Group H32S17 0x00000001" {
     # layout_widths [0.33333333 0.5 0.666666667 1.0]
     # layout_heights [0.33333333 0.5 0.666666667 1.0]
 }
+
+# Work - Samsung (center)
+output "Samsung Electric Company S27E360 0x304E4135" {
+    scale 1
+    resolution 1920x1080@60Hz
+    position 1920 0
+}
+
+# Work - ViewSonic (right)
+output "ViewSonic Corporation VA1912wSERIES PW6061112038" {
+    scale 1
+    resolution 1440x900@59.89Hz
+    position 3840 0
+}
+
+workspace 2 output "Samsung Electric Company S27E360 0x304E4135"
+workspace 3 output "ViewSonic Corporation VA1912wSERIES PW6061112038"
 
 # Per-machine overrides (hosts/<hostname>); a missing file is ignored
 include hosts/$(cat /proc/sys/kernel/hostname)

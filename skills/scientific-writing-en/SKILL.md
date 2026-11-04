@@ -5,47 +5,118 @@ description: 'Use whenever the user writes, drafts, revises, edits, polishes, or
 
 # Scientific Writing in English
 
-Do NOT activate for code comments, docstrings, commit messages, casual emails and marketing copy.
+Not for code comments, docstrings, commit messages, casual emails, or marketing copy.
 
-## Goal
+## Rules
 
-Improve the text to Q1 paper level. See `references/core-principles.md` for what "Q1 quality" means and the 11 non-negotiable rules (hedging, tense discipline, US spelling, ASCII-only punctuation, citation grammar, etc.) - read this file on first use in a session, before drafting anything.
+This skill is a fixed procedure for every model and harness.
 
-## Steps
+- Run steps 0-7 in order. Never skip, merge, reorder, or shorten a step. If a step cannot be completed, stop and say which and why.
+- Do not be creative: remove only defects that a reference file names.
+- Time pressure never justifies reading less or skipping checks. To go faster, process fewer paragraphs, and say so.
+- Never claim the skill was followed if any step was skipped or partial.
 
-1. **Analyze the context and intent.** Determine the scope first:
-   - **Single paragraph or short passage:** read it (plus any heading the user supplies); if its section is still ambiguous, infer it from rhetorical cues (tense, citations, "we measured" vs "this suggests"); if still ambiguous, ask.
-   - **Whole file or long document (to correct, revise, translate, or draft):** read it section by section, never the whole file at once. Section boundaries are the document headings, which usually name the section explicitly ("Introduction", "3. Materials and Methods"). Process one section at a time and, within each section, apply the following steps paragraph by paragraph.
-2. **Identify section and function.** Identify the section primarily from its heading; fall back to rhetorical cues (tense, citations, "we measured" vs "this suggests") when the heading is missing or uninformative. Then, per paragraph, determine the rhetorical functions it performs (caution, exemplify, contrast, ...) - see "## Reference index".
-3. **Load references.** Read the references matching the current section and the functions of the paragraph being processed, if not already loaded this session. Decide each candidate now: load it or discard it with a reason - "maybe" is not an end state. Strong or universal claims in the paragraph ("the only", "no study has", "proves") make `references/caution-hypothesis.md` mandatory; register-level problems beyond the section bank make `references/academic-style.md` mandatory.
-4. **Draft finished prose**, not a phrase menu. Pick phrases from the loaded bank, adapt them to the user's actual content (replace X/Y/Z/"Author" placeholders), and combine/vary them so the result reads as natural prose, not a phrasebook collage.
-5. **Self-check** using `references/qa-checklist.md`; revise internally before moving on.
-6. **Final pass:** scan against `references/quick-replacements.md` for LLM-tell phrases and padding. Cut or replace anything that matches.
-7. **Deliver section by section**, in document order, before starting the next section.
+## Step 0. Precedence
+
+User instructions > project instructions (`AGENTS.md`, `CLAUDE.md`, memory) > this skill > references. List the applicable writing preferences (for example "no colons or dashes inside paragraphs", "existing paragraphs: grammar only"); they override any reference.
+
+## Step 1. Scope and mode
+
+Number the paragraphs P1, P2, ... under their section heading. Take the mode from the request, or ask if unclear:
+
+- **Correct:** spelling, grammar, punctuation only.
+- **Polish:** fix only defects named by a reference.
+- **Draft:** new prose only from content the user supplied.
+- **Translate:** translate, then apply Polish.
+
+Process a document one section at a time, steps 2-7 per section.
+
+## Step 2. Load references in full (gate)
+
+Loaded means every line read in the current context. Headings, grep, line ranges, or "relevant sections" do not count; read long files in chunks to the end. After a summary or compaction, reread.
+
+**Always:** `core-principles.md`, `qa-checklist.md`, `quick-replacements.md`, `punctuation-articles.md`, `paragraph-structure.md`, `academic-style.md`, `connectors-time.md`, `caution-hypothesis.md`, `critical-writing.md`.
+
+**By section:**
+
+| Section | Files |
+|---|---|
+| Introduction, problem, justification, questions, hypothesis, objectives, contributions, scope | `introduction.md` |
+| State of the art, related work | `introduction.md`, `references-citations.md`, `classify-compare.md`, `support-contrast.md` |
+| Theoretical framework, background | `define-cause-effect.md`, `classify-compare.md`, `shared-knowledge-signposting.md` |
+| Methods, protocol | `methods.md`, `grammar-numbers-units.md`, `statistics-and-measurement.md` |
+| Results | `results.md`, `grammar-numbers-units.md`, `quantity-order-change-interpretation.md` |
+| Discussion | `discussion.md`, `support-contrast.md`, `viewpoints.md` |
+| Abstract, conclusions | `conclusion-abstract.md` |
+| Acknowledgments | `acknowledgments-authors.md` |
+
+**By trigger** (literal scan of each paragraph, not a judgment):
+
+| Paragraph contains | Files |
+|---|---|
+| Citation | `references-citations.md` |
+| Number, unit, or quantity word (many, most, few, several) | `grammar-numbers-units.md`, `quantity-order-change-interpretation.md` |
+| Statistic, metric, test, error rate | `statistics-and-measurement.md` |
+| for example, for instance, such as, e.g. | `exemplify.md` |
+| Definition (is defined as, refers to, is termed) | `define-cause-effect.md` |
+| because, since, as, causes, leads to, therefore, thus | `define-cause-effect.md` |
+| than, unlike, whereas, in contrast, compared with, rather than | `classify-compare.md`, `support-contrast.md` |
+| List or classification | `classify-compare.md` |
+| Evaluation of other work or a gap | `critical-writing.md`, `viewpoints.md` |
+| Preview, roadmap, cross-reference | `shared-knowledge-signposting.md` |
+
+## Step 3. Ledger (gate)
+
+Before any edit, print the step 0 preferences, each required file with its line count, and the triggers per paragraph. A missing file sends you back to step 2.
+
+## Step 4. Diagnose
+
+Per paragraph, list each defect as: quoted text | defect | reference file and section. "Sounds better" is not a defect. Paragraphs without defects stay unchanged.
+
+## Step 5. Edit
+
+Make the smallest change that removes each diagnosed defect.
+
+Allowed: spelling, grammar, agreement, articles, punctuation; phrases listed in `quick-replacements.md` or `academic-style.md`; recalibrating an overclaim per `caution-hypothesis.md` without changing the claim; replacing a repeated connective; reordering within a sentence for given-new order; splitting a run-on or comma splice. Correct mode allows only the first item.
+
+Forbidden: adding claims, examples, transitions, or citations; deleting claims, citations, numbers, or qualifiers; changing technical or author terms, numbers, units, citation keys, labels, cross-references, or math; synonyms for domain terms; merging, splitting, or reordering paragraphs; bank phrases without a diagnosed defect; changing meaning or claim strength.
+
+Draft mode uses only the user's content and passes steps 4-6.
+
+## Step 6. Verify
+
+With commands when the text is in a file: the diff touches only diagnosed sentences; citation keys, numbers, labels, and math are unchanged; output is ASCII except accented names and math; no step 0 forbidden punctuation; the project compiles. Then check `qa-checklist.md` and `quick-replacements.md`. Any failure returns to step 5.
+
+## Step 7. Report
+
+In the user's language: the ledger; per paragraph, original | revised | defect | reference ("no defect found" otherwise); the step 6 results; deviations, or "No deviations".
 
 ## Reference index
 
-- `references/academic-style.md` - Formality register, colloquialism/contraction/tautology/cliche avoidance, weak-verb replacement, bias-free language, nominalization, confused word pairs, US/British spelling conversion.
-- `references/acknowledgments-authors.md` - Acknowledgments, funding, conflicts of interest, about-the-author, contributor statements.
-- `references/introduction.md` - Background, importance, literature synthesis, problem statement, controversy, knowledge gap, study aim, research questions, hypotheses, structure, limitations. Follows Swales' CARS model (territory -> niche -> occupy niche).
-- `references/methods.md` - Study type, data sources, design, methodology justification, sample, procedure, instruments, methodological limitations.
-- `references/results.md` - Referencing method, presenting data, tables/figures, positive/negative/unexpected findings, questionnaires, qualitative data, summary.
-- `references/discussion.md` - Background, linking results to discussion, agreement/contradiction with prior literature, explaining results, caution, tentative hypotheses, consequences, future research. Follows Hopkins & Dudley-Evans' move structure (restate -> compare -> explain -> limitations -> implications).
-- `references/conclusion-abstract.md` - Restating, summary, synthesis of findings, strengths, limitations, implications, contribution, recommendations.
-- `references/statistics-and-measurement.md` - Measurement/quantification language; statistical procedures and tests (t-test, ANOVA, regression, correlation, chi-square); reporting statistics, p-values, effect sizes; descriptive statistics; Likert-scale design. Mainly Methods/Results.
-- `references/paragraph-structure.md` - Topic sentences, controlling idea + supporting detail, given-new ordering, cohesion devices.
-- `references/shared-knowledge-signposting.md` - Indicating shared knowledge, previewing/transitioning between sections, summarizing and re-orienting the reader.
-- `references/punctuation-articles.md` - Comma/semicolon/colon/quotation/dash/apostrophe rules, abbreviations, capitalization, article use (a/an/the/zero). Use when editing for mechanical correctness.
-- `references/grammar-numbers-units.md` - Irregular plurals (datum/data, criterion/criteria...), subject-verb agreement on borrowed nouns, noncount nouns, number style, SI units. Use when editing Methods/Results for correctness.
-- `references/critical-writing.md` - Limitations, weaknesses, criticism of specific authors, constructive suggestions, evaluative language.
-- `references/classify-compare.md` - Classifications, lists, differences, similarities, contrasts.
-- `references/define-cause-effect.md` - Definitions, exceptions, causality, correlation.
-- `references/caution-hypothesis.md` - Distancing the author, hypothesizing, cautious interpretation, possibility/probability, assumption, implication.
-- `references/viewpoints.md` - Agreement/support, disagreement, stating your own viewpoint.
-- `references/references-citations.md` - Reporting-verb stance (argues, contends, demonstrates, suggests, posits), synthesizing sources, direct quotations. Avoid repeated "According to X".
-- `references/exemplify.md` - Examples, cases, illustration.
-- `references/connectors-time.md` - Tense/time connectives, frequency, section transitions. Use to vary repeated "however/moreover/furthermore/therefore".
-- `references/support-contrast.md` - Contrasting own work, supporting a viewpoint, explanations.
-- `references/quantity-order-change-interpretation.md` - Quantity, order, change (increase/decrease), interpretation of findings.
+All files are in `references/`.
 
-Always read `references/critical-writing.md` and `references/connectors-time.md` regardless of the section being drafted: calibrated evaluative language and varied connectives are needed in every section, not only in Discussion.
+- `academic-style.md` - register, tautology, cliches, nominalization, confused words, US spelling
+- `acknowledgments-authors.md` - acknowledgments, funding, contributor statements
+- `caution-hypothesis.md` - hedging, hypothesizing, possibility, assumption, implication
+- `classify-compare.md` - classifications, lists, similarities, contrasts
+- `conclusion-abstract.md` - summary, synthesis, contribution, implications
+- `connectors-time.md` - time expressions, connectives, transitions
+- `core-principles.md` - Q1 criteria and the 11 rules
+- `critical-writing.md` - limitations, weaknesses, evaluative language
+- `define-cause-effect.md` - definitions, exceptions, causality
+- `discussion.md` - restate, compare, explain, limit, imply
+- `exemplify.md` - examples and illustration
+- `grammar-numbers-units.md` - plurals, agreement, numbers, SI units
+- `introduction.md` - territory, niche, gap, aim, structure (CARS)
+- `methods.md` - design, sample, procedure, instruments
+- `paragraph-structure.md` - topic sentences, given-new order, cohesion
+- `punctuation-articles.md` - punctuation, abbreviations, capitals, articles
+- `qa-checklist.md` - final self-check
+- `quantity-order-change-interpretation.md` - quantity, order, change
+- `quick-replacements.md` - LLM-tell phrases and padding
+- `references-citations.md` - reporting verbs, synthesis, quotations
+- `results.md` - presenting findings, tables, figures
+- `shared-knowledge-signposting.md` - previews, transitions, summaries
+- `statistics-and-measurement.md` - statistical reporting
+- `support-contrast.md` - contrasting own work, support, explanation
+- `viewpoints.md` - agreement, disagreement, own position
