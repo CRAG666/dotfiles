@@ -1,5 +1,6 @@
 import Quickshell
 import QtQuick
+import qs
 import "js/search.js" as Search
 
 // Files and folders under ~. With nothing typed: recent files (the helper's
@@ -9,8 +10,10 @@ import "js/search.js" as Search
 // accents are ignored). Documents are also searched
 // by their text, through an SQLite index of ~/Documents, ~/Desktop and
 // ~/Downloads that the helper brings up to date at most once an hour. The
-// preview lists a folder, shows the head of a text file, or a thumbnail of an
-// image, a PDF's first page or a video. Spotlight's filters narrow the
+// preview, as yazi's, lists a folder or an archive, shows the head of a text
+// file or what `file` says of a binary one, or a thumbnail: an image, a PDF's
+// or Typst document's first page, an EPUB's or song's cover, a video's frame
+// or a font's sample. Spotlight's filters narrow the
 // search: "kind:pdf" (image, video, audio, archive, folder or any extension),
 // "modified:today|week|month|year" or "modified:3d", "in:~/Documents". The
 // newest file in ~/Downloads leads the view. Ctrl+K moves a file. A typed path
@@ -27,6 +30,7 @@ Scope {
     readonly property var frequentPaths: frequent.items.map(entry => entry.path)
     property string peekKey: ""
     property string peekText: ""
+    property bool peekStyled: false   // peekText is bat's colours as StyledText
     property string peekThumb: ""
     property var peekFacts: []
     property var buffer: []   // paths gathered with Ctrl+B, acted on together
@@ -38,12 +42,23 @@ Scope {
     }
     property var listing: ({ dir: "", entries: [] })   // the folder a typed path browses
     readonly property string browseDir: isPath(query) ? expand(query.slice(0, query.lastIndexOf("/") + 1)) : ""
-    readonly property var imageTypes: ["png", "jpg", "jpeg", "gif", "webp", "bmp", "svg", "avif"]
+    readonly property var imageTypes: ["png", "jpg", "jpeg", "gif", "webp", "bmp", "svg", "avif", "heic", "heif", "jxl", "tif", "tiff"]
+    // the images Qt has plugins for here, drawn from the file itself
+    readonly property var drawnTypes: ["png", "jpg", "jpeg", "gif", "bmp", "svg"]
     readonly property var videoTypes: ["mp4", "mkv", "webm", "mov", "avi"]
     readonly property var audioTypes: ["mp3", "flac", "ogg", "wav", "m4a", "opus"]
-    readonly property var archiveTypes: ["zip", "tar", "gz", "xz", "zst", "7z", "rar"]
+    readonly property var archiveTypes: ["zip", "tar", "gz", "tgz", "bz2", "xz", "zst", "7z", "rar", "iso", "deb", "rpm"]
+    readonly property var fontTypes: ["ttf", "otf", "woff", "woff2"]
     readonly property var kinds: ({ image: imageTypes, video: videoTypes, audio: audioTypes, archive: archiveTypes })
-    readonly property var textTypes: ["txt", "md", "qml", "js", "ts", "py", "sh", "rs", "go", "c", "h", "cpp", "json", "toml", "yaml", "yml", "ini", "conf", "lua", "nix", "tex", "csv", "log", "rasi", "css", "html", "xml"]
+    // what the helper previews of each extension (helper/peek.py); any other
+    // file is "file", text or not by its bytes
+    readonly property var peekKinds: {
+        const peekKinds = Object.assign(Object.create(null), { pdf: "pdf", epub: "epub", typ: "typst" });
+        for (const [kind, types] of [["image", imageTypes], ["video", videoTypes], ["audio", audioTypes], ["archive", archiveTypes], ["font", fontTypes], ["", drawnTypes]])
+            for (const type of types)
+                peekKinds[type] = kind;
+        return peekKinds;
+    }
 
 
     // zoxide's folders alone, for the views that only offer them (Herdr's forms)
@@ -236,32 +251,36 @@ Scope {
         const peeked = peekKey === item.key;
         const type = extension(item.title);
         const kind = item.isDir ? "Folder" : type ? type.toUpperCase() + " file" : "File";
-        const image = imageTypes.includes(type) ? "file://" + item.path : peeked && peekThumb ? "file://" + peekThumb : "";
+        const image = drawnTypes.includes(type) ? "file://" + item.path : peeked && peekThumb ? "file://" + peekThumb : "";
         const body = item.snippet ? item.snippet : peeked ? peekText : "";
-        return { image, icon: item.icon, metadata: [["Name", item.title], ["Where", Spot.tilde(Spot.dirname(item.path))], ["Kind", kind], ["Page", item.page || ""], ...(peeked ? peekFacts : [])], body, mono: !item.snippet, actions: [["Enter", "Open"], ["Ctrl+Enter", "Show in folder"], ["Ctrl+C", "Copy path"], ["Ctrl+B", buffer.includes(item.path) ? "Remove from buffer" : "Add to buffer"], ["", "Move to…", "move"]] };
+        // a text's head (or what `file` says) fills the pane instead of the icon, as in yazi
+        const icon = item.isDir || type in peekKinds ? item.icon : "";
+        return { image, icon, styled: !item.snippet && peeked && peekStyled, metadata: [["Name", item.title], ["Where", Spot.tilde(Spot.dirname(item.path))], ["Kind", kind], ["Page", item.page || ""], ...(peeked ? peekFacts : [])], body, mono: !item.snippet, actions: [["Enter", "Open"], ["Ctrl+Enter", "Show in folder"], ["Ctrl+C", "Copy path"], ["Ctrl+B", buffer.includes(item.path) ? "Remove from buffer" : "Add to buffer"], ["", "Move to…", "move"]] };
     }
 
     // the size and modification time, the thumbnail (made once into the cache),
-    // a PDF's page count or a video's duration, and a folder's first entries or
-    // a text's first bytes, from the resident helper (helper/peek.py)
+    // a PDF's page count or a video's or song's duration and tags, and a
+    // folder's or archive's first entries or a file's head (highlighted by bat
+    // in the eyes theme Spotlight wears), from the resident helper (helper/peek.py)
     function peek(item) {
-        const type = extension(item.title);
         peekKey = item.key;
         peekText = "";
+        peekStyled = false;
         peekThumb = "";
         peekFacts = [];
-        const kind = type === "pdf" ? "pdf" : videoTypes.includes(type) ? "video" : textTypes.includes(type) ? "text" : "";
-        Spot.call(["peek", item.path, kind, Spot.cacheDir + "/thumbs"], (output, error) => {
+        const kind = item.isDir ? "" : peekKinds[extension(item.title)] ?? "file";
+        Spot.call(["peek", item.path, kind, Spot.cacheDir + "/thumbs", Theme.eyesDark ? "eyes-dark" : "eyes"], (output, error) => {
             // a later selection's, or a file gone since it was listed
             if (error || peekKey !== item.key)
                 return;
             const peeked = JSON.parse(output);
             const entries = peeked.content.split("\n").filter(line => line).length;
             const size = item.isDir ? `${entries}${entries === 40 ? "+" : ""} ${entries === 1 ? "item" : "items"}` : Spot.formatSize(peeked.bytes);
-            const [extraLabel, extraValue] = peeked.extra;
-            peekFacts = [[item.isDir ? "Contents" : "Size", size], ["Modified", Spot.dateTime(peeked.modified * 1000)], [extraLabel, extraLabel === "Duration" && extraValue ? duration(Number(extraValue)) : extraValue]];
+            const facts = peeked.facts.map(([label, value]) => [label, label === "Duration" && value ? duration(Number(value)) : value]);
+            peekFacts = [[item.isDir ? "Contents" : "Size", size], ["Modified", Spot.dateTime(peeked.modified * 1000)]].concat(facts);
             peekThumb = peeked.thumb;
             peekText = peeked.content;
+            peekStyled = peeked.styled;
         });
     }
 

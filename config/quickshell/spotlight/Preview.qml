@@ -128,7 +128,7 @@ Item {
                     y: parent.inset
                     width: parent.width - 2 * parent.inset
                     wrapMode: Text.Wrap
-                    textFormat: preview.info?.markdown ? Text.MarkdownText : Text.PlainText
+                    textFormat: preview.info?.markdown ? Text.MarkdownText : preview.info?.styled ? Text.StyledText : Text.PlainText
                     text: preview.info?.body ?? ""
                     color: preview.info?.mono ? Theme.eyes.green1 : Theme.ink
                     linkColor: Theme.eyes.blue0

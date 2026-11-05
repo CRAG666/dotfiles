@@ -521,7 +521,6 @@ local hlgroups = {
   BlinkCmpMenuSelection = { fg = c_fg0, bg = c_bg5 },
   BlinkCmpCustomType = { fg = c_violet, bg = c_bg3 },
   BlinkCmpKindCodeium = { fg = c_green1, bg = tint(c_green1, 0.15) },
-  BlinkCmpKindSupermaven = { fg = c_pink, bg = tint(c_pink, 0.15) },
   BlinkCmpKindCopilot = { fg = c_teal, bg = tint(c_teal, 0.15) },
   BlinkCmpKindArray = { fg = c_orange0, bg = tint(c_orange0, 0.15) },
   BlinkCmpKindBoolean = { fg = c_orange0, bg = tint(c_orange0, 0.15) },

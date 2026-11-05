@@ -181,10 +181,6 @@ return {
                 fg = C.green,
                 bg = util.blend(C.green, C.surface0, 0.15),
               },
-              BlinkCmpKindSupermaven = {
-                fg = C.pink,
-                bg = util.blend(C.pink, C.surface0, 0.15),
-              },
               BlinkCmpKindClass = {
                 fg = C.yellow,
                 bg = util.blend(C.yellow, C.surface0, 0.15),
