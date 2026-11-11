@@ -1,16 +1,16 @@
 [[plugin.deps]]
 use = "yazi-rs/plugins:no-status"
-rev = "c0529fc"
+rev = "1ef5fe0"
 hash = "3e023d31f29201efdac2a6ae35fedb78"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:full-border"
-rev = "c0529fc"
+rev = "1ef5fe0"
 hash = "17ebde15c4349f90aedbc45984b98db2"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:chmod"
-rev = "c0529fc"
+rev = "1ef5fe0"
 hash = "87472b05a8c420100f6a2b9cde1e7746"
 
 [[plugin.deps]]
@@ -20,27 +20,27 @@ hash = "9776f378459072b6c2875eae5addc49d"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:toggle-pane"
-rev = "c0529fc"
+rev = "1ef5fe0"
 hash = "5b2fbef7d1513ce38ff72623a071a5e"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:mount"
-rev = "c0529fc"
-hash = "dbfc342600993eefbb055bff145fa22a"
+rev = "1ef5fe0"
+hash = "f0dcc0ea71d5c59ce0d527f4b8a3937b"
 
 [[plugin.deps]]
 use = "AminurAlam/yazi-plugins:preview-audio"
-rev = "50d82a7"
+rev = "acdbca5"
 hash = "6f01d98391ba55868fd5cdc753aa94d5"
 
 [[plugin.deps]]
 use = "AminurAlam/yazi-plugins:preview-epub"
-rev = "50d82a7"
+rev = "acdbca5"
 hash = "98173e496259511036e1f02fa7c0bd35"
 
 [[plugin.deps]]
 use = "AminurAlam/yazi-plugins:preview-typst"
-rev = "50d82a7"
+rev = "acdbca5"
 hash = "b51195fb14479a22751230b638830097"
 
 [[plugin.deps]]

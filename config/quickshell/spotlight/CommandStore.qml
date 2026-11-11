@@ -59,7 +59,8 @@ Scope {
     // the commands, views and tools as items, each with the text it is found by
     // folded once, so a keystroke only matches them (Search.matching)
     readonly property var commandEntries: commands.map(command => ({ key: "cmd:" + command.title, kind: "command", store: root, title: command.title, icon: command.icon, command: command.command, offScreen: command.offScreen ?? false, confirm: command.confirm ?? false, text: Search.fold(`${command.title} ${command.words ?? ""}`) }))
-    readonly property var viewEntries: host.views.map(view => Object.assign(viewItem(view), { text: Search.fold(`${view.title} ${view.alias ?? ""}`) }))
+    // the share view only opens when share-picker asks
+    readonly property var viewEntries: host.views.filter(view => view.mode !== "share").map(view => Object.assign(viewItem(view), { text: Search.fold(`${view.title} ${view.alias ?? ""}`) }))
     readonly property var toolEntries: host.userConfig.tools.map(tool => ({ key: "tool:" + tool.title, kind: "command", store: root, title: tool.title, hint: tool.command.join(" "), icon: tool.icon ?? Spot.iconFor(tool.command[0]), command: [...(tool.floating ? host.userConfig.floatingTerminal : host.userConfig.terminal), ...(tool.hold ? Spot.hold(tool.command) : tool.command)], text: Search.fold(`${tool.title} ${tool.command[0]}`) }))
 
     function items(tokens) {

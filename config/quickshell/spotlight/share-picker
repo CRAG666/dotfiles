@@ -1,0 +1,14 @@
+#!/bin/sh
+# xdg-desktop-portal-wlr's chooser (chooser_cmd in xdg-desktop-portal-wlr/config):
+# the monitors and windows an app may share come one per line on stdin, the
+# Share Screen view of Spotlight (ShareStore.qml) picks one, and the chosen
+# line goes to stdout, nothing when declined. The choice comes back through a
+# private fifo, as the pinentry's passphrase does.
+config="$HOME/.config/quickshell/spotlight.qml"
+dir=$(mktemp -d "${XDG_RUNTIME_DIR:-/tmp}/share-picker.XXXXXX") || exit 1
+fifo=$dir/reply
+mkfifo -m 600 "$fifo" || exit 1
+trap 'rm -rf "$dir"' EXIT
+qs ipc -p "$config" call spotlight share "$fifo" "$(cat)" > /dev/null 2>&1 || exit 1
+IFS= read -r choice < "$fifo"
+[ -n "$choice" ] && printf '%s\n' "$choice"

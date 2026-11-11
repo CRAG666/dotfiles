@@ -29,6 +29,9 @@ READERS = {
     "wifi": ("wifi", "wifi"),
     "peek": ("peek", "peek"),
     "clip-peek": ("clipboard", "clip_peek"),
+    "disks": ("disks", "disks"),
+    "disk-mount": ("disks", "disk_mount"),
+    "disk-unlock": ("disks", "disk_unlock"),
 }
 WRITERS = {
     "bookmark-save": ("library", "bookmark_save"),
@@ -47,6 +50,9 @@ WRITERS = {
     "wifi-connect": ("wifi", "wifi_connect"),
     "wifi-disconnect": ("wifi", "wifi_disconnect"),
     "wifi-forget": ("wifi", "wifi_forget"),
+    "disk-unmount": ("disks", "disk_unmount"),
+    "disk-lock": ("disks", "disk_lock"),
+    "disk-eject": ("disks", "disk_eject"),
 }
 
 

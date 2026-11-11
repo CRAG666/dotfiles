@@ -69,6 +69,7 @@ Scope {
             { mode: "ai", tone: "green1", title: "AI Commands", placeholder: "Search AI Commands", icon: "", glyph: "✦", sections: tokens => [["AI Commands", ranked(ai.commandItems(tokens), tokens)]] },
             { mode: "run", tone: "violet", preview: false, title: "Run Command", placeholder: "Type a command", icon: "system-run", open: () => run.load(), sections: (tokens, raw) => [["Run", run.items(raw, true)]] },
             { mode: "marks", tone: "orange1", title: "Scroll Marks", placeholder: "Search marks or type a new one", icon: "bookmark-new", open: () => windows.reload(), sections: (tokens, raw) => [["Marks", marks.items(tokens, raw)]] },
+            { mode: "share", tone: "violet", title: "Share Screen", placeholder: "Search monitors and windows", icon: "video-display", open: () => windows.load(), sections: tokens => sharing.sections(tokens) },
             { mode: "herdr", tone: "teal", title: "Herdr", placeholder: "Search Herdr agents, workspaces, tabs and panes", icon: "utilities-terminal", open: () => { herdr.load(); windows.load(); files.loadFrequent(); }, sections: tokens => [["Agents", herdr.agentItems(tokens)], ["Workspaces", herdr.workspaceItems(tokens)], ["Tabs", herdr.tabItems(tokens)], ["Panes", herdr.paneItems(tokens)], ["Herdr", herdr.commandItems(tokens)]] },
             { mode: "agenda", tone: "pink", title: "Agenda", placeholder: "Search events and deadlines", icon: "office-calendar", open: () => agenda.load(), sections: tokens => [...agenda.sections(tokens), ["Commands", agenda.commandItems(tokens)]] },
             { mode: "tasks", tone: "orange1", title: "Tasks", placeholder: "Search open tasks", icon: "task-due", open: () => tasks.load(), sections: tokens => tasks.sections(tokens) },
@@ -76,6 +77,7 @@ Scope {
             { mode: "tools", tone: "green2", preview: false, title: "Tools", placeholder: "Search Tools", icon: "applications-utilities", sections: tokens => [["Tools", ranked(commands.toolItems(tokens), tokens)]] },
             { mode: "wifi", tone: "teal", preview: false, title: "Wi-Fi", placeholder: "Search Wi-Fi networks", icon: "network-wireless", open: () => { wifi.load(); system.load(); }, sections: tokens => [["Networks", wifi.items(tokens)], ["Wi-Fi", [...wifi.commandItems(tokens), ...system.items([...tokens, "wifi"])]]] },
             { mode: "bluetooth", tone: "blue1", preview: false, title: "Bluetooth", placeholder: "Search Bluetooth devices", icon: "bluetooth", open: () => system.load(), sections: tokens => [["Devices", bluetooth.items(tokens)], ["Bluetooth", system.items([...tokens, "bluetooth"])]] },
+            { mode: "disks", tone: "aqua", preview: false, title: "Disks", placeholder: "Search external drives", icon: "drive-removable-media", open: () => disks.load(), sections: tokens => [["Volumes", disks.items(tokens)]] },
             { mode: "selection", tone: "violet", preview: "answers", title: "Universal Actions", placeholder: "Search actions for the selection", icon: "edit-select-all", sections: tokens => universal.sections(tokens) },
             { mode: "help", tone: "aqua", title: "Spotlight Help", placeholder: "Search shortcuts and features", icon: "help-about", sections: tokens => [["Help", help.items(tokens)]] }
         ].map(view => Object.assign({}, view, { alias: userConfig.aliases[view.mode] }))
@@ -88,7 +90,7 @@ Scope {
             emoji: "yellow", timer: "yellow", pomodoro: "yellow", password: "red", process: "orange1", mark: "orange1",
             snippet: "violet", run: "violet", command: "orange0", script: "orange0",
             bookmark: "blue0", bookmarkCategory: "blue0", quicklink: "blue0", url: "blue0", web: "blue0", visit: "blue0", tab: "blue0",
-            note: "green1", paper: "green1", ai: "green1", brightness: "green2", sink: "green2", media: "green2", radio: "green2"
+            note: "green1", paper: "green1", ai: "green1", brightness: "green2", sink: "green2", media: "green2", radio: "green2", disk: "aqua"
         })
         readonly property color viewTone: currentView ? Theme.eyes[currentView.tone] : Theme.accent
 
@@ -105,7 +107,7 @@ Scope {
             snippet: "Snippet", run: "Shell", bookmark: "Bookmark", bookmarkCategory: "Category", quicklink: "Quicklink", url: "Website", web: "Web Search",
             visit: "History", tab: "Tab", note: "Note", paper: "Paper", ai: "AI", aiCommand: "AI Command",
             herdrAgent: "Agent", herdrWorkspace: "Workspace", herdrTab: "Herdr Tab", herdrPane: "Pane", agendaEvent: "Event", task: "Task",
-            wifi: "Network", bluetoothDevice: "Device", selection: "Action"
+            wifi: "Network", bluetoothDevice: "Device", disk: "Disk", selection: "Action"
         })
 
         function kindLabel(item) {
@@ -233,6 +235,12 @@ Scope {
             function toggle(mode: string): void {
                 win.toggle(mode);
             }
+
+            // share-picker (xdg-desktop-portal-wlr's chooser) asks which of the
+            // `sources` lines to share; the chosen one goes down `fifo`
+            function share(fifo: string, sources: string): void {
+                sharing.ask(fifo, sources);
+            }
         }
 
         // spotlight.sh writes "toggle <mode>" lines here: a printf from the shell
@@ -320,6 +328,7 @@ Scope {
             notice = "";
             largeText = "";
             ai.reset();
+            sharing.reply("");
         }
 
         function notify(message) {
@@ -517,7 +526,7 @@ Scope {
         function back() {
             if (actionTarget) {
                 closeActions();
-            } else if (form?.closeOnCancel) {
+            } else if (form?.closeOnCancel || mode === "share") {
                 close();
             } else if (form) {
                 form = null;
@@ -807,7 +816,7 @@ Scope {
         }
         WindowStore {
             id: windows
-            capturing: win.mode === "windows" ? "all" : win.mode === "marks" ? "marked" : ""
+            capturing: win.mode === "windows" || win.mode === "share" ? "all" : win.mode === "marks" ? "marked" : ""
         }
         CommandStore {
             id: commands
@@ -879,6 +888,11 @@ Scope {
             host: win
             windows: windows
         }
+        ShareStore {
+            id: sharing
+            host: win
+            windows: windows
+        }
         HerdrStore {
             id: herdr
             host: win
@@ -908,6 +922,10 @@ Scope {
         }
         BluetoothStore {
             id: bluetooth
+            host: win
+        }
+        DiskStore {
+            id: disks
             host: win
         }
         NotificationStore {

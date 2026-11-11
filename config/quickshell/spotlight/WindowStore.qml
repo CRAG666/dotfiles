@@ -65,12 +65,13 @@ Scope {
         return shots[window.ident] ?? "";
     }
 
+    // tree.items, not `list`: the tree's onItemsChanged runs before `list` follows it
     function captureShown() {
         if (capturing === "all")
-            capture(list);
+            capture(tree.items);
         else if (capturing === "marked")
             // the focused window too, which "Add mark" previews
-            capture(list.filter(window => window.marks.length || window.focused));
+            capture(tree.items.filter(window => window.marks.length || window.focused));
     }
 
     // once a window an opening; requests made in one go (the selected window's,
