@@ -42,6 +42,23 @@ return {
           end
         end,
       })
+
+      -- `FileType` already fired for the buffer that loaded the plugin;
+      -- treesitter only starts after `VimEnter` during startup
+      local activate = vim.schedule_wrap(function()
+        vim.api.nvim_exec_autocmds('FileType', {
+          group = 'otter.activate',
+          pattern = vim.bo.ft,
+        })
+      end)
+      if vim.v.vim_did_enter == 1 then
+        activate()
+      else
+        vim.api.nvim_create_autocmd('VimEnter', {
+          once = true,
+          callback = activate,
+        })
+      end
     end,
   },
 }

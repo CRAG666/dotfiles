@@ -86,7 +86,7 @@ M.snippets = {
   ),
   us.msn(
     {
-      { trig = 'con' },
+      { trig = 'cona' },
       { trig = 'consta' },
       common = { desc = 'Constant array/object variable declaration' },
     },
@@ -101,8 +101,10 @@ M.snippets = {
       }),
     }),
     {
-      stored = {
-        name = i(nil, 'variable'),
+      common_opts = {
+        stored = {
+          name = i(nil, 'variable'),
+        },
       },
     }
   ),
@@ -385,7 +387,7 @@ M.snippets = {
       un.fmtad(
         [[
           for (let <idx> = 0; <idx> << <len>; <idx>++) {
-            <body>
+          <body>
           }
         ]],
         {
@@ -397,7 +399,7 @@ M.snippets = {
       un.fmtad(
         [[
           for (let <idx> = <len>; <idx> >>= 0; <idx>--) {
-            <body>
+          <body>
           }
         ]],
         {
@@ -420,7 +422,7 @@ M.snippets = {
       un.fmtad(
         [[
           for (let <idx> = 0; <idx> << <len>; <idx>++) {
-            <body>
+          <body>
           }
         ]],
         {
@@ -432,7 +434,7 @@ M.snippets = {
       un.fmtad(
         [[
           for (let <idx> = <len>; <idx> >>= 0; <idx>--) {
-            <body>
+          <body>
           }
         ]],
         {

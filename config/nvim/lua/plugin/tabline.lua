@@ -79,7 +79,7 @@ setmetatable(_G._tabline, {
     -- Colorize and add click response
     for tabnr, tabname in ipairs(tabnames) do
       tabnames[tabnr] = utils.stl.hl(
-        string.format('%%%dT%s%%X', tabnr, tabname),
+        string.format('%%%dT%s%%X', tabnr, utils.stl.escape(tabname)),
         tabnr == tabnrcur and 'TabLineSel' or 'TabLine'
       )
     end
@@ -146,6 +146,16 @@ vim.api.nvim_create_autocmd({ 'UIEnter', 'SessionLoadPost' }, {
   once = true,
   callback = function()
     vim.g._tabline_name_restored = true
+  end,
+})
+
+vim.api.nvim_create_autocmd('SessionLoadPost', {
+  desc = 'Restore tab names saved in the session.',
+  group = groupid,
+  callback = function()
+    for tabnr, tabid in ipairs(vim.api.nvim_list_tabpages()) do
+      vim.t[tabid]._tabname = vim.g['Tabname' .. tabnr]
+    end
   end,
 })
 

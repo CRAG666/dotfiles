@@ -25,13 +25,16 @@ local function setup(event)
   end
 
   local buf_format = function(e)
+    local formatters = vim.lsp.get_clients({
+      bufnr = e.buf,
+      method = 'textDocument/formatting',
+    })
+    if #formatters == 0 then
+      return
+    end
+
     local preferred
-    for _, formatter in
-      ipairs(vim.lsp.get_clients({
-        bufnr = e.buf,
-        method = 'textDocument/formatting',
-      }))
-    do
+    for _, formatter in ipairs(formatters) do
       if
         dedicated_formatters[formatter.name]
         and (not preferred or formatter.id < preferred.id)

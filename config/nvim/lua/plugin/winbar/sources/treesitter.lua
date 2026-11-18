@@ -7,14 +7,13 @@ local utils = require('plugin.winbar.utils')
 ---@param buf integer buffer handler
 ---@return string name
 local function get_node_short_name(node, buf)
+  -- The name is on the first line, the text of a whole node can be huge
+  local start_row, start_col = node:start()
+  local first_line =
+    vim.api.nvim_buf_get_text(buf, start_row, start_col, start_row, -1, {})[1]
   return (
     vim
-      .trim(
-        vim.fn.matchstr(
-          vim.treesitter.get_node_text(node, buf):gsub('\n', ' '),
-          configs.opts.sources.treesitter.name_regex
-        )
-      )
+      .trim(vim.fn.matchstr(first_line, configs.opts.sources.treesitter.name_regex))
       :gsub('%s+', ' ')
   )
 end
@@ -160,7 +159,6 @@ local function get_symbols(buf, win, cursor)
 
   -- Prevent errors when getting node from filetypes without a parser
   local node = vim.npcall(vim.treesitter.get_node, {
-    ft = vim.filetype.match({ buf = buf }),
     bufnr = buf,
     pos = {
       cursor[1] - 1,

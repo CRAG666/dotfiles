@@ -15,7 +15,7 @@ return {
         end
       end
 
-      if vim.v.vim_did_enter then
+      if vim.v.vim_did_enter == 1 then
         vim.schedule(load_wk)
       else
         load.on_events('UIEnter', 'which-key', vim.schedule_wrap(load_wk))
@@ -116,7 +116,7 @@ return {
             F9 = icons.keys.F9,
             F10 = icons.keys.F10,
             F11 = icons.keys.F11,
-            F12 = icons.keys.F11,
+            F12 = icons.keys.F12,
           },
         },
       })

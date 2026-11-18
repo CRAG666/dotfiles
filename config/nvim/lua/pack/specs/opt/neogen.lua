@@ -14,7 +14,7 @@ return {
         languages = {
           lua = {
             template = {
-              annotation_convention = 'emua',
+              annotation_convention = 'emmylua',
             },
           },
           cs = {
@@ -67,7 +67,7 @@ return {
         },
       }
 
-      key.maps('n', '<leader>n', maps)
+      key.pmaps('n', '<leader>n', maps)
     end,
   },
 }

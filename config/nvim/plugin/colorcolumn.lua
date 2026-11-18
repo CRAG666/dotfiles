@@ -29,11 +29,11 @@ local opts = {
   end,
   ---@type string[]|boolean|fun(mode: string): boolean
   modes = function(mode)
-    return mode:find('^[iRss\x13]') ~= nil
+    return mode:find('^[iRsS\x13]') ~= nil
   end,
   warning_modes = function() ---@type string[]|boolean|fun(mode: string): boolean
     -- Show warning colors only in insert/replace/selection mode
-    return vim.fn.mode():find('^[iRss\x13]')
+    return vim.fn.mode():find('^[iRsS\x13]')
   end,
   blending = {
     threshold = 0.5,
@@ -59,8 +59,8 @@ local C_NORMAL, C_CC, C_ERROR
 ---@param fallback string|nil fallback color in hex, default to '#000000' if &bg is 'dark' and '#FFFFFF' if &bg is 'light'
 ---@return string hex color
 local function get_hl_hex(hlgroup_name, field, fallback)
-  fallback = fallback or vim.opt.bg == 'dark' and '#000000' or '#FFFFFF'
-  if not vim.fn.hlexists(hlgroup_name) then
+  fallback = fallback or vim.go.bg == 'dark' and '#000000' or '#FFFFFF'
+  if vim.fn.hlexists(hlgroup_name) == 0 then
     return fallback
   end
   -- Do not use link = false here, because nvim will return the highlight

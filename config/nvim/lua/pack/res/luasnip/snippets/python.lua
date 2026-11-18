@@ -213,8 +213,8 @@ M.snippets = {
     },
     un.fmtad('<logger> = logging.getLogger(<name><e>)', {
       logger = f(get_logger),
-      name = i(2, '__name__'),
-      e = i(3),
+      name = i(1, '__name__'),
+      e = i(2),
     })
   ),
   us.sn(
@@ -400,7 +400,7 @@ M.snippets = {
   ),
   us.sn(
     {
-      trig = 'll',
+      trig = 'lln',
       desc = 'Log a line',
     },
     un.fmtad('<logger>.debug(<q><line><q><e>)', {
@@ -518,13 +518,14 @@ M.snippets = {
       [[
         if <cond>:
         <body>
-        elif:
+        elif <cond2>:
         <body2>
       ]],
       {
         cond = i(1),
         body = un.body(2, 1, 'pass'),
-        body2 = un.body(3, 1, 'pass'),
+        cond2 = i(3),
+        body2 = un.body(4, 1, 'pass'),
       }
     )
   ),
@@ -593,7 +594,7 @@ M.snippets = {
       ),
       un.fmtad(
         [[
-          for <idx>, <var> in iter(<iterable>):
+          for <idx>, <var> in enumerate(<iterable>):
           <body>
         ]],
         {
@@ -633,7 +634,7 @@ M.snippets = {
       ),
       un.fmtad(
         [[
-          for <idx>, <var> in iter(<iterable>):
+          for <idx>, <var> in enumerate(<iterable>):
           <body>
         ]],
         {
@@ -696,11 +697,11 @@ M.snippets = {
       { trig = 'fit' },
       { trig = 'forit' },
       { trig = 'foriter' },
-      common = { desc = 'for ... in iter(...) loop' },
+      common = { desc = 'for ... in enumerate(...) loop' },
     },
     un.fmtad(
       [[
-        for <idx>, <elem> in iter(<iterable>):
+        for <idx>, <elem> in enumerate(<iterable>):
         <body>
       ]],
       {
@@ -1039,7 +1040,7 @@ M.snippets = {
         <idnt>case <match2>:
         <idnt><idnt><i>
         <idnt>case _:
-        <idnt><idnt> <d>
+        <idnt><idnt><d>
       ]],
       {
         idnt = un.idnt(1),

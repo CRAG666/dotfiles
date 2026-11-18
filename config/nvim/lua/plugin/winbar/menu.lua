@@ -577,11 +577,13 @@ function winbar_menu:update_scrollbar()
 
   local thumb_height =
     math.max(1, math.floor(menu_win_configs.height ^ 2 / buf_height))
-  local offset = vim.fn.line('w$') == buf_height
+  local offset = vim.fn.line('w$', self.win) == buf_height
       and menu_win_configs.height - thumb_height
     or math.min(
       menu_win_configs.height - thumb_height,
-      math.floor(menu_win_configs.height * vim.fn.line('w0') / buf_height)
+      math.floor(
+        menu_win_configs.height * vim.fn.line('w0', self.win) / buf_height
+      )
     )
 
   if self.scrollbar and vim.api.nvim_win_is_valid(self.scrollbar.thumb) then

@@ -82,9 +82,9 @@ function! GetMarkdownIndent() abort
     " nvim-treesitter's new default branch 'main' does not have
     " `nvim_treesitter#indent()`
     try
-      l:ts_indent = nvim_treesitter#indent()
-    catch /^Vim:E117: Unknown function: nvim_treesitter#indent/
-      l:ts_indent = luaeval(printf("require('nvim-treesitter.indent').get_indent(%d)", v:lnum))
+      let l:ts_indent = nvim_treesitter#indent()
+    catch /^Vim\%((\a\+)\)\=:E117: Unknown function: nvim_treesitter#indent/
+      let l:ts_indent = luaeval(printf("require('nvim-treesitter.indent').get_indent(%d)", v:lnum))
     endtry
     return l:ts_indent
   endif

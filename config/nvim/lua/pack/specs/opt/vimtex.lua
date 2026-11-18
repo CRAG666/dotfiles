@@ -4,8 +4,16 @@ return {
   data = {
     cmds = 'VimtexInverseSearch',
     events = {
-      event = 'FileType',
-      pattern = 'tex',
+      -- Loaded before `FileType`, vimtex's ftplugin is on the runtimepath in
+      -- time and the syntax file is not sourced twice by the re-trigger
+      { event = 'BufReadPre', pattern = '*.tex' },
+      { event = 'BufNewFile', pattern = '*.tex' },
+      {
+        event = 'FileType',
+        pattern = 'tex',
+        -- vimtex's ftplugin is not on the runtimepath on the first `FileType`
+        retrig = true,
+      },
     },
     preload = function()
       -- Enable vim's legacy regex-based syntax highlighting alongside treesitter

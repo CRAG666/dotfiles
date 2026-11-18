@@ -143,7 +143,6 @@ M.snippets = {
   ),
   us.msn(
     {
-      { trig = 'el' },
       { trig = 'else' },
       common = { desc = 'else statement' },
     },

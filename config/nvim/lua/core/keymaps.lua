@@ -162,7 +162,7 @@ require('utils.load').on_events(
         })
       end
 
-      vim.api.nvim_feedkeys('y', 'n', false)
+      vim.api.nvim_feedkeys('y', 'ni', false)
     end
 
     -- Yank paragraphs as single lines, useful for yanking hard-wrapped
@@ -469,11 +469,11 @@ require('utils.load').on_events(
     map('n', 'x', '"_x')
     map({ 'n', 'x' }, 'c', '"_c')
     map('n', 'C', '"_C')
-    map('v', 'p', '"_dP', opts)
+    map('v', 'p', '"_dP')
 
     -- Better indent
-    map('v', '<', '<gv', opts)
-    map('v', '>', '>gv', opts)
+    map('v', '<', '<gv')
+    map('v', '>', '>gv')
 
     map('n', '<localleader>s', function()
       if vim.wo.spell then
@@ -491,10 +491,6 @@ require('utils.load').on_events(
         end
       end)
     end, { desc = 'Toggle spell checker' })
-
-    map('n', '<localleader>e', function()
-      require('modules.es_shortcuts')
-    end, { desc = 'Spanish Shortcuts' })
 
     -- sudo
     -- vim.cmd [[cmap w!! w !sudo tee > /dev/null %]]

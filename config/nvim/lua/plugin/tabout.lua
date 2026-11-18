@@ -23,7 +23,7 @@ function fallback_tbl:fallback(k)
   local default = self.__default
   if dest and default then
     if vim.islist(dest) and vim.islist(default) then
-      return vim.list_extend(dest, default)
+      return vim.list_extend(vim.list_extend({}, dest), default)
     else
       dest = vim.tbl_deep_extend('keep', dest, default)
       return dest
@@ -80,7 +80,7 @@ local closing_patterns = fallback_tbl:new({
       '\\right>',
       '\\%]',
       '\\}',
-      '-->',
+      '%-%->',
       '<[^>]*>',
       '%*%*%*',
       '%*%*',
@@ -116,14 +116,14 @@ local opening_pattern_lookup_tbl = {
   ['%)']              = '%(',
   ['%]']              = '%[',
   ['%*']              = '%*',
-  ['<<<']             = '>>>',
+  ['>>>']             = '<<<',
   ['%*%*']            = '%*%*',
   ['%*%*%*']          = '%*%*%*',
   ['"""']             = '"""',
   ["'''"]             = "'''",
   ['%*/']             = '/%*',
   ['\\}']             = '\\{',
-  ['-->']             = '<!--',
+  ['%-%->']           = '<!--',
   ['\\%)']            = '\\%(',
   ['\\%]']            = '\\%[',
   ['%]=*%]']          = '--%[=*%[',
@@ -133,7 +133,7 @@ local opening_pattern_lookup_tbl = {
   ['\\right%)']       = '\\left%(',
   ['\\right%]']       = '\\left%[',
   ['\\right\\vert']   = '\\left\\vert',
-  ['\\right\\Vert']   = '\\left\\lVert',
+  ['\\right\\Vert']   = '\\left\\Vert',
   ['\\right\\rceil']  = '\\left\\lceil',
   ['\\right\\rfloor'] = '\\left\\lfloor',
 }

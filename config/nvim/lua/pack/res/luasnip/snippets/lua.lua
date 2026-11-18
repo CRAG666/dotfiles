@@ -130,9 +130,9 @@ M.snippets = {
     c(1, {
       un.fmtad(
         [[
-          local func main(<args>) {
-            <body>
-          }
+          local function main(<args>)
+          <body>
+          end
         ]],
         {
           args = r(1, 'args'),
@@ -141,9 +141,9 @@ M.snippets = {
       ),
       un.fmtad(
         [[
-          func main(<args>) {
-            <body>
-          }
+          function main(<args>)
+          <body>
+          end
         ]],
         {
           args = r(1, 'args'),
@@ -228,7 +228,7 @@ M.snippets = {
     un.body(2, 1),
     t({ '', 'elseif ' }),
     i(3, 'condition_2'),
-    t({ '', '' }),
+    t({ ' then', '' }),
     un.idnt(1),
     i(0),
     t({ '', 'end' }),
@@ -686,7 +686,7 @@ M.snippets = {
       {
         class_name = i(1, 'class_name'),
         opts = i(2),
-        body = un.body(2, 1),
+        body = un.body(3, 1),
       }
     )
   ),

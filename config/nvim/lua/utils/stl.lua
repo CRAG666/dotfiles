@@ -108,6 +108,11 @@ end
 ---Start or continue spinning animation
 ---@param on_spin? fun(spinner: stl.spinner)
 function M.spinner:spin(on_spin)
+  -- Deleted while a tick was queued
+  if not self.opts then
+    return
+  end
+
   on_spin = on_spin or self.opts.on_spin
 
   local now = vim.uv.now()
@@ -230,7 +235,7 @@ function M.spinner:attach(buf)
       once = true,
       buf = buf,
       callback = function(args)
-        if vim.b[args.buf].spinner ~= self then
+        if vim.b[args.buf].spinner_id ~= self.id then
           return
         end
         self:detach()

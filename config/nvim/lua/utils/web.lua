@@ -4,7 +4,7 @@ local M = {}
 ---@param dest? string
 ---@param on_exit? fun(out: vim.SystemCompleted)
 function M.get(url, dest, on_exit)
-  dest = dest or vim.fs.basename(dest)
+  dest = dest or vim.fs.basename(url)
 
   if vim.fn.executable('curl') == 1 then
     vim.system({ 'curl', url, '-o', dest }, {}, on_exit)

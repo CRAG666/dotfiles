@@ -214,7 +214,7 @@ local subcommands = {
     get_clients_by_id = {
       completion = subcommand_completions.lsp_clients,
       arg_handler = function(args)
-        return tonumber(args[1]:match('^%d+'))
+        return tonumber((args[1] or ''):match('^%d+'))
       end,
       fn_override = function(id)
         vim.print(vim.lsp.get_client_by_id(id))
@@ -309,7 +309,7 @@ local subcommands = {
         ['format.bufnr'] = subcommand_opt_vals.bufs,
         ['format.formatting_options.insertSpaces'] = subcommand_opt_vals.bool,
         ['format.formatting_options.trimTrailingWhitespace'] = subcommand_opt_vals.bool,
-        ['formatting_options.insertFinalNewline'] = subcommand_opt_vals.bool,
+        ['format.formatting_options.insertFinalNewline'] = subcommand_opt_vals.bool,
         ['format.formatting_options.trimFinalNewlines'] = subcommand_opt_vals.bool,
         ['local'] = subcommand_opt_vals.bool,
         ['global'] = subcommand_opt_vals.bool,
@@ -327,7 +327,7 @@ local subcommands = {
           scope.lsp_autofmt_enabled = not scope.lsp_autofmt_enabled
         elseif tbl.fargs[1] == '&' or vim.tbl_contains(args, 'reset') then
           scope.lsp_autofmt_enabled = false
-          scope.lsp_autofmt_opts = { async = true, timeout = 500 }
+          scope.lsp_autofmt_opts = { async = false, timeout_ms = 500 }
         elseif tbl.fargs[1] == '?' or vim.tbl_contains(args, 'status') then
           vim.notify(
             string.format(
@@ -412,7 +412,21 @@ local subcommands = {
       end,
     },
     execute_command = {
-      arg_handler = subcommand_arg_handler.item,
+      fn_override = function(args)
+        local command = args[1]
+        for _, client in
+          ipairs(vim.lsp.get_clients({
+            bufnr = 0,
+            method = 'workspace/executeCommand',
+          }))
+        do
+          client:exec_cmd({
+            title = command,
+            command = command,
+            arguments = vim.list_slice(args, 2),
+          })
+        end
+      end,
     },
     type_definition = {
       opts = {
@@ -684,17 +698,17 @@ local subcommands = {
         'opts.signs.text',
         'opts.signs.text.ERROR',
         'opts.signs.text.WARN',
-        'opts.signs.text.args',
+        'opts.signs.text.INFO',
         'opts.signs.text.HINT',
         'opts.signs.numhl',
         'opts.signs.numhl.ERROR',
         'opts.signs.numhl.WARN',
-        'opts.signs.numhl.args',
+        'opts.signs.numhl.INFO',
         'opts.signs.numhl.HINT',
         'opts.signs.linehl',
         'opts.signs.linehl.ERROR',
         'opts.signs.linehl.WARN',
-        'opts.signs.linehl.args',
+        'opts.signs.linehl.INFO',
         'opts.signs.linehl.HINT',
         'opts.float',
         'opts.float.namespace',
@@ -706,8 +720,8 @@ local subcommands = {
         'opts.float.format',
         'opts.float.prefix',
         'opts.float.suffix',
-        'float.focus_id',
-        'float.border',
+        'opts.float.focus_id',
+        'opts.float.border',
         'opts.severity_sort',
         ['opts.underline'] = subcommand_opt_vals.bool,
         ['opts.underline.severity'] = subcommand_opt_vals.severity,
@@ -743,6 +757,9 @@ local subcommands = {
         ['bufnr'] = subcommand_opt_vals.bufs,
         'namespace',
       },
+      fn_override = function(bufnr, namespace)
+        vim.diagnostic.enable(true, { bufnr = bufnr, ns_id = namespace })
+      end,
     },
     fromqflist = {
       arg_handler = subcommand_arg_handler.item,
@@ -872,8 +889,10 @@ local subcommands = {
         'namespace',
         ['bufnr'] = subcommand_opt_vals.bufs,
       },
-      fn_override = function(...)
-        vim.print(vim.diagnostic.is_enabled(...))
+      fn_override = function(bufnr, namespace)
+        vim.print(
+          vim.diagnostic.is_enabled({ bufnr = bufnr, ns_id = namespace })
+        )
       end,
     },
     match = {
@@ -1041,14 +1060,19 @@ local function command_meta(subcommand_info_list, fn_scope, fn_name_alt)
     if not fn_name then
       return
     end
-    local fn = subcommand_info_list[fn_name]
-        and subcommand_info_list[fn_name].fn_override
+    local info = subcommand_info_list[fn_name]
+    local fn = info and info.fn_override
       or type(fn_scope) == 'table' and fn_scope[fn_name]
       or type(fn_scope) == 'function' and fn_scope(fn_name)
     if type(fn) ~= 'function' then
       return
     end
-    local arg_handler = subcommand_info_list[fn_name].arg_handler
+    -- Functions without a subcommand entry only take positional arguments
+    if not info then
+      fn(unpack(cmdline_args))
+      return
+    end
+    local arg_handler = info.arg_handler
       or function(...)
         return ...
       end
@@ -1136,7 +1160,7 @@ end
 
 ---@return nil
 local function setup_lsp_autoformat()
-  vim.g.lsp_autofmt_opts = { async = true, timeout_ms = 500 }
+  vim.g.lsp_autofmt_opts = { async = false, timeout_ms = 500 }
 
   -- Automatically format code on buf save and insert leave
   vim.api.nvim_create_autocmd('BufWritePre', {

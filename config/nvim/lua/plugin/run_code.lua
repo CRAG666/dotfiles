@@ -109,7 +109,6 @@ local function load()
         }
         vim.ui.input({ prompt = 'Add more args:' }, function(input)
           cpp_base[4] = input
-          vim.print(vim.tbl_extend('force', cpp_base, cpp_exec))
           require('code_runner.commands').run_from_fn(
             vim.list_extend(cpp_base, cpp_exec)
           )

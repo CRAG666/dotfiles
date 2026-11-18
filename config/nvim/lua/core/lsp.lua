@@ -47,47 +47,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
--- Show notification if no references, definition, declaration,
--- implementation or type definition is found
-do
-  local methods = {
-    'textDocument/references',
-    'textDocument/definition',
-    'textDocument/declaration',
-    'textDocument/implementation',
-    'textDocument/typeDefinition',
-  }
-
-  for _, method in ipairs(methods) do
-    local obj_name = method:match('/(%w*)$'):gsub('s$', '')
-    local handler = vim.lsp.handlers[method]
-
-    vim.lsp.handlers[method] = function(err, result, ctx, ...)
-      if not result or vim.tbl_isempty(result) then
-        vim.notify('[LSP] no ' .. obj_name .. ' found')
-        return
-      end
-
-      -- textDocument/definition can return Location or Location[]
-      -- https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_definition
-      if not vim.islist(result) then
-        result = { result }
-      end
-
-      if #result == 1 then
-        vim.lsp.util.show_document(
-          result[1],
-          vim.lsp.get_client_by_id(ctx.client_id).offset_encoding,
-          { focus = true }
-        )
-        return
-      end
-
-      handler(err, result, ctx, ...)
-    end
-  end
-end
-
 -- Configure hovering window style
 -- Hijack LSP floating window function to use custom options
 do

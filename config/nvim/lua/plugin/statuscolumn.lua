@@ -220,6 +220,9 @@ function _G._statuscolumn()
     local buf = vim.api.nvim_win_get_buf(win)
     local wininfo = vim.fn.getwininfo(win)[1]
     data.display_tick = display_tick
+    if data.buf ~= buf then
+      data.buf_tick = nil
+    end
     data.buf = buf
     data.cur = vim.api.nvim_win_get_cursor(win)
     data.cul = wo.cul

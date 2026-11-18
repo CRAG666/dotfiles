@@ -31,10 +31,12 @@ M.snippets = {
       }),
     }),
     {
-      stored = {
-        name = i(nil, 'variable'),
-        type = i(nil, 'any'),
-        value = i(nil, 'undefined'),
+      common_opts = {
+        stored = {
+          name = i(nil, 'variable'),
+          type = i(nil, 'any'),
+          value = i(nil, 'undefined'),
+        },
       },
     }
   ),
@@ -61,8 +63,10 @@ M.snippets = {
       }),
     }),
     {
-      stored = {
-        name = i(nil, 'variable'),
+      common_opts = {
+        stored = {
+          name = i(nil, 'variable'),
+        },
       },
     }
   ),

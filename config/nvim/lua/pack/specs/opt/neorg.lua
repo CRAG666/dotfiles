@@ -42,7 +42,6 @@ return {
           ['core.integrations.treesitter'] = {},
           ['core.concealer'] = {
             config = {
-              dim_code_blocks = { conceal = false },
               icon_preset = 'basic',
               icons = {
                 code_block = {

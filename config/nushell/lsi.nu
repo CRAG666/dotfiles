@@ -1,20 +1,9 @@
 let __lsi_theme = (open $env.LSI_THEME_PATH)
 
 let __lsi_icons = {
-    dirs: (
-        $__lsi_theme.icon.dirs
-        | reduce -f {} {|it, acc| $acc | upsert $it.name $it }
-    ),
-    files: (
-        $__lsi_theme.icon.files
-        | reduce -f {} {|it, acc|
-            $acc | upsert ($it.name | str lowercase) $it
-        }
-    ),
-    exts: (
-        $__lsi_theme.icon.exts
-        | reduce -f {} {|it, acc| $acc | upsert $it.name $it }
-    )
+    dirs: ($__lsi_theme.icon.dirs | each {|it| {($it.name): $it} } | into record),
+    files: ($__lsi_theme.icon.files | each {|it| {($it.name | str lowercase): $it} } | into record),
+    exts: ($__lsi_theme.icon.exts | each {|it| {($it.name): $it} } | into record)
 }
 
 def decorate-file [input] {
@@ -62,24 +51,32 @@ def decorate-file [input] {
     $path
 }
 
-def --wrapped ls [...args] {
-    let result = (
-        nu -c $"ls ($args | str join ' ') | sort-by type name | to nuon"
-        | complete
+def ls [
+    --all (-a) # Show hidden files.
+    --long (-l) # Get all available columns for each entry.
+    --short-names (-s) # Only print the file names, and not the path.
+    --full-paths (-f) # Display paths as absolute paths.
+    --du (-d) # Display the apparent directory size in place of the directory metadata size.
+    --directory (-D) # List the specified directory itself instead of its contents.
+    --mime-type (-m) # Show mime-type in type column instead of 'file'.
+    --threads (-t) # Use multiple threads to list contents.
+    ...pattern: glob # The glob pattern to use.
+] {
+    let pattern = if ($pattern | is-empty) { ['.'] } else { $pattern }
+    (
+        core-ls
+        --all=$all
+        --long=$long
+        --short-names=$short_names
+        --full-paths=$full_paths
+        --du=$du
+        --directory=$directory
+        --mime-type=$mime_type
+        --threads=$threads
+        ...$pattern
     )
-
-    if $result.exit_code != 0 {
-        print -e $result.stderr
-        return
-    }
-
-    let data = ($result.stdout | from nuon)
-
-    if ($data | describe | str starts-with "table") {
-        $data | update name {|row| decorate-file $row }
-    } else {
-        $data
-    }
+    | sort-by type name
+    | update name {|row| decorate-file $row }
 }
 
 def gst [] {

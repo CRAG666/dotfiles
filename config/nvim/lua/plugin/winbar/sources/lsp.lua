@@ -207,13 +207,18 @@ local function unify(symbols)
   -- symbol can only be a child or a sibling of the previous symbol in the
   -- same list
   for list_idx, sym in vim.iter(symbols):enumerate():skip(1) do
-    local prev = symbols[list_idx - 1] --[[@as winbar.sources.lsp.symbol_info_tree]]
-    -- If the symbol is a child of the previous symbol
-    if utils.lsp.range_contains(prev.location.range, sym.location.range) then
-      sym.parent = prev
-    else -- Else the symbol is a sibling of the previous symbol
-      sym.parent = prev.parent
+    -- Nearest previous symbol containing the symbol
+    local parent = symbols[list_idx - 1] --[[@as winbar.sources.lsp.symbol_info_tree?]]
+    while
+      parent
+      and not utils.lsp.range_contains(
+        parent.location.range,
+        sym.location.range
+      )
+    do
+      parent = parent.parent
     end
+    sym.parent = parent
     if sym.parent then
       sym.parent.children = sym.parent.children or {}
       table.insert(sym.parent.children, sym)
@@ -224,20 +229,33 @@ local function unify(symbols)
   return document_symbols
 end
 
+---Latest update of each buffer, retries of previous updates are dropped
+---@type table<integer, integer>
+local update_generations = {}
+
 ---Update LSP symbols for given buffer
 ---Side effect: update symbol_list
 ---@param buf integer buffer handler
 ---@param ttl integer? limit the number of recursive requests, default 60
-local function update_symbols(buf, ttl)
+---@param generation integer? update being retried, nil to start a new one
+local function update_symbols(buf, ttl, generation)
+  if not generation then
+    generation = (update_generations[buf] or 0) + 1
+    update_generations[buf] = generation
+  elseif update_generations[buf] ~= generation then
+    return
+  end
+
   ttl = ttl or configs.opts.sources.lsp.request.ttl_init
   if ttl <= 0 or not vim.api.nvim_buf_is_valid(buf) then
     lsp_buf_symbols[buf] = nil
+    update_generations[buf] = nil
     return
   end
 
   local function defer_update()
     vim.defer_fn(function()
-      update_symbols(buf, ttl - 1)
+      update_symbols(buf, ttl - 1, generation)
     end, configs.opts.sources.lsp.request.interval)
   end
 

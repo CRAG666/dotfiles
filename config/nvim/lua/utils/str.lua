@@ -204,7 +204,7 @@ end
 ---@param str string string to escape
 ---@return string
 function M.escape_magic(str)
-  return (str:gsub('[$^()%%.%[%]*+-?]', '%%%1'))
+  return (str:gsub('[$^()%%.%[%]*+?-]', '%%%1'))
 end
 
 return M

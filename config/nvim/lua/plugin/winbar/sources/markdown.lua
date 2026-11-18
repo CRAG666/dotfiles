@@ -86,7 +86,7 @@ local function parse_buf(buf, lnum_end, incremental)
     symbols_parsed['end'] = { lnum = 0, in_codeblock = false }
   end
   local lines = vim.api.nvim_buf_get_lines(buf, lnum_start, lnum_end, false)
-  symbols_parsed['end'].lnum = lnum_start + #lines + 1
+  symbols_parsed['end'].lnum = lnum_start + #lines
 
   for idx, line in ipairs(lines) do
     if line:match('^```') then

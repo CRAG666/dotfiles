@@ -4,6 +4,14 @@ local conds = require('utils.snip.conds')
 local ls = require('luasnip')
 local i = ls.insert_node
 local c = ls.choice_node
+local f = ls.function_node
+
+---@param format string?
+local function date(format)
+  return f(function()
+    return os.date(format)
+  end)
+end
 
 M.snippets = {
   us.ms(
@@ -22,11 +30,11 @@ M.snippets = {
       },
     },
     c(1, {
-      i(nil, os.date()),
-      i(nil, os.date('%Y-%m-%d')), -- ISO
-      i(nil, os.date('%Y%m%d')),
-      i(nil, os.date("%Y%m%d_%H%M%S")),
-      i(nil, os.date('%m.%d.%Y')),
+      date(),
+      date('%Y-%m-%d'), -- ISO
+      date('%Y%m%d'),
+      date('%Y%m%d_%H%M%S'),
+      date('%m.%d.%Y'),
     })
   ),
 }

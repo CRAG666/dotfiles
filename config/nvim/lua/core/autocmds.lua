@@ -450,7 +450,7 @@ augroup('dynamic_cc', {
       -- `textwidth` is unset, restore `colorcolumn`
       if vim.v.option_new == 0 and cc_is_relative and vim.b.cc then
         for _, win in ipairs(wins) do
-          if vim.wo.cc ~= '' then
+          if vim.wo[win].cc ~= '' then
             vim.wo[win][0].cc = vim.b.cc
           end
         end
@@ -551,7 +551,12 @@ augroup('EasyQuit', {
 augroup('BufferConfig', {
   'BufWritePre',
   {
-    command = [[%s/\s\+$//e]],
+    desc = 'Remove trailing whitespaces.',
+    callback = function()
+      local view = vim.fn.winsaveview()
+      vim.cmd([[keeppatterns %s/\s\+$//e]])
+      vim.fn.winrestview(view)
+    end,
   },
 }, {
   'BufEnter',
@@ -565,11 +570,12 @@ augroup('CodeCompanionConfig', {
   {
     pattern = 'codecompanion',
     callback = function()
-      vim.wo.number = false
-      vim.wo.relativenumber = false
-      vim.wo.signcolumn = 'no'
-      vim.wo.foldcolumn = '0'
-      vim.wo.statuscolumn = ''
+      local wo = vim.wo[0][0]
+      wo.number = false
+      wo.relativenumber = false
+      wo.signcolumn = 'no'
+      wo.foldcolumn = '0'
+      wo.statuscolumn = ''
     end,
   },
 })

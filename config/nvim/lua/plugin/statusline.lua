@@ -93,9 +93,9 @@ local modes = {
 ---@return string
 function _G._statusline.mode()
   local hl = vim.bo.mod and 'StatusLineHeaderModified' or 'StatusLineHeader'
-  local mode = vim.fn.mode()
+  local mode = vim.fn.mode(1)
   local readonly = mode == 'n' and (vim.bo.ro or not vim.bo.ma)
-  local mode_str = readonly and 'RO' or modes[mode]
+  local mode_str = readonly and 'RO' or modes[mode] or modes[mode:sub(1, 1)]
   if vim.g.has_nf then
     mode_str = (readonly and icons.Lock or icons.Vim) .. mode_str
   end
@@ -344,9 +344,13 @@ end
 ---@param buf integer buffer number
 ---@param bufname string buffer name, `buf` may not be valid so we need this
 ---@return nil
-local function remove_buf(buf, bufname)
-  if buf_visible(buf) then
+---@param force? boolean remove the buffer even if it is visible
+local function remove_buf(buf, bufname, force)
+  if not force and buf_visible(buf) then
     return
+  end
+  if force then
+    vim.b[buf]._stl_pdiff = nil
   end
 
   bufname = vim.fs.basename(bufname)
@@ -405,8 +409,10 @@ vim.api.nvim_create_autocmd('OptionSet', {
   desc = 'Remove invisible buffer record.',
   group = groupid,
   pattern = 'buflisted',
-  callback = function(args)
-    remove_buf(args.buf, args.file)
+  callback = function()
+    -- `OptionSet` does not set the buffer and file of the event
+    local buf = vim.api.nvim_get_current_buf()
+    remove_buf(buf, vim.api.nvim_buf_get_name(buf))
     -- For some reason, invoking `:redrawstatus` directly makes oil.nvim open
     -- a floating window shortly before opening a file
     vim.schedule(function()
@@ -422,13 +428,20 @@ vim.api.nvim_create_autocmd({
   'BufLeave',
   'BufHidden',
   'BufDelete',
-  'BufFilePre',
 }, {
   desc = 'Remove invisible buffer from record.',
   group = groupid,
   callback = vim.schedule_wrap(function(args)
     remove_buf(args.buf, args.file)
   end),
+})
+
+vim.api.nvim_create_autocmd('BufFilePre', {
+  desc = 'Remove record of the old name before renaming a buffer.',
+  group = groupid,
+  callback = function(args)
+    remove_buf(args.buf, vim.api.nvim_buf_get_name(args.buf), true)
+  end,
 })
 
 vim.api.nvim_create_autocmd('WinClosed', {
@@ -480,7 +493,7 @@ function _G._statusline.fname()
 
   if vim.bo.bt == 'quickfix' then
     return utils.stl.escape(
-      str_shorten(vim.w.quickfix_title, fname_special_max_width)
+      str_shorten(vim.w.quickfix_title or '', fname_special_max_width)
     ) or ''
   end
 
@@ -663,35 +676,29 @@ vim.api.nvim_create_autocmd('LspProgress', {
       bufs = bufs,
     }
 
-    vim
-      .iter(vim.tbl_keys(bufs))
-      :filter(function(buf)
-        -- No need to create and attach spinners to invisible bufs
-        return vim.fn.bufwinid(buf) ~= -1
-      end)
-      :each(function(buf)
-        local b = vim.b[buf]
-        if not utils.stl.spinner.id_is_valid(b.spinner_id) then
-          utils.stl.spinner:new():attach(buf)
-        end
+    local kind = args.data.params
+      and args.data.params.value
+      and args.data.params.value.kind
 
-        local spinner = utils.stl.spinner.get_by_id(b.spinner_id)
-        if not spinner then
-          return
-        end
+    for buf in pairs(bufs) do
+      local b = vim.b[buf]
+      -- No need to create and attach spinners to invisible bufs
+      local visible = vim.fn.bufwinid(buf) ~= -1
+      if visible and not utils.stl.spinner.id_is_valid(b.spinner_id) then
+        utils.stl.spinner:new():attach(buf)
+      end
 
-        if spinner.status == 'idle' then
+      local spinner = utils.stl.spinner.get_by_id(b.spinner_id)
+      if spinner then
+        if visible and spinner.status == 'idle' then
           spinner:spin()
         end
-
-        local type = args.data
-          and args.data.params
-          and args.data.params.value
-          and args.data.params.value.kind
-        if type == 'end' then
+        -- Finish spinners of hidden bufs too, else they spin forever
+        if kind == 'end' then
           spinner:finish()
         end
-      end)
+      end
+    end
   end,
 })
 
@@ -743,7 +750,7 @@ end
 ---@type table<string, string>
 local components = {
   align    = [[%=]],
-  flag     = [[%{%&bt==#''?'':(&bt==#'help'?'%h ':(&pvw?'%w ':(&bt==#'quickfix'?'%q ':'')))%}]],
+  flag     = [[%{%&pvw?'%w ':(&bt==#'help'?'%h ':(&bt==#'quickfix'?'%q ':''))%}]],
   diag     = [[%{%v:lua._statusline.diag()%}]],
   fname    = [[%{%v:lua._statusline.fname()%} ]],
   args     = [[%{%v:lua._statusline.info()%}]],

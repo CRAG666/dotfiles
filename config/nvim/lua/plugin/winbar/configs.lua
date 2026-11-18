@@ -188,8 +188,9 @@ M.opts = {
     -- Wait for a short time before updating the winbar, if another update
     -- request is received within this time, the previous request will be
     -- cancelled, this improves the performance when the user is holding
-    -- down a key (e.g. 'j') to scroll the window
-    update_debounce = 16,
+    -- down a key (e.g. 'j') to scroll the window; must be longer than the
+    -- key repeat interval (~25-33ms) to coalesce the requests
+    update_debounce = 80,
     ---@type table<string, winbar.event[]>
     update_events = {
       win = {

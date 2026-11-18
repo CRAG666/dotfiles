@@ -245,12 +245,12 @@ M.snippets = {
         expr = r(2, 'expr'),
         msg = r(3, 'msg'),
       }),
-      {
-        stored = {
-          dbg_assert = i(nil, 'dbg_assert'),
-        },
+    }),
+    {
+      stored = {
+        dbg_assert = i(nil, 'dbg_assert'),
       },
-    })
+    }
   ),
   us.sn(
     {
@@ -523,7 +523,7 @@ M.snippets = {
           if ext == 'h' or ext == 'hpp' then
             local str = vim.fn
               .fnamemodify(bufname, ':t')
-              :gsub('[^0-9a-zA-z_]+', '_')
+              :gsub('[^0-9a-zA-Z_]+', '_')
               :upper()
             return sn(nil, i(1, str))
           end

@@ -9,6 +9,7 @@ local fts = {
   typescript = true,
   javascriptreact = true,
   typescriptreact = true,
+  tsx = true,
 }
 
 ---When typing 'await' add 'async' to the function declaration if the function

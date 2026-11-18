@@ -23,6 +23,7 @@ return {
         or ''
     ),
     events = { 'InsertEnter', 'CmdlineEnter' },
+    idle = true,
     postload = function()
       local icons = require('utils.static.icons')
       local has_ls, ls = pcall(require, 'luasnip')
@@ -50,8 +51,9 @@ return {
       ---@param items blink.cmp.CompletionItem[]
       ---@return boolean
       local function is_expr_compl(items)
-        return items[1] and items[1].source_id == 'cmdline'
-          or vim.tbl_contains(
+        return items[1]
+          and items[1].source_id == 'cmdline'
+          and vim.tbl_contains(
             { 'function', 'expression' },
             blink_source_utils.get_completion_type(blink_ctx.get_mode())
           )

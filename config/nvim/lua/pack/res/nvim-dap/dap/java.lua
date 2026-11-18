@@ -6,31 +6,35 @@
 
 local M = {}
 
-local JDTLS_ATTACH_TIMEOUT = 4000
-local JDTLS_ATTACH_INTERVAL = 100
-
-local JDTLS_REQUEST_TIMEOUT = 4000
-local JDTLS_REQUEST_INTERVAL = 100
-
----Wait for jdtls client to attach to current buffer
 ---@param buf? integer
 ---@return vim.lsp.Client?
-local function wait_jdtls_client(buf)
-  local client ---@type vim.lsp.Client?
+local function get_jdtls_client(buf)
+  return vim.lsp.get_clients({
+    name = 'jdtls',
+    bufnr = vim._resolve_bufnr(buf),
+  })[1]
+end
 
-  vim.wait(JDTLS_ATTACH_TIMEOUT, function()
-    client = unpack(vim.lsp.get_clients({
-      name = 'jdtls',
-      bufnr = vim._resolve_bufnr(buf),
-    }))
-    return client ~= nil
-  end, JDTLS_ATTACH_INTERVAL)
-
-  return client
+---Execute a jdtls command, yielding the running coroutine until it responds
+---@param client vim.lsp.Client
+---@param command string
+---@param arguments? any[]
+---@return lsp.ResponseError? err
+---@return any response
+local function execute_command(client, command, arguments)
+  local co = coroutine.running()
+  client:request(
+    'workspace/executeCommand',
+    { command = command, arguments = arguments },
+    function(err, response)
+      coroutine.resume(co, err, response)
+    end
+  )
+  return coroutine.yield()
 end
 
 M.adapter = function(cb)
-  local client = wait_jdtls_client()
+  local client = get_jdtls_client()
   if not client then
     vim.notify(
       '[dap-java] no jdtls client attached to current buffer',
@@ -74,81 +78,56 @@ M.adapter = function(cb)
   )
 end
 
--- Ported from
--- https://github.com/mfussenegger/nvim-jdtls/blob/master/lua/jdtls/dap.lua
-M.config = (function()
-  local client = wait_jdtls_client()
+---Config provider, resolved by jdtls on each `dap.continue()` inside
+---nvim-dap's coroutine, see `:h dap-providers-configs`
+---
+---Ported from
+---https://github.com/mfussenegger/nvim-jdtls/blob/master/lua/jdtls/dap.lua
+---@param buf integer
+---@return dap.Configuration[]
+function M.provider(buf)
+  local client = get_jdtls_client(buf)
   if not client then
+    return {}
+  end
+
+  local err, classes = execute_command(client, 'vscode.java.resolveMainClass')
+  if err then
     vim.notify(
-      '[dap-java] no jdtls client attached to current buffer',
+      '[dap-java] error resolving main class: ' .. vim.inspect(err),
       vim.log.levels.ERROR
     )
     return {}
   end
 
   local configs = {}
-  local done = false
-
-  client:request(
-    'workspace/executeCommand',
-    { command = 'vscode.java.resolveMainClass' },
-    function(err, classes)
-      if err then
-        vim.notify(
-          '[dap-java] error resolving main class: ' .. vim.inspect(err),
-          vim.log.levels.ERROR
-        )
-        done = true
-        return
-      end
-
-      classes = classes or {}
-
-      local pending = #classes
-      if pending == 0 then
-        done = true
-        return
-      end
-
-      local java_exec_path = vim.fn.exepath('java')
-
-      for _, c in ipairs(classes) do
-        client:request('workspace/executeCommand', {
-          command = 'vscode.java.resolveClasspath',
-          arguments = { c.mainClass, c.projectName },
-        }, function(_, paths)
-          if paths then
-            table.insert(configs, {
-              cwd = client.config.root_dir,
-              type = 'java',
-              request = 'launch',
-              console = 'integratedTerminal',
-              name = string.format(
-                'Launch %s: %s',
-                c.projectName,
-                c.mainClass
-              ),
-              projectName = c.projectName,
-              mainClass = c.mainClass,
-              modulePaths = paths[1],
-              classPaths = paths[2],
-              javaExec = java_exec_path,
-            })
-          end
-          pending = pending - 1
-          if pending == 0 then
-            done = true
-          end
-        end)
-      end
+  local java_exec_path = vim.fn.exepath('java')
+  for _, class in ipairs(classes or {}) do
+    local _, paths = execute_command(
+      client,
+      'vscode.java.resolveClasspath',
+      { class.mainClass, class.projectName }
+    )
+    if paths then
+      table.insert(configs, {
+        cwd = client.config.root_dir,
+        type = 'java',
+        request = 'launch',
+        console = 'integratedTerminal',
+        name = string.format(
+          'Launch %s: %s',
+          class.projectName,
+          class.mainClass
+        ),
+        projectName = class.projectName,
+        mainClass = class.mainClass,
+        modulePaths = paths[1],
+        classPaths = paths[2],
+        javaExec = java_exec_path,
+      })
     end
-  )
-
-  -- Wait for async callbacks to populate configs
-  vim.wait(JDTLS_REQUEST_TIMEOUT, function()
-    return done
-  end, JDTLS_REQUEST_INTERVAL)
+  end
   return configs
-end)()
+end
 
 return M

@@ -15,7 +15,8 @@ return {
     postload = function()
       require('snacks').setup({
         dashboard = {
-          enabled = true,
+          enabled = vim.fn.argc(-1) == 0
+            or vim.fn.isdirectory(vim.fn.argv(0)) == 1,
           sections = {
             {
               section = 'terminal',
@@ -493,10 +494,10 @@ return {
       }
       key.pmaps('n', 'g', lsp_maps)
 
-      key.map({ 'n', 't' }, ']]', function()
+      key.map('n', ']r', function()
         require('snacks').words.jump(vim.v.count1)
       end, { desc = 'Next Reference' })
-      key.map({ 'n', 't' }, '[[', function()
+      key.map('n', '[r', function()
         require('snacks').words.jump(-vim.v.count1)
       end, { desc = 'Prev Reference' })
     end,

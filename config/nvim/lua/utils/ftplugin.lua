@@ -9,6 +9,12 @@ return function(opts, undo)
     then
       value = false
     end
+    -- Loading spell files blocks the first redraw, `core.opts` enables
+    -- 'spell' after it
+    if name == 'spell' and vim.v.vim_did_enter == 0 then
+      vim.w.deferred_spell = value or nil
+      value = false
+    end
     vim.opt_local[name] = value
     reset[#reset + 1] = name .. '<'
   end

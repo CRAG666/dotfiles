@@ -9,13 +9,14 @@ return {
     },
     keys = {
       mode = 'n',
-      lhs = '<leader>R',
+      lhs = '<leader>mr',
       opts = { desc = '[R]un method' },
     },
     cmds = { 'Rest' },
     events = {
       event = 'FileType',
       pattern = 'http',
+      retrig = true,
     },
     postload = function()
       vim.keymap.set('n', '<leader>mr', ':Rest run<cr>')

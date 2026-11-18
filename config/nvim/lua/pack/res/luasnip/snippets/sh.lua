@@ -581,7 +581,7 @@ M.snippets = {
       desc = 'Print to stderr',
     },
     d(1, function()
-      if not conds.at_line_start() then
+      if not conds.at_line_start_with_indent() then
         return sn(nil, t('>&2'))
       end
       return sn(

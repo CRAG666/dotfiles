@@ -18,7 +18,7 @@ trap 'rm -rf "$tmp"' EXIT
 while IFS= read -r -d '' file; do
     [[ $file == skills/* || $(git ls-files --stage -- "$file") == 120000* ]] && continue
     staged="$tmp/$(basename "$file")"
-    git show ":$file" >"$staged"
+    git cat-file --filters ":$file" >"$staged"
     shebang=$(head -n1 "$staged")
     if [[ $file == justfile ]]; then
         just --justfile "$staged" --fmt --check >/dev/null 2>&1 || fail "justfile is not formatted (run: just --fmt)"

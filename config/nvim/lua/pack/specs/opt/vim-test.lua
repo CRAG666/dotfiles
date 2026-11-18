@@ -58,17 +58,16 @@ return {
 
       ---Modify & confirm test command before running
       custom_strategies.confirm = function(cmd)
+        -- `vim.ui.input()` can be async, e.g. snacks.input
         vim.ui.input(
           { prompt = 'Test command: ', default = cmd },
           function(input)
-            cmd = input
+            if input then
+              vim.fn['test#strategy#' .. (vim.g['test#confirm#strategy'] or 'basic')](
+                input
+              )
+            end
           end
-        )
-        if not cmd then
-          return
-        end
-        return vim.fn['test#strategy#' .. (vim.g['test#confirm#strategy'] or 'basic')](
-          cmd
         )
       end
 

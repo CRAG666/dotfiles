@@ -49,7 +49,7 @@ _G._title_lowercase_words = {
 ---@return nil
 local function format_title()
   if
-    vim.bo.filetype ~= 'markdown'
+    not vim.list_contains({ 'markdown', 'quarto', 'rmd' }, vim.bo.filetype)
     or vim.b.bigfile
     or vim.b.md_fmt_title == false
     or (vim.g.md_fmt_title == false and vim.b.md_fmt_title == nil)

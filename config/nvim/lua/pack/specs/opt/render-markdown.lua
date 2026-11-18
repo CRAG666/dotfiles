@@ -21,25 +21,6 @@ return {
       }
     end,
     postload = function()
-      -- Treesitter's `conceal_lines` check before drawing each row walks every
-      -- injected tree in the buffer, which makes scrolling slow in markdown.
-      -- Skip it in rendered filetypes: treesitter still conceals the lines
-      -- while drawing them and render-markdown conceals code fences itself
-      local ts_hl = require('vim.treesitter.highlighter')
-      local function skip_conceal_line_check(hl)
-        if vim.tbl_contains(file_types, vim.bo[hl.bufnr].ft) then
-          hl._conceal_line = false
-        end
-        return hl
-      end
-      local ts_hl_new = ts_hl.new
-      ts_hl.new = function(...)
-        return skip_conceal_line_check(ts_hl_new(...))
-      end
-      for _, hl in pairs(ts_hl.active) do
-        skip_conceal_line_check(hl)
-      end
-
       local hl = require('utils.hl')
       hl.persist(function()
         hl.set(0, 'markdownCode', { bg = 'RenderMarkdownCode' })

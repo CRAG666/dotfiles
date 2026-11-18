@@ -1,4 +1,6 @@
-vim.cmd.hi('clear')
+if vim.g.colors_name then
+  vim.cmd.hi('clear')
+end
 vim.g.colors_name = 'eyes'
 
 -- Palette {{{
@@ -158,8 +160,12 @@ end
 --- }}}
 local hl = require('utils.hl')
 
+local tints = {} ---@type table<string, [string, integer]>
+
 local function tint(color, alpha)
-  return { hl.cblend(color[1], c_bg0[1], alpha).hex, -1 }
+  local key = color[1] .. alpha
+  tints[key] = tints[key] or { hl.cblend(color[1], c_bg0[1], alpha).hex, -1 }
+  return tints[key]
 end
 
 -- Neorg flower heading palette (hue matched to each emoji) {{{

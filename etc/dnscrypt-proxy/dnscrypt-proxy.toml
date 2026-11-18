@@ -19,6 +19,9 @@ require_dnssec = true
 require_nolog = true
 require_nofilter = true
 
+# Pinned resolvers; a name that stops meeting the filters above is silently skipped.
+server_names = ['quad9-doh-ip4-port443-nofilter-pri', 'cloudflare', 'mullvad-doh']
+
 # Don't read /etc/resolv.conf (it points to unbound -> loop).
 ignore_system_dns = true
 

@@ -2,7 +2,6 @@
 
 -- vscode-neovim
 if vim.g.vscode then
-  vim.fn['plugin#vscode#setup']()
   return
 end
 
@@ -15,7 +14,7 @@ end)
 
 -- jupytext
 load.on_events(
-  { event = 'BufReadCmd', pattern = '*.ipynb' },
+  { event = 'BufReadCmd', pattern = '*.ipynb', retrig = true },
   'plugin.jupytext',
   function()
     require('plugin.jupytext').setup()
@@ -130,7 +129,7 @@ if vim.g.loaded_session == nil then
     'SessionSave',
     'SessionRemove',
     'SessionSelect',
-    'Mkssession',
+    'Mksession',
     'Restart',
   }, 'plugin.session', setup)
 end

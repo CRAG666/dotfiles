@@ -13,17 +13,26 @@ function M.new_cache()
   }
 end
 
+local mise_dirs = {} ---@type table<string, string>
+
 ---Install directory of a mise tool, for adapters that are scripts, not binaries
 ---@param tool string
 ---@return string
 function M.mise_where(tool)
-  local out = vim.system({ 'mise', 'where', tool }, { text = true }):wait()
-  if out.code ~= 0 then
-    error(
-      string.format('[utils.dap] `mise where %s` failed: %s', tool, out.stderr)
-    )
+  if not mise_dirs[tool] then
+    local out = vim.system({ 'mise', 'where', tool }, { text = true }):wait()
+    if out.code ~= 0 then
+      error(
+        string.format(
+          '[utils.dap] `mise where %s` failed: %s',
+          tool,
+          out.stderr
+        )
+      )
+    end
+    mise_dirs[tool] = vim.trim(out.stdout)
   end
-  return vim.trim(out.stdout)
+  return mise_dirs[tool]
 end
 
 ---Prompt with `vim.ui.input()` inside the nvim-dap run coroutine, so async

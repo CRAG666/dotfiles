@@ -6,12 +6,14 @@ return {
   -- switch
   version = 'main',
   data = {
-    events = { event = 'FileType', pattern = '[^_]\\+' },
-    postload = function()
-      -- Prevent ftplugin mappings, e.g. `]]`, `]m` from overriding those provided
-      -- by nvim-treesitter-textobjects, see `:h no_plugin_maps`
+    events = require('utils.load').ft_event,
+    -- Prevent ftplugin mappings, e.g. `]]`, `]m` from overriding those provided
+    -- by nvim-treesitter-textobjects, see `:h no_plugin_maps`; must be set
+    -- before the ftplugin of the first buffer runs
+    init = function()
       vim.g.no_plugin_maps = true
-
+    end,
+    postload = function()
       require('nvim-treesitter-textobjects').setup({
         select = {
           lookahead = true,
@@ -48,8 +50,8 @@ return {
       vim.keymap.set({ 'x', 'o' }, 'a,', function() sel('@parameter.outer') end,   { desc = 'Select around parameter' })
       vim.keymap.set({ 'x', 'o' }, 'i,', function() sel('@parameter.inner') end,   { desc = 'Select inside parameter' })
       vim.keymap.set({ 'x', 'o' }, 'a/', function() sel('@comment.outer') end,     { desc = 'Select around comment' })
-      vim.keymap.set({ 'x', 'o' }, 'a*', function() sel('@comment.outer') end,     { desc = 'Select inside comment' })
-      vim.keymap.set({ 'x', 'o' }, 'i/', function() sel('@comment.inner') end,     { desc = 'Select around comment' })
+      vim.keymap.set({ 'x', 'o' }, 'a*', function() sel('@comment.outer') end,     { desc = 'Select around comment' })
+      vim.keymap.set({ 'x', 'o' }, 'i/', function() sel('@comment.inner') end,     { desc = 'Select inside comment' })
       vim.keymap.set({ 'x', 'o' }, 'i*', function() sel('@comment.inner') end,     { desc = 'Select inside comment' })
       vim.keymap.set({ 'x', 'o' }, 'a.', function() sel('@block.outer') end,       { desc = 'Select around block' })
       vim.keymap.set({ 'x', 'o' }, 'i.', function() sel('@block.inner') end,       { desc = 'Select inside block' })
@@ -61,8 +63,8 @@ return {
       vim.keymap.set({ 'x', 'o' }, 'i#', function() sel('@header.inner') end,      { desc = 'Select inside header' })
       vim.keymap.set({ 'x', 'o' }, 'a3', function() sel('@header.outer') end,      { desc = 'Select around header' })
       vim.keymap.set({ 'x', 'o' }, 'i3', function() sel('@header.inner') end,      { desc = 'Select inside header' })
-      vim.keymap.set({ 'x', 'o' }, 'ar', function() sel('@return.inner') end,      { desc = 'Select around return' })
-      vim.keymap.set({ 'x', 'o' }, 'ir', function() sel('@return.outer') end,      { desc = 'Select inside return' })
+      vim.keymap.set({ 'x', 'o' }, 'ar', function() sel('@return.outer') end,      { desc = 'Select around return' })
+      vim.keymap.set({ 'x', 'o' }, 'ir', function() sel('@return.inner') end,      { desc = 'Select inside return' })
       -- stylua: ignore end
 
       -- stylua: ignore start

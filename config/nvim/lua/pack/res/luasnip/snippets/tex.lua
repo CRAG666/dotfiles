@@ -69,13 +69,7 @@ M.math = {
     t('\\right)'),
   }),
 
-  us.samW({ trig = '==' }, t('&= ')),
-  us.samW({ trig = ':=' }, t('\\coloneqq ')),
-  us.samW({ trig = '!=' }, t('\\neq ')),
   us.samW({ trig = '&= =' }, t('\\equiv ')),
-  us.samW({ trig = '>=' }, t('\\ge ')),
-  us.samW({ trig = '<=' }, t('\\le ')),
-  us.samW({ trig = '<->', priority = 999 }, t('\\leftrightarrow ')),
   us.samW({ trig = '\\le >', priority = 999 }, t('\\Leftrightarrow ')),
   us.samW({ trig = '<--', priority = 999 }, t('\\leftarrow ')),
   -- We are not using '\gets -' here as trigger to avoid confuse with negative
@@ -83,17 +77,13 @@ M.math = {
   us.samW({ trig = '\\gets --', priority = 999 }, t('\\leftarrow ')),
   us.samW({ trig = '<==', priority = 999 }, t('\\Leftarrow ')),
   us.samW({ trig = '\\le =', priority = 999 }, t('\\Leftarrow ')),
-  us.samW({ trig = '-->', priority = 999 }, t('\\rightarrow ')),
   us.samW({ trig = '==>', priority = 999 }, t('\\Rightarrow ')),
   us.samW({ trig = '&= >', priority = 999 }, t('\\Rightarrow ')),
-  us.samW({ trig = '->', priority = 998 }, t('\\to ')),
   us.samW({ trig = '<-', priority = 998 }, t('\\gets ')),
-  us.samW({ trig = '=>', priority = 998 }, t('\\implies ')),
   us.samW({ trig = '!=>' }, t('\\nRightarrow ')),
   us.samW({ trig = '\\neq >' }, t('\\nRightarrow ')),
   us.samW({ trig = '|>' }, t('\\mapsto ')),
   us.samW({ trig = '><' }, t('\\bowtie ')),
-  us.samW({ trig = '**' }, t('\\cdot ')),
   us.samW({ trig = 'x<->' }, {
     t('\\xleftrightarrow['),
     i(1),
@@ -158,20 +148,15 @@ M.math = {
       end
     end),
   }),
-  us.samW({ trig = '>>' }, t('\\gg ')),
-  us.samW({ trig = '<<' }, t('\\ll ')),
-  us.samW({ trig = '...' }, t('\\ldots')),
   us.samW({ trig = '....' }, t('\\cdots')),
   us.samW({ trig = '\\ldots.' }, t('\\cdots')),
   us.samW({ trig = '\\..' }, t('\\ddots')),
   us.samW({ trig = ':..' }, t('\\vdots')),
   us.samW({ trig = '|..' }, t('\\vdots')),
-  us.samW({ trig = '~~' }, t('\\sim ')),
   us.samW({ trig = '~=' }, t('\\approx ')),
   us.samW({ trig = '+-' }, t('\\pm ')),
   us.samW({ trig = '-+' }, t('\\mp ')),
   us.samWr({ trig = '%s*||' }, t(' \\mid ')),
-  us.samW({ trig = '\\\\\\' }, { t('\\setminus ') }),
   us.samW({ trig = '%%' }, t('\\%')),
   us.samW({ trig = '##' }, t('\\#')),
   us.samW({ trig = '::' }, t('\\colon ')),
@@ -198,30 +183,16 @@ M.math = {
     }),
   }),
 
-  us.samW({ trig = 'abs' }, { t('\\left\\vert '), i(1), t(' \\right\\vert') }),
   us.samW({ trig = 'lrv' }, { t('\\left\\vert '), i(1), t(' \\right\\vert') }),
-  us.samW({ trig = 'lrb' }, { t('\\left('), i(1), t('\\right)') }),
   us.samW({ trig = 'lr]' }, { t('\\left['), i(1), t('\\right]') }),
-  us.samW(
-    { trig = 'norm' },
-    { t('\\left\\lVert '), i(1), t(' \\right\\rVert') }
-  ),
   us.msamW(
     { { trig = 'lr}' }, { trig = 'lrB' } },
-    { t('\\left{'), i(1), t('\\right}') }
+    { t('\\left\\{'), i(1), t('\\right\\}') }
   ),
-  us.msamW(
-    { { trig = 'lr)' }, { trig = 'lrb' } },
-    { t('\\left('), i(1), t('\\right)') }
-  ),
-  us.msamW(
-    { { trig = 'lr>' }, { trig = 'lra' } },
-    { t('\\left<'), i(1), t('\\right>') }
-  ),
+  us.samW({ trig = 'lr)' }, { t('\\left('), i(1), t('\\right)') }),
+  us.samW({ trig = 'lr>' }, { t('\\left<'), i(1), t('\\right>') }),
 
   us.sambW({ trig = 'ks' }, t('^{*}')),
-  us.sambW({ trig = 'sq' }, t('^{2}')),
-  us.sambW({ trig = 'cb' }, t('^{3}')),
   us.sambW({ trig = 'cm' }, t('^{C}')),
   us.sambW({ trig = 'inv' }, t('^{-1}')),
   us.sambW({ trig = '\\in v' }, t('^{-1}')),
@@ -274,10 +245,7 @@ M.math = {
     un.sdn(1, '\\dot{', '}')
   ),
   us.samWr({ trig = '(\\?%w*_*%w*)ddot' }, un.sdn(1, '\\ddot{', '}')),
-  us.samWr(
-    { trig = '(\\?%w*_*%w*)\\operatorname{d}ot' },
-    un.sdn(1, '\\ddot{', '}')
-  ),
+  us.samWr({ trig = '(\\?%w*_*%w*)\\mathrm{d}ot' }, un.sdn(1, '\\ddot{', '}')),
   us.samWr({ trig = '(\\?%w*_*%w*)ovl' }, un.sdn(1, '\\overline{', '}')),
   us.samWr({ trig = '(\\?%w*_*%w*)ovs' }, {
     d(1, function(_, snip)
@@ -317,7 +285,7 @@ M.math = {
   us.sam(
     { trig = 'cv', dscr = 'column vector' },
     un.fmtad(
-      '\\begin{bmatrix} <el><_>{0<mod>} \\\\ <el><_>{1,<mod>} \\\\ \\vdots \\\\ <el><_>{<end_idx><mod>} \\end{bmatrix}',
+      '\\begin{bmatrix} <el><_>{0<mod>} \\\\ <el><_>{1<mod>} \\\\ \\vdots \\\\ <el><_>{<end_idx><mod>} \\end{bmatrix}',
       {
         _ = i(3, '_'),
         el = i(1, 'a'),
@@ -374,14 +342,12 @@ M.math = {
   ),
   us.sam({ trig = 'deg' }, t('\\degree')),
   us.sam({ trig = 'ang' }, t('\\angle ')),
-  us.sam({ trig = 'mcal' }, { t('\\mathcal{'), i(1), t('}') }),
-  us.sam({ trig = 'msrc' }, { t('\\mathsrc{'), i(1), t('}') }),
+  us.sam({ trig = 'msrc' }, { t('\\mathscr{'), i(1), t('}') }),
   us.sam({ trig = 'mbb' }, { t('\\mathbb{'), i(1), t('}') }),
   us.sam({ trig = 'mbf' }, { t('\\mathbf{'), i(1), t('}') }),
-  us.sam({ trig = 'mff' }, { t('\\mff{'), i(1), t('}') }),
+  us.sam({ trig = 'mff' }, { t('\\mathfrak{'), i(1), t('}') }),
   us.sam({ trig = 'mrm' }, { t('\\mathrm{'), i(1), t('}') }),
   us.sam({ trig = 'mit' }, { t('\\mathit{'), i(1), t('}') }),
-  us.sam({ trig = 'xx' }, t('\\times ')),
   us.sam({ trig = 'o*' }, t('\\circledast ')),
   us.sam({ trig = 'o.' }, t('\\odot ')),
   us.sam({ trig = 'ox' }, t('\\otimes ')),
@@ -390,32 +356,22 @@ M.math = {
   us.sam({ trig = 'pp' }, t('\\partial ')),
   us.msam({ { trig = 'oo' }, { trig = '\\in f' } }, t('\\infty')),
 
-  us.sam({ trig = 'AA' }, t('\\mathbb{A}')),
   us.sam({ trig = 'BB' }, t('\\mathbb{B}')),
   us.sam({ trig = 'CC' }, t('\\mathbb{C}')),
-  us.sam({ trig = 'DD' }, t('\\mathbb{D}')),
-  us.sam({ trig = 'EE' }, t('\\mathbb{E}')),
   us.sam({ trig = 'FF' }, t('\\mathbb{F}')),
   us.sam({ trig = 'GG' }, t('\\mathbb{G}')),
-  us.sam({ trig = 'HH' }, t('\\mathbb{H}')),
   us.sam({ trig = 'II' }, t('\\mathbb{I}')),
   us.sam({ trig = 'JJ' }, t('\\mathbb{J}')),
   us.sam({ trig = 'KK' }, t('\\mathbb{K}')),
   us.sam({ trig = 'LL' }, t('\\mathbb{L}')),
   us.sam({ trig = 'MM' }, t('\\mathbb{M}')),
-  us.sam({ trig = 'NN' }, t('\\mathbb{N}')),
-  us.sam({ trig = 'OO' }, t('\\mathbb{O}')),
   us.sam({ trig = 'PP' }, t('\\mathbb{P}')),
-  us.sam({ trig = 'QQ' }, t('\\mathbb{Q}')),
-  us.sam({ trig = 'RR' }, t('\\mathbb{R}')),
   us.sam({ trig = 'SS' }, t('\\mathbb{S}')),
   us.sam({ trig = 'TT' }, t('\\mathbb{T}')),
-  us.sam({ trig = 'UU' }, t('\\mathbb{U}')),
   us.sam({ trig = 'VV' }, t('\\mathbb{V}')),
   us.sam({ trig = 'WW' }, t('\\mathbb{W}')),
   us.sam({ trig = 'XX' }, t('\\mathbb{X}')),
   us.sam({ trig = 'YY' }, t('\\mathbb{Y}')),
-  us.sam({ trig = 'ZZ' }, t('\\mathbb{Z}')),
 
   us.sam({ trig = 'Aa' }, t('\\mathcal{A}')),
   us.sam({ trig = 'Bb' }, t('\\mathcal{B}')),
@@ -430,7 +386,6 @@ M.math = {
   us.sam({ trig = 'Kk' }, t('\\mathcal{K}')),
   us.sam({ trig = 'Ll' }, t('\\mathcal{L}')),
   us.sam({ trig = 'Mm' }, t('\\mathcal{M}')),
-  us.sam({ trig = 'Nn' }, t('\\mathcal{N}')),
   us.sam({ trig = 'Oo' }, t('\\mathcal{O}')),
   us.sam({ trig = 'Pp' }, t('\\mathcal{P}')),
   us.sam({ trig = 'Qq' }, t('\\mathcal{Q}')),
@@ -446,19 +401,15 @@ M.math = {
 
   us.sam({ trig = 'ell' }, t('\\ell')),
 
-  us.sam({ trig = 'set' }, { t('\\{'), i(1), t('\\}') }),
   us.sam({ trig = 'void' }, t('\\varnothing')),
   us.sam({ trig = 'o/' }, t('\\varnothing')),
   us.sam({ trig = 'emptyset' }, t('\\emptyset')),
-  us.sam({ trig = 'tt' }, { t('\\text{'), i(1), t('}') }),
-  us.sam({ trig = 'cc' }, t('\\subset ')),
   us.sam({ trig = ']c' }, t('\\sqsubset ')),
   us.samr({ trig = '\\subset%s*=' }, t('\\subseteq ')),
   us.samr({ trig = '\\subset%s*eq' }, t('\\subseteq ')),
   us.samr({ trig = '\\sqsubset%s*=' }, t('\\sqsubseteq ')),
   us.samr({ trig = '\\sqsubset%s*eq' }, t('\\sqsubseteq ')),
   us.sam({ trig = 'c=' }, t('\\subseteq ')),
-  us.sam({ trig = 'notin' }, t('\\notin ')),
   us.sam({ trig = '\\neg in' }, t('\\notin ')),
   us.sam({ trig = 'in', priority = 999 }, t('\\in ')),
   us.sam({ trig = 'uu' }, t('\\cup ')),
@@ -467,7 +418,7 @@ M.math = {
   us.sam({ trig = 'or' }, t('\\lor ')),
   us.sam({ trig = 'neg' }, t('\\neg ')),
   us.sam({ trig = 'not' }, t('\\neg ')),
-  us.sam({ trig = 'bigv' }, t('\\big\\rvert_{'), i(1), t('}')),
+  us.sam({ trig = 'bigv' }, { t('\\big\\rvert_{'), i(1), t('}') }),
   us.sam({ trig = 'forall' }, t('\\forall ')),
   us.sam({ trig = 'any' }, t('\\forall ')),
   us.sam({ trig = 'exists' }, t('\\exists ')),
@@ -580,18 +531,8 @@ M.math = {
     i(1, '\\theta'),
     t('\\right)'),
   }),
-  us.sam({ trig = 'asin' }, {
-    t('\\arcsin\\left('),
-    i(1),
-    t('\\right)'),
-  }),
   us.sam({ trig = 'acos' }, {
     t('\\arccos\\left('),
-    i(1),
-    t('\\right)'),
-  }),
-  us.sam({ trig = 'atan' }, {
-    t('\\arctan\\left('),
     i(1),
     t('\\right)'),
   }),
@@ -638,18 +579,10 @@ M.math = {
     i(1),
     t(' \\right\\rceil'),
   }),
-  us.msam({
-    { trig = 'bmat' },
-    { trig = 'vec' },
-  }, {
+  us.sam({ trig = 'vec' }, {
     t('\\begin{bmatrix} '),
     i(1),
     t(' \\end{bmatrix}'),
-  }),
-  us.sam({ trig = 'pmat' }, {
-    t('\\begin{pmatrix} '),
-    i(1),
-    t(' \\end{pmatrix}'),
   }),
   us.sam({ trig = 'Bmat' }, {
     t({ '\\begin{bmatrix}', '' }),
@@ -751,65 +684,6 @@ M.math = {
     i(1),
     t('}^{'),
     i(2),
-    t('} '),
-  }),
-  us.sam({ trig = 'prod' }, {
-    c(1, {
-      sn(nil, {
-        t('\\prod \\limits_{'),
-        i(1, 'i=1'),
-        t('}^{'),
-        i(2, 'N'),
-        t('} '),
-        r(3, 'term'),
-      }),
-      sn(nil, {
-        t('\\prod \\limits_{'),
-        i(1, 'x'),
-        t('} '),
-        r(2, 'term'),
-      }),
-      sn(nil, {
-        t('\\prod '),
-        r(1, 'term'),
-      }),
-    }),
-  }, {
-    stored = {
-      term = i(nil, 'x_i'),
-    },
-  }),
-  us.sam({ trig = 'sum' }, {
-    c(1, {
-      sn(nil, {
-        t('\\sum \\limits_{'),
-        i(1, 'i=1'),
-        t('}^{'),
-        i(2, 'N'),
-        t('} '),
-        r(3, 'term'),
-      }),
-      sn(nil, {
-        t('\\sum \\limits_{'),
-        i(1, 'x'),
-        t('} '),
-        r(2, 'term'),
-      }),
-      sn(nil, {
-        t('\\sum '),
-        r(1, 'term'),
-      }),
-    }),
-  }, {
-    stored = {
-      term = i(nil, 'x_i'),
-    },
-  }),
-  us.sam({ trig = 'lim' }, {
-    t('\\lim_{'),
-    i(1, 'n'),
-    t('\\to '),
-    i(2, '\\infty'),
     t('} '),
   }),
   us.sam(
@@ -948,7 +822,7 @@ M.math = {
       local line = vim.api.nvim_get_current_line()
       local col = vim.api.nvim_win_get_cursor(0)[2]
       if line:sub(col + 1, col + 1) == '$' then
-        vim.api.nvim_set_current_line(line:sub(1, -2))
+        vim.api.nvim_set_current_line(line:sub(1, col) .. line:sub(col + 2))
         return true
       end
       return false

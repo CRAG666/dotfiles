@@ -88,23 +88,20 @@ function M.body(jump_index, indent_depth, default_text)
   return d(jump_index, function(argnode_texts, parent, ...)
     -- The dynamicNode receives the parent of the dynamicNode, which is not
     -- necessarily the snippet, and only the snippet has `env`
-    local selected = type(parent.snippet.env.LS_SELECT_DEDENT) == 'table'
+    local selection = type(parent.snippet.env.LS_SELECT_DEDENT) == 'table'
         and parent.snippet.env.LS_SELECT_DEDENT
       or {}
-    for idx = 2, #selected do
-      if selected[idx]:match('%S') then
-        selected[idx] = require('utils.snip.funcs').get_indent_str(
-          indent_depth,
-          argnode_texts,
-          parent,
-          ...
-        ) .. selected[idx]
-      end
+    -- A function node as indent is lost when a choice is revisited, and the
+    -- selection must not be indented again on each evaluation
+    local indent = uf.get_indent_str(indent_depth, argnode_texts, parent, ...)
+    local selected = {} ---@type string[]
+    for idx, line in ipairs(selection) do
+      selected[idx] = idx > 1 and line:match('%S') and indent .. line or line
     end
     local selected_text = not vim.tbl_isempty(selected) and selected or nil
     local insert_text = selected_text or default_text
     return sn(nil, {
-      M.idnt(indent_depth),
+      t(indent),
       insert_text ~= false and i(1, insert_text) or nil,
     })
   end)

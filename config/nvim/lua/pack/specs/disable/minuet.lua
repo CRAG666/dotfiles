@@ -2,6 +2,7 @@ return {
   src = 'https://github.com/milanglacier/minuet-ai.nvim',
   data = {
     events = { 'InsertEnter' },
+    idle = true,
     postload = function()
       require('minuet').setup({
         provider = 'openai_fim_compatible',

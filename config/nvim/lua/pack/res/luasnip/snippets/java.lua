@@ -147,7 +147,7 @@ M.snippets = {
   ),
 
   us.sn(
-    { trig = 'll', desc = 'Log a line' },
+    { trig = 'lln', desc = 'Log a line' },
     un.fmtad('<logger>("<line>");', {
       line = c(1, {
         i(nil, '----------------------------------------'),

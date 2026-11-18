@@ -1,9 +1,13 @@
 local M = {}
 
 ---`FileType` event spec that skips plugin filetypes with underscores (e.g.
----`snacks_dashboard`), so they don't load modules before the first redraw
+---`snacks_dashboard`) and the ui2 message windows (created during the first
+---redraw), so they don't load modules before the first redraw
 ---@type load.event.structured_spec
-M.ft_event = { event = 'FileType', pattern = '[^_]\\+' }
+M.ft_event = {
+  event = 'FileType',
+  pattern = [[\(\(cmd\|dialog\|msg\|pager\)\>\)\@![^_]\+]],
+}
 
 ---@type table<string, boolean> plugins/modules loaded
 local loaded = {}
@@ -62,20 +66,23 @@ end
 
 ---@alias load.event.spec load.event.structured_spec|string
 ---@alias load.event.handler fun(args: vim.api.keyset.create_autocmd.callback_args): boolean?
+---@alias load.event.loader { load: load.event.handler, retrig: boolean? }
 
 ---Plugin loaders grouped by event, pattern, and buffers
----@type table<string, { all: load.event.handler[], pats: table<string, load.event.handler[]>, bufs: table<string, load.event.handler[]> }>
+---@type table<string, { all: load.event.loader[], pats: table<string, load.event.loader[]>, bufs: table<string, load.event.loader[]> }>
 local event_loaders = vim.defaulttable()
 
 ---Helper function that returns a function as event callback to trigger
----loaders given by `loaders`
----@param loaders load.event.handler[]
----@param retrig boolean? Whether to re-trigger the event after loading to activate plugins depending on corresponding events, e.g. some plugins load themselves on FileType event. Default `false`
+---loaders given by `loaders`, re-triggering the event if a loader with
+---`retrig` loaded its plugin
+---@param loaders load.event.loader[]
 ---@return load.event.handler
-local function trig_loaders_fn(loaders, retrig)
+local function trig_loaders_fn(loaders)
   return function(args)
+    local retrig = false
     for i, loader in ipairs(loaders) do
-      loader(args)
+      -- A plugin loaded by an earlier trigger handles the event on its own
+      retrig = loader.load(args) and loader.retrig or retrig
       loaders[i] = nil
     end
     if retrig and vim.api.nvim_buf_is_valid(args.buf) then
@@ -100,11 +107,12 @@ function M.on_events(event_specs, name, load)
   end
 
   ---@param l? boolean|(fun(args: vim.api.keyset.create_autocmd.callback_args): boolean?)
-  ---@return fun(args: vim.api.keyset.create_autocmd.callback_args)
+  ---@return load.event.handler
   load = (function(l)
     ---Wrapped callback that deletes the loading augroup to avoid double loading
     ---and re-triggers event to execute event handlers in lazy-loaded plugins
     ---@param args vim.api.keyset.create_autocmd.callback_args
+    ---@return boolean? loaded
     return function(args)
       if loaded[name] then
         return
@@ -116,6 +124,7 @@ function M.on_events(event_specs, name, load)
       else
         M.load(name)
       end
+      return true
     end
   end)(load)
 
@@ -150,10 +159,10 @@ function M.on_events(event_specs, name, load)
             string.format('load.on_events.event.%s.buf.%d', spec.event, buf),
             {}
           ),
-          callback = trig_loaders_fn(loaders, spec.retrig),
+          callback = trig_loaders_fn(loaders),
         })
       end
-      table.insert(loaders, load)
+      table.insert(loaders, { load = load, retrig = spec.retrig })
       goto continue
     end
 
@@ -172,10 +181,10 @@ function M.on_events(event_specs, name, load)
               string.format('load.on_events.event.%s.pat.%s', spec.event, pat),
               {}
             ),
-            callback = trig_loaders_fn(loaders, spec.retrig),
+            callback = trig_loaders_fn(loaders),
           })
         end
-        table.insert(loaders, load)
+        table.insert(loaders, { load = load, retrig = spec.retrig })
       end
       goto continue
     end
@@ -192,10 +201,10 @@ function M.on_events(event_specs, name, load)
             string.format('load.on_events.event.%s', spec.event),
             {}
           ),
-          callback = trig_loaders_fn(loaders, spec.retrig),
+          callback = trig_loaders_fn(loaders),
         })
       end
-      table.insert(loaders, load)
+      table.insert(loaders, { load = load, retrig = spec.retrig })
     end
     ::continue::
   end

@@ -22,6 +22,7 @@ return {
       require('blink.pairs').download():pwait(60000)
     end,
     events = { 'InsertEnter', 'CmdlineEnter' },
+    idle = true,
     postload = function()
       ---Record previous cmdline completion types,
       ---`compltype[1]` is the current completion type,

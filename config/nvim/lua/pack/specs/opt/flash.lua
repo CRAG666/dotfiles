@@ -3,7 +3,7 @@ return {
   data = {
     keys = {
       { mode = { 'n', 'x', 'o' }, lhs = 's', opts = { desc = 'Flash' } },
-      { mode = { 'n', 'x', 'o' }, lhs = 'S' },
+      { mode = { 'n', 'o' }, lhs = 'S' },
       { mode = 'o', lhs = 'r' },
       { mode = { 'o', 'x' }, lhs = 'R' },
       { mode = 'c', lhs = '<c-s>' },
@@ -13,7 +13,8 @@ return {
       vim.keymap.set({ 'n', 'x', 'o' }, 's', function()
         require('flash').jump()
       end, { desc = 'Flash' })
-      vim.keymap.set({ 'n', 'x', 'o' }, 'S', function()
+      -- Visual `S` belongs to nvim-surround
+      vim.keymap.set({ 'n', 'o' }, 'S', function()
         require('flash').treesitter()
       end, { desc = 'Flash Treesitter' })
       vim.keymap.set('o', 'r', function()

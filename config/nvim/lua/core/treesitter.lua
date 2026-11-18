@@ -21,23 +21,44 @@ vim.treesitter.stop = ts_buf_call_wrap(vim.treesitter.stop)
 
 ---Enable treesitter highlighting for given buffer
 ---@param buf integer
+---@return boolean started
 local function enable_ts_hl(buf)
   -- Don't start treesitter in bufs without filetype to avoid unnecessary calls
   -- to `vim.treesitter.start()` and improve startup time
   -- Don't re-enable in the same buffer, else buffers loaded from session can
   -- have blank highlighting
   if vim.b[buf].bigfile or vim.bo[buf].ft == '' or ts.is_active(buf) then
-    return
+    return false
   end
-  pcall(vim.treesitter.start, buf)
+  return (pcall(vim.treesitter.start, buf))
+end
+
+---Wrap `enable` as an autocmd callback that waits for the first redraw
+---during startup, compiling the queries of some languages (e.g. typescript,
+---latex) blocks for hundreds of ms
+---@param enable fun(buf: integer): boolean? whether to redraw the buffer once parsed
+---@return fun(args: vim.api.keyset.create_autocmd.callback_args)
+local function after_first_redraw(enable)
+  return function(args)
+    if vim.v.vim_did_enter == 1 then
+      enable(args.buf)
+      return
+    end
+    vim.api.nvim_create_autocmd('VimEnter', {
+      once = true,
+      callback = vim.schedule_wrap(function()
+        if vim.api.nvim_buf_is_valid(args.buf) and enable(args.buf) then
+          ts.redraw_parsed(args.buf)
+        end
+      end),
+    })
+  end
 end
 
 vim.api.nvim_create_autocmd({ 'BufEnter', 'FileType' }, {
   group = vim.api.nvim_create_augroup('ts.auto_start', {}),
   desc = 'Automatically start treesitter highlighting for buffers.',
-  callback = function(args)
-    enable_ts_hl(args.buf)
-  end,
+  callback = after_first_redraw(enable_ts_hl),
 })
 
 -- Parse injections of the whole buffer while idle instead of on every
@@ -94,7 +115,5 @@ end
 vim.api.nvim_create_autocmd({ 'BufEnter', 'FileType' }, {
   group = vim.api.nvim_create_augroup('ts.set_folding', {}),
   desc = 'Set treesitter folding.',
-  callback = function(args)
-    enable_ts_folding(args.buf)
-  end,
+  callback = after_first_redraw(enable_ts_folding),
 })

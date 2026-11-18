@@ -33,7 +33,7 @@ M.snippets = {
       for idx, word in ipairs(title_words) do
         title_words[idx] = (
           idx == 1 -- first word should always be capitalized
-          or not _G._title_lowercase_words[vim.trim(word:lower())]
+          or not (_G._title_lowercase_words or {})[vim.trim(word:lower())]
         )
             and word:gsub('^%l', string.upper)
           or word

@@ -75,7 +75,7 @@ return function(buf, event)
   local max = fn.line('w$', winid) + 1
 
   if event == 'TextChangedI' then
-    local cur_linenr = fn.line('.', winid) - 1
+    local cur_linenr = fn.line('.') - 1
 
     if conf.highlight.hex then
       methods.hex(buf, cur_linenr, api.nvim_get_current_line())

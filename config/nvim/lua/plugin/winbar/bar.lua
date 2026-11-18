@@ -544,9 +544,12 @@ end
 function winbar:pick_mode_wrap(fn, ...)
   local pick_mode = self.in_pick_mode
   self.in_pick_mode = true
-  local results = { fn(...) }
+  local results = { pcall(fn, ...) }
   self.in_pick_mode = pick_mode
-  return unpack(results)
+  if not results[1] then
+    error(results[2], 0)
+  end
+  return unpack(results, 2)
 end
 
 ---Pick a component from winbar
@@ -609,8 +612,12 @@ function winbar:pick(idx)
     -- Read the input from user
     local shortcut_read = ''
     for _ = 1, n_chars do
-      shortcut_read = shortcut_read
-        .. vim.fn.nr2char(vim.fn.getchar() --[[@as integer]])
+      -- Interrupted with <C-c>, still restore the components below
+      local ok, char = pcall(vim.fn.getcharstr)
+      if not ok then
+        break
+      end
+      shortcut_read = shortcut_read .. char
     end
     -- Restore the original content of each component
     for _, component in ipairs(clickables) do

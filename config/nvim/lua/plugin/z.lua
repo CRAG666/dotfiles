@@ -98,7 +98,7 @@ local z = (function()
     exists = function()
       return false
     end,
-    cmds = setmetatable({}, {
+    cmd = setmetatable({}, {
       __index = function()
         return function()
           vim.notify_once(
@@ -199,7 +199,7 @@ function M.list(input)
   ---@diagnostic disable-next-line: need-check-nil
   local o = vim.system(z.cmd.list(input)):wait()
   if o.code ~= 0 then
-    vim.notify('[z] ' .. o.stderr or o.stdout)
+    vim.notify('[z] ' .. (o.stderr or o.stdout))
     return {}
   end
 

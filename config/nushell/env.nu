@@ -1,5 +1,5 @@
 # gpg: the agent needs the current terminal for pinentry (pass, git sign…).
-try { $env.GPG_TTY = (^tty | str trim) }
+if (is-terminal --stdin) { $env.GPG_TTY = ('/proc/self/fd/0' | path expand) }
 
 $env.PROMPT_INDICATOR_VI_INSERT = ""
 $env.PROMPT_INDICATOR_VI_NORMAL = ""
@@ -15,8 +15,7 @@ let zsh_paths = [
 ]
 $env.PATH = ($zsh_paths | append $env.PATH)
 $env.CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense'
-mkdir $"($nu.cache-dir)"
-carapace _carapace nushell | save --force $"($nu.cache-dir)/carapace.nu"
+$env.CARAPACE_MATCH = 1
 
 # >>> load-shared-env >>>
 def --env load-shared-env [file: path] {

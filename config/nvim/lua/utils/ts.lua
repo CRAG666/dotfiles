@@ -7,6 +7,23 @@ function M.is_active(buf)
   return vim.treesitter.highlighter.active[vim._resolve_bufnr(buf)] ~= nil
 end
 
+---Redraw once the visible lines of `buf` are parsed, a redraw otherwise waits
+---for all the scheduled work queued behind the caller
+---@param buf integer
+function M.redraw_parsed(buf)
+  local win = vim.fn.bufwinid(buf)
+  local parser = vim.treesitter.get_parser(buf, nil, { error = false })
+  if win == -1 or not parser then
+    return
+  end
+  parser:parse(
+    { vim.fn.line('w0', win) - 1, vim.fn.line('w$', win) + 1 },
+    function()
+      vim.cmd.redraw()
+    end
+  )
+end
+
 local ts_get_node = vim.treesitter.get_node
 
 ---Cursor position (0-indexed) of the current window, shifted to the character
@@ -179,13 +196,7 @@ function M.lang(pos, buf)
   end
 
   buf = vim._resolve_bufnr(buf)
-  local has_parser, parser = pcall(
-    vim.treesitter.get_parser,
-    buf,
-    vim.filetype.match({
-      buf = buf,
-    })
-  )
+  local has_parser, parser = pcall(vim.treesitter.get_parser, buf)
   if not has_parser or not parser then
     return
   end

@@ -206,7 +206,7 @@ M.snippets = {
 
       -- Outside class definition
       if not class_node then
-        local class_name = r(1, 'class_name', i(nil, i(nil, 'ClassName')))
+        local class_name = r(1, 'class_name', i(nil, 'ClassName'))
         local args = r(2, 'args')
         local body = un.body(3, 1)
 
@@ -281,7 +281,7 @@ M.snippets = {
 
       -- Outside class definition
       if not class_node then
-        local class_name = r(1, 'class_name', i(nil, i(nil, 'ClassName')))
+        local class_name = r(1, 'class_name', i(nil, 'ClassName'))
         local args = r(2, 'args')
         local body = un.body(3, 1)
 

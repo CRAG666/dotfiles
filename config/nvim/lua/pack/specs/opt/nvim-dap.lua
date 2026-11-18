@@ -8,11 +8,10 @@ return {
     },
     cmds = {
       'DapContinue',
-      'DapLoadLaunchJSON',
       'DapRestartFrame',
       'DapSetLogLevel',
       'DapShowLog',
-      'DapToggleBreakPoint',
+      'DapToggleBreakpoint',
     },
     keys = {
       { lhs = '<F5>', opts = { desc = 'Continue program execution' } },
@@ -144,34 +143,16 @@ return {
           return
         end
 
-        -- Not all debugger provide src.path, so use `session:source()` to check
-        -- if debug PC is in given buffer
-        require('dap.async').run(function()
-          s:source(src, function(_, b)
-            if not vim.api.nvim_buf_is_valid(buf) then
-              cb(false, nil)
-              return
-            end
-
-            if b == buf then
-              cb(true, s.current_frame.line)
-              return
-            end
-
-            -- Fallback to sign check
-            local placed =
-              vim.fn.sign_getplaced(b, { group = s.sign_group })[1]
-            if placed and placed.signs then
-              for _, sign in ipairs(placed.signs) do
-                if sign.name == 'DapStopped' then
-                  cb(true, sign.lnum)
-                  return
-                end
-              end
-            end
-            cb(false, nil)
-          end)
-        end)
+        -- nvim-dap shows sources without a path in scratch buffers, the
+        -- stopped sign tells whether the debug PC is in one of them
+        local placed = vim.fn.sign_getplaced(buf, { group = s.sign_group })[1]
+        for _, sign in ipairs(placed and placed.signs or {}) do
+          if sign.name == 'DapStopped' then
+            cb(true, sign.lnum)
+            return
+          end
+        end
+        cb(false, nil)
       end
 
       -- If debug PC is in current buffer, use `<CR>` to repeat the last dap function
@@ -204,6 +185,13 @@ return {
         'pack.res.nvim-dap.dap',
         function(ft, spec)
           if not spec then
+            return
+          end
+          -- Configs resolved on each `dap.continue()`, the adapter type is
+          -- the filetype
+          if spec.provider then
+            dap.adapters[ft] = spec.adapter
+            dap.providers.configs[ft] = spec.provider
             return
           end
           if spec.config and spec.config[1] and spec.config[1].type then

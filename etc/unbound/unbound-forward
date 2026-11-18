@@ -17,10 +17,20 @@ reload() { systemctl reload-or-restart unbound; }
 # NOTE 2: it is NOT enough for the root to "answer": a router hijacking :53
 # answers anything (even for nonexistent IPs). The RRSIG must be required:
 # transparent interceptors strip it -> no RRSIG = :53 tampered -> DoH.
-if runuser -u unbound -- dig +time=2 +tries=1 +dnssec @198.41.0.4 . DNSKEY 2>/dev/null | grep -q RRSIG; then
-    if [ -f "$FWD" ]; then rm -f "$FWD"; reload; fi
-    exit 0
-fi
+# NOTE 3: an interceptor relaying to a DNSSEC-aware resolver keeps the RRSIG, so
+# the header must also say the root itself answered: authoritative (aa) and not
+# a recursive resolver (ra).
+answer=$(runuser -u unbound -- dig +norec +time=2 +tries=1 +dnssec @198.41.0.4 . DNSKEY 2>/dev/null)
+flags=$(printf '%s\n' "$answer" | sed -n 's/^;; flags: \([^;]*\);.*/\1/p')
+case " $flags " in
+    *" ra "*) ;;
+    *" aa "*)
+        if printf '%s\n' "$answer" | grep -q RRSIG; then
+            if [ -f "$FWD" ]; then rm -f "$FWD"; reload; fi
+            exit 0
+        fi
+        ;;
+esac
 
 # 53 blocked -> forward everything to dnscrypt (exits via 443).
 conf="forward-zone:

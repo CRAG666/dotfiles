@@ -44,7 +44,13 @@ utils.load.on_events(
 utils.load.on_events(
   { 'CmdUndefined', 'SessionLoadPost', utils.load.ft_event },
   'pack.load_opt',
-  function()
+  function(args)
     utils.pack.add(collect_specs(specs_opt_path))
+    -- Loaders registered during `FileType` are too late for the current event
+    if args.event == 'FileType' and vim.api.nvim_buf_is_valid(args.buf) then
+      vim.api.nvim_buf_call(args.buf, function()
+        vim.api.nvim_exec_autocmds('FileType', { pattern = args.match })
+      end)
+    end
   end
 )

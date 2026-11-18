@@ -1,4 +1,6 @@
 $env.LSI_THEME_PATH = $"($env.HOME)/.config/yazi/flavors/eyes.yazi/flavor.toml"
+# Outside lsi.nu: the theme hook sources that file again, when `ls` is already the wrapper.
+alias core-ls = ls
 source ~/.config/nushell/lsi.nu
 $env.config.hooks = ($env.config.hooks | upsert env_change {
     PWD: [
@@ -17,6 +19,7 @@ $env.config.cursor_shape = {
 }
 $env.config.use_kitty_protocol = true
 $env.config.show_banner = false
+$env.config.status_line.type = false
 $env.config.history.file_format = "sqlite"
 $env.config.history.sync_on_enter = true
 $env.config.table = {
@@ -201,11 +204,33 @@ def otun-up [] {
     ^setsid ssh -fN ollama-tunnel; print "túnel arriba → localhost:11652 (sobrevive al cerrar la terminal)" }
 def otun-down [] { do -i { ^pkill -f 'ssh -fN ollama-tunnel' }; print "túnel cerrado" }
 
-source $"($nu.cache-dir)/carapace.nu"
-let carapace_completer = {|spans|
-    carapace $spans.0 nushell ...$spans | from json
+$env.config.completions.persistent_menus = true
+# The real binary: the mise shim adds ~90ms to every Tab.
+const carapace_bin = ("~/.local/share/mise/installs/carapace/latest/carapace" | path expand)
+$env.config.completions.external.completer = {|place|
+    let alias_expansion = (scope aliases | where name == $place.command.0 | get 0?.expansion?)
+    let spans = if $alias_expansion == null {
+        $place.command
+    } else {
+        $place.command | skip 1 | prepend ($alias_expansion | split row ' ')
+    }
+    let suggestions = (^$carapace_bin $spans.0 nushell ...$spans | from json)
+    if ($suggestions | default [] | any {|suggestion| $suggestion.value == ERR }) { null } else { $suggestions }
 }
 source ~/.zoxide.nu
+def zoxide-dirs [token: record, place: record] {
+    {
+        options: { sort: false }
+        completions: (
+            ($token.text | commandline complete --type directory)
+            ++ (^zoxide query --list --exclude $env.PWD ...($place.command | skip 1) | lines)
+        )
+    }
+}
+@complete zoxide-dirs
+def --env --wrapped z [...rest: string] { __zoxide_z ...$rest }
+@complete zoxide-dirs
+def --env --wrapped zi [...rest: string] { __zoxide_zi ...$rest }
 
 # atuin#3929: its init.nu registers two keybindings named "atuin" and nu >=0.115
 # merges them by name (ctrl-r stops working). We regenerate the script without its

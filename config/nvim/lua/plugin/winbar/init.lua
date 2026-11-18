@@ -185,7 +185,7 @@ local function setup(opts)
           end
           for win, _ in pairs(_G._winbar.bars[buf]) do
             if not vim.api.nvim_win_is_valid(win) then
-              utils.bar.exec('del', { win = win })
+              utils.bar.exec('del', { buf = buf, win = win })
             end
           end
           ::continue::

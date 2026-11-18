@@ -15,7 +15,7 @@ return {
         end
       end
 
-      if vim.v.vim_did_enter then
+      if vim.v.vim_did_enter == 1 then
         vim.schedule(load_quicker)
       else
         load.on_events('UIEnter', 'quicker', vim.schedule_wrap(load_quicker))

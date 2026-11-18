@@ -65,11 +65,11 @@ M.snippets = {
   }),
   -- Indexes
   us.sn({ trig = 'bx' }, t('blockIdx.x')),
-  us.sn({ trig = 'by' }, t('blockIdy.y')),
-  us.sn({ trig = 'bz' }, t('blockIdz.z')),
+  us.sn({ trig = 'by' }, t('blockIdx.y')),
+  us.sn({ trig = 'bz' }, t('blockIdx.z')),
   us.sn({ trig = 'tx' }, t('threadIdx.x')),
-  us.sn({ trig = 'ty' }, t('threadIdy.y')),
-  us.sn({ trig = 'tz' }, t('threadIdz.z')),
+  us.sn({ trig = 'ty' }, t('threadIdx.y')),
+  us.sn({ trig = 'tz' }, t('threadIdx.z')),
   us.msn(
     {
       { trig = 'i1' },

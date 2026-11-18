@@ -4,16 +4,12 @@ return {
   data = {
     build = 'make install_jsregexp',
     events = { event = 'ModeChanged', pattern = '*:[iRss\x13vV\x16]*' },
+    idle = true,
     postload = function()
       local ls = require('luasnip')
       local ls_types = require('luasnip.util.types')
-      local ls_vim_version = require('luasnip.util.vimversion')
       local ls_ft = require('luasnip.extras.filetype_functions')
       local utils = require('utils')
-
-      -- Cache `ge()` to fix performance issue:
-      -- https://github.com/L3MON4D3/LuaSnip/issues/1393
-      ls_vim_version.ge = utils.lua.cache(ls_vim_version.ge, {})
 
       ---Load snippets for a given filetype
       ---@param ft string?
@@ -33,14 +29,28 @@ return {
         )
       end
 
+      ---Filetypes sharing the snippets of another one
+      local ft_aliases = {
+        latex = 'tex',
+        bash = 'sh',
+        markdown_inline = 'markdown',
+        html = 'markdown',
+      }
+
       ls.setup({
         ft_func = function()
           load_snippets('all')
-          local langs = ls_ft.from_pos_or_filetype()
-          for _, lang in ipairs(langs) do
-            load_snippets(lang)
+          local fts = {} ---@type string[]
+          local seen = {} ---@type table<string, true>
+          for _, lang in ipairs(ls_ft.from_pos_or_filetype()) do
+            local ft = ft_aliases[lang] or lang
+            if not seen[ft] then
+              seen[ft] = true
+              fts[#fts + 1] = ft
+              load_snippets(ft)
+            end
           end
-          return langs
+          return fts
         end,
         keep_roots = true,
         link_roots = true,
@@ -63,6 +73,10 @@ return {
           },
         },
       })
+
+      -- Load snippets for the current buffer now instead of on the first
+      -- insert
+      require('luasnip.util.util').get_snippet_filetypes()
 
       -- Unlink current snippet on leaving insert/select mode
       -- https://github.com/L3MON4D3/LuaSnip/issues/258#issuecomment-1011938524

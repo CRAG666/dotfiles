@@ -40,7 +40,12 @@ local M = {}
 ---`utils.pack.load()`
 ---@field lazy? boolean
 ---Defer loading triggered during startup until after the first redraw
----@field defer? boolean
+---
+---With `'idle'`, load while idle after any trigger instead of blocking on it
+---@field defer? boolean|'idle'
+---Load the plugin while idle after the first redraw instead of blocking on
+---its first trigger
+---@field idle? boolean
 ---Whether the plugin is registered as a dependency/extension of another plugin
 ---Plugins that are both explicitly registered as stand-alone and as deps/exts
 ---have `asdeps=false`
@@ -142,6 +147,38 @@ function M.load(spec, path)
   end
 end
 
+---Plugins to load while idle, as `{ spec, path }`
+---@type [pack.spec, string][]
+local idle_queue = {}
+
+---Load queued plugins one per timer tick to keep input responsive
+local function load_idle()
+  local args = table.remove(idle_queue, 1)
+  if not args then
+    return
+  end
+  M.load(args[1], args[2])
+  vim.defer_fn(load_idle, 10)
+end
+
+---Load a plugin while idle after the first redraw
+---@param spec pack.spec
+---@param path string
+local function load_when_idle(spec, path)
+  table.insert(idle_queue, { spec, path })
+  if #idle_queue > 1 then
+    return
+  end
+  local function start()
+    vim.defer_fn(load_idle, 100)
+  end
+  if vim.v.vim_did_enter == 1 then
+    start()
+  else
+    vim.api.nvim_create_autocmd('UIEnter', { once = true, callback = start })
+  end
+end
+
 ---Lazy-load plugin for given plugin spec
 ---@param spec pack.spec
 ---@param path string
@@ -159,6 +196,10 @@ function M.lazy_load(spec, path)
   local lazy = spec.data.lazy
 
   local function load()
+    if spec.data.defer == 'idle' then
+      load_when_idle(spec, path)
+      return
+    end
     if not spec.data.defer or vim.v.vim_did_enter == 1 then
       M.load(spec, path)
       return
@@ -182,6 +223,10 @@ function M.lazy_load(spec, path)
 
   if not lazy and not (spec.data and spec.data.asdeps) then
     M.load(spec, path)
+  end
+
+  if spec.data.idle then
+    load_when_idle(spec, path)
   end
 end
 
@@ -266,9 +311,14 @@ local built = {}
 ---comment
 ---@param spec pack.spec
 ---@param path string
-function M.build(spec, path)
+---@param force? boolean build even if already built, e.g. after an update
+function M.build(spec, path, force)
   -- Prevent building a plugin for multiple times during dependency resolution
-  if not spec.data or not spec.data.build or built[spec.src] then
+  if
+    not spec.data
+    or not spec.data.build
+    or (built[spec.src] and not force)
+  then
     return
   end
   built[spec.src] = true
@@ -281,7 +331,7 @@ function M.build(spec, path)
   )
   local built_info = require('utils.json').read(built_file)
   local stat = vim.uv.fs_stat(path)
-  if stat and stat.ino == built_info.ino then
+  if not force and stat and stat.ino == built_info.ino then
     return
   end
 
@@ -327,11 +377,7 @@ function M.build(spec, path)
     )
   else
     vim.notify(
-      string.format(
-        '[utils.pack] Error building plugin %s: %s',
-        spec.src,
-        err
-      ),
+      string.format('[utils.pack] Error building plugin %s: %s', spec.src, err),
       vim.log.levels.ERROR
     )
   end
@@ -352,7 +398,7 @@ function M.add(specs)
       if args.data.kind == 'delete' then
         return
       end
-      M.build(args.data.spec, args.data.path)
+      M.build(args.data.spec, args.data.path, true)
     end,
   })
 
