@@ -60,6 +60,7 @@ typstyle = "latest"
 # TypeScript 7 (native) serves the language server itself with `tsc --lsp`
 "npm:typescript" = "latest"
 ty = "latest"
+"pipx:huggingface_hub" = "latest"
 
 [settings]
 minimum_release_age = "0"
