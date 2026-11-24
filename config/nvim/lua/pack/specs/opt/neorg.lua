@@ -34,6 +34,30 @@ return {
       pattern = 'norg',
       retrig = true,
     },
+    init = function()
+      vim.api.nvim_create_autocmd('User', {
+        pattern = 'TSUpdate',
+        group = vim.api.nvim_create_augroup('neorg.parsers', {}),
+        desc = 'Register the norg parsers, nvim-treesitter does not ship them.',
+        callback = function()
+          local parsers = require('nvim-treesitter.parsers')
+          parsers.norg = {
+            install_info = {
+              url = 'https://github.com/nvim-neorg/tree-sitter-norg',
+              -- nvim-neorg/tree-sitter-norg#82: scanner rewritten in C, `main`
+              -- still has the C++ scanner that tree-sitter cannot build
+              revision = '35e2a51fce194d064bc32233b6bffa89cf234580',
+            },
+          }
+          parsers.norg_meta = {
+            install_info = {
+              url = 'https://github.com/nvim-neorg/tree-sitter-norg-meta',
+              revision = '729d4e54fb881ba0ddf0f925ec78401354c7c6db',
+            },
+          }
+        end,
+      })
+    end,
     postload = function()
       require('neorg').setup({
         load = {

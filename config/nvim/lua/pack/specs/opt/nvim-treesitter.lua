@@ -5,7 +5,7 @@ return {
   data = {
     build = function()
       vim.cmd.packadd('nvim-treesitter')
-      require('nvim-treesitter.install').update()
+      require('nvim-treesitter.install').update():raise_on_error()
     end,
     cmds = {
       'TSInstall',
@@ -20,7 +20,8 @@ return {
     postload = function()
       local requested = {} ---@type table<string, true>
 
-      ---Install the parsers requested by ftplugins in `g:ts`
+      ---Install the parsers requested by ftplugins in `g:ts`, rebuild the
+      ---installed ones whose pinned revision changed
       local install = vim.schedule_wrap(function()
         local langs = vim.tbl_filter(function(lang)
           local new = not requested[lang]
@@ -28,7 +29,9 @@ return {
           return new
         end, vim.g.ts or {})
         if #langs > 0 then
-          require('nvim-treesitter').install(langs)
+          local ts = require('nvim-treesitter')
+          ts.install(langs):raise_on_error()
+          ts.update(langs):raise_on_error()
         end
       end)
 
