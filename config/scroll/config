@@ -343,11 +343,6 @@ animations {
     }
     bindsym  $mod+slash mode "filter"
 
-    # Apps that inhibit shortcuts (Moonlight with capturesyskeys=2) get every
-    # key; this one still reaches scroll and leaves the workspace. Coming back
-    # with $mod+z gives the keyboard to the app again.
-    bindsym --inhibited $mod+Shift+Escape workspace back_and_forth
-
 # Layout
     mode "fullscreen" {
         bindsym  f toggle_size active 1.0 1.0; mode default
