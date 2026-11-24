@@ -47,6 +47,22 @@ ShellRoot {
         onTriggered: {
             Quickshell.execDetached(["rm", "-f", root.secureFlag]);
             session.locked = false;
+            renewal.start();
+        }
+    }
+
+    // a lock leaves ~100 MB behind (its surfaces' blur and layers, which Qt
+    // keeps) and some MB more each time: once the compositor has the unlock, a
+    // fresh instance (~40 MB, 0.3 s of CPU) takes over, resident as before. A
+    // lock meanwhile goes through lock.sh's start, which -n keeps to one
+    Timer {
+        id: renewal
+        interval: 2000
+        onTriggered: {
+            if (session.locked)
+                return;
+            Quickshell.execDetached(["sh", "-c", 'while [ -e "/proc/$1" ]; do sleep 0.05; done; exec quickshell -n -d -p "$2"', "sh", String(Quickshell.processId), Quickshell.shellPath("lock.qml")]);
+            Qt.quit();
         }
     }
 

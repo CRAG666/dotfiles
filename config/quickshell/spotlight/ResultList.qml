@@ -98,14 +98,22 @@ Item {
         }
         readonly property var results: host.results
         property var listed: []
+        // the rows `rows` holds
+        property var shown: []
         function relist() {
-            if (results.view !== listed.view)
+            if (results.view !== listed.view) {
                 rows.values = [];
-            rows.values = results.grid ? [] : results;
+                shown = [];
+            }
+            const next = results.grid ? [] : results;
+            Spot.relist(rows, shown, next, row => row.place);
+            shown = next;
             listed = results;
         }
         onResultsChanged: relist()
         Component.onCompleted: relist()
+        // scrolled to the end of a list still being ordered: a page more
+        onAtYEndChanged: if (atYEnd && results.more) host.deepen(results.length + host.page)
         layer.enabled: !atYEnd
         layer.effect: MultiEffect {
             maskEnabled: true

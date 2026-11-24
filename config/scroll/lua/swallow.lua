@@ -1,3 +1,4 @@
+local _, state = ...
 local scroll = require("scroll")
 local function candidate(view)
 	local app_id = scroll.view_get_app_id(view)
@@ -23,9 +24,16 @@ end
 local function on_destroy(view, _)
 	local parent = candidate(view)
 	if parent ~= nil then
-		scroll.command(nil, "scratchpad show; floating toggle")
+		scroll.command(parent, "scratchpad show, floating disable")
 	end
 end
 
-scroll.add_callback("view_map", on_create, nil)
-scroll.add_callback("view_unmap", on_destroy, nil)
+for _, key in ipairs({ "map_id", "unmap_id" }) do
+	local id = scroll.state_get_value(state, key)
+	if id then
+		scroll.remove_callback(id)
+	end
+end
+
+scroll.state_set_value(state, "map_id", scroll.add_callback("view_map", on_create, nil))
+scroll.state_set_value(state, "unmap_id", scroll.add_callback("view_unmap", on_destroy, nil))

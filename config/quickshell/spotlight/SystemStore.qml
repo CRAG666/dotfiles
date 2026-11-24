@@ -1,12 +1,15 @@
 import Quickshell
 import Quickshell.Services.Pipewire
+import Quickshell.Services.UPower
 import QtQuick
 
 // Quick system toggles: Wi-Fi and Bluetooth (rfkill), the default audio output
 // and input, muting the microphone (PipeWire, through osd/vol so the mic-mute
 // LED follows) and the brightness of the laptop and external screens
 // (brightness.sh), and the output volume. "brightness 40" or "volume 40" sets
-// 40% at once; "Set Brightness" or "Set Volume" asks.
+// 40% at once; "Set Brightness" or "Set Volume" asks. The power profile
+// (power-profiles-daemon, through UPower) and the night light: wlsunset warms
+// the screens to 5500 K from 21:00 to 07:30 (Automatic) or all the time (On).
 Scope {
     id: root
     property var host
@@ -23,9 +26,22 @@ Scope {
         { name: "Volume", words: "set volume sound audio output speakers", icon: "audio-volume-high", now: () => Pipewire.defaultAudioSink?.audio ? Math.round(Pipewire.defaultAudioSink.audio.volume * 100) + "%" : "", set: level => setVolume(level) }
     ]
 
+    readonly property var profiles: [
+        { profile: PowerProfile.PowerSaver, title: "Power Saver", icon: "preferences-system-power" },
+        { profile: PowerProfile.Balanced, title: "Balanced", icon: "preferences-system-power-management" },
+        { profile: PowerProfile.Performance, title: "Performance", icon: "preferences-system-performance" }
+    ]
+    // wlsunset's arguments per mode; On makes day as warm as night
+    readonly property var nightModes: [
+        { mode: "auto", title: "Automatic", args: ["-S", "07:30", "-s", "21:00", "-t", "5500"] },
+        { mode: "on", title: "On", args: ["-S", "07:30", "-s", "21:00", "-t", "5500", "-T", "5501"] },
+        { mode: "off", title: "Off", args: [] }
+    ]
+
     function load() {
         rfkill.load();
         backlight.load();
+        nightLight.load();
     }
 
     function items(tokens) {
@@ -50,7 +66,19 @@ Scope {
                 const muted = device.node.audio.muted;
                 return { key: "mute:" + device.volArg, kind: "mute", store: root, device, title: `${muted ? "Unmute" : "Mute"} ${device.name}`, hint: muted ? "Muted" : "On", icon: device.icons[muted ? 0 : 1] };
             });
-        return radioItems.concat(muteItems, sinkItems, sourceItems, levelItems(tokens));
+        return radioItems.concat(muteItems, sinkItems, sourceItems, levelItems(tokens), profileItems(tokens), nightItems(tokens));
+    }
+
+    function profileItems(tokens) {
+        return profiles
+            .filter(entry => (entry.profile !== PowerProfile.Performance || PowerProfiles.hasPerformanceProfile) && Spot.matches(`power profile mode energy battery ${entry.title}`, tokens))
+            .map(entry => ({ key: "profile:" + entry.title, kind: "profile", store: root, entry, title: "Power Profile: " + entry.title, hint: entry.profile === PowerProfiles.profile ? "Current" : "", icon: entry.icon }));
+    }
+
+    function nightItems(tokens) {
+        return nightModes
+            .filter(entry => Spot.matches(`night light shift warm screen color temperature blue ${entry.title}`, tokens))
+            .map(entry => ({ key: "night:" + entry.mode, kind: "night", store: root, entry, title: "Night Light: " + entry.title, hint: entry.mode === nightLight.items ? "Current" : "", icon: entry.mode === "off" ? "redshift-status-off" : "redshift-status-on" }));
     }
 
     function levelItems(tokens) {
@@ -85,6 +113,12 @@ Scope {
             return { icon: item.icon, title: item.node.nickname || item.node.description, subtitle: item.hint ? "Current input" : "Audio Input", metadata: [["Device", item.node.name]], actions: [["Enter", "Use this input"]] };
         case "mute":
             return { icon: item.icon, title: item.title, subtitle: `${item.device.name} ${item.hint.toLowerCase()}`, metadata: [["Device", item.device.node.nickname || item.device.node.description]], actions: [["Enter", item.title]] };
+        case "profile": {
+            const degraded = item.entry.profile === PowerProfile.Performance && PowerProfiles.degradationReason !== PerformanceDegradationReason.None;
+            return { icon: item.icon, title: item.entry.title, subtitle: item.hint ? "Current power profile" : "Power Profile", metadata: degraded ? [["Limited", PerformanceDegradationReason.toString(PowerProfiles.degradationReason).replace(/([a-z])([A-Z])/g, (match, last, next) => last + " " + next.toLowerCase())]] : [], actions: [["Enter", "Use this profile"]] };
+        }
+        case "night":
+            return { icon: item.icon, title: "Night Light " + item.entry.title, subtitle: item.hint ? "Current mode" : "Night Light", metadata: item.entry.mode === "off" ? [] : [["Warmth", "5500 K"], ["Hours", item.entry.mode === "auto" ? "21:00–07:30" : "All day"]], actions: [["Enter", "Use this mode"]] };
         default:
             return { icon: item.icon, title: item.title, subtitle: item.hint ? "Now " + item.hint : item.setting.name, actions: [["Enter", item.level === undefined ? "Choose a level" : "Set"]] };
         }
@@ -105,6 +139,12 @@ Scope {
             return true;
         case "mute":
             Quickshell.execDetached([volScript, item.device.volArg]);
+            return true;
+        case "profile":
+            PowerProfiles.profile = item.entry.profile;
+            return true;
+        case "night":
+            Quickshell.execDetached(["sh", "-c", 'pkill -x wlsunset; [ $# -eq 0 ] || exec wlsunset "$@"', "sh"].concat(item.entry.args));
             return true;
         }
         if (item.level !== undefined) {
@@ -142,6 +182,14 @@ Scope {
                 state[device.type] = !!state[device.type] || device.soft === "unblocked" && device.hard === "unblocked";
             return state;
         }
+    }
+
+    // "on", "auto" or "off", from the running wlsunset's arguments
+    Source {
+        id: nightLight
+        maxAge: 1000
+        command: ["sh", "-c", "pgrep -ax wlsunset || true"]
+        parse: output => output.trim() === "" ? "off" : output.includes("-T 5501") ? "on" : "auto"
     }
 
     Source {

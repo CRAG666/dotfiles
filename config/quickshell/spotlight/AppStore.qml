@@ -8,8 +8,22 @@ import "js/search.js" as Search
 Scope {
     id: root
 
-    function items(query) {
-        return Apps.search(query).map(app => ({ key: "app:" + app.id, kind: "app", store: root, app, title: app.name, icon: app.icon, uses: Apps.launches[app.id + ".desktop"] ?? 0 }));
+    function itemOf(app) {
+        return { key: "app:" + app.id, kind: "app", store: root, app, title: app.name, icon: app.icon, uses: Apps.launches[app.id + ".desktop"] ?? 0 };
+    }
+
+    // the best `limit`, best first, and whether there are more
+    function items(query, limit) {
+        const apps = Apps.search(query, limit);
+        const list = apps.map(itemOf);
+        list.more = apps.more;
+        return list;
+    }
+
+    // all it finds, in no order, for a caller that ranks them itself; `tie`
+    // (Apps' score) breaks its ties as Apps' order would
+    function matches(query) {
+        return Apps.matching(query).map(entry => Object.assign(itemOf(entry.app), { tie: entry.score }));
     }
 
     // every app's actions, their text folded once per list of apps, so a

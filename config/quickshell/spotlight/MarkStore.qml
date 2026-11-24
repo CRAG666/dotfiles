@@ -22,21 +22,40 @@ Scope {
         return `[con_mark="^${literal}$"]`;
     }
 
+    // every mark with its window, the focused window's first and then by name,
+    // and the marks taken: made once a tree, so a keystroke only filters them
+    readonly property var marked: {
+        const list = [];
+        for (let index = 0; index < windows.list.length; index++) {
+            const window = windows.list[index];
+            for (let at = 0; at < window.marks.length; at++)
+                list.push({ mark: window.marks[at], window });
+        }
+        return list.sort((a, b) => b.window.focused - a.window.focused || a.mark.localeCompare(b.mark));
+    }
+    readonly property var taken: {
+        const names = Object.create(null);
+        for (let index = 0; index < marked.length; index++)
+            names[marked[index].mark] = true;
+        return names;
+    }
+
     function items(tokens, raw) {
         const focused = windows.list.find(window => window.focused);
-        const marked = [].concat(...windows.list.map(window => window.marks.map(mark => ({ mark, window }))));
         const list = [];
-        if (raw && !/\s/.test(raw) && focused && !marked.some(entry => entry.mark === raw))
+        if (raw && !/\s/.test(raw) && focused && !(raw in taken))
             list.push({ key: "mark:add", kind: "markAdd", store: root, section: "Add", title: `Add mark “${raw}”`, hint: focused.appId, icon: Spot.iconFor(focused.appId), mark: raw, window: focused });
         const matching = marked.filter(entry => Spot.matches(`${entry.mark} ${entry.window.appId} ${entry.window.title}`, tokens));
-        for (const entry of matching.sort((a, b) => b.window.focused - a.window.focused || a.mark.localeCompare(b.mark)))
+        for (let index = 0; index < matching.length; index++) {
+            const entry = matching[index];
             list.push({ key: "mark:" + entry.mark, kind: "mark", store: root, section: entry.window.focused ? "This window" : "Marks", title: entry.mark, hint: entry.window.appId, icon: Spot.iconFor(entry.window.appId), mark: entry.mark, window: entry.window, thumb: windows.shot(entry.window) });
+        }
         if (!tokens.length && focused?.marks.length > 1)
             list.push({ key: "mark:clear", kind: "markClear", store: root, section: "This window", title: "Remove all marks of this window", icon: "edit-clear", window: focused });
         return list;
     }
 
-    // $mod+m on an unmarked window opens Spotlight straight into this form
+    // $mod+i on an unmarked window opens Spotlight straight into this form
     function promptAdd() {
         host.openForm({
             title: "Add Mark",

@@ -50,7 +50,7 @@ QtObject {
         } else if (ctrl && event.key === Qt.Key_Home) {
             host.pick(0);
         } else if (ctrl && event.key === Qt.Key_End) {
-            host.pick(host.results.length - 1);
+            host.pick(Infinity);
         } else if (event.key === Qt.Key_Escape) {
             host.back();
         } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {

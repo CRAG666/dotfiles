@@ -29,6 +29,13 @@ Scope {
     // each topic as an item once, with the texts it is found by folded
     readonly property var entries: topics.map((topic, index) => ({ index, section: topic.section, named: Search.fold(`${topic.keys} ${topic.title}`), described: Search.fold(`${topic.section} ${topic.keys} ${topic.title} ${topic.text ?? ""}`), item: { key: `help:${topic.section}:${topic.keys}`, kind: "help", store: root, section: topic.section, topic, title: topic.title, hint: topic.keys, icon: "help-about" } }))
     readonly property var sectionOrder: Spot.unique(topics.map(topic => topic.section))
+    // section → its place in sectionOrder
+    readonly property var position: {
+        const at = Object.create(null);
+        for (let index = 0; index < sectionOrder.length; index++)
+            at[sectionOrder[index]] = index;
+        return at;
+    }
 
     function items(tokens) {
         const hits = [];
@@ -43,13 +50,16 @@ Scope {
             const section = hits[index].entry.section;
             sectionRank[section] = Math.min(sectionRank[section] ?? 1, hits[index].rank);
         }
-        const position = Object.create(null);
-        for (let index = 0; index < sectionOrder.length; index++)
-            position[sectionOrder[index]] = index;
-        const sectionKey = section => sectionRank[section] * sectionOrder.length + position[section];
-        return hits
-            .sort((a, b) => sectionKey(a.entry.section) - sectionKey(b.entry.section) || a.rank - b.rank || a.entry.index - b.entry.index)
-            .map(hit => hit.entry.item);
+        // counting sort on (section, rank): the keys are small integers and hits
+        // come in index order, which each bucket keeps
+        const buckets = [];
+        for (let key = 0; key < sectionOrder.length * 4; key++)
+            buckets.push([]);
+        for (let index = 0; index < hits.length; index++) {
+            const section = hits[index].entry.section;
+            buckets[(sectionRank[section] * sectionOrder.length + position[section]) * 2 + hits[index].rank].push(hits[index].entry.item);
+        }
+        return [].concat.apply([], buckets);
     }
 
     function describe(item) {

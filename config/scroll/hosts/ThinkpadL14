@@ -1,0 +1,18 @@
+output 'Lenovo Group Limited 0x40A9 Unknown' {
+    scale 1
+    resolution 1920x1080@60Hz
+    position 0 0
+}
+
+# Home - KTC right of the laptop
+output "Shenzhen KTC Technology Group H32S17 0x00000001" position 1920 0
+
+workspace 1 output 'Lenovo Group Limited 0x40A9 Unknown' "Shenzhen KTC Technology Group H32S17 0x00000001"
+workspace 4 output 'Lenovo Group Limited 0x40A9 Unknown' "Shenzhen KTC Technology Group H32S17 0x00000001"
+workspace 7 output 'Lenovo Group Limited 0x40A9 Unknown' "Shenzhen KTC Technology Group H32S17 0x00000001"
+workspace 10 output 'Lenovo Group Limited 0x40A9 Unknown' "Shenzhen KTC Technology Group H32S17 0x00000001"
+
+# Lock as soon as the lid closes; before-sleep alone can race the suspend
+bindswitch --locked lid:on exec ~/.config/quickshell/lock.sh
+
+for_window [app_id="com.moonlight_stream.Moonlight" title="^P53 - Moonlight$"] fullscreen enable

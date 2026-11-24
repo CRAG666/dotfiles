@@ -56,11 +56,16 @@ WRITERS = {
 }
 
 
+# readers that hand back their JSON already encoded
+ENCODED = {"zen-history"}
+
+
 def run(command: str, *args: str) -> str:
     """A reader's JSON, or "" once a writer is done."""
     if command in READERS:
         module, function = READERS[command]
-        return json.dumps(getattr(import_module(module), function)(*args))
+        found = getattr(import_module(module), function)(*args)
+        return found if command in ENCODED else json.dumps(found)
     if command in WRITERS:
         module, function = WRITERS[command]
         getattr(import_module(module), function)(*args)

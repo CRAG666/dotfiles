@@ -16,9 +16,10 @@ Scope {
             return [];
         const [program, ...rest] = commandLine.split(/\s+/);
         const list = [{ key: "run:" + commandLine, kind: "run", store: root, title: `Run “${commandLine}”`, icon: "system-run", value: commandLine }];
+        const args = rest.join(" ");
         if (withExecutables)
             for (const name of startingWith(program, 40))
-                list.push({ key: "run:" + name, kind: "run", store: root, title: name, hint: rest.join(" "), icon: Spot.iconFor(name), value: [name, ...rest].join(" ") });
+                list.push({ key: "run:" + name, kind: "run", store: root, title: name, hint: args, icon: Spot.iconFor(name), value: args ? name + " " + args : name });
         return list;
     }
 
@@ -54,8 +55,9 @@ Scope {
     Source {
         id: executables
         maxAge: 300000
-        command: ["bash", "-c", "compgen -c | sort -u"]
-        // in code-unit order, the one startingWith() searches by
-        parse: output => output.split("\n").filter(line => line).sort()
+        command: ["bash", "-c", "compgen -c | LC_ALL=C sort -u"]
+        // in code-point order (bytes, as LC_ALL=C sorts), the one startingWith()
+        // searches by
+        parse: output => output.split("\n").filter(line => line)
     }
 }

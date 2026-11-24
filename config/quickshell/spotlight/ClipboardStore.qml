@@ -33,15 +33,17 @@ Scope {
     }
 
     // matching stops at the 200 history entries shown
+    // the pinned rows, made once a load
+    readonly property var pinList: pins.items.map(pin => {
+        const type = pin.image ? "image" : typeOf(pin.text);
+        return { key: "pin:" + pin.name, kind: "pin", store: root, section: "Pinned", pin, type, title: pin.image ? "Pinned image" : pin.text.split("\n")[0], hint: "Pinned", icon: pin.image ? "image-x-generic" : "edit-paste", thumb: pin.image ? "file://" + pin.path : "" };
+    })
+
     function items(tokens) {
         const shown = entry => (filter === "all" || entry.type === filter) && Spot.matches(entry.title + " " + (entry.hint ?? ""), tokens, false);
-        const pinned = pins.items.map(pin => {
-            const type = pin.image ? "image" : typeOf(pin.text);
-            return { key: "pin:" + pin.name, kind: "pin", store: root, section: "Pinned", pin, type, title: pin.image ? "Pinned image" : pin.text.split("\n")[0], hint: "Pinned", icon: pin.image ? "image-x-generic" : "edit-paste", thumb: pin.image ? "file://" + pin.path : "" };
-        });
         const recent = Spot.take(Search.matching(history.items, "clipboard", entry => entry.haystack, tokens, false), entry => filter === "all" || entry.type === filter, 200)
             .map(entry => ({ key: "clip:" + entry.id, kind: "clip", store: root, section: "History", entry, type: entry.type, title: entry.title, hint: entry.hint, icon: entry.type === "image" ? "image-x-generic" : entry.type === "link" ? "web-browser" : "edit-paste", thumb: entry.image && thumbsReady ? `file://${thumbDir}/${entry.id}` : "" }));
-        return pinned.filter(shown).concat(recent);
+        return pinList.filter(shown).concat(recent);
     }
 
     function describe(item) {

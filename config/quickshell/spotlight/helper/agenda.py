@@ -5,7 +5,9 @@ import os
 import re
 import sys
 import unicodedata
+from collections.abc import Callable
 from datetime import date, datetime, timedelta
+from functools import wraps
 from pathlib import Path
 
 from paths import HOME
@@ -132,7 +134,9 @@ def norg_task(text: str) -> tuple[str, list[str], str] | None:
         (
             index
             for index, segment in enumerate(segments)
-            if not segment or segment in STATUSES or segment.startswith("+ ")
+            if not segment
+            or (len(segment) == 1 and segment in STATUSES)
+            or segment.startswith("+ ")
         ),
         None,
     )
@@ -172,6 +176,35 @@ def norg_workspaces() -> dict[str, Path]:
     }
 
 
+# `read`'s last answer per arguments while the day, the workspaces and each
+# .norg file's mtime and size stay the same: Spotlight asks for the agenda and
+# the tasks at every opening, and reading ~100 files cost ~60 ms of it
+def norg_cached(read: Callable[..., list[dict]]) -> Callable[..., list[dict]]:
+    answers: dict[tuple, tuple[tuple, list[dict]]] = {}
+
+    @wraps(read)
+    def cached(*args: str) -> list[dict]:
+        workspaces = norg_workspaces()
+        signature = (
+            datetime.now().astimezone().date(),
+            tuple(sorted((name, str(folder)) for name, folder in workspaces.items())),
+            tuple(
+                sorted(
+                    (str(path), stat.st_mtime_ns, stat.st_size)
+                    for folder in workspaces.values()
+                    if folder.is_dir()
+                    for path in folder.rglob("*.norg")
+                    for stat in (path.stat(),)
+                )
+            ),
+        )
+        if args not in answers or answers[args][0] != signature:
+            answers[args] = (signature, read(*args))
+        return answers[args][1]
+
+    return cached
+
+
 def agenda_file() -> Path:
     return norg_workspaces()["life"] / "agenda.norg"
 
@@ -194,6 +227,7 @@ def is_schedule(lines: list[str]) -> bool:
 # - in any file, open tasks with norg's date extensions (see norg_when):
 #   `- ( |@ Sat, 17 Oct 2026 16:00) Call` happens then, `( |> …)` starts then
 #   and `( |< …)` is due then (and overdue while not done)
+@norg_cached
 def agenda(days: str = "14") -> list[dict]:
     today = datetime.now().astimezone().date()
     until = today + timedelta(days=int(days))
@@ -284,6 +318,7 @@ def agenda(days: str = "14") -> list[dict]:
 
 # The open tasks of every workspace, as Morg's task list: by status (urgent, in
 # progress, to do, needs input, on hold, recurring), then soonest due
+@norg_cached
 def tasks() -> list[dict]:
     today = datetime.now().astimezone().date()
     found = []

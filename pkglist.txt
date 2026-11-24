@@ -14,6 +14,7 @@ playerctl
 impala
 bluetui
 power-profiles-daemon
+wlsunset
 udisks2
 
 # ZSH
@@ -23,6 +24,7 @@ resvg
 # CLI tools
 hyperfine
 perl-image-exiftool
+perl-file-mimeinfo
 atuin
 yt-dlp
 starship

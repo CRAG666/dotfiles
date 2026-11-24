@@ -10,7 +10,9 @@ Item {
     readonly property color accent: "#e2231a"   // ThinkPad red
     readonly property color ink: Theme.fg(true)
     property bool started: false
-    readonly property bool shown: started && !greeter.leaving
+    // all of it fades in once the picture is decoded, off the GUI thread: a 4K
+    // PNG decoded on it held the first frame back ~480 ms
+    readonly property bool shown: started && background.status !== Image.Loading && !greeter.leaving
     Component.onCompleted: started = true
 
     focus: true
@@ -49,10 +51,12 @@ Item {
     }
 
     Image {
+        id: background
         anchors.fill: parent
         source: "file://" + root.greeter.background
         sourceSize: Qt.size(width, height)
         fillMode: Image.PreserveAspectCrop
+        asynchronous: true
         opacity: root.shown ? 1 : 0
         Behavior on opacity { Smooth {} }
     }

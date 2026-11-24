@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Neovim
+Exec=ghostty -e /home/think-crag/.local/share/bob/nvim-bin/nvim %F
+Icon=nvim
+Terminal=false
+MimeType=text/x-norg;
+Categories=Utility;TextEditor;

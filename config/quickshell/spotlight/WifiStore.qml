@@ -23,7 +23,6 @@ Scope {
     function items(tokens) {
         return networks.items
             .filter(network => Spot.matches(network.name, tokens))
-            .sort((a, b) => b.connected - a.connected)
             .map(network => ({ key: "wifi:" + network.name, kind: "wifi", store: root, network, title: network.name.trim(), hint: network.connected ? "Connected" : `${network.known ? "Saved" : network.security} · ${network.signal}%`, icon: "network-wireless" }));
     }
 
@@ -87,5 +86,7 @@ Scope {
     Source {
         id: networks
         request: ["wifi"]
+        // the connected one first, once a scan; the rest stay strongest first
+        parse: output => output.trim() ? JSON.parse(output).sort((a, b) => b.connected - a.connected) : []
     }
 }

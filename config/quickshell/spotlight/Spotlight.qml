@@ -48,7 +48,7 @@ Scope {
         // does where a preview adds little;
         // `tone`: its colour in Theme.eyes
         readonly property var views: [
-            { mode: "apps", tone: "blue1", preview: false, chip: "\uf009", title: "Search Apps", icon: "applications-other", sections: (tokens, raw) => [["Applications", apps.items(raw)]] },
+            { mode: "apps", tone: "blue1", preview: false, chip: "\uf009", title: "Search Apps", icon: "applications-other", sections: (tokens, raw) => [["Applications", apps.items(raw, depth)]] },
             { mode: "files", tone: "aqua", chip: "\uf07b", title: "Search Files", icon: "folder", open: () => files.load(), sections: tokens => files.sections(tokens, false) },
             { mode: "contents", tone: "aqua", title: "Search File Contents", placeholder: "Search inside documents", icon: "x-office-document", open: () => files.indexContents(), sections: () => [["Documents", files.contentItems()]] },
             { mode: "clipboard", tone: "pink", chip: "\uf0ea", title: "Clipboard History", placeholder: "Search Clipboard", icon: "edit-paste", open: () => clipboard.load(), sections: tokens => [["Clipboard", clipboard.items(tokens)]] },
@@ -81,7 +81,21 @@ Scope {
             { mode: "selection", tone: "violet", preview: "answers", title: "Universal Actions", placeholder: "Search actions for the selection", icon: "edit-select-all", sections: tokens => universal.sections(tokens) },
             { mode: "help", tone: "aqua", title: "Spotlight Help", placeholder: "Search shortcuts and features", icon: "help-about", sections: tokens => [["Help", help.items(tokens)]] }
         ].map(view => Object.assign({}, view, { alias: userConfig.aliases[view.mode] }))
-        readonly property var chips: userConfig.chips.map(mode => views.find(view => view.mode === mode)).filter(view => view)
+        // mode → view and alias → view, so a keystroke looks a view up without a scan
+        readonly property var viewByMode: {
+            const index = Object.create(null);
+            for (let at = 0; at < views.length; at++)
+                index[views[at].mode] = views[at];
+            return index;
+        }
+        readonly property var viewByAlias: {
+            const index = Object.create(null);
+            for (let at = 0; at < views.length; at++)
+                if (views[at].alias && !(views[at].alias in index))
+                    index[views[at].alias] = views[at];
+            return index;
+        }
+        readonly property var chips: userConfig.chips.map(mode => viewByMode[mode]).filter(view => view)
         // each kind of result in a colour of nvim's palette, as Blink colours its
         // completion kinds; the rest take their view's
         readonly property var kindTones: ({
@@ -141,7 +155,7 @@ Scope {
             }
             return html + escape(title.slice(from));
         }
-        readonly property var currentView: views.find(view => view.mode === mode) ?? null
+        readonly property var currentView: viewByMode[mode] ?? null
         // the search of everything keeps the whole width but for an answer to read
         // the results say whether they fill the grid: the list and the grid read it
         // from them, so neither sees the other's results for a moment when the view
@@ -164,6 +178,11 @@ Scope {
             openings;
             return collect();
         }
+        // how many rows a ranked list orders: the rows in sight and more, grown as
+        // the selection or the scrolling nears its end (deepen), so a keystroke
+        // costs a linear pass and not a sort of every match
+        readonly property int page: 50
+        property real depth: page
         property int current: -1
         property string selectedKey: ""
         readonly property var selection: current >= 0 && current < results.length ? results[current] : null
@@ -199,6 +218,7 @@ Scope {
         property bool sourcesChecked: false
         onQueryChanged: {
             keepSelection = false;
+            depth = page;
             if (query.startsWith(":"))
                 snippets.load();
             if (mode || !query)
@@ -220,7 +240,8 @@ Scope {
         // currentView may not have caught up with mode yet in here
         onModeChanged: {
             keepSelection = false;
-            views.find(view => view.mode === mode)?.open?.();
+            depth = page;
+            viewByMode[mode]?.open?.();
         }
         onResultsChanged: {
             const kept = keepSelection ? results.findIndex(item => item.key === selectedKey) : -1;
@@ -281,7 +302,7 @@ Scope {
             reads = 0;
             readsDone = false;
             windows.forget();
-            const target = views.some(view => view.mode === requested) ? requested : "";
+            const target = requested in viewByMode ? requested : "";
             if (requested === "mark-add") {
                 mode = "";
                 marks.promptAdd();
@@ -428,7 +449,7 @@ Scope {
                 return;
             const typed = text === "?" ? "? " : text;
             const match = typed.match(/^(\S+) $/);
-            const target = match && views.find(view => view.alias === match[1].toLowerCase());
+            const target = match && viewByAlias[match[1].toLowerCase()];
             if (target)
                 openView(target.mode);
         }
@@ -547,14 +568,20 @@ Scope {
 
         // the 16 emoji picked most
         function pickedEmoji() {
-            return Object.keys(frecency.picks).filter(key => key.startsWith("emoji:")).map(key => [key, frecency.weight(key)]).sort((a, b) => b[1] - a[1]).slice(0, 16).map(([key]) => key.slice(6));
+            const picked = Object.keys(frecency.picks).filter(key => key.startsWith("emoji:")).map((key, index) => ({ key, index, weight: frecency.weight(key) }));
+            return Spot.firstSorted(picked, (a, b) => b.weight - a.weight || a.index - b.index, 16).map(entry => entry.key.slice(6));
         }
 
         // the bookmarks view's tab: all, the picked ones most picked first, or the categories
         function bookmarkSection(tokens) {
             switch (library.filter) {
-            case "frequent":
-                return ["Frequent", library.bookmarkItems(tokens).map(item => [item, frecency.weight(item.key)]).filter(([, weight]) => weight > 0).sort((a, b) => b[1] - a[1]).map(([item]) => item)];
+            case "frequent": {
+                const picked = library.bookmarkItems(tokens).map((item, index) => ({ item, index, weight: frecency.weight(item.key) })).filter(entry => entry.weight > 0);
+                const best = Spot.firstSorted(picked, (a, b) => b.weight - a.weight || a.index - b.index, depth);
+                const list = best.map(entry => entry.item);
+                list.more = best.length < picked.length;
+                return ["Frequent", list];
+            }
             case "categories":
                 return ["Categories", ranked(library.categoryItems(tokens), tokens)];
             }
@@ -566,15 +593,16 @@ Scope {
         // order. The items are not copied with their scores, which change at every
         // keystroke and would make the list remake their rows: the list's `best`
         // holds its first's, which picks the Top Hit. `limit`: only the best that
-        // many are ordered (top-k selection)
+        // many are listed; a list without one orders `depth` rows, and says
+        // there are `more`
         function ranked(items, tokens, limit = Infinity) {
             if (!tokens.length)
                 return items;
             const scored = items.map((item, index) => ({ item, index, score: (Search.score(Search.fold(item.title), tokens) || 0.4) + (item.lead ? 1 : 0) + Search.boost(item.uses ?? frecency.weight(item.key)) }));
-            const order = (a, b) => b.score - a.score || a.index - b.index;
-            const best = limit < scored.length ? Spot.firstSorted(scored, order, limit) : scored.sort(order);
+            const best = Spot.firstSorted(scored, (a, b) => b.score - a.score || (b.item.tie ?? 0) - (a.item.tie ?? 0) || a.index - b.index, Math.min(limit, depth));
             const sorted = best.map(({ item }) => item);
             sorted.best = best.length ? best[0].score : 0;
+            sorted.more = limit > depth && best.length < scored.length;
             return sorted;
         }
 
@@ -587,10 +615,10 @@ Scope {
             const aliased = resolving ? null : aliases.get(raw) && resolveAlias(aliases.get(raw));
             if (aliased)
                 return [["Alias", [aliased]], ...everything(tokens, raw, true).map(([section, list]) => [section, list.filter(item => item.key !== aliased.key)])];
-            const view = views.find(entry => entry.alias === raw.toLowerCase());
+            const view = viewByAlias[raw.toLowerCase()];
             // one more than each section shows, as the Top Hit may leave its list
             const found = {
-                apps: ranked(apps.items(raw), tokens, 6),
+                apps: ranked(apps.matches(raw), tokens, 6),
                 commands: ranked(commandItems(tokens).filter(item => item.key !== "mode:" + view?.mode), tokens, 6),
                 quicklinks: ranked(web.quicklinkItems(tokens, raw), tokens, 4),
                 bookmarks: ranked(library.bookmarkItems(tokens), tokens, 5),
@@ -662,6 +690,8 @@ Scope {
                 const [section, list] = sections[at];
                 for (let index = 0; index < list.length; index++)
                     items.push(rowOf(list[index], section));
+                if (list.more)
+                    items.more = true;
             }
             items.grid = !!currentView?.grid;
             items.view = mode;
@@ -714,16 +744,28 @@ Scope {
             (gridView ? resultGrid : resultList).reveal(current);
         }
 
-        // a selection the user moved survives results arriving late (files)
+        // a selection the user moved survives results arriving late (files);
+        // one near the end of a list still being ordered orders a page more
+        // (Infinity: all of it)
         function pick(index) {
+            if (results.more && index >= results.length - 10)
+                deepen(index + page);
             keepSelection = true;
             select(index);
         }
 
-        // one row up or down, wrapping around the ends
+        // ranked lists order `count` rows; the selection stays where it is
+        function deepen(count) {
+            keepSelection = true;
+            depth = Math.max(depth, count);
+        }
+
+        // one row up or down, wrapping around the ends: up from the first row
+        // goes to the last of the whole list
         function step(delta) {
+            const target = current + delta;
             if (results.length)
-                pick((current + delta + results.length) % results.length);
+                pick(target < 0 ? Infinity : target >= results.length && !results.more ? 0 : target);
         }
 
         function refreshPeek() {

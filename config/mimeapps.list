@@ -43,6 +43,7 @@ video/mpeg=mpv.desktop
 video/x-ms-wmv=mpv.desktop
 video/3gpp=mpv.desktop
 x-scheme-handler/claude-cli=claude-code-url-handler.desktop
+text/x-norg=nvim.desktop
 
 [Added Associations]
 x-scheme-handler/http=zen.desktop;

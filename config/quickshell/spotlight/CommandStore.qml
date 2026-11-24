@@ -48,7 +48,7 @@ Scope {
         { title: "Show Scratchpad", icon: "go-up", command: ["scrollmsg", "scratchpad", "show"] },
         ...["Left", "Right"].map(side => ({ title: `Move Window to ${side} Monitor`, icon: "video-display", command: ["scrollmsg", "move", "container", "to", "output", side.toLowerCase()] })),
         ...["Left", "Right"].map(side => ({ title: `Move Workspace to ${side} Monitor`, icon: "video-display", command: ["scrollmsg", "move", "workspace", "to", "output", side.toLowerCase()] })),
-        ...Array.from({ length: 9 }, (_, index) => ({ title: `Move Window to Workspace ${index + 1}`, icon: "go-next", command: ["scrollmsg", "move", "container", "to", "workspace", String(index + 1)] }))
+        ...Array.from({ length: 9 }, (_, index) => ({ title: `Move Window to Workspace ${index + 1}`, icon: "go-next", command: ["scrollmsg", "move", "--no-auto-back-and-forth", "container", "to", "workspace", String(index + 1)] }))
     ]
 
     readonly property MprisPlayer player: {
@@ -90,7 +90,7 @@ Scope {
     function describe(item) {
         switch (item.kind) {
         case "mode": {
-            const view = host.views.find(entry => entry.mode === item.mode);
+            const view = host.viewByMode[item.mode];
             return { icon: item.icon, glyph: item.glyph, title: item.title, subtitle: view.placeholder ?? view.title, metadata: [["Alias", item.hint ? item.hint + "␣" : ""]], actions: [["Enter", "Open view"]] };
         }
         case "media":

@@ -36,6 +36,7 @@ Scope {
     // theirs scans no list
     readonly property var workspacesById: indexBy(snapshot?.workspaces ?? [], "workspace_id")
     readonly property var tabsById: indexBy(snapshot?.tabs ?? [], "tab_id")
+    readonly property var agentsByPane: indexBy(snapshot?.agents ?? [], "pane_id")
 
     function indexBy(entries, field) {
         const index = Object.create(null);
@@ -95,9 +96,8 @@ Scope {
     function paneItems(tokens) {
         if (!snapshot)
             return [];
-        const agentPanes = indexBy(snapshot.agents, "pane_id");
         return snapshot.panes
-            .filter(pane => !(pane.pane_id in agentPanes))
+            .filter(pane => !(pane.pane_id in agentsByPane))
             .map(pane => ({ pane, space: workspace(pane.workspace_id), tab: tab(pane.tab_id) }))
             .filter(({ pane, space, tab }) => Spot.matches(`herdr pane ${paneName(pane)} ${pane.cwd ?? ""} ${space?.label ?? ""} ${tab?.label ?? ""}`, tokens))
             .map(({ pane, space, tab }) => ({ key: "herdr-pane:" + pane.pane_id, kind: "herdrPane", store: root, pane, paneId: pane.pane_id, space, tab, title: paneName(pane), hint: `${space?.label ?? pane.workspace_id} › ${tab?.label ?? pane.tab_id}`, icon: "utilities-terminal" }));
@@ -167,8 +167,10 @@ Scope {
 
     // the Herdr client titles its terminal exactly "<host>: <workspace label>"
     function raiseTerminal() {
-        const labels = (snapshot?.workspaces ?? []).map(space => space.label);
-        const terminal = windows.list.find(window => Spot.terminals.includes(window.appId) && window.title.indexOf(": ") > 0 && labels.includes(window.title.slice(window.title.indexOf(": ") + 2)));
+        const labels = Object.create(null);
+        for (const space of snapshot?.workspaces ?? [])
+            labels[space.label] = true;
+        const terminal = windows.list.find(window => Spot.terminals.includes(window.appId) && window.title.indexOf(": ") > 0 && window.title.slice(window.title.indexOf(": ") + 2) in labels);
         if (terminal)
             Quickshell.execDetached(["scrollmsg", `[con_id=${terminal.id}] focus`]);
         else

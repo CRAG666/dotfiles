@@ -21,6 +21,7 @@ Scope {
     property var latest: ({})
     readonly property var decoding: Object.keys(latest).map(ident => ({ ident, url: latest[ident] }))
     property var undecoded: ({})
+    property int undecodedCount: 0
     // the windows asked for in this opening
     property var taken: ({})
 
@@ -47,8 +48,11 @@ Scope {
     // together, from the cache, in one frame, and those of windows closed since
     // go. The selected window, asked for first, waits for the others
     function decoded(url) {
-        delete undecoded[url];
-        if (Object.keys(undecoded).length || grabber.running || grabber.queue.length)
+        if (url in undecoded) {
+            delete undecoded[url];
+            undecodedCount--;
+        }
+        if (undecodedCount || grabber.running || grabber.queue.length)
             return;
         const open = Object.create(null);
         for (let index = 0; index < list.length; index++)
@@ -82,6 +86,7 @@ Scope {
             const ident = windows[index].ident;
             if (ident && !(ident in taken)) {
                 taken[ident] = true;
+                grabber.sizes[ident] = windows[index].size;
                 wanted.push(ident);
             }
         }
@@ -89,14 +94,18 @@ Scope {
         Qt.callLater(grabber.next);
     }
 
-    // the windows are pushed onto `found` as the tree is walked, once each
-    function windowsIn(node, workspace, found = []) {
+    // the windows are pushed onto `found` as the tree is walked, once each;
+    // `size` is the window's in pixels of its output, which its snapshot has
+    function windowsIn(node, workspace, scale, found = []) {
         const here = node.type === "workspace" ? node.name : workspace;
-        const children = [...(node.nodes ?? []), ...(node.floating_nodes ?? [])];
-        if (!children.length && node.pid > 0)
-            found.push({ id: node.id, ident: node.foreign_toplevel_identifier ?? "", title: node.name ?? "", appId: node.app_id ?? node.window_properties?.class ?? "", workspace: here, marks: node.marks ?? [], focused: node.focused });
-        for (const child of children)
-            windowsIn(child, here, found);
+        const factor = node.type === "output" ? node.scale ?? 1 : scale;
+        const children = (node.nodes ?? []).concat(node.floating_nodes ?? []);
+        if (!children.length && node.pid > 0) {
+            const rect = node.window_rect ?? node.rect;
+            found.push({ id: node.id, ident: node.foreign_toplevel_identifier ?? "", title: node.name ?? "", appId: node.app_id ?? node.window_properties?.class ?? "", workspace: here, marks: node.marks ?? [], focused: node.focused, size: Math.round(rect.width * factor) + "x" + Math.round(rect.height * factor) });
+        }
+        for (let index = 0; index < children.length; index++)
+            windowsIn(children[index], here, factor, found);
         return found;
     }
 
@@ -145,7 +154,7 @@ Scope {
         id: tree
         maxAge: 1500
         command: ["scrollmsg", "-t", "get_tree"]
-        parse: output => output.trim() ? root.windowsIn(JSON.parse(output), "") : []
+        parse: output => output.trim() ? root.windowsIn(JSON.parse(output), "", 1) : []
         onItemsChanged: root.captureShown()
     }
 
@@ -153,28 +162,51 @@ Scope {
         id: grabber
         property var queue: []
         property var pending: []
+        // foreign toplevel identifier → the size in pixels of a window queued
+        property var sizes: ({})
         readonly property string dir: Spot.cacheDir + "/windows"
+        // a window's popups and subsurfaces that reach past it (Zen's) come
+        // in its capture, transparent, which JPEG turns black: a snapshot
+        // larger than its window is cut back, losslessly, to where the
+        // window's content begins (found on a decode at 1/4 the size)
+        readonly property string script: [
+            'crop() {',
+            '    size=$(magick identify -ping -format %wx%h "$1") && [ "$size" != "$2" ] || return 0',
+            '    width=${2%x*} height=${2#*x} full=${size%x*} tall=${size#*x}',
+            '    set -- "$1" $(magick -define jpeg:size=$((full / 4))x$((tall / 4)) "$1" -bordercolor black -border 1 -fuzz 4% -format "%@ %w" info: 2>/dev/null | tr "x+" "  ")',
+            '    [ -n "$6" ] || return 0',
+            '    x=$((($4 - 1) * full / ($6 - 2))) y=$((($5 - 1) * full / ($6 - 2)))',
+            '    x=$((x < full - width ? x : full - width)) y=$((y < tall - height ? y : tall - height))',
+            '    jpegtran -crop "${width}x${height}+$((x > 0 ? x : 0))+$((y > 0 ? y : 0))" -outfile "$1.part" "$1" && mv "$1.part" "$1"',
+            '}',
+            'dir=$1; shift; mkdir -p "$dir"',
+            'for spec in "$@"; do',
+            '    shot="$dir/${spec%%:*}.jpg"',
+            '    { grim -t jpeg -T "${spec%%:*}" "$shot" && crop "$shot" "${spec#*:}"; } &',
+            'done',
+            'wait'
+        ].join("\n")
 
         function next() {
             if (running || !queue.length)
                 return;
             pending = queue;
             queue = [];
-            exec(["sh", "-c", 'dir=$1; shift; mkdir -p "$dir"; for id in "$@"; do grim -t jpeg -T "$id" "$dir/$id.jpg" & done; wait', "sh", dir, ...pending]);
+            exec(["sh", "-c", script, "sh", dir].concat(pending.map(ident => ident + ":" + sizes[ident])));
+            sizes = {};
         }
 
         // the timestamp keeps Image from showing a snapshot of an earlier opening
         onExited: {
             const stamp = Date.now();
             const newest = Object.assign({}, root.latest);
-            const waiting = Object.assign({}, root.undecoded);
             for (let index = 0; index < pending.length; index++) {
                 const url = `file://${dir}/${pending[index]}.jpg?${stamp}`;
                 newest[pending[index]] = url;
-                waiting[url] = true;
+                root.undecoded[url] = true;
             }
+            root.undecodedCount += pending.length;
             pending = [];
-            root.undecoded = waiting;
             root.latest = newest;
             next();
         }

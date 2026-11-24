@@ -2,7 +2,7 @@ import Quickshell
 import QtQuick
 import qs
 
-// Universal Actions, as Alfred's ($mod+u): what is selected in any window, or
+// Universal Actions, as Alfred's ($mod+Shift+u): what is selected in any window, or
 // else what was last copied, with the actions that fit it. A URL opens or
 // becomes a bookmark, a path is the file itself (Enter, Ctrl+Enter, Ctrl+B), a
 // DOI is looked up, a sum is worked out; any text goes to pi, the AI commands
@@ -44,7 +44,7 @@ Scope {
 
     function sections(tokens) {
         if (!subject)
-            return [["Selection", [own("none", "Select some text in any window, then press $mod+u", "edit-select-all")]]];
+            return [["Selection", [own("none", "Select some text in any window, then press $mod+Shift+u", "edit-select-all")]]];
         const actions = root.actions.filter(item => Spot.matches(item.title, tokens));
         const shown = subject.replace(/\s+/g, " ");
         return [[`${selected ? "Selected" : "Copied"} ${type.toLowerCase()} · ${shown.length > 48 ? shown.slice(0, 48) + "…" : shown}`, actions]];

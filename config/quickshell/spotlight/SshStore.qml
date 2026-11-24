@@ -38,7 +38,9 @@ Scope {
         return found;
     }
 
-    function items(tokens) {
+    // the hosts joined to the tailnet's peers, then the peers no host names:
+    // made once a load, so a keystroke only filters them
+    readonly property var merged: {
         const peers = tailnet.items;
         // the first peer with an address or a name, by its index, so joining hosts
         // to peers scans neither list
@@ -53,7 +55,7 @@ Scope {
         });
         const joined = Object.create(null);
         // git remotes and the AUR take ssh but give no shell
-        const merged = hosts.filter(host => host.user !== "git" && (host.hostName || host.name) !== "aur.archlinux.org").map(host => {
+        const list = hosts.filter(host => host.user !== "git" && (host.hostName || host.name) !== "aur.archlinux.org").map(host => {
             const index = Math.min(byAddress[host.hostName] ?? Infinity, byName[host.name.toLowerCase()] ?? Infinity);
             if (index < peers.length)
                 joined[index] = true;
@@ -66,8 +68,12 @@ Scope {
         });
         peers.forEach((peer, index) => {
             if (!(index in joined))
-                merged.push({ name: peer.name, target: peer.dns, address: peer.dns, peer });
+                list.push({ name: peer.name, target: peer.dns, address: peer.dns, peer });
         });
+        return list;
+    }
+
+    function items(tokens) {
         return merged
             .filter(host => Spot.matches("ssh " + host.name + " " + host.address, tokens))
             .map(host => ({ key: "ssh:" + host.name, kind: "ssh", store: root, host, title: host.name, hint: host.peer ? (host.peer.online ? "online" : "offline") : host.address, icon: "utilities-terminal", value: host.target }));

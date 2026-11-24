@@ -1,7 +1,11 @@
 """The calculator beyond arithmetic: time zones, date math and qalc."""
 
+import os
 import re
+import select
 import subprocess
+import threading
+import time
 from datetime import date, datetime
 from functools import cache
 from pathlib import Path
@@ -158,10 +162,139 @@ def date_math(text: str) -> dict | None:
     return None
 
 
+QALC = [
+    "qalc",
+    "-s",
+    "color 0",
+    "-s",
+    "save config 0",
+    "-s",
+    "upxrates 1",
+    "-s",
+    "percent 1",
+]
+
+
+# words that start one of qalc's commands: in the resident session they would
+# change every later answer ("set precision 3"), so they are not sent
+QALC_COMMANDS = {
+    "approximate",
+    "assume",
+    "base",
+    "clear",
+    "convert",
+    "copy",
+    "delete",
+    "exact",
+    "exit",
+    "expand",
+    "exrates",
+    "find",
+    "function",
+    "help",
+    "history",
+    "info",
+    "keep",
+    "list",
+    "m+",
+    "m-",
+    "mc",
+    "mode",
+    "move",
+    "mr",
+    "ms",
+    "partial",
+    "pop",
+    "quit",
+    "rotate",
+    "rpn",
+    "save",
+    "set",
+    "stack",
+    "store",
+    "swap",
+    "to",
+    "variable",
+}
+
+
+# a qalc answer ends at its next prompt, as its start does
+QALC_PROMPT = re.compile(rb"(^|\n\n)(\x1b\[[0-9 ]*q)?> $")
+
+
+QALC_ANSI = re.compile(r"\x1b\[[0-9;]*[a-zA-Z]")
+
+
+# one qalc kept running: starting it costs ~115 ms, an answer from it ~2 ms.
+# It starts again once a day, for fresh exchange rates, and after an answer
+# that may have changed it (an assignment, a warning)
+qalc_lock = threading.Lock()
+qalc_session: subprocess.Popen | None = None
+qalc_started = 0.0
+
+
+def qalc_read(deadline: float) -> bytes | None:
+    """qalc's output up to its prompt, None if it gives none by `deadline`."""
+    output = b""
+    while not QALC_PROMPT.search(output):
+        left = deadline - time.monotonic()
+        if left <= 0 or not select.select([qalc_session.stdout], [], [], left)[0]:
+            return None
+        chunk = os.read(qalc_session.stdout.fileno(), 65536)
+        if not chunk:
+            return None
+        output += chunk
+    return output
+
+
+def qalc_stop() -> None:
+    global qalc_session
+    if qalc_session:
+        qalc_session.kill()
+        qalc_session.wait()
+        qalc_session = None
+
+
+def qalc_lines(expression: str) -> list[str] | None:
+    """The lines qalc answers `expression` with, without its echo and blank
+    lines; None if it did not answer in time."""
+    global qalc_session, qalc_started
+    with qalc_lock:
+        if (
+            qalc_session is None
+            or qalc_session.poll() is not None
+            or time.monotonic() - qalc_started > 86400
+        ):
+            qalc_stop()
+            qalc_session = subprocess.Popen(
+                QALC,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+            qalc_started = time.monotonic()
+            if qalc_read(time.monotonic() + 10) is None:
+                qalc_stop()
+                return None
+        qalc_session.stdin.write(expression.encode() + b"\n")
+        qalc_session.stdin.flush()
+        output = qalc_read(time.monotonic() + 5)
+        if output is None:
+            qalc_stop()
+            return None
+        text = QALC_ANSI.sub("", output.decode(errors="replace"))
+        lines = [line.strip() for line in text.splitlines()[1:-1] if line.strip()]
+        if any(line.startswith("warning:") or "save(" in line for line in lines):
+            qalc_stop()
+        return lines
+
+
 # units, currencies, percentages and number bases; None when qalc did not
 # understand the text, which it then reports as an error or a warning
 def qalculate(text: str) -> dict | None:
-    if not re.search(r"\d", text):
+    if not re.search(r"\d", text) or text.startswith("/"):
+        return None
+    if text.split()[0].lower() in QALC_COMMANDS:
         return None
     expression = re.sub(r"(\d)\s*%\s*of\s+", r"\1% * ", text, flags=re.IGNORECASE)
     if conversion := CONVERSION.fullmatch(expression):
@@ -176,29 +309,8 @@ def qalculate(text: str) -> dict | None:
         expression = (
             f"{amount} to {target if target.lower() in BASES else '-' + target}"
         )
-    run = subprocess.run(
-        [
-            "qalc",
-            "-s",
-            "save config 0",
-            "-s",
-            "upxrates 1",
-            "-s",
-            "percent 1",
-            expression,
-        ],
-        capture_output=True,
-        text=True,
-        stdin=subprocess.DEVNULL,
-        timeout=5,
-        check=False,
-    )
-    lines = run.stdout.strip().splitlines()
-    if (
-        run.returncode
-        or not lines
-        or re.search(r"^(error|warning):", run.stdout, re.MULTILINE)
-    ):
+    lines = qalc_lines(expression)
+    if not lines or any(line.startswith(("error:", "warning:")) for line in lines):
         return None
     parts = re.split(r" ([=≈]) ", lines[-1])
     if len(parts) < 3 or parts[-1].lower() == text.lower():

@@ -1,5 +1,6 @@
 import Quickshell
 import QtQuick
+import "js/search.js" as Search
 
 // pass entries, listed by name and decrypted only when used: Enter copies the
 // password for 30 s, Ctrl+Enter types it into the focused window.
@@ -23,7 +24,7 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
     }
 
     function items(tokens) {
-        return entries.items.filter(item => Spot.matches(item.value, tokens));
+        return Search.matching(entries.items, "passwords", item => item.text, tokens);
     }
 
     function describe(item) {
@@ -45,9 +46,9 @@ printf '%s\\n' "$pw" | head -n1 | tr -d '\\n' | wtype -`
     Source {
         id: entries
         maxAge: 300000
-        command: ["sh", "-c", 'cd "${PASSWORD_STORE_DIR:-$HOME/.password-store}" && find . -name "*.gpg" -printf "%P\\n"']
+        command: ["sh", "-c", 'cd "${PASSWORD_STORE_DIR:-$HOME/.password-store}" && find . -name "*.gpg" -printf "%P\\n" | sed "s/\\.gpg$//" | LC_ALL=C sort']
         // the items made once a listing
-        parse: output => output.split("\n").filter(line => line).map(line => line.slice(0, -4)).sort()
-            .map(entry => ({ key: "pass:" + entry, kind: "password", store: root, title: Spot.basename(entry), hint: Spot.dirname(entry), icon: "dialog-password", value: entry }))
+        parse: output => output.split("\n").filter(line => line)
+            .map(entry => ({ key: "pass:" + entry, kind: "password", store: root, title: Spot.basename(entry), hint: Spot.dirname(entry), icon: "dialog-password", value: entry, text: Search.fold(entry) }))
     }
 }

@@ -6,9 +6,10 @@ import QtQuick
 
 // greetd greeter, run as the greeter user by /etc/greetd/scroll in place of
 // ReGreet. `just wayland` installs it in /etc/greetd/quickshell together with
-// Theme, WText and DateBlock from config/quickshell, so it looks like the lock
-// screen. Users come from /etc/passwd, sessions from /usr/share/wayland-sessions;
-// the last user and each user's last session are kept in /var/lib/qs-greeter.
+// Theme, WText, DateBlock and Halo from config/quickshell, so it looks like the
+// lock screen, and the cursive font they use. Users come from /etc/passwd,
+// sessions from /usr/share/wayland-sessions; the last user and each user's last
+// session are kept in /var/lib/qs-greeter.
 // Keys: type the password and Enter; Tab / Shift+Tab pick the session, Up / Down
 // the user; Ctrl+R restarts and Ctrl+P powers off (press twice).
 ShellRoot {
@@ -161,6 +162,12 @@ ShellRoot {
                 root.sessions = found.sort((a, b) => a.name.localeCompare(b.name));
             }
         }
+    }
+
+    // the lock's cursive (Theme.cursive) lives in the user's ~/.fonts, which
+    // the greeter user does not see: it comes with the greeter instead
+    FontLoader {
+        source: "file://" + Quickshell.shellPath("Inspiration-Regular.ttf")
     }
 
     Variants {

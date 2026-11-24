@@ -53,7 +53,12 @@ Scope {
 
     function sections(tokens) {
         const found = matching(tokens);
-        return Object.keys(statuses).map(status => [statuses[status].label, found.filter(task => task.status === status).map(item)]);
+        const byStatus = Object.create(null);
+        for (const status in statuses)
+            byStatus[status] = [];
+        for (let index = 0; index < found.length; index++)
+            byStatus[found[index].status]?.push(item(found[index]));
+        return Object.keys(statuses).map(status => [statuses[status].label, byStatus[status]]);
     }
 
     // the best three but those among the agenda's `events`

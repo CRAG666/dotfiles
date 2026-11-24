@@ -33,10 +33,18 @@ Scope {
     readonly property var bookmarkList: bookmarks.items.map(entry => ({ key: "bookmark:" + entry.id, kind: "bookmark", store: root, entry, title: entry.title, hint: entry.category + " · " + entry.body.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""), icon: "web-browser" }))
     readonly property var noteList: notes.items.map(entry => ({ key: "note:" + entry.id, kind: "note", store: root, entry, title: entry.title, hint: entry.category, icon: "accessories-text-editor" }))
 
-    readonly property var categoryList: categories(bookmarks).map(category => {
-        const urls = bookmarks.items.filter(entry => entry.category === category).map(entry => entry.body);
-        return { key: "bookmarkCategory:" + category, kind: "bookmarkCategory", store: root, urls, title: category, hint: urls.length + (urls.length === 1 ? " bookmark" : " bookmarks"), icon: "folder" };
-    })
+    // grouped in one pass over the bookmarks, not one per category
+    readonly property var categoryList: {
+        const urlsOf = Object.create(null);
+        for (let index = 0; index < bookmarks.items.length; index++) {
+            const entry = bookmarks.items[index];
+            (urlsOf[entry.category] ?? (urlsOf[entry.category] = [])).push(entry.body);
+        }
+        return Object.keys(urlsOf).sort((a, b) => a.localeCompare(b)).map(category => {
+            const urls = urlsOf[category];
+            return { key: "bookmarkCategory:" + category, kind: "bookmarkCategory", store: root, urls, title: category, hint: urls.length + (urls.length === 1 ? " bookmark" : " bookmarks"), icon: "folder" };
+        });
+    }
 
     function categoryItems(tokens) {
         return categoryList.filter(item => Spot.matches(item.title, tokens));

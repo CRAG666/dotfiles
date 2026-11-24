@@ -2,6 +2,7 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 import qs
+import "js/search.js" as Search
 
 // Wallpapers in ~/Pictures/wallpaperCicle, each with a square thumbnail cached
 // as <md5 of the path>.sqre and a 960x720 preview, both JPEG (Qt reads no
@@ -41,10 +42,15 @@ Scope {
     }
 
     // the counter in the query makes rows reload thumbs rendered after the first paint
+    // the current one first, then the others, each with the text it is found
+    // by folded: made once a listing, so a keystroke only filters them
+    readonly property var rows: {
+        const item = (path, section) => ({ key: "wallpaper:" + path, kind: "wallpaper", store: root, section, path, title: Spot.basename(path), hint: path === current ? "Current" : "", thumb: `${thumbOf(path)}?${thumbsReady}`, text: Search.fold(path.slice(folder.length)) });
+        return wallpapers.filter(path => path === current).map(path => item(path, "Current")).concat(wallpapers.filter(path => path !== current).map(path => item(path, "Wallpapers")));
+    }
+
     function items(tokens) {
-        const item = (path, section) => ({ key: "wallpaper:" + path, kind: "wallpaper", store: root, section, path, title: Spot.basename(path), hint: path === current ? "Current" : "", thumb: `${thumbOf(path)}?${thumbsReady}` });
-        const matching = wallpapers.filter(path => Spot.matches(path.slice(folder.length), tokens));
-        return matching.filter(path => path === current).map(path => item(path, "Current")).concat(matching.filter(path => path !== current).map(path => item(path, "Wallpapers")));
+        return Search.matching(rows, "wallpapers", row => row.text, tokens);
     }
 
     function describe(item) {

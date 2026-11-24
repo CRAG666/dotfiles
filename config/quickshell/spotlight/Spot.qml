@@ -201,15 +201,35 @@ esac`
         onTriggered: resident.running = true
     }
 
+    // DesktopEntries' apps, taken once its list stops changing: it adds them one
+    // at a time as it loads, and each list built from them (entriesByName,
+    // Apps.indexed) would be rebuilt once per app, O(n²)
+    property var applications: []
+    function takeApplications() {
+        applications = DesktopEntries.applications.values;
+    }
+    Component.onCompleted: takeApplications()
+    Connections {
+        target: DesktopEntries.applications
+        function onValuesChanged() {
+            Qt.callLater(takeApplications);
+        }
+    }
+
     // app id or window class (lowercase) → the app with it, so a lookup scans no
-    // list; by id order where two share one, as DesktopEntries' order changes
+    // list; the least id where two share one, as DesktopEntries' order changes
     // at every start
     readonly property var entriesByName: {
         const index = Object.create(null);
-        for (const app of [...DesktopEntries.applications.values].sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
-            for (const name of [app.id.toLowerCase(), app.startupClass.toLowerCase()])
-                if (!(name in index))
-                    index[name] = app;
+        const apps = applications;
+        const claim = (name, app) => {
+            if (!(name in index) || app.id < index[name].id)
+                index[name] = app;
+        };
+        for (let at = 0; at < apps.length; at++) {
+            claim(apps[at].id.toLowerCase(), apps[at]);
+            claim(apps[at].startupClass.toLowerCase(), apps[at]);
+        }
         return index;
     }
 
@@ -235,27 +255,74 @@ esac`
     }
 
     // entries.sort(order).slice(0, limit) for a total `order`, without sorting
-    // them all: each entry is binary-inserted into the best `limit` so far
+    // them all: a binary heap built in place in linear time (Floyd), from which
+    // the best `limit` are popped, log n each. A list ordered lazily asks for
+    // the rows in sight and more as it scrolls, so a keystroke costs O(n + k log n)
     function firstSorted(entries, order, limit) {
-        const best = [];
-        for (let index = 0; index < entries.length; index++) {
-            const entry = entries[index];
-            if (best.length === limit && order(entry, best[limit - 1]) >= 0)
-                continue;
-            let low = 0;
-            let high = best.length;
-            while (low < high) {
-                const middle = (low + high) >> 1;
-                if (order(entry, best[middle]) < 0)
-                    high = middle;
-                else
-                    low = middle + 1;
+        const heap = entries.slice();
+        const sift = (from, size) => {
+            const entry = heap[from];
+            let at = from;
+            for (;;) {
+                let child = 2 * at + 1;
+                if (child >= size)
+                    break;
+                if (child + 1 < size && order(heap[child + 1], heap[child]) < 0)
+                    child++;
+                if (order(heap[child], entry) >= 0)
+                    break;
+                heap[at] = heap[child];
+                at = child;
             }
-            best.splice(low, 0, entry);
-            if (best.length > limit)
-                best.pop();
+            heap[at] = entry;
+        };
+        for (let at = (heap.length >> 1) - 1; at >= 0; at--)
+            sift(at, heap.length);
+        const best = [];
+        for (let size = heap.length; size > 0 && best.length < limit; size--) {
+            best.push(heap[0]);
+            heap[0] = heap[size - 1];
+            sift(0, size - 1);
         }
         return best;
+    }
+
+    // ScriptModel's diff looks each row it removes, inserts or moves up in the
+    // rest of the other list: 15 ms for 200 rows replaced, 230 ms for 800. Rows
+    // kept in place, a cut tail and an appended one cost it a pass, so past
+    // `diffBudget` lookups (~1 ms) the rows after the first that differs are cut
+    // and appended again: the view remakes only those in sight, from its pool
+    readonly property int diffBudget: 8000
+
+    // model.values (a ScriptModel's) from `previous` to `next`, rows known by
+    // keyOf, in time linear in the rows
+    function relist(model, previous, next, keyOf) {
+        const at = Object.create(null);
+        for (let index = 0; index < previous.length; index++)
+            at[keyOf(previous[index])] = index;
+        let kept = 0;
+        let moved = 0;
+        let last = -1;
+        for (let index = 0; index < next.length; index++) {
+            const old = at[keyOf(next[index])];
+            if (old === undefined)
+                continue;
+            kept++;
+            if (old < last)
+                moved++;
+            last = old;
+        }
+        const lookups = (previous.length - kept) * next.length + (next.length - kept) * previous.length + moved * Math.max(previous.length, next.length);
+        if (lookups > diffBudget) {
+            let same = 0;
+            while (same < previous.length && same < next.length && keyOf(previous[same]) === keyOf(next[same]))
+                same++;
+            model.values = next.slice(0, same);
+        }
+        model.values = next;
+        // a row it moves keeps its old object, so a changed hint or thumbnail
+        // would stay stale: the same rows again, all in place, take the new ones
+        model.values = next;
     }
 
     function iconFor(name) {

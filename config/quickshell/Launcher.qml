@@ -2,6 +2,7 @@ import Quickshell
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Effects
+import qs.spotlight as Spotlight
 
 // Fullscreen app launcher (rofi `launcher`): the wallpaper blurs in like the
 // lock, with a search pill over an 8×4 grid of apps. Arrows/Tab move, Enter or
@@ -11,8 +12,36 @@ import QtQuick.Effects
 FocusedPanel {
     id: win
     readonly property real u: height / 1440
-    readonly property var apps: Apps.search(search.text)
-    onAppsChanged: grid.currentIndex = 0
+    // the best `depth` apps, ordered: the pages in sight and more, grown as the
+    // selection or the scrolling nears their end
+    readonly property int page: 64
+    property real depth: page
+    readonly property var apps: Apps.search(search.text, depth)
+    // the apps appModel holds, and the query they answer
+    property var shownApps: []
+    property string listedQuery: ""
+    function relist() {
+        Spotlight.Spot.relist(appModel, shownApps, apps, app => app.id);
+        shownApps = apps;
+        if (listedQuery !== search.text) {
+            listedQuery = search.text;
+            grid.currentIndex = 0;
+        }
+    }
+
+    // a page more once `index` nears the end of the apps ordered so far
+    function reach(index) {
+        if (apps.more && index >= apps.length - 2 * grid.columns)
+            depth = Math.max(depth, index + page);
+    }
+
+    // keys that wrap from the first app to the last order them all first
+    function orderAll() {
+        if (apps.more)
+            depth = Infinity;
+    }
+    onAppsChanged: relist()
+    Component.onCompleted: relist()
 
     property bool shown: false
 
@@ -179,6 +208,7 @@ FocusedPanel {
                 font.pixelSize: win.px(26)
                 renderType: Text.NativeRendering
                 onAccepted: if (grid.count) win.launch(win.apps[grid.currentIndex])
+                onTextChanged: win.depth = win.page
 
                 Keys.onPressed: event => {
                     const page = grid.columns * grid.rows;
@@ -187,12 +217,16 @@ FocusedPanel {
                         win.close();
                         break;
                     case Qt.Key_Left:
+                        if (grid.currentIndex === 0)
+                            win.orderAll();
                         grid.moveCurrentIndexLeft();
                         break;
                     case Qt.Key_Right:
                         grid.moveCurrentIndexRight();
                         break;
                     case Qt.Key_Up:
+                        if (grid.currentIndex < grid.columns)
+                            win.orderAll();
                         grid.moveCurrentIndexUp();
                         break;
                     case Qt.Key_Down:
@@ -203,6 +237,8 @@ FocusedPanel {
                             grid.currentIndex = (grid.currentIndex + 1) % grid.count;
                         break;
                     case Qt.Key_Backtab:
+                        if (grid.currentIndex === 0)
+                            win.orderAll();
                         if (grid.count)
                             grid.currentIndex = (grid.currentIndex - 1 + grid.count) % grid.count;
                         break;
@@ -234,9 +270,11 @@ FocusedPanel {
             clip: true
             keyNavigationWraps: true
             model: ScriptModel {
-                values: win.apps
+                id: appModel
             }
             reuseItems: true
+            onCurrentIndexChanged: win.reach(currentIndex)
+            onAtYEndChanged: if (atYEnd) win.reach(count - 1)
             highlightMoveDuration: 120
             highlight: Rectangle {
                 radius: win.px(28)

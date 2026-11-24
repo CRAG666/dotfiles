@@ -1,7 +1,6 @@
 """Zen's profiles, history and open tabs."""
 
 import configparser
-import heapq
 import json
 import os
 import re
@@ -34,37 +33,63 @@ def zen_profiles() -> list[tuple[str, Path]]:
     ]
 
 
-def zen_history() -> list[dict]:
-    visits = []
-    with tempfile.TemporaryDirectory() as scratch:
-        for profile, folder in zen_profiles():
-            places = folder / "places.sqlite"
-            if not places.exists():
-                continue
-            # Zen keeps places.sqlite locked and recent visits in the WAL, so query a copy of both
-            copy = Path(scratch) / f"{folder.name}.sqlite"
+# the last answer and the files it came from, as (size, mtime) of each
+history_cache: tuple[tuple, str] = ((), "")
+
+
+# as JSON, which SQLite writes itself: the newest 3000 visits of each profile,
+# newest first. Zen keeps places.sqlite locked, with recent visits in its WAL
+# and no -shm to read that through, so a copy of both is queried (on tmpfs:
+# SQLite's files cost more on btrfs than the copy), and none while neither
+# file changed
+def zen_history() -> str:
+    global history_cache
+    sources = [
+        (profile, places)
+        for profile, folder in zen_profiles()
+        if (places := folder / "places.sqlite").exists()
+    ]
+    signature = tuple(
+        (stat.st_size, stat.st_mtime_ns)
+        for _, places in sources
+        for path in (places, Path(f"{places}-wal"))
+        if (stat := path.stat() if path.exists() else None)
+    )
+    if signature == history_cache[0]:
+        return history_cache[1]
+    with (
+        tempfile.TemporaryDirectory() as scratch,
+        sqlite3.connect(":memory:") as db,
+    ):
+        selects = []
+        for index, (profile, places) in enumerate(sources):
+            copy = Path(scratch) / f"{index}.sqlite"
             shutil.copy(places, copy)
-            if (wal := folder / "places.sqlite-wal").exists():
+            if (wal := Path(f"{places}-wal")).exists():
                 shutil.copy(wal, f"{copy}-wal")
-            with sqlite3.connect(copy) as db:
-                rows = db.execute(
-                    "SELECT url, title, visit_count, last_visit_date FROM moz_places "
-                    "WHERE hidden = 0 AND last_visit_date IS NOT NULL ORDER BY last_visit_date DESC LIMIT 3000"
-                )
-                visits.append(
-                    [
-                        {
-                            "profile": profile,
-                            "url": url,
-                            "title": title or url,
-                            "visits": count,
-                            "last": last // 1_000_000,
-                        }
-                        for url, title, count, last in rows
-                    ]
-                )
-    # each profile's visits come newest first, so a k-way merge orders them all
-    return list(heapq.merge(*visits, key=lambda visit: visit["last"], reverse=True))
+            db.execute(f"ATTACH DATABASE ? AS p{index}", (str(copy),))
+            selects.append(
+                f"SELECT * FROM (SELECT {index} AS source, ? AS profile, url, "
+                "coalesce(nullif(title, ''), url) AS title, visit_count AS visits, "
+                "last_visit_date AS stamp, last_visit_date / 1000000 AS last "
+                f"FROM p{index}.moz_places WHERE hidden = 0 AND last_visit_date IS NOT NULL "
+                "ORDER BY last_visit_date DESC LIMIT 3000)"
+            )
+        encoded = (
+            db.execute(
+                "SELECT json_group_array(json_object('profile', profile, 'url', url, "
+                "'title', title, 'visits', visits, 'last', last)) FROM ("
+                + " UNION ALL ".join(selects)
+                + " ORDER BY last DESC, source, stamp DESC)",
+                [profile for profile, _ in sources],
+            ).fetchone()[0]
+            if selects
+            else "[]"
+        )
+        for index in range(len(sources)):
+            db.execute(f"DETACH DATABASE p{index}")
+    history_cache = (signature, encoded)
+    return encoded
 
 
 def parent_pid(pid: int) -> int:

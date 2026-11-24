@@ -18,7 +18,8 @@ def pins() -> list[dict]:
     for path in sorted(
         PINS.iterdir(), key=lambda pin: pin.stat().st_mtime, reverse=True
     ):
-        head = path.read_bytes()[:4096]
+        with path.open("rb") as pin:
+            head = pin.read(4096)
         image = head.startswith(IMAGE_MAGIC) or head[8:12] == b"WEBP"
         listed.append(
             {

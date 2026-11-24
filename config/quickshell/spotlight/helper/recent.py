@@ -1,5 +1,6 @@
 """Recently used and saved files."""
 
+import heapq
 import json
 import os
 import subprocess
@@ -60,8 +61,12 @@ def recent_files() -> list[dict]:
             add(Path(line), Path(line).stat().st_mtime)
         except FileNotFoundError:
             continue  # removed since fd listed it
-    newest = sorted(used.items(), key=lambda entry: entry[1], reverse=True)
-    # lazily, so only the files up to the 100th that still exists are looked at
+    # a heap, built in linear time and popped lazily (log n each), so only the
+    # files up to the 100th that still exists are ordered and looked at
+    heap = [(-when, order, path) for order, (path, when) in enumerate(used.items())]
+    heapq.heapify(heap)
+    popped = (heapq.heappop(heap) for _ in range(len(heap)))
+    newest = ((path, -negated) for negated, _, path in popped)
     return list(
         islice(
             (

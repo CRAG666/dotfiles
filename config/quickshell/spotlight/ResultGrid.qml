@@ -32,6 +32,7 @@ Item {
         });
         return built;
     }
+    onRowsChanged: list.relist()
 
     // result index → its row, so moving through the grid scans no rows
     readonly property var rowAt: {
@@ -67,9 +68,16 @@ Item {
         // rows are known by their first result, so a keystroke updates them in place
         // instead of remaking every row
         model: ScriptModel {
+            id: gridRows
             objectProp: "first"
-            values: root.rows
         }
+        // the rows gridRows holds
+        property var shown: []
+        function relist() {
+            Spot.relist(gridRows, shown, root.rows, row => row.first);
+            shown = root.rows;
+        }
+        Component.onCompleted: relist()
 
         delegate: Column {
             id: gridRow

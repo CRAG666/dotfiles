@@ -299,20 +299,23 @@ function matching(items, name, textOf, queryTokens, loose = true) {
     }
     // a loose match is no monotone, but `possible` is: what may match a query
     // or any query extending it. Exact matching needs no such superset
+    // without narrowing every candidate stays one, so the same array is kept
     const narrowing = loose && queryTokens.some(token => token.length >= 3);
     const kept = [];
     const found = [];
     for (let index = 0; index < candidates.length; index++) {
         const text = textOf(candidates[index]);
-        if (narrowing && !queryTokens.every(token => possible(text, token)))
-            continue;
-        kept.push(candidates[index]);
+        if (narrowing) {
+            if (!queryTokens.every(token => possible(text, token)))
+                continue;
+            kept.push(candidates[index]);
+        }
         if (score(text, queryTokens, loose) > 0)
             found.push(candidates[index]);
     }
     // frozen: callers share the cached answer, so changing it would be a bug
     Object.freeze(found);
-    if (answers.push({ key, tokens: queryTokens, found, candidates: loose ? kept : found }) > remembered)
+    if (answers.push({ key, tokens: queryTokens, found, candidates: !loose ? found : narrowing ? kept : candidates }) > remembered)
         answers.shift();
     return found;
 }

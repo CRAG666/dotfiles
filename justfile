@@ -146,7 +146,11 @@ stow action +groups:
             home) unlocked home && pkg "{{ src }}" "$HOME" home ;;
             config) pkg "{{ src }}" "$HOME/.config" config ;;
             bin) unlocked bin && pkg "{{ src }}/local" "$HOME/.local/bin" bin ;;
-            data) unlocked data && pkg "{{ src }}/local" "$HOME/.local/share" share ;;
+            data)
+                unlocked data
+                # Real dirs, so the caches update-mime-database and update-desktop-database write stay out of the repo
+                mkdir -p "$HOME/.local/share/mime" "$HOME/.local/share/applications"
+                pkg "{{ src }}/local" "$HOME/.local/share" share ;;
             systemd) pkg "{{ src }}/config/systemd" "$HOME/.config/systemd/user" --no-folding user ;;
             harness)
                 pkg "{{ src }}/harness" "$HOME/.pi/agent" --no-folding pi
@@ -167,6 +171,7 @@ status: (stow "--simulate --verbose" "home config bin data systemd harness")
 [group('base')]
 link: (stow "--restow" "home config bin data systemd harness")
     systemctl --user daemon-reload
+    update-mime-database "$HOME/.local/share/mime"
 
 # Deploy the initial dotfiles and enable the repo's pre-commit checks
 [group('base')]
@@ -321,7 +326,7 @@ org-bisync: (stow "--restow" "systemd bin") (install-pkgs "inotify-tools")
 greetd: (install-pkgs "greetd quickshell")
     echo "==> Configuring greetd..."
     sudo cp -r "{{ src }}/etc/greetd" /etc/
-    sudo install -m 644 "{{ src }}"/config/quickshell/{Theme,WText,DateBlock}.qml /etc/greetd/quickshell/
+    sudo install -m 644 "{{ src }}"/config/quickshell/{Theme,WText,DateBlock,Halo}.qml /etc/greetd/quickshell/
     sudo install -d -o greeter -g greeter /var/lib/qs-greeter
     {{ systemd_enable }} greetd
 

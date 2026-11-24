@@ -98,8 +98,8 @@ Scope {
         const tokens = Search.tokens(filter);
         const dir = expand(raw.slice(0, raw.lastIndexOf("/") + 1));
         const entries = listing.dir === dir ? listing.entries : [];
-        const shown = entries
-            .filter(entry => (filter.startsWith(".") || !entry.name.startsWith(".")) && Spot.matches(entry.name, tokens))
+        const shown = Search.matching(entries, "browse", entry => entry.folded, tokens)
+            .filter(entry => filter.startsWith(".") || !entry.name.startsWith("."))
             .map(entry => fileItem(entry.path, entry.isDir, ""));
         return [["Buffer", bufferItems(tokens)], [Spot.tilde(dir), shown]];
     }
@@ -204,21 +204,18 @@ Scope {
         return dot > 0 ? name.slice(dot + 1).toLowerCase() : "";
     }
 
+    // extension → the icon of its files
+    readonly property var typeIcons: {
+        const icons = Object.assign(Object.create(null), { pdf: "application-pdf" });
+        const groups = [[imageTypes, "image-x-generic"], [videoTypes, "video-x-generic"], [audioTypes, "audio-x-generic"], [archiveTypes, "package-x-generic"]];
+        for (let group = 0; group < groups.length; group++)
+            for (let index = 0; index < groups[group][0].length; index++)
+                icons[groups[group][0][index]] = groups[group][1];
+        return icons;
+    }
+
     function fileIcon(name, isDir) {
-        if (isDir)
-            return "folder";
-        const type = extension(name);
-        if (imageTypes.includes(type))
-            return "image-x-generic";
-        if (type === "pdf")
-            return "application-pdf";
-        if (videoTypes.includes(type))
-            return "video-x-generic";
-        if (audioTypes.includes(type))
-            return "audio-x-generic";
-        if (archiveTypes.includes(type))
-            return "package-x-generic";
-        return "text-x-generic";
+        return isDir ? "folder" : typeIcons[extension(name)] ?? "text-x-generic";
     }
 
     // fd has no accent folding, so every vowel, n and c also match their accented
@@ -255,7 +252,7 @@ Scope {
         const body = item.snippet ? item.snippet : peeked ? peekText : "";
         // a text's head (or what `file` says) fills the pane instead of the icon, as in yazi
         const icon = item.isDir || type in peekKinds ? item.icon : "";
-        return { image, icon, styled: !item.snippet && peeked && peekStyled, metadata: [["Name", item.title], ["Where", Spot.tilde(Spot.dirname(item.path))], ["Kind", kind], ["Page", item.page || ""], ...(peeked ? peekFacts : [])], body, mono: !item.snippet, actions: [["Enter", "Open"], ["Ctrl+Enter", "Show in folder"], ["Ctrl+C", "Copy path"], ["Ctrl+B", buffer.includes(item.path) ? "Remove from buffer" : "Add to buffer"], ["", "Move to…", "move"]] };
+        return { image, icon, styled: !item.snippet && peeked && peekStyled, metadata: [["Name", item.title], ["Where", Spot.tilde(Spot.dirname(item.path))], ["Kind", kind], ["Page", item.page || ""], ...(peeked ? peekFacts : [])], body, mono: !item.snippet, actions: [["Enter", "Open"], ["Ctrl+Enter", "Show in folder"], ["Ctrl+C", "Copy path"], ["Ctrl+B", item.path in buffered ? "Remove from buffer" : "Add to buffer"], ["", "Move to…", "move"]] };
     }
 
     // the size and modification time, the thumbnail (made once into the cache),
@@ -336,7 +333,10 @@ for file; do
     fi
 done
 notify-send -t 3000 -i folder "$verb to \${dest##*/}" "$moved of $# files"`, "sh", copy ? "Copied" : "Moved", values.folder.trim().replace(/^~/, Spot.home), ...paths]);
-                buffer = buffer.filter(path => !paths.includes(path));
+                const moved = Object.create(null);
+                for (let index = 0; index < paths.length; index++)
+                    moved[paths[index]] = true;
+                buffer = buffer.filter(path => !(path in moved));
                 recent.reload();
                 latestDownload.reload();
                 return true;
@@ -354,8 +354,8 @@ notify-send -t 3000 -i folder "$verb to \${dest##*/}" "$moved of $# files"`, "sh
         if (action === "move") {
             transferForm([item.path], false);
         } else if (action === "buffer") {
-            const had = buffer.includes(item.path);
-            buffer = had ? buffer.filter(path => path !== item.path) : [...buffer, item.path];
+            const had = item.path in buffered;
+            buffer = had ? buffer.filter(path => path !== item.path) : buffer.concat(item.path);
             host.notify(`${had ? "Removed from" : "Added to"} the buffer (${buffer.length})`);
         }
         return false;
@@ -410,7 +410,10 @@ notify-send -t 3000 -i folder "$verb to \${dest##*/}" "$moved of $# files"`, "sh
         query: root.browseDir
         interval: 0
         command: dir => dir ? ["find", dir, "-mindepth", "1", "-maxdepth", "1", "-printf", "%Y\t%p\n"] : null
-        onDone: output => root.listing = { dir: root.browseDir, entries: output.split("\n").filter(line => line).map(line => ({ isDir: line[0] === "d", path: line.slice(2), name: Spot.basename(line.slice(2)) })).sort((a, b) => b.isDir - a.isDir || a.name.localeCompare(b.name)) }
+        onDone: output => root.listing = { dir: root.browseDir, entries: output.split("\n").filter(line => line).map(line => {
+            const name = Spot.basename(line.slice(2));
+            return { isDir: line[0] === "d", path: line.slice(2), name, folded: Search.fold(name) };
+        }).sort((a, b) => b.isDir - a.isDir || a.name.localeCompare(b.name)) }
     }
 
     Lookup {

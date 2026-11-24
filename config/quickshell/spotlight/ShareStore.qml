@@ -17,6 +17,14 @@ Scope {
     property var offered: []
     // monitor name → the url of its snapshot
     property var shots: ({})
+    // the offered lines as items, made once a request (and as snapshots land),
+    // so a keystroke only filters them
+    readonly property var sources: {
+        const byIdent = Object.create(null);
+        for (let index = 0; index < windows.list.length; index++)
+            byIdent[windows.list[index].ident] = windows.list[index];
+        return offered.map(line => parse(line, byIdent));
+    }
 
     function ask(fifo, lines) {
         root.fifo = fifo;
@@ -42,17 +50,17 @@ Scope {
         fifo = "";
     }
 
-    function parse(line) {
+    function parse(line, byIdent) {
         const monitor = line.match(/^Monitor: (\S+) ?(.*)$/);
         if (monitor)
             return { key: "share:" + line, kind: "shareMonitor", store: root, line, title: monitor[1], hint: monitor[2], icon: "video-display", thumb: shots[monitor[1]] ?? "" };
         const match = line.match(/^Window: (.*) \((\S+)\)$/);
-        const window = match ? windows.list.find(entry => entry.ident === match[2]) : null;
+        const window = match ? byIdent[match[2]] ?? null : null;
         return { key: "share:" + line, kind: "shareWindow", store: root, line, title: match ? match[1] : line, hint: window?.appId ?? "", icon: Spot.iconFor(window?.appId ?? ""), window, thumb: window ? windows.shot(window) : "" };
     }
 
     function sections(tokens) {
-        const sources = offered.map(parse).filter(source => Spot.matches(source.title + " " + source.hint, tokens));
+        const sources = root.sources.filter(source => Spot.matches(source.title + " " + source.hint, tokens));
         return [["Monitors", sources.filter(source => source.kind === "shareMonitor")], ["Windows", sources.filter(source => source.kind === "shareWindow")]];
     }
 
