@@ -1,6 +1,7 @@
 pragma Singleton
 import Quickshell
 import Quickshell.Io
+import Quickshell.Wayland
 import QtQuick
 import "js/search.js" as Search
 
@@ -19,14 +20,15 @@ Singleton {
     property real scale: 1
     readonly property var terminals: ["kitty", "foot", "Alacritty", "org.wezfurlong.wezterm", "com.mitchellh.ghostty", "ghostty.dialog"]
 
-    // run after Spotlight closes (whenHidden): send the paste shortcut to the
-    // focused window (terminals take Ctrl+Shift+V)
-    readonly property string pasteKeys: `
-app=$(scrollmsg -t get_tree | jq -r '[.. | select(.focused? == true)][0] | .app_id // .window_properties.class // ""')
-case "$app" in
-kitty | foot | Alacritty | org.wezfurlong.wezterm | com.mitchellh.ghostty | ghostty.dialog) wtype -M ctrl -M shift v -m shift -m ctrl ;;
-*) wtype -M ctrl v -m ctrl ;;
-esac`
+    // bound from the start: ToplevelManager learns the windows only once first
+    // read, and a first read when pasting found none
+    readonly property Toplevel activeWindow: ToplevelManager.activeToplevel
+
+    // the paste shortcut for the focused window (terminals take Ctrl+Shift+V),
+    // read once Spotlight is hidden (whenHidden) and the window is active again
+    function pasteKeys() {
+        return terminals.includes(activeWindow?.appId) ? "wtype -M ctrl -M shift v -m shift -m ctrl" : "wtype -M ctrl v -m ctrl";
+    }
 
     // `tokens` come from Search.tokens; `loose` false keeps to exact matches
     function matches(text, tokens, loose = true) {
@@ -90,7 +92,7 @@ esac`
     // with the window under it, for what types, pastes or captures the screen:
     // two frames after the frame that hid it (Spotlight's window calls hidden()),
     // where a fixed pause waited 300 ms; after those 300 ms anyway if no such
-    // frame comes
+    // frame comes. `command` may be a function that makes it then
     function whenHidden(command) {
         afterHiding.push(command);
         hidingFallback.restart();
@@ -107,7 +109,7 @@ esac`
         hidingSettled.stop();
         hidingFallback.stop();
         for (let index = 0; index < commands.length; index++)
-            Quickshell.execDetached(commands[index]);
+            Quickshell.execDetached(typeof commands[index] === "function" ? commands[index]() : commands[index]);
     }
 
     property var afterHiding: []

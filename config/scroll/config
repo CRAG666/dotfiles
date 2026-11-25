@@ -70,10 +70,13 @@ exec gsettings set org.gnome.desktop.interface font-hinting 'full'
 exec gsettings set org.gnome.desktop.wm.preferences button-layout :
 
 seat seat0 xcursor_theme Adwaita $CURSORSIZE
+seat seat0 hide_cursor when-typing enable
 
 font pango:SFProText Nerd Font Propo 14
 
 ### Outputs
+
+output * subpixel rgb
 
 # Home - KTC H32S17, shared by both laptops; position lives in hosts/
 output "Shenzhen KTC Technology Group H32S17 0x00000001" {
@@ -81,6 +84,7 @@ output "Shenzhen KTC Technology Group H32S17 0x00000001" {
     resolution 2560x1440@165Hz
     layout_default_height 0.5
     allow_tearing yes
+    adaptive_sync on
 }
 
 # Work - Samsung (center)
@@ -95,7 +99,6 @@ output "ViewSonic Corporation VA1912wSERIES PW6061112038" {
     scale 1
     resolution 1440x900@59.89Hz
     position 3840 0
-    layout_default_mode fitfraction
 }
 
 workspace 2 output "Samsung Electric Company S27E360 0x304E4135" "Shenzhen KTC Technology Group H32S17 0x00000001"
@@ -137,7 +140,7 @@ input type:touchpad {
 include colors.conf
 default_border pixel 5
 gaps inner 4
-gaps outer 4
+gaps outer 0
 smart_gaps on
 smart_borders on
 
@@ -145,6 +148,7 @@ default_decoration border_radius 15
 default_floating_border pixel 5
 
 for_window [all] inhibit_idle fullscreen
+for_window [all] border pixel
 
 maximize_if_single true
 cycle_size_wrap yes
@@ -154,6 +158,7 @@ fullscreen_on_request layout
 workspace_auto_back_and_forth yes
 
 focus_follows_mouse full
+mouse_warping container
 
 snap_window_gap 10
 snap_workspace_gap 10
@@ -162,6 +167,7 @@ snap_respect_gaps_outer true
 snap_border_overlap true
 
 animations {
+    style clip
     window_open yes 300 var 3 [ 0 0 1 1 ]
     window_move yes 300 var 3 [ 0.215 0.61 0.355 1 ] off 0.05 6 [0 0.6 0.4 0 1 0 0.4 -0.6 1 -0.6]
     window_size yes 300 var 3 [ -0.35 0 0 0.5 ]
@@ -196,23 +202,25 @@ animations {
     bindsym $mod+o lua $lua_scripts/focus_diag.lua ur
     bindsym $mod+m lua $lua_scripts/focus_diag.lua dl
     bindsym $mod+period lua $lua_scripts/focus_diag.lua dr
-    # Move (Ctrl variant respects current mode, Alt variant uses nomode)
+    # Move (Shift respects the current mode; Ctrl+arrows move the window alone, nomode)
     bindsym $mod+Shift+$left move left
     bindsym $mod+Shift+$down move down
     bindsym $mod+Shift+$up move up
     bindsym $mod+Shift+$right move right
     bindsym $mod+Shift+home move beginning
     bindsym $mod+Shift+end move end
-    bindsym $mod+Ctrl+$left move left nomode
-    bindsym $mod+Ctrl+$down move down nomode
-    bindsym $mod+Ctrl+$up move up nomode
-    bindsym $mod+Ctrl+$right move right nomode
+    bindsym $mod+Ctrl+Left move left nomode
+    bindsym $mod+Ctrl+Down move down nomode
+    bindsym $mod+Ctrl+Up move up nomode
+    bindsym $mod+Ctrl+Right move right nomode
     bindsym $mod+Ctrl+home move beginning nomode
     bindsym $mod+Ctrl+end move end nomode
 
     # Cross-output focus / move
-    # bindsym $mod+Shift+Left focus output left
-    # bindsym $mod+Shift+Right focus output right
+    bindsym $mod+Ctrl+$left focus output left
+    bindsym $mod+Ctrl+$right focus output right
+    bindsym $mod+Ctrl+$down move container to output left, focus output left
+    bindsym $mod+Ctrl+$up move container to output right, focus output right
     bindsym $mod+Shift+Left move workspace to output left
     bindsym $mod+Shift+Right move workspace to output right
 
@@ -408,7 +416,7 @@ animations {
     bindsym --no-repeat $mod+Shift+p pin end
 
     # Marks
-    bindsym $mod+i exec $spotlight toggle-mark
+    bindsym $mod+i lua $lua_scripts/toggle_mark.lua $spotlight
     bindsym $mod+apostrophe exec $spotlight marks
 
     # bindsym $mod+Mod1+h exec scrollmsg output DP-1 hdr toggle && rm -f "${XDG_RUNTIME_DIR:-/tmp}/ddc-brightness.bus"

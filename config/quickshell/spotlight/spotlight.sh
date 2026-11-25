@@ -4,8 +4,8 @@
 # app launcher ("launcher", which shares Spotlight's process). Spotlight stays
 # resident and hidden between uses: a toggle is one line written to its fifo
 # (qs ipc when nothing reads the fifo), and the first one starts it ("start"
-# only starts it, e.g. at login). "toggle-mark" unmarks the
-# focused window when it has a mark and otherwise asks for one.
+# only starts it, e.g. at login). "mark-add" asks for a mark for the focused
+# window (scroll's lua/toggle_mark.lua, on $mod+i).
 # Compositor keybindings run with a bare PATH, so pi, jq and eyes-theme are put
 # back on it for the resident instance, and nvim for the terminals it opens.
 # mise's shims go after the system's: python3 through its shim starts in 53 ms,
@@ -16,11 +16,6 @@ config="$HOME/.config/quickshell/spotlight.qml"
 fifo="${XDG_RUNTIME_DIR:-/tmp}/spotlight.fifo"
 mode="${1:-}"
 
-if [ "$mode" = toggle-mark ]; then
-    mark=$(scrollmsg -t get_tree | jq -r '[.. | objects | select(.focused? == true)][0].marks[0] // empty')
-    [ -n "$mark" ] && exec scrollmsg unmark "$mark" > /dev/null
-    mode="mark-add"
-fi
 if [ "$mode" != start ]; then
     # only shell builtins: Spotlight's pid must still be a quickshell process,
     # which keeps the fifo open, so the write cannot block

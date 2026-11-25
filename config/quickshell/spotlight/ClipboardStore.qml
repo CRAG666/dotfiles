@@ -66,24 +66,24 @@ Scope {
         });
     }
 
-    // `followUp` runs after the content is on the clipboard
-    function toClipboard(item, plain, followUp) {
+    // `paste` sends the paste shortcut once the content is on the clipboard
+    function toClipboard(item, plain, paste) {
         const target = plain && item.type !== "image" ? " --type text/plain" : "";
         const source = item.kind === "pin" ? `wl-copy${target} < "$1"` : `cliphist decode "$1" | wl-copy${target}`;
-        const command = ["sh", "-c", source + "\n" + followUp, "sh", item.kind === "pin" ? item.pin.path : item.entry.id];
-        if (followUp)
-            Spot.whenHidden(command);
+        const argument = item.kind === "pin" ? item.pin.path : item.entry.id;
+        if (paste)
+            Spot.whenHidden(() => ["sh", "-c", source + "\n" + Spot.pasteKeys(), "sh", argument]);
         else
-            Quickshell.execDetached(command);
+            Quickshell.execDetached(["sh", "-c", source, "sh", argument]);
     }
 
     function activate(item, keys) {
-        toClipboard(item, keys.shift, Spot.pasteKeys);
+        toClipboard(item, keys.shift, true);
         return true;
     }
 
     function copy(item) {
-        toClipboard(item, false, "");
+        toClipboard(item, false, false);
     }
 
     function pin(args) {

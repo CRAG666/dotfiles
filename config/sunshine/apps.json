@@ -8,6 +8,10 @@
         {
           "do": "sudo -n /usr/bin/nvidia-smi --lock-gpu-clocks=1575,2100",
           "undo": "sudo -n /usr/bin/nvidia-smi --reset-gpu-clocks"
+        },
+        {
+          "do": "sh -c \"set -- $XDG_RUNTIME_DIR/scroll-ipc.*.sock; scrollmsg -s $1 'output -- mode '${SUNSHINE_CLIENT_WIDTH}x${SUNSHINE_CLIENT_HEIGHT}\"",
+          "undo": "sh -c \"set -- $XDG_RUNTIME_DIR/scroll-ipc.*.sock; scrollmsg -s $1 'output -- mode 2560x1440@165Hz'\""
         }
       ]
     }
