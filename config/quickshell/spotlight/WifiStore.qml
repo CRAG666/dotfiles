@@ -4,8 +4,9 @@ import qs
 
 // Wi-Fi networks in range, through iwd (the helper's wifi): the connected one
 // first, then the strongest. Opening the view scans; Enter connects (asking
-// the password of a new secured network) or disconnects, Ctrl+X forgets a
-// saved network.
+// the password of a new secured network, or again of a saved one that fails)
+// or disconnects, Ctrl+X forgets a saved network. A hidden network connects by
+// its name.
 Scope {
     id: root
     property var host
@@ -27,28 +28,66 @@ Scope {
     }
 
     function commandItems(tokens) {
-        return Spot.matches("scan wifi networks refresh", tokens) ? [{ key: "wifi-scan", kind: "wifiScan", store: root, title: "Scan for Networks", icon: "view-refresh" }] : [];
+        return [
+            ...(Spot.matches("scan wifi networks refresh", tokens) ? [{ key: "wifi-scan", kind: "wifiScan", store: root, title: "Scan for Networks", icon: "view-refresh" }] : []),
+            ...(Spot.matches("connect hidden wifi network ssid", tokens) ? [{ key: "wifi-hidden", kind: "wifiHidden", store: root, title: "Connect to a Hidden Network", icon: "network-wireless" }] : [])
+        ];
     }
 
     function describe(item) {
         if (item.kind === "wifiScan")
             return { icon: item.icon, title: item.title, actions: [["Enter", "Scan"]] };
+        if (item.kind === "wifiHidden")
+            return { icon: item.icon, title: item.title, actions: [["Enter", "Connect"]] };
         const network = item.network;
-        return { icon: item.icon, title: item.title, metadata: [["Security", network.security], ["Signal", network.signal + "%"], ["Saved", network.known ? "Yes" : "No"]], actions: [["Enter", network.connected ? "Disconnect" : "Connect"], ...(network.known ? [["Ctrl+X", "Forget"]] : [])] };
+        return { icon: item.icon, title: item.title, metadata: [["Security", network.security], ["Signal", network.signal + "%"], ["Saved", network.known ? "Yes" : "No"], ...network.details], actions: [["Enter", network.connected ? "Disconnect" : "Connect"], ...(network.known ? [["Ctrl+X", "Forget"]] : [])] };
     }
 
-    // the helper's command, then a notification of how it went
-    // the list loads again once iwctl is done, not before
-    function run(args, done) {
+    // the helper's command, then a notification of how it went, or `retry`
+    // with the error; the list loads again once iwctl is done, not before
+    function run(args, done, retry) {
         Spot.call(args, (output, error) => {
-            Quickshell.execDetached(error ? ["notify-send", "-u", "critical", "-i", "network-wireless", "Wi-Fi", error] : ["notify-send", "-t", "3000", "-i", "network-wireless", "Wi-Fi", done]);
             networks.reload();
+            if (error && retry)
+                retry(error);
+            else
+                Quickshell.execDetached(error ? ["notify-send", "-u", "critical", "-i", "network-wireless", "Wi-Fi", error] : ["notify-send", "-t", "3000", "-i", "network-wireless", "Wi-Fi", done]);
         });
+    }
+
+    function askPassword(name) {
+        host.openForm({
+            title: "Connect to " + name.trim(),
+            fields: [{ key: "password", label: "Password", value: "", secret: true }],
+            submit: values => {
+                run(["wifi-connect", name, values.password], "Connected to " + name.trim());
+                return true;
+            }
+        });
+    }
+
+    // a saved WPA network that fails (its password changed) opens Spotlight
+    // again on its password, which iwd keeps once it works
+    function retryPassword(name, error) {
+        host.open("wifi");
+        host.notify(error);
+        askPassword(name);
     }
 
     function activate(item, keys) {
         if (item.kind === "wifiScan") {
             load();
+            return false;
+        }
+        if (item.kind === "wifiHidden") {
+            host.openForm({
+                title: item.title,
+                fields: [{ key: "name", label: "Network name", value: "" }, { key: "password", label: "Password", value: "", secret: true, optional: true }],
+                submit: values => {
+                    run(["wifi-connect-hidden", values.name, values.password], "Connected to " + values.name.trim());
+                    return true;
+                }
+            });
             return false;
         }
         const network = item.network;
@@ -58,17 +97,10 @@ Scope {
             return true;
         }
         if (network.known || network.security === "Open") {
-            run(["wifi-connect", name], "Connected to " + name.trim());
+            run(["wifi-connect", name], "Connected to " + name.trim(), network.known && network.security === "WPA" ? error => retryPassword(name, error) : null);
             return true;
         }
-        host.openForm({
-            title: "Connect to " + name.trim(),
-            fields: [{ key: "password", label: "Password", value: "", secret: true }],
-            submit: values => {
-                run(["wifi-connect", name, values.password], "Connected to " + name.trim());
-                return true;
-            }
-        });
+        askPassword(name);
         return false;
     }
 

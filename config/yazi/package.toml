@@ -24,11 +24,6 @@ rev = "1ef5fe0"
 hash = "5b2fbef7d1513ce38ff72623a071a5e"
 
 [[plugin.deps]]
-use = "yazi-rs/plugins:mount"
-rev = "1ef5fe0"
-hash = "f0dcc0ea71d5c59ce0d527f4b8a3937b"
-
-[[plugin.deps]]
 use = "AminurAlam/yazi-plugins:preview-audio"
 rev = "aebeaa7"
 hash = "6f01d98391ba55868fd5cdc753aa94d5"
@@ -44,9 +39,14 @@ rev = "aebeaa7"
 hash = "b51195fb14479a22751230b638830097"
 
 [[plugin.deps]]
-use = "DreamMaoMao/searchjump"
-rev = "8a1a785"
-hash = "36bf4d772125a51af4ef440c06820e32"
+use = "yazi-rs/plugins:smart-enter"
+rev = "1ef5fe0"
+hash = "187cc58ba7ac3befd49c342129e6f1b6"
+
+[[plugin.deps]]
+use = "zyoNoob/searchjump"
+rev = "16e1d5b"
+hash = "2bf66ad15cb2cb520bee2ff301096d86"
 
 [flavor]
 deps = []

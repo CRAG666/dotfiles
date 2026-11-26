@@ -4,11 +4,6 @@ run = "plugin searchjump"
 desc = "searchjump mode"
 
 [[mgr.prepend_keymap]]
-on   = [ "i" ]
-run = "plugin searchjump -- autocd"
-desc = "searchjump mode"
-
-[[mgr.prepend_keymap]]
 on  = "y"
 run = [ '''
 	shell 'for path in "$@"; do echo "file://$path"; done | wl-copy -t text/uri-list'
@@ -31,10 +26,6 @@ run  = "plugin toggle-pane max-preview"
 desc = "Maximize or restore the preview pane"
 
 [[mgr.prepend_keymap]]
-on  = "M"
-run = "plugin mount"
-
-[[mgr.prepend_keymap]]
 on = [ "g", "m" ]
 run = "cd /run/media/$USER"
 desc = "Go USB"
@@ -43,3 +34,8 @@ desc = "Go USB"
 on = [ "g", "w" ]
 run = "cd ~/Documents/Projects"
 desc = "Go Projects"
+
+[[mgr.prepend_keymap]]
+on   = "l"
+run  = "plugin smart-enter"
+desc = "Enter the child directory, or open the file"

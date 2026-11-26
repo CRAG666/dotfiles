@@ -4,13 +4,7 @@
 #:schema https://yazi-rs.github.io/schemas/yazi.json
 
 [mgr]
-ratio          = [ 1, 4, 3 ]
-sort_by        = "natural"
-sort_dir_first = true
-
-[preview]
-wrap            = "no"
-tab_size        = 2
+sort_by = "natural"
 
 [[plugin.prepend_previewers]]
 mime = "audio/mpegurl"
@@ -27,19 +21,3 @@ run = "code"
 [[plugin.prepend_preloaders]]
 mime = "audio/*"
 run = "preview-audio"
-
-[[plugin.prepend_previewers]]
-mime = "application/epub+zip"
-run = "preview-epub"
-
-[[plugin.prepend_preloaders]]
-mime = "application/epub+zip"
-run = "preview-epub"
-
-[[plugin.prepend_previewers]]
-url = '*.typ'
-run = 'preview-typst'
-
-[[plugin.prepend_preloaders]]
-url = '*.typ'
-run = 'preview-typst'

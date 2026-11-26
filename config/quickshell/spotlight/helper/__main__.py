@@ -48,6 +48,7 @@ WRITERS = {
     "index-contents": ("contents", "index_contents"),
     "wifi-scan": ("wifi", "wifi_scan"),
     "wifi-connect": ("wifi", "wifi_connect"),
+    "wifi-connect-hidden": ("wifi", "wifi_connect_hidden"),
     "wifi-disconnect": ("wifi", "wifi_disconnect"),
     "wifi-forget": ("wifi", "wifi_forget"),
     "disk-unmount": ("disks", "disk_unmount"),

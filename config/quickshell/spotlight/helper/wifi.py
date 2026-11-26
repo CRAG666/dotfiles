@@ -38,13 +38,56 @@ def device() -> str:
     return found[1]
 
 
+def band(frequency: int) -> str:
+    if frequency < 3000:
+        return "2.4 GHz"
+    return "5 GHz" if frequency < 5925 else "6 GHz"
+
+
+# the link of the connected network: its address, band, rates and access point.
+# The diagnostics answer Busy or NotConnected while iwd connects or roams, and
+# DHCP may not have given an address yet: the details then show what there is
+def details(path: str, interface: str) -> list[list[str]]:
+    rows = []
+    address = json.loads(
+        subprocess.check_output(["ip", "-j", "-4", "addr", "show", "dev", interface])
+    )[0]["addr_info"]
+    if address:
+        rows.append(["IP", f"{address[0]['local']}/{address[0]['prefixlen']}"])
+    run = subprocess.run(
+        ["busctl", "--system", "--json=short", "call", IWD, path]
+        + [f"{IWD}.StationDiagnostic", "GetDiagnostics"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if run.returncode:
+        return rows
+    diagnostics = {
+        key: value["data"] for key, value in json.loads(run.stdout)["data"][0].items()
+    }
+    rows.append(
+        [
+            "Band",
+            f"{band(diagnostics['Frequency'])} · channel {diagnostics['Channel']}"
+            + (f" · {diagnostics['RxMode']}" if "RxMode" in diagnostics else ""),
+        ]
+    )
+    # rates in 100 kbit/s
+    if "RxBitrate" in diagnostics and "TxBitrate" in diagnostics:
+        down, up = diagnostics["RxBitrate"] / 10, diagnostics["TxBitrate"] / 10
+        rows.append(["Rate", f"{down:g} down · {up:g} up Mbit/s"])
+    rows.append(["Access point", diagnostics["ConnectedBss"]])
+    return rows
+
+
 # the networks in range, strongest first
 def wifi() -> list[dict]:
     objects = managed()
     found = station(objects)
     if found is None:
         return []
-    path, _ = found
+    path, interface = found
     networks = []
     for network, strength in call(path, f"{IWD}.Station", "GetOrderedNetworks")[0]:
         props = {
@@ -59,6 +102,7 @@ def wifi() -> list[dict]:
                 "known": "KnownNetwork" in props,
                 # dBm × 100: -50 dBm and above is full, -100 dBm is nothing
                 "signal": max(0, min(100, 2 * (strength // 100 + 100))),
+                "details": details(path, interface) if props["Connected"] else [],
             }
         )
     return networks
@@ -103,14 +147,24 @@ def iwctl(*args: str) -> None:
         sys.exit((run.stdout + run.stderr).strip() or f"iwctl exited {run.returncode}")
 
 
-def wifi_connect(name: str, passphrase: str = "") -> None:
+def connect(command: str, name: str, passphrase: str) -> None:
     iwctl(
         *(["--passphrase", passphrase] if passphrase else []),
         "station",
         device(),
-        "connect",
+        command,
         name,
     )
+
+
+# a saved WPA network whose handshake failed asks its passphrase again on the
+# next connect, and keeps the new one once it works
+def wifi_connect(name: str, passphrase: str = "") -> None:
+    connect("connect", name, passphrase)
+
+
+def wifi_connect_hidden(name: str, passphrase: str = "") -> None:
+    connect("connect-hidden", name, passphrase)
 
 
 def wifi_disconnect() -> None:

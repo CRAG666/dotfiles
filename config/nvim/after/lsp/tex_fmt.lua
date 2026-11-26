@@ -13,7 +13,7 @@ return {
     languages = {
       tex = {
         {
-          formatCommand = 'tex-fmt -n -t -p -s',
+          formatCommand = 'tex-fmt -s',
           formatStdin = true,
           formatCanRange = true,
         },

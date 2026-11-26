@@ -672,8 +672,8 @@ bindsym $mod+Shift+u exec $spotlight selection # Universal Actions: the selectio
 
 # WiFi / Bluetooth / File manager / Volume control
 bindsym XF86Launch5 exec $RUN_TUI_DIALOG --title=wiremix -e wiremix # F14 / + V
-bindsym XF86Launch8 exec $RUN_TUI_DIALOG --title=impala -e impala # F17 / + N
-bindsym XF86Launch9 exec $RUN_TUI_DIALOG --title=bluetui -e bluetui # F18 / + B
+bindsym XF86Launch8 exec $spotlight wifi # F17 / + N
+bindsym XF86Launch9 exec $spotlight bluetooth # F18 / + B
 bindsym XF86Explorer exec $RUN_TUI_DIALOG --title=yazi -e yazi # / + G
 
 # Credentials / Notes
