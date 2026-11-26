@@ -82,7 +82,6 @@ require('utils.load').on_events(
 
     -- Go to file under cursor, with line number
     map('n', 'gf', 'gF', { desc = 'Go to file under cursor' })
-    map('n', ']f', 'gF', { desc = 'Go to file under cursor' })
 
     -- Delete selection in select mode
     map('s', '<BS>', '<C-o>"_s', { desc = 'Delete selection' })
