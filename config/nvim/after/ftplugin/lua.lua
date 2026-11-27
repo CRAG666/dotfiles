@@ -8,4 +8,4 @@ require('utils.ftplugin')({
   wrap = false,
   spell = false,
 })
-vim.g.ts = { 'lua', 'luadoc', 'luap' }
+vim.g.ts = { 'lua', 'luadoc', 'luap', 'comment' }

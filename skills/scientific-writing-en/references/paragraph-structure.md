@@ -1,12 +1,133 @@
 # Paragraph and sentence structure
 
-Q1 reviewers reject more papers for unclear structure than for missing data. The phrases in the IMRaD files are useful only when assembled into paragraphs that actually advance an argument. This file covers the structural moves that make academic English read as native and competent.
+Sentence and paragraph structure: two notes, followed by the skill's own guidance on paragraph moves, given-new order, cohesion, and paragraph templates.
 
-## The controlling-idea + supporting-detail paragraph
+## Contents
 
-A well-written academic paragraph has one controlling idea, stated in a topic sentence at or near the opening, and a tail of sentences that develop it through evidence, explanation, qualification, example, or comparison. New ideas belong in a new paragraph.
+- Source A
+  - A Note on Sentence Structure
+    - 1. Simple sentences
+    - 2. Complex sentences
+    - 3. Compound sentences
+    - 4. Common problems relating to sentence structure
+  - A Note on Paragraph Structure
+- Skill rules
+  - Paragraph moves
+  - Topic-sentence patterns
+  - Given-new ordering
+  - Cohesion devices
+  - Sentence length and type
+  - Paragraph length
+  - Linking paragraphs
+  - Paragraph templates
+  - Final check
 
-Schema:
+## Source A
+
+### A Note on Sentence Structure
+
+#### 1. Simple sentences
+
+In written English, all sentences contain a Subject → Verb structure. The subject always precedes the verb, except in questions where the order is reversed.
+
+| **S** | **V** |  |
+|---|---|---|
+| *An electron* | *is* | *an elementary particle.* |
+
+The subject may be one word, but it is usually a group of words centered around a noun. The verb, which can indicate an action, a state, or simply serve to link the subject to other information, may also consist of more than one word. Various other sentence elements may be placed before or after the Subject → Verb structure:
+
+|  | **S** | **V** |  |
+|---|---|---|---|
+| *Between 1933 and 1945,* | *restrictions* | were placed | on German academics. |
+
+It is common for the subject to consist of many words:
+
+| **S** | **V** |  |
+|---|---|---|
+| *The information on various types of wasps and bees in the report* | *was* | *useful to environmentalists who were fighting the use of pesticides.* |
+
+Sometimes, however, the subject and verb can just be one word each**:**
+
+| **S** | **V** |  |
+|---|---|---|
+| *It* | *is* | *almost certain that a lower speed limit will result in fewer injuries to pedestrians.* |
+
+These simple sentences always end with a full stop. In academic writing, however, many sentences are more complicated than this simple pattern.
+
+#### 2. Complex sentences
+
+Many sentences contain more than one Subject → Verb structure, but in a complex sentence one of these parts (known grammatically as clauses) will convey the main meaning and will make sense by itself:
+
+|  |  |
+|---|---|
+| Dependent part | Main part |
+| **S V** | **S V** |
+| *Although recent research has shown X,* | *no controlled studies have been reported.* |
+
+The main part of the sentence is also known as the independent part.
+
+The main part of the sentence can also be placed before the dependent part.
+
+|  |
+|---|
+| Main part |
+| **S V** |
+| *Oral societies tend to be more concerned with the present* |
+| Dependent part |
+| **S V** |
+| *whereas literate societies have a very definite awareness of the past.* |
+
+The dependent part of complex sentence is usually preceded by a word or phrase such as: *although, even though, if, even if, when, because, as, since, whereas, while* (refer to ***subordinators*** on the next page).
+
+#### 3. Compound sentences
+
+Some sentences may have two Subject → Verb structures and each of these convey meaning that can make sense by itself; in other words, there are two main parts. The two parts may be joined by words like *and, or, but, so*, or by using a semi-colon (;) .
+
+| **S** | **V** |  |
+|---|---|---|
+| *Supporters of the ‘Great Divide’ theory* | *agree* | *that something is lost as well as gained when people become literate,* |
+
+|  | **S** | **V** |  |
+|---|---|---|---|
+| *but* | *they* | *consider* | *it is worth losing some benefits in order to obtain many others.* |
+
+#### 4. Common problems relating to sentence structure
+
+It is incorrect to write the dependent part of a complex sentence as a complete sentence with a full stop:
+
+- *Whereas literate societies have a very definite awareness of the past.* X
+- *Although a number of studies have been undertaken.* X
+
+It is incorrect to write two independent parts as one sentence without a joining word.
+
+- *Supporters of the ‘Great Divide’ theory agree that something is lost as well as gained when people become literate, they consider it is worth losing some benefits in order to obtain many others.* X
+
+### A Note on Paragraph Structure
+
+A pattern that can be identified in many well-written paragraphs is that of a controlling idea followed by supporting information. The controlling idea, sometimes referred to as the *topic sentence*, introduces a new idea, topic, argument or piece of information into the main text. This is then either explained further or supported by subsequent sentences. This structure can be represented schematically thus:
+
+|  |
+|---|
+| Topic Sentence<br>(new point, expressed in general terms) |
+| Supporting Information which may include a combination of:<br><br>• statistics<br>• examples<br>• quotations<br>• a development in time<br>• an explanation or reason<br>• specific aspects or details<br>• an effect or consequence<br>• reference to previous research |
+
+It is important that the explanatory or supporting information in a paragraph should relate to the topic sentence. If new points or ideas are to be stated, then these should be treated in a separate paragraph. It is also important that the explanatory or supporting information should not repeat the general ideas expressed in the topic sentence.
+
+An example of the kind of paragraph structure suggested above is given below. Note the development from the general idea to the more detailed information. Also note the thematic linking, which is signaled by the words in bold, between the sentences. Each of these words and phrases links back to an idea introduced in the previous sentence. Here, the sentences have been separated.
+
+> Many children become interested in competitive sport at early ages.
+
+> Early involvement (prior to maturity) in **competitive sport** often exposes individuals to types of stress that may affect their growth, producing a disruption of the normal growth pattern (Wang, 1978; Brown, 1998).
+
+> Among cyclists the most potentially serious of **these disorders** is likely to be increased thoracic curvature.
+
+> **Cycling** alters the anatomical position of the spine (to a flexed position) particularly the thoracic spine, and exposes the anterior portion of the vertebral column to higher compression (Smith, 1998; Jones, 2002).
+
+## Skill rules
+
+These rules extend the two notes above. They add the paragraph moves, cohesion devices, and templates that the notes do not spell out.
+
+### Paragraph moves
 
 - **Topic sentence** - the claim, stated in general terms, that the paragraph will defend.
 - **Supporting move 1** - evidence (citation, statistic, observation).
@@ -14,15 +135,9 @@ Schema:
 - **Supporting move 3** - qualification, example, or contrast.
 - **Closing move** - inference, implication, or transition to the next paragraph.
 
-Not every paragraph needs every move, and the order is flexible - but the topic sentence almost always comes first, and the paragraph almost always closes with an inferential or transitional sentence rather than a bare fact.
+Not every paragraph needs every move, and the order is flexible, but the topic sentence almost always comes first, and the paragraph usually closes with an inference or a transition rather than a bare fact.
 
-### Worked example
-
-> *Topic sentence.* Early involvement in competitive sport carries documented physiological risks for adolescents. *Evidence.* Sustained training before skeletal maturation has been shown to disrupt normal growth patterns in several longitudinal cohorts (Wang, 1978; Brown, 1998). *Elaboration.* The mechanism is thought to be repetitive mechanical loading during periods of rapid epiphyseal growth, which produces localized microtrauma. *Qualification.* Effects vary substantially by sport: among cyclists, the most frequently reported disorder is increased thoracic curvature (Smith, 1998; Jones, 2002). *Closing.* Whether these effects persist into adulthood, however, remains an open question - one the present study addresses directly.
-
-Notice that each sentence picks up a thread from the previous one ("physiological risks" -> "Sustained training" -> "The mechanism" -> "Effects vary" -> "Whether these effects persist"). This is **given-new ordering**: each sentence opens with given (already-introduced) information and closes with new information that the next sentence will pick up.
-
-## Topic-sentence patterns
+### Topic-sentence patterns
 
 Opening a paragraph with the claim:
 
@@ -45,53 +160,9 @@ Opening with a contrast or pivot from the previous paragraph:
 - Although Author has argued X, an alternative reading is possible.
 - Set against this background, the role of X appears more ambiguous.
 
-## Cohesion devices: making sentences flow
+### Given-new ordering
 
-Cohesion is what distinguishes a paragraph from a list of true sentences. Use these explicit links:
-
-### Lexical repetition with variation
-
-Repeat the key term, but vary surrounding words. Avoid pronoun chains (it / this / they) that force the reader to track antecedents over long distances.
-
-- Weak: "X was measured. It was then compared with Y. This showed that..."
-- Strong: "X was measured. The measured values were then compared with Y. The comparison revealed that..."
-
-### Demonstrative + summary noun
-
-Use *this*, *these*, *such* with an explicit noun rather than a bare pronoun. The summary noun packages the prior idea and tells the reader exactly what is being carried forward.
-
-- this finding / this pattern / this discrepancy / this trade-off
-- these results / these mechanisms / these limitations
-- such effects / such an approach / such conditions
-
-### Thematic linking words
-
-These link clauses across sentence boundaries:
-
-- **Addition:** in addition, moreover, furthermore, what is more, beyond this.
-- **Contrast:** however, by contrast, on the other hand, conversely, yet, nevertheless.
-- **Consequence:** thus, hence, consequently, as a result, accordingly, for this reason.
-- **Clarification:** in other words, that is, more precisely, put differently.
-- **Concession:** admittedly, granted, while it is true that, although.
-- **Example / instance:** for example, for instance, to illustrate, a case in point is.
-- **Sequence:** first, second, third (avoid "firstly, secondly, thirdly" in long sequences), subsequently, in turn, finally.
-- **Restatement / emphasis:** indeed, notably, in particular, crucially.
-
-Vary the position: a sentence-initial *however* is fine, but so is "*The mechanism, however, remains unclear*". Reposition the connective to break monotony.
-
-### Connectives that work within one sentence (subordinators)
-
-These join two clauses inside a single sentence. Many writers over-use sentence-starting *However,* when a subordinator would read more smoothly.
-
-- although / even though / while / whereas
-- because / since / as / given that
-- if / unless / provided that / on condition that
-- when / once / as soon as / before / after
-- so that / in order that
-
-## Given-new ordering
-
-Each sentence should begin with information already introduced (the *given*) and end with information that is new and important (the *new*). The *new* of one sentence often becomes the *given* of the next. This is the single most effective way to produce prose that "flows".
+Each sentence should begin with information already introduced (the *given*) and end with information that is new and important (the *new*). The *new* of one sentence often becomes the *given* of the next.
 
 Weak (new information at the start of each sentence):
 
@@ -101,36 +172,27 @@ Strong (given information at the start; new at the end):
 
 > Smith (2019) reported a 17% increase in mortality. This increase has been independently linked to cardiovascular disease, with X identified as a likely mediator. Jones (2021) develops this line of reasoning further, proposing that...
 
-## Sentence structure: simple, complex, compound
+### Cohesion devices
 
-Q1 prose mixes sentence types. Strings of short simple sentences read as juvenile; strings of long complex sentences exhaust the reader.
+- **Repeat the key term.** Use the same key word each time (Source C 13.4 in `academic-style.md`) and avoid chains of pronouns (*it*, *this*, *they*) that force the reader to track antecedents (Source C 13.7).
+  - Weak: "X was measured. It was then compared with Y. This showed that..."
+  - Strong: "X was measured. The measured values were then compared with Y. The comparison revealed that..."
+- **Demonstrative + summary noun.** Use *this*, *these*, or *such* with an explicit noun rather than a bare pronoun: this finding, this pattern, this discrepancy; these results, these limitations; such effects, such an approach.
+- **Linking words.** Choose them from `connectors-time.md` (the Source A list of words used to connect ideas and Source C chapter 6). For sequences, follow Source C 17.14 in `word-order.md`: *first* or *firstly*, then *secondly*, *thirdly*; *first* is usually followed by *then*.
+- **Position.** A linking word can open the sentence ("*However, the mechanism remains unclear.*") or follow the subject ("*The mechanism, however, remains unclear.*"). Vary the position.
 
-- **Simple:** one subject-verb structure. *"An electron is an elementary particle."* Use for emphasis or to land a key point.
-- **Complex:** one main clause + one or more dependent clauses, joined by *although*, *because*, *while*, *since*, *whereas*. Use for nuance and qualification: *"Although recent work has shown X, no controlled trial has yet been reported."*
-- **Compound:** two main clauses joined by *and*, *but*, *or*, *so*, or a semicolon. Use to set two facts in parallel: *"The first cohort was treated with X; the second received placebo."*
+### Sentence length and type
 
-Common errors to avoid:
+- Mix simple, complex, and compound sentences (the sentence-structure note above): a string of short simple sentences reads as juvenile, and a string of long complex ones exhausts the reader.
+- Keep to two ideas per sentence at most (Source C 13.1 in `academic-style.md`), and do not let a long subject delay the main verb (Source C 17.3 in `word-order.md`).
 
-- **Sentence fragments** - writing a dependent clause as a sentence: Avoid: "Although a number of studies have been undertaken."
-- **Comma splices** - joining two main clauses with only a comma: Avoid: "The result was significant, the effect size was small." Use a semicolon, a connective, or a period.
-- **Over-long subjects** - burying the verb behind a 20-word nominal phrase. Move heavy modifiers after the verb when possible.
+### Paragraph length
 
-## Nominalization: use, but do not overuse
+A useful target for a research article is 100-180 words per paragraph (4-8 sentences). A paragraph beyond 250 words usually contains two ideas and should be split. A single-sentence paragraph is almost always wrong in the body of an IMRaD article.
 
-Academic English nominalizes verbs into nouns ("opened" -> "the opening of..."). This produces dense, information-rich noun phrases that are characteristic of the register. But over-nominalization hides the agent and makes prose hard to parse.
+### Linking paragraphs
 
-- Acceptable: "*The introduction of X led to a measurable decline in Y.*"
-- Over-nominalized: "*The implementation of the introduction of X resulted in the production of a measurable decline in the magnitude of Y.*"
-
-Heuristic: if a sentence contains three or more nouns ending in *-tion*, *-ment*, *-ity*, or *-ance*, try rewriting one of them as a verb.
-
-## Paragraph length
-
-A useful target for a Q1 article is 100-180 words per paragraph (4-8 sentences). Paragraphs that run beyond 250 words usually contain two distinct ideas and should be split. Single-sentence paragraphs are almost always wrong in body prose (acceptable in some humanities styles, not in IMRaD articles).
-
-## Linking paragraphs
-
-The last sentence of a paragraph often previews the next; the first sentence of the next picks up the cue. Useful transition openings:
+The last sentence of a paragraph often previews the next, and the first sentence of the next picks up the cue. Useful openings:
 
 - A second concern arises from...
 - A related but distinct question is...
@@ -140,44 +202,41 @@ The last sentence of a paragraph often previews the next; the first sentence of 
 - Having established X, we now turn to Y.
 - Section X has shown that... The next section addresses...
 
-## Common paragraph templates
+### Paragraph templates
 
-### Lit-review paragraph (synthesizing multiple sources)
+Literature-review paragraph (synthesizing several sources):
 
 1. Claim about the state of the field.
 2. First strand of evidence (one or more sources).
 3. Second strand of evidence (possibly contrasting).
 4. Synthesis: what these together show, and what they leave unresolved.
 
-### Methods paragraph (one procedure or instrument)
+Methods paragraph (one procedure or instrument):
 
 1. What was done, in one sentence.
-2. With what materials / on what sample.
+2. With what materials, or on what sample.
 3. Following whose protocol, with what modification.
 4. How values were derived or analyzed.
 5. (If relevant) why this approach was chosen over alternatives.
 
-### Results paragraph (one finding or comparison)
+Results paragraph (one finding or comparison):
 
 1. The result, stated clearly with effect size or direction.
 2. Reference to the figure or table.
 3. The relevant statistical evidence (test, value, significance).
 4. (Optional) a brief observation that prepares the discussion without yet interpreting.
 
-### Discussion paragraph (one finding situated in the literature)
+Discussion paragraph (one finding situated in the literature):
 
 1. Restate the finding.
-2. Compare with prior work - agreement or contradiction, with citations.
+2. Compare with prior work (agreement or contradiction, with citations).
 3. Offer the most plausible explanation, hedged appropriately.
 4. Note alternative explanations or limitations.
 5. State the implication.
 
-## Final check
-
-Before submitting a paragraph, ask:
+### Final check
 
 - Can I underline the topic sentence?
-- Does every other sentence either support, qualify, or extend that topic sentence?
+- Does every other sentence support, qualify, or extend that topic sentence?
 - Do consecutive sentences share given information at their start?
-- Are there at least two different connective devices in the paragraph?
 - Does the paragraph close with an inference or a transition, not a raw fact?

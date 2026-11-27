@@ -33,6 +33,7 @@ exec swayidle -w
 exec $vol mic-led
 exec ~/.config/scroll/brightness.sh init
 exec ~/.config/scroll/brightness-hotplug.sh
+exec_always ~/.config/scroll/ktc-dock.sh
 exec rfkill block bluetooth
 
 ### Lua scripts
@@ -41,7 +42,6 @@ set $lua_scripts ~/.config/scroll/lua
 # Auto 2xN grid (tile pattern). Edit MAX_PER_COL inside the script to change
 # the vertical cap per column.
 lua $lua_scripts/grid_NxM.lua
-# lua $lua_scripts/grid.lua enable 3
 
 # Auto-marks by app_id (firefox->b, nvim->e, yazi->f, btop->s, ...).
 # Jump to them with $mod+apostrophe (Spotlight's marks view).
@@ -86,6 +86,8 @@ output "Shenzhen KTC Technology Group H32S17 0x00000001" {
     allow_tearing yes
     adaptive_sync on
 }
+# Laptop panel off while the KTC is connected: this covers (re)loads, ktc-dock.sh covers hotplug
+include $(grep -qsa H32S17 /sys/class/drm/card*-*/edid && echo ktc-docked.conf)
 
 # Work - Samsung (center)
 output "Samsung Electric Company S27E360 0x304E4135" {
@@ -354,7 +356,7 @@ animations {
 # Layout
     mode "fullscreen" {
         bindsym  f toggle_size active 1.0 1.0; mode default
-        bindsym  a toggle_size all 1.0 1.0; mode default
+        bindsym  a lua $lua_scripts/toggle_size_all.lua; mode default
         bindsym  t toggle_size this 1.0 1.0; mode default
         bindsym  n toggle_size normal 1.0 1.0; mode default
         bindsym  r fullscreen; mode default

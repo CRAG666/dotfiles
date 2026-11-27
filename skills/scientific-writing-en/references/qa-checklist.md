@@ -11,4 +11,5 @@ Verify every item before returning a draft:
 - [ ] Tense use is consistent within section (past for completed methods/findings; present perfect for the literature; present for established knowledge and what the paper does).
 - [ ] No tautology ("past history", "future prospects", "positive benefit"). See `academic-style.md`.
 - [ ] Borrowed-noun plurals and agreement are correct ("the data are", "these criteria", "this phenomenon"); US spelling throughout (no analyse/behaviour/centre). See `grammar-numbers-units.md` and `academic-style.md`.
+- [ ] Nothing was modeled on a form that a source marks as wrong: no Source C example inside `~~ ~~`, and none of the misprints listed in `notation-and-sources.md`.
 - [ ] No decorative Unicode: no em dash, en dash, curly quotes, ellipsis glyph, or non-breaking spaces. Use a spaced hyphen, straight quotes, three periods, and normal spaces instead. Output is plain ASCII.

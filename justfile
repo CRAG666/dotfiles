@@ -463,6 +463,7 @@ network: (install-pkgs "iwd impala bind")
     sudo install -Dm 644 "{{ src }}/etc/systemd/system/iwd.service.d/wait-wlan0.conf" /etc/systemd/system/iwd.service.d/wait-wlan0.conf
     echo "==> Configuring systemd-networkd for wired interfaces..."
     sudo install -Dm 644 "{{ src }}/etc/systemd/network/20-wired.network" /etc/systemd/network/20-wired.network
+    sudo install -m 644 "{{ src }}/etc/systemd/system/wifi-off-on-wired.service" /etc/systemd/system/
     echo "==> Masking systemd-networkd-wait-online (it blocks boot without a cable)..."
     sudo systemctl mask systemd-networkd-wait-online.service
     echo "==> Installing unbound-forward probe + service..."
@@ -472,6 +473,7 @@ network: (install-pkgs "iwd impala bind")
     sudo rm -f /etc/NetworkManager/conf.d/{dns,wifi_backend}.conf /etc/NetworkManager/dispatcher.d/90-unbound-forward
     sudo systemctl daemon-reload
     {{ systemd_enable }} unbound-forward.service
+    {{ systemd_enable }} wifi-off-on-wired.service
     echo "==> Switching from NetworkManager to iwd + systemd-networkd (skipped over SSH)..."
     if [ -z "${SSH_CONNECTION:-}" ]; then
         sudo systemctl disable --now NetworkManager 2>/dev/null || true

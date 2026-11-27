@@ -1,0 +1,15 @@
+[Unit]
+Description=Turn Wi-Fi off while a wired interface holds the default route
+
+[Service]
+# Also applied at start: systemd-rfkill restores a block left by a session that ended on cable.
+ExecStart=/bin/sh -c '\
+    set_wifi() { if ip -4 route show default | grep -q " dev en"; then rfkill block wlan; else rfkill unblock wlan; fi; }; \
+    set_wifi; \
+    ip -4 monitor route | while read -r route; do \
+        case $route in *"default "*" dev en"*) set_wifi ;; esac; \
+    done'
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

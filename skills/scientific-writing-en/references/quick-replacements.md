@@ -5,7 +5,7 @@ Canonical catalog of "AI-default" phrasing, padding, and filler, with acceptable
 ## AI-default phrasing
 
 - **"This paper explores..."** -> "This paper examines...", "This study investigates...", "The aim of this study is to...", "This article addresses...", "The present study focuses on...".
-- **"It is important to note that..."** -> "It is worth noting that...", "Notably,", "Importantly,", "A point worth noting is that...", "It should be emphasized that...", or cut and assert the point.
+- **"It is important to note that..."** -> "Note that...", "Notably,", "Importantly,", "It should be emphasized that...", or cut and assert the point. Not "It is worth noting that..." (Source C 13.3 in `academic-style.md`).
 - **"The results show that..."** repeatedly -> alternate with "The findings suggest...", "The data indicate...", "It emerges from the results that...", "The results highlight...", "These results provide evidence that...", "Analysis revealed that...".
 - **"In conclusion,"** -> "Taken together,", "On balance,", "In light of these findings,", "These findings suggest, on the whole, that...", "In sum,".
 - **"As we all know..."** -> eliminate; science does not appeal to the reader like this. Replace with "It is widely accepted that..." or "There is broad consensus that..." with citation.
@@ -14,7 +14,7 @@ Canonical catalog of "AI-default" phrasing, padding, and filler, with acceptable
 - **"In the realm of..."** -> "in", "within".
 - **"In today's rapidly evolving world,"** / **"In today's fast-paced..."** -> cut entirely or replace with a specific, dated, cited empirical claim.
 - **"A myriad of"** / **"A plethora of"** -> "A range of", "Several", "Numerous", "A variety of".
-- **"It is worth mentioning that..."** -> "Notably,", "It is worth noting that,", or cut.
+- **"It is worth mentioning that..."** / **"It is worth noting that..."** -> "Note that...", "Notably,", or cut.
 - **"Plays a crucial role"** repeated -> "plays a central role", "is integral to", "is fundamental to", "underpins", "is a key driver of", "mediates".
 - **"A testament to..."** -> "evidence of...", "an indication that...".
 - **"Stands as..."** -> just "is".
@@ -31,7 +31,7 @@ Canonical catalog of "AI-default" phrasing, padding, and filler, with acceptable
 
 Wordy constructions that add words without meaning:
 
-- **"In order to"** -> "to".
+- **"In order to"** -> "to" when the purpose is already clear. Keep it in a formal statement of purpose, when one infinitive immediately follows another, and in the negative "in order not to" (Source C 5.1 and 5.2 in `verbs-tenses.md`).
 - **"Due to the fact that"** -> "because".
 - **"In spite of the fact that"** -> "although".
 - **"With regard to" / "in respect of"** -> "regarding", "for", or recast.
@@ -40,7 +40,7 @@ Wordy constructions that add words without meaning:
 - **"There are X studies that have shown..."** -> "X studies have shown...".
 - **"The fact that"** -> recast ("Despite the fact that X" -> "Although X").
 - **"A large number of"** -> "many".
-- **"A small number of"** -> "few".
+- **"A small number of"** -> "a few". ("Few" without "a" has a negative sense: Source C 12.4 in `grammar-numbers-units.md`.)
 - **"A wide range of"** -> "a range of", or be specific.
 - **"In the event that"** -> "if".
 - **"At the present moment"** -> "now", "at present".
